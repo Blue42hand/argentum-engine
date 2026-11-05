@@ -79,14 +79,24 @@ class TokenBundleReplacements(
         val recipients = if (effect is CreateTokenBatchEffect && controllerTarget != null)
             listOfNotNull(context.resolvePlayerTarget(controllerTarget, state))
         else controllerTarget?.let { context.resolvePlayerTargets(it, state) }
-            ?.takeIf { it.isNotEmpty() } ?: listOf(context.controllerId)
+            ?: listOf(context.controllerId)
+        if (recipients.isEmpty()) return EffectResult.success(state)
         val (next, ctx) = scoped(state, context)
         val eligible = TokenCreationBatch.sources(context)
             ?: ActiveReplacements.all(state).map { it.sourceId }.toSet()
         val groups = if (effect is CreateTokenBatchEffect) effect.groups else listOf(effect)
-        val bundles = recipients.mapNotNull { owner ->
+        // Resolve every redirect before materializing any recipient, so replay cannot duplicate tokens.
+        val redirected = recipients.map { wouldBe ->
+            val owner = when (val redirect = TokenCreationReplacementHelper.redirectController(
+                state, wouldBe, context, effect, amounts.predicates)) {
+                is TokenControllerRedirect.Resolved -> redirect.controllerId
+                is TokenControllerRedirect.Ask -> return redirect.result
+            }
+            wouldBe to owner
+        }
+        val bundles = redirected.mapNotNull { (wouldBe, owner) ->
             val batches = groups.mapNotNull { prepare(state, it, ctx, owner) }.filter { it.count > 0 }
-            if (batches.isEmpty()) null else TokenCreationBundle(owner, ctx, batches,
+            if (batches.isEmpty()) null else TokenCreationBundle(owner, ctx, batches, wouldBeControllerId = wouldBe,
                 eligibleSources = eligible,
                 initialTokenIds = state.entities.filterValues { it.has<TokenComponent>() }.keys,
                 entrySourceState = state.copy(continuationStack = emptyList()))
@@ -96,11 +106,11 @@ class TokenBundleReplacements(
     }
 
     /** Choice-based factories call this only after their choice has been made. */
-    fun fromDefinition(state: GameState, name: String, context: EffectContext): EffectResult {
+    fun fromDefinition(state: GameState, name: String, context: EffectContext, controllerId: EntityId = context.controllerId): EffectResult {
         val def = cards.requireCard(name)
-        val batch = TokenBundleBatch(null, name, definitionCard(def, context.controllerId), 1)
+        val batch = TokenBundleBatch(null, name, definitionCard(def, controllerId), 1)
         val (next, ctx) = scoped(state, context)
-        return resolve(next, TokenCreationBundle(context.controllerId, ctx, listOf(batch),
+        return resolve(next, TokenCreationBundle(controllerId, ctx, listOf(batch), wouldBeControllerId = context.controllerId,
             eligibleSources = TokenCreationBatch.sources(context)
                 ?: ActiveReplacements.all(state).map { it.sourceId }.toSet(),
             initialTokenIds = state.entities.filterValues { it.has<TokenComponent>() }.keys,
@@ -385,6 +395,8 @@ class TokenBundleReplacements(
         var current = state
         val events = mutableListOf<GameEvent>()
         val context = bundle.context.copy(tokenCreationReplacementsHandled = true,
+            pipeline = bundle.context.pipeline.copy(storedCollections = bundle.context.pipeline.storedCollections +
+                (TokenCreationBatch.WOULD_BE_CONTROLLER to listOf(bundle.wouldBeControllerId))),
             resolutionDepth = bundle.context.resolutionDepth + 1)
         for (index in start until bundle.batches.size) {
             val batch = bundle.batches[index]
@@ -437,7 +449,7 @@ class TokenBundleReplacements(
                 val result = if (effect != null) execute(prepared, effect, context)
                     else TokenFromDefinition.mint(prepared, cards.requireCard(requireNotNull(batch.definitionName)),
                         bundle.controllerId, cards, StaticAbilityHandler(cards), predicateEvaluator = amounts.predicates,
-                        entrySourceState = bundle.entrySourceState)
+                        entrySourceState = bundle.entrySourceState, tokenCreatorId = bundle.wouldBeControllerId)
                 events += result.events
                 if (result.outcome is Outcome.Paused || result.error != null) return result.copy(events = events)
                 check(result.state.peekContinuation() is TokenBundleMaterializationContinuation)
@@ -458,7 +470,7 @@ class TokenBundleReplacements(
         val original = frame.ridersSource ?: return EffectResult.success(state)
         val ids = state.entities.filter { (id, entity) -> id !in frame.priorTokenIds && entity.has<TokenComponent>() }.keys
         val context = frame.bundle.context
-        val controller = frame.bundle.controllerId
+        val controller = frame.bundle.wouldBeControllerId
         val source = context.sourceId ?: context.controllerId
         val name = state.getEntity(source)?.get<CardComponent>()?.name ?: "Unknown"
         val exile = when (original) {

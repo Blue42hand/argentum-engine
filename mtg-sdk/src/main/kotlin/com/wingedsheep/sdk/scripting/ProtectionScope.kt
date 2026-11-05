@@ -77,6 +77,25 @@ sealed interface ProtectionScope {
     data class ChosenCardType(val slot: ChoiceSlot = ChoiceSlot.CARD_TYPE) : ProtectionScope
 
     /**
+     * Protection from the card name the **granting permanent chose as it entered** — "As Runed
+     * Halo enters, choose a card name. You have protection from the chosen card name." The name
+     * twin of [ChosenCardType]: late-bound, the engine reads the source's durable choice under
+     * [slot] wherever the protection is applied and matches a source whose (projected) name equals
+     * it — a token only when it carries that name, a face-down permanent never (it has no name).
+     * With no name chosen it protects from nothing.
+     *
+     * Engine-wired for player protection only — [GrantProtectionToController]; there is no
+     * creature-protection keyword for a name, so the printed keywords, the one-shot grants and the
+     * group grants reject it.
+     *
+     * @property slot The source's cast-choices slot holding the chosen name;
+     *   `EntersWithChoice(ChoiceType.CARD_NAME)` writes [ChoiceSlot.CARD_NAME].
+     */
+    @SerialName("ProtectionScope.ChosenCardName")
+    @Serializable
+    data class ChosenCardName(val slot: ChoiceSlot = ChoiceSlot.CARD_NAME) : ProtectionScope
+
+    /**
      * Protection from a subtype — "from Goblins". [cardType] narrows the quality to objects that
      * are also of that card type — "from God creatures" (Sigrid, God-Favored): a God that isn't
      * currently a creature (a Theros God below its devotion) doesn't match. Null matches the
@@ -148,4 +167,47 @@ sealed interface ProtectionScope {
     @SerialName("ProtectionScope.TriggeredAbilities")
     @Serializable
     data object TriggeredAbilities : ProtectionScope
+
+    /**
+     * From each mana value of a [parity] — "protection from each mana value of the chosen
+     * quality" (Lavabrink Venturer, with one conditional grant per choice). Mana value is a
+     * characteristic (CR 202.3), so this covers every leg of protection (CR 702.16b–f): spells
+     * whose mana value has the quality (a spell's {X} counts as the number chosen for it, CR
+     * 202.3e), abilities from sources whose mana value does, and damage, enchanting/equipping and
+     * blocking by such objects. Zero is even, so tokens that aren't copies and face-down
+     * permanents (mana value 0, CR 708.2a and 202.3a) are even. A source with no mana value at all — an
+     * emblem — never matches.
+     *
+     * Its own type rather than an axis on [CardType] or [Subtype], which name type-line words,
+     * or on [Monocolored]/[Multicolored], which are colour counts.
+     */
+    @SerialName("ProtectionScope.ManaValueParity")
+    @Serializable
+    data class ManaValueParity(val parity: Parity) : ProtectionScope
+
+    /**
+     * From each mana value other than [value] — "protection from each mana value other than the
+     * chosen number" (Haktos the Unscarred, with one conditional grant per number it can choose).
+     * Covers every leg of protection exactly as [ManaValueParity] does (CR 702.16b–f): a spell's
+     * {X} counts as the number chosen for it (CR 202.3e), and tokens that aren't copies and
+     * face-down permanents have mana value 0, so they match unless [value] is 0. A source with no
+     * mana value at all — an emblem — never matches.
+     *
+     * Its own type rather than an axis on [ManaValueParity]: a parity names half of all mana
+     * values, this names all but one, and neither is a type-line word ([CardType], [Subtype]).
+     * Granted statics only — `GrantProtectionFromToGroup` and `GrantProtectionToController`; a
+     * printed [KeywordAbility.Protection] and every hexproof spelling reject it.
+     */
+    @SerialName("ProtectionScope.ManaValueOtherThan")
+    @Serializable
+    data class ManaValueOtherThan(val value: Int) : ProtectionScope
+}
+
+/** Odd or even — "choose odd or even. (Zero is even.)" */
+@Serializable
+enum class Parity(val displayName: String) {
+    ODD("odd"),
+    EVEN("even");
+
+    fun matches(value: Int): Boolean = (value % 2 == 0) == (this == EVEN)
 }

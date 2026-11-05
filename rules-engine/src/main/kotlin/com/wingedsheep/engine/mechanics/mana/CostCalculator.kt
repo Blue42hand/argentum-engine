@@ -388,6 +388,16 @@ class CostCalculator(
                 }
             }
         }
+        // Granted ones (a GrantStaticAbility — Jubilant Skybonder's flyers) exist only in
+        // projection, paired with their holder so "this creature" reads relative to it. A printed
+        // instance projects only when it carries an optional life payment, which is read through
+        // [optionalPayments] instead, so skipping those here never double-counts a printed one.
+        val projected = state.projectedState
+        for (entityId in state.getBattlefield()) {
+            for (ability in projected.getStaticAbilities(entityId)) {
+                if (ability is ModifySpellCost && ability.optionalLifePayment == null) results += entityId to ability
+            }
+        }
         // Emblems are synthetic, non-battlefield sources. Their owned statics remain active
         // after the permanent that created them leaves, and each emblem contributes separately.
         for ((entityId, container) in state.entities) {
@@ -534,25 +544,7 @@ class CostCalculator(
         if (chosenTargets.isEmpty()) return false
         val sourceController = modifierController(state, sourceId) ?: return false
         if (sourceController == casterId) return false
-        val context = PredicateContext(controllerId = sourceController, sourceId = sourceId)
-        val projected = state.projectedState
-        return chosenTargets.any { targetId ->
-            when (val scope = targetFilter.scope) {
-                is Scope.Self -> targetId == sourceId
-                is Scope.Specific -> targetId == scope.entityId
-                is Scope.AttachedTo -> {
-                    val attached = state.getEntity(sourceId)
-                        ?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()
-                        ?.targetId
-                    attached != null && targetId == attached
-                }
-                is Scope.SoulbondPair ->
-                    com.wingedsheep.engine.mechanics.SoulbondPairing.isInPairOf(state, sourceId, targetId)
-                is Scope.ChosenCreature -> state.chosenCreatureOf(sourceId) == targetId
-                is Scope.Battlefield ->
-                    predicateEvaluator.matches(state, projected, targetId, targetFilter.baseFilter, context)
-            }
-        }
+        return anyTargetInGroup(state, predicateEvaluator, sourceId, sourceController, targetFilter, chosenTargets)
     }
 
     /**
@@ -899,8 +891,9 @@ class CostCalculator(
      * Find the greatest value of [property] among permanents the player controls matching a filter.
      * Returns 0 if none match. Power/toughness are read from projected state (CR 613) so counters
      * and continuous buffs count, falling back to the printed base when a permanent has no projected
-     * P/T; base power/toughness read the printed base directly; mana value is read from
-     * CardDefinition.manaCost.cmc (X-costs contribute X = 0 per Rule 202.3e on the battlefield).
+     * P/T; base power/toughness read the printed base directly; mana value is the permanent's own
+     * [CardComponent.manaValue] (X-costs contribute X = 0 per Rule 202.3e on the battlefield).
+     * Everything is read off the entity, never the card registry, so tokens count too.
      */
     private fun greatestPropertyAmongMatching(
         state: GameState,
@@ -914,8 +907,7 @@ class CostCalculator(
         for (entityId in state.controlledBattlefield(playerId)) {
             if (!predicateEvaluator.matches(state, projected, entityId, filter, context)) continue
             val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
-            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
-            val value = numericProperty(projected, entityId, card, cardDef, property)
+            val value = numericProperty(projected, entityId, card, property)
             if (value > maxValue) maxValue = value
         }
         return maxValue
@@ -945,8 +937,7 @@ class CostCalculator(
         for (entityId in state.controlledBattlefield(playerId)) {
             if (!predicateEvaluator.matches(state, projected, entityId, filter, context)) continue
             val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
-            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
-            total += numericProperty(projected, entityId, card, cardDef, property)
+            total += numericProperty(projected, entityId, card, property)
         }
         return total.coerceAtLeast(0)
     }
@@ -976,8 +967,7 @@ class CostCalculator(
             ?.targetId
             ?: return 0
         val card = state.getEntity(attachedTo)?.get<CardComponent>() ?: return 0
-        val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: return 0
-        return numericProperty(state.projectedState, attachedTo, card, cardDef, property)
+        return numericProperty(state.projectedState, attachedTo, card, property)
             .coerceAtLeast(0)
     }
 
@@ -1033,7 +1023,6 @@ class CostCalculator(
         projectedState: ProjectedState,
         entityId: EntityId,
         card: CardComponent,
-        cardDef: CardDefinition,
         property: EntityNumericProperty
     ): Int = when (property) {
         EntityNumericProperty.Power ->
@@ -1540,18 +1529,20 @@ class CostCalculator(
      */
     private fun countCreatures(state: GameState, playerId: EntityId): Int {
         val projected = state.projectedState
-        return state.getBattlefield(playerId).count { entityId -> projected.isCreature(entityId) }
+        return state.controlledBattlefield(playerId).count { entityId -> projected.isCreature(entityId) }
     }
 
     /**
      * Sum the power of all creatures controlled by a player.
-     * Uses projected state if available to account for continuous effects.
+     * Uses projected state if available to account for continuous effects. A creature with
+     * negative power subtracts from the total; only the total is floored at 0 (Volcanic Salvo's
+     * ruling — the same arithmetic as Ghalta's).
      */
     private fun sumPower(state: GameState, playerId: EntityId): Int {
         val projectedState = state.projectedState
 
         var totalPower = 0
-        for (entityId in state.getBattlefield(playerId)) {
+        for (entityId in state.controlledBattlefield(playerId)) {
             val container = state.getEntity(entityId) ?: continue
             val card = container.get<CardComponent>() ?: continue
 
@@ -1564,11 +1555,9 @@ class CostCalculator(
                 null -> 0
             }
             val projectedPower: Int? = projectedState.getPower(entityId)
-            val power: Int = (projectedPower ?: basePower).coerceAtLeast(0)
-
-            totalPower += power
+            totalPower += projectedPower ?: basePower
         }
-        return totalPower
+        return totalPower.coerceAtLeast(0)
     }
 
     /**
@@ -1976,6 +1965,8 @@ class CostCalculator(
             CardPredicate.ManaValueIsEven -> manaValue % 2 == 0
             CardPredicate.ManaValueIsOdd -> manaValue % 2 != 0
             CardPredicate.HasXInManaCost -> cardDef.manaCost.hasX
+            CardPredicate.HasRepeatedManaSymbol -> cardDef.manaCost.hasRepeatedSymbol
+            is CardPredicate.ManaCostIs -> cardDef.manaCost == predicate.manaCost
             is CardPredicate.ColoredManaSymbolsAtLeast ->
                 cardDef.manaCost.coloredSymbolCount(predicate.colors.toSet()) >= predicate.min
 
@@ -2302,10 +2293,10 @@ class CostCalculator(
         spellCardDef: CardDefinition? = null,
         castFromZone: com.wingedsheep.sdk.core.Zone? = null
     ): Boolean {
-        // A state-held "the next matching spell you cast this turn can be cast without paying its
-        // mana cost" rider (World War Hulk I) is checked first: it isn't tied to a battlefield
-        // source and isn't restricted to a cast zone, so none of the per-source gates below apply.
-        if (hasFreeCastRider(state, casterId, spellCardDef)) return true
+        // A state-held free-cast permission (World War Hulk I's next-spell rider, Chandra, Flame's
+        // Catalyst's whole turn) is checked first: it isn't tied to a battlefield source, so none
+        // of the per-source gates below apply — only its own zone scope.
+        if (hasFreeCastRider(state, casterId, spellCardDef, castFromZone)) return true
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
             val card = container.get<CardComponent>() ?: continue
@@ -2347,7 +2338,9 @@ class CostCalculator(
     /**
      * The pending-rider half of [hasFreeCastPermission]: a
      * [com.wingedsheep.engine.state.PendingFreeCastSpell] installed by
-     * [com.wingedsheep.sdk.scripting.effects.GrantNextSpellFreeCastEffect] (World War Hulk I).
+     * [com.wingedsheep.sdk.scripting.effects.GrantFreeCastThisTurnEffect] (World War Hulk I,
+     * Chandra, Flame's Catalyst). A rider scoped to cast zones covers only a cast from one of them;
+     * the coarse probe (no [castFromZone]) reads as a hand cast, as the battlefield scan does.
      *
      * The rider's own `sourceId` goes in as the predicate source so source-relative predicates
      * ("shares a creature type with this permanent") resolve against the permanent that installed
@@ -2370,9 +2363,11 @@ class CostCalculator(
     private fun hasFreeCastRider(
         state: GameState,
         casterId: EntityId,
-        spellCardDef: CardDefinition?
+        spellCardDef: CardDefinition?,
+        castFromZone: com.wingedsheep.sdk.core.Zone?
     ): Boolean = state.pendingFreeCastSpells.any { rider ->
         rider.controllerId == casterId &&
+            rider.allowsCastFrom(castFromZone) &&
             (
                 spellCardDef == null ||
                     rider.spellFilter == GameObjectFilter.Any ||
@@ -2441,9 +2436,10 @@ class CostCalculator(
         // An emblem's permission is always unlimited, so it covers this cast on its own and no
         // battlefield once-per-turn use should be consumed.
         if (hasEmblemFreeCastPermission(state, casterId, spellCardDef, castFromZone)) return null
-        // Same for a pending "next spell you cast" rider — it pays for this cast and is itself
-        // consumed by the cast, so a Zaffai-style once-per-turn use must not be burned as well.
-        if (hasFreeCastRider(state, casterId, spellCardDef)) return null
+        // Same for a pending free-cast grant — it pays for this cast (a one-shot rider is itself
+        // consumed by the cast; a whole-turn grant never is), so a Zaffai-style once-per-turn use
+        // must not be burned as well.
+        if (hasFreeCastRider(state, casterId, spellCardDef, castFromZone)) return null
         var oncePerTurnCandidate: EntityId? = null
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue

@@ -243,6 +243,11 @@ internal class PermanentSpellResolver(
     ): ExecutionResult? {
         val entersAsCopy = cardDef.script.replacementEffects.filterIsInstance<EntersAsCopy>()
             .firstOrNull { it.copyOf == null }
+            ?.takeIf {
+                com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements.entersAsCopyConditionHolds(
+                    state, spellId, controllerId, it, predicateEvaluator
+                )
+            }
         if (entersAsCopy != null) {
             // Find candidates to copy. Battlefield copies (Clone) read permanents in play;
             // graveyard copies (Superior Spider-Man) read creature cards across every graveyard.
@@ -347,7 +352,11 @@ internal class PermanentSpellResolver(
         val syntheticRiotChoice = if (grantedRiotCount > 0) {
             com.wingedsheep.engine.mechanics.RiotSynthesis.RIOT_CHOICE
         } else null
-        val entersWithChoices = printedChoices + listOfNotNull(syntheticRiotChoice)
+        // Granted read ahead ("Sagas you control have read ahead") likewise synthesizes the Saga's
+        // NUMBER choice; it is answered like a printed one.
+        val readAheadChoice = com.wingedsheep.engine.mechanics.ReadAheadSynthesis
+            .grantedChoice(state, spellId, cardDef, cardRegistry, predicateEvaluator)
+        val entersWithChoices = printedChoices + listOfNotNull(syntheticRiotChoice, readAheadChoice)
         val firstChoice = entersWithChoices
             .sortedBy { it.choiceType.ordinal }
             .firstOrNull()

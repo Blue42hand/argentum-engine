@@ -5,6 +5,7 @@ import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.GameAction
 import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.core.PlayLand
+import com.wingedsheep.engine.core.PassPriority
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.support.GameTestDriver
@@ -61,7 +62,18 @@ class SacrificeManaPaymentAiTest : FunSpec({
             if (spell !in getHand(player)) return submitted
             // The opening hand is all Mountains; keep the land drop out so the only play is the cast.
             val legal = enumerator.enumerate(state, player).filterNot { it.action is PlayLand }
+            state.priorityPlayerId shouldBe player
             val chosen = ai.chooseFrom(state, legal).action
+            check(chosen !is PassPriority) {
+                val simulator = GameSimulator(cardRegistry)
+                val casts = legal.filter { it.action is CastSpell }.map { offer ->
+                    val simulation = simulator.simulate(state, offer.action)
+                    "${offer.action}: affordable=${offer.affordable}, simulation=" +
+                        if (simulation is SimulationResult.Illegal) simulation.reason else simulation::class.simpleName
+                }
+                "AI passed before the required cast; submitted=$submitted; casts=$casts; " +
+                    "manaSources=${legal.filter { it.isManaAbility }}"
+            }
             submitted += chosen
             submit(chosen).outcome shouldBe Outcome.Done
         }
@@ -86,6 +98,23 @@ class SacrificeManaPaymentAiTest : FunSpec({
         driver.bothPass()
         driver.findPermanent(player, "Sacrifice Test Ogre") shouldBe spell
         driver.state.getZone(ZoneKey(player, Zone.BATTLEFIELD)).contains(treasure) shouldBe false
+    }
+
+    test("funds the whole cast before committing the first of two Treasure sacrifices") {
+        val driver = driver()
+        val player = driver.activePlayer!!
+        driver.putLandOnBattlefield(player, "Mountain")
+        val treasures = List(2) { driver.putPermanentOnBattlefield(player, "Treasure") }.toSet()
+        val spell = driver.putCardInHand(player, "Sacrifice Test Ogre")
+
+        val submitted = driver.aiPlaysUntilCast(player, spell)
+
+        submitted.filterIsInstance<ActivateAbility>().map { it.sourceId }.toSet() shouldBe treasures
+        submitted.filterIsInstance<ActivateAbility>().size shouldBe 2
+        submitted.last().shouldBeInstanceOf<CastSpell>()
+        driver.bothPass()
+        driver.findPermanent(player, "Sacrifice Test Ogre") shouldBe spell
+        driver.state.getZone(ZoneKey(player, Zone.BATTLEFIELD)).none { it in treasures } shouldBe true
     }
 
     test("sacrifices an Eldrazi Spawn for the {C} no land can make") {

@@ -3174,7 +3174,8 @@
                                 }
                             },
                             "body": {
-                                "type": "GrantProtectionsSharedByGroup",
+                                "type": "GrantKeywordVariantsSharedByGroup",
+                                "keyword": "PROTECTION",
                                 "group": {
                                     "baseFilter": "creature ctrl:you"
                                 },
@@ -5930,7 +5931,7 @@
                         "IsAttachedToBySource"
                     ]
                 },
-                "nonManaAbilitiesOnly": true
+                "abilities": "NON_MANA"
             }
         ],
         "auraTarget": {
@@ -12845,6 +12846,9 @@
                     "baseFilter": {
                         "cardPredicates": [
                             "IsActivatedAbility"
+                        ],
+                        "statePredicates": [
+                            "HasSingleTarget"
                         ]
                     },
                     "zone": "Stack"

@@ -6664,7 +6664,7 @@
                     "type": "Gated",
                     "gate": "Gate.MayDecide",
                     "then": {
-                        "type": "CopyForEachOtherPossibleTarget",
+                        "type": "CopyForOtherPossibleTargets",
                         "candidates": {
                             "cardPredicates": [
                                 "IsCreature"
@@ -15490,7 +15490,10 @@
                         "type": "BoundVariable",
                         "name": "t0"
                     },
-                    "cantPhaseInWhileYouControlSource": true
+                    "cantPhaseIn": {
+                        "type": "WhileYouControlSource",
+                        "sourceDescription": "this Saga"
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",
@@ -15509,7 +15512,10 @@
                         "type": "BoundVariable",
                         "name": "t1"
                     },
-                    "cantPhaseInWhileYouControlSource": true
+                    "cantPhaseIn": {
+                        "type": "WhileYouControlSource",
+                        "sourceDescription": "this Saga"
+                    }
                 },
                 "targetRequirement": {
                     "type": "TargetObject",

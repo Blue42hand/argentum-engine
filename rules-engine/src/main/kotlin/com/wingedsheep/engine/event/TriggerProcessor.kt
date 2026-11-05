@@ -2,6 +2,7 @@ package com.wingedsheep.engine.event
 
 import com.wingedsheep.sdk.scripting.AbilityTriggerCause
 import com.wingedsheep.engine.mechanics.targeting.withTargetConstraints
+import com.wingedsheep.engine.mechanics.targeting.withTotalCap
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.DependentTargetSelection
 import com.wingedsheep.engine.core.*
@@ -452,12 +453,6 @@ class TriggerProcessor(
 
         val chooserId = resolveTargetChooser(state, trigger, allRequirements)
         val identity = state.triggerIdentityFromCurrentCardDefinition(trigger.sourceId, ability.id)
-        // A remembered "always yes / always no" already answers the may-question at resolution;
-        // offering a decline here would let a target override it.
-        val consentAtTargeting = chooserId == trigger.controllerId &&
-            identity?.let { state.autoAnswerFor(trigger.controllerId, it) } == null &&
-            consentAnswerableAtTargeting(ability, allRequirements)
-
         // Create target requirement infos for the decision.
         //
         // A slot's minimum is the *requirement's* — "up to one" allows zero, "target creature" does
@@ -466,11 +461,6 @@ class TriggerProcessor(
         // wrong twice over. Targets follow CR 603.3d, while optional effects are chosen at resolution
         // under CR 603.5. An ability whose target is mandatory has to be removed from the stack
         // when there is no legal one (the loop above) rather than resolve targetless.
-        // Consent remains a gate on the effect and is answered as the ability resolves — except
-        // for the plain "you may <verb> target X" shape ([consentAnswerableAtTargeting]), where the
-        // slot's minimum is lowered to zero purely so the picker can offer "Decline". That isn't
-        // "up to one": the requirement stays mandatory, an empty answer declines the ability, and
-        // a target answers the may-question yes so resolution doesn't ask it a second time.
         val requirementInfos = visibleRequirements.mapIndexed { index, req ->
             // "Any number of target ..." (unlimited) caps at however many legal targets exist,
             // mirroring the cast-time path (TargetEnumerationUtils). Using req.count (always 1
@@ -491,7 +481,6 @@ class TriggerProcessor(
                 mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
                 // A dependent slot is optional only if every slot after it is (DependentTargetSelection).
                 minTargets = when {
-                    consentAtTargeting -> 0
                     sequential && !DependentTargetSelection.canStopAt(allRequirements, 0) -> 1
                     else -> req.effectiveMinCount
                 },
@@ -501,11 +490,13 @@ class TriggerProcessor(
                     com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.groups(state, allLegalTargets[index].orEmpty(), it)
                 },
                 sameOwner = (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.sameOwner == true,
-                totalManaValueAtMost = resolveTotalManaValueAtMost(state, trigger, req),
                 differentNames = (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.differentNames == true,
                 differentControllers =
                     (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.differentControllers == true
             ).withTargetConstraints(state, req, allLegalTargets[index].orEmpty())
+                .withTotalCap(state, req, allLegalTargets[index].orEmpty(), amountEvaluator) {
+                    triggerTargetContext(trigger)
+                }
         }
 
         // Create the target selection decision. The hint banner tells the player *what*
@@ -557,8 +548,7 @@ class TriggerProcessor(
                 sequentialTargets = if (sequential) emptyList() else null,
                 carriedPipeline = trigger.carriedPipeline,
                 interveningIf = ability.interveningIf,
-                isBackup = ability.isBackup,
-                consentAtTargeting = consentAtTargeting
+                isBackup = ability.isBackup
             ),
         )
 
@@ -735,6 +725,20 @@ class TriggerProcessor(
             }
         }
 
+        // "Choose one at random" — the engine, not the controller, draws the mode from the ones that
+        // could legally be chosen, before targets (Summon: Magus Sisters' rulings). An empty pool
+        // falls through to the removed-from-stack branch below.
+        if (modal.chooseAtRandom && selectedModeIndices.isEmpty() && offerIndices.isNotEmpty()) {
+            val (pick, advanced) = state.nextRandom { nextInt(offerIndices.size) }
+            return presentTriggerModalTargetDecision(
+                advanced, ability, outerTargets, outerTargetRequirements,
+                modal.modes, listOf(offerIndices[pick]), emptyList(), currentOrdinal = 0, triggerCause,
+                recordChosenModesOnSource = modal.excludePreviouslyChosenModes,
+                recordChosenModesThisTurn = modal.excludeModesChosenThisTurn,
+                eachModeTargetsDifferent = modal.eachModeTargetsDifferent
+            )
+        }
+
         if (offerIndices.isEmpty() || selectedModeIndices.size >= chooseCount) {
             if (offerIndices.isEmpty() && selectedModeIndices.size < minChooseCount) {
                 // Every remaining mode is unselectable — no legal target, or already spent by
@@ -878,9 +882,11 @@ class TriggerProcessor(
                         req.unlimited && req.dynamicMaxCount != null -> minOf(req.count, legalTargetsMap[index].orEmpty().size)
                         req.unlimited -> legalTargetsMap[index].orEmpty().size
                         else -> req.count
-                    },
-                    totalManaValueAtMost = resolveModeTotalManaValueAtMost(state, ability, req)
+                    }
                 ).withTargetConstraints(state, req, legalTargetsMap[index].orEmpty())
+                    .withTotalCap(state, req, legalTargetsMap[index].orEmpty(), amountEvaluator) {
+                        modeEffectContext(ability)
+                    }
             }
 
             if (requirementInfos.any { it.minTargets > it.maxTargets }) {
@@ -976,13 +982,20 @@ class TriggerProcessor(
 
         // "…that hasn't been chosen (this turn)": commit the picks to the source's memory now that
         // they're final, so the next trigger of this same object offers what's left.
-        val stateWithMemory = chosenModeIndices.fold(state) { acc, modeIndex ->
+        val stateWithChoices = chosenModeIndices.fold(state) { acc, modeIndex ->
             ChosenModeMemory.record(
                 acc, ability.sourceId, modeIndex,
                 ever = recordChosenModesOnSource,
                 thisTurn = recordChosenModesThisTurn
             )
         }
+        // Choosing a modal trigger's modes as it goes on the stack is facing a dilemma — unless
+        // the mode was drawn at random, which nobody chose.
+        val randomMode = (ability.effect as? com.wingedsheep.sdk.scripting.effects.ModalEffect)?.chooseAtRandom == true
+        val (stateWithMemory, dilemmaEvents) = com.wingedsheep.engine.mechanics.modal.Dilemmas.face(
+            stateWithChoices, ability.controllerId, ability.sourceName,
+            if (randomMode) 0 else chosenModeIndices.size
+        )
 
         val boundModeRequirements = chosenModeIndices.mapIndexed { ordinal, modeIndex ->
             val requirements = modes[modeIndex].targetRequirements
@@ -1005,20 +1018,12 @@ class TriggerProcessor(
         val flatTargets = outerTargets + resolvedModeTargets.flatten()
         val flatRequirements = outerTargetRequirements + boundModeRequirements.flatten()
 
-        return stackResolver.putTriggeredAbility(
+        val placed = stackResolver.putTriggeredAbility(
             stateWithMemory, component, flatTargets,
             targetRequirements = flatRequirements,
             triggerCause = triggerCause
         )
-    }
-
-    /** [resolveTotalManaValueAtMost] for a mode's requirement, read against the ability going on the stack. */
-    private fun resolveModeTotalManaValueAtMost(
-        state: GameState,
-        ability: TriggeredAbilityOnStackComponent,
-        requirement: TargetRequirement
-    ): Int? = com.wingedsheep.engine.mechanics.targeting.resolveTotalManaValueCap(state, requirement, amountEvaluator) {
-        modeEffectContext(ability)
+        return if (dilemmaEvents.isEmpty()) placed else placed.copy(events = dilemmaEvents + placed.events)
     }
 
     /** The context a mode's target-time amounts read: the ability going on the stack. */
@@ -1097,8 +1102,11 @@ class TriggerProcessor(
      *  - [AbilityTriggerCause.PERMANENT_ENTERING] — a trigger an entry caused ([PendingTrigger.isEntryCaused],
      *    the same classification Torpor Orb's suppression uses — Strict Proctor). Wherever its source is: the
      *    current Oracle text counts a graveyard card's landfall ability too.
+     *  - [AbilityTriggerCause.FINAL_SAGA_CHAPTER] — a Saga's final chapter ability (CR 714.2e,
+     *    Historian's Boon), read off the [SagaChapterInfo] chapter detection stamped on it.
      */
     private fun triggerCauseOf(trigger: PendingTrigger): AbilityTriggerCause? = when {
+        trigger.sagaChapterInfo?.isFinalChapter == true -> AbilityTriggerCause.FINAL_SAGA_CHAPTER
         trigger.ability.trigger is com.wingedsheep.sdk.scripting.EventPattern.AttackEvent &&
             trigger.ability.binding == com.wingedsheep.sdk.scripting.TriggerBinding.SELF -> AbilityTriggerCause.ATTACK
         trigger.isEntryCaused() -> AbilityTriggerCause.PERMANENT_ENTERING
@@ -1441,28 +1449,17 @@ class TriggerProcessor(
         }
     }
 
-    /**
-     * Resolve a [TargetObject.totalManaValueAtMost] aggregate cap ("...with total mana value X or
-     * less") to a concrete integer at decision-build time — e.g. Fire Lord Sozin's cap reflecting
-     * the X just paid, or a reflexive trigger's action-half payment (CR 603.12) via
-     * [PendingTrigger.carriedPipeline]. `null` when the requirement carries no such cap.
-     */
-    private fun resolveTotalManaValueAtMost(
-        state: GameState,
-        trigger: PendingTrigger,
-        requirement: TargetRequirement
-    ): Int? = com.wingedsheep.engine.mechanics.targeting.resolveTotalManaValueCap(state, requirement, amountEvaluator) {
-        EffectContext(
-            sourceId = trigger.sourceId,
-            objectReferences = trigger.objectReferences,
-            controllerId = trigger.controllerId,
-            triggeringEntityId = trigger.triggerContext.triggeringEntityId,
-            triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
-            xValue = trigger.triggerContext.xValue,
-            triggerContext = trigger.triggerContext,
-            pipeline = targetingPipeline(trigger),
-        )
-    }
+    /** The context a trigger's target-time amounts read (caps resolved as its targets are chosen). */
+    private fun triggerTargetContext(trigger: PendingTrigger): EffectContext = EffectContext(
+        sourceId = trigger.sourceId,
+        objectReferences = trigger.objectReferences,
+        controllerId = trigger.controllerId,
+        triggeringEntityId = trigger.triggerContext.triggeringEntityId,
+        triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
+        xValue = trigger.triggerContext.xValue,
+        triggerContext = trigger.triggerContext,
+        pipeline = targetingPipeline(trigger),
+    )
 
     /**
      * Has this source's controller already taken [abilityId]'s "Do this only once each turn" action
@@ -1547,39 +1544,6 @@ class TriggerProcessor(
          * `EffectOncePerTurnLoweringTest`'s sweep over the whole registry is what guarantees this
          * can never fire mid-game.
          */
-        /**
-         * True when choosing [ability]'s target can also answer its "you may" — the one-question
-         * shape "you may <verb> target X" (Lumengrid Sentinel). Asking for the target as the
-         * ability triggers (CR 603.3d) and then "you may …?" as it resolves (CR 603.5) puts the
-         * same question to the player twice, so the target decision offers "Decline" and a chosen
-         * target counts as yes. Declining doesn't put the ability on the stack: resolving it would
-         * do nothing, so skipping it is a shortcut with the same outcome.
-         *
-         * Deliberately narrow, so a target never commits the player to anything they'd want to
-         * weigh separately:
-         *  - the whole effect is one [Gate.MayDecide] — not a budget-wrapped one, not a cost gate
-         *    (`MayPay`), and with no "if you don't" branch (`otherwise` / `elseEffect`) that a
-         *    decline would have to run instead;
-         *  - its decider is the controller, and it isn't a peer-outcome choice ([Gate.MayDecide.choiceLabels]);
-         *  - exactly one mandatory, single-object target, so an empty answer can only mean
-         *    "decline", never "up to one, chose none".
-         */
-        internal fun consentAnswerableAtTargeting(
-            ability: TriggeredAbility,
-            requirements: List<TargetRequirement>
-        ): Boolean {
-            val gated = ability.effect as? GatedEffect ?: return false
-            val gate = gated.gate as? Gate.MayDecide ?: return false
-            val requirement = requirements.singleOrNull() ?: return false
-            return gate.choiceLabels == null &&
-                gated.otherwise == null &&
-                gated.decisionMaker == null &&
-                ability.elseEffect == null &&
-                !requirement.unlimited &&
-                requirement.count == 1 &&
-                requirement.effectiveMinCount == 1
-        }
-
         internal fun loweredEffectBudget(effect: Effect, abilityId: AbilityId): Effect {
             val spending = withSpendingGate(effect, abilityId)
             require(spending != null || !containsConsentGate(effect)) {

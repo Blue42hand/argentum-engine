@@ -3,6 +3,7 @@
  * decision selection, and mana source selection flows.
  */
 import { compatibleSelectionPool } from '@/utils/selectionGroups'
+import { wouldExceedTotalCaps } from '@/utils/targeting'
 import { decisionInteractionEpoch } from '@/network/liveAction'
 import { targetEntityId } from './pipelinePhases'
 import type {
@@ -108,6 +109,8 @@ export interface SelectionSliceActions {
   startDecisionSelection: (state: DecisionSelectionState) => void
   toggleDecisionSelection: (cardId: EntityId) => void
   decrementDecisionSelection: (cardId: EntityId) => void
+  /** Replace the whole pick at once (quick-select "All" / "Recommended" / "Clear"). Ids outside the pool are dropped. */
+  setDecisionSelection: (cardIds: readonly EntityId[]) => void
   cancelDecisionSelection: (decisionId: string) => void
   confirmDecisionSelection: (decisionId: string) => void
   startManaSelection: (actionInfo: LegalActionInfo) => void
@@ -548,6 +551,23 @@ export const createSelectionSlice: SliceCreator<SelectionSlice> = (set, get) => 
       validOptions: compatibleSelectionPool(state.validOptions, state.selectionGroups, state.selectedOptions, state.exclusiveGroups, state.distinctCategories) } })
   },
 
+  setDecisionSelection: (cardIds) => {
+    set((state) => {
+      const current = state.decisionSelectionState
+      if (!current || current.selectionLimits != null) return state
+      const pool = current.selectionPool ?? current.validOptions
+      const selectedOptions = [...new Set(cardIds)].filter((id) => pool.includes(id)).slice(0, current.maxSelections)
+      return {
+        decisionSelectionState: {
+          ...current,
+          selectedOptions,
+          validOptions: compatibleSelectionPool(pool, current.selectionGroups, selectedOptions, current.exclusiveGroups, current.distinctCategories),
+          warning: null,
+        },
+      }
+    })
+  },
+
   toggleDecisionSelection: (cardId) => {
     set((state) => {
       if (!state.decisionSelectionState) return state
@@ -573,18 +593,13 @@ export const createSelectionSlice: SliceCreator<SelectionSlice> = (set, get) => 
         }
       }
       if (!state.decisionSelectionState.validOptions.includes(cardId)) return state
-      const manaCap = state.decisionSelectionState.manaValueCap
-      if (manaCap != null) {
-        const valueOf = (id: EntityId) => manaCap.values[id] ?? 0
-        const kept = maxSelections === 1 ? [] : selectedOptions
-        const total = kept.reduce((sum, id) => sum + valueOf(id), 0) + valueOf(cardId)
-        if (total > manaCap.cap) {
-          return {
-            decisionSelectionState: {
-              ...state.decisionSelectionState,
-              warning: `The targets' total mana value can't exceed ${manaCap.cap} — deselect one first to pick this one.`,
-            },
-          }
+      const overCap = wouldExceedTotalCaps(state.decisionSelectionState.totalCaps ?? [], maxSelections === 1 ? [] : selectedOptions, cardId)
+      if (overCap) {
+        return {
+          decisionSelectionState: {
+            ...state.decisionSelectionState,
+            warning: `The targets' total ${overCap.label} can't exceed ${overCap.cap} — deselect one first to pick this one.`,
+          },
         }
       }
       if (selectedOptions.length < maxSelections) {
@@ -689,7 +704,8 @@ export const createSelectionSlice: SliceCreator<SelectionSlice> = (set, get) => 
     // sent the resulting cost for every candidate, so price this step off the chosen entry rather
     // than re-deriving the (generic-only) reduction here — that clamp is a rule, not client math.
     const emergeSacrifice = action.additionalCostPayment?.sacrificedPermanents?.[0]
-    const emergeCost = emergeSacrifice
+    const nativeQuoted = get().pipelineState?.manaCostQuoted === true
+    const emergeCost = !nativeQuoted && emergeSacrifice
       ? actionInfo.additionalCostInfo?.costAfterSacrifice?.[emergeSacrifice]
       : undefined
     // A spell priced per target — Officious Interrogation's "{W}{U} more for each target beyond
@@ -700,7 +716,7 @@ export const createSelectionSlice: SliceCreator<SelectionSlice> = (set, get) => 
     // emerge/harmonize adjustments around it: the server owns the rule, the client only applies
     // the choice the player has since made.
     const distinctTargets = new Set((action.targets ?? []).map(targetEntityId)).size
-    const targetPricedCost = actionInfo.manaCostByTargetCount?.[distinctTargets]
+    const targetPricedCost = nativeQuoted ? undefined : actionInfo.manaCostByTargetCount?.[distinctTargets]
     const manaCost = emergeCost ?? targetPricedCost ?? actionInfo.manaCostString ?? ''
     // A preceding delve or convoke phase materializes {X} as generic in the cost it hands on, so
     // its exiles/taps can pay the X down (CR 601.2f). Once that has happened the X is already in
@@ -714,7 +730,7 @@ export const createSelectionSlice: SliceCreator<SelectionSlice> = (set, get) => 
     // which creature the player picked, so neither autoTapPreview nor the X
     // extension below account for it — apply it here.
     const harmonizeCreatureId = action.alternativePayment?.harmonizeCreature
-    const harmonizeReduction = harmonizeCreatureId
+    const harmonizeReduction = !nativeQuoted && harmonizeCreatureId
       ? actionInfo.validHarmonizeCreatures?.find((c) => c.entityId === harmonizeCreatureId)?.power ?? 0
       : 0
 

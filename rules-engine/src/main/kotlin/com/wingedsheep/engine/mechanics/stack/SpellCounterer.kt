@@ -114,7 +114,8 @@ class SpellCounterer(
         newState = newState.addToZone(destZoneKey, spellId)
         val destinationObject = newState.objectRef(spellId)
         // A card-intrinsic redirect into the library shuffles the card in (Progenitus).
-        if (destZone == Zone.LIBRARY && counterRedirect.shuffleIntoLibrary) {
+        val shuffledIn = destZone == Zone.LIBRARY && counterRedirect.shuffleIntoLibrary
+        if (shuffledIn) {
             newState = SpellZoneMoves.shuffleOwnerLibrary(newState, ownerId)
         }
         if (destZone == Zone.EXILE && counterRedirect.linkSourceId != null) {
@@ -158,7 +159,7 @@ class SpellCounterer(
                     destZone,
                     ownerId, oldObject = state.objectRef(spellId), newObject = destinationObject
                 )
-            ) + riderEvents
+            ) + listOfNotNull(LibraryShuffledEvent(ownerId).takeIf { shuffledIn }) + riderEvents
         )
     }
 
@@ -539,7 +540,13 @@ class SpellCounterer(
         // as well as the stack entry keeps that symmetry with the resolution paths, which all call
         // removeEntity — otherwise every countered ability lingers in `entities` for the rest of the
         // game and rides along in every serialized GameState.
-        val newState = state.removeEntity(abilityId)
+        // Its last-known information is kept for an effect that still names it ("copy that
+        // spell or ability" — Repeated Reverberation).
+        val lastKnown = state.objectRef(abilityId)?.let { com.wingedsheep.engine.state.DepartedAbility(it, container) }
+        val newState = state.removeEntity(abilityId).let { removed ->
+            if (lastKnown == null) removed
+            else removed.copy(departedAbilities = removed.departedAbilities + (abilityId to lastKnown))
+        }
 
         return ExecutionResult.success(
             newState,
@@ -638,7 +645,7 @@ class SpellCounterer(
         if (countererId == null) return null
         val projected = state.projectedState
         for (entityId in state.getBattlefield()) {
-            val effects = state.getEntity(entityId)?.get<ReplacementEffectSourceComponent>()?.replacementEffects
+            val effects = state.activeReplacementSource(entityId)?.replacementEffects
                 ?: continue
             val controller = projected.getController(entityId)
                 ?: state.getEntity(entityId)?.get<ControllerComponent>()?.playerId

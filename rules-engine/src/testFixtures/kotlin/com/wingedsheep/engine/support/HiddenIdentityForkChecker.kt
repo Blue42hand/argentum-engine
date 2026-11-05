@@ -1,6 +1,14 @@
 package com.wingedsheep.engine.support
 
 import com.wingedsheep.engine.core.ActionProcessor
+import com.wingedsheep.engine.core.DevourMintedTokenContinuation
+import com.wingedsheep.engine.core.EntersWithChoiceOnBattlefieldContinuation
+import com.wingedsheep.engine.core.GenericTokenMaterializationContinuation
+import com.wingedsheep.engine.core.PredefinedTokenMaterializationContinuation
+import com.wingedsheep.engine.core.Suspension
+import com.wingedsheep.engine.core.TokenBundleMaterializationContinuation
+import com.wingedsheep.engine.core.TokenBundleReplacementContinuation
+import com.wingedsheep.engine.core.TokenCreationBundle
 import com.wingedsheep.engine.core.AssignDamageDecision
 import com.wingedsheep.engine.core.BatchYesNoDecision
 import com.wingedsheep.engine.core.BudgetModalDecision
@@ -225,7 +233,10 @@ class HiddenIdentityForkChecker(private val registry: CardRegistry) {
         val seats: Set<EntityId>,
         val faceDown: Boolean,
         internal val swap: (GameState) -> GameState,
-    )
+    ) {
+        /** The exact alternate world used by replay, also available to pin snapshot normalization. */
+        fun withForkedIdentity(state: GameState): GameState = swap(state)
+    }
 
     /**
      * A face-down object [card] made into [identity] underneath, hidden from [viewer]. [knownTo]
@@ -241,7 +252,9 @@ class HiddenIdentityForkChecker(private val registry: CardRegistry) {
         require(state.getEntity(card)?.has<FaceDownComponent>() == true) { "$card is not face down" }
         require(visibility.isCardIdentityHiddenFrom(state, card, viewer)) { "$card is not hidden from $viewer" }
         val seats = state.turnOrder.filter { it !in knownTo && visibility.isCardIdentityHiddenFrom(state, card, it) }
-        return Fork(listOf(card), viewer, seats.toSet() + viewer, faceDown = true) { withIdentity(it, card, identity) }
+        return Fork(listOf(card), viewer, seats.toSet() + viewer, faceDown = true) {
+            withIdentity(it, card, identity, state.objectRef(card), state.getEntity(card)?.get<CardComponent>())
+        }
     }
 
     /**
@@ -334,7 +347,7 @@ class HiddenIdentityForkChecker(private val registry: CardRegistry) {
      * `pendingTriggers`, `floatingEffects`, the `pending*Spell*` lists, `spellCostModifiers`,
      * `spellsCastThisTurnByPlayer`, `enlistmentsThisCombat`, `resolutionControls`, `zoneReturns`,
      * `departedLinkedExile`, `sourceObjectRecords`, `pendingSacrificeIds`,
-     * `pendingDiscardCauseControllers`, `pendingReplacementRiders` and `activeReplacementChain`.
+     * `pendingDiscardCauseControllers`, `pendingCyclingDiscardIds`, `pendingReplacementRiders` and `activeReplacementChain`.
      * A field not named here is not checked. The list belongs in [HiddenSlotRewrite] itself, which
      * the AI's determinizer would then share; that is an engine change and left for later.
      */
@@ -391,6 +404,7 @@ class HiddenIdentityForkChecker(private val registry: CardRegistry) {
         state.spellsCastThisTurnByPlayer.values.any { records -> records.any { it.sourceEntityId == id } } -> "spellsCastThisTurnByPlayer"
         id in state.pendingSacrificeIds -> "pendingSacrificeIds"
         id in state.pendingDiscardCauseControllers.keys -> "pendingDiscardCauseControllers"
+        id in state.pendingCyclingDiscardIds -> "pendingCyclingDiscardIds"
         state.activeReplacementChain.orEmpty().any { identity ->
             (identity is ReplacementEffectIdentity.BattlefieldIdentity && identity.sourceEntityId == id) ||
                 (identity is ReplacementEffectIdentity.CardZoneIdentity && identity.sourceEntityId == id)
@@ -487,7 +501,16 @@ class HiddenIdentityForkChecker(private val registry: CardRegistry) {
                     return Outcome(
                         progress.checked,
                         "$at: the game diverged on an action by a player who may not see the card " +
-                            "(${realBefore.pendingDecision?.let { it::class.simpleName } ?: "no question"} before it)",
+                            "(${realBefore.pendingDecision?.let { it::class.simpleName } ?: "no question"} before it); " +
+                            "changed fields: " + GameState::class.memberProperties.filter { it.visibility == kotlin.reflect.KVisibility.PUBLIC }.filter {
+                                it.get(fork.swap(real)) != it.get(swapped)
+                            }.joinToString { it.name } +
+                            "; source=" + (action as? com.wingedsheep.engine.core.PlayLand)?.cardId?.let {
+                                realBefore.getEntity(it)?.get<CardComponent>()?.name
+                            } + "; continuations=" + real.continuationStack.joinToString { frame ->
+                                val answer = (frame as? com.wingedsheep.engine.core.Suspension)?.answer
+                                (answer ?: frame)::class.simpleName.orEmpty()
+                            },
                         End.Leaked(step),
                         dataStopped,
                     )
@@ -695,24 +718,29 @@ class HiddenIdentityForkChecker(private val registry: CardRegistry) {
     }
 
     /** [state] with [entityId] made into [def] underneath — same id, owner and components otherwise. */
-    private fun withIdentity(state: GameState, entityId: EntityId, def: CardDefinition): GameState =
-        state.updateEntity(entityId) { container ->
-            val card = container.get<CardComponent>()!!
-            container.with(
-                card.copy(
-                    cardDefinitionId = def.name,
-                    name = def.name,
-                    manaCost = def.manaCost,
-                    typeLine = def.typeLine,
-                    oracleText = def.oracleText,
-                    baseStats = def.creatureStats,
-                    baseKeywords = def.keywords,
-                    baseFlags = def.flags,
-                    colors = def.colors,
-                    imageUri = def.metadata.imageUri,
-                )
-            )
-        }
+    private fun withIdentity(
+        state: GameState, entityId: EntityId, def: CardDefinition,
+        forkObject: com.wingedsheep.engine.state.ObjectRef?, forkCard: CardComponent?, frozen: Boolean = false,
+    ): GameState {
+        val rewritten = rewriteFrozenEntrySources(state) { withIdentity(it, entityId, def, forkObject, forkCard, frozen = true) }
+        val container = rewritten.getEntity(entityId) ?: return rewritten
+        val card = container.get<CardComponent>() ?: return rewritten
+        // A historical world can predate this object, retain an older incarnation, or hold an
+        // identity already transformed by the game. None is the hidden object forked here.
+        if (frozen && (forkObject == null || rewritten.objectRef(entityId) != forkObject || card != forkCard)) return rewritten
+        return rewritten.withEntity(entityId, container.with(card.copy(
+            cardDefinitionId = def.name,
+            name = def.name,
+            manaCost = def.manaCost,
+            typeLine = def.typeLine,
+            oracleText = def.oracleText,
+            baseStats = def.creatureStats,
+            baseKeywords = def.keywords,
+            baseFlags = def.flags,
+            colors = def.colors,
+            imageUri = def.metadata.imageUri,
+        )))
+    }
 
     /**
      * The swap for hand or library slots: [HiddenSlotRewrite] rebuilds each slot as its new
@@ -730,10 +758,13 @@ class HiddenIdentityForkChecker(private val registry: CardRegistry) {
             val now = after.byType()
             Triple(entityId, was, now) to (was.keys + now.keys).filter { was[it] != now[it] }
         }
-        return { state ->
-            changes.fold(state) { acc, (slot, changed) ->
+        val forkObjects = rewrites.associate { (id, _) -> id to forkState.objectRef(id) }
+        fun swap(state: GameState, frozen: Boolean = false): GameState {
+            val rewritten = changes.fold(state) { acc, (slot, changed) ->
                 val (entityId, was, now) = slot
                 val container = acc.getEntity(entityId) ?: return@fold acc
+                if (frozen && (forkObjects[entityId] == null || acc.objectRef(entityId) != forkObjects[entityId] ||
+                        container.get<CardComponent>() != was[CardComponent::class.java])) return@fold acc
                 val components = container.byType().toMutableMap()
                 for (type in changed) {
                     if (components[type] != was[type]) continue
@@ -742,7 +773,40 @@ class HiddenIdentityForkChecker(private val registry: CardRegistry) {
                 }
                 acc.withEntity(entityId, ComponentContainer(components))
             }
+            return rewriteFrozenEntrySources(rewritten) { swap(it, frozen = true) }
         }
+        return { swap(it) }
+    }
+
+    /**
+     * Entry continuations retain complete pre-event worlds. A hidden-slot substitution must also
+     * reach the same object in those worlds: merely saving an unrelated color choice must not look like an engine
+     * decision based on the hidden card. Rewrite the same identity components there, preserving
+     * every other field and still comparing the entire state, all questions and every seat view.
+     */
+    private fun rewriteFrozenEntrySources(state: GameState, rewrite: (GameState) -> GameState): GameState {
+        fun bundle(value: TokenCreationBundle): TokenCreationBundle = value.copy(
+            entrySourceState = value.entrySourceState?.let(rewrite),
+            following = value.following.map(::bundle),
+        )
+        return state.copy(continuationStack = state.continuationStack.map { frame ->
+            when (frame) {
+                is com.wingedsheep.engine.core.CreateTokenCopyRemainingContinuation ->
+                    frame.copy(entrySourceState = frame.entrySourceState?.let(rewrite))
+                is GenericTokenMaterializationContinuation -> frame.copy(entrySourceState = rewrite(frame.entrySourceState))
+                is PredefinedTokenMaterializationContinuation -> frame.copy(entrySourceState = rewrite(frame.entrySourceState))
+                is TokenBundleMaterializationContinuation -> frame.copy(bundle = bundle(frame.bundle))
+                is Suspension -> when (val answer = frame.answer) {
+                    is EntersWithChoiceOnBattlefieldContinuation -> frame.copy(answer = answer.copy(
+                        replacementSourceState = answer.replacementSourceState?.let(rewrite)))
+                    is DevourMintedTokenContinuation -> frame.copy(answer = answer.copy(
+                        entrySourceState = answer.entrySourceState?.let(rewrite)))
+                    is TokenBundleReplacementContinuation -> frame.copy(answer = answer.copy(bundle = bundle(answer.bundle)))
+                    else -> frame
+                }
+                else -> frame
+            }
+        })
     }
 
     private fun ComponentContainer.byType(): Map<Class<*>, Component> = all().associateBy { it::class.java }

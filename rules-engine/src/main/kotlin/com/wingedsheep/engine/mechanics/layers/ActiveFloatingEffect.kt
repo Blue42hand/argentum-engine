@@ -73,7 +73,17 @@ data class ActiveFloatingEffect(
     /** Objects referred to by this effect, captured before later zone changes. Used for source choices. */
     @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
-    val referencedObjects: List<com.wingedsheep.engine.state.ObjectRef> = emptyList()
+    val referencedObjects: List<com.wingedsheep.engine.state.ObjectRef> = emptyList(),
+    /**
+     * For a source-tapped duration created by an activated ability, the source's
+     * [com.wingedsheep.engine.state.components.battlefield.UntapCountComponent] clock at activation:
+     * the effect holds only while the source is tapped *and* hasn't untapped since (CR 611.2b).
+     * Null otherwise — the gate then reads the tapped state alone. Read through
+     * [com.wingedsheep.engine.mechanics.durations.GrantDurationGate.sourceTapped].
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val sourceUntapCount: Int? = null
 )
 
 /**
@@ -327,14 +337,6 @@ sealed interface SerializableModification {
         val creatureType: String,
         val manaCostPer: String
     ) : SerializableModification
-
-    /**
-     * Damage reflection: when an attacking creature deals combat damage to the protected player,
-     * it deals that much damage to its controller.
-     * Used by Harsh Justice.
-     */
-    @Serializable
-    data class ReflectCombatDamage(val protectedPlayerId: String) : SerializableModification
 
     /**
      * Grant protection from a specific color.
@@ -933,8 +935,6 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.CantBeBlockedByColor -> Modification.NoOp
     // AttackBlockTaxPerCreatureType doesn't map to a layer modification - it's checked by CombatManager directly
     is SerializableModification.AttackBlockTaxPerCreatureType -> Modification.NoOp
-    // ReflectCombatDamage doesn't map to a layer modification - it's checked by CombatManager directly
-    is SerializableModification.ReflectCombatDamage -> Modification.NoOp
     is SerializableModification.GrantProtectionFromColor -> Modification.GrantProtectionFromColor(color)
     is SerializableModification.GrantProtectionFromCardType -> Modification.GrantProtectionFromCardType(cardType)
     // PreventNextDamage doesn't map to a layer modification - it's checked during damage resolution directly
@@ -1014,5 +1014,5 @@ fun SerializableModification.toModification(): Modification = when (this) {
     is SerializableModification.DoubleDamageToPlayer -> Modification.NoOp
     // OverrideImage is display-only - it changes no characteristic, read directly by ClientStateTransformer
     is SerializableModification.OverrideImage -> Modification.NoOp
-    is SerializableModification.RemoveAllAbilities -> Modification.RemoveAllAbilities
+    is SerializableModification.RemoveAllAbilities -> Modification.RemoveAllAbilities()
 }

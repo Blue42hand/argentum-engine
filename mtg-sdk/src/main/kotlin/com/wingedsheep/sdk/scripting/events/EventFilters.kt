@@ -402,13 +402,31 @@ sealed interface SpellCastPredicate {
      * chosen targets: a spell targeting both the source and another permanent satisfies
      * [TargetsSource] but not this. A spell with **no** targets never satisfies it either. A spell
      * with several instances of "target" all pointed at the source does — the copies made by
-     * [com.wingedsheep.sdk.scripting.effects.CopyForEachOtherPossibleTargetEffect] then have to
+     * [com.wingedsheep.sdk.scripting.effects.CopyForOtherPossibleTargetsEffect] then have to
      * be legal for each of those instances (CR 707.10d).
      */
     @SerialName("SpellTargetsOnlySource")
     @Serializable
     data object TargetsOnlySource : SpellCastPredicate {
         override val description = "that targets only this"
+    }
+
+    /**
+     * The spell **could target another object** matching [filter] — one that is a legal target for
+     * every instance of the word "target" on it and that it doesn't already target (the CR 707.10d
+     * candidate set of [com.wingedsheep.sdk.scripting.effects.CopyForOtherPossibleTargetsEffect]).
+     * [filter] is read relative to the trigger's controller and source.
+     *
+     * This is the trigger-time half of an intervening "if" (CR 603.4) — Beamsplitter Mage's "if you
+     * control one or more other creatures that spell could target" is
+     * `CouldTargetOther(GameObjectFilter.Creature.youControl())`; the copy effect re-checks the same
+     * set as the ability resolves. Closest neighbours: [TargetsMatching] reads the targets the spell
+     * *did* choose, and [TargetsOnlySource] only who they are — neither asks what it *could* target.
+     */
+    @SerialName("SpellCouldTargetOther")
+    @Serializable
+    data class CouldTargetOther(val filter: GameObjectFilter) : SpellCastPredicate {
+        override val description = "that could target another ${filter.description}"
     }
 
     /**
@@ -611,9 +629,9 @@ sealed interface AttackPredicate {
      * second combat phase (extra-combat effects like Fear of Missing Out) does not
      * re-fire. The window resets at the start of each turn.
      *
-     * Per-attacker by design: it gates against the trigger's own source, so use it
-     * with a `SELF` binding — "Whenever this creature attacks for the first time
-     * each turn, …".
+     * Per-attacker by design: it gates on the trigger's own attacker — the source on a
+     * `SELF` binding ("Whenever this creature attacks for the first time each turn, …"),
+     * each attacker it fires for on `ANY`/`OTHER`.
      */
     @SerialName("AttacksFirstTimeEachTurn")
     @Serializable
@@ -631,8 +649,8 @@ sealed interface AttackPredicate {
      * defender kind is fixed at declaration, so the matcher reads it from the stamped
      * `AttackersDeclaredEvent.attackersAgainstPlayer` set rather than post-declaration state.
      *
-     * Per-attacker by design: it gates against the trigger's own source, so use it with a
-     * `SELF` binding (or an ANY-binding attacker filter that already scopes to one creature).
+     * Per-attacker by design: it gates on the trigger's own attacker — the source on a `SELF`
+     * binding, each attacker it fires for on `ANY`/`OTHER`.
      */
     @SerialName("AttacksDefenderIsPlayer")
     @Serializable
@@ -647,12 +665,38 @@ sealed interface AttackPredicate {
      * Slasher). Like [DefenderIsPlayer] the defender kind is fixed at declaration, so the matcher
      * reads the stamped `AttackersDeclaredEvent.attackersAgainstBattle` set.
      *
-     * Per-attacker by design: use it with a `SELF` binding.
+     * Per-attacker by design, like [DefenderIsPlayer].
      */
     @SerialName("AttacksDefenderIsBattle")
     @Serializable
     data object DefenderIsBattle : AttackPredicate {
         override val description = "a battle"
+    }
+
+    /**
+     * The attacker **attacks a player alone** (CR 506.6): it was declared as attacking a player,
+     * and no other creature was declared as attacking that same player. Other creatures may attack
+     * a different player, a planeswalker or a battle in the same combat. Jiang Yanggu, Alone and
+     * Yuriko, Blade of the Mighty: "Whenever a creature you control attacks a player alone, …".
+     *
+     * Closest neighbours, and why neither takes this axis:
+     * - [Alone] is CR 506.5 — the only attacker in the *whole* combat. "Alone + [DefenderIsPlayer]"
+     *   is strictly narrower than 506.6: it misses a creature attacking a player while another
+     *   attacks a planeswalker, a battle or a second opponent.
+     * - [DefenderIsPlayer] reads only the attacker's own defender kind and nothing about the rest
+     *   of the declaration.
+     *
+     * Like the other declaration facts it's fixed when attackers are declared — a creature put onto
+     * the battlefield attacking is never "declared", so it neither qualifies nor spoils another's
+     * claim — and the matcher reads the stamped `AttackersDeclaredEvent.attackersAloneAgainstPlayer`.
+     *
+     * Per-attacker by design: it gates on the trigger's own attacker — the source on a `SELF`
+     * binding, each attacker it fires for on `ANY`/`OTHER` (both FRA cards are the latter).
+     */
+    @SerialName("AttacksPlayerAlone")
+    @Serializable
+    data object AloneAgainstPlayer : AttackPredicate {
+        override val description = "a player alone"
     }
 
     /**
@@ -668,8 +712,8 @@ sealed interface AttackPredicate {
      * condition is checked); the comparison is strict (`>`), so an equal-power partner does not
      * satisfy it.
      *
-     * Per-attacker by design: it gates against the trigger's own source, so use it with a `SELF`
-     * binding — "Whenever this creature trains, …".
+     * Per-attacker by design: it gates on the trigger's own attacker — the source on a `SELF`
+     * binding ("Whenever this creature trains, …"), each attacker it fires for on `ANY`/`OTHER`.
      */
     @SerialName("AttacksAlongsideGreaterPower")
     @Serializable

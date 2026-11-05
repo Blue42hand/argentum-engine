@@ -80,14 +80,20 @@ class ActivatedAbilityEnumerator(
             val isFaceDown = container.has<FaceDownComponent>()
 
             // Activated abilities of permanents matching a PreventActivatedAbilities filter
-            // (Cursed Totem etc.) can't be activated — applies to both mana and non-mana
-            // abilities, including those granted by static effects.
-            if (context.castPermissionUtils.isActivationPrevented(state, entityId)) continue
-
-            // PlayersCantActivateAbilities (Grand Abolisher etc.) blocks abilities scoped by who
-            // is activating and when — e.g. "During your turn, your opponents can't activate
-            // abilities of artifacts, creatures, or enchantments."
-            if (context.castPermissionUtils.isActivationPreventedForPlayer(state, entityId, playerId)) continue
+            // (Cursed Totem etc.) can't be activated, including those granted by static effects;
+            // PlayersCantActivateAbilities (Grand Abolisher etc.) additionally scopes by who is
+            // activating and when. Either one's ability scope can split a planeswalker's
+            // abilities by kind (The Immortal Sun forbids only loyalty abilities, Overwhelming
+            // Splendor all but them), so both are asked once per kind, below.
+            val nonLoyaltyPrevented =
+                context.castPermissionUtils.isActivationPrevented(state, entityId) ||
+                    context.castPermissionUtils.isActivationPreventedForPlayer(state, entityId, playerId)
+            val loyaltyPrevented by lazy {
+                context.castPermissionUtils.isActivationPrevented(state, entityId, abilityIsLoyaltyAbility = true) ||
+                    context.castPermissionUtils.isActivationPreventedForPlayer(
+                        state, entityId, playerId, abilityIsLoyaltyAbility = true
+                    )
+            }
 
             // Resolve by definition id, never by name. A copy effect may rename the copy
             // (CR 707.9 — Absorbing Man "becomes a copy of …, except his name is Absorbing Man"),
@@ -134,6 +140,7 @@ class ActivatedAbilityEnumerator(
             val textReplacement = TextChanges.merge(context.globalTextChanges, container.get<TextReplacementComponent>())
 
             for (ability in nonManaAbilities) {
+                if (if (ability.isPlaneswalkerAbility) loyaltyPrevented else nonLoyaltyPrevented) continue
                 // Sorcery-speed abilities: skip during non-main phases / opponent's turn.
                 // Equip abilities are exempt while the controller has an active instant-speed-equip
                 // permission (Forge Anew "During your turn …", Leonin Shikari) — CR 702.6e timing lifted.
@@ -157,11 +164,13 @@ class ActivatedAbilityEnumerator(
                     ) continue
                     val tracker = container.get<AbilityActivatedThisTurnComponent>()
                     if (tracker != null && tracker.loyaltyActivationCount > 0) {
-                        val maxActivations = context.castPermissionUtils.getMaxLoyaltyActivations(state, playerId, entityId)
-                        if (tracker.hasReachedLoyaltyLimit(maxActivations)) continue
+                        val allowance = context.castPermissionUtils.getLoyaltyAllowance(state, playerId, entityId)
+                        if (tracker.hasReachedLoyaltyLimit(allowance)) continue
                     }
-                    // Check loyalty cost payability for negative costs
-                    val loyaltyCost = ability.cost as? AbilityCost.Loyalty
+                    // Check loyalty cost payability for negative costs — as totalled, so Carth
+                    // the Lion's [+1] surcharge lets a [−3] go with two loyalty.
+                    val loyaltyCost = context.castPermissionUtils
+                        .applyLoyaltyCostSurcharge(state, ability.cost, playerId, xValue = null) as? AbilityCost.Loyalty
                     if (loyaltyCost != null && loyaltyCost.change < 0) {
                         val counters = container.get<CountersComponent>()
                         val currentLoyalty = counters?.getCount(CounterType.LOYALTY) ?: 0
@@ -185,7 +194,11 @@ class ActivatedAbilityEnumerator(
                 // A cost naming a mana cost (Merseine's "enchanted creature's mana cost") is priced
                 // first, so the reductions below see the mana they apply to — as the totaller does.
                 val costWithDefinedX = context.castPermissionUtils.applyDefinedXValue(
-                    context.castPermissionUtils.lowerReferencedManaCost(state, entityId, rawCost),
+                    context.castPermissionUtils.lowerReferencedManaCost(
+                        state, entityId,
+                        // Carth the Lion's [+1] surcharge, as the totaller applies it.
+                        context.castPermissionUtils.applyLoyaltyCostSurcharge(state, rawCost, playerId, xValue = null)
+                    ),
                     ability, state, entityId, playerId
                 )
                 val effectiveCost = context.castPermissionUtils.relaxAbilityCostColorsIfAny(
@@ -196,9 +209,11 @@ class ActivatedAbilityEnumerator(
                                 AbilityCostReduction.apply(costWithDefinedX, ability, state, entityId, playerId, context.targetUtils, predicateEvaluator = predicateEvaluator),
                                 state, entityId, playerId, ability.onceOnlyKind, ability.isManaAbility,
                                 // Targets are chosen after this offer; a targeted ability is priced
-                                // optimistically for a "that target this creature" reduction.
+                                // optimistically: a `targeting` reduction applies, a `targeting` tax
+                                // (Kopala) is left off until the targets are known at payment.
                                 chosenTargetIds = if (ability.targetRequirements.isEmpty()) emptyList() else null,
                                 abilityKeyword = ability.keyword,
+                                isLoyaltyAbility = ability.isPlaneswalkerAbility,
                             ),
                             ability, state, playerId, abilitySourceId = entityId
                         ),
@@ -415,10 +430,14 @@ class ActivatedAbilityEnumerator(
                         is CostAtom.PayLife -> {
                             if (!com.wingedsheep.engine.handlers.costs.CostAtomAmounts.canPayLife(state, playerId, com.wingedsheep.engine.handlers.costs.CostAtomAmounts.life(state, atom, playerId, predicateEvaluator, entityId), LifePaymentPurpose.ACTIVATE_ABILITY)) continue
                         }
+                        // Putting counters on the source costs nothing the player must have — only
+                        // a source that can't have counters put on it (Solemnity) can't pay it
+                        // (CR 614.17b).
+                        is CostAtom.PutCountersOnSelf -> {
+                            if (!state.projectedState.canReceiveCounters(entityId, atom.counterType)) continue
+                        }
                         // Reveal carries no enumeration-time gate here (validated at payment time).
-                        // Putting counters on the source costs nothing the player must have, so it
-                        // never gates enumeration either.
-                        is CostAtom.RevealFromHand, is CostAtom.PutCountersOnSelf,
+                        is CostAtom.RevealFromHand,
                         // PayCost-only (Tourach's Chant); no activated ability pays it, so there is
                         // nothing to enumerate.
                         is CostAtom.PutCountersOnPermanent,
@@ -492,7 +511,7 @@ class ActivatedAbilityEnumerator(
                     is AbilityCost.Blight -> {
                         blightCost = effectiveCost
                         blightCreatures = projected.getBattlefieldControlledBy(playerId)
-                            .filter { projected.isCreature(it) && projected.canReceiveCounters(it) }
+                            .filter { projected.isCreature(it) && projected.canReceiveCounters(it, CounterType.MINUS_ONE_MINUS_ONE) }
                         if (blightCreatures.isEmpty()) continue
                     }
                     is AbilityCost.DiscardLastDrawnThisTurn -> {
@@ -687,9 +706,15 @@ class ActivatedAbilityEnumerator(
                                             break
                                         }
                                     }
-                                    // Reveal / put-counters-on-self carry no enumeration-time gate here.
+                                    // See the top-level branch: a source that can't have counters put on it.
+                                    is CostAtom.PutCountersOnSelf -> {
+                                        if (!state.projectedState.canReceiveCounters(entityId, atom.counterType)) {
+                                            costCanBePaid = false
+                                            break
+                                        }
+                                    }
+                                    // Reveal carries no enumeration-time gate here.
                                     is CostAtom.RevealFromHand,
-                                    is CostAtom.PutCountersOnSelf,
                                     is CostAtom.PutCountersOnPermanent,
                                     // See the top-level branch: always payable, nothing to select.
                                     is CostAtom.DiscardHand -> {}
@@ -837,7 +862,7 @@ class ActivatedAbilityEnumerator(
                                 is AbilityCost.Blight -> {
                                     blightCost = subCost
                                     blightCreatures = projected.getBattlefieldControlledBy(playerId)
-                                        .filter { projected.isCreature(it) && projected.canReceiveCounters(it) }
+                                        .filter { projected.isCreature(it) && projected.canReceiveCounters(it, CounterType.MINUS_ONE_MINUS_ONE) }
                                     if (blightCreatures.isEmpty()) {
                                         costCanBePaid = false
                                         break
@@ -1034,7 +1059,10 @@ class ActivatedAbilityEnumerator(
                 val abilityHasXCost = abilityHasXInManaCost || hasNonManaXCost || hasTapXPermanentsCost
 
                 val abilityMaxAffordableX: Int? = if (abilityHasXCost) {
-                    context.costUtils.calculateMaxAffordableX(state, playerId, ability.cost, abilityManaCost, precomputedSources = context.availableManaSources, sourceId = entityId)
+                    context.costUtils.calculateMaxAffordableX(
+                        state, playerId, ability.cost, abilityManaCost, precomputedSources = context.availableManaSources, sourceId = entityId,
+                        loyaltySurcharge = if (ability.cost == AbilityCost.LoyaltyX) context.castPermissionUtils.loyaltyCostSurcharge(state, playerId) else 0,
+                    )
                 } else null
                 // "X can't be 0" abilities (Gogo, Master of Mimicry) surface a minimum X so the
                 // client's X picker never offers 0. Enforced authoritatively by the X-choice
@@ -1206,6 +1234,14 @@ class ActivatedAbilityEnumerator(
                         // here and let the client collect it after targeting, exactly as the cast
                         // path does for spells (Chandra, Flameshaper's −4; Ajani, Sleeper Agent's −3).
                         val division = AnnouncedDivision.ofActivation(ability.effect)
+                        // A total that reads the activation's X (Huatli, Warrior Poet's −X: "X damage
+                        // divided as you choose …") can't be priced before X is announced (CR 601.2b
+                        // precedes 601.2d), so the offer carries the total for every X it may take.
+                        val divisionByX = if (division != null && abilityHasXCost && abilityMaxAffordableX != null) {
+                            (abilityMinX..abilityMaxAffordableX).associateWith { x ->
+                                context.castPermissionUtils.divisionTotalAtActivation(state, division, ability, entityId, playerId, chosenX = x)
+                            }.takeIf { byX -> byX.values.distinct().size > 1 }
+                        } else null
                         result.add(LegalAction(
                             actionType = "ActivateAbility",
                             description = displayDescription,
@@ -1237,6 +1273,7 @@ class ActivatedAbilityEnumerator(
                             totalDamageToDistribute = division?.let {
                                 context.castPermissionUtils.divisionTotalAtActivation(state, it, ability, entityId, playerId)
                             },
+                            totalDamageByX = divisionByX,
                             minDamagePerTarget = division?.let(AnnouncedDivision::minPerTarget),
                             distributionUnit = division?.let(AnnouncedDivision::counterUnit),
                             inertReason = abilityInertReason

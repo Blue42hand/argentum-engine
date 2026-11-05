@@ -24,6 +24,7 @@ import com.wingedsheep.engine.handlers.actions.spell.repeatableOptionalCostLimit
 import com.wingedsheep.engine.handlers.actions.spell.maxAffordableOptionalCostTimes
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCostEnumeration
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCostOffer
+import com.wingedsheep.engine.mechanics.cost.spell.PutCountersOnPermanentCostKind
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCosts
 import com.wingedsheep.engine.mechanics.cost.spell.VariablePermanentsCostKind
 import com.wingedsheep.engine.legalactions.utils.TargetEnumerationUtils
@@ -46,6 +47,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCost
+import com.wingedsheep.sdk.scripting.CardCostAction
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.ChoiceSlot
@@ -2474,6 +2476,7 @@ class CastSpellEnumerator(
                     // "with Flash" / "Kicked" for the kicker family. The client shows this verbatim.
                     val kickLabel = when {
                         declaredSlot == ChoiceSlot.BARGAINED -> "Bargained"
+                        declaredSlot == ChoiceSlot.BOUGHT_BACK -> "Buyback"
                         // An unnamed optional additional cost names what it pays ("Sacrifice an artifact").
                         declaredSlot == ChoiceSlot.ADDITIONAL_COST_PAID ->
                             additionalCostKicker?.additionalCost?.description?.replaceFirstChar { it.uppercase() }
@@ -2982,8 +2985,8 @@ class CastSpellEnumerator(
             }
             if (offer.exileTargets.isNotEmpty()) {
                 val exileCostDesc = additionalCosts
-                    .filterIsInstance<AdditionalCost.ExileVariableCards>()
-                    .firstOrNull()?.description
+                    .filterIsInstance<AdditionalCost.VariableCards>()
+                    .firstOrNull { it.action == CardCostAction.EXILE }?.description
                     ?: additionalCosts
                         .firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.ExileFrom }
                         ?.description?.replaceFirstChar { it.uppercase() }
@@ -2999,10 +3002,12 @@ class CastSpellEnumerator(
             if (offer.discardTargets.isNotEmpty()) {
                 val discardCost = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.Discard }
                 add(AdditionalCostData(
-                    description = discardCost?.description?.replaceFirstChar { it.uppercase() } ?: "Discard a card",
+                    description = offer.discardDescription
+                        ?: discardCost?.description?.replaceFirstChar { it.uppercase() } ?: "Discard a card",
                     costType = "DiscardCard",
                     validDiscardTargets = offer.discardTargets,
-                    discardCount = offer.discardCount
+                    discardCount = offer.discardCount,
+                    discardMaxCount = offer.discardMaxCount,
                 ))
             }
             if (offer.bounceTargets.isNotEmpty()) {
@@ -3036,6 +3041,10 @@ class CastSpellEnumerator(
                     validRevealTargets = offer.revealTargets,
                     revealCount = offer.revealCount
                 ))
+            }
+            val counterPlacementCost = offer.counterPlacementCost
+            if (counterPlacementCost != null && offer.counterPlacementTargets.isNotEmpty()) {
+                add(PutCountersOnPermanentCostKind.data(counterPlacementCost, offer.counterPlacementTargets))
             }
             if (offer.beholdTargets.isNotEmpty()) {
                 val flatCosts = additionalCosts.flatMap { if (it is AdditionalCost.Composite) it.steps else listOf(it) }

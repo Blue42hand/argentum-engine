@@ -66,6 +66,11 @@ export interface Preferences {
      */
     autoOrderTriggers: boolean
     /**
+     * Point out, the first time it happens, that automatic ordering just chose the order of your
+     * triggers where it could have mattered. Turned off as soon as the tip is shown.
+     */
+    triggerOrderTip: boolean
+    /**
      * A question that has only one legal answer for you ("you may reveal a Dragon card" with none
      * in hand) — the server says which questions those are. `instant` answers it at once and
      * `delayed` after a short randomized pause, each with a notice instead of a dialog; `ask`
@@ -124,6 +129,7 @@ export const DEFAULT_PREFERENCES: Preferences = {
     ownStackStops: [],
     autoTap: true,
     autoOrderTriggers: true,
+    triggerOrderTip: true,
     forcedChoices: 'delayed',
     followAction: true,
   },
@@ -208,6 +214,7 @@ export function parsePreferences(raw: unknown): Preferences {
       ownStackStops: ownStackStops(g.ownStackStops),
       autoTap: bool(g.autoTap, D.gameplay.autoTap),
       autoOrderTriggers: bool(g.autoOrderTriggers, D.gameplay.autoOrderTriggers),
+      triggerOrderTip: bool(g.triggerOrderTip, D.gameplay.triggerOrderTip),
       forcedChoices: forcedChoices(g),
       followAction: bool(g.followAction, D.gameplay.followAction),
     },

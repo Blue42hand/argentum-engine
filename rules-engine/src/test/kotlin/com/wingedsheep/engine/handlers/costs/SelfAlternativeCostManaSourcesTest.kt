@@ -138,12 +138,12 @@ class SelfAlternativeCostManaSourcesTest : FunSpec({
         val d = driver()
         val you = d.activePlayer!!
         val spell = d.putCardInHand(you, "Treasure-Bought Rhino")
-        d.putPermanentOnBattlefield(you, "Treasure")
+        val treasure = d.putPermanentOnBattlefield(you, "Treasure")
         val forest = d.putPermanentOnBattlefield(you, "Restricted Green Land")
 
         altOffered(d, you, spell) shouldBe false
 
-        crackTreasure(d, you, Color.RED)
+        d.submit(ActivateAbility(you, treasure, treasureAbility, manaColorChoice = Color.RED)).error shouldBe null
         d.submit(altCast(you, spell)).error shouldNotBe null
         d.submit(altCast(you, spell, PaymentStrategy.Explicit(listOf(forest)))).error shouldNotBe null
         d.stackSize shouldBe 0
@@ -174,6 +174,159 @@ class SelfAlternativeCostManaSourcesTest : FunSpec({
         after.red shouldBe 1
         after.green shouldBe 1
         after.manaUnits.map { it.source.sourceId }.toSet() shouldBe setOf(red, green)
+    }
+
+    test("selecting Treasures in the window preserves foreign floating mana") {
+        val d = driver()
+        val you = d.activePlayer!!
+        val spell = d.putCardInHand(you, "Treasure-Bought Rhino")
+        val red = d.putPermanentOnBattlefield(you, "Restricted Red Land")
+        val green = d.putPermanentOnBattlefield(you, "Restricted Green Land")
+        tap(d, you, red, redLand)
+        tap(d, you, green, greenLand)
+        val treasures = List(2) { d.putPermanentOnBattlefield(you, "Treasure") }
+
+        d.submit(altCast(you, spell)).error shouldBe null
+        val window = d.pendingDecision as com.wingedsheep.engine.core.SelectManaSourcesDecision
+        window.availableSources.map { it.entityId }.toSet() shouldBe treasures.toSet()
+        d.submitDecision(you, com.wingedsheep.engine.core.ManaSourcesSelectedResponse(
+            decisionId = window.id, selectedSources = treasures,
+        )).error shouldBe null
+
+        d.stackSize shouldBe 1
+        d.findPermanent(you, "Treasure") shouldBe null
+        pool(d, you).red shouldBe 1
+        pool(d, you).green shouldBe 1
+        pool(d, you).manaUnits.map { it.source.sourceId }.toSet() shouldBe setOf(red, green)
+    }
+
+    test("selected Treasures pay only the mana left after announced convoke") {
+        val d = driver()
+        val spellDef = card("Convoke Treasure Bill") {
+            manaCost = "{2}{G}"
+            typeLine = "Creature — Beast"
+            power = 3
+            toughness = 3
+            keywords(com.wingedsheep.sdk.core.Keyword.CONVOKE)
+        }
+        d.registerCards(listOf(spellDef))
+        val you = d.activePlayer!!
+        val spell = d.putCardInHand(you, spellDef.name)
+        val bear = d.putPermanentOnBattlefield(you, "Grizzly Bears")
+        val treasures = List(3) { d.putPermanentOnBattlefield(you, "Treasure") }
+        d.submit(CastSpell(you, spell, alternativePayment = com.wingedsheep.sdk.scripting.AlternativePaymentChoice(
+            convokedCreatures = mapOf(bear to com.wingedsheep.sdk.scripting.ConvokePayment(color = Color.GREEN)),
+        ))).error shouldBe null
+        val window = d.pendingDecision as com.wingedsheep.engine.core.SelectManaSourcesDecision
+        window.requiredCost shouldBe "{2}"
+        d.submitDecision(you, com.wingedsheep.engine.core.ManaSourcesSelectedResponse(
+            decisionId = window.id, selectedSources = treasures,
+        )).error shouldBe null
+
+        d.stackSize shouldBe 1
+        d.state.getBattlefield(you).count { it in treasures } shouldBe 1
+        d.state.getEntity(bear)?.has<com.wingedsheep.engine.state.components.battlefield.TappedComponent>() shouldBe true
+        pool(d, you).total shouldBe 0
+    }
+
+    for (count in listOf(4, 12)) {
+    test("$count selected Treasures pay their bill within the native search budget") {
+        val d = driver()
+        val spellDef = card("Treasure Bill $count") {
+            manaCost = "{$count}"
+            typeLine = "Creature — Beast"
+            power = 4
+            toughness = 4
+        }
+        d.registerCards(listOf(spellDef))
+        val you = d.activePlayer!!
+        val spell = d.putCardInHand(you, spellDef.name)
+        val treasures = List(count) { d.putPermanentOnBattlefield(you, "Treasure") }
+        d.submit(CastSpell(you, spell)).error shouldBe null
+        val window = d.pendingDecision as com.wingedsheep.engine.core.SelectManaSourcesDecision
+        d.submitDecision(you, com.wingedsheep.engine.core.ManaSourcesSelectedResponse(
+            decisionId = window.id, selectedSources = treasures,
+        )).error shouldBe null
+        d.stackSize shouldBe 1
+        d.findPermanent(you, "Treasure") shouldBe null
+        pool(d, you).total shouldBe 0
+    }
+
+    }
+
+    test("mana selection preserves the Treasure announced for an additional sacrifice") {
+        val d = driver()
+        val spellDef = card("Two Separate Sacrifices") {
+            manaCost = "{1}"
+            typeLine = "Creature — Beast"
+            power = 2
+            toughness = 2
+            additionalCost(Costs.additional.SacrificePermanent(GameObjectFilter.Artifact))
+        }
+        d.registerCards(listOf(spellDef))
+        val you = d.activePlayer!!
+        val spell = d.putCardInHand(you, spellDef.name)
+        val reserved = d.putPermanentOnBattlefield(you, "Treasure")
+        val manaSource = d.putPermanentOnBattlefield(you, "Treasure")
+        d.submit(CastSpell(you, spell, additionalCostPayment = com.wingedsheep.sdk.scripting.AdditionalCostPayment(
+            sacrificedPermanents = listOf(reserved),
+        ))).error shouldBe null
+        val window = d.pendingDecision as com.wingedsheep.engine.core.SelectManaSourcesDecision
+        d.submitDecision(you, com.wingedsheep.engine.core.ManaSourcesSelectedResponse(
+            decisionId = window.id, selectedSources = listOf(reserved, manaSource),
+        )).error shouldBe null
+        d.stackSize shouldBe 1
+        d.findPermanent(you, "Treasure") shouldBe null
+        pool(d, you).total shouldBe 0
+    }
+
+    test("selected mana cannot spend the life still owed by the announced cast") {
+        val d = driver()
+        val spellDef = card("Life Reserved Bill") {
+            manaCost = "{G}"
+            typeLine = "Creature — Beast"
+            power = 2
+            toughness = 2
+        }
+        val sourceDef = card("Life Cost Treasure") {
+            typeLine = "Artifact — Treasure"
+            activatedAbility {
+                cost = Costs.Composite(Costs.Tap, Costs.SacrificeSelf, Costs.PayLife(1))
+                effect = Effects.AddMana(Color.GREEN, 1)
+                manaAbility = true
+            }
+        }
+        d.registerCards(listOf(spellDef, sourceDef))
+        val you = d.activePlayer!!
+        val spell = d.putCardInHand(you, spellDef.name)
+        val source = d.putPermanentOnBattlefield(you, sourceDef.name)
+        d.submit(CastSpell(you, spell, graveyardLifeCost = 20)).error shouldBe null
+        val window = d.pendingDecision as com.wingedsheep.engine.core.SelectManaSourcesDecision
+        d.submitDecision(you, com.wingedsheep.engine.core.ManaSourcesSelectedResponse(
+            decisionId = window.id, selectedSources = listOf(source),
+        )).error shouldNotBe null
+        d.stackSize shouldBe 0
+        d.getLifeTotal(you) shouldBe 20
+        d.findPermanent(you, sourceDef.name) shouldBe source
+        pool(d, you).total shouldBe 0
+    }
+
+    test("older serialized cast locks retain an absent net bill rather than zero mana") {
+        val oldJson = """{"paymentXValue":0,"additionalCosts":[],"forageCostRequired":false,"additionalLifeCost":0,"dedicatedAlternativeCostType":null,"availableSources":[]}"""
+        val lock = kotlinx.serialization.json.Json.decodeFromString(
+            com.wingedsheep.engine.core.LockedCastPayment.serializer(), oldJson,
+        )
+        lock.manaCost shouldBe null
+        lock.tapForGenericCost shouldBe null
+        val d = driver()
+        val you = d.activePlayer!!
+        val spell = d.putCardInHand(you, "Treasure-Bought Rhino")
+        val bear = d.putPermanentOnBattlefield(you, "Grizzly Bears")
+        val cast = CastSpell(you, spell, alternativePayment = com.wingedsheep.sdk.scripting.AlternativePaymentChoice(
+            convokedCreatures = mapOf(bear to com.wingedsheep.sdk.scripting.ConvokePayment(color = Color.GREEN)),
+        ))
+        d.services.castSpellHandler.validateRemainingPayment(d.state, cast, ManaCost.parse("{2}{R}{G}"), lock) shouldBe
+            "Cancel this older mana payment and announce the cast again"
     }
 
     test("a non-Treasure artifact mana source can't pay it, tapped live or floated first") {

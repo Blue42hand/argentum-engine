@@ -1,5 +1,7 @@
 package com.wingedsheep.sdk.limited
 
+import com.wingedsheep.sdk.core.CardType
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
 import kotlin.random.Random
@@ -24,6 +26,16 @@ interface SheetSelector {
     /** Legendary creatures. */
     data object LegendaryCreature : SheetSelector {
         override fun matches(card: CardDefinition) = card.typeLine.isLegendary && card.typeLine.isCreature
+    }
+
+    /** Planeswalkers — War of the Spark's one-planeswalker-per-pack slot. */
+    data object Planeswalker : SheetSelector {
+        override fun matches(card: CardDefinition) = CardType.PLANESWALKER in card.typeLine.cardTypes
+    }
+
+    /** Cards with [subtype] — Strixhaven's Lesson slot. */
+    data class HasSubtype(val subtype: Subtype) : SheetSelector {
+        override fun matches(card: CardDefinition) = card.typeLine.hasSubtype(subtype)
     }
 
     /** Cards named on the set's own collation list (reprint sheets, a named cycle). */
@@ -73,7 +85,7 @@ data class DedicatedSlot(
  * A [base] booster plus [slots] that each draw from a dedicated print sheet — the double-faced
  * slots of Innistrad: Midnight Hunt, Crimson Vow, Kamigawa: Neon Dynasty and The Lost Caverns of
  * Ixalan; March of the Machine's double-faced and battle slots; the legendary slot of Dominaria
- * and Dominaria United; Modern Horizons 3's new-to-Modern reprint slot.
+ * and Dominaria United; War of the Spark's planeswalker slot; Modern Horizons 3's new-to-Modern reprint slot.
  *
  * Cards on a dedicated sheet leave the base's pool (unless their rarity is shared), so the base
  * opens only ordinary cards. At most one slot holds the pack's rare: the slots' [DedicatedSlot.rareChance]s

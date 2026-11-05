@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.events.DamageType
@@ -280,6 +281,25 @@ interface ObjectFilterBuilder<out Self> {
 
     /** Printed mana cost contains an {X} symbol (Paradox Surveyor). */
     fun hasXInManaCost() = withCardPredicate(CardPredicate.HasXInManaCost)
+
+    /** Printed mana cost has the same mana symbol more than once — `{X}{X}{R}`, `{G}{G}` (Jegantha). */
+    fun hasRepeatedManaSymbol() = withCardPredicate(CardPredicate.HasRepeatedManaSymbol)
+
+    /**
+     * Printed mana cost is exactly one of [costs] — "with mana cost {0} or {1}" (Urza's Saga) is
+     * `manaCostIs("{0}", "{1}")`. Compares symbols, not mana value, so `{U}` and `{X}` never match
+     * `{1}` / `{0}`, and a card with no mana cost never matches `{0}` (see [CardPredicate.ManaCostIs]).
+     */
+    fun manaCostIs(vararg costs: String): Self {
+        require(costs.isNotEmpty()) { "manaCostIs needs at least one cost" }
+        val predicates = costs.map { cost ->
+            val parsed = ManaCost.parse(cost)
+            // Matching compares symbols in order, so the cost must be written in canonical order.
+            require(parsed.toString() == cost) { "manaCostIs(\"$cost\") is not in canonical order: $parsed" }
+            CardPredicate.ManaCostIs(parsed)
+        }
+        return withCardPredicate(predicates.singleOrNull() ?: CardPredicate.Or(predicates))
+    }
 
     /**
      * Printed mana cost contains at least [min] mana symbols of [colors] — "with one or more blue
@@ -950,6 +970,14 @@ interface ObjectFilterBuilder<out Self> {
     fun notGrantingPermanent() = withStatePredicate(StatePredicate.Not(StatePredicate.IsGrantingPermanent))
 
     /**
+     * Must NOT be the object [reference] names — "another nonland permanent" where "another" is
+     * relative to a target rather than the source (Torment of Venom: other than the target
+     * creature, `EffectTarget.ContextTarget(0)`). See [StatePredicate.IsEntity].
+     */
+    fun otherThan(reference: EffectTarget.SingleEntity) =
+        withStatePredicate(StatePredicate.Not(StatePredicate.IsEntity(reference)))
+
+    /**
      * Must NOT be the triggering entity of the resolving trigger — "any target other than that
      * permanent" (Toralf, God of Fury). See [StatePredicate.IsTriggeringEntity].
      */
@@ -996,6 +1024,19 @@ interface ObjectFilterBuilder<out Self> {
      * Tato Farmer). See [StatePredicate.MilledThisTurn].
      */
     fun milledThisTurn() = withStatePredicate(StatePredicate.MilledThisTurn)
+
+    /**
+     * Must currently be in a graveyard *and* have been put there during the current combat phase.
+     * See [StatePredicate.PutIntoGraveyardThisCombat].
+     */
+    fun putIntoGraveyardThisCombat() = withStatePredicate(StatePredicate.PutIntoGraveyardThisCombat)
+
+    /**
+     * Must *not* have been put into a graveyard during the current combat phase — Storrev,
+     * Devkarin Lich's "card in your graveyard that wasn't put there this combat".
+     */
+    fun notPutIntoGraveyardThisCombat() =
+        withStatePredicate(StatePredicate.Not(StatePredicate.PutIntoGraveyardThisCombat))
 
     /**
      * Must currently be in a hand *and* have been drawn this turn (Sylvan Library). See
@@ -1164,6 +1205,12 @@ interface ObjectFilterBuilder<out Self> {
     fun foretold() = withStatePredicate(StatePredicate.IsForetold)
 
     /**
+     * Must be a suspended card (CR 702.62b) — in exile, with suspend and a time counter on it.
+     * Use with an exile-zone filter ("suspended card you own").
+     */
+    fun suspended() = withStatePredicate(StatePredicate.IsSuspended)
+
+    /**
      * Must be a card exiled by the effect's source permanent (recorded in the source's
      * `LinkedExileComponent`). Source-relative — use when filtering candidates in the exile zone
      * for "target card exiled with ~" reanimation abilities (The Darkness Crystal).
@@ -1196,7 +1243,9 @@ interface ObjectFilterBuilder<out Self> {
      * Must be a spell on the stack that was *not* cast — not from [fromZone] when set, not at all
      * (a copy) when null. Backs Wash Away's "counter target spell that wasn't cast from its
      * owner's hand" (`Zone.HAND`) and Errant, Street Artist's "copy target spell you control that
-     * wasn't cast" (no zone).
+     * wasn't cast" (no zone). On a battlefield-entry `RedirectZoneChange` it is the entering
+     * object that wasn't cast — Containment Priest's "if a nontoken creature would enter and it
+     * wasn't cast, exile it instead".
      */
     fun notCast(fromZone: Zone? = null) =
         withStatePredicate(StatePredicate.Not(StatePredicate.WasCast(fromZone)))

@@ -224,7 +224,7 @@ data class ContinuousEffect(
     val affectsFilter: AffectsFilter? = null,
     /**
      * When non-null, this effect applies only to affected entities whose *projected* controller
-     * is this player (a "for as long as you control it" gate, e.g. suspend haste — CR 702.62g).
+     * is this player (a "for as long as you control it" gate, e.g. suspend haste — CR 702.62a).
      * Evaluated after Layer 2 control is established, so it tracks control-changing effects.
      */
     val controllerGate: EntityId? = null,
@@ -598,9 +598,14 @@ sealed interface Modification {
      * Used for effects like Deep Freeze ("loses all other abilities") and Turn to Frog.
      * Clears all keywords and sets the lostAllAbilities flag which suppresses
      * activated abilities, triggered abilities, and static abilities.
+     *
+     * [exceptManaAbilities] is "loses all abilities except mana abilities" (Blood Sun): every
+     * keyword, static, triggered and non-mana activated ability goes, but the object's mana
+     * abilities (CR 605.1a) stay — read through
+     * [com.wingedsheep.engine.mechanics.layers.ProjectedState.hasLostManaAbilities].
      */
     @Serializable
-    data object RemoveAllAbilities : Modification {
+    data class RemoveAllAbilities(val exceptManaAbilities: Boolean = false) : Modification {
         override val layer get() = Layer.ABILITY
     }
 
@@ -747,6 +752,11 @@ sealed interface Modification {
     }
     @Serializable
     data object SetAttacksWithoutTapping : Modification {
+        override val layer get() = Layer.ABILITY
+    }
+    /** Lethal damage to it is judged by its power, not its toughness — a rule modification (Zilortha). */
+    @Serializable
+    data object SetLethalDamageByPower : Modification {
         override val layer get() = Layer.ABILITY
     }
 
@@ -938,6 +948,8 @@ internal data class MutableProjectedValues(
     var name: String? = null,
     val keywords: MutableSet<String> = mutableSetOf(),
     val cantHaveKeywords: MutableSet<String> = mutableSetOf(),
+    /** See [com.wingedsheep.engine.mechanics.layers.ProjectedValues.grantedKeywordInstances]. */
+    val grantedKeywordInstances: MutableMap<String, Int> = mutableMapOf(),
     val staticAbilities: MutableList<com.wingedsheep.sdk.scripting.StaticAbility> = mutableListOf(),
     /** Parallel to [staticAbilities]: the source of the effect that gave each entry. */
     val staticAbilitySourceIds: MutableList<EntityId> = mutableListOf(),
@@ -950,6 +962,7 @@ internal data class MutableProjectedValues(
     var isSuspected: Boolean = false,
     var cantAttack: Boolean = false,
     var attacksWithoutTapping: Boolean = false,
+    var lethalDamageByPower: Boolean = false,
     var canAttackAsThoughHasty: Boolean = false,
     var cantBlock: Boolean = false,
     var cantBeTurnedFaceUp: Boolean = false,
@@ -962,6 +975,8 @@ internal data class MutableProjectedValues(
     var additionalBlockCount: Int = 0,
     var manaAbilityLifeTax: Int = 0,
     var lostAllAbilities: Boolean = false,
+    /** See [com.wingedsheep.engine.mechanics.layers.ProjectedValues.keepsManaAbilities]. */
+    var keepsManaAbilities: Boolean = false,
     /** See [com.wingedsheep.engine.mechanics.layers.ProjectedValues.lostAllAbilitiesTimestamp]. */
     var lostAllAbilitiesTimestamp: Long? = null,
     var hasExileOnDeathAbility: Boolean = false,

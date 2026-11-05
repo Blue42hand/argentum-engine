@@ -124,6 +124,19 @@ class CastFromCollectionWithoutPayingCostExecutor(
             return EffectResult.success(state)
         }
 
+        // A cast prohibition (Drannith Magistrate, a per-turn cast limit) reaches resolution-time
+        // casts too: the cast never initiates and the card stays where it is.
+        if (castSpellHandlerProvider().resolutionCastProhibition(
+                state,
+                CastSpell(
+                    controllerId, cardId, faceIndex = faceIndex, castFaceDown = effect.castFaceDown, castFused = castFused,
+                    useAlternativeCost = castUsing != null, alternativeCostType = castUsing,
+                ),
+            ) != null
+        ) {
+            return EffectResult.success(state)
+        }
+
         // Check targeting *before* granting: a grant made ahead of a cast that never happens
         // would follow the card out of exile and stay live until end-of-turn cleanup. A face-down
         // spell is a vanilla 2/2 (CR 708.2) — nothing on it targets.
@@ -157,6 +170,7 @@ class CastFromCollectionWithoutPayingCostExecutor(
             costReduction = effect.costReduction,
             castFaceDown = effect.castFaceDown,
             turnsFaceUpInstead = effect.turnsFaceUpInstead,
+            withAnyManaType = effect.withAnyManaType,
         )
 
         if (prep is TargetPrep.NeedsTargets) {
@@ -285,6 +299,7 @@ class CastFromCollectionWithoutPayingCostExecutor(
             costReduction: Int = 0,
             castFaceDown: Boolean = false,
             turnsFaceUpInstead: Boolean = false,
+            withAnyManaType: Boolean = false,
         ): Pair<EntityId, GameState> {
             val (permId, withPermId) = state.newEntity()
             var stamped = if (!withoutPayingCost) withPermId else withPermId.updateEntity(cardId) { container ->
@@ -344,6 +359,10 @@ class CastFromCollectionWithoutPayingCostExecutor(
                     castFaceDown = castFaceDown,
                     turnsFaceUpInstead = turnsFaceUpInstead,
                     castFaceIndex = faceIndex,
+                    // "And mana of any type can be spent to cast that spell" (Summon: Esper
+                    // Valigarmanda): the rider rides this one-shot grant, so CastCostPayer relaxes
+                    // exactly this cast's pips (CR 118.14) and nothing outlives it.
+                    withAnyManaType = withAnyManaType,
                     timestamp = stateWithPerm.timestamp,
                 )
             )

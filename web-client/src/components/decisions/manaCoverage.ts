@@ -18,6 +18,8 @@ export interface PipCoverage {
   floating: boolean
   /** Covered by a source the player has selected but not yet tapped. */
   pending: boolean
+  /** Numeric generic pips keep their amount compact, including partial coverage. */
+  coveredGeneric?: number
 }
 
 /**
@@ -97,6 +99,7 @@ export function computeCoverage(
 
   let best = pips.map((pip) => ({ ...pip }))
   let bestScore = -1
+  let bestGenericCovered = -1
   const payableCount = pips.filter((pip) => pip.symbol !== 'X').length
   const seen = new Set<string>()
   // This is a display estimate, not the server's payment solver. Bound unusual source/color
@@ -118,6 +121,8 @@ export function computeCoverage(
       .sort((a, b) => pipGenericAmount(candidate[a]!.symbol)! - pipGenericAmount(candidate[b]!.symbol)!)
     for (const index of genericIndices) {
       const amount = pipGenericAmount(candidate[index]!.symbol)!
+      const numeric = /^\d+$/.test(candidate[index]!.symbol)
+      if (numeric) candidate[index]!.coveredGeneric = Math.min(amount, floating + pending)
       if (floating >= amount) {
         floating -= amount
         candidate[index]!.floating = true
@@ -125,11 +130,18 @@ export function computeCoverage(
         pending -= amount - floating
         floating = 0
         candidate[index]!.pending = true
+      } else if (numeric) {
+        // The partial readout consumes only the resources actually present, without one object
+        // per mana unit. Full-coverage flags remain false until the entire numeric pip is paid.
+        floating = 0
+        pending = 0
       }
     }
     const score = candidate.filter((pip) => pip.floating || pip.pending).length
-    if (score > bestScore) {
+    const genericCovered = candidate.reduce((sum, pip) => sum + (pip.coveredGeneric ?? 0), 0)
+    if (score > bestScore || (score === bestScore && genericCovered > bestGenericCovered)) {
       bestScore = score
+      bestGenericCovered = genericCovered
       best = candidate
     }
   }

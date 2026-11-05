@@ -6,13 +6,20 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 
-/** Improvise pays only the generic cost; the wipe checks creature and artifact types at resolution. */
+/**
+ * Organic Extinction — Neon Dynasty Commander #8 (canonical printing)
+ * {8}{W}{W} · Sorcery
+ *
+ * Improvise
+ * Destroy all nonartifact creatures.
+ */
 val OrganicExtinction = card("Organic Extinction") {
     manaCost = "{8}{W}{W}"
     colorIdentity = "W"
     typeLine = "Sorcery"
-    oracleText = "Improvise (Your artifacts can help cast this spell. Each artifact you tap after you're done activating mana abilities pays for {1}.)\n" +
-        "Destroy all nonartifact creatures."
+    oracleText = "Improvise (Your artifacts can help cast this spell. Each artifact you tap after " +
+        "you're done activating mana abilities pays for {1}.)\nDestroy all nonartifact creatures."
+
     keywords(Keyword.IMPROVISE)
 
     spell {

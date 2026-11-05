@@ -358,7 +358,6 @@ object CardLinter {
             else (tree["type"] as? JsonPrimitive)?.contentOrNull in names ||
                 tree.values.any { ownEffectContains(it, names) }
         is JsonArray -> tree.any { ownEffectContains(it, names) }
-        else -> false
     }
 
     /** A serialized ability or card definition rather than a step of the effect being scanned. */
@@ -740,7 +739,9 @@ object CardLinter {
         put("Fight" to "excessDamageVariable", write(Space.NUMBER))
         put("DealDamage" to "excessDamageVariable", write(Space.NUMBER))
         put("DealDamage" to "damageDealtVariable", write(Space.NUMBER))
+        put("DividedDamage" to "storeDamagedAs", write(Space.COLLECTION))
         put("PayCounters" to "storeAmountAs", write(Space.NUMBER))
+        put("RemoveCountersFromAmong" to "storeAmountAs", write(Space.NUMBER))
         put("CollectEvidenceChosenAmount" to "storeAmountAs", write(Space.NUMBER))
         put("ChooseSpellCastThisTurn" to "storeDamageDealtAs", write(Space.NUMBER))
         put("PayManaCostRepeatedly" to "storeCountAs", write(Space.NUMBER))
@@ -830,6 +831,8 @@ object CardLinter {
         when {
             type == "RollDice" ->
                 (obj["resultCounts"] as? JsonObject)?.keys.orEmpty().map { Kind.WRITE to (Space.NUMBER to it) }
+            type == "Vote" ->
+                (obj["voteCounts"] as? JsonObject)?.keys.orEmpty().map { Kind.WRITE to (Space.NUMBER to it) }
             type == "ChooseCreatureType" ->
                 listOf(Kind.WRITE to (Space.CHOSEN to "chosenCreatureType"))
             // Paying "Reveal the creature type you chose" publishes the source's secret note into

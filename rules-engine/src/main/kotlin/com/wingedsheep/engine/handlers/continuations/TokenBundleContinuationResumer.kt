@@ -40,6 +40,14 @@ class TokenBundleContinuationResumer(private val services: EngineServices) :
     )
 
     override fun autoResumers(): List<AutoResumer<*>> = listOf(
+        autoResumer(GenericTokenMaterializationContinuation::class) { state, frame, events, checkForMore ->
+            val executor = com.wingedsheep.engine.handlers.effects.token.CreateTokenExecutor(
+                services.dynamicAmountEvaluator, com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry),
+                services.cardRegistry)
+            val result = executor.resumeMaterialization(state, frame)
+            complete(com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.stamp(result,
+                com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.group(frame.context)), events, checkForMore)
+        },
         autoResumer(PredefinedTokenMaterializationContinuation::class) { state, frame, events, checkForMore ->
             val executor = com.wingedsheep.engine.handlers.effects.token.CreatePredefinedTokenExecutor(
                 services.cardRegistry, com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry),

@@ -50,6 +50,7 @@ class PlayerExecutors(
         CantActivateLoyaltyAbilitiesExecutor(),
         CantCastSpellsExecutor(amounts = zones.predicateEvaluator.amounts),
         CantSearchLibrariesExecutor(),
+        BlockerCountLimitThisCombatExecutor(),
         CantCastSpellsFromNonHandZonesExecutor(),
         CantPlayCardsFromHandExecutor(),
         ChooseNumberForSourceExecutor(decisionHandler),
@@ -60,6 +61,7 @@ class PlayerExecutors(
         GrantPlayerActionExecutor(),
         CreatePermanentEmblemExecutor(),
         EachPlayerChoosesCreatureTypeExecutor(),
+        VoteExecutor(),
         EndTheTurnExecutor(),
         RestartGameExecutor(),
         PlaySubgameExecutor(),
@@ -87,6 +89,7 @@ class PlayerExecutors(
         ControlCombatDeclarationsExecutor(),
         LockLifeGainExecutor(),
         LockLifeLossExecutor(),
+        LockPlayerCountersExecutor(),
         openLifeBidExecutor,
         LoseGameExecutor(predicateEvaluator = zones.predicateEvaluator),
         WinGameExecutor(predicateEvaluator = zones.predicateEvaluator),
@@ -101,7 +104,7 @@ class PlayerExecutors(
         PayAnyAmountOfLifeAsEntersExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
         RecordValueAsEnteredExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
         SkipNextTurnExecutor(amountEvaluator = zones.predicateEvaluator.amounts),
-        SkipUntapExecutor(),
+        SkipUntapExecutor(zones.predicateEvaluator),
         TakeExtraTurnExecutor(),
         TheRingTemptsYouExecutor()
     )

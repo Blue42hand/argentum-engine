@@ -12,6 +12,7 @@ import type { SetState, GetState } from './types'
 
 export function createMessageHandlers(set: SetState, get: GetState): MessageHandlers {
   return {
+    onCastCostQuote: (message) => get().receiveCastCostQuote(message),
     ...createConnectionHandlers(set, get),
     ...createGameplayHandlers(set, get),
     ...createDraftHandlers(set, get),

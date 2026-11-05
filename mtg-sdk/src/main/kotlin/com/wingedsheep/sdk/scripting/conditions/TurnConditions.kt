@@ -138,6 +138,25 @@ data object IsFirstEndStepOfTurn : Condition {
     override val description: String = "if it's the first end step of the turn"
 }
 
+/**
+ * Condition: "If it's the first upkeep step of the turn."
+ *
+ * True while the game is in an upkeep step and no upkeep step has ended yet this turn — so an extra
+ * upkeep step added after this step ([com.wingedsheep.sdk.scripting.effects.AddAdditionalUpkeepStepsEffect]
+ * with `afterThisStep`) or after a later phase (Obeka) is not the first. The trigger qualifier for
+ * "at the beginning of [a player's] first upkeep each turn" (Paradox Haze, as an `interveningIf`),
+ * which keeps the extra upkeep step it adds from adding another. The upkeep analog of
+ * [IsFirstEndStepOfTurn].
+ *
+ * Board-derived (reads `state.step` and the active player's "an upkeep step ended this turn"
+ * marker), so it evaluates identically at resolution and under projection.
+ */
+@SerialName("IsFirstUpkeepStepOfTurn")
+@Serializable
+data object IsFirstUpkeepStepOfTurn : Condition {
+    override val description: String = "if it's the first upkeep step of the turn"
+}
+
 // =============================================================================
 // Combat Conditions
 // =============================================================================
@@ -239,8 +258,10 @@ data class TriggeringAttackersAttackedPlayer(
 
 /**
  * Condition: "If [player] attacked with [atLeast] or more creatures matching [filter] this turn".
- * Counts every creature [player] declared as an attacker this turn whose current state
- * (per the projected state) matches the filter.
+ * Counts every creature [player] declared as an attacker this turn that matched the filter **as it
+ * was declared** (its projected characteristics at declaration, CR 508.1): a Rogue that attacked
+ * still counts after it dies, its token ceases to exist, or it stops being a Rogue, and a creature
+ * that became one only after attacking doesn't (Robber of the Rich, Deepway Navigator rulings).
  *
  * The `Conditions.YouAttackedWithCreaturesThisTurn(...)` DSL helper passes [Player.You],
  * which the engine resolves to the source's controller in both resolution and static-ability
@@ -575,24 +596,41 @@ data class PermanentTypeEnteredBattlefieldThisTurn(
 }
 
 /**
- * Condition: "If a permanent of [cardType] was put into [player]'s graveyard from the battlefield this turn."
+ * Condition: "If a permanent [of cardType] was put into [player]'s [toZone] from the battlefield this
+ * turn" — "if an enchantment was put into your graveyard from the battlefield this turn", "if a
+ * permanent was returned to your hand from the battlefield this turn".
  *
- * Turn history keyed on the card's owner — "your graveyard" is the owner's (CR 404.1) — and read
- * off the permanent's last-known type line as it left (last-known information), so an enchantment creature
- * counts as an enchantment and a token counts too: it is put into the graveyard before it ceases
- * to exist (CR 111.7). The card need not still be in the graveyard when the condition is checked.
+ * Turn history keyed on the card's owner — "your graveyard" and "your hand" are the owner's (a card only
+ * ever goes to its owner's graveyard or hand, CR 400.3) — and read off the permanent's last-known type line as it left (last-known information),
+ * so an enchantment creature counts as an enchantment and a token counts too: it reaches the zone
+ * before it ceases to exist (CR 111.7). The card need not still be in that zone when the condition is
+ * checked. [cardType] `null` means any permanent.
  *
- * Used for Kami of Transience (NEO): "At the beginning of each end step, if an enchantment was
- * put into your graveyard from the battlefield this turn, you may return this card ..."
+ * [toZone] is one of the owned destination zones the engine records — [Zone.GRAVEYARD] or [Zone.HAND].
+ * Closest neighbours: [PermanentLeftBattlefieldThisTurn] is keyed on the *controller* and ignores the
+ * destination; `CreatureDiedThisTurnMatching` is creature-only and graveyard-only.
+ *
+ * Used for Kami of Transience (NEO) and Miles O'Brien, Transporter Ops (TRK).
  */
-@SerialName("PermanentTypePutIntoGraveyardFromBattlefieldThisTurn")
+@SerialName("PermanentPutIntoZoneFromBattlefieldThisTurn")
 @Serializable
-data class PermanentTypePutIntoGraveyardFromBattlefieldThisTurn(
-    val cardType: CardType,
+data class PermanentPutIntoZoneFromBattlefieldThisTurn(
+    val toZone: Zone = Zone.GRAVEYARD,
+    val cardType: CardType? = null,
     val player: Player = Player.You
 ) : Condition {
-    override val description: String =
-        "if ${anA(cardType.displayName)} was put into ${player.possessive} graveyard from the battlefield this turn"
+    init {
+        require(toZone == Zone.GRAVEYARD || toZone == Zone.HAND) {
+            "PermanentPutIntoZoneFromBattlefieldThisTurn tracks GRAVEYARD and HAND only, not $toZone"
+        }
+    }
+
+    override val description: String
+        get() {
+            val what = cardType?.let { anA(it.displayName) } ?: "a permanent"
+            val verb = if (toZone == Zone.HAND) "returned to" else "put into"
+            return "if $what was $verb ${player.possessive} ${toZone.noun} from the battlefield this turn"
+        }
 
     private fun anA(word: String): String =
         if (word.firstOrNull()?.lowercaseChar() in setOf('a', 'e', 'i', 'o', 'u')) "an $word" else "a $word"
@@ -834,7 +872,7 @@ data object YouDiscardedThisCardThisTurn : Condition {
 @SerialName("PlayerHasCitysBlessing")
 @Serializable
 data class PlayerHasCitysBlessing(val player: Player = Player.You) : Condition {
-    override val description: String = "if ${player.description} has the city's blessing"
+    override val description: String = "if ${player.description} ${if (player.description.equals("you", ignoreCase = true)) "have" else "has"} the city's blessing"
 }
 
 // =============================================================================

@@ -85,8 +85,10 @@ class CreateTokenCopyOfTargetExecutor(
     override fun execute(
         state: GameState,
         effect: CreateTokenCopyOfTargetEffect,
-        context: EffectContext
+        originalContext: EffectContext
     ): EffectResult {
+        val creator = wouldBeController(state, effect, originalContext) ?: return EffectResult.success(state)
+        val context = TokenCreationReplacementHelper.withCreator(originalContext, creator)
         val targetContainer = copySource(state, effect, context)
             ?: return EffectResult.success(state)
 
@@ -98,16 +100,22 @@ class CreateTokenCopyOfTargetExecutor(
 
         // Who creates (controls + owns) the token. Defaults to the effect's controller; a player
         // target (e.g. "Target player creates a token …" — Echocasting Symposium) puts the token
-        // under that player's control instead.
-        val controllerId = effect.controller
-            ?.let { context.resolvePlayerTargets(it, state).firstOrNull() }
-            ?: context.controllerId
+        // under that player's control instead. A named player who resolves to nobody creates nothing.
+        val wouldBeControllerId = wouldBeController(state, effect, context) ?: return EffectResult.success(state)
+        // "Created under your control instead" (Crafty Cutpurse) before any other token replacement.
+        val controllerId = when (val redirect = TokenCreationReplacementHelper.redirectController(
+            state, wouldBeControllerId, context, effect, amountEvaluator.predicates
+        )) {
+            is TokenControllerRedirect.Resolved -> redirect.controllerId
+            is TokenControllerRedirect.Ask -> return redirect.result
+        }
 
         // Token-count replacements (Doubling Season, Parallel Lives, Mondrak) apply to token copies
         // exactly as to any other token creation, before a substitution gets a look — the order
         // CreateTokenExecutor uses. Applied once here, never by the token-by-token resume.
         val count = TokenCreationReplacementHelper.applyCountReplacements(
-            state, controllerId, baseCount, predicateEvaluator = amountEvaluator.predicates
+            state, controllerId, baseCount, predicateEvaluator = amountEvaluator.predicates,
+            handled = context.tokenCreationReplacementsHandled
         )
 
         // Check for token creation replacement effects (e.g., Mirrormind Crown).
@@ -354,24 +362,28 @@ class CreateTokenCopyOfTargetExecutor(
         count: Int,
         auraHostId: EntityId?,
         prescribedHostId: EntityId? = null,
+        entrySourceState: GameState = TokenEntryReplacements.beforeEvent(state, context),
+        createdTokenIds: List<EntityId> = emptyList(),
     ): EffectResult {
-        val targetContainer = copySource(state, effect, context)
+        if (count <= 0) return EffectResult(state, emptyList(), updatedCollections = mapOf(
+            com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS to createdTokenIds))
+        val targetContainer = copySource(entrySourceState, effect, context)
             ?: return EffectResult.success(state)
         val targetCard = targetContainer.copiableCardComponent()
             ?: return EffectResult.success(state)
 
         var newState = state
         val events = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
-        val createdTokens = mutableListOf<EntityId>()
+        val createdTokens = createdTokenIds.toMutableList()
 
         // Every "except …" clause (CR 707.9) — added/removed types, added keywords, base P/T,
         // colors, no-mana-cost — is applied by the shared CopyExceptionApplier, so the token
         // path and the "permanent becomes a copy" path can't drift. Both the exceptions view and
         // the resulting component are loop-invariant, so they are built once rather than per token.
-        val exceptions = resolvedExceptions(state, effect, context)
+        val exceptions = resolvedExceptions(entrySourceState, effect, context)
         // "The token enters with half that many +1/+1 counters" — evaluated once per batch, so every
         // copy gets the same count.
-        val initialCounters = effect.initialCounters.mapValues { (_, amount) -> amountEvaluator.evaluate(state, amount, context) }
+        val initialCounters = effect.initialCounters.mapValues { (_, amount) -> amountEvaluator.evaluate(entrySourceState, amount, context) }
         // `isDoubleFaced` is cleared rather than inherited: it answers "is this a double-faced
         // *card*", and a token is not a card (CR 111.1) — nor is being double-faced a copiable value
         // (CR 707.2 lists them; layout isn't one). A token copy of a double-faced permanent is a
@@ -391,12 +403,13 @@ class CreateTokenCopyOfTargetExecutor(
                 ?.takeIf { player -> player in state.getOpponents(controllerId) }
         }
         val chosenDefenders = if (effect.attacking && tokenCard.typeLine.isCreature && auraHostId == null &&
+            com.wingedsheep.engine.mechanics.combat.CombatDefenders.isAttackingPlayer(state, controllerId) &&
             effect.attackDefender == com.wingedsheep.sdk.scripting.effects.EnteringAttackDefender.CONTROLLER_CHOOSES
         ) {
-            if (effect.attackedPlayer != null && namedDefendingPlayer == null) List(cappedCount) { null }
-            else EnteringAttackDefenderChooser.defenders(state, context, controllerId, cappedCount, namedDefendingPlayer)
+            if (effect.attackedPlayer != null && namedDefendingPlayer == null) List(cappedCount + createdTokenIds.size) { null }
+            else EnteringAttackDefenderChooser.defenders(state, context, controllerId, cappedCount + createdTokenIds.size, namedDefendingPlayer)
                 ?: return EnteringAttackDefenderChooser.pause(
-                    state, effect, context, controllerId, cappedCount, tokenCard.name, namedDefendingPlayer
+                    state, effect, context, controllerId, cappedCount + createdTokenIds.size, tokenCard.name, namedDefendingPlayer
                 )
         } else null
         for (index in 0 until cappedCount) {
@@ -431,8 +444,8 @@ class CreateTokenCopyOfTargetExecutor(
                 // it is still in the game and one of the creator's opponents; otherwise the copy
                 // enters but never attacking (CR 508.4a). Unspecified, the token joins the
                 // source's attack (CR 802.2a) — see CreateTokenExecutor.
-                val defenderId = if (chosenDefenders != null) {
-                    chosenDefenders[index]
+                val wouldAttack = if (chosenDefenders != null) {
+                    chosenDefenders[index + createdTokenIds.size]
                 } else if (effect.attackedPlayer != null) {
                     com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
                         .resolvePlayerTarget(effect.attackedPlayer!!, context, newState)
@@ -440,6 +453,10 @@ class CreateTokenCopyOfTargetExecutor(
                 } else {
                     com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
                         .defenderForEnteringAttacker(context, newState, controllerId)
+                }
+                // Only an attacking player's creature can enter attacking (a redirected token).
+                val defenderId = wouldAttack?.takeIf {
+                    com.wingedsheep.engine.mechanics.combat.CombatDefenders.isAttackingPlayer(newState, controllerId)
                 }
                 if (defenderId != null) {
                     components.add(AttackingComponent(defenderId, defendingPlayerId = com.wingedsheep.engine.mechanics.combat.CombatDefenders.defendingPlayerOf(newState, defenderId)))
@@ -467,13 +484,13 @@ class CreateTokenCopyOfTargetExecutor(
             newState = TokenEntryReplacements.applyInheritedBundleRiders(newState, tokenId, state,
                 controllerId, context, amountEvaluator.predicates)
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                .place(newState, controllerId, tokenId, tokenCreatorId = context.controllerId)
+                .place(newState, controllerId, tokenId, tokenCreatorId = TokenCreationReplacementHelper.creatorId(context, controllerId))
             // A token copy honors global "[filter] enter tapped" replacements (Authority of the
             // Consuls / Dauntless Dismantler on an opponent's token copy).
-            newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
-                .applyCreatedTokenEntryTap(
-                    newState, tokenId, controllerId, definedTapped = effect.tapped,
-                    predicateEvaluator = amountEvaluator.predicates, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context)
+            newState = TokenEntryReplacements
+                .applyEntryTap(
+                    newState, tokenId, controllerId, cardRegistry, definedTapped = effect.tapped,
+                    predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState
                 )
             // The host the token enters attached to: the one its controller chose for an Aura copy
             // (CR 303.4f), or the effect's prescribed host when the token could legally be attached
@@ -521,15 +538,15 @@ class CreateTokenCopyOfTargetExecutor(
             // this setup, so apply it here the way the standard entry pipeline does. Non-pausing.
             val (afterCounters, counterEvents) = if (cardRegistry != null) {
                 com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                    .applyOnEntry(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context))
+                    .applyOnEntry(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState)
             } else {
                 com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                    .applyGlobal(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context))
+                    .applyGlobal(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState)
             }
             newState = afterCounters
             events.addAll(counterEvents)
             newState = TokenEntryReplacements.applyInitialCounters(
-                newState, tokenId, preCreationState = TokenEntryReplacements.beforeEvent(state, context), controllerId = controllerId,
+                newState, tokenId, preCreationState = entrySourceState, controllerId = controllerId,
                 initialCounters = initialCounters, predicateEvaluator = amountEvaluator.predicates
             )
 
@@ -574,6 +591,9 @@ class CreateTokenCopyOfTargetExecutor(
                 )
             }
 
+            createdTokens.add(tokenId)
+            newState = installEndStepRiders(newState, entrySourceState, effect, context, controllerId, listOf(tokenId))
+
             // As-enters "choose X as this enters" (CR 614.12) + granted riot (CR 702.136/702.136b).
             // A token copy of a creature that "enters with your choice of …" — or a Spider entering
             // while Spider-Punk grants it riot — pauses for a player decision. We deliberately do NOT
@@ -581,12 +601,12 @@ class CreateTokenCopyOfTargetExecutor(
             // after the choice resolves, so ETB triggers fire exactly once (mirroring
             // TokenFromDefinition). Counters already added ride along as carryEvents.
             val choicePlan = if (cardRegistry != null) {
-                TokenEntryReplacements.firstEntersWithChoice(newState, tokenId, cardRegistry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context))
+                TokenEntryReplacements.firstEntersWithChoice(newState, tokenId, cardRegistry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState)
             } else null
             if (choicePlan != null) {
                 val remaining = cappedCount - (index + 1)
                 var pausedState = newState
-                if (remaining > 0) {
+                run {
                     // The rest of the batch resumes below the choice's continuation once this token's
                     // choice (and every granted-riot instance) has fully resolved.
                     pausedState = newState.pushContinuation(
@@ -595,6 +615,10 @@ class CreateTokenCopyOfTargetExecutor(
                             context = context,
                             controllerId = controllerId,
                             remaining = remaining,
+                            entrySourceState = entrySourceState,
+                            createdTokenIds = createdTokens.toList(),
+                            auraHostId = auraHostId,
+                            prescribedHostId = prescribedHostId,
                         )
                     )
                 }
@@ -609,7 +633,7 @@ class CreateTokenCopyOfTargetExecutor(
                         carryEvents = events,
                         syntheticRiot = choicePlan.syntheticRiot,
                         syntheticRiotRemaining = choicePlan.syntheticRiotRemaining,
-                        replacementSourceState = TokenEntryReplacements.beforeEvent(state, context),
+                        replacementSourceState = entrySourceState,
                         pendingEntryChoices = choicePlan.pendingEntryChoices,
                     )
                 if (paused != null) return EffectResult.from(paused)
@@ -634,7 +658,7 @@ class CreateTokenCopyOfTargetExecutor(
             // and intentionally skips enters-with-counters setup, so apply the shared Saga-entry
             // helper here — the same one the standard moveToZone pipeline uses. No-op for non-Sagas.
             val (sagaState, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                .applySagaEntryIfNeeded(newState, tokenId, amountEvaluator.predicates)
+                .applySagaEntryIfNeeded(newState, tokenId, amountEvaluator.predicates, replacementSourceState = entrySourceState)
             newState = sagaState
             events.addAll(sagaEvents)
 
@@ -643,15 +667,13 @@ class CreateTokenCopyOfTargetExecutor(
             // bin the token the instant it enters. No-op for non-planeswalkers.
             cardRegistry?.let { registry ->
                 val (loyaltyState, loyaltyEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                    .applyIntrinsicEntryCountersIfNeeded(newState, tokenId, controllerId, registry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context))
+                    .applyIntrinsicEntryCountersIfNeeded(newState, tokenId, controllerId, registry, predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState)
                 newState = loyaltyState
                 events.addAll(loyaltyEvents)
             }
 
-            createdTokens.add(tokenId)
         }
 
-        newState = installEndStepRiders(newState, state, effect, context, controllerId, createdTokens)
 
         // Publish the created token ids into the shared CREATED_TOKENS pipeline collection so a
         // following composite step can reference them — e.g. "Create a token that's a copy of
@@ -666,6 +688,16 @@ class CreateTokenCopyOfTargetExecutor(
     }
 
     /**
+     * The player the effect creates the copies for, before any redirect: the effect's controller,
+     * or the named player ("target player creates …"); null when that named player resolves to
+     * nobody, and nothing is created.
+     */
+    private fun wouldBeController(state: GameState, effect: CreateTokenCopyOfTargetEffect, context: EffectContext): EntityId? =
+        effect.controller
+            ?.let { context.resolvePlayerTargets(it, state).firstOrNull() }
+            ?: context.controllerId.takeIf { effect.controller == null }
+
+    /**
      * The copy's "sacrifice / exile it at the beginning of the next end step" riders: a delayed
      * trigger per token in [createdTokens]. Also installed on the substitutes when a
      * `ReplaceTokenCreationWithToken` replaced the copies — the riders still apply to them.
@@ -676,10 +708,15 @@ class CreateTokenCopyOfTargetExecutor(
         sourceState: GameState,
         effect: CreateTokenCopyOfTargetEffect,
         context: EffectContext,
-        controllerId: EntityId,
+        tokenControllerId: EntityId,
         createdTokens: List<EntityId>
     ): GameState {
         var newState = state
+        // The riders belong to the creating effect's player even when the copies were created
+        // under someone else's control (Crafty Cutpurse's ruling) — so "your next end step" is
+        // theirs, and a "sacrifice it" they control does nothing to a token they don't.
+        val controllerId = TokenCreationBatch.wouldBeController(context)
+            ?: wouldBeController(sourceState, effect, context) ?: tokenControllerId
         // If sacrificeAtStep is set, create a delayed trigger to sacrifice each created token
         // copy at that step (e.g. Mardu Siegebreaker: "at the beginning of your next end step,
         // sacrifice those tokens"). Mirrors CreateTokenExecutor's sacrificeAtStep handling.

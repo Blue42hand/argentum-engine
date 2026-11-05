@@ -470,7 +470,8 @@ data class TriggerContext(
                     triggeringPlayerId = event.controllerId,
                     manaValueOfTriggeringSpell = event.manaValue.takeIf { it > 0 }
                 )
-                is CardsDrawnEvent -> TriggerContext(triggeringPlayerId = event.playerId)
+                // A cycling draw's cycled card is "the cycled card" a `DrawEvent.cyclingOf` trigger refers to.
+                is CardsDrawnEvent -> TriggerContext(triggeringPlayerId = event.playerId, triggeringEntityId = event.cycledCardId)
                 // A player losing the game: the loser is both the triggering player (so
                 // Player.TriggeringPlayer / a TriggeringPlayerIs condition resolves to them) and
                 // the triggering entity (players are entities). Shinryu, Transcendent Rival reads
@@ -496,6 +497,9 @@ data class TriggerContext(
                 // Surveil reuses the "cards looked at" count slot (TRIGGER_SCRY_COUNT) — the
                 // field is the number of cards looked at, common to scry and surveil.
                 is com.wingedsheep.engine.core.ProliferatedEvent -> TriggerContext(
+                    triggeringPlayerId = event.playerId
+                )
+                is com.wingedsheep.engine.core.DilemmaFacedEvent -> TriggerContext(
                     triggeringPlayerId = event.playerId
                 )
                 is com.wingedsheep.engine.core.SurveiledEvent -> TriggerContext(
@@ -685,11 +689,24 @@ data class TriggerContext(
                     triggeringPlayerId = event.playerId,
                     dieResults = event.results,
                 )
+                // "that Saga" — the Saga whose chapter resolved, read through its battlefield
+                // snapshot once CR 714.4 has sacrificed it (Narci, Fable Singer).
+                is com.wingedsheep.engine.core.SagaChapterResolvedEvent -> TriggerContext(
+                    triggeringEntityId = event.sagaId,
+                    triggeringLastKnownSnapshot = event.sagaSnapshot,
+                    triggeringPlayerId = event.controllerId,
+                )
                 else -> TriggerContext()
             }
         }
     }
 }
+
+/** The pipeline collections a triggered ability's own firing seeds ([triggerStoredCollections]). */
+internal val TRIGGER_SCOPED_COLLECTIONS: Set<String> = setOf(
+    com.wingedsheep.engine.handlers.PipelineState.TRIGGER_CAPTURED_COLLECTION,
+    com.wingedsheep.sdk.scripting.effects.IterationSpace.TRIGGER_DAMAGED_PLAYERS
+)
 
 /**
  * The named collections a triggered ability sees — when its targets are chosen (CR 603.3d), when

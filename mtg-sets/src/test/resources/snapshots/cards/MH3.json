@@ -4809,7 +4809,7 @@
                         "NameEqualsChosenComponent"
                     ]
                 },
-                "nonManaAbilitiesOnly": true,
+                "abilities": "NON_MANA",
                 "anyZone": true
             }
         ],
@@ -6840,6 +6840,9 @@
         "power": 1,
         "toughness": 4
     },
+    "keywords": [
+        "ETERNALIZE"
+    ],
     "script": {
         "activatedAbilities": [
             {
@@ -6878,7 +6881,7 @@
                 "isManaAbility": true
             },
             {
-                "id": "Fanatic of Rhonas:3",
+                "id": "eternalize_{2}{G}{G}",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -6908,7 +6911,9 @@
                     }
                 },
                 "timing": "SorcerySpeed",
-                "activateFromZone": "Graveyard"
+                "activateFromZone": "Graveyard",
+                "descriptionOverride": "Eternalize {2}{G}{G} ({2}{G}{G}, Exile this card from your graveyard: Create a token that's a copy of it, except it's a 4/4 black Zombie with no mana cost. Eternalize only as a sorcery.)",
+                "keyword": "ETERNALIZE"
             }
         ]
     },
@@ -8814,7 +8819,10 @@
                     },
                     "then": "ExileAndReturnTransformed"
                 },
-                "interveningIf": "TriggeringEntityEnteredOrWasCastFromGraveyard",
+                "interveningIf": {
+                    "type": "TriggeringEntityEnteredOrWasCastFrom",
+                    "zone": "Graveyard"
+                },
                 "descriptionOverride": "Whenever Grist or another creature you control enters, if it entered from your graveyard or you cast it from your graveyard, you may pay {G}. If you do, exile Grist, then return it to the battlefield transformed under its owner's control."
             }
         ]
@@ -9703,7 +9711,10 @@
         "triggeredAbilities": [
             {
                 "id": "Hydra Trainer:1",
-                "trigger": "ExertedAsItAttacksEvent",
+                "trigger": {
+                    "type": "ExertedEvent",
+                    "asItAttacks": true
+                },
                 "effect": {
                     "type": "ModifyStats",
                     "powerModifier": {
@@ -20691,9 +20702,10 @@
                             }
                         },
                         {
-                            "type": "Modal",
-                            "modes": [
+                            "type": "ChooseAction",
+                            "choices": [
                                 {
+                                    "label": "Search your library",
                                     "effect": {
                                         "type": "Composite",
                                         "effects": [
@@ -20745,10 +20757,10 @@
                                             "ShuffleLibrary",
                                             "EmitLibrarySearchedEvent"
                                         ]
-                                    },
-                                    "description": "Search your library"
+                                    }
                                 },
                                 {
+                                    "label": "Search your graveyard",
                                     "effect": {
                                         "type": "Composite",
                                         "effects": [
@@ -20778,7 +20790,7 @@
                                                 "type": "SelectFromCollection",
                                                 "from": "searchable",
                                                 "selection": {
-                                                    "type": "ChooseUpTo",
+                                                    "type": "ChooseExactly",
                                                     "count": {
                                                         "type": "Fixed",
                                                         "amount": 1
@@ -20797,10 +20809,10 @@
                                                 }
                                             }
                                         ]
-                                    },
-                                    "description": "Search your graveyard"
+                                    }
                                 },
                                 {
+                                    "label": "Search your library and graveyard",
                                     "effect": {
                                         "type": "Composite",
                                         "effects": [
@@ -20853,11 +20865,9 @@
                                             "ShuffleLibrary",
                                             "EmitLibrarySearchedEvent"
                                         ]
-                                    },
-                                    "description": "Search your library and graveyard"
+                                    }
                                 }
-                            ],
-                            "countsAsModalSpell": false
+                            ]
                         }
                     ]
                 }

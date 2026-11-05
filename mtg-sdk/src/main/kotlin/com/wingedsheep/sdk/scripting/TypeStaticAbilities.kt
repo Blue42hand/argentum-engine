@@ -127,7 +127,7 @@ data class IsAllCreatureTypes(
 
 /**
  * The permanents matching [filter] **have the creature types of the object [source] names**,
- * replacing their own (CR 205.1b) while keeping every non-creature subtype.
+ * replacing their own (CR 205.1a) while keeping every non-creature subtype.
  *
  * The type half of the "copy some characteristics of another object" family: [source] is an
  * ordinary [com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity], so the same static reads a card
@@ -287,6 +287,11 @@ data class GrantColor(
  * [filter] (e.g. nonland) also qualify which off-battlefield objects are reached, matched against
  * their printed characteristics. Off the battlefield the effect is an overlay the color read-sites
  * consult (`ProjectedState.colorsOf`), since layer projection iterates only permanents.
+ *
+ * Printed with `filter = GroupFilter.source()` and no [offBattlefield] reach, it is the card's own
+ * characteristic-defining ability — "Sphinx of the Guildpact is all colors" (CR 604.3a). Such an
+ * ability is folded into `CardDefinition.colors` (`selfDefinedColors`), so the card has those colors
+ * in every zone, and is not projected again as a timestamped layer-5 effect (CR 613.3).
  */
 @SerialName("SetColors")
 @Serializable
@@ -303,8 +308,22 @@ data class SetColors(
 
     override val description: String = buildString {
         append(filter.description)
-        append(if (colors.isEmpty()) " are colorless" else " are ${colors.joinToString(" and ") { it.name.lowercase() }}")
+        // "[This] is all colors" (Sphinx of the Guildpact) reads singular; a group reads plural.
+        append(if (filter.scope is com.wingedsheep.sdk.scripting.filters.unified.Scope.Self) " is" else " are")
+        append(when {
+            colors.isEmpty() -> " colorless"
+            colors.size == com.wingedsheep.sdk.core.Color.entries.size -> " all colors"
+            else -> " ${colors.joinToString(" and ") { it.name.lowercase() }}"
+        })
     }
+
+    /**
+     * True for the self-colour CDA shape — the source itself, battlefield-only reach. Printed at the
+     * top of a card's script it is folded into `CardDefinition.colors` (`selfDefinedColors`) and not
+     * projected again; the one test both sides read.
+     */
+    val isSelfColorShape: Boolean
+        get() = offBattlefield == null && filter == GroupFilter.source()
 
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
@@ -403,14 +422,22 @@ data class AddLandTypeByCounter(
  * This is a Layer 6 (ABILITY) continuous effect that clears all keywords and
  * suppresses activated, triggered, and static abilities.
  *
+ * [exceptManaAbilities] is "lose all abilities except mana abilities" (Blood Sun): keywords,
+ * statics, triggered and non-mana activated abilities go, but each affected object keeps its
+ * mana abilities (CR 605.1a — abilities that produce mana, not ones that cost it). A full
+ * removal applied alongside it still takes the mana abilities too.
+ *
  * @property filter What this ability applies to (typically AttachedCreature for auras)
+ * @property exceptManaAbilities Whether the affected objects keep their mana abilities
  */
 @SerialName("LoseAllAbilities")
 @Serializable
 data class LoseAllAbilities(
-    val filter: GroupFilter = GroupFilter.attachedCreature()
+    val filter: GroupFilter = GroupFilter.attachedCreature(),
+    val exceptManaAbilities: Boolean = false
 ) : StaticAbility {
-    override val description: String = "loses all abilities"
+    override val description: String =
+        if (exceptManaAbilities) "loses all abilities except mana abilities" else "loses all abilities"
 }
 
 /**
@@ -621,13 +648,22 @@ data class AnimateLandGroup(
  * Note: Combine with LoseAllAbilities and GrantActivatedAbility
  * separately for ability removal/granting.
  *
- * @property setCardTypes Card types to set (replaces ALL existing card types)
+ * @property setCardTypes Card types to set (replaces ALL existing card types). The subtypes of every
+ *   card type the object loses go with it unless a remaining type shares them (CR 205.1a) — the engine
+ *   prunes them, so "loses all other card types" needs no [setSubtypes].
  * @property setSubtypes Subtypes to set (replaces ALL existing subtypes). A non-empty set
  *   replaces all subtypes; an empty set leaves subtypes unchanged unless [clearSubtypes] is set.
  * @property setColors Colors to set (null = don't change, empty = colorless)
  * @property setName Name to set (null = don't change). Per CR 612.8 the object "loses any
  *   names it had and has only the specified name" — applied at Layer 3 (TEXT), before the
  *   type/color layers. Used by Witness Protection ("named Legitimate Businessperson").
+ * @property setCreatureSubtypes Creature types to set, replacing only the existing **creature** types
+ *   and leaving every card type, supertype and non-creature subtype in place (CR 205.1a). This is the
+ *   "is a [creature type]" wording with no card type named — Ichthyomorphosis's "is a blue Fish",
+ *   Lignify's "is a Treefolk": an enchanted artifact creature stays an artifact, an Equipment keeps
+ *   its Equipment subtype. Use it *instead of* `setCardTypes = {"CREATURE"}` + [setSubtypes], which
+ *   is the "is a [type] creature" wording that loses all other card types (Eaten by Piranhas).
+ *   Empty = don't change creature types.
  * @property clearSubtypes When true, removes all subtypes (used with `setSubtypes = emptySet()`
  *   to express "has no subtypes" — e.g. the Enduring cycle's enchantment-only return, which
  *   strips Sheep/Glimmer). Distinguishes "clear subtypes" from "don't change subtypes".
@@ -641,17 +677,26 @@ data class TransformPermanent(
     val setColors: Set<Color>? = null,
     val setName: String? = null,
     val clearSubtypes: Boolean = false,
-    val filter: GroupFilter = GroupFilter.attachedCreature()
+    val filter: GroupFilter = GroupFilter.attachedCreature(),
+    val setCreatureSubtypes: Set<String> = emptySet()
 ) : StaticAbility {
     override val description: String = buildString {
         append("is ")
         if (setColors?.isEmpty() == true) append("a colorless ")
         else if (setColors != null) append("a ${setColors.joinToString("/") { it.name.lowercase() }} ")
         if (setSubtypes.isNotEmpty()) append(setSubtypes.joinToString(" "))
+        if (setCreatureSubtypes.isNotEmpty()) append(setCreatureSubtypes.joinToString(" "))
         if (setCardTypes.isNotEmpty()) {
-            if (setSubtypes.isNotEmpty()) append(" ")
+            if (setSubtypes.isNotEmpty() || setCreatureSubtypes.isNotEmpty()) append(" ")
             append(setCardTypes.joinToString(" ") { it.lowercase() })
         }
         if (setName != null) append(" named $setName")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        val newCreatureSubtypes = setCreatureSubtypes.map { replacer.replaceCreatureType(it) }.toSet()
+        return if (newFilter !== filter || newCreatureSubtypes != setCreatureSubtypes)
+            copy(filter = newFilter, setCreatureSubtypes = newCreatureSubtypes) else this
     }
 }

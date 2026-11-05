@@ -7,6 +7,7 @@ import com.wingedsheep.engine.core.ForEachItem
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
@@ -57,7 +58,8 @@ class ForEachExecutor(
     private val effectExecutor: (GameState, Effect, EffectContext) -> EffectResult,
     private val predicateEvaluator: PredicateEvaluator,
     /** For the group look-back freeze in [execute]; the continuation resumer needs none. */
-    private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry? = null
+    private val cardRegistry: com.wingedsheep.engine.registry.CardRegistry? = null,
+    private val damageExecutor: com.wingedsheep.engine.handlers.effects.damage.DealDamageExecutor? = null
 ) : EffectExecutor<ForEachEffect> {
 
     override val effectType: KClass<ForEachEffect> = ForEachEffect::class
@@ -84,16 +86,43 @@ class ForEachExecutor(
             }
         }
 
+        val damage = effect.body as? com.wingedsheep.sdk.scripting.effects.DealDamageEffect
+        val simultaneousDamage = when (effect.space) {
+            IterationSpace.Targets, is IterationSpace.TargetsOf,
+            is IterationSpace.Group, is IterationSpace.Collection, is IterationSpace.Players -> true
+            else -> false
+        }
+        if (damage != null && simultaneousDamage && damageExecutor != null) {
+            // Atomic damage is one instruction across all recipients. A composite body remains
+            // a per-item sequence; it can contain intervening choices or state-changing effects.
+            // Preparation is already in the paused state. Replaying the damage instruction
+            // must not install another copy of each no-regeneration floating effect.
+            val replayEffect = if (space is IterationSpace.Group && space.noRegenerate) {
+                effect.copy(space = space.copy(noRegenerate = false))
+            } else effect
+            return damageExecutor.executeSimultaneously(currentState, damage,
+                items.map { bindIterationContext(currentState, context, it) }, replayEffect, context, aggregateExcess = true)
+        }
+
         // A group loop is one simultaneous event: freeze each member's look-back grants
         // before the first iteration moves anything, for its leaves-the-battlefield look-back
         // (CR 603.10a). Carried on the outer context, so it survives a mid-loop pause.
-        val loopContext = if (space is IterationSpace.Group && cardRegistry != null) {
+        val lookBackContext = if (space is IterationSpace.Group && cardRegistry != null) {
             val frozen = com.wingedsheep.engine.event.LookBackGrants.frozen(
                 state, items.mapNotNull { (it as? ForEachItem.OfEntity)?.entityId },
                 cardRegistry, predicateEvaluator.conditions
             )
             if (frozen.isEmpty()) context else context.copy(lookBackGrants = context.lookBackGrants + frozen)
         } else context
+
+        // "For each creature, create a token …" is one instruction: every token it makes enters
+        // at once and sees the others enter (CR 603.6a), so the iterations share one entry group.
+        // Carried on the outer context, so it survives a mid-loop pause.
+        val loopContext = if (TokenEntryGroups.createsTokens(effect.body) && TokenEntryGroups.group(context) == null) {
+            val (group, allocated) = currentState.newRoutingId()
+            currentState = allocated
+            TokenEntryGroups.withGroup(lookBackContext, group)
+        } else lookBackContext
 
         val move = effect.body as? com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
         // An atomic move over a group or all chosen targets is one instruction. A
@@ -318,6 +347,7 @@ class ForEachExecutor(
             Player.Each -> state.activePlayers
             Player.ActivePlayerFirst -> state.apnapOrder
             Player.EachStartingWithYou -> state.turnOrderStartingWith(context.controllerId)
+            Player.EachStartingWithNextOpponent -> state.turnOrderStartingWithNextOpponent(context.controllerId)
             Player.You -> listOf(context.controllerId)
             Player.EachOpponent -> state.getOpponents(context.controllerId)
             Player.EachOtherPlayer -> state.getOtherPlayers(context.controllerId)

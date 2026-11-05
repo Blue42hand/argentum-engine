@@ -37,7 +37,7 @@ object ReplacementEffectUtils {
     fun isExtraTurnPrevented(state: GameState): Boolean {
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
-            val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
+            val replacementComponent = state.activeReplacementSource(entityId) ?: continue
             for (effect in replacementComponent.replacementEffects) {
                 if (effect is PreventExtraTurns) return true
             }
@@ -99,6 +99,8 @@ object ReplacementEffectUtils {
         if (count <= 0) return count
         // A capped recipient can't get more of this kind this turn: the placement doesn't happen.
         if (isCounterPlacementLocked(state, targetId, counterType)) return 0
+        // A kind-scoped "can't have +1/+1 counters put on it" (Blightbeetle): that kind doesn't go on.
+        if (!state.projectedState.canReceiveCounters(targetId, counterType)) return 0
 
         val additions = mutableListOf<Int>()
         var doublings = 0
@@ -111,7 +113,8 @@ object ReplacementEffectUtils {
         for (entityId in sourceIds + listOfNotNull(entrantSelfSource)) {
             val selfEntry = entityId == entrantSelfSource
             val container = (if (selfEntry) state else sources).getEntity(entityId) ?: continue
-            val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
+            val replacementComponent = (if (selfEntry) entryViews?.entrantAsWouldExist ?: state else sources)
+                .activeReplacementSource(entityId) ?: continue
             val sourceControllerId = if (selfEntry) {
                 (entryViews?.entrantAsWouldExist ?: state).projectedState.getController(entityId)
                     ?: container.get<ControllerComponent>()?.playerId
@@ -161,10 +164,10 @@ object ReplacementEffectUtils {
         //    (GrantCounterPlacementModifierEffect — e.g. Prairie Dog's {4}{W}).
         //    These have no battlefield source permanent: the effect's stored controllerId IS
         //    the "you" for both the recipient filter ("a creature you control") and the placer
-        //    gate (only the controller's own counter placements get the bonus).
+        //    gate ("if you would put" by default; Brad Boimler's "would be put" is Player.Any).
         for (modifier in sources.activeCounterPlacementModifiers) {
-            if (placerId != modifier.controllerId) continue
-            if (modifier.counterType != counterType) continue
+            if (!placerMatches(state, modifier.placer, placerId, modifier.controllerId)) continue
+            if (modifier.counterType != null && modifier.counterType != counterType) continue
             // No battlefield source entity — pass the controller as the "source entity" so
             // Recipient.Self can't spuriously match, and the controller as controllerId.
             val recipientMatches = matchesRecipient(
@@ -329,7 +332,7 @@ object ReplacementEffectUtils {
         var cap: Int? = null
         for (entityId in replacementSourceState.getBattlefield()) {
             val container = replacementSourceState.getEntity(entityId) ?: continue
-            val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
+            val replacementComponent = replacementSourceState.activeReplacementSource(entityId) ?: continue
             // "You" is the source's current (projected) controller — a stolen Melira protects its thief.
             val sourceControllerId = replacementSourceState.projectedState.getController(entityId) ?: continue
             for (effect in replacementComponent.replacementEffects) {

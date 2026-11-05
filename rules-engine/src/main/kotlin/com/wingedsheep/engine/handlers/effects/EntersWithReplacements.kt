@@ -29,6 +29,7 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.EntersWithKeywords
@@ -151,7 +152,10 @@ object EntersWithReplacements {
         val events = mutableListOf<GameEvent>()
         val counterTotals = suppliedCounters?.toMutableMap()
 
-        val (ownState, ownEvents) = if (suppliedCounters != null && container.has<com.wingedsheep.engine.state.components.identity.FaceDownComponent>()) {
+        // Its own "enters with" replacements are gone if a battlefield static strips its abilities
+        // as it would exist there (Humility, Blood Sun — CR 614.12).
+        val ownLost = EntryCharacteristics.wouldLoseAllAbilities(state, enteringEntityId, enteringControllerId, cardRegistry, predicateEvaluator)
+        val (ownState, ownEvents) = if (ownLost || suppliedCounters != null && container.has<com.wingedsheep.engine.state.components.identity.FaceDownComponent>()) {
             newState to emptyList<GameEvent>()
         } else applyFromDefinition(
             newState, enteringEntityId, cardDef, enteringControllerId, xValue,
@@ -230,6 +234,15 @@ object EntersWithReplacements {
             // [applyGlobal] sweeps so no entry path can fire it against the source itself.
             if (Zone.BATTLEFIELD !in effect.activeZones) continue
             when (effect) {
+                // "Choose a number at random" (Haktos the Unscarred): no player decides, so no entry
+                // path prompts for it — the number is drawn here, on the path every entry shares,
+                // and recorded where a chosen number would be.
+                is EntersWithChoice -> if (effect.atRandom) {
+                    val (offset, advanced) = newState.nextRandom { nextInt(effect.maxValue - effect.minValue + 1) }
+                    newState = advanced.updateEntity(entityId) {
+                        it.withCastChoice(ChoiceSlot.CHOSEN_NUMBER, ChoiceValue.NumberChoice(effect.minValue + offset))
+                    }
+                }
                 is EntersWithCounters -> {
                     // Skip "other only" effects when applying to self (Metallic Mimic's "each other
                     // creature you control … enters with an additional +1/+1 counter" must not
@@ -392,13 +405,35 @@ object EntersWithReplacements {
     }
 
     /**
-     * How many counters an `EntersAsCopy.entersWithCounters` rider puts on [entityId], which entered
-     * as a copy of [copiedId]: zero when the rider's `ifCopiedMatches` filter doesn't match the
+     * The counters, by kind, an `EntersAsCopy.entersWithCounters` rider puts on [entityId], which
+     * entered as a copy of [copiedId]: none when the rider's `ifCopiedMatches` filter doesn't match the
      * copied object (read against [controllerId] — "if you control that creature") or its
-     * `ifEntrantMatches` filter doesn't match the entrant itself, as the copy has made it, else its count.
+     * `ifEntrantMatches` filter doesn't match the entrant itself, as the copy has made it. A rider
+     * with a counter type gives its count of that kind; one without mirrors the copied object —
+     * its count per counter, for every kind the copied object has right now (Dominion Saboteur).
      * Shared by the cast, direct-entry and effect-entry copy paths.
      */
-    fun copyEntryCounterCount(
+    fun copyEntryCounters(
+        state: GameState,
+        rider: com.wingedsheep.sdk.scripting.CopyEntryCounters,
+        entityId: EntityId,
+        copiedId: EntityId?,
+        controllerId: EntityId,
+        xValue: Int?,
+        predicateEvaluator: PredicateEvaluator,
+        entryViews: EntryEvaluationViews? = null,
+    ): Map<CounterType, Int> {
+        val perUnit = copyEntryCounterCount(state, rider, entityId, copiedId, controllerId, xValue, predicateEvaluator, entryViews)
+        if (perUnit <= 0) return emptyMap()
+        val kind = rider.counterType ?: run {
+            val copied = copiedId?.let { (entryViews?.worldBeforeEvent ?: state).getEntity(it)?.get<CountersComponent>() } ?: return emptyMap()
+            return copied.counters.filterValues { it > 0 }
+                .mapValues { (_, n) -> (n.toLong() * perUnit).coerceAtMost(com.wingedsheep.engine.core.GameLimits.MAX_QUANTITY.toLong()).toInt() }
+        }
+        return mapOf(kind to perUnit)
+    }
+
+    private fun copyEntryCounterCount(
         state: GameState,
         rider: com.wingedsheep.sdk.scripting.CopyEntryCounters,
         entityId: EntityId,
@@ -477,8 +512,7 @@ object EntersWithReplacements {
         val sources = mutableListOf<GlobalReplacementSource>()
         for (sourceId in replacementSourceState.getBattlefield()) {
             if (sourceId == enteringEntityId) continue
-            val container = replacementSourceState.getEntity(sourceId) ?: continue
-            val replacementComponent = container.get<ReplacementEffectSourceComponent>() ?: continue
+            val replacementComponent = replacementSourceState.activeReplacementSource(sourceId) ?: continue
             val sourceControllerId = replacementSourceState.projectedState.getController(sourceId) ?: continue
             val effects = replacementComponent.replacementEffects
                 .filter { Zone.BATTLEFIELD in it.activeZones }
@@ -563,10 +597,13 @@ object EntersWithReplacements {
                         // to cast IT") read the entering creature's own cast, not the source's.
                         // controllerId stays the source's controller so player-scoped counts (Gev's
                         // TurnTracking(Player.You)) keep reading the source controller's trackers.
+                        // The replacement's source (a grant's anchor) is exposed as granterId, so a
+                        // count that names it ("equal to Arwen's toughness") reads GrantingSource.
                         val context = EffectContext(
                             sourceId = enteringEntityId,
                             controllerId = sourceControllerId,
                             affectedEntityId = enteringEntityId,
+                            granterId = sourceId,
                         )
                         val views = entryEvaluationViews(newState, enteringEntityId, enteringControllerId, replacementSourceState, preEntryZone)
                         val count = predicateEvaluator.amounts.evaluate(

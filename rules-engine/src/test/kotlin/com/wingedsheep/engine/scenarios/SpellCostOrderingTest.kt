@@ -386,7 +386,8 @@ class SpellCostOrderingTest : ScenarioTestBase() {
                 (it.action as? CastSpell)?.cardId == id && it.additionalCostInfo?.costType == "Blight"
             }
             offer.isAffordable shouldBe true
-            ManaCost.parse(offer.manaCostString!!) shouldBe ManaCost.parse("{1}{B}")
+            // Exile offers display the price after the permission's any-type relaxation.
+            ManaCost.parse(offer.manaCostString!!) shouldBe ManaCost.parse("{2}")
             val bears = game.findAllPermanents("Grizzly Bears")
             game.execute((offer.action as CastSpell).copy(
                 targets = listOf(ChosenTarget.Permanent(bears.last())),

@@ -113,8 +113,8 @@ class TriggerAbilityResolver(
 
         val ringBearerAbilities = getRingBearerAbilities(entityId, state)
 
-        // A suspended card (CR 702.62) gains the owner's-upkeep countdown-and-cast ability
-        // while it carries the marker. Component-driven, so it works for an arbitrary card
+        // A suspended card (CR 702.62) gains the owner's-upkeep countdown and the last-counter
+        // cast ability while it carries the marker. Component-driven, so it works for an arbitrary card
         // with no printed suspend (e.g. a spell exiled by Taigam, Master Opportunist).
         val suspendAbilities = getSuspendTriggeredAbilities(entityId, state)
         val paradigmAbilities = getParadigmTriggeredAbilities(entityId, state)
@@ -124,7 +124,7 @@ class TriggerAbilityResolver(
         // and one that stops being a Siege loses it.
         val siegeAbilities = getSiegeDefeatAbilities(entityId, state)
 
-        // Vanishing N (CR 702.62) — the upkeep countdown and the last-counter sacrifice are
+        // Vanishing N (CR 702.63) — the upkeep countdown and the last-counter sacrifice are
         // intrinsic to the keyword, printed on no card as separate lines. Derived from the
         // projected keywords, so granted vanishing works and "loses all abilities" strips it.
         val vanishingAbilities = getVanishingTriggeredAbilities(entityId, state)
@@ -134,15 +134,17 @@ class TriggerAbilityResolver(
         val fabricateAbilities = getFabricateTriggeredAbilities(entityId, cardDefinitionId, state)
 
         // Renown N (CR 702.112) — the combat-damage trigger is intrinsic to the keyword, printed
-        // on no card as a separate line. Same derivation shape as fabricate: the projected keyword
-        // gates it, the printed KeywordAbility.Numeric supplies N.
+        // on no card as a separate line. One trigger per printed instance (gated on the projected
+        // keyword) plus one per granted `RENOWN_<n>` instance (Aragorn, Hornburg Hero).
         val renownAbilities = getRenownTriggeredAbilities(entityId, cardDefinitionId, state)
 
-        // Bushido N (CR 702.45) and rampage N (CR 702.23) — the combat pump is intrinsic to the
-        // keyword, printed on no card as a separate line. Printed instances as renown; a granted
-        // `BUSHIDO_<n>` (Sensei Golden-Tail) / `RAMPAGE_<n>` (Rapid Fire) adds one more trigger.
+        // Bushido N (CR 702.45), rampage N (CR 702.23) and afflict N (CR 702.130) — the combat
+        // trigger is intrinsic to the keyword, printed on no card as a separate line. Printed
+        // instances as renown; a granted `BUSHIDO_<n>` (Sensei Golden-Tail) / `RAMPAGE_<n>` (Rapid
+        // Fire) adds one more trigger.
         val bushidoAbilities = getBushidoTriggeredAbilities(entityId, cardDefinitionId, state) +
-            getRampageTriggeredAbilities(entityId, cardDefinitionId, state)
+            getRampageTriggeredAbilities(entityId, cardDefinitionId, state) +
+            getAfflictTriggeredAbilities(entityId, cardDefinitionId, state)
 
         // Exalted (CR 702.83) — one "attacks alone" pump per instance: the printed keyword plus
         // one per exalted counter (CR 122.1b).
@@ -192,13 +194,14 @@ class TriggerAbilityResolver(
     }
 
     /**
-     * Grant [com.wingedsheep.sdk.scripting.Suspend.countdownAbility] to any card carrying the
-     * [SuspendedComponent] marker. The ability functions only in exile (`activeZones == {EXILE}`),
-     * so it is inert anywhere else and harmless to return universally.
+     * Grant suspend's two exile triggers ([com.wingedsheep.sdk.scripting.Suspend.exileAbilities]:
+     * the upkeep countdown and the last-counter cast) to any card carrying the [SuspendedComponent]
+     * marker. Both function only in exile (`activeZones == {EXILE}`), so they are inert anywhere
+     * else and harmless to return universally.
      */
     private fun getSuspendTriggeredAbilities(entityId: EntityId, state: GameState): List<TriggeredAbility> =
         if (state.getEntity(entityId)?.has<SuspendedComponent>() == true) {
-            listOf(com.wingedsheep.sdk.scripting.Suspend.countdownAbility)
+            com.wingedsheep.sdk.scripting.Suspend.exileAbilities
         } else {
             emptyList()
         }
@@ -339,7 +342,7 @@ class TriggerAbilityResolver(
         // and one that stops being a Siege loses it.
         val siegeAbilities = getSiegeDefeatAbilities(entityId, state)
 
-        // Vanishing N (CR 702.62) — the upkeep countdown and the last-counter sacrifice are
+        // Vanishing N (CR 702.63) — the upkeep countdown and the last-counter sacrifice are
         // intrinsic to the keyword, printed on no card as separate lines. Derived from the
         // projected keywords, so granted vanishing works and "loses all abilities" strips it.
         val vanishingAbilities = getVanishingTriggeredAbilities(entityId, state)
@@ -349,15 +352,17 @@ class TriggerAbilityResolver(
         val fabricateAbilities = getFabricateTriggeredAbilities(entityId, cardDefinitionId, state)
 
         // Renown N (CR 702.112) — the combat-damage trigger is intrinsic to the keyword, printed
-        // on no card as a separate line. Same derivation shape as fabricate: the projected keyword
-        // gates it, the printed KeywordAbility.Numeric supplies N.
+        // on no card as a separate line. One trigger per printed instance (gated on the projected
+        // keyword) plus one per granted `RENOWN_<n>` instance (Aragorn, Hornburg Hero).
         val renownAbilities = getRenownTriggeredAbilities(entityId, cardDefinitionId, state)
 
-        // Bushido N (CR 702.45) and rampage N (CR 702.23) — the combat pump is intrinsic to the
-        // keyword, printed on no card as a separate line. Printed instances as renown; a granted
-        // `BUSHIDO_<n>` (Sensei Golden-Tail) / `RAMPAGE_<n>` (Rapid Fire) adds one more trigger.
+        // Bushido N (CR 702.45), rampage N (CR 702.23) and afflict N (CR 702.130) — the combat
+        // trigger is intrinsic to the keyword, printed on no card as a separate line. Printed
+        // instances as renown; a granted `BUSHIDO_<n>` (Sensei Golden-Tail) / `RAMPAGE_<n>` (Rapid
+        // Fire) adds one more trigger.
         val bushidoAbilities = getBushidoTriggeredAbilities(entityId, cardDefinitionId, state) +
-            getRampageTriggeredAbilities(entityId, cardDefinitionId, state)
+            getRampageTriggeredAbilities(entityId, cardDefinitionId, state) +
+            getAfflictTriggeredAbilities(entityId, cardDefinitionId, state)
 
         // Exalted (CR 702.83) — one "attacks alone" pump per instance: the printed keyword plus
         // one per exalted counter (CR 122.1b).
@@ -798,15 +803,15 @@ class TriggerAbilityResolver(
         }
 
     /**
-     * Vanishing N (CR 702.62) as two keyword-derived triggered abilities: the upkeep countdown
-     * (702.62b) and the last-time-counter sacrifice (702.62c). A vanishing card prints one keyword
+     * Vanishing N (CR 702.63) as two keyword-derived triggered abilities: the upkeep countdown
+     * and the last-time-counter sacrifice (both CR 702.63a). A vanishing card prints one keyword
      * line and a reminder, never these two abilities, so the engine supplies them — the same shape
      * as flanking, ward and the Siege defeat trigger.
      *
      * Keyed on the *projected* keyword, which buys three things at once: a token created "with
      * vanishing 3" and a creature that *gains* vanishing both count down, and a permanent that has
      * lost all abilities stops counting down (the keyword is stripped in projection) — matching
-     * CR 702.62, where all three vanishing abilities are abilities of the permanent.
+     * CR 702.63a, where all three vanishing abilities are abilities of the permanent.
      *
      * The N-carrying half — "enters with N time counters" — is not here: it is a replacement
      * effect applied at entry from the printed [com.wingedsheep.sdk.scripting.KeywordAbility.Numeric],
@@ -859,14 +864,16 @@ class TriggerAbilityResolver(
      * [com.wingedsheep.sdk.scripting.Renown] for why "if it isn't renowned" is an intervening-`if`
      * rather than a check inside the effect.
      *
-     * **Two sources, deliberately**, exactly as fabricate: the *gate* is the projected keyword, so
-     * a creature that has lost all abilities has no renown trigger; the *parameter* is the printed
-     * [KeywordAbility.Numeric], because a projected keyword set carries no N. The one card that
-     * grants renown (Aragorn, Hornburg Hero) is not in the corpus, and a granted renown has no N
-     * to read — the same limitation vanishing's granted case has for its entry counters.
+     * **Printed and granted, derived apart**:
+     * - **Printed**: gated on the projected *bare* `RENOWN` keyword (so a creature that has lost
+     *   all abilities has no printed renown trigger), N from the printed [KeywordAbility.Numeric].
+     * - **Granted**: each projected `RENOWN_<n>` (Aragorn, Hornburg Hero) carries its own N and
+     *   needs no printed source. Projection keeps distinct Ns apart and tallies identical grants
+     *   ([com.wingedsheep.engine.mechanics.layers.ProjectedState.grantedKeywordInstances]), so
+     *   two "have renown 1" grants derive two triggers — never one fused renown 2.
      *
-     * **One trigger per printed instance**, not one per summed N — CR 702.112c: *"If a creature
-     * has multiple instances of renown, each triggers separately."* The first to resolve makes the
+     * **One trigger per instance**, not one per summed N — CR 702.112c: *"If a creature has
+     * multiple instances of renown, each triggers separately."* The first to resolve makes the
      * creature renowned and the rest find their intervening-`if` false.
      */
     private fun getRenownTriggeredAbilities(
@@ -874,19 +881,30 @@ class TriggerAbilityResolver(
         cardDefinitionId: String,
         state: GameState,
     ): List<TriggeredAbility> {
-        if (!state.projectedState.hasKeyword(entityId, com.wingedsheep.sdk.core.Keyword.RENOWN)) {
-            return emptyList()
+        val projected = state.projectedState
+        val keywords = projected.getKeywords(entityId)
+        if (keywords.isEmpty()) return emptyList()
+        val printed = if (com.wingedsheep.sdk.core.Keyword.RENOWN.name in keywords) {
+            cardRegistry.getCard(cardDefinitionId)
+                ?.let(com.wingedsheep.sdk.scripting.Renown::printedCounts)
+                .orEmpty()
+                .mapIndexed { instance, n -> com.wingedsheep.sdk.scripting.Renown.combatDamageTrigger(n, instance) }
+        } else {
+            emptyList()
         }
-        val cardDef = cardRegistry.getCard(cardDefinitionId) ?: return emptyList()
-        return com.wingedsheep.sdk.scripting.Renown.printedCounts(cardDef)
-            .mapIndexed { instance, n ->
-                com.wingedsheep.sdk.scripting.Renown.combatDamageTrigger(n, instance)
-            }
+        if (keywords.none { com.wingedsheep.sdk.scripting.Renown.grantedN(it) != null }) return printed
+        // Sorted so the granted instances' ability ids are stable across projections.
+        val grantedNs = keywords.mapNotNull { com.wingedsheep.sdk.scripting.Renown.grantedN(it)?.let { n -> it to n } }
+            .sortedBy { it.second }
+            .flatMap { (keyword, n) -> List(projected.grantedKeywordInstances(entityId, keyword)) { n } }
+        return printed + grantedNs.mapIndexed { instance, n ->
+            com.wingedsheep.sdk.scripting.Renown.combatDamageTrigger(n, instance, granted = true)
+        }
     }
 
     /**
      * Bushido N (CR 702.45) as the keyword-derived triggered ability it is — the shape of
-     * [getRenownTriggeredAbilities], plus the granted half renown lacks. See
+     * [getRenownTriggeredAbilities], except that granted bushido sums into one trigger. See
      * [com.wingedsheep.sdk.scripting.Bushido].
      *
      * - **Printed**: gated on the projected bare `BUSHIDO` keyword (stripped by "loses all
@@ -921,8 +939,23 @@ class TriggerAbilityResolver(
     )
 
     /**
+     * Afflict N (CR 702.130) — the same printed derivation as bushido: one "becomes blocked,
+     * defending player loses N life" trigger per printed instance (CR 702.130b) while the projected
+     * bare `AFFLICT` keyword survives. See [com.wingedsheep.sdk.scripting.Afflict].
+     */
+    private fun getAfflictTriggeredAbilities(
+        entityId: EntityId,
+        cardDefinitionId: String,
+        state: GameState,
+    ): List<TriggeredAbility> = getNumericKeywordTriggeredAbilities(
+        entityId, cardDefinitionId, state, com.wingedsheep.sdk.core.Keyword.AFFLICT,
+        printedCounts = com.wingedsheep.sdk.scripting.Afflict::printedCounts,
+        trigger = com.wingedsheep.sdk.scripting.Afflict::trigger,
+    )
+
+    /**
      * The shared shape of a numeric keyword whose triggered ability the engine derives (bushido,
-     * rampage): one trigger per printed instance while the projected bare [keyword] survives, plus
+     * rampage, afflict): one trigger per printed instance while the projected bare [keyword] survives, plus
      * one for the summed N of every projected granted `<KEYWORD>_<n>`.
      */
     private fun getNumericKeywordTriggeredAbilities(

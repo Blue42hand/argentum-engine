@@ -465,6 +465,27 @@ class GatherCardsExecutor(
             }
             .orEmpty()
 
+        // "You control your opponents while they're searching their libraries" (Opposition Agent):
+        // the pick over this pool goes to that player, and whatever of it is found gets exiled for
+        // them (LibrarySearchControl). Pools of earlier controlled searches in this pipeline add up.
+        val searchController = searcher?.takeIf { !searchForbidden }?.let { s ->
+            LibrarySearchControl.controllerOf(
+                state, s,
+                LibrarySearchRestrictions.searchedLibraryOwners(effect.source) { resolvePlayers(it, context, state) }
+            )
+        }
+        val searchControlCollections = searchController?.let { controller ->
+            val poolKey = com.wingedsheep.engine.handlers.PipelineState.searchControlledPoolKey(controller)
+            mapOf(
+                com.wingedsheep.engine.handlers.PipelineState.searchControllerKey(effect.storeAs) to listOf(controller),
+                poolKey to (context.pipeline.storedCollections[poolKey].orEmpty() + cards).distinct(),
+            )
+        } ?: if (com.wingedsheep.engine.handlers.PipelineState.searchControllerKey(effect.storeAs) in context.pipeline.storedCollections) {
+            mapOf(com.wingedsheep.engine.handlers.PipelineState.searchControllerKey(effect.storeAs) to emptyList())
+        } else {
+            emptyMap()
+        }
+
         // An empty pool still publishes its marks: a search that found nothing is still a search,
         // and a filtered hidden zone with no match is still a hidden fact.
         val events = if (effect.revealed && cards.isNotEmpty()) {
@@ -547,7 +568,7 @@ class GatherCardsExecutor(
             collections + com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations.clearUnknown(context, effect.storeAs)
         }
         val hiddenMarks = HiddenPools.marks(listOf(effect.storeAs), poolDeciders, context.pipeline.storedCollections)
-        return EffectResult.success(newState, events).copy(updatedCollections = updatedCollections + hiddenMarks + searcherCollection)
+        return EffectResult.success(newState, events).copy(updatedCollections = updatedCollections + hiddenMarks + searcherCollection + searchControlCollections)
     }
 
 
@@ -657,6 +678,7 @@ class GatherCardsExecutor(
         is Player.EachAttackedPlayer -> com.wingedsheep.engine.mechanics.combat.CombatDefenders.attackedPlayersInApnapOrder(state)
         is Player.Each, is Player.ActivePlayerFirst -> state.turnOrder
         is Player.EachStartingWithYou -> state.turnOrderStartingWith(context.controllerId)
+        is Player.EachStartingWithNextOpponent -> state.turnOrderStartingWithNextOpponent(context.controllerId)
         is Player.EachOpponent -> state.turnOrder.filter { it != context.controllerId }
         is Player.EachOtherPlayer -> state.getOtherPlayers(context.controllerId)
         // "Up to one target player" with no player chosen names nobody (Endurance) — never fall

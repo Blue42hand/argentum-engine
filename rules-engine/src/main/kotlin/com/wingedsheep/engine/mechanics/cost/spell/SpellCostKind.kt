@@ -150,6 +150,9 @@ class SpellCostOffer {
     var collectEvidenceCost: CostAtom.CollectEvidence? = null
     var discardTargets = emptyList<EntityId>()
     var discardCount = 0
+    /** Set by a variable discard ("discard X cards"): [discardCount] is then its minimum. */
+    var discardMaxCount: Int? = null
+    var discardDescription: String? = null
     var bounceTargets = emptyList<EntityId>()
     var bounceCount = 0
     var tapTargets = emptyList<EntityId>()
@@ -159,6 +162,8 @@ class SpellCostOffer {
     var revealTargets = emptyList<EntityId>()
     var revealCount = 0
     var blightOrPayCost: AdditionalCost.BlightOrPay? = null
+    var counterPlacementCost: CostAtom.PutCountersOnPermanent? = null
+    var counterPlacementTargets = emptyList<EntityId>()
     var blightCreatures = emptyList<EntityId>()
     var blightVariableCost: AdditionalCost.BlightVariable? = null
     var blightVariableCreatures = emptyList<EntityId>()
@@ -227,6 +232,9 @@ class SpellCostLedger(
      */
     val exiledAsCostCards = mutableListOf<EntityId>()
     val exiledAsCostSnapshots = mutableListOf<EntitySnapshot>()
+
+    /** Tapped to pay — named at resolution by `EffectTarget.TappedAsCost` ("the creature tapped to pay"). */
+    val tappedAsCostPermanents = mutableListOf<EntityId>()
 
     /**
      * LKI snapshots for entities chosen by [AdditionalCost.ChooseEntity] with `captureSnapshot`, so

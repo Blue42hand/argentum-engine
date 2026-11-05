@@ -4305,9 +4305,13 @@
                                 "condition": {
                                     "type": "Compare",
                                     "left": {
-                                        "type": "AggregateBattlefield",
-                                        "player": "EachOpponent",
-                                        "filter": "creature"
+                                        "type": "GreatestAmongPlayers",
+                                        "players": "EachOpponent",
+                                        "inner": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "creature"
+                                        }
                                     },
                                     "operator": "GT",
                                     "right": {
@@ -11200,7 +11204,7 @@
                         "NameEqualsChosenComponent"
                     ]
                 },
-                "nonManaAbilitiesOnly": true,
+                "abilities": "NON_MANA",
                 "anyZone": true
             },
             {
@@ -11652,29 +11656,26 @@
                     }
                 },
                 {
-                    "type": "ForEach",
-                    "space": {
-                        "type": "IterationSpace.Players",
-                        "players": "ActivePlayerFirst"
+                    "type": "ForceSacrifice",
+                    "filter": "permanent",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "ActivePlayerFirst"
                     },
-                    "body": {
-                        "type": "ForceSacrifice",
-                        "filter": "permanent",
-                        "target": "Controller",
-                        "dynamicCount": {
-                            "type": "Divide",
-                            "numerator": {
-                                "type": "AggregateBattlefield",
-                                "player": "You",
-                                "filter": "permanent"
-                            },
-                            "denominator": {
-                                "type": "Fixed",
-                                "amount": 2
-                            },
-                            "roundUp": false
-                        }
-                    }
+                    "dynamicCount": {
+                        "type": "Divide",
+                        "numerator": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "permanent"
+                        },
+                        "denominator": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "roundUp": false
+                    },
+                    "countPerPlayer": true
                 }
             ]
         }

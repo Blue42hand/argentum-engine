@@ -6340,14 +6340,14 @@
                     "abilities": [
                         {
                             "type": "TransformPermanent",
-                            "setSubtypes": [
-                                "Human",
-                                "Citizen"
-                            ],
                             "filter": {
                                 "baseFilter": "permanent",
                                 "scope": "Self"
-                            }
+                            },
+                            "setCreatureSubtypes": [
+                                "Human",
+                                "Citizen"
+                            ]
                         },
                         {
                             "type": "SetBasePowerToughnessStatic",
@@ -8565,7 +8565,7 @@
                         "IsAttachedToBySource"
                     ]
                 },
-                "nonManaAbilitiesOnly": true
+                "abilities": "NON_MANA"
             }
         ],
         "auraTarget": {
@@ -10222,9 +10222,12 @@
                                     "filter": {
                                         "baseFilter": "nonland permanent"
                                     },
-                                    "totalManaValueAtMost": {
-                                        "type": "Fixed",
-                                        "amount": 6
+                                    "totalAtMost": {
+                                        "property": "MANA_VALUE",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 6
+                                        }
                                     }
                                 }
                             ],
@@ -10936,7 +10939,7 @@
                     "Graveyard"
                 ],
                 "interveningIf": {
-                    "type": "PermanentTypePutIntoGraveyardFromBattlefieldThisTurn",
+                    "type": "PermanentPutIntoZoneFromBattlefieldThisTurn",
                     "cardType": "ENCHANTMENT"
                 }
             }
@@ -17814,7 +17817,9 @@
                 "id": "Satoru Umezawa:1",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
-                    "keyword": "NINJUTSU"
+                    "keywords": [
+                        "NINJUTSU"
+                    ]
                 },
                 "binding": "ANY",
                 "effect": {

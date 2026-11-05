@@ -61,7 +61,6 @@ import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.MorphDataComponent
 import com.wingedsheep.engine.state.components.identity.RevealedToComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
-import com.wingedsheep.engine.state.components.player.SkipNextTurnComponent
 import com.wingedsheep.engine.mechanics.MadnessGrants
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.sdk.core.CounterType
@@ -149,7 +148,8 @@ object ZoneMovementUtils {
         state: GameState,
         entityId: EntityId,
         predicateEvaluator: PredicateEvaluator,
-        counterTotals: MutableMap<CounterType, Int>? = null
+        counterTotals: MutableMap<CounterType, Int>? = null,
+        replacementSourceState: GameState? = null
     ): Pair<GameState, List<EngineGameEvent>> {
         val container = state.getEntity(entityId) ?: return state to emptyList()
         val cardComponent = container.get<CardComponent>() ?: return state to emptyList()
@@ -168,9 +168,15 @@ object ZoneMovementUtils {
         }
         // Counters it's given as it enters (CR 122.6): the placement replacements apply — the
         // totals branch above gets them when the collected entry counters are placed.
+        // CR 122.6a — the entering Saga's controller puts its entry counters on it.
+        val placerId = state.projectedState.getController(entityId)
+        val entryViews = if (replacementSourceState != null && placerId != null)
+            entryEvaluationViews(state, entityId, placerId, replacementSourceState) else null
+        val placementState = entryViews?.entrantAsWouldExist ?: state
         val placed = ReplacementEffectUtils.applyCounterPlacementModifiers(
-            state, entityId, CounterType.LORE, loreCount,
-            placerId = state.projectedState.getController(entityId), predicateEvaluator = predicateEvaluator, byEffect = true
+            placementState, entityId, CounterType.LORE, loreCount,
+            placerId = placerId, predicateEvaluator = predicateEvaluator, byEffect = true,
+            replacementSourceState = replacementSourceState, entryViews = entryViews
         )
         // The chapters the entry reaches follow what was actually put on it.
         val sagaComponent = SagaComponent(triggeredChapters = (1..placed).toSet())
@@ -179,7 +185,7 @@ object ZoneMovementUtils {
             c.with(sagaComponent)
                 .with(current.withAdded(CounterType.LORE, placed))
         }.let { DamageUtils.markCounterOnControlledPermanent(it, entityId, CounterType.LORE, entering = true) }
-        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, placed, cardComponent.name))
+        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, placed, cardComponent.name, placedBy = placerId))
     }
 
     /**
@@ -189,10 +195,13 @@ object ZoneMovementUtils {
      * route: a cast, an effect's put-onto-the-battlefield (asked before entry), or a token or copy
      * (asked on arrival, with the counters placed by the choice resumer). A read-ahead Saga whose
      * choice couldn't be recorded falls back to one.
+     *
+     * Read ahead may be printed or granted ("Sagas you control have read ahead" — the choice is then
+     * synthesized by [com.wingedsheep.engine.mechanics.ReadAheadSynthesis]); either way it is the only
+     * NUMBER choice a Saga makes, so a recorded number is what this reads, not the keyword — a
+     * granted keyword isn't on the entering object's [CardComponent].
      */
     fun sagaEntryLoreCount(container: ComponentContainer): Int {
-        val cardComponent = container.get<CardComponent>() ?: return 1
-        if (com.wingedsheep.sdk.core.Keyword.READ_AHEAD !in cardComponent.baseKeywords) return 1
         return container.numberChoice(com.wingedsheep.sdk.scripting.ChoiceSlot.CHOSEN_NUMBER)
             ?.coerceAtLeast(1) ?: 1
     }
@@ -537,9 +546,8 @@ object ZoneMovementUtils {
             .without<com.wingedsheep.engine.state.components.battlefield.WasCastComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastFromLibraryComponent>()
-            .without<com.wingedsheep.engine.state.components.battlefield.EnteredFromGraveyardComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.EnteredFromZoneComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.CastFromExileComponent>()
-            .without<com.wingedsheep.engine.state.components.battlefield.EnteredFromExileComponent>()
             .without<WarpedComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.DashedComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.BlitzedComponent>()
@@ -584,6 +592,7 @@ object ZoneMovementUtils {
             // tapped, so its "first time tapped this turn" window starts over.
             .without<HasBecomeTappedComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.EntryTapStateComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.UntapCountComponent>()
             .without<HasDealtCombatDamageToPlayerComponent>()
             .without<CountersComponent>()
             // A battle's protector is a designation on the battlefield object (CR 310.9); the
@@ -790,6 +799,7 @@ object ZoneMovementUtils {
      * both that a spell/ability caused this discard at all and that its controller is an opponent of
      * the discarding player (the card's owner — you only ever discard from your own hand). That
      * rules out the cleanup-step hand-size discard, cost payments, and your own Faithless Looting.
+     * `NotCycled` reads [GameState.pendingCyclingDiscardIds]: only the cycling-cost discard fails it.
      */
     private fun causeSatisfied(
         state: GameState,
@@ -805,6 +815,7 @@ object ZoneMovementUtils {
                 container.get<CardComponent>()?.ownerId
             )
         }
+        ZoneChangeCause.NotCycled -> entityId !in state.pendingCyclingDiscardIds
     }
 
     /**
@@ -835,6 +846,32 @@ object ZoneMovementUtils {
         }
 
     /**
+     * Whether a replacement sends [entityId] somewhere else instead of onto the battlefield
+     * (Containment Priest's "if a nontoken creature would enter and it wasn't cast, exile it
+     * instead"). Movers ask before an entry prompt — an Aura host, an "as this enters" choice, an
+     * enters-only-if-paid offer — that a card which never enters would have no use for.
+     */
+    fun entryRedirected(
+        state: GameState,
+        entityId: EntityId,
+        fromZone: Zone?,
+        controllerId: EntityId?,
+        entryCopy: com.wingedsheep.engine.handlers.effects.copy.EntryCopyChoice?,
+        cardRegistry: com.wingedsheep.engine.registry.CardRegistry,
+        predicateEvaluator: PredicateEvaluator,
+        entersWith: com.wingedsheep.sdk.scripting.effects.EntersWithCharacteristics? = null
+    ): Boolean = fromZone != Zone.BATTLEFIELD &&
+        checkZoneChangeRedirect(
+            state, entityId, fromZone, Zone.BATTLEFIELD, predicateEvaluator = predicateEvaluator,
+            entersAsCreature = {
+                EntryCharacteristics.wouldBeCreature(
+                    state, entityId, controllerId, entryCopy, faceDown = false, cardRegistry, predicateEvaluator,
+                    entersWith
+                )
+            }
+        ).destinationZone != Zone.BATTLEFIELD
+
+    /**
      * Resolve the destination of a zone change after replacement effects.
      *
      * @param battlefieldSourceState The state whose battlefield is scanned for permanents that
@@ -848,6 +885,10 @@ object ZoneMovementUtils {
      *        happened to iterate first would silently decide the outcome. The moving object's own
      *        replacements (finality counter, madness, commander, self-redirect) are still read off
      *        [state] — those travel with the card, not with a battlefield source.
+     * @param entersAsCreature For a battlefield entry: whether the card would be a creature as it
+     *        would exist on the battlefield ([EntryCharacteristics.wouldBeCreature], CR 614.12) —
+     *        a manifested noncreature card is, a Heliod short of devotion isn't. Asked at most once,
+     *        and only by a replacement that filters on creature-ness; null reads the printed type line.
      */
     fun checkZoneChangeRedirect(
         state: GameState,
@@ -855,9 +896,11 @@ object ZoneMovementUtils {
         fromZone: Zone?,
         toZone: Zone,
         battlefieldSourceState: GameState = state,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        entersAsCreature: (() -> Boolean)? = null
     ): ZoneChangeRedirectResult {
         val container = state.getEntity(entityId) ?: return ZoneChangeRedirectResult(toZone)
+        val enteringIsCreature = entersAsCreature?.takeIf { toZone == Zone.BATTLEFIELD }?.let { lazy(it) }
 
         // A spell cast with flashback, aftermath or jump-start is exiled instead of going anywhere
         // else as it leaves the stack (CR 702.34a / 702.127a / 702.133a).
@@ -944,7 +987,7 @@ object ZoneMovementUtils {
 
         for (permanentId in battlefieldSourceState.getBattlefield()) {
             val permContainer = battlefieldSourceState.getEntity(permanentId) ?: continue
-            val replacementComponent = permContainer.get<ReplacementEffectSourceComponent>() ?: continue
+            val replacementComponent = battlefieldSourceState.activeReplacementSource(permanentId) ?: continue
             val sourceControllerId = permContainer.get<ControllerComponent>()?.playerId ?: continue
 
             for (effect in replacementComponent.replacementEffects) {
@@ -965,7 +1008,7 @@ object ZoneMovementUtils {
                         if (event.from != null && event.from != fromZone) continue
 
                         // Check filter against the entity being moved
-                        if (!matchesZoneChangeFilter(state, entityId, container, event.filter, sourceControllerId, battlefieldSourceState, permanentId)) continue
+                        if (!matchesZoneChangeFilter(state, entityId, container, event.filter, sourceControllerId, battlefieldSourceState, permanentId, enteringIsCreature)) continue
 
                         // Honour any cause qualifier (e.g. "only when discarded by an opponent's
                         // spell or ability") the same way the self-replacement path above does.
@@ -986,7 +1029,7 @@ object ZoneMovementUtils {
 
                         if (event.to != null && event.to != toZone) continue
                         if (event.from != null && event.from != fromZone) continue
-                        if (!effect.selfOnly && !matchesZoneChangeFilter(state, entityId, container, event.filter, sourceControllerId, battlefieldSourceState, permanentId)) continue
+                        if (!effect.selfOnly && !matchesZoneChangeFilter(state, entityId, container, event.filter, sourceControllerId, battlefieldSourceState, permanentId, enteringIsCreature)) continue
 
                         // Match found — redirect AND return additional effect. When the replacement
                         // links its exiled cards to the source (The Darkness Crystal), carry the
@@ -1022,7 +1065,7 @@ object ZoneMovementUtils {
 
             if (event.to != null && event.to != toZone) continue
             if (event.from != null && event.from != fromZone) continue
-            if (!matchesZoneChangeFilter(state, entityId, container, event.filter, grant.controllerId)) continue
+            if (!matchesZoneChangeFilter(state, entityId, container, event.filter, grant.controllerId, enteringIsCreature = enteringIsCreature)) continue
             if (!causeSatisfied(state, entityId, container, effect.requiredCause)) continue
 
             return ZoneChangeRedirectResult(effect.newDestination)
@@ -1041,6 +1084,8 @@ object ZoneMovementUtils {
      *   batch still answers source-relative predicates as it stood when the batch began.
      * @param sourceId The permanent hosting the replacement; null for granted (sourceless)
      *   replacements, where source-relative predicates never match.
+     * @param enteringIsCreature For a battlefield entry, whether the card would be a creature on
+     *   the battlefield (see [checkZoneChangeRedirect]); null reads the printed type line.
      */
     private fun matchesZoneChangeFilter(
         state: GameState,
@@ -1049,11 +1094,33 @@ object ZoneMovementUtils {
         filter: GameObjectFilter,
         sourceControllerId: EntityId,
         sourceState: GameState = state,
-        sourceId: EntityId? = null
+        sourceId: EntityId? = null,
+        enteringIsCreature: Lazy<Boolean>? = null
     ): Boolean {
         if (filter == GameObjectFilter.Any) return true
 
         val cardComponent = container.get<CardComponent>() ?: return false
+
+        // "…and it wasn't cast" (Containment Priest). A spell carries its cast origin
+        // (`SpellOnStackComponent.castFromZone`) and a permanent the markers stamped as it resolved;
+        // a card put onto the battlefield from any other zone — or a copy put onto the stack (CR
+        // 707.10) — wasn't cast. Zone changes strip the markers (CR 400.7), so a card in a graveyard
+        // or library reads as not cast too.
+        for (predicate in filter.statePredicates) {
+            val wasCast = when (predicate) {
+                is StatePredicate.WasCast -> predicate
+                is StatePredicate.Not -> predicate.predicate as? StatePredicate.WasCast
+                else -> null
+            } ?: continue
+            val castFrom = container
+                .get<com.wingedsheep.engine.state.components.stack.SpellOnStackComponent>()?.castFromZone
+                ?: com.wingedsheep.engine.state.components.stack.castFromZoneOf(container)
+            val cast = if (wasCast.fromZone == null) {
+                castFrom != null ||
+                    container.has<com.wingedsheep.engine.state.components.battlefield.WasCastComponent>()
+            } else castFrom == wasCast.fromZone
+            if (cast == (predicate is StatePredicate.Not)) return false
+        }
 
         // "A creature dealt damage by this creature this turn" (Frostwielder, Kumano) — read off the
         // source's per-turn damaged-creature record. The record is dropped when the source leaves
@@ -1076,14 +1143,14 @@ object ZoneMovementUtils {
         // Check card predicates
         for (predicate in filter.cardPredicates) {
             val matches = when (predicate) {
-                CardPredicate.IsCreature -> cardComponent.typeLine.isCreature
+                CardPredicate.IsCreature -> enteringIsCreature?.value ?: cardComponent.typeLine.isCreature
                 CardPredicate.IsNontoken -> !container.has<TokenComponent>()
                 CardPredicate.IsToken -> container.has<TokenComponent>()
                 CardPredicate.IsLand -> cardComponent.typeLine.isLand
                 CardPredicate.IsArtifact -> cardComponent.typeLine.isArtifact
                 CardPredicate.IsEnchantment -> cardComponent.typeLine.isEnchantment
                 CardPredicate.IsNonland -> !cardComponent.typeLine.isLand
-                CardPredicate.IsNoncreature -> !cardComponent.typeLine.isCreature
+                CardPredicate.IsNoncreature -> !(enteringIsCreature?.value ?: cardComponent.typeLine.isCreature)
                 CardPredicate.IsNonenchantment -> !cardComponent.typeLine.isEnchantment
                 CardPredicate.IsNonartifact -> !cardComponent.typeLine.isArtifact
                 CardPredicate.IsPermanent -> cardComponent.typeLine.isPermanent
@@ -1091,6 +1158,13 @@ object ZoneMovementUtils {
                 CardPredicate.IsSnow -> cardComponent.typeLine.isSnow
                 CardPredicate.IsNonlegendary -> !cardComponent.typeLine.isLegendary
                 CardPredicate.IsDoubleFaced -> cardComponent.isDoubleFaced
+                // "A card that has a cycling ability" (Abandoned Sarcophagus) — printed cycling or
+                // typecycling, unless the permanent has no abilities on the battlefield — it lost
+                // them, or it is face down (ruling: a permanent that lost cycling goes to the
+                // graveyard).
+                CardPredicate.HasCycling -> cardComponent.hasCycling &&
+                    !state.projectedState.hasLostAllAbilities(entityId) &&
+                    !state.projectedState.isFaceDown(entityId)
                 else -> true // For unhandled predicates, don't filter out
             }
             if (!matches) return false
@@ -1208,14 +1282,7 @@ object ZoneMovementUtils {
             if (ReplacementEffectUtils.isExtraTurnPrevented(state)) return state to emptyList()
 
             val cid = controllerId ?: return state to emptyList()
-            val newState = state.getOpponents(cid).fold(state) { acc, opponentId ->
-                acc.updateEntity(opponentId) { container ->
-                    val existing = container.get<SkipNextTurnComponent>() ?: SkipNextTurnComponent(0)
-                    container.with(existing.copy(turns = existing.turns + 1,
-                        extraTurnBypasses = existing.extraTurnBypasses + 1))
-                }
-            }
-            return newState to emptyList()
+            return com.wingedsheep.engine.handlers.effects.player.TakeExtraTurnExecutor.insertExtraTurn(state, cid) to emptyList()
         }
         if (effect is com.wingedsheep.sdk.scripting.effects.AddCountersEffect && entityId != null) {
             // "Exile it with a void counter on it" (Dauthi Voidwalker) names the redirected card as

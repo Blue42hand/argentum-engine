@@ -105,6 +105,7 @@ class GameWebSocketHandler(
                 is ClientMessage.CreateGame,
                 is ClientMessage.JoinGame,
                 is ClientMessage.SubmitAction,
+                is ClientMessage.RequestCastCostQuote,
                 is ClientMessage.Concede,
                 is ClientMessage.CancelGame,
                 is ClientMessage.KeepHand,

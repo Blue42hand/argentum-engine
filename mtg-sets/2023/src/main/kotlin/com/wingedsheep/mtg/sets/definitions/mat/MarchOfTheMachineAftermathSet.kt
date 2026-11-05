@@ -20,7 +20,6 @@ object MarchOfTheMachineAftermathSet : MtgSet {
     override val displayName = "March of the Machine: The Aftermath"
     override val releaseDate = "2023-05-12"
     override val extensionSet = true
-    override val incomplete = true
 
     /**
      * The 5-card Epilogue Booster (per WotC's "Collecting March of the Machine: The Aftermath"):

@@ -1,8 +1,11 @@
 package com.wingedsheep.engine.scenarios
 
+import com.wingedsheep.engine.core.ChooseTargetsDecision
+import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.sdk.core.*
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 
 class DetentionSphereScenarioTest : ScenarioTestBase() {
     init {
@@ -18,8 +21,11 @@ class DetentionSphereScenarioTest : ScenarioTestBase() {
             val bears = game.findPermanents("Grizzly Bears").toSet()
             game.castSpell(1, "Detention Sphere").error shouldBe null
             game.resolveStack()
-            game.answerYesNo(true).error shouldBe null
+            game.state.pendingDecision.shouldBeInstanceOf<ChooseTargetsDecision>()
             game.selectTargets(listOf(bears.first())).error shouldBe null
+            game.resolveStack()
+            game.state.pendingDecision.shouldBeInstanceOf<YesNoDecision>()
+            game.answerYesNo(true).error shouldBe null
             game.resolveStack()
             game.findPermanents("Grizzly Bears").size shouldBe 0
             game.isOnBattlefield("Hill Giant") shouldBe true
@@ -40,6 +46,10 @@ class DetentionSphereScenarioTest : ScenarioTestBase() {
                 .withActivePlayer(1).inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN).build()
             game.castSpell(1, "Detention Sphere").error shouldBe null
             game.resolveStack()
+            game.state.pendingDecision.shouldBeInstanceOf<ChooseTargetsDecision>()
+            game.selectTargets(listOf(game.findPermanent("Grizzly Bears")!!)).error shouldBe null
+            game.resolveStack()
+            game.state.pendingDecision.shouldBeInstanceOf<YesNoDecision>()
             game.answerYesNo(false).error shouldBe null
             game.resolveStack()
             game.isOnBattlefield("Grizzly Bears") shouldBe true

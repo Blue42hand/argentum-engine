@@ -107,6 +107,9 @@ data class LegalAction(
     val attackTargetsByAttacker: Map<EntityId, List<EntityId>>? = null,
     override val validBlockers: List<EntityId>? = null,
     val validBlockTargets: Map<EntityId, List<EntityId>>? = null,
+    val blockableAttackers: List<EntityId>? = null,
+    /** Previously submitted teammate choices, displayed but not part of this player's input. */
+    val proposedBlockerAssignments: Map<EntityId, List<EntityId>>? = null,
     val blockerMaxBlockCounts: Map<EntityId, Int>? = null,
     val maxTotalBlockers: Int? = null,
     val mandatoryBlockerAssignments: Map<EntityId, List<EntityId>>? = null,
@@ -220,8 +223,9 @@ data class LegalAction(
     val totalDamageToDistribute: Int? = null,
     /**
      * The division's total for each X the caster may announce, keyed by X — present only when the
-     * total reads a mana-paid `{X}` (Shatterskull Smashing: "X damage divided … If X is 6 or more,
-     * … twice X damage divided … instead"). X is announced before targets and the division
+     * total reads the announced X: a spell's mana-paid `{X}` (Shatterskull Smashing: "X damage
+     * divided … If X is 6 or more, … twice X damage divided … instead") or an activation's X cost
+     * (Huatli, Warrior Poet's −X). X is announced before targets and the division
      * (CR 601.2b, 601.2d), so the client looks the total up for the X it chose; the prices are the
      * server's. When set, [totalDamageToDistribute] is the X-less reading and is not used.
      */
@@ -540,6 +544,11 @@ data class AdditionalCostData(
     val tapBatchMaxActivations: Int = 1,
     val validDiscardTargets: List<EntityId> = emptyList(),
     val discardCount: Int = 0,
+    /**
+     * Upper bound for a variable discard ("discard X cards", Channeled Force): the caster picks
+     * [discardCount]..[discardMaxCount] cards. `null` means exactly [discardCount].
+     */
+    val discardMaxCount: Int? = null,
     val validBounceTargets: List<EntityId> = emptyList(),
     val bounceCount: Int = 0,
     val validExileTargets: List<EntityId> = emptyList(),
@@ -610,6 +619,8 @@ data class AdditionalCostData(
     val validRevealTargets: List<EntityId> = emptyList(),
     val revealCount: Int = 0,
     val counterRemovalCreatures: List<CounterRemovalCreatureData> = emptyList(),
+    /** Permanents a "put N counters on a permanent you control" spell cost may place on (Lethal Sting). */
+    val validCounterPlacementTargets: List<EntityId> = emptyList(),
     val validBlightTargets: List<EntityId> = emptyList(),
     val blightAmount: Int = 0,
     /**

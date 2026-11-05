@@ -8,6 +8,10 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.KeywordAbility
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
+import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import java.lang.reflect.Modifier
 import java.util.IdentityHashMap
@@ -34,7 +38,10 @@ import java.util.concurrent.ConcurrentHashMap
  *    permissions);
  *  - counts or reads **your** graveyard — any object holding `zone = GRAVEYARD` beside
  *    `player = You` (`DynamicAmount.Count(You, GRAVEYARD)` for threshold-style counts, the
- *    distinct-type aggregation behind delirium, a gather from your graveyard).
+ *    distinct-type aggregation behind delirium, a gather from your graveyard). A "search your
+ *    library and/or graveyard" choice is a tutor, not a payoff;
+ *  - targets a card only **your** graveyard holds (a `TargetFilter` in the graveyard owned or
+ *    controlled by you), however the effect then moves it.
  *
  * The walk is reflective over the SDK's pure-data definition graph, so a new effect, amount or
  * keyword ability that names those fields is recognized without touching this file. A false
@@ -50,7 +57,7 @@ object GraveyardSynergy {
 
     private val GRAVEYARD_KEYWORDS: Set<Keyword> = setOf(
         Keyword.FLASHBACK, Keyword.ESCAPE, Keyword.DELVE, Keyword.DREDGE, Keyword.DISTURB,
-        Keyword.EMBALM, Keyword.UNEARTH, Keyword.HARMONIZE, Keyword.MAYHEM, Keyword.AFTERMATH,
+        Keyword.EMBALM, Keyword.ETERNALIZE, Keyword.UNEARTH, Keyword.HARMONIZE, Keyword.MAYHEM, Keyword.AFTERMATH,
     )
 
     private val ZONE_FIELDS = setOf("activateFromZone", "activeZone", "fromZone", "sourceZone", "copyFromZone")
@@ -96,6 +103,16 @@ object GraveyardSynergy {
             if (node is Enum<*>) return false
             if (seen.put(node, Unit) != null) return false
             if (node is KeywordAbility && node.keyword in GRAVEYARD_KEYWORDS) return true
+            // A standing cast-from-graveyard permission names no zone field: the zone is its type.
+            if (node is com.wingedsheep.sdk.scripting.MayCastFromGraveyard) return true
+            // A destination fills a graveyard; it never consumes that resource.
+            if (node is com.wingedsheep.sdk.scripting.effects.CardDestination) return false
+            if (node is ChooseActionEffect && isTutorWithGraveyardFallback(node)) return false
+            // A target only our own graveyard can fill — "exile up to one target nonland card of each
+            // card type from your graveyard … cast the copies" (Uldaros Theorix), "exile X target
+            // creature cards from your graveyard" (Hour of Eternity) — names a graveyard card to use.
+            // A pipeline then moves it by collection, so no `fromZone` says where it came from.
+            if (node is TargetFilter && node.zone == Zone.GRAVEYARD && TargetPolarityAnalyzer.ownGraveyardOnly(node)) return true
             return when (node) {
                 is Collection<*> -> node.any(::visit)
                 is Map<*, *> -> node.keys.any(::visit) || node.values.any(::visit)
@@ -119,6 +136,21 @@ object GraveyardSynergy {
             }
             return values.values.any(::visit)
         }
+    }
+
+    /**
+     * "Search your library and/or graveyard for a card named …" (Vraska's Scorn,
+     * `Patterns.Library.searchLibraryAndOrGraveyard`): a choice between searches of our own zones,
+     * one of which reaches the library. That is a tutor whose graveyard is only where the card may
+     * have ended up, not a use of the graveyard as a resource.
+     */
+    private fun isTutorWithGraveyardFallback(choice: ChooseActionEffect): Boolean {
+        val sources = choice.choices.flatMap { option ->
+            EffectWalker.leaves(option.effect).filterIsInstance<GatherCardsEffect>().map { it.source }
+        }
+        if (sources.isEmpty()) return false
+        val searches = sources.map { it as? CardSource.FromMultipleZones ?: return false }
+        return searches.all { it.player == Player.You } && searches.any { Zone.LIBRARY in it.zones }
     }
 
     private const val SDK_PACKAGE = "com.wingedsheep.sdk."

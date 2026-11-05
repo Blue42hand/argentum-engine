@@ -402,6 +402,15 @@ data class GameState(
     val pendingDiscardCauseControllers: Map<EntityId, EntityId> = emptyMap(),
 
     /**
+     * Cards currently being discarded to pay a cycling or typecycling cost — being *cycled*
+     * (CR 702.29c, 702.29f). Stamped by `ZoneTransitionService.discardCards(asCyclingCost = true)`
+     * just before the move and consumed by `moveToZone` like [pendingDiscardCauseControllers], so
+     * `ZoneChangeCause.NotCycled` can tell the cycled card apart from every other graveyard move
+     * (Abandoned Sarcophagus). Transient: it never outlives the single zone move.
+     */
+    val pendingCyclingDiscardIds: Set<EntityId> = emptySet(),
+
+    /**
      * Players (by entity id) who have committed a crime this turn (CR 700-level Outlaws of Thunder
      * Junction rule). Populated wherever a [com.wingedsheep.engine.core.CommitCrimeEvent] is emitted
      * (spell cast, activated ability, triggered ability), and cleared at every turn boundary. Read by
@@ -480,6 +489,14 @@ data class GameState(
      * refer to one of these spells.
      */
     val departedSpells: Map<EntityId, DepartedSpell> = emptyMap(),
+
+    /**
+     * Last-known information of abilities countered on the stack, the ability counterpart of
+     * [departedSpells]: "copy that spell or ability" still copies a countered loyalty ability
+     * (Repeated Reverberation's ruling). Read through [departedAbility]; cleared at every turn
+     * boundary.
+     */
+    val departedAbilities: Map<EntityId, DepartedAbility> = emptyMap(),
 
     /**
      * Game-mode configuration the engine reads for format-dependent behaviour (commander damage
@@ -594,6 +611,14 @@ data class GameState(
      * on its controller's behalf without having asked.
      */
     val optionalDamageRedirectChoices: Map<String, Boolean> = emptyMap(),
+
+    /** Choices replayed while resolving one simultaneous damage event, cleared when it completes. */
+    val damageReplacementChoices: List<String> = emptyList(),
+
+    /** Original face-down components retained only while a damage replacement choice is pending. */
+    val damageReplacementRevealOriginals: Map<EntityId, ComponentContainer> = emptyMap(),
+    val damageReplacementRevealTimestamp: Long? = null,
+
 
     /**
      * The controller's orderings of granted entry copies (CR 616.1, two Mystic Reflections) for
@@ -837,7 +862,7 @@ data class GameState(
         val sameZone = old != null && old.logicalZone.zoneType == key.zoneType &&
             (key.zoneType in SHARED_OBJECT_ZONES || old.logicalZone.ownerId == key.ownerId)
         if (sameZone && key.zoneType != Zone.EXILE) {
-            return if (old!!.logicalZone == key) this else copy(
+            return if (old.logicalZone == key) this else copy(
                 objectIdentities = objectIdentities + (entityId to old.copy(logicalZone = key))
             )
         }
@@ -998,6 +1023,19 @@ data class GameState(
         val ordered = activePlayers
         val index = ordered.indexOf(playerId)
         return if (index <= 0) ordered else ordered.drop(index) + ordered.take(index)
+    }
+
+    /**
+     * [activePlayers] rotated to start with the first opponent after [playerId] in turn order, so
+     * [playerId] comes after every opponent before them — "starting with the next opponent in turn
+     * order, each player …" (Sadistic Shell Game). A teammate seated between [playerId] and that
+     * opponent is passed over to begin with and acts last in the rotation. Falls back to
+     * [turnOrderStartingWith] [playerId] when they have no opponent left.
+     */
+    fun turnOrderStartingWithNextOpponent(playerId: EntityId): List<EntityId> {
+        val fromYou = turnOrderStartingWith(playerId)
+        val next = fromYou.firstOrNull { it != playerId && isOpponentOf(it, playerId) } ?: return fromYou
+        return turnOrderStartingWith(next)
     }
 
     /**
@@ -1289,6 +1327,39 @@ data class GameState(
     }
 
     /**
+     * Whether [playerId] can't get counters — of [counterType], or of any kind when it is null —
+     * right now: a [com.wingedsheep.engine.state.components.player.CantGetCountersComponent] lock on
+     * them is in force (Suncleanser), or a battlefield permanent's
+     * [com.wingedsheep.sdk.scripting.PlayersCantGetCounters] covers them (Solemnity). A kind-scoped
+     * prohibition answers only when asked about its kind. False for any entity that isn't a player,
+     * so it is safe to ask of a permanent; `ProjectedState.canReceiveCounters` asks it of every
+     * counter recipient.
+     */
+    fun cantGetCounters(playerId: EntityId, counterType: com.wingedsheep.sdk.core.CounterType? = null): Boolean {
+        val player = getEntity(playerId) ?: return false
+        if (player.get<com.wingedsheep.engine.state.components.player.CantGetCountersComponent>()
+                ?.locks?.any { it.holds(this) } == true
+        ) return true
+        if (playerId !in turnOrder) return false
+        return getBattlefield().any { entityId ->
+            val marker = getEntity(entityId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.ForbidsPlayerCountersComponent>()
+                ?: return@any false
+            val sourceController = projectedState.getController(entityId) ?: return@any false
+            !projectedState.hasLostAllAbilities(entityId) && marker.prohibitions.any { prohibition ->
+                (prohibition.counterType == null || prohibition.counterType == counterType) &&
+                    when (prohibition.affected) {
+                        is com.wingedsheep.sdk.scripting.references.Player.Each -> true
+                        is com.wingedsheep.sdk.scripting.references.Player.You -> playerId == sourceController
+                        is com.wingedsheep.sdk.scripting.references.Player.EachOpponent ->
+                            isOpponentOf(playerId, sourceController)
+                        else -> false
+                    }
+            }
+        }
+    }
+
+    /**
      * Whether [playerId] can pay [amount] life: paying 0 always can (CR 119.4 / 118.3); otherwise
      * the (team's, CR 810.9a) life total must be at least the amount and the player must be able to
      * lose life (CR 119.8 — "a cost that involves having that player pay life can't be paid"), and no
@@ -1446,6 +1517,10 @@ data class GameState(
     fun departedSpellEntity(ref: ObjectRef): EntityId? =
         departedSpells[ref.entityId]?.takeIf { it.objectRef == ref }?.let { ref.entityId }
 
+    /** The ability [ref] named while it was on the stack, as it last existed there once countered. */
+    fun departedAbility(ref: ObjectRef): ComponentContainer? =
+        departedAbilities[ref.entityId]?.takeIf { it.objectRef == ref }?.ability
+
     /**
      * Take an object off the stack without it resolving — countered, bounced, exiled, or moved by
      * any other zone change. The object it becomes is new (CR 400.7), so abilities granted to the
@@ -1538,6 +1613,23 @@ data class GameState(
             ) result.add(id)
         }
         result
+    }
+
+    /**
+     * The printed replacement effects [entityId] currently has, or null when it has none in force.
+     * A permanent that has lost all abilities (Humility, Infinite Coursework) or is face down
+     * (CR 708.2) keeps its [com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent]
+     * in base state, but none of its replacement abilities apply — so every read site that walks
+     * permanents for their replacement effects goes through here rather than reading the
+     * component directly. Emblems and objects off the battlefield have no projection entry and
+     * read their component as is.
+     */
+    fun activeReplacementSource(entityId: EntityId): com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent? {
+        val component = getEntity(entityId)
+            ?.get<com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent>()
+            ?: return null
+        if (projectedState.hasLostAllAbilities(entityId) || projectedState.isFaceDown(entityId)) return null
+        return component
     }
 
     private val cachedBattlefield: List<EntityId> by lazy {
@@ -1977,17 +2069,19 @@ data class CastSpellRecord(
  *
  * @property modifier Additional counters placed (negative reduces; chokepoint floors at 0).
  * @property controllerId The player who controls this modifier ("you").
- * @property counterType Which counter kind the modifier applies to.
+ * @property counterType Which counter kind the modifier applies to; null = every kind.
  * @property recipient Which recipients the modifier applies to, relative to [controllerId].
  * @property duration How long the modifier stays active.
+ * @property placer Whose placements it modifies, relative to [controllerId] (You / Any / EachOpponent).
  */
 @Serializable
 data class ActiveCounterPlacementModifier(
     val modifier: Int,
     val controllerId: EntityId,
-    val counterType: com.wingedsheep.sdk.core.CounterType,
+    val counterType: com.wingedsheep.sdk.core.CounterType?,
     val recipient: com.wingedsheep.sdk.scripting.events.Recipient,
     val duration: com.wingedsheep.sdk.scripting.Duration,
+    val placer: com.wingedsheep.sdk.scripting.references.Player = com.wingedsheep.sdk.scripting.references.Player.You,
 )
 
 private val SHARED_OBJECT_ZONES = setOf(Zone.BATTLEFIELD, Zone.STACK, Zone.EXILE, Zone.COMMAND, Zone.ANTE)

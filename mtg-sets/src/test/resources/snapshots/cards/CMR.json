@@ -291,6 +291,67 @@
     ]
 }
 
+// Anara, Wolvid Familiar
+{
+    "name": "Anara, Wolvid Familiar",
+    "manaCost": "{3}{G}",
+    "typeLine": "Legendary Creature — Wolf Beast",
+    "oracleText": "During your turn, commanders you control have indestructible. (Effects that say \"destroy\" don't destroy them. A creature with indestructible can't be destroyed by damage.)\nPartner (You can have two commanders if both have partner.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywordAbilities": [
+        "Partner"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantKeyword",
+                    "keyword": "INDESTRUCTIBLE",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsPermanent"
+                            ],
+                            "statePredicates": [
+                                "IsCommander"
+                            ],
+                            "controllerPredicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "condition": "IsYourTurn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "214",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Ejsing",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/a/9a67cfaa-990c-4dcb-97a9-9c5d7316cabe.jpg?1783928801",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If Anara is your commander, its first ability affects itself during your turn."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Anara's first ability affects commanders you control even if you don't own them. It doesn't affect your commander if another player controls it."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Because damage remains marked on a creature until the damage is removed as the turn ends, nonlethal damage dealt to a commander you control may become lethal if Anara leaves the battlefield during that turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Annoyed Altisaur
 {
     "name": "Annoyed Altisaur",
@@ -1975,6 +2036,199 @@
     ]
 }
 
+// Nightshade Harvester
+{
+    "name": "Nightshade Harvester",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Elf Shaman",
+    "oracleText": "Whenever a land an opponent controls enters, that player loses 1 life. Put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nightshade Harvester:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:opponent",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "ControllerOfTriggeringEntity"
+                        },
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": "Self"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever a land an opponent controls enters, that player loses 1 life. Put a +1/+1 counter on this creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "138",
+        "rarity": "RARE",
+        "artist": "PINDURSKI",
+        "flavorText": "\"Anywhere the moonlight touches—that's my garden.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/8297ab13-d6f3-487b-86ec-6eb299eb0614.jpg?1783928832"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Opposition Agent
+{
+    "name": "Opposition Agent",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "Flash\nYou control your opponents while they're searching their libraries.\nWhile an opponent is searching their library, they exile each card they find. You may play those cards for as long as they remain exiled, and you may spend mana as though it were mana of any color to cast them.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "staticAbilities": [
+            "ControlOpponentsLibrarySearches"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "141",
+        "rarity": "RARE",
+        "artist": "Scott Murphy",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/086f97e9-8b62-44f3-b467-149c2ac5ca78.jpg?1783928831",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "You must follow the normal timing permissions and restrictions for each exiled card. If one is a land, you can't play it unless you have land plays available."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "While controlling an opponent, you make all choices and decisions for that player. However, because the control effect is limited to while they're searching their libraries, it's unlikely the player will be allowed to make any decisions other than what to find with the search."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "You can't have the player find cards in their library that aren't asked for by the search instruction. For example, if the opponent is searching their library for a basic land card, you can't have them find a different card, such as a creature card."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If the search instruction states a quality of the card to find, such as a color or card type, you may have the opponent not find any cards. If the search is simply for a number of cards without stating a quality, you must have them find that many cards (or as many as possible, if their library doesn't contain that many cards)."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "The cards found in the search will be exiled rather than be put wherever the spell or ability tells the opponent to put them after finding them. Any other effects the spell or ability has will still apply. If such an effect refers to the found cards, it can't see them in exile."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If a spell or ability instructs an opponent you control to search multiple zones including the library, you decide what cards they find in all zones. They'll exile all cards they find in any of the zones."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If more than one player controls an Opposition Agent, and another player searches their library, the controller of the Opposition Agent that most recently entered the battlefield controls that player during the search."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "You'll still pay all costs for a spell cast this way, including additional costs. You may also pay alternative costs if any are available."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Prava of the Steel Legion
+{
+    "name": "Prava of the Steel Legion",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Cat Soldier",
+    "oracleText": "During your turn, creature tokens you control get +1/+4.\n{3}{W}: Create a 1/1 white Soldier creature token.\nPartner (You can have two commanders if both have partner.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "keywordAbilities": [
+        "Partner"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Prava of the Steel Legion:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Soldier"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/4/3/430ed737-b918-4485-a623-e781c0beb67b.jpg?1783928591"
+                },
+                "descriptionOverride": "{3}{W}: Create a 1/1 white Soldier creature token."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 1,
+                    "toughnessBonus": 4,
+                    "filter": {
+                        "baseFilter": "creature token ctrl:you"
+                    }
+                },
+                "condition": "IsYourTurn"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "rarity": "UNCOMMON",
+        "artist": "Matt Stewart",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/9/e9e40e2a-e447-4754-a98b-5521e546781f.jpg?1783928877",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "The bonus provided by Prava's first ability will still be in effect when damage is removed during the cleanup step."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "However, if Prava leaves the battlefield, its bonus immediately stops applying. Nonlethal damage dealt to creature tokens you control may become lethal if Prava leaves the battlefield during your turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Pride of the Perfect
 {
     "name": "Pride of the Perfect",
@@ -2264,6 +2518,58 @@
     "colorIdentityOverride": [
         "RED",
         "WHITE"
+    ]
+}
+
+// Sphinx of the Second Sun
+{
+    "name": "Sphinx of the Second Sun",
+    "manaCost": "{6}{U}{U}",
+    "typeLine": "Creature — Sphinx",
+    "oracleText": "Flying\nAt the beginning of each of your postcombat main phases, there is an additional beginning phase after this phase. (The beginning phase includes the untap, upkeep, and draw steps.)",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sphinx of the Second Sun:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "POSTCOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": "AddBeginningPhase"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "99",
+        "rarity": "MYTHIC",
+        "artist": "Antonio José Manzanedo",
+        "flavorText": "He watches in silence as the shadows shift, bringing Amonkhet ever nearer to the Hour of Revelation.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e68b70a6-a150-4d81-921c-9b178fe0037d.jpg?1783928849",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "The additional beginning phase all happens during the current turn. Any effects that last \"until your next turn\" or similar won't expire just because you'll go through an additional beginning phase."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Even if you don't attack with any creatures during combat, you'll still get a postcombat main phase and Sphinx of the Second Sun's ability will still trigger."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If multiple phases are added to the same point in your turn, the most recently created phase happens first."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

@@ -5,28 +5,25 @@ import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
-import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
-import com.wingedsheep.sdk.scripting.targets.TargetObject
 
 /**
- * Hall of Heliod's Generosity
+ * Hall of Heliod's Generosity — Modern Horizons #241
  * Legendary Land
+ *
  * {T}: Add {C}.
  * {1}{W}, {T}: Put target enchantment card from your graveyard on top of your library.
  */
 val HallOfHeliodsGenerosity = card("Hall of Heliod's Generosity") {
-    typeLine = "Legendary Land"
     colorIdentity = "W"
+    typeLine = "Legendary Land"
     oracleText = "{T}: Add {C}.\n" +
         "{1}{W}, {T}: Put target enchantment card from your graveyard on top of your library."
 
     activatedAbility {
-        cost = AbilityCost.Tap
+        cost = Costs.Tap
         effect = Effects.AddColorlessMana(1)
         manaAbility = true
         timing = TimingRule.ManaAbility
@@ -34,13 +31,9 @@ val HallOfHeliodsGenerosity = card("Hall of Heliod's Generosity") {
 
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{1}{W}"), Costs.Tap)
-        val target = target(
-            TargetFilter(
-                GameObjectFilter.Enchantment.ownedByYou(),
-                zone = Zone.GRAVEYARD,
-            )
-        )
-        effect = Effects.Move(target, Zone.LIBRARY, ZonePlacement.Top)
+        val t = target(TargetFilter(GameObjectFilter.Enchantment.ownedByYou(), zone = Zone.GRAVEYARD))
+        effect = Effects.PutOnTopOfLibrary(t)
+        description = "{1}{W}, {T}: Put target enchantment card from your graveyard on top of your library."
     }
 
     metadata {

@@ -248,7 +248,7 @@ class LobbyHandler(
         setCodes: List<String>,
         playerCount: Int = 2,
         models: List<String>? = null,
-        heuristicDeckbuilding: Boolean? = null,
+        skipLlmDeckbuilding: Boolean? = null,
         gamesPerMatch: Int? = null,
     ): String {
         require(aiGameManager.isEnabled) { "AI opponent is not enabled on this server" }
@@ -307,7 +307,7 @@ class LobbyHandler(
         }
 
         // Launch AI deck building in background (handles tournament activation + match start)
-        launchAiDeckBuilding(lobby, heuristicDeckbuilding = heuristicDeckbuilding ?: false)
+        launchAiDeckBuilding(lobby, skipLlmDeckbuilding = skipLlmDeckbuilding ?: false)
 
         lobbyRepository.saveLobby(lobby)
         return lobby.lobbyId
@@ -557,7 +557,7 @@ class LobbyHandler(
             gameMode = LobbyGameMode.TOURNAMENT,
         )
         identities.forEach { lobby.addPlayer(it) }
-        val host = identities.first().playerId
+        val host = lobby.hostPlayerId!!
         if (lobby.jumpstartStartError() != null || !lobby.startJumpstart(host)) {
             identities.forEach { it.currentLobbyId = null }
             return false
@@ -1867,7 +1867,7 @@ class LobbyHandler(
      * host's WebSocket handler thread. LLM deckbuilding can take 30+ seconds,
      * and blocking would prevent the human player from submitting their own deck.
      */
-    private fun launchAiDeckBuilding(lobby: TournamentLobby, heuristicDeckbuilding: Boolean = false) {
+    private fun launchAiDeckBuilding(lobby: TournamentLobby, skipLlmDeckbuilding: Boolean = false) {
         if (lobby.isJumpstart) {
             finishAiJumpstartPicks(lobby)
             ctx.broadcastLobbyUpdate(lobby)
@@ -1882,7 +1882,7 @@ class LobbyHandler(
         ctx.draftScope.launch(Dispatchers.IO) {
             for ((playerId, playerState) in aiPlayers) {
                 try {
-                    val built = buildAiPoolDeck(lobby, playerState.cardPool, heuristicDeckbuilding)
+                    val built = buildAiPoolDeck(lobby, playerState.cardPool, skipLlmDeckbuilding)
                     val submitted = built.submissionList
                     val result = lobby.submitDeck(playerId, submitted, commander = built.commander)
                     when (result) {
@@ -2027,7 +2027,7 @@ class LobbyHandler(
     private fun buildAiPoolDeck(
         lobby: TournamentLobby,
         pool: List<com.wingedsheep.sdk.model.CardDefinition>,
-        heuristic: Boolean,
+        skipLlm: Boolean,
     ): com.wingedsheep.ai.engine.deck.GeneratedDeck {
         if (lobby.usesCommanderRules) {
             val built = runCatching { commanderDeckGenerator.generateFromPool(pool, lobby.deckSizeMin, lobby.allowDuplicates) }
@@ -2040,25 +2040,36 @@ class LobbyHandler(
                 lobby.lobbyId,
             )
         }
-        return com.wingedsheep.ai.engine.deck.GeneratedDeck(buildAiSealedDeck(pool, heuristic))
+        return com.wingedsheep.ai.engine.deck.GeneratedDeck(buildAiSealedDeck(pool, lobby.setCodes, skipLlm))
     }
 
     /**
-     * Build a 40-card sealed deck from a card pool using the LLM.
-     * Falls back to a color-based heuristic if the LLM fails.
+     * Build a 40-card limited deck from a sealed or drafted pool.
+     *
+     * With an LLM API key configured (and the LLM not skipped by [skipLlm], the server's
+     * `skip-llm-deckbuilding` setting, or the jev AI mode) the LLM builds it; otherwise — and whenever
+     * the LLM fails — it is [com.wingedsheep.ai.engine.buildLimitedDeck], the Draftsim autobuilder
+     * scoped to the lobby's sets, the same engine as the deckbuild "Auto-build" button's default.
      */
-    private fun buildAiSealedDeck(pool: List<com.wingedsheep.sdk.model.CardDefinition>, heuristic: Boolean = false): Map<String, Int> {
-        logger.info("AI building sealed deck from pool of {} cards (heuristic={})", pool.size, heuristic)
+    private fun buildAiSealedDeck(
+        pool: List<com.wingedsheep.sdk.model.CardDefinition>,
+        setCodes: List<String>,
+        skipLlm: Boolean = false,
+    ): Map<String, Int> {
+        logger.info("AI building sealed deck from pool of {} cards (skipLlm={})", pool.size, skipLlm)
 
         val aiProperties = gameProperties.ai
-        val forceHeuristic = heuristic || aiProperties.heuristicDeckbuilding || aiProperties.mode.trim().equals("jev", ignoreCase = true)
-        if (!forceHeuristic && aiProperties.enabled && aiProperties.effectiveApiKey.isNotBlank()) {
+        val noLlm = skipLlm || aiProperties.skipLlmDeckbuilding || aiProperties.mode.trim().equals("jev", ignoreCase = true)
+        if (!noLlm && aiProperties.enabled && aiProperties.effectiveApiKey.isNotBlank()) {
             val llmDeck = tryLlmSealedDeck(pool, aiProperties)
             if (llmDeck != null) return llmDeck
-            logger.info("AI LLM deckbuild failed, falling back to heuristic")
+            logger.info("AI LLM deckbuild failed, falling back to the Draftsim autobuilder")
         }
 
-        return buildHeuristicSealedDeck(pool)
+        val deck = com.wingedsheep.ai.engine.buildLimitedDeck(pool, setCodes)
+        logger.info("AI Draftsim deck ({} cards): {}", deck.values.sum(),
+            deck.entries.sortedByDescending { it.value }.joinToString(", ") { "${it.value}x ${it.key}" })
+        return deck
     }
 
     /**
@@ -2212,16 +2223,6 @@ class LobbyHandler(
     }
 
     /**
-     * Heuristic fallback: pick the best 2 colors, include on-color cards, add correct basics.
-     */
-    private fun buildHeuristicSealedDeck(pool: List<com.wingedsheep.sdk.model.CardDefinition>): Map<String, Int> {
-        val deck = com.wingedsheep.ai.engine.buildHeuristicSealedDeck(pool)
-        logger.info("AI heuristic deck ({} cards): {}", deck.values.sum(),
-            deck.entries.sortedByDescending { it.value }.joinToString(", ") { "${it.value}x ${it.key}" })
-        return deck
-    }
-
-    /**
      * Guess the primary basic land name from the colors of non-land cards already in the deck.
      */
     private fun guessPrimaryBasicLand(
@@ -2293,11 +2294,7 @@ class LobbyHandler(
 
         logger.info("Player ${identity.playerName} left lobby $lobbyId (cannot rejoin)")
 
-        if (lobby.playerCount == 0) {
-            tournamentResultSink.recordAbandoned(lobbyId)
-            lobbyRepository.removeLobby(lobbyId)
-            logger.info("Lobby $lobbyId removed (empty)")
-        } else {
+        if (!closeIfAbandoned(lobby)) {
             // Auto-adjust grid draft booster count when player count changes
             if (lobby.format == TournamentFormat.GRID_DRAFT && lobby.state == LobbyState.WAITING_FOR_PLAYERS) {
                 lobby.boosterCount = gridDraftHandler.gridDraftDefaultBoosters(lobby.players.size)
@@ -2345,13 +2342,21 @@ class LobbyHandler(
 
         logger.info("Player ${identity.playerName} auto-left lobby $lobbyId")
 
-        if (lobby.playerCount == 0) {
-            tournamentResultSink.recordAbandoned(lobbyId)
-            lobbyRepository.removeLobby(lobbyId)
-            logger.info("Lobby $lobbyId removed (empty)")
-        } else {
-            ctx.broadcastLobbyUpdate(lobby)
-        }
+        if (!closeIfAbandoned(lobby)) ctx.broadcastLobbyUpdate(lobby)
+    }
+
+    /**
+     * Close [lobby] once nobody can use it: no seats at all, or — while still gathering players —
+     * only AI seats left. An AI never starts a lobby, so without this the last human leaving a
+     * lobby they had filled with AIs left it listed as open, "hosted" by one of the AIs.
+     */
+    private fun closeIfAbandoned(lobby: TournamentLobby): Boolean {
+        if (lobby.playerCount > 0 && !lobby.isAbandonedByHumans) return false
+        lobby.vacateSeats().forEach { sessionRegistry.removeIdentity(it.token) }
+        tournamentResultSink.recordAbandoned(lobby.lobbyId)
+        lobbyRepository.removeLobby(lobby.lobbyId)
+        logger.info("Lobby ${lobby.lobbyId} removed (no human players left)")
+        return true
     }
 
     private fun handleStopLobby(session: WebSocketSession) {

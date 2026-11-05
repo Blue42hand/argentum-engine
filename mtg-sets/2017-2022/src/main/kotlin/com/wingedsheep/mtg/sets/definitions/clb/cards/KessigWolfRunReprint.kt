@@ -3,7 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.clb.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Kessig Wolf Run reprint in Commander Legends: Battle for Baldur's Gate. */
+/**
+ * Kessig Wolf Run reprint in CLB. Canonical CardDefinition lives in its earliest set.
+ */
 val KessigWolfRunReprint = Printing(
     oracleId = "c6911265-54ef-4c16-bcf2-1ffb24b7d426",
     name = "Kessig Wolf Run",

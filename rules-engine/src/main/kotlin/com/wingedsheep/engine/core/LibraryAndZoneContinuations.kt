@@ -76,6 +76,8 @@ data class SelectFromCollectionContinuation(
  * @property destinationPlayerId The player whose zone the cards go to
  * @property revealed Whether the move was public (MoveCollectionEffect.revealed), which decides
  *   who keeps knowing the cards once they are in the library
+ * @property storeMovedAs The move's `MoveCollectionEffect.storeMovedAs`: the ordered cards are
+ *   handed to the frame beneath under this name once placed, as the unpaused move would store them
  */
 @Serializable
 data class MoveCollectionOrderContinuation(
@@ -88,6 +90,7 @@ data class MoveCollectionOrderContinuation(
     val placement: com.wingedsheep.sdk.scripting.effects.ZonePlacement = com.wingedsheep.sdk.scripting.effects.ZonePlacement.Top,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
     val revealed: Boolean = false,
+    val storeMovedAs: String? = null,
 ) : AnswerContinuation
 
 /**
@@ -125,6 +128,8 @@ data class SelectTargetPipelineContinuation(
  * @property sourceName Name of the source for display
  * @property storeAs Key under which to store the chosen value
  * @property options The option strings (indexed by OptionChosenResponse.optionIndex)
+ * @property recordSlot When set ([com.wingedsheep.sdk.scripting.effects.ChooseOptionEffect.recordOnSource]),
+ *   the chosen value is also written durably to the source permanent's cast-choices bag under this slot.
  */
 @Serializable
 data class ChooseOptionPipelineContinuation(
@@ -133,6 +138,7 @@ data class ChooseOptionPipelineContinuation(
     val sourceName: String?,
     val storeAs: String,
     val options: List<String>,
+    val recordSlot: com.wingedsheep.sdk.scripting.ChoiceSlot? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
 ) : AnswerContinuation
 
@@ -223,6 +229,8 @@ data class MoveCollectionAuraTargetContinuation(
      * there — Warp World's ruling), so these are never offered as hosts.
      */
     val excludedHosts: List<EntityId> = emptyList(),
+    /** The move puts its cards onto the battlefield tapped ("return them to the battlefield tapped"). */
+    val tapped: Boolean = false,
 ) : AnswerContinuation
 
 /**

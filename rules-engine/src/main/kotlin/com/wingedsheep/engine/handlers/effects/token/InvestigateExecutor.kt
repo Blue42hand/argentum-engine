@@ -22,7 +22,9 @@ class InvestigateExecutor(
     override val effectType: KClass<InvestigateEffect> = InvestigateEffect::class
 
     override fun execute(state: GameState, effect: InvestigateEffect, context: EffectContext): EffectResult {
-        val investigator = effect.controller?.let { context.resolvePlayerTarget(it, state) } ?: context.controllerId
+        val investigator = effect.controller
+            ?.let { context.resolvePlayerTarget(it, state) ?: return EffectResult.success(state) }
+            ?: context.controllerId
         val execute = executeEffect ?: { s: GameState, e: Effect, c: EffectContext ->
             createPredefinedToken.execute(s, e as CreatePredefinedTokenEffect, c)
         }

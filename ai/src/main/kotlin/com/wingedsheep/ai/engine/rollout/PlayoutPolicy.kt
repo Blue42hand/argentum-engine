@@ -94,6 +94,7 @@ class PlayoutPolicy(
                 aimAtPlaneswalkers = combatAdvisor.attackPlaneswalkers,
                 walkerEngines = combatAdvisor.walkerEngines,
                 minimalLethalInPods = combatAdvisor.minimalLethalInPods,
+                threatAwareDefender = combatAdvisor.threatAwareDefender,
             )
             return DeclareAttackers(playerId, CombatSeed.obeyLoneAttackers(action, seed.attackers)) to rng
         }

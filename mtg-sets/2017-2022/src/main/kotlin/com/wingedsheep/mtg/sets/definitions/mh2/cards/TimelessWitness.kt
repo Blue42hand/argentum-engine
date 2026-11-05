@@ -9,6 +9,17 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
+/**
+ * Timeless Witness — Modern Horizons 2 #179 (canonical printing)
+ * {2}{G}{G} · Creature — Human Shaman · 2/1
+ *
+ * When this creature enters, return target card from your graveyard to your hand.
+ * Eternalize {5}{G}{G}
+ *
+ * Eternalize (CR 702.129) is the shared `eternalize(cost)` helper — `eternalizeAbility(cost)` builds the
+ * sorcery-speed graveyard ability that exiles the card as a cost and makes a 4/4 black Zombie token copy
+ * with no mana cost, marked `Keyword.ETERNALIZE` so "whenever you activate an eternalize ability" sees it.
+ */
 val TimelessWitness = card("Timeless Witness") {
     manaCost = "{2}{G}{G}"
     colorIdentity = "G"
@@ -21,7 +32,9 @@ val TimelessWitness = card("Timeless Witness") {
         val returned = target(TargetFilter(GameObjectFilter.Any.ownedByYou(), zone = Zone.GRAVEYARD))
         effect = Effects.Move(returned, Zone.HAND)
     }
+
     eternalize("{5}{G}{G}")
+
     metadata {
         rarity = Rarity.UNCOMMON
         collectorNumber = "179"

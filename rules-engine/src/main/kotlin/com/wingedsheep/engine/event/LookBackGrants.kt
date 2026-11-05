@@ -45,6 +45,8 @@ data class LookBackGrants(
     val attachmentGrantedTriggers: List<TriggeredAbility> = emptyList(),
     /** Frozen host relationship for the attachments' own leaves-the-battlefield abilities. */
     val attachmentIds: List<EntityId> = emptyList(),
+    /** Projected attachment characteristics frozen before any member of a batch departs. */
+    val attachments: List<com.wingedsheep.engine.state.components.stack.AttachmentLki> = emptyList(),
     val observerSelfGrantIds: Map<EntityId, List<AbilityId>> = emptyMap(),
 ) {
     val isEmpty: Boolean
@@ -60,6 +62,7 @@ data class LookBackGrants(
             observers: Map<EntityId, List<AbilityId>> = ConditionalSelfGrants.observers(state, cardRegistry, conditionEvaluator),
         ): LookBackGrants = LookBackGrants(
             attachmentIds = state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds.orEmpty(),
+            attachments = com.wingedsheep.engine.state.components.stack.attachmentLkiOf(state, entityId),
             conditionalSelfGrantIds = ConditionalSelfGrants.activeIds(state, entityId, cardRegistry, conditionEvaluator),
             attachmentGrantedTriggers = AttachmentGrantedTriggers.of(
                 state,

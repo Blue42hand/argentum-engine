@@ -268,6 +268,30 @@ internal class AffectsFilterResolver(
      */
     fun isKeywordDependentFilter(filter: AffectsFilter): Boolean = keywordsReadBy(filter).isNotEmpty()
 
+    /**
+     * True when the filter reads power or toughness ("creatures with power 3 or less" — Temur
+     * Charm, Rumbling Ruin). A rules-effect restriction over such a group is re-resolved after
+     * Layer 7, once counters and pumps have settled P/T (CR 613.11).
+     */
+    fun isPowerToughnessDependentFilter(filter: AffectsFilter): Boolean {
+        if (filter !is AffectsFilter.Generic) return false
+        fun reads(p: CardPredicate): Boolean = when (p) {
+            is CardPredicate.PowerEquals, is CardPredicate.PowerAtMost, is CardPredicate.PowerAtLeast,
+            is CardPredicate.ToughnessEquals, is CardPredicate.ToughnessAtMost, is CardPredicate.ToughnessAtLeast,
+            is CardPredicate.PowerOrToughnessAtLeast, is CardPredicate.PowerOrToughnessAtMost,
+            is CardPredicate.TotalPowerAndToughnessAtMost, CardPredicate.ToughnessGreaterThanPower,
+            CardPredicate.PowerGreaterThanBase, is CardPredicate.BasePowerEquals,
+            is CardPredicate.BaseToughnessEquals -> true
+            is CardPredicate.And -> p.predicates.any(::reads)
+            is CardPredicate.Or -> p.predicates.any(::reads)
+            is CardPredicate.Not -> reads(p.predicate)
+            else -> false
+        }
+        fun reads(f: com.wingedsheep.sdk.scripting.GameObjectFilter): Boolean =
+            f.cardPredicates.any(::reads) || f.anyOf.any(::reads)
+        return reads(filter.groupFilter.baseFilter)
+    }
+
     fun isControllerDependentFilter(filter: AffectsFilter): Boolean {
         return filter is AffectsFilter.AllCreaturesYouControl ||
             filter is AffectsFilter.AllCreaturesOpponentsControl ||
@@ -371,7 +395,7 @@ internal class AffectsFilterResolver(
                         ControllerPredicate.OwnedByYou -> card.ownerId != null && card.ownerId == controller
                         ControllerPredicate.OwnedByOpponent -> card.ownerId != null && card.ownerId != controller
                         // "creatures that player controls" — a player pinned when a floating group
-                        // restriction resolved (ResolutionPlayerBaker), or a state-relative reference.
+                        // restriction resolved (ResolutionFilterBaker), or a state-relative reference.
                         // Answered by the evaluator's shared player leaf; it must never fail open, or
                         // a one-player restriction would bind every controller's creatures.
                         is ControllerPredicate.ControlledByReferencedPlayer -> when (val ref = leaf.target) {
@@ -586,6 +610,8 @@ internal class AffectsFilterResolver(
         StatePredicate.IsBlockingIterationEntity -> false
         // Role-relative ("blocking it"); needs an effect context, never present in projection.
         is StatePredicate.IsBlockingEntity -> false
+        // Reference-relative identity; projection has no effect context to resolve it.
+        is StatePredicate.IsEntity -> false
         // Source-relative: "created with the source" needs the ability's source permanent, absent
         // in group-static projection. Only meaningful in target/gather-filter contexts via
         // PredicateEvaluator. Never match here.
@@ -738,6 +764,7 @@ internal class AffectsFilterResolver(
         // projection answer is unconditionally false here.
         StatePredicate.PutIntoGraveyardThisTurn -> false
         StatePredicate.MilledThisTurn -> false
+        StatePredicate.PutIntoGraveyardThisCombat -> false
         // Hand-only predicate; never true of a battlefield permanent.
         StatePredicate.DrawnThisTurn -> false
         StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
@@ -872,6 +899,8 @@ internal class AffectsFilterResolver(
             container.has<com.wingedsheep.engine.state.components.identity.WarpExiledComponent>()
         StatePredicate.IsForetold ->
             container.has<com.wingedsheep.engine.state.components.identity.ForetoldComponent>()
+        // Exile-only: a battlefield permanent in group-static projection is never suspended.
+        StatePredicate.IsSuspended -> false
         StatePredicate.WasCastForWarp ->
             container.has<com.wingedsheep.engine.state.components.battlefield.WarpedComponent>()
         // Stack-only: cast-origin zone reads SpellOnStackComponent, which battlefield permanents
@@ -1117,6 +1146,8 @@ internal class AffectsFilterResolver(
         CardPredicate.ManaValueIsEven -> card.manaValue % 2 == 0
         CardPredicate.ManaValueIsOdd -> card.manaValue % 2 != 0
         CardPredicate.HasXInManaCost -> if (isFaceDown) false else card.manaCost.hasX
+        CardPredicate.HasRepeatedManaSymbol -> if (isFaceDown) false else card.manaCost.hasRepeatedSymbol
+        is CardPredicate.ManaCostIs -> if (isFaceDown) false else card.manaCost == predicate.manaCost
         is CardPredicate.ColoredManaSymbolsAtLeast ->
             // Printed cost's colored pips (CR 107.4e/f); face-down has no mana cost (CR 708.2).
             if (isFaceDown) false

@@ -13,7 +13,7 @@ import { keepAttackerPreview, keepBlockerPreview } from './combatPreview'
 import { CLEARED_PIPELINE_SELECTIONS, isActionStillOffered } from '../ui/pipelineSlice'
 import type { SetState, GetState } from './types'
 import { useTableTalkStore } from '@/store/tableTalkStore'
-import { getPreferences } from '@/store/preferencesStore'
+import { getPreferences, usePreferences } from '@/store/preferencesStore'
 import { autoAnswerFor, scheduleAutoAnswer } from './autoAnswer'
 import { createSetPriorityModeMessage, createSetStopOverridesMessage, createSetTriggerOrderingMessage } from '@/types'
 import type {
@@ -116,6 +116,7 @@ function getEventLogType(eventType: string): 'action' | 'turn' | 'combat' | 'sys
     case 'creatureBlocked': return 'combat'
     case 'abilityFizzled':
     case 'abilityAutoAnswered':
+    case 'triggersOrderedAutomatically':
     case 'gameEnded':
     case 'playerLost': return 'system'
     default: return 'action'
@@ -823,12 +824,28 @@ function processStateUpdate(
     )
       ? state.opponentBlockerAssignments
       : null,
+    // Shared-team choices can hand this connection another seat's declaration without an
+    // epoch change. Drop the old seat's draft atomically; App enters the new server offer.
+    ...(state.combatState && !msg.legalActions.some(({ action }) =>
+      action.type === (state.combatState?.mode === 'declareAttackers' ? 'DeclareAttackers' : 'DeclareBlockers') &&
+      (state.combatState?.actingSeat == null || action.playerId === state.combatState.actingSeat)
+    ) ? { combatState: null, draggingBlockerId: null, draggingAttackerId: null } : {}),
     ...(state.interactionEpoch !== (msg.interactionEpoch ?? null)
       ? CLEARED_ACTION_SELECTIONS
       : isPipelineOutpaced(state, msg.legalActions) ? CLEARED_PIPELINE_SELECTIONS : {}),
   }))
 
   scheduleAutoAnswer(autoAnswer, set, get)
+
+  // The game just ordered several of our triggers where the order could have mattered: say so,
+  // the first time it happens, so a player learns they can choose it — then never again.
+  const autoOrdered = msg.events.find((e) => e.type === 'triggersOrderedAutomatically') as
+    | { type: 'triggersOrderedAutomatically'; count: number }
+    | undefined
+  if (autoOrdered && !suppressAnimations && getPreferences().gameplay.triggerOrderTip) {
+    usePreferences.getState().update('gameplay', { triggerOrderTip: false })
+    set({ triggerOrderNotice: { key: Date.now(), count: autoOrdered.count } })
+  }
 
   // Auto-initialize inline distribute state for DistributeDecision
   const decision = autoAnswer ? undefined : msg.pendingDecision
@@ -900,7 +917,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
       setInGame(true)
 
       // Clear spectating state — active game takes priority. Fresh game, fresh camera.
-      set({ spectatingState: null, priorityYield: null, interactionEpoch: null, stateVersion: null })
+      set({ spectatingState: null, priorityYield: null, interactionEpoch: null, stateVersion: null, triggerOrderNotice: null })
       useTableTalkStore.getState().resetForNewGame()
       get().resetBoardView()
 

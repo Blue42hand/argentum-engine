@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
 import { computePhases, dropSacrificeXPickerAtZero, enterPhase, mergeResult } from './pipelinePhases'
-import { optionalManaCostForCount } from './pipelineSlice'
 import type { LegalActionInfo } from '@/types/messages'
 import type { PipelinePhase } from '../types'
 
@@ -103,11 +102,6 @@ describe('compact repeatable optional cast cost', () => {
     expect(withBoth).toMatchObject({ xValue: 3, declaredCostTimes: 11 })
   })
 
-  it('scales a huge generic cost without allocating one symbol per payment', () => {
-    expect(optionalManaCostForCount('{2}', '{2}', 1_000_000_000)).toBe('{2}{1999999998}')
-    expect(optionalManaCostForCount('{G}', '{G}', 1_000_000_000)).toBeNull()
-    expect(optionalManaCostForCount('{2}', '{2}', -1)).toBeNull()
-  })
 })
 
 describe('Treasure Cruise delve selection', () => {

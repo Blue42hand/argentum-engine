@@ -88,7 +88,7 @@ object EntryRiderReplacements {
         for (sourceId in state.getBattlefield()) {
             if (sourceId == enteringEntityId) continue
             val container = state.getEntity(sourceId) ?: continue
-            val replacements = container.get<ReplacementEffectSourceComponent>() ?: continue
+            val replacements = state.activeReplacementSource(sourceId) ?: continue
             val sourceControllerId = state.projectedState.getController(sourceId) ?: continue
             for (effect in replacements.replacementEffects) {
                 if (effect !is PutOntoBattlefieldThen) continue

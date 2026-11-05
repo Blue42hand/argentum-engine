@@ -72,6 +72,7 @@ export function costInfoForPhase(
 // ---------------------------------------------------------------------------
 
 export interface PipelineStoreMethods {
+  requestCastCostQuote: (rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false) => void
   startModalModeSelection: (state: ModalModeSelectionState) => void
   startXSelection: (state: XSelectionState) => void
   startBlightVariableSelection: (state: BlightVariableSelectionState) => void
@@ -298,6 +299,7 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
       'Behold',
       'ChooseEntity',
       'Blight',
+      'PutCounters',
       'Conspire',
       'Casualty',
       'Craft',
@@ -377,6 +379,7 @@ export function mergeResult(
   gameState: ClientGameState,
 ): GameAction {
   switch (result.type) {
+    case 'castCostQuote': return action
     case 'modalModes': {
       if (action.type === 'CastSpell') {
         // Targets are deferred to the engine's per-mode target pause, so submit modes only.
@@ -589,7 +592,9 @@ export function mergeResult(
                       ? { beheldCards: selectedTargets }
                       : costType === 'Blight' || costType === 'BlightVariable'
                         ? { blightTargets: selectedTargets }
-                        : { sacrificedPermanents: selectedTargets }
+                        : costType === 'PutCounters'
+                          ? { counterPlacementTargets: selectedTargets }
+                          : { sacrificedPermanents: selectedTargets }
         // Spread the existing additionalCostPayment so prior phases' fields
         // (e.g. `blightAmount` from a preceding BlightVariable phase) survive.
         const additionalCostPayment = {
@@ -693,6 +698,9 @@ export function enterPhase(
   gameState?: ClientGameState,
 ): void {
   switch (phase.type) {
+    case 'castCostQuote':
+      store.requestCastCostQuote(phase.rebuildPaymentPhases)
+      break
     case 'modalModes': {
       store.startModalModeSelection({
         actionInfo,
@@ -1112,9 +1120,11 @@ export function enterPhase(
         case 'DiscardCard':
           validTargets = [...(costInfo.validDiscardTargets ?? [])]
           minTargets = costInfo.discardCount ?? 1
-          maxTargets = costInfo.discardCount ?? 1
+          // A variable discard ("discard X cards") sends its own upper bound; a fixed one doesn't.
+          maxTargets = costInfo.discardMaxCount ?? costInfo.discardCount ?? 1
           flags.isSacrificeSelection = true
           flags.isDiscardSelection = true
+          if (costInfo.discardMaxCount != null) flags.targetDescription = costInfo.description
           break
         case 'ExileFromGraveyard':
           validTargets = [...(costInfo.validExileTargets ?? [])]
@@ -1206,6 +1216,13 @@ export function enterPhase(
             costType === 'BlightVariable'
               ? `Choose a creature to receive ${(action as { additionalCostPayment?: { blightAmount?: number } }).additionalCostPayment?.blightAmount ?? 0} -1/-1 counter(s)`
               : costInfo.description
+          break
+        case 'PutCounters':
+          // "Put a -1/-1 counter on a creature you control" (Lethal Sting): pick it on the battlefield.
+          validTargets = [...(costInfo.validCounterPlacementTargets ?? [])]
+          minTargets = 1
+          maxTargets = 1
+          flags.targetDescription = costInfo.description
           break
         case 'Craft':
           // Craft materials span both battlefield and graveyard (CR 702.167a-b). Route to the

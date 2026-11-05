@@ -5578,7 +5578,7 @@
         "staticAbilities": [
             {
                 "type": "TransformPermanent",
-                "setSubtypes": [
+                "setCreatureSubtypes": [
                     "Spirit"
                 ]
             },
@@ -9411,26 +9411,6 @@
     "colorIdentityOverride": [
         "WHITE",
         "BLACK"
-    ]
-}
-
-// Knight of the Keep
-{
-    "name": "Knight of the Keep",
-    "manaCost": "{2}{W}",
-    "typeLine": "Creature — Human Knight",
-    "creatureStats": {
-        "power": 3,
-        "toughness": 2
-    },
-    "metadata": {
-        "collectorNumber": "291",
-        "artist": "Nicholas Gregory",
-        "flavorText": "Now the cries of clear strong voices came ringing over the fields. They rode in: a long line of mail-clad Men, swift, shining, fell and fair to look upon. Suddenly they swept up with a noise like thunder, and the foremost horseman swerved.",
-        "imageUri": "https://cards.scryfall.io/normal/front/3/a/3af21576-3793-4796-ab60-112fbbb5fc0d.jpg?1687424787"
-    },
-    "colorIdentityOverride": [
-        "WHITE"
     ]
 }
 
@@ -15902,7 +15882,7 @@
             {
                 "type": "PreventActivatedAbilities",
                 "filter": "land ctrl:opponent",
-                "nonManaAbilitiesOnly": true
+                "abilities": "NON_MANA"
             },
             {
                 "type": "GainActivatedAbilitiesOfPermanents",

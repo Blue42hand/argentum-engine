@@ -42,7 +42,8 @@ data class SpellOnStackComponent(
      * counter-placement replacements see them then. Bought with the optional "pay any amount of
      * mana" additional cost of an `AdditionalManaForEntryCounters` static (Chorus of the Conclave),
      * or put on the spell while it's on the stack by a counter effect — "that creature enters with
-     * an additional +1/+1 counter on it" (Runadi, Jade Orb of Dragonkind). Fixed when owed, so the
+     * an additional +1/+1 counter on it" (Runadi, Jade Orb of Dragonkind), or at payment time by a
+     * `ManaSpellRider.EntersWithCountersWhenSpent` (Guildmages' Forum). Fixed when owed, so the
      * counters arrive even if whatever granted them has left the battlefield before the spell
      * resolves. Not copied (CR 707.2): a copy of the spell owes nothing.
      */
@@ -187,6 +188,14 @@ data class SpellOnStackComponent(
      */
     val exiledAsCostSnapshots: List<EntitySnapshot> = emptyList(),
     /**
+     * Permanents tapped to pay this spell's additional cost (`CostAtom.TapPermanents`, or a
+     * variable tap cost), recorded at payment time (CR 601.2h). The spell counterpart of
+     * [ActivatedAbilityOnStackComponent.tappedPermanents] — read at resolution by
+     * `EffectTarget.TappedAsCost` (Swallow Whole's "the creature tapped to pay this spell's
+     * additional cost"). Convoke taps are not costs of this kind; they live in [convokedCreatures].
+     */
+    val tappedPermanents: List<EntityId> = emptyList(),
+    /**
      * Last-known-info snapshots (Rule 113.7a) for entities chosen at cost-pay time
      * that may later leave the battlefield before the spell resolves. Populated
      * when an [com.wingedsheep.sdk.scripting.AdditionalCost.ChooseEntity] step
@@ -319,13 +328,6 @@ data class TriggeredAbilityOnStackComponent(
      * Blunderbuss". Null for the source's own printed abilities.
      */
     val granterId: EntityId? = null,
-    /**
-     * The controller already answered this ability's leading "you may" when choosing its target:
-     * picking a target is the yes, so the resolution-time yes/no isn't asked a second time (see
-     * [com.wingedsheep.engine.event.TriggerProcessor.consentAnswerableAtTargeting]). Only the
-     * ability's top-level consent gate reads it; a later "you may" inside the effect still asks.
-     */
-    val consentAnsweredAtTargeting: Boolean = false,
     // Modal fields — populated when this triggered ability is a copy of a modal spell (700.2g).
     // Copies inherit the original's chosen modes; targets either inherit too (StormCopy default)
     // or are re-chosen by the copy controller while modes stay fixed.
@@ -525,6 +527,13 @@ data class ActivatedAbilityOnStackComponent(
      * reflexive triggers) that carry no restriction.
      */
     val sourceFaceChanges: Int? = null,
+    /**
+     * The source permanent's [com.wingedsheep.engine.state.components.battlefield.UntapCountComponent]
+     * clock the moment this ability was put onto the stack. Effects it creates "for as long as
+     * <source> remains tapped" hold only while the clock still reads this, so a source that
+     * untapped before resolution leaves them inert (CR 611.2b). Null for synthesized abilities.
+     */
+    val sourceUntapCount: Int? = null,
     val sourceBattlefieldTimestamp: Long? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment =
         com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),

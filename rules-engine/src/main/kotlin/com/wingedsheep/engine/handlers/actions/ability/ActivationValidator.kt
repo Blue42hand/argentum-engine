@@ -291,7 +291,10 @@ internal class ActivationValidator(
         // matching permanents — mana and non-mana alike. Loyalty abilities of
         // planeswalkers and Crew-style animation abilities are not blocked because the
         // filter (typically `Creature`) is matched in projected state.
-        if (castPermissionUtils.isActivationPrevented(state, action.sourceId, abilityIsManaAbility = ability.isManaAbility)) {
+        if (castPermissionUtils.isActivationPrevented(
+                state, action.sourceId, abilityIsManaAbility = ability.isManaAbility,
+                abilityIsLoyaltyAbility = ability.isPlaneswalkerAbility
+            )) {
             return "Activated abilities of this permanent can't be activated"
         }
 
@@ -299,7 +302,8 @@ internal class ActivationValidator(
         // activating and *when* — "During your turn, your opponents can't activate abilities
         // of artifacts, creatures, or enchantments." Scoped to the activating player.
         if (castPermissionUtils.isActivationPreventedForPlayer(
-                state, action.sourceId, action.playerId, abilityIsManaAbility = ability.isManaAbility
+                state, action.sourceId, action.playerId, abilityIsManaAbility = ability.isManaAbility,
+                abilityIsLoyaltyAbility = ability.isPlaneswalkerAbility
             )
         ) {
             return "An effect prevents you from activating that ability right now"
@@ -323,7 +327,10 @@ internal class ActivationValidator(
             val isOwnAbility = (com.wingedsheep.engine.state.components.identity.ownActivatedAbilities(cardComponent, cardDef, classLevel).any { it.id == action.abilityId })
                 || action.abilityId.value.startsWith("class_level_up_")
                 || isIntrinsicMana
-            if (isOwnAbility && !intrinsicSurvives) {
+            // "Except mana abilities" (Blood Sun) spares the permanent's own mana abilities.
+            val manaSpared = (ability.isManaAbility || isIntrinsicMana) &&
+                !state.projectedState.hasLostManaAbilities(action.sourceId)
+            if (isOwnAbility && !intrinsicSurvives && !manaSpared) {
                 return "This permanent has lost all abilities"
             }
         }
@@ -405,12 +412,12 @@ internal class ActivationValidator(
             return "Loyalty abilities can only be activated at sorcery speed"
         }
         // Rule 606.3: Only one loyalty ability per planeswalker per turn
-        // (Oath of Teferi, or a one-shot grant on this planeswalker, allows two per turn)
+        // (Oath of Teferi or a one-shot grant raises it; The Chain Veil adds to it)
         val tracker = container.get<AbilityActivatedThisTurnComponent>()
         if (tracker != null && tracker.loyaltyActivationCount > 0) {
-            val playerMax = castPermissionUtils.getMaxLoyaltyActivations(state, action.playerId, action.sourceId)
-            if (tracker.hasReachedLoyaltyLimit(playerMax)) {
-                val maxActivations = tracker.effectiveLoyaltyLimit(playerMax)
+            val allowance = castPermissionUtils.getLoyaltyAllowance(state, action.playerId, action.sourceId)
+            if (tracker.hasReachedLoyaltyLimit(allowance)) {
+                val maxActivations = tracker.effectiveLoyaltyLimit(allowance)
                 return if (maxActivations > 1) {
                     "Loyalty abilities can only be activated $maxActivations times per planeswalker each turn"
                 } else {

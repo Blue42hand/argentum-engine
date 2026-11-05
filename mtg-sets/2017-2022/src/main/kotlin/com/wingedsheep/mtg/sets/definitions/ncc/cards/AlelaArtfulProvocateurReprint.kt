@@ -4,8 +4,7 @@ import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
 /**
- * Alela, Artful Provocateur reprint in NCC. Canonical CardDefinition lives in Throne of Eldraine
- * (ELD).
+ * Alela, Artful Provocateur reprint in NCC. Canonical CardDefinition lives in its earliest set (ELD).
  */
 val AlelaArtfulProvocateurReprint = Printing(
     oracleId = "936ae5dc-9838-47f3-ba1f-66523a7f5b76",

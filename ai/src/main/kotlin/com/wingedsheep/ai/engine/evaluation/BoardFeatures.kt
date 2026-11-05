@@ -4,16 +4,20 @@ import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.ai.engine.OpponentAggregate
 import com.wingedsheep.ai.engine.PlaneswalkerThreat
 import com.wingedsheep.ai.engine.knowledge.CardIntent
+import com.wingedsheep.ai.engine.knowledge.EffectWalker
+import com.wingedsheep.ai.engine.knowledge.IntentTag
 import com.wingedsheep.ai.engine.knowledge.IntentCatalog
 import com.wingedsheep.ai.engine.lifePoolsOf
 import com.wingedsheep.ai.engine.sidesFor
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.permissions.MayPlayPermission
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
+import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.PlayerTurnsTakenComponent
@@ -21,6 +25,9 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Life Differential
@@ -59,6 +66,88 @@ object LifeDifferential : BoardFeature {
         life <= 15 -> 17.0 + (life - 7) * 1.0
         else -> 25.0 + (life - 15) * 0.5
     }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// Library Clock
+// ═════════════════════════════════════════════════════════════════════════════
+
+private fun hasRepeatableMill(
+    state: GameState, projected: ProjectedState, entityId: EntityId, intents: IntentCatalog,
+): Boolean {
+    if (!intents.isEnabled || projected.hasLostAllAbilities(entityId)) return false
+    val entity = state.getEntity(entityId) ?: return false
+    if (entity.has<FaceDownComponent>()) return false
+    val card = entity.get<CardComponent>() ?: return false
+    return intents.forPermanent(entity, card.name, entrySpent = true).any {
+        it.repeatable && IntentTag.MILL in it.tags
+    }
+}
+
+/**
+ * How close each library is to running out — [com.wingedsheep.ai.engine.AiProfile.libraryClock].
+ *
+ * Drawing from an empty library loses the game (CR 704.5b), but only at the next draw, so a leaf
+ * that has just exiled or milled its own library looks like any other board: game a7fc150e (Momir
+ * Basic) played a land with Territorial Bruntar out, its landfall trigger exiled all 48 basics, and
+ * the AI decked out at 20 life. A library is a clock of about one card a turn, so this prices it
+ * the way [LifeDifferential] prices life: nothing until the last few cards, then steeply — an
+ * empty library is most of the way to a loss. Symmetric, in life units, folded over the field like
+ * life: milling ourselves out is bad, milling an opponent out is good.
+ *
+ * The tactical penalty is zero from [SAFE_CARDS] up. [Bound] also prices gradual depletion
+ * while a live opposing repeatable mill engine threatens that library; games without such a
+ * threat retain the original draw and search evaluation.
+ */
+object LibraryClock : BoardFeature {
+    override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double =
+        score(state, projected, playerId, IntentCatalog.NONE)
+
+    class Bound(private val intents: IntentCatalog) : BoardFeature {
+        override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double =
+            LibraryClock.score(state, projected, playerId, intents)
+    }
+
+    private fun score(state: GameState, projected: ProjectedState, playerId: EntityId, intents: IntentCatalog): Double {
+        val sides = state.sidesFor(playerId) ?: return 0.0
+        val ourMill = hasMillEngine(state, projected, sides.mine, intents)
+        return sides.against(OpponentAggregate.FIELD) { opponent ->
+            sideValue(state, sides.mine, hasMillEngine(state, projected, opponent, intents)) -
+                sideValue(state, opponent, ourMill)
+        }
+    }
+
+    private fun hasMillEngine(state: GameState, projected: ProjectedState, side: List<EntityId>, intents: IntentCatalog): Boolean =
+        intents.isEnabled && state.getBattlefield().any { id ->
+            if (projected.getController(id) !in side) return@any false
+            hasRepeatableMill(state, projected, id, intents)
+        }
+
+    private fun sideValue(state: GameState, side: List<EntityId>, threatened: Boolean): Double =
+        side.sumOf {
+            val size = state.getLibrary(it).size
+            libraryValue(size) + if (threatened) depletionValue(size) else 0.0
+        }
+
+    /** Small, smooth progress toward decking, only while the opposing side has a mill engine. */
+    fun depletionValue(cards: Int): Double = -6.0 / (1.0 + cards.coerceAtLeast(0) / 8.0)
+
+    /**
+     * Cards left from which the library scores nothing. Three draws is three turns of game still
+     * to play; scenario positions routinely hold libraries of four to six cards, and a search or a
+     * cycle out of one is not the misplay this term exists for.
+     */
+    const val SAFE_CARDS = 3
+
+    /** An empty library: one draw from a loss — most of [LifeDifferential]'s −100 for dead. */
+    private const val EMPTY_LIBRARY = -60.0
+
+    /** Each card left keeps this fraction of the penalty of one fewer: −60, −15, −3.75, then 0. */
+    private const val DECAY = 0.25
+
+    /** What a library of [cards] is worth to its owner, in life units; 0 from [SAFE_CARDS] up. */
+    fun libraryValue(cards: Int): Double =
+        if (cards >= SAFE_CARDS) 0.0 else EMPTY_LIBRARY * Math.pow(DECAY, cards.coerceAtLeast(0).toDouble())
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -155,6 +244,46 @@ data class CreatureValuation(
      * of a card each one buys. [com.wingedsheep.ai.engine.AiProfile.walkersPricedAsEngines] sets it.
      */
     val walkersAsEngines: Boolean = false,
+    /**
+     * Price power and toughness by what they do against the table instead of linearly
+     * ([StatRelevance]): diminishing returns past a knee, so a 1000/1000 is not worth fifty 20/20s,
+     * and bonuses for the fights its size decides — the share of opposing creatures its power kills
+     * and its toughness survives, and toughness out of reach of the damage removal the opponent has
+     * shown. [com.wingedsheep.ai.engine.AiProfile.LIVE] ships it.
+     */
+    val statsReadTheBoard: Boolean = false,
+    /**
+     * Price the growth a creature's recurring +1/+1-counter triggers will still add
+     * ([GrowthPotential]): an Ouroboroid is worth the counters its next three combats put on its
+     * controller's team, not only its 1/3 body. Reads nothing without card knowledge
+     * ([com.wingedsheep.ai.engine.knowledge.IntentCatalog.NONE]).
+     * [com.wingedsheep.ai.engine.AiProfile.LIVE] ships it.
+     */
+    val growthPotential: Boolean = false,
+    /**
+     * Price a noncreature permanent by what it does from here on: its own "when this enters"
+     * triggers have already resolved and are left out of its prior
+     * ([com.wingedsheep.ai.engine.knowledge.CardIntentAnalyzer.analyzeInPlay]).
+     *
+     * The 2026-11-02 user report: Ajani's Anguish ("When this enchantment enters, it deals X damage
+     * to any target. Creatures you control have trample.") cast for X=1 the first turn it could. On
+     * the battlefield it kept a removal spell's prior, so the leaf scored the cast as a permanent
+     * worth a removal spell plus one damage — counting the trigger twice, once in the simulation
+     * and once in the board value. [com.wingedsheep.ai.engine.AiProfile.LIVE] ships it; pinned by
+     * `XSpellPatienceTest`.
+     */
+    val entryTriggersAreSpent: Boolean = false,
+    /**
+     * Under [statsReadTheBoard], pay a creature's fight bonuses only when it beats — or outlasts —
+     * the **whole** opposing board, rather than the share of it ([StatContext.wholeBoard]).
+     *
+     * The share made the evaluation non-monotone in our own creatures: every opposing creature that
+     * beats our Savannah Lions counted it in its share, so the Lions raised all of them. At 11 life
+     * with Alpine Grizzly and the Lions facing Grizzly Bears, Pensive Minotaur and two Hill Giants,
+     * the board scored 1.1 *higher* with the Lions dead, and `LIVE` sent it in alone to be eaten
+     * (`CombatTradePropertyTest`). [com.wingedsheep.ai.engine.AiProfile.LIVE] ships it.
+     */
+    val thresholdsWholeBoard: Boolean = false,
 ) {
     companion object {
         /** Neither correction: what every number published before 2026-08-10 was measured on. */
@@ -172,6 +301,9 @@ data class CreatureValuation(
  * side, so their permanents defend each other).
  */
 object BoardPresence : BoardFeature {
+    /** Extra value carried by a creature with a recurring opponent-mill ability. */
+    const val MILL_ENGINE_VALUE = 0.75
+
     /**
      * Score with no card knowledge — the pre-Phase-6 behaviour, and what every caller that has no
      * [IntentCatalog] to hand still gets.
@@ -195,16 +327,17 @@ object BoardPresence : BoardFeature {
         pendingLandDropIsMana: Boolean = false,
         handAtRoot: Set<EntityId>? = null,
         modalLandRoot: ModalLandRoot? = null,
+        shownReach: Map<EntityId, Int>? = null,
     ): Double {
         val sides = state.sidesFor(playerId) ?: return 0.0
-        val mine = boardValue(state, projected, sides.mine, intents, creatureValuation) +
+        val mine = boardValue(state, projected, sides.mine, intents, creatureValuation, shownReach) +
             if (sequenceLandsByUsableMana) {
                 landSequencing(state, projected, playerId, intents, pendingLandDropIsMana, handAtRoot, modalLandRoot)
             } else {
                 0.0
             }
         return sides.against(OpponentAggregate.THREAT) { opponent ->
-            mine - boardValue(state, projected, opponent, intents, creatureValuation)
+            mine - boardValue(state, projected, opponent, intents, creatureValuation, shownReach)
         }
     }
 
@@ -222,19 +355,22 @@ object BoardPresence : BoardFeature {
         private val surplusAwareLands: Boolean = false,
         private val handAtRoot: Set<EntityId>? = null,
         private val modalLandRoot: ModalLandRoot? = null,
+        private val shownReach: Map<EntityId, Int>? = null,
     ) : BoardFeature {
         override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double =
             score(
                 state, projected, playerId, intents, sequenceLandsByUsableMana, creatureValuation,
-                pendingLandDropIsMana, handAtRoot, modalLandRoot,
+                pendingLandDropIsMana, handAtRoot, modalLandRoot, shownReach,
             )
 
         override fun rootedAt(root: GameState, playerId: EntityId): BoardFeature =
-            if (!sequenceLandsByUsableMana) this
+            if (!sequenceLandsByUsableMana && !creatureValuation.statsReadTheBoard) this
             else Bound(
                 intents, sequenceLandsByUsableMana, creatureValuation, pendingLandDropIsMana, surplusAwareLands,
-                handAtRoot = root.getZone(playerId, Zone.HAND).toSet(),
-                modalLandRoot = if (surplusAwareLands) ModalLandRoot.of(root, playerId) else null,
+                handAtRoot = if (sequenceLandsByUsableMana) root.getZone(playerId, Zone.HAND).toSet() else null,
+                modalLandRoot = if (sequenceLandsByUsableMana && surplusAwareLands) ModalLandRoot.of(root, playerId) else null,
+                // Read once at the root, never at the leaf — see [StatRelevance] for why.
+                shownReach = if (creatureValuation.statsReadTheBoard) StatContext.shownReachAt(root, intents) else null,
             )
     }
 
@@ -244,12 +380,19 @@ object BoardPresence : BoardFeature {
         side: List<EntityId>,
         intents: IntentCatalog,
         creatureValuation: CreatureValuation,
+        shownReach: Map<EntityId, Int>? = null,
     ): Double {
         var total = 0.0
         for (playerId in side) {
+            // One read of the opposing board per player, not one per creature.
+            val statContext = if (creatureValuation.statsReadTheBoard) {
+                StatContext.facing(state, projected, playerId, shownReach, creatureValuation.thresholdsWholeBoard)
+            } else {
+                null
+            }
             for (entityId in projected.getBattlefieldControlledBy(playerId)) {
                 val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
-                total += permanentValue(state, projected, entityId, card, intents, creatureValuation)
+                total += permanentValue(state, projected, entityId, card, intents, creatureValuation, statContext)
             }
         }
         return total
@@ -365,11 +508,34 @@ object BoardPresence : BoardFeature {
         card: CardComponent,
         intents: IntentCatalog = IntentCatalog.NONE,
         creatureValuation: CreatureValuation = CreatureValuation.LEGACY,
+        /** The opposing board, under [CreatureValuation.statsReadTheBoard]; read here when not supplied. */
+        statContext: StatContext? = null,
     ): Double {
         val container = state.getEntity(entityId) ?: return 0.0
 
         if (projected.isCreature(entityId)) {
-            return creatureValue(state, projected, entityId, container, creatureValuation)
+            val context = statContext ?: if (creatureValuation.statsReadTheBoard) {
+                projected.getController(entityId)?.let {
+                    StatContext.facing(state, projected, it, null, creatureValuation.thresholdsWholeBoard)
+                }
+            } else {
+                null
+            }
+            val growth = if (creatureValuation.growthPotential) {
+                intents.growth?.value(state, projected, entityId, card.name) ?: 0.0
+            } else {
+                0.0
+            }
+            val millEngine = hasRepeatableMill(state, projected, entityId, intents)
+            val millValue = if (millEngine) MILL_ENGINE_VALUE else 0.0
+            val abilityValue = if (intents.isEnabled && !container.has<FaceDownComponent>() &&
+                !projected.hasLostAllAbilities(entityId)) {
+                ((intents.forPermanent(container, card.name, entrySpent = true).maxOfOrNull { it.staticPriorValue }
+                    ?: CardIntent.UNKNOWN.staticPriorValue) - CardIntent.UNKNOWN.staticPriorValue)
+                    .coerceAtLeast(0.0)
+            } else 0.0
+            return (creatureValue(state, projected, entityId, container, creatureValuation, context) + growth + millValue + abilityValue)
+                .coerceAtLeast(0.1)
         }
 
         // Non-creature permanents
@@ -384,7 +550,7 @@ object BoardPresence : BoardFeature {
         // max keeps both, and guarantees no permanent is ever valued lower than it was before
         // Phase 6 — so a position the AI played correctly on the old numbers still scores at least
         // as well.
-        val prior = priorValue(projected, entityId, container, card, intents)
+        val prior = priorValue(projected, entityId, container, card, intents, creatureValuation.entryTriggersAreSpent)
 
         // Planeswalkers: the flat 4.0 priced a fresh Jace and a Jace at 1 loyalty identically.
         // Loyalty is both the walker's life total and its remaining activations, so it is the one
@@ -444,8 +610,9 @@ object BoardPresence : BoardFeature {
         container: ComponentContainer,
         card: CardComponent,
         intents: IntentCatalog,
+        entrySpent: Boolean,
     ): Double {
-        val inForce = intents.forPermanent(container, card.name)
+        val inForce = intents.forPermanent(container, card.name, entrySpent)
         if (inForce.isEmpty()) return 0.0
         val unreadable = CardIntent.UNKNOWN.staticPriorValue
         return unreadable + inForce.sumOf {
@@ -538,7 +705,7 @@ object BoardPresence : BoardFeature {
     private const val ANTHEM_VALUE_PER_STAT = 0.25
 
     /** Board value of one loyalty counter. Only reached with card knowledge on. */
-    private const val LOYALTY_VALUE = 0.8
+    internal const val LOYALTY_VALUE = 0.8
 
     /**
      * What a creature's **body** is worth — the half of [creatureValue] that reads only stats and
@@ -551,14 +718,39 @@ object BoardPresence : BoardFeature {
      * [CreatureValuation.expiringStatsNeedAFight] gives `creatureValue`'s caller. Off the battlefield there are no temporary modifications, so the two coincide and
      * the defaults are the printed numbers.
      */
-    private fun creatureBodyValue(
+    internal fun creatureBodyValue(
         power: Int,
         toughness: Int,
         keywords: Set<String>,
         /** [power] and [toughness] with "until end of turn" modifications taken back off. */
         settledPower: Int = power,
         settledToughness: Int = toughness,
+        /**
+         * The opposing board, under [CreatureValuation.statsReadTheBoard]: stats are softened past
+         * their knees and the fight thresholds they cross are paid ([StatRelevance]). Null is the
+         * historical linear reading.
+         */
+        statContext: StatContext? = null,
+        /** Soften stats past their knees even with no board to read — the vacuum card reading. */
+        diminishingReturns: Boolean = statContext != null,
     ): Double {
+        val p: Double
+        val sp: Double
+        val st: Double
+        if (diminishingReturns) {
+            p = StatRelevance.softPower(power)
+            sp = StatRelevance.softPower(settledPower)
+            st = StatRelevance.softToughness(settledToughness)
+        } else {
+            p = power.toDouble()
+            sp = settledPower.toDouble()
+            st = settledToughness.toDouble()
+        }
+        return statBodyValue(p, sp, st, keywords) +
+            (statContext?.let { StatRelevance.thresholdBonus(settledPower, settledToughness, keywords, it) } ?: 0.0)
+    }
+
+    private fun statBodyValue(power: Double, settledPower: Double, settledToughness: Double, keywords: Set<String>): Double {
         // Base: power matters more than toughness for winning
         var value = settledPower * 1.0 + settledToughness * 0.4
 
@@ -582,6 +774,8 @@ object BoardPresence : BoardFeature {
         if (Keyword.LIFELINK.name in keywords) value += 0.5 + power * 0.3
         if (Keyword.VIGILANCE.name in keywords) value += 0.8  // attacks without cost
         if (Keyword.PROVOKE.name in keywords) value += 0.5
+        // Afflict: every block costs the defender life (CR 702.130a), a tax on blocking it.
+        if (Keyword.AFFLICT.name in keywords) value += 0.6
 
         // ── Survivability ──
         if (Keyword.INDESTRUCTIBLE.name in keywords) value += 3.0
@@ -601,6 +795,7 @@ object BoardPresence : BoardFeature {
         entityId: EntityId,
         container: ComponentContainer,
         valuation: CreatureValuation = CreatureValuation.LEGACY,
+        statContext: StatContext? = null,
     ): Double {
         val power = projected.getPower(entityId) ?: 0
         val toughness = projected.getToughness(entityId) ?: 0
@@ -624,7 +819,12 @@ object BoardPresence : BoardFeature {
 
         // Everything that is a property of the card's own body — stats, keywords, DEFENDER — is
         // [creatureBodyValue]; everything below is a property of this permanent in this position.
-        var value = creatureBodyValue(strikingPower, toughness, keywords, settledPower, settledToughness)
+        var value = creatureBodyValue(strikingPower, toughness, keywords, settledPower, settledToughness, statContext)
+
+        if (!projected.cantBlock(entityId)) {
+            value += extraBlockingValue(projected.getAdditionalBlockCount(entityId))
+        }
+
 
         // ── Drawbacks ──
         // "Can't attack" hung on the creature by a Pacifism takes away the same thing DEFENDER
@@ -636,7 +836,8 @@ object BoardPresence : BoardFeature {
             projected.cantAttack(entityId) &&
             Keyword.DEFENDER.name !in keywords
         ) {
-            value -= power * 0.8 // can't attack, power mostly wasted
+            val wasted = if (statContext != null) StatRelevance.softPower(power) else power.toDouble()
+            value -= wasted * 0.8 // can't attack, power mostly wasted
         }
 
         // ── Combat restrictions (Pacifism, "can't block this turn", etc.) ──
@@ -686,8 +887,10 @@ object BoardPresence : BoardFeature {
         return value.coerceAtLeast(0.1)
     }
 
+    internal fun extraBlockingValue(count: Int): Double = count.coerceIn(0, 3) * 0.4
+
     /** What a land is worth on the battlefield. Historical constants; [landSequencing] refines them. */
-    private const val LAND_UNTAPPED = 0.6
+    internal const val LAND_UNTAPPED = 0.6
     private const val LAND_TAPPED = 0.3
 
     /** Exactly the charge [permanentValue] applied, so an idle tapped land nets out to a full land. */
@@ -777,21 +980,25 @@ object CardAdvantage : BoardFeature {
         priceLandsInHandAsMana: Boolean = false,
         surplusAwareLands: Boolean = false,
         modalLandRoot: ModalLandRoot? = null,
+        surplusLandsReadTheHand: Boolean = false,
     ): Double {
         val sides = state.sidesFor(playerId) ?: return 0.0
         // The earmark model only: the mana model already prices a flood on its own schedule.
         val surplus = surplusAwareLands && landDropIsNotCardLoss && !priceLandsInHandAsMana
+        // Own seat only: the hand's mana needs are read off its contents (see [landDropsTheHandNeeds]).
+        val readsHandOf = playerId.takeIf { surplus && surplusLandsReadTheHand }
         val mine = sideHandValue(
             state, projected, sides.mine, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana, surplus,
+            readsHandOf,
         ) - if (surplus && modalLandRoot != null) {
-            modalFaceCharge(state, projected, playerId, topdeckPenalty, modalLandRoot)
+            modalFaceCharge(state, projected, playerId, topdeckPenalty, modalLandRoot, readsHandOf != null)
         } else {
             0.0
         }
         return sides.against(OpponentAggregate.FIELD) { opponent ->
             mine - sideHandValue(
                 state, projected, opponent, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana,
-                surplus,
+                surplus, readsHandOf = null,
             )
         }
     }
@@ -808,18 +1015,19 @@ object CardAdvantage : BoardFeature {
         private val priceLandsInHandAsMana: Boolean,
         private val surplusAwareLands: Boolean,
         private val modalLandRoot: ModalLandRoot? = null,
+        private val surplusLandsReadTheHand: Boolean = false,
     ) : BoardFeature {
         override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double =
             score(
                 state, projected, playerId, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana,
-                surplusAwareLands, modalLandRoot,
+                surplusAwareLands, modalLandRoot, surplusLandsReadTheHand,
             )
 
         override fun rootedAt(root: GameState, playerId: EntityId): BoardFeature =
             if (!surplusAwareLands) this
             else Bound(
                 topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana, surplusAwareLands,
-                ModalLandRoot.of(root, playerId),
+                ModalLandRoot.of(root, playerId), surplusLandsReadTheHand,
             )
     }
 
@@ -847,6 +1055,7 @@ object CardAdvantage : BoardFeature {
         playerId: EntityId,
         topdeckPenalty: Double,
         root: ModalLandRoot,
+        readsHand: Boolean,
     ): Double {
         val played = root.playedAsLands(projected, playerId).size
         if (played == 0) return 0.0
@@ -855,7 +1064,10 @@ object CardAdvantage : BoardFeature {
             root.waived -> -1.0
             else -> return 0.0
         }
-        val held = heldCardCount(state, playerId, landDropIsNotCardLoss = true, surplusAwareLands = true)
+        val held = heldCardCount(
+            state, playerId, landDropIsNotCardLoss = true, surplusAwareLands = true,
+            readsHand = readsHand, projected = projected,
+        )
         return sign * (cardValue(held + played, topdeckPenalty) - cardValue(held, topdeckPenalty))
     }
 
@@ -867,11 +1079,12 @@ object CardAdvantage : BoardFeature {
         landDropIsNotCardLoss: Boolean,
         priceLandsInHandAsMana: Boolean,
         surplusAwareLands: Boolean,
+        readsHandOf: EntityId?,
     ): Double =
         side.sumOf {
             handValue(
                 state, projected, it, topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana,
-                surplusAwareLands,
+                surplusAwareLands, readsHand = it == readsHandOf,
             )
         }
 
@@ -896,13 +1109,16 @@ object CardAdvantage : BoardFeature {
         landDropIsNotCardLoss: Boolean,
         priceLandsInHandAsMana: Boolean,
         surplusAwareLands: Boolean = false,
+        readsHand: Boolean = false,
     ): Double {
         if (!priceLandsInHandAsMana) {
-            return cardValue(heldCardCount(state, playerId, landDropIsNotCardLoss, surplusAwareLands), topdeckPenalty)
+            val held = heldCardCount(state, playerId, landDropIsNotCardLoss, surplusAwareLands, readsHand, projected)
+            return cardValue(held, topdeckPenalty)
         }
         val hand = state.getZone(playerId, Zone.HAND)
-        val lands = hand.count { state.getEntity(it)?.get<CardComponent>()?.isLand == true }
-        return cardValue(hand.size - lands, topdeckPenalty) +
+        val fromExile = playableFromExile(state, playerId)
+        val lands = (hand + fromExile).count { state.getEntity(it)?.get<CardComponent>()?.isLand == true }
+        return cardValue(hand.size + fromExile.size - lands + pendingDelayedDraws(state, playerId), topdeckPenalty) +
             landsInHandValue(landsInPlay(state, projected, playerId), lands)
     }
 
@@ -972,9 +1188,9 @@ object CardAdvantage : BoardFeature {
      * main phase / empty stack / your turn. Land drops reset for every player at cleanup, so
      * `remaining` reads 1 for whoever is not the active player too — the earmark is symmetric and
      * survives a turn boundary instead of flickering on and off within one. It also misses the
-     * `GrantAdditionalLandDrop` statics that `LandDropUtils` adds on top, which needs a
-     * `CardRegistry` this feature does not have: under an Exploration the second drop is still
-     * charged as card loss, which is the old behaviour rather than a new error.
+     * `GrantAdditionalLandDrop` statics that `LandDropUtils.getAdditionalLandDrops` adds on top —
+     * readable from projection alone, but deliberately not wired in here: under an Exploration the
+     * second drop is still charged as card loss, which is the old behaviour rather than a new error.
      *
      * ## Known limitation: the earmarked land is priced at zero, and it is not worth zero
      *
@@ -1009,15 +1225,108 @@ object CardAdvantage : BoardFeature {
         playerId: EntityId,
         landDropIsNotCardLoss: Boolean,
         surplusAwareLands: Boolean = false,
+        readsHand: Boolean = false,
+        projected: ProjectedState? = null,
     ): Double {
         val hand = state.getZone(playerId, Zone.HAND)
-        if (!landDropIsNotCardLoss) return hand.size.toDouble()
+        val held = hand.size + playableFromExile(state, playerId).size + pendingDelayedDraws(state, playerId)
+        if (!landDropIsNotCardLoss) return held.toDouble()
         val drops = state.getEntity(playerId)?.get<LandDropsComponent>()?.remaining ?: 0
         val lands = hand.count { state.getEntity(it)?.get<CardComponent>()?.isLand == true }
         val earmarked = if (drops <= 0) 0 else minOf(lands, drops)
-        if (!surplusAwareLands) return (hand.size - earmarked).toDouble()
-        return hand.size - earmarked - surplusLands(lands, drops) * (1.0 - SURPLUS_LAND_CARD)
+        if (!surplusAwareLands) return (held - earmarked).toDouble()
+        val lookahead = if (readsHand && projected != null) {
+            landDropsTheHandNeeds(state, projected, playerId, hand, earmarked)
+        } else {
+            LOOKAHEAD_LAND_DROPS
+        }
+        return held - earmarked - surplusLands(lands, drops, lookahead) * (1.0 - SURPLUS_LAND_CARD)
     }
+
+    /**
+     * Cards [playerId] may play from exile through a permission that outlasts this turn — the cards
+     * an impulse draw ("exile the top two cards of your library; until the end of your next turn,
+     * you may play those cards") or a theft ("you may cast it for as long as you control this
+     * creature") hands them. Counted as held, beside the hand: a card you can play next turn is a
+     * card, wherever it waits. Without this every such spell read as a card spent for nothing.
+     * A permission behind a [MayPlayPermission.condition] is not counted: whether it will be
+     * honored is a question about a later board.
+     */
+    private fun playableFromExile(state: GameState, playerId: EntityId): List<EntityId> {
+        if (state.mayPlayPermissions.isEmpty()) return emptyList()
+        return state.mayPlayPermissions.asSequence()
+            .filter { it.controllerId == playerId && it.condition == null && outlastsThisTurn(state, it) }
+            .flatMap { it.cardIds }
+            .filter { state.logicalZone(it)?.zoneType == Zone.EXILE }
+            .distinct()
+            .toList()
+    }
+
+    /**
+     * Whether a play permission is still open after this turn's cleanup — "until the end of your
+     * next turn", "for as long as it remains exiled", "for as long as you control this creature".
+     * A window that closes this turn is left to the search: casting the card is a legal action the
+     * line can take now, and a card it can't get to before cleanup is not a card held.
+     */
+    private fun outlastsThisTurn(state: GameState, permission: MayPlayPermission): Boolean =
+        permission.permanent || (permission.expiresAfterTurn ?: return false) > state.turnNumber
+
+    /**
+     * Cards [playerId] is already owed by a pending step-based delayed trigger it controls — "draw a
+     * card at the beginning of the next turn's upkeep" (Mishra's Bauble, Arcane Denial). The draw
+     * usually lands past the search horizon, so without this a line that schedules it reads as a
+     * card spent for nothing. Counted as held: the step will come. An event-based one ("whenever you
+     * cast a creature spell this turn, draw") may never fire, so it is not counted.
+     */
+    private fun pendingDelayedDraws(state: GameState, playerId: EntityId): Int =
+        state.delayedTriggers.sumOf { delayed ->
+            if (delayed.controllerId != playerId || delayed.fireAtStep == null) 0
+            else EffectWalker.payoffLeaves(delayed.effect).sumOf { leaf ->
+                val count = (leaf as? DrawCardsEffect)?.takeIf { it.target == EffectTarget.Controller }?.count
+                (count as? DynamicAmount.Fixed)?.amount ?: 0
+            }
+        }
+
+    /**
+     * How many turns of land drops after this one the hand still wants a land for —
+     * [AiProfile.surplusLandsReadTheHand]. The lookahead [surplusLands] counts a land in hand
+     * against, shrunk from "the next [LOOKAHEAD_LAND_DROPS] drops, always" to the drops something
+     * is waiting on.
+     *
+     * The same reach `CardSelectionValue.landShort` reads: the lands in play plus the one this
+     * turn's drop puts there ([earmarked]), against the costliest spell still in hand. A land is
+     * wanted while that reach falls short of the spell, or of [DEVELOPED_MANA] — a hand of cheap
+     * spells still draws into the deck's top end, so the lands up to a developed board are never
+     * surplus. The next turn's drop always counts, whatever the hand holds: a land queued for it is
+     * a guaranteed play, and a card.
+     *
+     * Before, every land within the next two drops was a whole card, so with three lands in play,
+     * Swamp and Mountain in hand and Apex Witchstalker as the only spell, landcycling the 6/4 for a
+     * third land read as a card-neutral swap (2026-10-31 AI-vs-humans review, `b1a69afb` turn 7).
+     *
+     * **Own seat only**: this reads the mana values of the cards in a hand, and the AI is entitled
+     * to its own — see [BoardPresence]'s idle-mana refund for the same rule.
+     */
+    private fun landDropsTheHandNeeds(
+        state: GameState,
+        projected: ProjectedState,
+        playerId: EntityId,
+        hand: List<EntityId>,
+        earmarked: Int,
+    ): Int {
+        val topEnd = hand.maxOfOrNull { id ->
+            state.getEntity(id)?.get<CardComponent>()?.takeIf { !it.isLand }?.manaValue ?: 0
+        } ?: 0
+        val reach = landsInPlay(state, projected, playerId) + earmarked
+        return (maxOf(topEnd, DEVELOPED_MANA) - reach).coerceIn(1, LOOKAHEAD_LAND_DROPS)
+    }
+
+    /**
+     * The land count a hand of cheap spells still wants before a land in hand stops being a card:
+     * a Limited curve tops out around four, and [Tempo] prices the lands up to there at its steepest
+     * rates (2.0 a land through the third, 1.2 for the fourth).
+     */
+    private const val DEVELOPED_MANA = 4
 
     /**
      * How many of [playerId]'s lands in hand no land drop in sight reaches: more than the drops left
@@ -1403,5 +1712,124 @@ object Tempo : BoardFeature {
         count <= 3 -> count * 2.0  // early mana is critical
         count <= 6 -> 6.0 + (count - 3) * 1.2  // mid-game mana
         else -> 9.6 + (count - 6) * 0.4  // diminishing returns for excess mana
+    }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// One-shot mana
+// ═════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Mana banked in a permanent that **sacrifices itself to make it** — Treasure, Gold, a Banana, an
+ * Eldrazi Spawn, Lotus Petal. [com.wingedsheep.ai.engine.AiProfile.oneShotManaIsMana].
+ *
+ * [Tempo] counts lands and nothing else, and [BoardPresence] prices a non-land, non-creature
+ * permanent by its intent prior — which reads a Treasure's mana ability as `RAMP`, the tag of a mana
+ * rock, worth a flat 0.7 board points however many lands stand beside it and whatever the hand
+ * holds. Without card knowledge, or with no definition registered for the token, it is the flat 0.5
+ * of an unreadable permanent. Either way nothing scored a Treasure as *mana*: a 2026-10-31 review
+ * (#4116) found a choose-N mode that makes Treasure moving the score by nothing worth having, and
+ * Gala Greeters' "create a tapped Treasure" lost to "gain 2 life" at 20 life with a four-drop in
+ * hand one land short.
+ *
+ * Two parts, on [Tempo]'s scale (and [Tempo]'s weight), so they are measured in land drops:
+ *
+ *  - **One mana, once.** Each source is worth [ONE_SHOT_SHARE] of the next land drop on its
+ *    controller's land curve — the same marginal [Tempo] would pay for that land, capped at
+ *    [MARGINAL_CAP] so a Treasure beside no lands is not priced as the first land. A land makes
+ *    that mana every turn; a Treasure makes it once, so it is meaningfully less, and it shrinks as
+ *    the land count climbs exactly as a land drop does.
+ *  - **It closes a gap.** When a nonland spell in the controller's own hand costs more than the
+ *    lands (plus a land drop still in hand) can make, but no more than those lands plus every
+ *    one-shot source, the sources are the mana that casts it a turn early — worth one more
+ *    [ONE_SHOT_SHARE] of the marginal land, once. Mana value against a land count, the same
+ *    approximation [BoardPresence]'s land sequencing makes, and for the same reason: no solver run
+ *    per evaluated state. **Own seat only**: it reads the hand.
+ *
+ * Read off the printed abilities of the permanent's definition and off abilities granted to it
+ * (a `CreateTokenEffect` token's abilities are grants), so a token with no registered definition
+ * still counts when its ability was granted. A permanent that has lost all its abilities, and a
+ * land (which [Tempo] already counts), are not sources. Creatures are: an Eldrazi Spawn's 0/1 body
+ * is priced by [BoardPresence], the mana it banks is priced here.
+ *
+ * Clue, Food and Blood are not here. They also sacrifice themselves for a resource, but the
+ * resource is a card or life — priced by [CardAdvantage]'s and [LifeDifferential]'s curves, net of
+ * an activation cost in mana — and a term that put all three on one scale would be guessing an
+ * exchange rate between currencies the evaluator already prices separately.
+ */
+class OneShotMana(private val intents: IntentCatalog) : BoardFeature {
+
+    /** Whether the definition [id] prints a sacrifice-self mana ability. Definitions never change. */
+    private val printed = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+
+    override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double {
+        val sides = state.sidesFor(playerId) ?: return 0.0
+        val granted = state.grantedActivatedAbilities
+            .filter { isOneShotMana(it.ability) }
+            .mapTo(HashSet()) { it.entityId }
+        val mine = sideValue(state, projected, sides.mine, playerId, granted)
+        return sides.against(OpponentAggregate.FIELD) { opponent ->
+            mine - sideValue(state, projected, opponent, null, granted)
+        }
+    }
+
+    private fun sideValue(
+        state: GameState,
+        projected: ProjectedState,
+        side: List<EntityId>,
+        ownSeat: EntityId?,
+        granted: Set<EntityId>,
+    ): Double = side.sumOf { player ->
+        val battlefield = projected.getBattlefieldControlledBy(player)
+        val lands = battlefield.count { projected.hasType(it, "LAND") }
+        val sources = battlefield.count { isSource(state, projected, it, granted) }
+        if (sources == 0) 0.0
+        else value(lands, sources) + if (player == ownSeat) gapValue(state, player, lands, sources) else 0.0
+    }
+
+    private fun isSource(state: GameState, projected: ProjectedState, id: EntityId, granted: Set<EntityId>): Boolean {
+        if (projected.hasType(id, "LAND") || projected.hasLostAllAbilities(id)) return false
+        if (id in granted) return true
+        val card = state.getEntity(id)?.get<CardComponent>() ?: return false
+        return printed.getOrPut(card.cardDefinitionId) {
+            intents.definition(card.cardDefinitionId)?.script?.activatedAbilities
+                ?.any(::isOneShotMana) == true
+        }
+    }
+
+    private fun gapValue(state: GameState, player: EntityId, lands: Int, sources: Int): Double {
+        val hand = state.getZone(player, Zone.HAND).mapNotNull { state.getEntity(it)?.get<CardComponent>() }
+        val reach = lands + if (hand.any { it.isLand }) 1 else 0
+        val closes = hand.any { !it.isLand && it.manaValue > reach && it.manaValue <= reach + sources }
+        return if (closes) ONE_SHOT_SHARE * marginal(lands) else 0.0
+    }
+
+    companion object {
+        /** A Treasure is this share of a land drop: the land's mana every turn against once. */
+        const val ONE_SHOT_SHARE = 0.5
+
+        /**
+         * The steepest land drop a source is priced against. [Tempo]'s curve charges seven points
+         * for the first land (no mana is "terrible"), which is the price of having no land, not
+         * of a mana you would spend once.
+         */
+        private const val MARGINAL_CAP = 2.0
+
+        /** [sources] one-shot mana sources beside [lands] lands, before any hand is read. */
+        fun value(lands: Int, sources: Int): Double =
+            (0 until sources).sumOf { ONE_SHOT_SHARE * marginal(lands + it) }
+
+        private fun marginal(lands: Int): Double =
+            (Tempo.landValueAt(lands + 1) - Tempo.landValueAt(lands)).coerceAtMost(MARGINAL_CAP)
+
+        /** A mana ability that sacrifices its own source: one mana, once. */
+        fun isOneShotMana(ability: com.wingedsheep.sdk.scripting.ActivatedAbility): Boolean =
+            ability.isManaAbility && sacrificesSelf(ability.cost)
+
+        private fun sacrificesSelf(cost: com.wingedsheep.sdk.scripting.AbilityCost): Boolean = when (cost) {
+            com.wingedsheep.sdk.scripting.AbilityCost.SacrificeSelf -> true
+            is com.wingedsheep.sdk.scripting.AbilityCost.Composite -> cost.costs.any(::sacrificesSelf)
+            else -> false
+        }
     }
 }

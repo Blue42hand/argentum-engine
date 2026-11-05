@@ -29,7 +29,8 @@ data class TokenCreationBundle(
     val following: List<TokenCreationBundle> = emptyList(),
     val initialTokenIds: Set<EntityId> = emptySet(),
     val eligibleSources: Set<EntityId>? = null,
-    val entrySourceState: com.wingedsheep.engine.state.GameState? = null
+    val entrySourceState: com.wingedsheep.engine.state.GameState? = null,
+    val wouldBeControllerId: EntityId = controllerId
 )
 
 @Serializable

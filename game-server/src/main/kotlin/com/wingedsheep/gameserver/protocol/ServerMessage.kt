@@ -54,6 +54,20 @@ sealed interface ServerMessage {
         val players: List<PlayerSeatInfo> = emptyList(),
     ) : ServerMessage
 
+    /** Only cost scalars are returned; no hidden card, resource, or rules-state data. */
+    @Serializable
+    @SerialName("castCostQuote")
+    data class CastCostQuote(
+        val requestId: String,
+        val stateVersion: Long,
+        val interactionEpoch: String,
+        val manaCostString: String? = null,
+        val delveGenericCap: Int? = null,
+        val tapForGenericMax: Int? = null,
+        val tapForGenericCostString: String? = null,
+        val error: String? = null,
+    ) : ServerMessage
+
     /**
      * Game created successfully, waiting for opponent.
      */
@@ -697,7 +711,8 @@ sealed interface ServerMessage {
         val passDirection: String,     // "LEFT" or "RIGHT"
         val picksPerRound: Int = 1,    // Cards to pick this round (1 or 2)
         val pickedCards: List<SealedCardInfo> = emptyList(),  // Cards already picked (for reconnect)
-        val queuedPacks: Int = 0       // Number of additional packs queued behind this one
+        val queuedPacks: Int = 0,      // Number of additional packs queued behind this one
+        val podSize: Int = 0           // Drafters at the table (0 = unknown)
     ) : ServerMessage
 
     /**

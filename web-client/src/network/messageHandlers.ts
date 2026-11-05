@@ -68,6 +68,7 @@ import type {
  * Handler functions for each server message type.
  */
 export interface MessageHandlers {
+  onCastCostQuote?: (message: import('@/types/messages').CastCostQuoteMessage) => void
   onConnected: (message: ConnectedMessage) => void
   onReconnected: (message: ReconnectedMessage) => void
   onGameCreated: (message: GameCreatedMessage) => void
@@ -158,6 +159,9 @@ export interface MessageHandlers {
  */
 export function handleServerMessage(message: ServerMessage, handlers: MessageHandlers): void {
   switch (message.type) {
+    case 'castCostQuote':
+      handlers.onCastCostQuote?.(message)
+      break
     case 'connected':
       handlers.onConnected(message)
       break

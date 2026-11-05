@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
@@ -61,6 +62,23 @@ sealed interface CounterTargetSource {
     @SerialName("CounterTargetSource.TriggeringEntity")
     @Serializable
     data object TriggeringEntity : CounterTargetSource
+
+    /**
+     * Every object on the stack of the effect's [CounterTarget] kind whose controller is one of
+     * [controller] — untargeted. "For each spell and ability your opponents control, counter it
+     * unless its controller pays {4}" (Whirlwind Denial) is
+     * `CounterEffect(target = SpellOrAbility, targetSource = EachOnStack(), condition = UnlessPaysMana("{4}"))`.
+     * [CounterEffect.filter] narrows the set further; the resolving object itself is never included.
+ * Only the unless-pays shape: an unconditional "counter all …" is [CounterAllOnStackEffect].
+     *
+     * With an unless-pays condition the controllers decide in APNAP order (starting with the
+     * active player), each choosing which of their objects to pay for and paying, and then every
+     * object nobody paid for is countered at the same time (Whirlwind Denial's ruling). The
+     * per-object "If they do, …" rider is not supported here.
+     */
+    @SerialName("CounterTargetSource.EachOnStack")
+    @Serializable
+    data class EachOnStack(val controller: Player = Player.EachOpponent) : CounterTargetSource
 }
 
 /**
@@ -180,7 +198,40 @@ data class CounterEffect(
     val condition: CounterCondition = CounterCondition.Always,
     val filter: TargetFilter? = null
 ) : Effect {
+    init {
+        if (targetSource is CounterTargetSource.EachOnStack) {
+            require(condition !is CounterCondition.Always) {
+                "Unconditional stack-wide counters are CounterAllOnStackEffect; EachOnStack is the unless-pays shape"
+            }
+            val onPaid = when (condition) {
+                CounterCondition.Always -> null
+                is CounterCondition.UnlessPaysMana -> condition.onPaid
+                is CounterCondition.UnlessPaysDynamic -> condition.onPaid
+            }
+            require(onPaid == null) { "CounterTargetSource.EachOnStack has no per-object onPaid rider" }
+            require(counterDestination !is CounterDestination.Library || counterDestination.positions.size == 1) {
+                "CounterTargetSource.EachOnStack needs a fixed library position"
+            }
+        }
+    }
+
     override val description: String = buildString {
+        if (targetSource is CounterTargetSource.EachOnStack) {
+            val kind = filter?.baseFilter?.description ?: when (target) {
+                CounterTarget.Spell -> "spell"
+                CounterTarget.Ability -> "activated or triggered ability"
+                CounterTarget.SpellOrAbility -> "spell and ability"
+            }
+            val whose = when (targetSource.controller) {
+                Player.EachOpponent -> "your opponents control"
+                Player.You -> "you control"
+                Player.Each -> "on the stack"
+                else -> "${targetSource.controller.description} controls"
+            }
+            append("For each $kind $whose, counter it")
+            appendUnlessPays()
+            return@buildString
+        }
         when (target) {
             CounterTarget.Ability -> {
                 append(
@@ -328,6 +379,10 @@ data class ExileTargetSpellEffect(
      */
     val spell: CounterTargetSource = CounterTargetSource.Chosen
 ) : Effect {
+    init {
+        require(spell !is CounterTargetSource.EachOnStack) { "ExileTargetSpellEffect exiles one spell; EachOnStack is a CounterEffect axis" }
+    }
+
     override val description: String = buildString {
         append(if (spell == CounterTargetSource.TriggeringEntity) "Exile that spell" else "Exile target spell")
         if (makePlotted) append(". It becomes plotted")
@@ -1021,9 +1076,19 @@ data class CopyTargetSpellEffect(
 
 }
 
+/** How many of a [CopyForOtherPossibleTargetsEffect]'s candidates get a copy. */
+@Serializable
+enum class PossibleTargetCopies {
+    /** One copy for each candidate (CR 707.10d — Zada, Mirrorwing Dragon, Agrus Kos). */
+    EACH,
+    /** The copier chooses one candidate; one copy targets it (Beamsplitter Mage). */
+    ONE_CHOSEN
+}
+
 /**
  * Copy a spell or ability once **for each other object it could target** (CR 707.10d), auto-assigning
- * every copy a distinct one of those objects as its target. Models the Zada family:
+ * every copy a distinct one of those objects as its target — or, with [selection] `ONE_CHOSEN`, once
+ * for the one such object the copier chooses. Models the Zada family:
  *
  *  - Zada, Hedron Grinder — "copy it for each other creature you control that the spell could target"
  *  - Mirrorwing Dragon — "that player copies that spell for each other creature they control that
@@ -1031,7 +1096,8 @@ data class CopyTargetSpellEffect(
  *  - Agrus Kos, Eternal Soldier — "copy that ability for each other creature you control that ability
  *    could target"
  *
- * This is the 707.10d shape, not the 707.10c one: **no player decision is involved.** Contrast
+ * This is the 707.10d shape, not the 707.10c one: **no retarget decision is involved** (only
+ * `ONE_CHOSEN`'s pick of which candidate, made from the board's legal set). Contrast
  * [CopyTargetSpellEffect] with a `copies` count, which makes N copies and pauses so the controller
  * *may choose* new targets for each — here both the number of copies and each copy's target fall out
  * of the board, so the copies go straight onto the stack.
@@ -1051,27 +1117,44 @@ data class CopyTargetSpellEffect(
  * seat and is [Player.TriggeringPlayer], the caster. Either way `GameObjectFilter.Creature.youControl()`
  * reads as "creature the copier controls".
  *
+ * [selection] says how many of the candidates get a copy. [PossibleTargetCopies.EACH] is the Zada
+ * family above; [PossibleTargetCopies.ONE_CHOSEN] is Beamsplitter Mage's "choose one of those
+ * creatures. Copy that spell. The copy targets the chosen creature." — the copier picks one candidate
+ * (no prompt when there is only one) and gets a single copy aimed at it.
+ *
  * An object flagged "can't be copied" yields no copies.
  *
  * @property target The spell or ability to copy — [EffectTarget.TriggeringEntity] for "copy that
  *   spell", [EffectTarget.TargetingSource] for "copy that ability" in a becomes-the-target trigger.
- * @property candidates Which objects the copies are distributed over, one copy each.
+ * @property candidates Which objects the copies are aimed at, one copy each.
  * @property copier Who copies: controls the copies, and the reference player for [candidates].
+ * @property selection Every candidate gets a copy, or only the one the copier chooses.
  */
-@SerialName("CopyForEachOtherPossibleTarget")
+@SerialName("CopyForOtherPossibleTargets")
 @Serializable
-data class CopyForEachOtherPossibleTargetEffect(
+data class CopyForOtherPossibleTargetsEffect(
     val target: EffectTarget = EffectTarget.TriggeringEntity,
     val candidates: GameObjectFilter,
-    val copier: Player = Player.You
+    val copier: Player = Player.You,
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val selection: PossibleTargetCopies = PossibleTargetCopies.EACH
 ) : Effect {
     override val description: String = buildString {
-        if (copier != Player.You) append("${copier.description.replaceFirstChar { it.uppercase() }} copies ")
-        else append("Copy ")
-        append(if (target == EffectTarget.TargetingSource) "that ability" else "that spell")
         // [candidates] reads "you" as the copier, so another copier is "they".
         val phrase = TargetFilter(candidates).targetPhrase()
         val candidateText = if (copier == Player.You) phrase else phrase.replace("you control", "they control")
+        val copied = if (target == EffectTarget.TargetingSource) "that ability" else "that spell"
+        if (selection == PossibleTargetCopies.ONE_CHOSEN) {
+            append("Choose another $candidateText $copied could target. ")
+            append(if (copier != Player.You) "${copier.description.replaceFirstChar { it.uppercase() }} copies " else "Copy ")
+            append(copied)
+            append(". The copy targets the chosen one")
+            return@buildString
+        }
+        if (copier != Player.You) append("${copier.description.replaceFirstChar { it.uppercase() }} copies ")
+        else append("Copy ")
+        append(copied)
         append(" for each other $candidateText it could target")
     }
 
@@ -1233,36 +1316,54 @@ data class MakeNextSpellUncounterableEffect(
 }
 
 /**
- * The next spell its controller casts this turn matching [spellFilter] can be cast without paying
- * its mana cost (CR 118.9 — "without paying its mana cost" is an alternative cost, so mandatory
+ * Spells its controller casts this turn matching [spellFilter] can be cast without paying their
+ * mana costs (CR 118.9 — "without paying its mana cost" is an alternative cost, so mandatory
  * additional costs still apply, and X is 0 per CR 107.3b because the free-cast action variant the
- * enumerator offers carries no X).
+ * enumerator offers carries no X). It changes no timing: a sorcery still waits for a main phase.
  *
- * One-shot rider, the same shape as [MakeNextSpellUncounterableEffect] and
- * [GrantNextSpellAffinityEffect]: it waits on the game state for the controller's next matching
- * cast, offers that cast the free-cast alternative, and is then consumed. **Consumption is by the
- * cast, not by the discount** — the printed text names "the next" matching spell, so a matching
- * spell cast for full price is that spell and spends the rider; a later one is not "the next".
+ * A turn-scoped permission held on the game state, not on a permanent: unlike
+ * [com.wingedsheep.sdk.scripting.MayCastWithoutPayingManaCost] (a static ability read off a
+ * permanent on the battlefield, or an emblem), it survives its source leaving the battlefield — the
+ * ability has already resolved — and ends with the turn.
  *
- * Unlike [com.wingedsheep.sdk.scripting.MayCastWithoutPayingManaCost], which is a static ability
- * read off a permanent on the battlefield, this rider lives on the game state: it survives its
- * source leaving the battlefield (the ability has already resolved) and is not tied to the source
- * being a permanent at all.
+ * Two axes:
+ *  - [nextSpellOnly] — `true` for the one-shot "the next … spell you cast this turn can be cast
+ *    without paying its mana cost" (World War Hulk chapter I), the same rider shape as
+ *    [MakeNextSpellUncounterableEffect] and [GrantNextSpellAffinityEffect]. **Consumption is by the
+ *    cast, not by the discount** — the printed text names "the next" matching spell, so a matching
+ *    spell cast for full price is that spell and spends the rider. `false` for "until end of turn,
+ *    you may cast spells … without paying their mana costs" (Chandra, Flame's Catalyst −8): every
+ *    matching spell this turn may be cast free, and nothing is consumed. Same axis, same name, as
+ *    [ModifySpellCostsEffect.nextSpellOnly].
+ *  - [fromZones] — the zones the spell must be cast *from*, `null` for any zone. Chandra frees only
+ *    spells cast from your hand; a spell cast from the graveyard that turn pays its cost. Same axis
+ *    as [com.wingedsheep.sdk.scripting.MayCastWithoutPayingManaCost.fromZones].
  *
- * Used by World War Hulk chapter I ("The next red or green creature spell you cast this turn can
- * be cast without paying its mana cost.").
- *
- * @property spellFilter Which spell the rider waits for (defaults to any spell).
+ * @property spellFilter Which spells the permission covers (defaults to any spell).
+ * @property nextSpellOnly Whether only the next matching spell is covered (see above).
+ * @property fromZones The zones a covered spell is cast from, or `null` for any zone.
  */
-@SerialName("GrantNextSpellFreeCast")
+@SerialName("GrantFreeCastThisTurn")
 @Serializable
-data class GrantNextSpellFreeCastEffect(
-    val spellFilter: GameObjectFilter = GameObjectFilter.Any
+data class GrantFreeCastThisTurnEffect(
+    val spellFilter: GameObjectFilter = GameObjectFilter.Any,
+    val nextSpellOnly: Boolean = true,
+    val fromZones: Set<Zone>? = null
 ) : Effect {
+    init {
+        require(fromZones == null || fromZones.isNotEmpty()) { "fromZones must be null (any zone) or non-empty" }
+    }
+
     override val description: String = buildString {
-        append("The next ")
-        if (spellFilter != GameObjectFilter.Any) append("${spellFilter.description} ")
-        append("spell you cast this turn can be cast without paying its mana cost")
+        val filter = if (spellFilter != GameObjectFilter.Any) "${spellFilter.description} " else ""
+        val from = fromZones?.let { zones ->
+            " from your " + zones.joinToString(" or ") { it.name.lowercase() }
+        } ?: ""
+        if (nextSpellOnly) {
+            append("The next ${filter}spell you cast${from} this turn can be cast without paying its mana cost")
+        } else {
+            append("Until end of turn, you may cast ${filter}spells${from} without paying their mana costs")
+        }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect =
@@ -1396,9 +1497,10 @@ data class GrantOneSpellAnyManaTypeEffect(
  *
  * [duration] is [Duration.EndOfTurn] ("this turn") or [Duration.UntilYourNextTurn] (Ral, Leyline
  * Prodigy's +1 — the discount keeps applying to instants cast on opponents' turns and ends when
- * the controller's next turn begins). Any other duration is rejected at construction rather than
- * silently treated as one of these; so is `UntilYourNextTurn` for anyone but [Player.You], whose
- * turn it would have to end on.
+ * the controller's next turn begins). `UntilYourNextTurn` always means the *effect controller's*
+ * next turn, whichever players [player] names — Elspeth Conquers Death's "until your next turn,
+ * your opponents' noncreature spells cost {2} more to cast" taxes the opponents until *you* untap.
+ * Any other duration is rejected at construction rather than silently treated as one of these.
  *
  * Will, Scion of Peace: `ModifySpellCostsEffect(Filters.whiteOrBlue,
  * DynamicAmount.TurnTracking(Player.You, TurnTracker.LIFE_GAINED))`.
@@ -1428,9 +1530,6 @@ data class ModifySpellCostsEffect(
         }
         require(duration == Duration.EndOfTurn || duration == Duration.UntilYourNextTurn) {
             "ModifySpellCostsEffect supports EndOfTurn or UntilYourNextTurn, not $duration"
-        }
-        require(duration == Duration.EndOfTurn || player == Player.You) {
-            "ModifySpellCostsEffect supports UntilYourNextTurn only for Player.You, not $player"
         }
     }
 
@@ -1495,28 +1594,60 @@ data class MarkSpellExileWithCountersEffect(
 }
 
 /**
- * Mark a spell on the stack so that, when it resolves, it is exiled instead of put into its
- * owner's graveyard and **becomes plotted** (CR 718). The plot designation and free-cast-on-a-
- * later-turn permission are granted only if the spell actually resolves into exile — if it is
- * countered or otherwise fails to resolve, it goes to the graveyard normally (sibling of
- * [MarkSpellExileWithCountersEffect], which carries the same `onlyIfResolved` semantics).
+ * Mark a spell on the stack so that, **as it resolves**, it is exiled instead of put into its
+ * owner's graveyard, and then [then] happens to the exiled card. Both halves apply only if the
+ * spell actually resolves into exile — if it is countered or otherwise fails to resolve, it goes to
+ * its owner's graveyard normally and nothing follows (the `onlyIfResolved` semantics shared with
+ * [MarkSpellExileWithCountersEffect]; the "If you do" of every card that uses it).
  *
- * Distinct from [ExileTargetSpellEffect]`(makePlotted = true)`: that one targets and removes a
- * spell from the stack *now* (a non-counter removal); this one lets the spell resolve fully and
- * only re-routes its post-resolution destination. Used by Lilah, Undefeated Slickshot: "exile
- * that spell instead of putting it into your graveyard as it resolves. If you do, it becomes
- * plotted."
+ * Distinct from [ExileTargetSpellEffect]: that one removes a spell from the stack *now* (a
+ * non-counter removal, the spell never resolves); this one lets the spell resolve fully and only
+ * re-routes its post-resolution destination. Distinct from [MarkSpellExileWithCountersEffect],
+ * whose follow-up is counters on the card plus a link to the marking source.
+ *
+ * Used by Lilah, Undefeated Slickshot ("exile that spell instead of putting it into your graveyard
+ * as it resolves. If you do, it becomes plotted." — [ExiledSpellRider.BECOMES_PLOTTED]) and
+ * Feather, the Redeemed ("exile that card instead of putting it into your graveyard as it
+ * resolves. If you do, return it to your hand at the beginning of the next end step." —
+ * [ExiledSpellRider.RETURN_TO_HAND_AT_NEXT_END_STEP]).
  *
  * @property target The spell on the stack to mark (typically the triggering entity).
+ * @property then What happens to the card once it lands in exile.
  */
-@SerialName("MarkSpellPlotOnResolve")
+@SerialName("MarkSpellExileOnResolve")
 @Serializable
-data class MarkSpellPlotOnResolveEffect(
+data class MarkSpellExileOnResolveEffect(
     val target: com.wingedsheep.sdk.scripting.targets.EffectTarget = com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity,
+    val then: ExiledSpellRider,
 ) : Effect {
     override val description: String =
-        "Exile that spell instead of putting it into your graveyard as it resolves. " +
-            "If you do, it becomes plotted"
+        "Exile that spell instead of putting it into your graveyard as it resolves. If you do, ${then.riderText}"
+}
+
+/**
+ * What follows when a spell marked by [MarkSpellExileOnResolveEffect] lands in exile as it resolves.
+ */
+@Serializable
+enum class ExiledSpellRider {
+    /**
+     * The card becomes *plotted* for its owner (CR 702.170): it may be cast as a sorcery on a later turn
+     * without paying its mana cost.
+     */
+    BECOMES_PLOTTED,
+
+    /**
+     * A delayed triggered ability returns the card from exile to its owner's hand at the beginning
+     * of the next end step. It follows that exiled object only (CR 400.7): if the card has left exile
+     * by then, it stays where it is.
+     */
+    RETURN_TO_HAND_AT_NEXT_END_STEP;
+
+    /** The printed "If you do, …" sentence. */
+    val riderText: String
+        get() = when (this) {
+            BECOMES_PLOTTED -> "it becomes plotted"
+            RETURN_TO_HAND_AT_NEXT_END_STEP -> "return it to your hand at the beginning of the next end step"
+        }
 }
 
 // =============================================================================

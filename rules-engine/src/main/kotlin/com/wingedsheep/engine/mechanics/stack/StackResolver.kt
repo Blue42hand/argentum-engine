@@ -120,6 +120,7 @@ class StackResolver(
         revealedAsCostSnapshots: List<EntitySnapshot> = emptyList(),
         exiledAsCostCards: List<EntityId> = emptyList(),
         exiledAsCostSnapshots: List<EntitySnapshot> = emptyList(),
+        tappedPermanents: List<EntityId> = emptyList(),
         chosenEntitySnapshots: List<EntitySnapshot> = emptyList(),
         manaSpentWhite: Int = 0,
         manaSpentBlue: Int = 0,
@@ -184,6 +185,7 @@ class StackResolver(
             revealedAsCostSnapshots = revealedAsCostSnapshots,
             exiledAsCostCards = exiledAsCostCards,
             exiledAsCostSnapshots = exiledAsCostSnapshots,
+            tappedPermanents = tappedPermanents,
             chosenEntitySnapshots = chosenEntitySnapshots,
             manaSpentWhite = manaSpentWhite,
             manaSpentBlue = manaSpentBlue,
@@ -243,10 +245,11 @@ class StackResolver(
         cantBeCopied: Boolean = false,
         isLoyalty: Boolean = false,
         loyaltyCountersRemoved: Int = 0,
+        sourceLastKnown: com.wingedsheep.engine.state.components.stack.EntitySnapshot? = null,
     ): ExecutionResult =
         StackPlacement.putActivatedAbility(
             state, ability, targets, targetRequirements, emitActivationEvent, costsTap, onceOnlyKind,
-            cantBeCopied, isLoyalty, loyaltyCountersRemoved
+            cantBeCopied, isLoyalty, loyaltyCountersRemoved, sourceLastKnown
         )
 
     // =========================================================================

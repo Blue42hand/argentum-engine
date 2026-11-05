@@ -27,6 +27,7 @@ import com.wingedsheep.engine.mechanics.mana.ManaPool
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
 import com.wingedsheep.engine.mechanics.mana.SpentManaProvenance
 import com.wingedsheep.engine.mechanics.mana.isSatisfiedBy
+import com.wingedsheep.engine.mechanics.mana.paysGeneric
 import com.wingedsheep.engine.state.components.player.RestrictedManaEntry
 import com.wingedsheep.sdk.scripting.effects.ManaSpellRider
 
@@ -128,7 +129,7 @@ class CastPaymentProcessor(
         var snow = 0
         val snowColors = mutableSetOf<Color>()
         for ((sourceId, production) in manaProduced) {
-            val amount = production.amount + production.colorless
+            val amount = production.amount + production.colorless + production.extraColors.values.sum()
             if (amount <= 0) continue
             sourceIds.add(sourceId)
             if (production.snow) { snow += amount; production.color?.let(snowColors::add) }
@@ -285,8 +286,8 @@ class CastPaymentProcessor(
                 // A color-restricted X can't be paid with off-color or colorless restricted mana.
                 if (entry.color != null && entry.color !in xColorsAllowed) continue
                 if (entry.color == null && xManaRestriction.isNotEmpty()) continue
-                if (entry.restriction.isSatisfiedBy(spellContext)) {
-                    val spent = poolAfterPayment.spendRestricted(entry.color, spellContext)
+                if (entry.restriction.isSatisfiedBy(spellContext) && entry.restriction.paysGeneric) {
+                    val spent = poolAfterPayment.spendRestricted(entry.color, spellContext, forGeneric = true)
                     if (spent != null) {
                         poolAfterPayment = spent
                         if (entry.color != null) {
@@ -442,8 +443,8 @@ class CastPaymentProcessor(
                 // A color-restricted X can't be paid with off-color or colorless restricted mana.
                 if (entry.color != null && entry.color !in xColorsAllowed) continue
                 if (entry.color == null && xManaRestriction.isNotEmpty()) continue
-                if (entry.restriction.isSatisfiedBy(spellContext)) {
-                    val spent = poolAfterPayment.spendRestricted(entry.color, spellContext)
+                if (entry.restriction.isSatisfiedBy(spellContext) && entry.restriction.paysGeneric) {
+                    val spent = poolAfterPayment.spendRestricted(entry.color, spellContext, forGeneric = true)
                     if (spent != null) {
                         poolAfterPayment = spent
                         if (entry.color != null) {
@@ -529,13 +530,13 @@ class CastPaymentProcessor(
             events.addAll(tapEvents)
 
             for ((_, production) in solution.manaProduced) {
-                when (production.color) {
-                    Color.WHITE -> whiteSpent += production.amount
-                    Color.BLUE -> blueSpent += production.amount
-                    Color.BLACK -> blackSpent += production.amount
-                    Color.RED -> redSpent += production.amount
-                    Color.GREEN -> greenSpent += production.amount
-                    null -> colorlessSpent += production.colorless
+                if (production.color == null) colorlessSpent += production.colorless
+                for ((color, amount) in production.coloredAmounts) when (color) {
+                    Color.WHITE -> whiteSpent += amount
+                    Color.BLUE -> blueSpent += amount
+                    Color.BLACK -> blackSpent += amount
+                    Color.RED -> redSpent += amount
+                    Color.GREEN -> greenSpent += amount
                 }
             }
 

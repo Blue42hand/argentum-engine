@@ -1,3 +1,4 @@
+import { blockerDraftExceedsLimits } from '@/utils/combatBlockTargets'
 /**
  * Combat sub-slice — handles attacker/blocker declarations, dragging, and combat confirmation.
  */
@@ -386,6 +387,7 @@ export const createCombatSlice: SliceCreator<CombatSlice> = (set, get) => ({
       }
       get().submitAction(action, combatState.interactionEpoch)
     } else if (combatState.mode === 'declareBlockers') {
+      if (blockerDraftExceedsLimits(combatState)) return
       const blockers: Record<EntityId, readonly EntityId[]> = {}
       for (const [blockerIdStr, attackerIds] of Object.entries(combatState.blockerAssignments)) {
         blockers[entityId(blockerIdStr)] = attackerIds

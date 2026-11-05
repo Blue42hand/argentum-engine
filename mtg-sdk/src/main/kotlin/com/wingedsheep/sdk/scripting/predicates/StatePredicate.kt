@@ -220,7 +220,7 @@ sealed interface StatePredicate {
      *
      * Deliberately wider than the player-only scoping of
      * [com.wingedsheep.sdk.scripting.EventPattern.CreaturesAttackYouEvent]'s default: that trigger
-     * implements CR 509.1b for Orim's Prayer, where an attacker pointed at your planeswalker does
+     * implements CR 508.3b for Orim's Prayer, where an attacker pointed at your planeswalker does
      * *not* count. Cards that print "you and/or planeswalkers you control" want both, and this is
      * the predicate that says so. A creature attacking a *battle* you protect is not included —
      * "planeswalkers you control" is literal.
@@ -388,6 +388,26 @@ sealed interface StatePredicate {
         val reference: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity
     ) : Entity {
         override val description: String = "blocking ${reference.description}"
+    }
+
+    /**
+     * The candidate **is** the object [reference] names — an identity test, so negated with [Not]
+     * it reads "other than it" against a role the ability names rather than its source: Torment of
+     * Venom's "its controller loses 3 life unless they sacrifice **another** nonland permanent",
+     * where "another" means other than the spell's target creature
+     * ([com.wingedsheep.sdk.scripting.targets.EffectTarget.ContextTarget]). The source-, granter-
+     * and triggering-entity roles keep their own predicates ([IsSource], [IsGrantingPermanent],
+     * [IsTriggeringEntity]); this is the general form for every other reference.
+     *
+     * A reference that resolves to nothing matches nothing (so `Not(IsEntity(..))` excludes
+     * nothing). Inert in group/projection and trigger-gating contexts, which carry no references.
+     */
+    @SerialName("IsEntity")
+    @Serializable
+    data class IsEntity(
+        val reference: com.wingedsheep.sdk.scripting.targets.EffectTarget.SingleEntity
+    ) : Entity {
+        override val description: String = reference.description
     }
 
     /**
@@ -949,6 +969,24 @@ sealed interface StatePredicate {
     @Serializable
     data object MilledThisTurn : History {
         override val description: String = "milled this turn"
+    }
+
+    /**
+     * This card is currently in a graveyard *and* was put there during the current combat phase
+     * (CR 506.1: beginning of combat through end of combat step), from any zone — Storrev,
+     * Devkarin Lich's "target creature or planeswalker card in your graveyard that wasn't put
+     * there this combat" (negated with [Not]). A card that arrived during an earlier combat
+     * phase of the same turn doesn't count.
+     *
+     * The combat-scoped sibling of [PutIntoGraveyardThisTurn]: same
+     * `PutIntoGraveyardThisTurnComponent` and lifecycle, additionally requiring its
+     * `duringCombat` flag, which is set when the arrival happens in the combat phase and
+     * cleared when that combat phase ends.
+     */
+    @SerialName("PutIntoGraveyardThisCombat")
+    @Serializable
+    data object PutIntoGraveyardThisCombat : History {
+        override val description: String = "put into a graveyard this combat"
     }
 
     /**
@@ -1549,6 +1587,21 @@ sealed interface StatePredicate {
     }
 
     /**
+     * A **suspended card** (CR 702.62b): a card in the exile zone that has suspend and has a time
+     * counter on it. "Has suspend" reads the engine's suspended marker — the same marker that grants
+     * the countdown and cast triggers, set by the suspend special action, `Effects.Suspend`
+     * (Taigam, Master Opportunist) and a spell that exiles itself with time counters — so the
+     * predicate and the card's actual suspend lifecycle never disagree. A card whose last time
+     * counter is gone is no longer suspended, even while it lingers in exile. Union it with a
+     * battlefield clause for "target permanent or suspended card" (Clockspinning).
+     */
+    @SerialName("IsSuspended")
+    @Serializable
+    data object IsSuspended : Entity {
+        override val description: String = "suspended"
+    }
+
+    /**
      * Permanent on the battlefield that was cast for its warp cost (CR 702.185).
      * Matches the `WarpedComponent` marker the engine writes when a warped spell
      * resolves — the permanent-side bookkeeping equivalent of 702.185c's "a spell
@@ -1578,6 +1631,10 @@ sealed interface StatePredicate {
      *    the zone check.
      *  - Errant, Street Artist's "copy target spell you control that wasn't cast" is
      *    `Not(WasCast())`.
+     *
+     *  - Containment Priest's "if a nontoken creature would enter and it wasn't cast" is
+     *    `Not(WasCast())` on a battlefield-entry `RedirectZoneChange`: the entering object is still
+     *    the resolving spell when it was cast, and carries no cast origin otherwise.
      *
      * Stack-only: a permanent's "was cast" history is the `WasCast` / `WasCastFromZone`
      * [com.wingedsheep.sdk.scripting.conditions] family instead.
@@ -1743,7 +1800,10 @@ sealed interface StatePredicate {
     @SerialName("StateNot")
     @Serializable
     data class Not(val predicate: StatePredicate) : StatePredicate {
-        override val description: String = "not ${predicate.description}"
+        // An identity test negates to "other than it" — "a nonland permanent other than target
+        // creature", never "a nonland permanent not target creature".
+        override val description: String =
+            if (predicate is IsEntity) "other than ${predicate.description}" else "not ${predicate.description}"
     }
 }
 

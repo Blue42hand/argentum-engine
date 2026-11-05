@@ -66,7 +66,7 @@ object ActiveReplacements {
 
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
-            val replacementSource = container.get<ReplacementEffectSourceComponent>() ?: continue
+            val replacementSource = state.activeReplacementSource(entityId) ?: continue
             if (replacementSource.replacementEffects.none(accept)) continue
             val controllerId = state.projectedState.getController(entityId)
                 ?: container.get<ControllerComponent>()?.playerId
@@ -88,7 +88,7 @@ object ActiveReplacements {
         // and never changes.
         for (emblemId in state.emblemReplacementHolders) {
             val container = state.getEntity(emblemId) ?: continue
-            val replacementSource = container.get<ReplacementEffectSourceComponent>() ?: continue
+            val replacementSource = state.activeReplacementSource(emblemId) ?: continue
             val controllerId = container.get<ControllerComponent>()?.playerId ?: continue
             for (effect in replacementSource.replacementEffects) {
                 if (!accept(effect)) continue

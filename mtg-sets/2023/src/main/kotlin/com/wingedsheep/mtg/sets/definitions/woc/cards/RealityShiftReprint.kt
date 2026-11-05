@@ -3,6 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.woc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Reality Shift reprint in WOC. Canonical CardDefinition lives in its earliest set.
+ */
 val RealityShiftReprint = Printing(
     oracleId = "70dc830e-d05b-4fc7-88dd-879e140b3fbf",
     name = "Reality Shift",

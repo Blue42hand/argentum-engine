@@ -32,6 +32,7 @@ class EternalizeDslTest : FunSpec({
         val ability = card.activatedAbilities.single()
         ability.activateFromZone shouldBe Zone.GRAVEYARD
         ability.timing shouldBe TimingRule.SorcerySpeed
+        ability.keyword shouldBe Keyword.ETERNALIZE
         val cost = ability.cost.shouldBeInstanceOf<AbilityCost.Composite>()
         cost.costs shouldBe listOf(
             AbilityCost.Atom(CostAtom.Mana(ManaCost.parse("{5}{G}{G}"))),
@@ -47,6 +48,23 @@ class EternalizeDslTest : FunSpec({
         effect.copyExceptions.toughnessOverride shouldBe 4
         effect.copyExceptions.addedSubtypes shouldContain Subtype.ZOMBIE
         effect.copyExceptions.noManaCost shouldBe true
+    }
+
+    test("shared eternalize factory preserves copy rules and includes an additional nonmana cost") {
+        val mana = ManaCost.parse("{2}{W}{W}")
+        val ability = eternalizeAbility(mana, Costs.DiscardCard)
+        ability.cost.shouldBeInstanceOf<AbilityCost.Composite>().costs shouldBe listOf(
+            AbilityCost.Atom(CostAtom.Mana(mana)),
+            Costs.DiscardCard,
+            AbilityCost.ExileSelf,
+        )
+        ability.activateFromZone shouldBe Zone.GRAVEYARD
+        ability.timing shouldBe TimingRule.SorcerySpeed
+        ability.keyword shouldBe Keyword.ETERNALIZE
+        val copied = ability.effect.shouldBeInstanceOf<CreateTokenCopyOfTargetEffect>()
+        val ordinary = card.activatedAbilities.single().effect.shouldBeInstanceOf<CreateTokenCopyOfTargetEffect>()
+        copied.target shouldBe EffectTarget.Self
+        copied.copyExceptions shouldBe ordinary.copyExceptions
     }
 
     test("eternalize ability and copy exceptions survive serialization") {

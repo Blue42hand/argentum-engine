@@ -25,7 +25,13 @@ data class TokenCreationReplacementContinuation(
     val attachedPermanentId: EntityId,
     val originalEffect: Effect,
     val tokenCount: Int,
-    val effectContext: EffectContext
+    val effectContext: EffectContext,
+    /**
+     * The player the copies are created under — the token creator after any controller redirect
+     * (Crafty Cutpurse), which needn't be [effectContext]'s controller. Null on frames paused
+     * before this field existed, which fall back to the context's controller.
+     */
+    val tokenControllerId: EntityId? = null
 ) : AnswerContinuation
 
 /**
@@ -56,4 +62,22 @@ data class PredefinedTokenMaterializationContinuation(
     val createdTokenIds: List<EntityId>,
     val entrySourceState: com.wingedsheep.engine.state.GameState,
     val resolvedImageUris: List<String?>
+) : AutomaticContinuation
+
+/** Remaining generic entries; copied identity choices finish before the next token enters. */
+@Serializable
+data class GenericTokenMaterializationContinuation(
+    val effect: com.wingedsheep.sdk.scripting.effects.CreateTokenEffect,
+    val context: EffectContext,
+    val controllerId: EntityId,
+    val remaining: Int,
+    val createdTokenIds: List<EntityId>,
+    val entrySourceState: com.wingedsheep.engine.state.GameState,
+    val resolvedImageUris: List<String?>,
+    val chosenDefenders: List<EntityId?>?,
+    val identity: com.wingedsheep.engine.handlers.effects.token.CreateTokenExecutor.TokenIdentity,
+    val donatedTriggers: List<com.wingedsheep.sdk.scripting.TriggeredAbility>,
+    val delayedControllerId: EntityId,
+    val rootEffect: Effect,
+    val wouldBeControllerId: EntityId
 ) : AutomaticContinuation

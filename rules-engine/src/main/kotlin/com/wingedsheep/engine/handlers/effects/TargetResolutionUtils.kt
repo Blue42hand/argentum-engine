@@ -237,6 +237,9 @@ object TargetResolutionUtils {
             context.triggeringEntityId
                 ?.let { state.getEntity(it)?.get<LastKnownPermanentComponent>()?.snapshot?.controllerId }
                 ?.let { return it }
+            context.triggerContext?.triggeringLastKnownSnapshot
+                ?.takeIf { it.entityId == context.triggeringEntityId }
+                ?.controllerId?.let { return it }
             return context.triggeringPlayerId
         }
         val triggerId = context.triggeringEntityId ?: return null
@@ -450,7 +453,7 @@ object TargetResolutionUtils {
             // either to its first player is exactly the bug they exist to avoid, so neither gets a
             // single-player arm.
             Player.Each, Player.EachOpponent, Player.EachOtherPlayer, Player.EachDefendingPlayer, Player.EachAttackedPlayer, Player.ActivePlayerFirst,
-            Player.EachStartingWithYou,
+            Player.EachStartingWithYou, Player.EachStartingWithNextOpponent,
             Player.EachTargetedPlayer, Player.OwnersOfLinkedExile, is Player.InCollection -> null
         }
     }
@@ -565,14 +568,22 @@ object TargetResolutionUtils {
             ?: container.get<TriggeredAbilityOnStackComponent>()?.controllerId
     }
 
-    private fun controllerOf(state: GameState, entityId: EntityId): EntityId? {
+    /**
+     * The controller of [entityId] in any zone: a stack object's caster / controller, else the
+     * [projected] controller, the base one, the last-known one, and finally the owner.
+     */
+    internal fun controllerOf(
+        state: GameState,
+        entityId: EntityId,
+        projected: com.wingedsheep.engine.mechanics.layers.ProjectedState = state.projectedState,
+    ): EntityId? {
         val entity = state.getEntity(entityId) ?: return null
         // A targeted activated/triggered ability on the stack is a bare container with no
         // ControllerComponent: "its controller" (Ertai Resurrected) is the ability's controller.
         return entity.get<SpellOnStackComponent>()?.casterId
             ?: entity.get<ActivatedAbilityOnStackComponent>()?.controllerId
             ?: entity.get<TriggeredAbilityOnStackComponent>()?.controllerId
-            ?: state.projectedState.getController(entityId)
+            ?: projected.getController(entityId)
             ?: entity.get<ControllerComponent>()?.playerId
             ?: entity.get<LastKnownPermanentComponent>()?.snapshot?.controllerId
             ?: entity.get<CardComponent>()?.ownerId
@@ -652,6 +663,7 @@ object TargetResolutionUtils {
                 // ("each player sacrifices two creatures of their choice").
                 Player.ActivePlayerFirst -> state.apnapOrder
                 Player.EachStartingWithYou -> state.turnOrderStartingWith(context.controllerId)
+                Player.EachStartingWithNextOpponent -> state.turnOrderStartingWithNextOpponent(context.controllerId)
                 Player.EachOpponent -> state.getOpponents(context.controllerId)
                 Player.EachOtherPlayer -> state.getOtherPlayers(context.controllerId)
                 else -> resolvePlayerRef(effectTarget.player, context, state)

@@ -1,5 +1,8 @@
 package com.wingedsheep.engine.handlers
 
+import com.wingedsheep.engine.handlers.effects.LibraryPlacement
+import com.wingedsheep.engine.handlers.effects.ZoneEntryOptions
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.engine.state.LifePaymentPurpose
 
 import com.wingedsheep.engine.mechanics.cost.SharedCreatureTypeTapCost
@@ -153,8 +156,8 @@ class CostHandler(private val zones: ZoneTransitionService) {
                 // maxAffordableX is capped by graveyard size in LegalActionsCalculator
                 true
             }
-            is AbilityCost.DiscardSelf -> {
-                // Card must be in hand
+            // Card must be in hand — both the discard and the reveal pay with the card itself.
+            is AbilityCost.DiscardSelf, is AbilityCost.RevealSelf -> {
                 val handZone = ZoneKey(controllerId, Zone.HAND)
                 state.getZone(handZone).contains(sourceId)
             }
@@ -177,6 +180,11 @@ class CostHandler(private val zones: ZoneTransitionService) {
             is AbilityCost.ReturnSelfToHand -> {
                 // Source must be on the battlefield to be bounced from it (Maze's End).
                 state.getZone(ZoneKey(controllerId, Zone.BATTLEFIELD)).contains(sourceId)
+            }
+            is AbilityCost.PutSelfIntoLibrary -> {
+                // The source pays with itself from whatever zone the ability is activated in
+                // (Daniels, Temporal Agent: from the graveyard); it only has to still exist there.
+                state.getEntity(sourceId) != null
             }
             is AbilityCost.ExileGrantingPermanent -> {
                 // Granter is resolved from the static-grant lookup at activation time.
@@ -233,7 +241,7 @@ class CostHandler(private val zones: ZoneTransitionService) {
                 // a legal blight target — CR 614.17b: the cost's event can't happen.
                 val projected = state.projectedState
                 projected.getBattlefieldControlledBy(controllerId)
-                    .any { projected.isCreature(it) && projected.canReceiveCounters(it) }
+                    .any { projected.isCreature(it) && projected.canReceiveCounters(it, CounterType.MINUS_ONE_MINUS_ONE) }
             }
             is AbilityCost.Craft -> {
                 // Source on battlefield + enough materials in the unified BF+GY pool (CR 702.167a-b).
@@ -308,17 +316,12 @@ class CostHandler(private val zones: ZoneTransitionService) {
                 CostPaymentResult.success(newState, manaPool, events)
             }
             is AbilityCost.Exert -> {
-                // CR 701.43b: exerting an already-exerted permanent is legal but doesn't stack —
-                // only emit ExertedEvent (and only add the untap marker) the first time this turn
-                // cycle. It still counts as exerted *this turn* either way.
-                val container = state.getEntity(sourceId)
-                if (container?.has<ExertedComponent>() == true) {
-                    CostPaymentResult.success(state.updateEntity(sourceId) { it.with(ExertedThisTurnComponent) }, manaPool)
-                } else {
-                    val cardName = container?.get<CardComponent>()?.name ?: "Permanent"
-                    val newState = state.updateEntity(sourceId) { it.with(ExertedComponent).with(ExertedThisTurnComponent) }
-                    CostPaymentResult.success(newState, manaPool, listOf(ExertedEvent(sourceId, cardName)))
-                }
+                // CR 701.43b: exerting an already-exerted permanent is legal and doesn't stack — the
+                // untap marker is idempotent — but the player still exerted it, so the event fires
+                // every time and "whenever you exert a creature" triggers again.
+                val cardName = state.getEntity(sourceId)?.get<CardComponent>()?.name ?: "Permanent"
+                val newState = state.updateEntity(sourceId) { it.with(ExertedComponent).with(ExertedThisTurnComponent) }
+                CostPaymentResult.success(newState, manaPool, listOf(ExertedEvent(sourceId, cardName, exertedBy = controllerId)))
             }
             is AbilityCost.PayXLife -> {
                 val amount = choices.xValue
@@ -406,6 +409,26 @@ class CostHandler(private val zones: ZoneTransitionService) {
                 val result = zones.discardCard(state, ownerId, sourceId)
                 CostPaymentResult.success(result.state, manaPool, result.events)
             }
+            is AbilityCost.RevealSelf -> {
+                // The card stays in hand; revealing is informational, so the only state change is
+                // the event that shows it to every player.
+                val sourceContainer = state.getEntity(sourceId)
+                    ?: return CostPaymentResult.failure("Source card not found")
+                val ownerId = sourceContainer.get<OwnerComponent>()?.playerId
+                    ?: sourceContainer.get<ControllerComponent>()?.playerId
+                    ?: return CostPaymentResult.failure("Source card has no owner")
+                if (!state.getZone(ZoneKey(ownerId, Zone.HAND)).contains(sourceId)) {
+                    return CostPaymentResult.failure("Source card is not in its owner's hand")
+                }
+                val card = sourceContainer.get<CardComponent>()
+                val name = card?.name ?: "Unknown"
+                // The client reads `source` as a card name (it draws that card beside the reveal),
+                // and the card revealing itself is the source.
+                CostPaymentResult.success(
+                    state, manaPool,
+                    listOf(CardsRevealedEvent(ownerId, listOf(sourceId), listOf(name), listOf(card?.imageUri), source = name))
+                )
+            }
             is AbilityCost.DiscardLastDrawnThisTurn -> {
                 // The engine picks the card from the per-player tracker — no player choice. canPay
                 // already verifies the tracked entity is still in the controller's hand; recheck
@@ -475,6 +498,19 @@ class CostHandler(private val zones: ZoneTransitionService) {
 
                 val transitionResult = zones.moveToZone(
                     state, sourceId, Zone.HAND
+                )
+
+                CostPaymentResult.success(transitionResult.state, manaPool, transitionResult.events)
+            }
+            is AbilityCost.PutSelfIntoLibrary -> {
+                // Put the source into its owner's library at the printed position (Daniels,
+                // Temporal Agent: "on the bottom"). Paid before the ability is on the stack.
+                state.getEntity(sourceId)
+                    ?: return CostPaymentResult.failure("Source card not found")
+
+                val placement = if (cost.placement == ZonePlacement.Top) LibraryPlacement.Top else LibraryPlacement.Bottom
+                val transitionResult = zones.moveToZone(
+                    state, sourceId, Zone.LIBRARY, ZoneEntryOptions(libraryPlacement = placement)
                 )
 
                 CostPaymentResult.success(transitionResult.state, manaPool, transitionResult.events)
@@ -621,7 +657,7 @@ class CostHandler(private val zones: ZoneTransitionService) {
                 if (projected.getController(targetId) != controllerId || !projected.isCreature(targetId)) {
                     return CostPaymentResult.failure("Blight target must be a creature you control")
                 }
-                if (!projected.canReceiveCounters(targetId)) {
+                if (!projected.canReceiveCounters(targetId, CounterType.MINUS_ONE_MINUS_ONE)) {
                     return CostPaymentResult.failure("Blight target can't have counters put on it")
                 }
                 // A cost isn't an effect: placement replacements apply, Doubling Season's doesn't.
@@ -843,9 +879,12 @@ class CostHandler(private val zones: ZoneTransitionService) {
         // rather than a free rider.
         // The granter-scoped form is gated in canPayAbilityCost, the only layer that knows the granter.
         is CostAtom.Unattach -> atom.ofGrantingPermanent || isAttached(state, sourceId)
-        // Adding counters takes nothing away, so there is never a reason it can't be paid — this
-        // is what keeps Mazemind Tome activatable on the very activation that exiles it.
-        is CostAtom.PutCountersOnSelf -> true
+        // Adding counters takes nothing away, which is what keeps Mazemind Tome activatable on the
+        // very activation that exiles it. The one way it can't be paid is a permanent that can't
+        // have counters put on it at all (Solemnity): the event can't happen, so the cost can't be
+        // chosen (CR 614.17b; Devoted Druid's 2018-12-07 ruling). A replacement that only shrinks
+        // the placement — Vizier of Remedies cutting it to zero — leaves the cost payable.
+        is CostAtom.PutCountersOnSelf -> state.projectedState.canReceiveCounters(sourceId, atom.counterType)
         // Selected-permanent counter placement is a PayCost only (Tourach's Chant); no printed
         // activated ability pays it, so it is reported unpayable on this rail.
         is CostAtom.PutCountersOnPermanent -> false
@@ -939,7 +978,7 @@ class CostHandler(private val zones: ZoneTransitionService) {
             val toDiscard: List<EntityId> = if (atom.random) {
                 // Engine chooses the discarded cards at random — no player selection.
                 val eligible = findMatchingCardsUnified(
-                    state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId
+                    state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId, sourceId
                 )
                 if (eligible.size < atom.count) {
                     return CostPaymentResult.failure("Not enough cards to discard at random")
@@ -952,8 +991,8 @@ class CostHandler(private val zones: ZoneTransitionService) {
                     return CostPaymentResult.failure("Must choose ${atom.count} card(s) to discard")
                 }
                 val eligible = findMatchingCardsUnified(
-                    state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId
-                )
+                    state, state.getZone(ZoneKey(controllerId, Zone.HAND)), atom.filter, controllerId, sourceId
+                ).toSet()
                 if (choices.discardChoices.any { it !in eligible }) {
                     return CostPaymentResult.failure("Chosen card is not a legal discard from your hand")
                 }
@@ -1104,13 +1143,14 @@ class CostHandler(private val zones: ZoneTransitionService) {
         is CostAtom.PutCountersOnSelf -> {
             // Counters put on as a cost are an ordinary counter placement (CR 122.6), so they run
             // through the same chokepoint as the AddCounters effect: the "can't have counters put
-            // on it" gate (CR 614.1 / Solemnity), the placement replacements (Hardened Scales,
+            // on it" gate (CR 614.17 / Solemnity), the placement replacements (Hardened Scales,
             // Corpsejack Menace — not Doubling Season, whose "if an effect would put" excludes a
-            // cost), and the first-placement-this-turn marker. A permanent that can't
-            // receive counters still pays the cost — nothing is owed and the activation stands.
+            // cost), and the first-placement-this-turn marker. A permanent that can't receive
+            // counters can't pay it at all (CR 614.17b) — canPayAtom keeps the activation from
+            // being offered, and this refuses one that slips past it.
             val counterType = atom.counterType
-            if (!state.projectedState.canReceiveCounters(sourceId)) {
-                CostPaymentResult.success(state, manaPool)
+            if (!state.projectedState.canReceiveCounters(sourceId, counterType)) {
+                CostPaymentResult.failure("Counters can't be put on this permanent")
             } else {
                 val current = state.getEntity(sourceId)?.get<CountersComponent>() ?: CountersComponent()
                 val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(

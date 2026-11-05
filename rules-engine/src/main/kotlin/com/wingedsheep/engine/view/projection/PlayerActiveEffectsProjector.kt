@@ -25,6 +25,7 @@ import com.wingedsheep.engine.view.ClientPlayerEffect
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.scripting.AttackTax
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
@@ -71,6 +72,8 @@ internal class PlayerActiveEffectsProjector(
             targetingAndCastingGrants(state, playerId, container) +
             designations(state, playerId, container, audience) +
             attackRequirements(container) +
+            attackTaxGrants(state, playerId) +
+            blockRestrictions(container) +
             pendingSpellRiders(state, playerId) +
             emblemsAndDelayedTriggers(state, playerId, container, audience)
     }
@@ -469,6 +472,7 @@ internal class PlayerActiveEffectsProjector(
                     PlayerEffectRemoval.EndOfTurn -> "this_turn" to " this turn"
                     PlayerEffectRemoval.UntilYourNextTurn -> "until_next_turn" to " until your next turn"
                     PlayerEffectRemoval.EndOfYourNextTurn -> "end_of_next_turn" to " until the end of your next turn"
+                    PlayerEffectRemoval.DuringYourNextTurn -> "during_next_turn" to " during your next turn"
                     PlayerEffectRemoval.Permanent -> "permanent" to ""
                 }
                 effects.add(
@@ -482,7 +486,7 @@ internal class PlayerActiveEffectsProjector(
             }
         }
 
-        // Loyalty-activation permissions (Jace's Machinations, Urza Assembles the Titans).
+        // Loyalty-activation permissions (Jace's Machinations, Urza Assembles the Titans, The Chain Veil).
         container.get<com.wingedsheep.engine.state.components.player.LoyaltyActivationPermissionsComponent>()?.let { component ->
             val instant = component.grants.filter { it.instantSpeed }
             if (instant.isNotEmpty()) {
@@ -506,6 +510,23 @@ internal class PlayerActiveEffectsProjector(
                         effectId = "extra_loyalty_activations",
                         name = "Extra loyalty activations",
                         description = "You may activate loyalty abilities of $rendered this turn rather than only once",
+                        icon = "lightning"
+                    )
+                )
+            }
+            // Additional activations sum across grants (each Chain Veil resolution is one more).
+            val additional = component.grants.filter { it.additionalActivations >= 1 }
+                .groupBy { it.filter }
+                .map { (filter, grants) -> filter to grants.sumOf { it.additionalActivations } }
+            if (additional.isNotEmpty()) {
+                val rendered = additional.joinToString(" and ") { (filter, n) ->
+                    "${filter.description}s " + (if (n == 1) "one additional time" else "$n additional times")
+                }
+                effects.add(
+                    ClientPlayerEffect(
+                        effectId = "additional_loyalty_activations",
+                        name = "Additional loyalty activations",
+                        description = "You may activate loyalty abilities of $rendered this turn",
                         icon = "lightning"
                     )
                 )
@@ -681,6 +702,43 @@ internal class PlayerActiveEffectsProjector(
         )
     }
 
+    /**
+     * Attack taxes a resolved effect handed to this player (Summon: Yojimbo's "until your next turn,
+     * creatures can't attack you unless their controller pays {2} for each of those creatures").
+     * A printed tax shows on its permanent; a player-held one has no card to show on, so without
+     * this badge the attacker would only meet it at the payment prompt.
+     */
+    private fun attackTaxGrants(state: GameState, playerId: EntityId): List<ClientPlayerEffect> =
+        // Indexed among this player's own taxes, so an unrelated grant expiring doesn't renumber it.
+        state.grantedStaticAbilities.filter { it.entityId == playerId && it.ability is AttackTax }.mapIndexed { index, grant ->
+            val tax = grant.ability as AttackTax
+            val description = if (grant.duration is Duration.Permanent) {
+                tax.description.replaceFirstChar { it.uppercase() }
+            } else {
+                "${grant.duration.description.replaceFirstChar { it.uppercase() }}, ${tax.description}"
+            }
+            ClientPlayerEffect(
+                effectId = "attack_tax_${grant.sourceId?.value ?: "none"}_$index",
+                name = "Attack Tax",
+                description = description,
+                icon = "lock"
+            )
+        }
+
+    /** A per-combat cap on how many creatures this player may block with (Mirri, Weatherlight Duelist). */
+    private fun blockRestrictions(container: ComponentContainer): List<ClientPlayerEffect> {
+        val cap = container.get<BlockerCountLimitThisCombatComponent>()?.maxBlockers ?: return emptyList()
+        val creatures = if (cap == 1) "one creature" else "$cap creatures"
+        return listOf(
+            ClientPlayerEffect(
+                effectId = "blocker_count_limit",
+                name = "Block Limit",
+                description = "You can't block with more than $creatures this combat",
+                icon = "shield-off"
+            )
+        )
+    }
+
     /** "Your next spell …" riders still waiting for that spell: copy it, uncounterable, free. */
     private fun pendingSpellRiders(state: GameState, playerId: EntityId): List<ClientPlayerEffect> {
         val effects = mutableListOf<ClientPlayerEffect>()
@@ -740,7 +798,7 @@ internal class PlayerActiveEffectsProjector(
 
         // Check for pending "next spell can be cast without paying its mana cost" riders
         // (e.g. World War Hulk I) — the player needs to see the free cast is still available.
-        val pendingFreeCasts = state.pendingFreeCastSpells.filter { it.controllerId == playerId }
+        val pendingFreeCasts = state.pendingFreeCastSpells.filter { it.controllerId == playerId && it.nextSpellOnly }
         if (pendingFreeCasts.isNotEmpty()) {
             val sourceName = pendingFreeCasts.map { it.sourceName }.distinct().joinToString(", ")
             // With several riders the broadest one sets the wording: an unfiltered rider frees the
@@ -763,6 +821,26 @@ internal class PlayerActiveEffectsProjector(
                 )
             )
         }
+
+        // Whole-turn free-cast permissions (Chandra, Flame's Catalyst −8) — one badge each, since
+        // their filters and zones differ and none is spent by a cast.
+        state.pendingFreeCastSpells
+            .filter { it.controllerId == playerId && !it.nextSpellOnly }
+            .distinctBy { Triple(it.spellFilter, it.fromZones, it.sourceName) }
+            .forEachIndexed { index, grant ->
+                val filterDesc = if (grant.spellFilter == GameObjectFilter.Any) "" else "${grant.spellFilter.description} "
+                val fromDesc = grant.fromZones?.let { zones ->
+                    " from your " + zones.joinToString(" or ") { it.name.lowercase() }
+                } ?: ""
+                effects.add(
+                    ClientPlayerEffect(
+                        effectId = "free_cast_this_turn_$index",
+                        name = "Free Cast",
+                        description = "This turn you may cast ${filterDesc}spells$fromDesc without paying their mana costs (${grant.sourceName})",
+                        icon = "free-cast"
+                    )
+                )
+            }
 
         // Check for pending "for one spell this turn, mana of any type" riders (North Star) — the
         // player needs to see the rider is still waiting for the spell that needs it.
@@ -801,8 +879,11 @@ internal class PlayerActiveEffectsProjector(
 
         // Check for global triggered abilities controlled by this player
         // Group by source name so abilities from the same source show as one badge
+        // An emblem's ability (sourced from a synthetic emblem entity) is shown once, by the
+        // emblem-entity loop below, so two emblems from one planeswalker stay two badges.
         val globalAbilitiesBySource = state.globalGrantedTriggeredAbilities
             .filter { it.controllerId == playerId }
+            .filterNot { state.getEntity(it.sourceId)?.has<EmblemSourceComponent>() == true }
             .groupBy { it.sourceName to it.duration }
 
         for ((key, abilities) in globalAbilitiesBySource) {

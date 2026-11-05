@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ClientGameState, LegalActionInfo, PendingDecision, StateDeltaUpdateMessage, StateUpdateMessage } from '@/types'
 import type { CombatState, GameStore } from './types'
 import type { GameWebSocket } from '@/network/websocket'
-import { retainLegalBlockAssignments } from '@/utils/combatBlockTargets'
+import { retainLegalBlockAssignments, refreshBlockerOffer, blockerDraftExceedsLimits } from '@/utils/combatBlockTargets'
 
 vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => {}, removeItem: () => {} })
 vi.stubGlobal('window', { addEventListener: () => {}, removeEventListener: () => {} })
@@ -268,6 +268,120 @@ describe('browser live action origins', () => {
     expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({ [MANA]: [TARGET, SPELL] })
   })
 
+
+  it('refreshes a removed total cap without requiring different blocker or attacker lists', () => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
+      blockerAssignments: { [MANA]: [TARGET] }, validCreatures: [MANA, SPELL], mandatoryAttackers: [],
+      attackingCreatures: [TARGET], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [TARGET], [SPELL]: [TARGET] },
+      blockerMaxBlockCounts: {}, maxTotalBlockers: 1, bands: [],
+    }
+    const offer: LegalActionInfo = {
+      actionType: 'DeclareBlockers', description: 'Declare blockers',
+      action: { type: 'DeclareBlockers', playerId: ME, blockers: {} },
+      validBlockers: [MANA, SPELL], blockableAttackers: [TARGET],
+      ...(combat.validBlockTargets ? { validBlockTargets: combat.validBlockTargets } : {}), maxTotalBlockers: null,
+    }
+    const refreshed = refreshBlockerOffer(combat, offer, [])
+    expect(refreshed).not.toBe(combat)
+    expect(refreshed.maxTotalBlockers).toBeNull()
+    expect(refreshed.blockerAssignments).toEqual(combat.blockerAssignments)
+    useGameStore.getState().startCombat(refreshed)
+    useGameStore.getState().assignBlocker(SPELL, TARGET)
+    expect(useGameStore.getState().combatState?.blockerAssignments)
+      .toEqual({ [MANA]: [TARGET], [SPELL]: [TARGET] })
+    expect(refreshBlockerOffer(refreshed, offer, [])).toBe(refreshed)
+  })
+
+  it('refreshes zero caps and per-blocker limits directly from a new native offer', () => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
+      blockerAssignments: {}, validCreatures: [MANA], mandatoryAttackers: [],
+      attackingCreatures: [TARGET, SPELL], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [TARGET, SPELL] },
+      blockerMaxBlockCounts: {}, maxTotalBlockers: null, bands: [],
+    }
+    const offer: LegalActionInfo = {
+      actionType: 'DeclareBlockers', description: 'Declare blockers',
+      action: { type: 'DeclareBlockers', playerId: ME, blockers: {} },
+      validBlockers: [MANA], blockableAttackers: [TARGET, SPELL],
+      ...(combat.validBlockTargets ? { validBlockTargets: combat.validBlockTargets } : {}), maxTotalBlockers: 0,
+      blockerMaxBlockCounts: { [MANA]: 2 },
+    }
+    useGameStore.getState().startCombat(refreshBlockerOffer(combat, offer, []))
+    useGameStore.getState().assignBlocker(MANA, TARGET)
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({})
+    const refreshed = refreshBlockerOffer(useGameStore.getState().combatState!, { ...offer, maxTotalBlockers: 1 }, [])
+    expect(refreshed.blockerMaxBlockCounts).toEqual({ [MANA]: 2 })
+    useGameStore.getState().startCombat(refreshed)
+    useGameStore.getState().assignBlocker(MANA, TARGET)
+    useGameStore.getState().assignBlocker(MANA, SPELL)
+    expect(useGameStore.getState().combatState?.blockerAssignments).toEqual({ [MANA]: [TARGET, SPELL] })
+  })
+
+
+  it.each([0, 1])('keeps an existing draft visible but refuses confirmation after total cap becomes %s', (cap) => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
+      blockerAssignments: { [MANA]: [TARGET], [SPELL]: [TARGET] }, validCreatures: [MANA, SPELL], mandatoryAttackers: [],
+      attackingCreatures: [TARGET], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [TARGET], [SPELL]: [TARGET] }, blockerMaxBlockCounts: {}, bands: [],
+    }
+    const offer: LegalActionInfo = {
+      actionType: 'DeclareBlockers', description: 'Declare blockers',
+      action: { type: 'DeclareBlockers', playerId: ME, blockers: {} },
+      validBlockers: [MANA, SPELL], blockableAttackers: [TARGET],
+      ...(combat.validBlockTargets ? { validBlockTargets: combat.validBlockTargets } : {}), maxTotalBlockers: cap,
+    }
+    const refreshed = refreshBlockerOffer(combat, offer, [])
+    expect(refreshed.blockerAssignments).toEqual(combat.blockerAssignments)
+    expect(blockerDraftExceedsLimits(refreshed)).toBe(true)
+    useGameStore.getState().startCombat(refreshed)
+    send.mockClear()
+    useGameStore.getState().confirmCombat('original')
+    expect(send).not.toHaveBeenCalled()
+    useGameStore.getState().clearBlockerAssignments()
+    if (cap === 1) useGameStore.getState().assignBlocker(MANA, TARGET)
+    send.mockClear()
+    expect(blockerDraftExceedsLimits(useGameStore.getState().combatState)).toBe(false)
+    useGameStore.getState().confirmCombat('original')
+    expect(send).toHaveBeenCalledExactlyOnceWith({
+      type: 'submitAction', interactionEpoch: 'original',
+      action: { type: 'DeclareBlockers', playerId: ME, blockers: cap === 1 ? { [MANA]: [TARGET] } : {} },
+    })
+  })
+
+  it('refuses an old two-attacker assignment after the native per-blocker allowance returns to one', () => {
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
+      blockerAssignments: { [MANA]: [TARGET, SPELL] }, validCreatures: [MANA], mandatoryAttackers: [],
+      attackingCreatures: [TARGET, SPELL], mustBeBlockedAttackers: [],
+      validBlockTargets: { [MANA]: [TARGET, SPELL] }, blockerMaxBlockCounts: { [MANA]: 2 }, bands: [],
+    }
+    const offer: LegalActionInfo = {
+      actionType: 'DeclareBlockers', description: 'Declare blockers',
+      action: { type: 'DeclareBlockers', playerId: ME, blockers: {} },
+      validBlockers: [MANA], blockableAttackers: [TARGET, SPELL], ...(combat.validBlockTargets ? { validBlockTargets: combat.validBlockTargets } : {}),
+    }
+    const refreshed = refreshBlockerOffer(combat, offer, [])
+    expect(refreshed.blockerAssignments).toEqual(combat.blockerAssignments)
+    expect(blockerDraftExceedsLimits(refreshed)).toBe(true)
+    useGameStore.getState().startCombat(refreshed)
+    send.mockClear()
+    useGameStore.getState().confirmCombat('original')
+    expect(send).not.toHaveBeenCalled()
+    useGameStore.getState().clearBlockerAssignments()
+    useGameStore.getState().assignBlocker(MANA, TARGET)
+    send.mockClear()
+    useGameStore.getState().confirmCombat('original')
+    expect(send).toHaveBeenCalledOnce()
+  })
+
   it('drops a stale blocker pair completely before confirming refreshed blocks', () => {
     const combat: CombatState = {
       interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
@@ -290,6 +404,40 @@ describe('browser live action origins', () => {
     expect(send).toHaveBeenCalledWith({
       type: 'submitAction', interactionEpoch: 'original',
       action: { type: 'DeclareBlockers', playerId: ME, blockers: {} },
+    })
+  })
+
+  it.each([false, true])('clears the previous seat block draft on a same-epoch handoff (delta=%s)', (delta) => {
+    const nextSeat = entityId('teammate')
+    const combat: CombatState = {
+      interactionEpoch: 'original', mode: 'declareBlockers', actingSeat: ME, stickyDefenderId: null,
+      selectedAttackers: [], attackerTargets: {}, validAttackTargets: [], attackTargetsByAttacker: {},
+      blockerAssignments: { [MANA]: [TARGET] }, validCreatures: [MANA], mandatoryAttackers: [], loneAttackers: [],
+      attackingCreatures: [TARGET], mustBeBlockedAttackers: [], blockerMaxBlockCounts: {}, bands: [],
+    }
+    useGameStore.getState().startCombat(combat)
+    send.mockClear()
+    const nextOffer: LegalActionInfo = {
+      actionType: 'DeclareBlockers', description: 'Choose teammate blockers',
+      action: { type: 'DeclareBlockers', playerId: nextSeat, blockers: {} },
+      validBlockers: [SPELL], blockableAttackers: [TARGET],
+      proposedBlockerAssignments: { [MANA]: [TARGET] },
+    }
+    receive('original', delta, undefined, [nextOffer])
+    expect(useGameStore.getState().combatState).toBeNull()
+    useGameStore.getState().confirmCombat('original')
+    expect(send).not.toHaveBeenCalled()
+
+    // App re-enters from the fresh offer. Prior choices are display-only and aren't resubmitted.
+    useGameStore.getState().startCombat({
+      ...combat, actingSeat: nextSeat, validCreatures: [SPELL],
+      blockerAssignments: { [SPELL]: [TARGET] }, proposedBlockerAssignments: { [MANA]: [TARGET] },
+    })
+    send.mockClear()
+    useGameStore.getState().confirmCombat('original')
+    expect(send).toHaveBeenCalledExactlyOnceWith({
+      type: 'submitAction', interactionEpoch: 'original',
+      action: { type: 'DeclareBlockers', playerId: nextSeat, blockers: { [SPELL]: [TARGET] } },
     })
   })
 

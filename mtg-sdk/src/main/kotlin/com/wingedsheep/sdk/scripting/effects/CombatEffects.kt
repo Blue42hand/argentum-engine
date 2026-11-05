@@ -357,26 +357,6 @@ data class TauntEffect(
 }
 
 /**
- * Creates a delayed trigger for the rest of the turn that reflects combat damage.
- * "This turn, whenever an attacking creature deals combat damage to you,
- *  it deals that much damage to its controller."
- * Used for Harsh Justice.
- *
- * The engine implements this by creating a temporary triggered ability that
- * listens for combat damage events and applies reflection.
- */
-@SerialName("ReflectCombatDamage")
-@Serializable
-data class ReflectCombatDamageEffect(
-    val target: EffectTarget = EffectTarget.Controller
-) : Effect {
-    override val description: String =
-        "This turn, whenever an attacking creature deals combat damage to you, " +
-                "it deals that much damage to its controller"
-}
-
-
-/**
  * Grant evasion to a group of creatures until end of turn.
  * "Black creatures you control can't be blocked this turn except by black creatures."
  * Used for Dread Charge.
@@ -923,12 +903,13 @@ data object SwapBlockingAssignmentsEffect : Effect {
  * @property redirectTo The target that will receive the redirected damage (chosen at activation)
  * @property amount If set, only redirect up to this many damage (e.g., "the next 1 damage"). Null = redirect all.
  * @property scope When the shield is used up (only meaningful when [amount] is null). See [RedirectScope].
- * @property protectedFilter Protect every permanent matching this filter instead of a fixed
- *   [protectedTargets] list — Blood of the Martyr's "any creature" ([GameObjectFilter.Creature]),
+ * @property protectedFilter Protect every permanent matching this filter, in addition to any
+ *   [protectedTargets] — Blood of the Martyr's "any creature" ([GameObjectFilter.Creature]),
  *   Ascent of the Worthy's "creatures you control" (`Creature.youControl()`, "you" being the
- *   shield's controller). Matched against projected state at damage time, so permanents that
- *   arrive later are covered, a player never is, and damage already headed for [redirectTo]
- *   stays there. Null = protect [protectedTargets].
+ *   shield's controller), Gideon's Sacrifice's "you and permanents you control" (`Controller`
+ *   listed, `Permanent.youControl()` filtered). Matched against projected state at damage time,
+ *   so permanents that arrive later are covered, a player only when listed, and damage already
+ *   headed for [redirectTo] stays there. Null = protect [protectedTargets] alone.
  * @property duration How long the shield lasts — "this turn" ([Duration.EndOfTurn], the default)
  *   or "until your next turn" ([Duration.UntilYourNextTurn], Ascent of the Worthy).
  * @property fromSource Redirect only damage dealt by this one object — "all damage that would be
@@ -964,7 +945,8 @@ data class RedirectNextDamageEffect(
         append(if (scope == RedirectScope.CONTINUOUS) "All " else "The next ")
         if (amount != null) append("$amount ")
         val recipients = when {
-            protectedFilter != null -> protectedFilter.pluralPermanentDescription
+            protectedFilter != null -> (protectedTargets.map { it.description } +
+                protectedFilter.pluralPermanentDescription).joinToString(" and ")
             protectedTargets.isEmpty() -> null
             else -> protectedTargets.joinToString(" and/or ") { it.description }
         }
@@ -1103,14 +1085,25 @@ data class RemoveSuspectedEffect(
 
 
 
-/** Establish a blocking relationship during resolution, without declaring blockers. */
+/**
+ * Establish a blocking relationship during resolution, without declaring blockers.
+ *
+ * [entering] is the "put onto the battlefield blocking" form (CR 509.4): pair it with the effect that
+ * just created [blocker] ("create a token that's blocking that creature" — Brimaz, King of Oreskos).
+ * Such a creature is blocking but never "blocked", so its own blocks / blocks-a-creature triggers
+ * don't fire (CR 509.3a-b) and it is not recorded as having blocked; the attacker's becomes-blocked
+ * triggers still do (CR 509.3c-d).
+ */
 @SerialName("BecomeBlocking")
 @Serializable
 data class BecomeBlockingEffect(
     val blocker: EffectTarget,
     val attacker: EffectTarget,
+    val entering: Boolean = false,
 ) : Effect {
-    override val description: String = "${blocker.description} blocks ${attacker.description}"
+    override val description: String =
+        if (entering) "${blocker.description} enters blocking ${attacker.description}"
+        else "${blocker.description} blocks ${attacker.description}"
 }
 
 /** Restrict blockers to a remembered collection of objects or a current characteristic filter. */

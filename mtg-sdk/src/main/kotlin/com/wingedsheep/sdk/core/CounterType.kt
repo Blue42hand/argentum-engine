@@ -200,6 +200,12 @@ value class CounterType(val name: String) {
         val FUSE = CounterType("FUSE")
 
         /**
+         * Foreshadow counter (IKO — Ominous Seas). A pure tally: one goes on each time its controller
+         * draws a card, and removing eight of them pays for an 8/8 Kraken token.
+         */
+        val FORESHADOW = CounterType("FORESHADOW")
+
+        /**
          * Luck counter (TSP — Gemstone Caverns). A marker: the land begins the game with one when put
          * onto the battlefield from an opening hand, and taps for any color while it has one.
          */
@@ -288,6 +294,13 @@ value class CounterType(val name: String) {
          * drawback goes with it.
          */
         val MANNEQUIN = CounterType("MANNEQUIN")
+
+        /**
+         * Incarnation counter (M21 — Nine Lives). A pure marker with no inherent rule: Nine Lives
+         * puts one on itself each time it prevents damage to you, and its state trigger exiles it at
+         * nine or more.
+         */
+        val INCARNATION = CounterType("INCARNATION")
 
         /**
          * Rev counter (DSK — Chainsaw). Passive storage counter with no inherent rule; the card's own
@@ -752,6 +765,13 @@ value class CounterType(val name: String) {
         val BOUNTY = CounterType("BOUNTY")
 
         /**
+         * Hit counter (GRN — Etrata, the Silencer). A passive mark on **cards in exile** with no
+         * inherent rule: Etrata exiles a creature with one on it, then reads how many exiled cards
+         * the damaged player owns that carry one ("loses the game if they own three or more").
+         */
+        val HIT = CounterType("HIT")
+
+        /**
          * Corpse counter (LEA — Scavenging Ghoul). A passive spendable store with no inherent rule:
          * the card's end-step trigger adds one per creature that died this turn, and its regeneration
          * ability removes one as its cost.
@@ -893,6 +913,54 @@ value class CounterType(val name: String) {
          */
         val NIGHT = CounterType("NIGHT")
 
+        /**
+         * Task counter (THB — Heliod's Punishment). A passive countdown with no inherent rule: the
+         * Aura enters with four, and the "{T}" ability it grants the enchanted creature removes one,
+         * then destroys the Aura once none are left.
+         */
+        val TASK = CounterType("TASK")
+
+        /**
+         * Hour counter (ELD — Midnight Clock). A passive tally with no inherent rule: the Clock gains
+         * one each upkeep and from its activated ability, and "when the twelfth hour counter is put
+         * on" it (`getsCounters(HOUR, nth = 12)`) it resets your hand and exiles itself.
+         */
+        val HOUR = CounterType("HOUR")
+
+        /**
+         * Knowledge counter (ELD — The Magic Mirror). A passive tally with no inherent rule: the
+         * Mirror gains one each upkeep, then its controller draws a card for each.
+         */
+        val KNOWLEDGE = CounterType("KNOWLEDGE")
+
+        /**
+         * Phylactery counter (M19 — Phylactery Lich). A pure marker with no inherent rule: the Lich
+         * puts one on an artifact you control as it enters, and its state trigger sacrifices it when
+         * you control no permanent with one.
+         */
+        val PHYLACTERY = CounterType("PHYLACTERY")
+
+        /**
+         * Peace counter (TRK — Peace in Our Time). A passive tally with no inherent rule: the
+         * enchantment gains one each time a player trades their attack for a card, and wins the game
+         * for its controller at twelve.
+         */
+        val PEACE = CounterType("PEACE")
+
+        /**
+         * Promotion counter (TRK — Beckett Mariner, Impetuous Ensign). A passive tally with no
+         * inherent rule: one each time she becomes tapped, and at three they are removed and she
+         * deals 2 damage to each opponent.
+         */
+        val PROMOTION = CounterType("PROMOTION")
+
+        /**
+         * Prey counter (RIX — Tetzimoc, Primal Death). A pure marker with no inherent rule: the
+         * hand-activated ability puts one on a creature, and Tetzimoc's entry trigger
+         * destroys each opponent's creature that has one.
+         */
+        val PREY = CounterType("PREY")
+
         /** Every counter kind the SDK names, in declaration order. */
         val KNOWN: List<CounterType> = listOf(
             PLUS_ONE_PLUS_ONE,
@@ -953,6 +1021,7 @@ value class CounterType(val name: String) {
             COIN,
             FLOOD,
             FUSE,
+            FORESHADOW,
             LUCK,
             CHORUS,
             DREAM,
@@ -972,6 +1041,7 @@ value class CounterType(val name: String) {
             PAGE,
             HOOFPRINT,
             MANNEQUIN,
+            INCARNATION,
             REV,
             BLOODSTAIN,
             BLOOD,
@@ -1029,6 +1099,7 @@ value class CounterType(val name: String) {
             COLLECTION,
             REPRIEVE,
             BOUNTY,
+            HIT,
             CORPSE,
             BRICK,
             VITALITY,
@@ -1051,6 +1122,13 @@ value class CounterType(val name: String) {
             VOYAGE,
             GHOSTFORM,
             NIGHT,
+            TASK,
+            HOUR,
+            KNOWLEDGE,
+            PHYLACTERY,
+            PEACE,
+            PROMOTION,
+            PREY,
         )
 
         /**

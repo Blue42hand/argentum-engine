@@ -43,7 +43,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 CACHE_ROOT = Path.home() / ".cache" / "scryfall" / "printings"
 SCRYFALL_BASE = "https://api.scryfall.com"
 USER_AGENT = "argentum-engine-check-card-printing/1.0"
-REQUEST_DELAY_SEC = 0.15  # Scryfall asks for 50–100ms between requests
+REQUEST_DELAY_SEC = 0.6  # Scryfall asks for 50–100ms between requests
 CACHE_TTL_DAYS = 30
 
 # The `(?:[^"\\]|\\.)*` body (rather than `[^"]+`) is load-bearing: a handful of real card

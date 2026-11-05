@@ -1,6 +1,5 @@
 package com.wingedsheep.engine.view
 
-import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.engine.core.*
@@ -425,6 +424,17 @@ sealed interface ClientEvent {
         override val description: String =
             if (answer) "Auto-answered Yes to $sourceName (yield)"
             else "Auto-answered No to $sourceName (yield)"
+    ) : ClientEvent
+
+    /**
+     * Automatic ordering put [count] of the viewer's simultaneous triggered abilities on the stack
+     * in an order they could have chosen (CR 603.3b). The client points out, once, that they can.
+     */
+    @Serializable
+    @SerialName("triggersOrderedAutomatically")
+    data class TriggersOrderedAutomatically(
+        val count: Int,
+        override val description: String = "Your $count triggered abilities went on the stack in the order they triggered"
     ) : ClientEvent
 
     // =========================================================================
@@ -1480,6 +1490,10 @@ object ClientEventTransformer {
                     )
                 } else null
 
+            // Only the player whose triggers the game ordered hears about it; it's their preference.
+            is TriggersOrderedAutomaticallyEvent ->
+                if (event.playerId == viewingPlayerId) ClientEvent.TriggersOrderedAutomatically(event.count) else null
+
             is TappedEvent -> ClientEvent.PermanentTapped(
                 permanentId = event.entityId,
                 permanentName = event.entityName
@@ -1634,13 +1648,6 @@ object ClientEventTransformer {
                 )
             }
 
-            is LoyaltyChangedEvent -> ClientEvent.CounterAdded(
-                permanentId = event.entityId,
-                permanentName = event.entityName,
-                counterType = CounterType.LOYALTY.printed,
-                count = event.change
-            )
-
             // The per-die events animate the roll; the instruction summary only feeds triggers.
             is DiceRolledEvent -> null
 
@@ -1753,6 +1760,10 @@ is PermanentsSacrificedEvent -> {
                 isYours = event.playerId == viewingPlayerId
             )
 
+            // The ballot's own decision line ("Opponent: (Selvala's Stampede) Chose Free") already
+            // logs each vote as it is cast; a second entry would only repeat it.
+            is VoteCastEvent -> null
+
             is CreatureTypeChosenEvent -> ClientEvent.CreatureTypeChosen(
                 playerId = event.playerId,
                 chosenType = event.chosenType,
@@ -1820,7 +1831,11 @@ is PermanentsSacrificedEvent -> {
                     revealingPlayerId = event.playerId,
                     cardIds = listOf(event.cardEntityId),
                     cardNames = listOf(event.cardName),
-                    source = "first draw reveal"
+                    // The overlay shows `source` as a card (its art and hover preview), so name the
+                    // permanent whose reveal this is — Primitive Etchings, God-Eternal Kefnet.
+                    source = event.revealedBy.firstNotNullOfOrNull { id ->
+                        state?.getEntity(id)?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()?.name
+                    }
                 )
             }
 
@@ -1833,6 +1848,12 @@ is PermanentsSacrificedEvent -> {
                 newTargetId = event.newTargetId,
                 newTargetName = event.newTargetName,
                 sourceName = event.sourceName
+            )
+
+            is TeamBlockerChoiceEvent -> ClientEvent.DecisionMade(
+                playerId = event.playerId,
+                isYours = event.playerId == viewingPlayerId,
+                description = event.description,
             )
 
             is DecisionSubmittedEvent -> {
@@ -1886,6 +1907,9 @@ is PermanentsSacrificedEvent -> {
             is RingTemptedEvent,
             is ScriedEvent,
             is SurveiledEvent,
+            // Internal signal for "whenever you face a dilemma" triggers; the cast, activation or
+            // trigger whose modes were chosen is what the log shows.
+            is DilemmaFacedEvent,
             // Internal signal for "whenever you proliferate" triggers; the counters themselves are
             // surfaced by their own CountersAddedEvents.
             is ProliferatedEvent,

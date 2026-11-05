@@ -325,7 +325,7 @@ def check_setup() -> dict[str, bool]:
     with Spinner("Checking your setup"):
         have = {t: shutil.which(t) is not None for t in ("git", "just", "jq", "claude", "codex")}
         jv = java_major()
-        have["java"] = jv is not None and jv >= 21
+        have["java"] = jv is not None and jv >= 25
         versions = {t: version(t) for t in ("claude", "codex") if have[t]}
         have["gh"] = shutil.which("gh") is not None and run(["gh", "auth", "status"]).returncode == 0
 
@@ -335,7 +335,7 @@ def check_setup() -> dict[str, bool]:
         if not have[tool]:
             problems.append(f"{bold(tool)} is missing — {hint}")
     if not have["java"]:
-        problems.append(f"{bold('JDK 21+')} is needed" + (f" (found {jv})" if jv else "") + " — https://adoptium.net")
+        problems.append(f"{bold('JDK 25+')} is needed" + (f" (found {jv})" if jv else "") + " — https://adoptium.net")
     if not (have["claude"] or have["codex"]):
         problems.append(f"{bold('Claude Code')} (https://claude.com/claude-code) or {bold('Codex')} "
                         "(https://github.com/openai/codex) — the agent that does the work")
@@ -387,10 +387,8 @@ def missing_cards(path: Path) -> tuple[int, list[str]]:
     loader = importlib.machinery.SourceFileLoader("card_list_status", str(SCRIPTS / "card-list-status"))
     status = importlib.util.module_from_spec(importlib.util.spec_from_loader("card_list_status", loader))
     loader.exec_module(status)
-    staples = status._load_staples()
-    names = status.parse_list(path.read_text(encoding="utf-8"))
-    implemented = staples.implemented_names()
-    return len(names), [n for n in names if not staples.is_implemented(n, implemented)]
+    names, missing = status.missing_cards(path.read_text(encoding="utf-8"))
+    return len(names), missing
 
 
 def columns(names: list[str], limit: int = 12) -> list[str]:
@@ -472,7 +470,8 @@ def step_cards(lists_dir: Path) -> dict:
     missing = sorted({m.group(1).strip() for m in re.finditer(r"^\s+- (.+)$", res.stdout, re.M)})
     name = f"set-{code}"
     path = lists_dir / f"{name}.txt"
-    path.write_text("".join(f"{n}\n" for n in missing), encoding="utf-8")
+    # The header holds the loop to the set itself: a card canonical elsewhere still needs its row here.
+    path.write_text(f"# set: {code.upper()}\n" + "".join(f"{n}\n" for n in missing), encoding="utf-8")
     label = f"{code.upper()} · {title.group(1)}" if title else code.upper()
     answered(1, "Cards", f"{bold(label)}  {bold(str(len(missing)))} {dim('to build')}", 0)
     return {"name": name, "path": path, "missing": missing}

@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.costs.manaCostOrNull
 import com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.UnattachEquipmentEffect
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -140,10 +141,12 @@ data class ActivatedAbility(
      * ability…"). Null for an ordinary activated ability.
      *
      * It is how other cards name a keyword's activations without caring about the cost: "whenever
-     * you activate a ninjutsu ability" (Satoru Umezawa — [EventPattern.AbilityActivatedEvent.keyword])
-     * and "ninjutsu abilities you activate cost {1} less" (Silver-Fur Master —
-     * [ReduceActivatedAbilityCost.keyword]). A *granted* copy of the ability (Satoru's "each
-     * creature card in your hand has ninjutsu") carries the same marker, so it counts too.
+     * you activate a ninjutsu ability" (Satoru Umezawa — [EventPattern.AbilityActivatedEvent.keywords]),
+     * "whenever you activate an eternalize or embalm ability" (Vizier of the Anointed) and "ninjutsu
+     * abilities you activate cost {1} less" (Silver-Fur Master — [ReduceActivatedAbilityCost.keyword]).
+     * Set today by `ninjutsu`, `embalm` and `eternalize`. A *granted* copy of the ability (Satoru's
+     * "each creature card in your hand has ninjutsu", Cursecloth Wrappings' granted embalm) carries
+     * the same marker, so it counts too.
      */
     val keyword: Keyword? = null,
     /**
@@ -615,6 +618,23 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     }
 
     /**
+     * Reveal this card from your hand — "{B}, Reveal Tetzimoc, Primal Death from your hand: …"
+     * (Tetzimoc, Primal Death), with `activateFromZone = Zone.HAND`. The source-only sibling of
+     * [DiscardSelf]: payable only while the card is in its owner's hand, and paid with no player
+     * selection. Unlike [DiscardSelf] the card stays in hand, so the ability may be activated again
+     * on the same turn.
+     *
+     * Closest neighbours: [DiscardSelf] moves the card, so it can't take a "stay in hand" axis
+     * without stopping being a discard; `CostAtom.RevealFromHand` is a choose-N-cards-matching
+     * selection over the whole hand, and "this card" isn't a property a hand filter can name.
+     */
+    @SerialName("CostRevealSelf")
+    @Serializable
+    data object RevealSelf : AbilityCost {
+        override val description: String = "Reveal this card from your hand"
+    }
+
+    /**
      * Discard the specific card the controller drew most recently this turn (CR 121
      * "draws"). The engine tracks the per-player most-recently-drawn card on
      * `GameState.lastCardDrawnThisTurnByPlayer`, updated whenever a `CardsDrawnEvent`
@@ -661,6 +681,31 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     @Serializable
     data object ReturnSelfToHand : AbilityCost {
         override val description: String = "Return this permanent to its owner's hand"
+    }
+
+    /**
+     * Put self into its owner's library, on top or on the bottom — "Put this card from your
+     * graveyard on the bottom of your library: You gain 2 life." (Daniels, Temporal Agent), with
+     * `activateFromZone = Zone.GRAVEYARD`. The library sibling of [ExileSelf] and
+     * [ReturnSelfToHand]: neither takes it because both are fixed-destination objects, while a
+     * library move needs a position — that is this type's one axis, [placement] (only
+     * [ZonePlacement.Top] or [ZonePlacement.Bottom] are meaningful). Like its siblings, the source
+     * is the only thing that moves, so there is no player selection, and the cost is paid before
+     * the ability goes on the stack (CR 601.2h via 602.2b).
+     */
+    @SerialName("CostPutSelfIntoLibrary")
+    @Serializable
+    data class PutSelfIntoLibrary(
+        val placement: ZonePlacement = ZonePlacement.Bottom,
+    ) : AbilityCost {
+        init {
+            require(placement == ZonePlacement.Top || placement == ZonePlacement.Bottom) {
+                "PutSelfIntoLibrary placement must be Top or Bottom, was $placement"
+            }
+        }
+
+        override val description: String
+            get() = "Put this card on the ${if (placement == ZonePlacement.Top) "top" else "bottom"} of its owner's library"
     }
 
     /**

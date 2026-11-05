@@ -621,7 +621,18 @@ enum class Keyword(val displayName: String) {
      */
     EMBALM("Embalm"),
 
-    /** Eternalize (CR 702.129): graveyard activation authored by the eternalize(cost) helper. */
+    /**
+     * Eternalize [cost] (CR 702.129, Hour of Devastation).
+     * "[Cost], Exile this card from your graveyard: Create a token that's a copy of it, except
+     * it's black, it's 4/4, it has no mana cost, and it's a Zombie in addition to its other types.
+     * Activate only as a sorcery."
+     *
+     * The 4/4 black sibling of [EMBALM], composed the same way by the `eternalize(cost)` helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder] (`eternalizeAbility(cost)`). The keyword is
+     * display-only on the card; the activated ability carries it as its
+     * [com.wingedsheep.sdk.scripting.ActivatedAbility.keyword] so "whenever you activate an
+     * eternalize ability" (Vizier of the Anointed) can name it.
+     */
     ETERNALIZE("Eternalize"),
 
     /**
@@ -843,6 +854,19 @@ enum class Keyword(val displayName: String) {
     VANISHING("Vanishing"),
 
     /**
+     * Sunburst (CR 702.44). "If this object is entering the battlefield from the stack as a
+     * creature, it enters with a +1/+1 counter on it for each color of mana spent to cast it.
+     * Otherwise, it enters with a charge counter on it for each color of mana spent to cast it."
+     *
+     * A bare keyword with no DSL helper: the engine synthesizes the entry counters on the
+     * stack-resolution path only (CR 702.44a, "from the stack"), counting
+     * [com.wingedsheep.sdk.scripting.values.DynamicAmount.DistinctColorsManaSpent] and choosing the
+     * counter kind from the object's characteristics as it would exist on the battlefield
+     * (CR 614.12) — so an artifact March of the Machines animates enters with +1/+1 counters.
+     */
+    SUNBURST("Sunburst"),
+
+    /**
      * Cumulative upkeep [cost] (CR 702.24). Display-only; the `cumulativeUpkeep(cost)` DSL helper
      * composes the upkeep trigger (age counter, then pay the cost per age counter or sacrifice).
      */
@@ -868,8 +892,8 @@ enum class Keyword(val displayName: String) {
      *
      * The exile-side behavior is component-driven, not definition-driven: any exiled card
      * carrying the engine's suspended marker (set by [com.wingedsheep.sdk.dsl.Effects.Suspend]
-     * or by the printed-suspend special action) gets the synthesized countdown-and-cast
-     * triggered ability ([com.wingedsheep.sdk.scripting.Suspend.countdownAbility]). This
+     * or by the printed-suspend special action) gets the synthesized countdown and
+     * last-counter cast triggered abilities ([com.wingedsheep.sdk.scripting.Suspend.exileAbilities]). This
      * lets "exile it with N time counters; it gains suspend" effects (Taigam, Master
      * Opportunist) suspend an arbitrary card — even a card with no printed suspend — while a
      * printed "Suspend N—[cost]" (`KeywordAbility.Suspend`) drives the from-hand special

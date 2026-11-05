@@ -16,6 +16,7 @@ import com.wingedsheep.engine.view.LegalActionInfo
 import com.wingedsheep.engine.view.Visibility
 import com.wingedsheep.gameserver.persistence.dto.PersistentSeatNames
 import com.wingedsheep.gameserver.protocol.ServerMessage
+import com.wingedsheep.gameserver.protocol.ClientMessage
 import com.wingedsheep.gameserver.priority.AutoPassManager
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.mechanics.combat.CombatDeclarationControl
@@ -542,6 +543,15 @@ class GameSession(
     @Volatile
     var ranked: Boolean = false
 
+    /**
+     * A Scenario Builder game (a hand-built board, or a position forked out of a replay). It is
+     * practice, not a result: game over saves no replay and records nothing to match history or
+     * stats. Set by [com.wingedsheep.gameserver.scenario.ScenarioSessionFactory]; persisted so a
+     * scenario recovered after a restart stays one.
+     */
+    @Volatile
+    var isScenario: Boolean = false
+
     /** Which ranked queue this game counts toward when [ranked]; null otherwise. */
     @Volatile
     var rankedMode: com.wingedsheep.gameserver.ranking.RankedMode? = null
@@ -605,6 +615,9 @@ class GameSession(
 
     /** Human seats default to native forced-only passing; explicit legacy modes remain available. */
     private val priorityModes = java.util.concurrent.ConcurrentHashMap<EntityId, PriorityMode>()
+
+    /** Players whose preference is to order their own triggers; Full Control asks them regardless. */
+    private val prefersManualTriggerOrdering = java.util.concurrent.ConcurrentHashMap.newKeySet<EntityId>()
     private val stopOverrides = java.util.concurrent.ConcurrentHashMap<EntityId, StopOverrideSettings>()
 
     // Compact replay recording — see [com.wingedsheep.gameserver.replay.CompactReplay]. Instead of
@@ -697,13 +710,12 @@ class GameSession(
      * Check if we're in mulligan phase by looking at engine's mulligan state.
      */
     val isMulliganPhase: Boolean
-        get() {
-            val state = gameState ?: return false
-            return state.turnOrder.any { playerId ->
-                val mullState = state.getEntity(playerId)?.get<MulliganStateComponent>()
-                mullState != null && !mullState.hasKept
-            }
-        }
+        get() = gameState?.let(::hasPendingMulligans) ?: false
+
+    private fun hasPendingMulligans(state: GameState): Boolean = state.turnOrder.any { playerId ->
+        val mullState = state.getEntity(playerId)?.get<MulliganStateComponent>()
+        mullState != null && !mullState.hasKept
+    }
 
     /**
      * Check if all mulligans are complete.
@@ -1402,6 +1414,46 @@ class GameSession(
     private fun isCurrentInteraction(interactionEpoch: String?): Boolean =
         interactionEpoch != null && interactionEpoch == liveInteractionEpoch
 
+    /**
+     * Quote one current announcement without executing it, changing delivery counters, recording
+     * an action, or reserving resources. The engine owns all cost and candidate validation.
+     */
+    fun quoteCastCost(
+        playerId: EntityId, request: ClientMessage.RequestCastCostQuote, connectionId: String? = null,
+    ): ServerMessage.CastCostQuote = synchronized(stateLock) {
+        fun unavailable() = ServerMessage.CastCostQuote(
+            request.requestId, request.stateVersion, request.interactionEpoch,
+            error = "Cast cost quote is stale or unavailable",
+        )
+        if (request.requestId.isBlank() || request.requestId.length > 128 ||
+            deliveryClosed || !isCurrentInteraction(request.interactionEpoch) ||
+            stateVersions[playerId] != request.stateVersion ||
+            lastSentInteractionRevisions[playerId] != liveStateRevision.get()) return unavailable()
+        val state = gameState ?: return unavailable()
+        if (state.gameOver || hasPendingMulligans(state) || playerId !in players) return unavailable()
+        // Check the authenticated connection under the same lock as its seat and origin, so a
+        // reconnect cannot transfer the seat between authorization and the read.
+        if (connectionId != null && players[playerId]?.webSocketSession?.id != connectionId) return unavailable()
+        val action = fromSeat(playerId, request.action, GameAction.serializer()) as? CastSpell
+            ?: return unavailable()
+        if (state.actorFor(action.playerId) != playerId) return unavailable()
+        val (_, offers) = nativeLegalActionsFor(state, playerId) ?: return unavailable()
+        // Admission is checked against the current native offer, never against client-supplied
+        // costs or card characteristics. Only an admitted variant reaches the native totaller.
+        val quote = offers.asSequence().filter {
+            val offered = it.action as? CastSpell
+            offered != null && offered.playerId == action.playerId && offered.cardId == action.cardId
+        }.mapNotNull { services.castSpellHandler.quoteManaCost(state, action, it) }.firstOrNull()
+            ?: return unavailable()
+        ServerMessage.CastCostQuote(
+            request.requestId, request.stateVersion, request.interactionEpoch,
+            manaCostString = quote.manaCostString,
+            delveGenericCap = quote.delveGenericCap,
+            tapForGenericMax = quote.tapForGenericMax,
+            tapForGenericCostString = quote.tapForGenericCostString,
+        )
+    }
+
     /** A read-only, seat-masked view for correcting a rejected mana payment. */
     data class AiPaymentRetrySnapshot(
         val state: ClientGameState,
@@ -1580,7 +1632,13 @@ class GameSession(
 
     fun getLegalActions(playerId: EntityId): List<LegalActionInfo> {
         val state = gameState ?: return emptyList()
-        if (isMulliganPhase) return emptyList()
+        val (actingSeat, offers) = nativeLegalActionsFor(state, playerId) ?: return emptyList()
+        return legalActionEnricher.enrich(offers, state, actingSeat)
+    }
+
+    /** Shared input-authority routing for masked offers and read-only cast quotes. */
+    private fun nativeLegalActionsFor(state: GameState, playerId: EntityId): Pair<EntityId, List<com.wingedsheep.engine.legalactions.LegalAction>>? {
+        if (hasPendingMulligans(state)) return null
 
         // CR 605.3a — while a rule or effect is asking this seat for a mana payment (ward, "you may
         // pay {B}", an attack tax) they hold no priority, but they may still activate mana
@@ -1589,15 +1647,15 @@ class GameSession(
         // unreachable. See [ManaPaymentWindow].
         ManaPaymentWindow.openFor(state, playerId)?.let { window ->
             val manaActions = legalActionEnumerator.enumerateManaAbilities(state, window.playerId)
-            return legalActionEnricher.enrich(manaActions, state, window.playerId)
+            return window.playerId to manaActions
         }
 
         (state.pendingDecision as? com.wingedsheep.engine.core.PlayCardDecision)?.let { play ->
-            if (state.actorFor(play.playerId) != playerId) return emptyList()
-            return legalActionEnricher.enrich(legalActionEnumerator.enumerate(state, play.playerId), state, play.playerId)
+            if (state.actorFor(play.playerId) != playerId) return null
+            return play.playerId to legalActionEnumerator.enumerate(state, play.playerId)
         }
 
-        val priorityPlayer = state.priorityPlayerId ?: return emptyList()
+        val priorityPlayer = state.priorityPlayerId ?: return null
         // The seat this connection may act as right now. Normally the priority player, or — when
         // their turn is hijacked — whoever this connection is the actor for. Legal actions are
         // enumerated for the *acting* seat, since it is that seat's mana, cards and turn.
@@ -1612,10 +1670,10 @@ class GameSession(
         // from the seat's usual actor) — CombatDeclarationControl.inputActorFor.
         val actingSeat = (listOf(priorityPlayer) + state.priorityTeam.filter { it != priorityPlayer })
             .firstOrNull { CombatDeclarationControl.inputActorFor(state, it) == playerId }
-            ?: return emptyList()
-        if (state.pendingDecision != null) return emptyList()
+            ?: return null
+        if (state.pendingDecision != null) return null
         val engineActions = legalActionEnumerator.enumerate(state, actingSeat)
-        return legalActionEnricher.enrich(engineActions, state, actingSeat)
+        return actingSeat to engineActions
     }
 
 
@@ -1797,6 +1855,7 @@ class GameSession(
         priorityYieldStops.remove(playerId)
         priorityModes[playerId] = mode
         logger.info("Player $playerId set priority mode to $mode")
+        applyTriggerOrdering(playerId)
     }
 
     /**
@@ -1956,10 +2015,23 @@ class GameSession(
     }
 
     /**
-     * Set whether [playerId] orders their own simultaneous triggers (CR 603.3b). Like a yield it
-     * lives on the GameState and changes what the engine asks, so it is recorded for replay too.
+     * Set whether [playerId] prefers to order their own simultaneous triggers (CR 603.3b). A player
+     * in Full Control orders them whatever the preference says: they asked to see every choice.
      */
-    fun setManualTriggerOrdering(playerId: EntityId, manual: Boolean) = synchronized(stateLock) {
+    fun setManualTriggerOrdering(playerId: EntityId, manual: Boolean) {
+        if (manual) prefersManualTriggerOrdering += playerId else prefersManualTriggerOrdering -= playerId
+        applyTriggerOrdering(playerId)
+    }
+
+    /**
+     * Put [playerId]'s effective trigger ordering — their preference, or Full Control — on the
+     * GameState. Like a yield it changes what the engine asks, so it is recorded for replay too.
+     * Full Control only implies it for a person: an AI seat in Full Control keeps automatic order.
+     */
+    private fun applyTriggerOrdering(playerId: EntityId) = synchronized(stateLock) {
+        val humanInFullControl = getPriorityMode(playerId) == PriorityMode.FULL_CONTROL &&
+            players[playerId]?.webSocketSession !is com.wingedsheep.gameserver.ai.AiWebSocketSession
+        val manual = playerId in prefersManualTriggerOrdering || humanInFullControl
         val state = gameState ?: return@synchronized
         if (state.ordersOwnTriggers(playerId) == manual) return@synchronized
         gameState = state.withManualTriggerOrdering(playerId, manual)
@@ -2818,6 +2890,14 @@ class GameSession(
     fun getStartingDeckList(playerId: EntityId): List<String>? =
         deckLists[playerId]
             ?: replaySetup?.players?.firstOrNull { it.playerId == playerId.value }?.deck?.cards
+
+    /**
+     * [getStartingDeckList] as card name → copies, printing coordinates stripped — the decklist
+     * the engine AI is told about each opponent (by design it may know their full list). Stays
+     * server-side: it is AI search knowledge and never part of a client message.
+     */
+    fun getStartingDeckCardCounts(playerId: EntityId): Map<String, Int>? =
+        getStartingDeckList(playerId)?.groupingBy { cardEntryFromIdentifier(it).name }?.eachCount()
 
     // =========================================================================
     // Persistence Support (for Redis caching)

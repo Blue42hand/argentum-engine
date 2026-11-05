@@ -16,6 +16,7 @@ import com.wingedsheep.engine.state.components.identity.CantBeCounteredComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.CommanderRegistryComponent
 import com.wingedsheep.engine.state.components.player.GrantedSpellKeywordsComponent
+import com.wingedsheep.engine.state.components.stack.AdditionalEntryCounters
 import com.wingedsheep.engine.state.components.stack.EntryKeywordGrant
 import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
@@ -46,6 +47,8 @@ internal class CastSpellOnStack(
     val cardComponent: CardComponent,
     /** The requirements its targets were chosen against — a copy may choose new ones from them. */
     val targetRequirements: List<TargetRequirement>,
+    /** The zone it was cast from (read before it moved to the stack); `null` when unknown. */
+    val castFromZone: com.wingedsheep.sdk.core.Zone? = null,
 )
 
 /**
@@ -208,6 +211,8 @@ internal class CastTriggers(
                 state to triggerWhenSpent(state, spell, rider.spellFilter, rider.effect)
             is ManaSpellRider.GrantsKeywordWhenSpent ->
                 grantKeywordWhenSpent(state, spell, rider.keyword, rider.spellFilter, rider.duration) to emptyList()
+            is ManaSpellRider.EntersWithCountersWhenSpent ->
+                oweEntryCountersWhenSpent(state, spell, rider) to emptyList()
         }
 
     private fun spellMatches(state: GameState, action: CastSpell, filter: GameObjectFilter): Boolean =
@@ -252,6 +257,31 @@ internal class CastTriggers(
         return state.updateEntity(action.cardId) { c ->
             val onStack = c.get<SpellOnStackComponent>() ?: return@updateEntity c
             c.with(onStack.copy(entryKeywordGrants = onStack.entryKeywordGrants + EntryKeywordGrant(keyword, duration)))
+        }
+    }
+
+    /**
+     * Guildmages' Forum's rider: if the cast spell matches the rider's filter, owe it the rider's
+     * counters on [SpellOnStackComponent.additionalEntryCounters]; `PermanentEntry` places them as
+     * the permanent enters, so counter-placement replacements apply then. Queues nothing — "that
+     * creature enters with an additional +1/+1 counter" isn't a triggered ability. Matched at
+     * payment time, like the other filtered riders.
+     */
+    private fun oweEntryCountersWhenSpent(
+        state: GameState,
+        spell: CastSpellOnStack,
+        rider: ManaSpellRider.EntersWithCountersWhenSpent,
+    ): GameState {
+        val action = spell.action
+        if (!spellMatches(state, action, rider.spellFilter)) return state
+        return state.updateEntity(action.cardId) { c ->
+            val onStack = c.get<SpellOnStackComponent>() ?: return@updateEntity c
+            c.with(
+                onStack.copy(
+                    additionalEntryCounters = onStack.additionalEntryCounters +
+                        AdditionalEntryCounters(rider.counterType, rider.count)
+                )
+            )
         }
     }
 
@@ -425,10 +455,13 @@ internal class CastTriggers(
      * (World War Hulk I). The permission was already offered while the rider was present. Not gated
      * on `useWithoutPayingManaCost`: the printed text names a spell ("the next red or green creature
      * spell you cast this turn"), so a matching spell cast for full price is that spell and spends
-     * the rider — the same contract as the affinity rider.
+     * the rider — the same contract as the affinity rider. Whole-turn permissions (`nextSpellOnly =
+     * false`, Chandra, Flame's Catalyst) are never consumed.
      */
     private fun consumeFreeCastRiders(state: GameState, spell: CastSpellOnStack): GameState {
-        val matching = state.pendingFreeCastSpells.filter { spellMatchesRider(state, spell, it.controllerId, it.sourceId, it.spellFilter) }
+        val matching = state.pendingFreeCastSpells.filter {
+            it.nextSpellOnly && it.allowsCastFrom(spell.castFromZone) && spellMatchesRider(state, spell, it.controllerId, it.sourceId, it.spellFilter)
+        }
         if (matching.isEmpty()) return state
         return state.copy(pendingFreeCastSpells = state.pendingFreeCastSpells.filter { it !in matching })
     }

@@ -1,8 +1,8 @@
-import { ErrorCode, GameOverReason } from './enums'
+import { ErrorCode, GameOverReason, ZoneType } from './enums'
 import { EntityId } from './entities'
 import { DecisionResponse, GameAction } from './actions'
 import { ClientEvent } from './events'
-import { ClientGameState, ClientCard, ClientZone, ClientPlayer, ClientCombatState, ClientCommanderDamage, ClientDeckCard, ClientRestrictedManaEntry } from './gameState'
+import { ClientGameState, ClientCard, ClientZone, ClientPlayer, ClientCombatState, ClientCommanderDamage, ClientDeckCard, ClientRestrictedManaEntry, ClientAbilityIdentity } from './gameState'
 
 // ============================================================================
 // Server Messages (received from server)
@@ -13,6 +13,7 @@ import { ClientGameState, ClientCard, ClientZone, ClientPlayer, ClientCombatStat
  * Matches backend ServerMessage.kt
  */
 export type ServerMessage =
+  | CastCostQuoteMessage
   | ConnectedMessage
   | ReconnectedMessage
   | GameCreatedMessage
@@ -376,6 +377,8 @@ export interface DecisionContext {
   readonly subjectEntityId?: EntityId
   /** Validated resolution targets; render their identities from the masked state. */
   readonly targetIds?: readonly EntityId[]
+  /** Definition-scoped identity of the card ability asking, when there is one (yield key). */
+  readonly abilityIdentity?: ClientAbilityIdentity | null
 }
 
 /**
@@ -398,6 +401,11 @@ export interface SelectCardsDecision extends PendingDecisionBase {
   readonly type: 'SelectCardsDecision'
   /** Server-approved unit capacity per option; repeated IDs allocate multiple units. */
   readonly selectionLimits?: Readonly<Record<EntityId, number>> | null
+  /**
+   * The subset of `options` the server suggests (proliferate: grow your side, shrink theirs). The
+   * board selection offers it as a one-click "Recommended" pick; it never limits what may be sent.
+   */
+  readonly recommendedSelection?: readonly EntityId[] | null
   readonly options: readonly EntityId[]
   readonly minSelections: number
   readonly maxSelections: number
@@ -495,6 +503,11 @@ export interface YesNoDecision extends PendingDecisionBase {
    * is the only answer. Absent means true.
    */
   readonly yesAvailable?: boolean
+  /**
+   * A pure "you may" of a card ability that an Always Yes / Always No yield on
+   * `context.abilityIdentity` would answer — so the prompt can offer "remember my answer".
+   */
+  readonly canRememberAnswer?: boolean
 }
 
 /**
@@ -528,11 +541,14 @@ export interface TargetRequirementInfo {
   /** When true, every chosen card target must be owned by the same player ("from a single graveyard"). */
   readonly sameOwner?: boolean
   /**
-   * When set, the combined mana value of the chosen card targets may not exceed this cap
-   * ("any number of target creature cards with total mana value X or less" — Fire Lord Sozin).
-   * Already resolved to a concrete number server-side.
+   * When set, the summed value of the chosen targets may not exceed this cap ("any number of target
+   * creature cards with total power 10 or less" — Nethroi; "… total mana value X or less" — Fire
+   * Lord Sozin). Resolved server-side; `totalCapLabel` names the property and `targetValues` holds
+   * each candidate's share — all three set together.
    */
-  readonly totalManaValueAtMost?: number | null
+  readonly totalCap?: number | null
+  readonly totalCapLabel?: string | null
+  readonly targetValues?: Readonly<Record<EntityId, number>> | null
   /**
    * True for "another target" wording: a pick here must differ from every target chosen for an
    * earlier requirement. Absent/false lets separate "target" instances choose the same object
@@ -554,6 +570,8 @@ export interface SearchCardInfo {
   readonly colors?: readonly string[]
   /** Printed (base) power, when fixed; null/undefined for cards with no fixed power. */
   readonly power?: number | null
+  /** The card's zone, so a multi-zone selection can group hidden (library) cards under their own heading. */
+  readonly zone?: ZoneType | null
 }
 
 /**
@@ -937,21 +955,23 @@ export interface FlipTable {
   readonly handY: number
 }
 
-/** The release meter and scatter the engine scores a throw against. */
+/** The numbers the engine scores a flick against. */
 export interface FlipReleaseProfile {
-  /** The release that carries exactly to the aim. */
-  readonly sweetSpot: number
-  /** Millimetres a release carries short of the aim (below the sweet spot) or past it, per unit of strength. */
-  readonly depthPerStrength: number
-  /** Millimetres the hand's sway pulls a release sideways at the very edge of the swing. */
-  readonly sidePerSway: number
-  readonly cleanFrom: number
-  readonly cleanTo: number
-  readonly tooSoftBelow: number
+  /** Seconds of release speed the card carries: landing = hand + velocity × flightTime. */
+  readonly flightTime: number
+  /** Seconds the card spins in the air. */
+  readonly airTime: number
+  /** Below this spin (turns/s) it can't turn over completely. */
+  readonly tooLittleSpinBelow: number
+  /** The spin band (turns/s) in which it flies true. */
+  readonly cleanSpinFrom: number
+  readonly cleanSpinTo: number
+  /** How far outside the clean band a spin is as wild as it gets. */
+  readonly spinSlop: number
+  readonly maxSpin: number
   readonly baseScatter: number
   readonly scatterPerMm: number
   readonly sloppyScatter: number
-  readonly slopRange: number
 }
 
 /** Where a flipped card came to rest. `halfTurns` ≥ 2 means it turned over completely. */
@@ -960,18 +980,17 @@ export interface FlipLanding {
   readonly y: number
   readonly rotation: number
   readonly halfTurns: number
-  /** How far (mm) the release carried it short of the aim (negative) or past it; absent when on target. */
-  readonly drift?: number
-  /** How far (mm) the hand's sway pulled it to the thrower's right (positive) or left; absent when straight. */
-  readonly pull?: number
-  /** Where the thrower aimed. */
-  readonly aimX?: number | null
-  readonly aimY?: number | null
+  /** How fast (mm/s) the flick left the hand. */
+  readonly speed?: number
+  /** How fast (turns/s) it was spinning. */
+  readonly spin?: number
+  /** How far (mm) an over-spun card skidded on after it came down. */
+  readonly skid?: number
 }
 
 /**
- * Player must flip a card onto the battlefield (Chaos Orb): aim on the table, then time the
- * release. Answered with a FlipThrowResponse; the server rolls where it lands.
+ * Player must flip a card onto the battlefield (Chaos Orb): wind up spin, then flick it from the
+ * hand. Answered with a FlipThrowResponse (velocity + spin); the server rolls where it lands.
  */
 export interface FlipOntoBattlefieldDecision extends PendingDecisionBase {
   readonly type: 'FlipOntoBattlefieldDecision'
@@ -1157,6 +1176,10 @@ export interface LegalActionInfo {
   readonly validBlockTargets?: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Native limit on distinct blocking creatures this combat, when present. */
   readonly maxTotalBlockers?: number | null
+  /** Attacking creature IDs this declaration may block, including attacks on a shared-turn teammate. */
+  readonly blockableAttackers?: readonly EntityId[]
+  /** Teammate choices already submitted while separate effects control the team's block choices. */
+  readonly proposedBlockerAssignments?: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Whether this spell has X in its mana cost */
   readonly hasXCost?: boolean
   /** Maximum X value the player can afford (null if not X cost spell) */
@@ -1442,6 +1465,11 @@ export interface AdditionalCostInfo {
   readonly validDiscardTargets?: readonly EntityId[]
   readonly discardCount?: number
   /**
+   * Upper bound for a variable discard ("discard X cards", Channeled Force): pick
+   * discardCount..discardMaxCount cards. Absent means exactly discardCount.
+   */
+  readonly discardMaxCount?: number
+  /**
    * Cards in your hand that could pay a reveal-from-hand additional cost ("reveal an Elf card from
    * your hand or pay {3}"), and how many to pick. Distinct from `validBeholdTargets` because
    * behold also offers battlefield permanents (CR 701.4a); a reveal never does. Picks are
@@ -1491,6 +1519,8 @@ export interface AdditionalCostInfo {
   readonly counterRemovalCreatures?: readonly CounterRemovalCreatureInfo[]
   readonly validBlightTargets?: readonly EntityId[]
   readonly blightAmount?: number
+  /** For PutCounters: the permanents a "put N counters on a permanent you control" cost may pick. */
+  readonly validCounterPlacementTargets?: readonly EntityId[]
   /** For BlightVariable: cap on X (greatest toughness among creatures you control). */
   readonly blightVariableMaxX?: number
   /** For PayXLife: cap on X (your current life total). */
@@ -1967,6 +1997,7 @@ export interface DraftPackReceivedMessage {
   readonly picksPerRound: number  // Cards to pick this round (1 or 2)
   readonly pickedCards?: readonly SealedCardInfo[]  // Cards already picked (for reconnect)
   readonly queuedPacks?: number  // Number of additional packs queued behind this one
+  readonly podSize?: number  // Drafters at the table (0 = unknown); read by the AI drafter
 }
 
 /**
@@ -2427,6 +2458,7 @@ export interface TournamentPlayerReconnectedMessage {
  * Matches backend ClientMessage.kt
  */
 export type ClientMessage =
+  | RequestCastCostQuoteMessage
   | { readonly type: 'pickJumpstartPacks'; readonly firstPackId: string; readonly secondPackId: string }
   | ConnectMessage
   | CreateGameMessage
@@ -3488,6 +3520,8 @@ export type DeckFormat =
   | 'STANDARD_BRAWL'
   | 'PAUPER'
   | 'PREMODERN'
+  | 'HIGHLANDER'
+  | 'CANADIAN_HIGHLANDER'
 
 export interface QuickGameLobbyStateMessage {
   readonly type: 'quickGameLobbyState'
@@ -3778,6 +3812,11 @@ export interface SubmitQuickGameLobbyDeckMessage {
    * listed there, checks against the deck, and reveals outside the game at game start.
    */
   readonly companion?: string
+  /**
+   * The format the deck was built for (a saved deck's or an example's), upper-case. The server
+   * keeps it only when the deck is legal there, and an AI on Auto builds a deck for it.
+   */
+  readonly deckFormat?: string
 }
 
 export interface SetQuickGameLobbyReadyMessage {
@@ -3866,6 +3905,7 @@ export function createSubmitQuickGameLobbyDeckMessage(
   secondCommander?: string | null,
   secondCommanderPrinting?: PrintingRef,
   companion?: string | null,
+  deckFormat?: string | null,
 ): SubmitQuickGameLobbyDeckMessage {
   return {
     type: 'submitQuickGameLobbyDeck',
@@ -3877,6 +3917,7 @@ export function createSubmitQuickGameLobbyDeckMessage(
     ...(commander && secondCommander && secondCommanderPrinting ? { secondCommanderPrinting } : {}),
     ...(sideboard && Object.keys(sideboard).length > 0 ? { sideboard } : {}),
     ...(companion ? { companion } : {}),
+    ...(deckFormat ? { deckFormat: deckFormat.toUpperCase() } : {}),
   }
 }
 export function createSetQuickGameLobbyReadyMessage(ready: boolean): SetQuickGameLobbyReadyMessage {
@@ -3933,4 +3974,24 @@ export function isQuickGameLobbyClosedMessage(msg: ServerMessage): msg is QuickG
 
 export function createSetPriorityYieldMessage(mode: PriorityYieldMode | null, interactionEpoch: string, stateVersion: number): SetPriorityYieldMessage {
   return { type: 'setPriorityYield', mode, interactionEpoch, stateVersion }
+}
+
+/** Read-only quote for a partially announced cast. It never submits the spell. */
+export interface RequestCastCostQuoteMessage {
+  readonly type: 'requestCastCostQuote'
+  readonly requestId: string
+  readonly interactionEpoch: string
+  readonly stateVersion: number
+  readonly action: import('./actions').CastSpellAction
+}
+export interface CastCostQuoteMessage {
+  readonly type: 'castCostQuote'
+  readonly requestId: string
+  readonly interactionEpoch: string
+  readonly stateVersion: number
+  readonly manaCostString?: string | null
+  readonly delveGenericCap?: number | null
+  readonly tapForGenericMax?: number | null
+  readonly tapForGenericCostString?: string | null
+  readonly error?: string | null
 }

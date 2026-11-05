@@ -131,6 +131,7 @@ data class LegalActionInfo(
     val validBlockers: List<EntityId>? = null,
     /** Pairwise legal attacker ids for each blocker; full group restrictions still apply. */
     val validBlockTargets: Map<EntityId, List<EntityId>>? = null,
+    val blockableAttackers: List<EntityId>? = null,
     val hasXCost: Boolean = false,
     val maxAffordableX: Int? = null,
     /**
@@ -236,6 +237,8 @@ data class LegalActionInfo(
      * [com.wingedsheep.engine.legalactions.LegalAction.castsTransformed].
      */
     val castsTransformed: Boolean = false,
+    /** Previously submitted teammate choices, displayed but not part of this player's input. */
+    val proposedBlockerAssignments: Map<EntityId, List<EntityId>>? = null,
     val blockerMaxBlockCounts: Map<EntityId, Int>? = null,
     /** Native cap on distinct blocking creatures across this combat, when present. */
     val maxTotalBlockers: Int? = null,
@@ -347,6 +350,8 @@ data class AdditionalCostInfo(
     val tapBatchMaxActivations: Int = 1,
     val validDiscardTargets: List<EntityId> = emptyList(),
     val discardCount: Int = 0,
+    /** Upper bound of a variable discard ("discard X cards"); null means exactly [discardCount]. */
+    val discardMaxCount: Int? = null,
     val validBounceTargets: List<EntityId> = emptyList(),
     val bounceCount: Int = 0,
     val validExileTargets: List<EntityId> = emptyList(),
@@ -383,6 +388,8 @@ data class AdditionalCostInfo(
     val revealCount: Int = 0,
     val counterRemovalCreatures: List<CounterRemovalCreatureInfo> = emptyList(),
     val validBlightTargets: List<EntityId> = emptyList(),
+    /** For PutCounters: permanents a "put N counters on a permanent you control" spell cost may pick. */
+    val validCounterPlacementTargets: List<EntityId> = emptyList(),
     val blightAmount: Int = 0,
     /** For BlightVariable: cap on X (greatest toughness among creatures you control). */
     val blightVariableMaxX: Int = 0,

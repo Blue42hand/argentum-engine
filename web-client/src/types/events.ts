@@ -35,6 +35,7 @@ export type ClientEvent =
   | AbilityActivatedEvent
   | AbilityResolvedEvent
   | AbilityAutoAnsweredEvent
+  | TriggersOrderedAutomaticallyEvent
   | PermanentTappedEvent
   | PermanentUntappedEvent
   | CounterAddedEvent
@@ -314,6 +315,16 @@ export interface AbilityAutoAnsweredEvent {
   readonly sourceId: EntityId
   readonly sourceName: string
   readonly answer: boolean
+  readonly description: string
+}
+
+/**
+ * Automatic ordering put [count] of the viewer's simultaneous triggers on the stack in an order
+ * they could have chosen (CR 603.3b). Sent only to that player.
+ */
+export interface TriggersOrderedAutomaticallyEvent {
+  readonly type: 'triggersOrderedAutomatically'
+  readonly count: number
   readonly description: string
 }
 

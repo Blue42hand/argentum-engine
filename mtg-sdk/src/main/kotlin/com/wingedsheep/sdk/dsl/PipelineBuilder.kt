@@ -10,6 +10,7 @@ import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.CaptureControllersEffect
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
+import com.wingedsheep.sdk.scripting.effects.EntersWithCharacteristics
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ChooseOnePerCategoryEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseOptionEffect
@@ -832,6 +833,24 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         return slot
     }
 
+    /**
+     * Record [entity] (default: the object the enclosing [forEachInGroupCollecting] is visiting) in
+     * a collection ([GatherCardsEffect] over [CardSource.Entity]) — [storePlayer]'s object twin.
+     * With [onlyIf], it is recorded only when the condition holds at that moment, so a loop body
+     * can sort its members: "flip a coin for each creature … destroy each creature whose coin comes
+     * up tails" records a member only on a lost flip.
+     */
+    fun storeEntity(
+        entity: EffectTarget.SingleEntity = EffectTarget.IterationEntity,
+        onlyIf: Condition? = null,
+        name: String? = null
+    ): CollectionSlot {
+        val slot = CollectionSlot(slotKey("entities", nextIndex(), name))
+        val store = GatherCardsEffect(source = CardSource.Entity(entity), storeAs = slot.key)
+        steps += if (onlyIf == null) store else Effects.If(onlyIf, store)
+        return slot
+    }
+
     /** Evaluate [amount] once and store it for later [NumberSlot.amount] reads ([StoreNumberEffect]). */
     fun storeNumber(amount: DynamicAmount, name: String? = null): NumberSlot {
         val slot = NumberSlot(slotKey("number", nextIndex(), name))
@@ -843,17 +862,20 @@ class PipelineBuilder private constructor(private val shared: Shared) {
      * Player names a card ([ChooseOptionEffect] over [OptionType.CARD_NAME]); with
      * [excludeBasicLandNames], "choose a card name other than a basic land card name"; with
      * [pool] = [CardNamePool.NONLAND], "choose a nonland card name"; with [chooser] =
-     * [Chooser.TargetPlayer], "target player chooses a card name" (Petra Sphinx).
+     * [Chooser.TargetPlayer], "target player chooses a card name" (Petra Sphinx). With
+     * [recordOnSource], the name is also recorded durably on the source permanent for a later
+     * resolution to read through `namedFromChosenComponent()` (Medomai's Prophecy).
      */
     fun chooseCardName(
         prompt: String? = null,
         excludeBasicLandNames: Boolean = false,
         pool: CardNamePool = CardNamePool.ANY,
         chooser: Chooser = Chooser.Controller,
+        recordOnSource: Boolean = false,
         name: String? = null
     ): ChosenSlot {
         val slot = ChosenSlot(slotKey("cardName", nextIndex(), name))
-        steps += Effects.ChooseCardName(slot.key, prompt, excludeBasicLandNames, pool, chooser)
+        steps += Effects.ChooseCardName(slot.key, prompt, excludeBasicLandNames, pool, chooser, recordOnSource)
         return slot
     }
 
@@ -862,6 +884,7 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         optionType: OptionType,
         prompt: String? = null,
         excludedOptions: List<String> = emptyList(),
+        recordOnSource: Boolean = false,
         name: String? = null
     ): ChosenSlot {
         val slot = ChosenSlot(slotKey("chosen", nextIndex(), name))
@@ -869,7 +892,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             optionType = optionType,
             storeAs = slot.key,
             prompt = prompt,
-            excludedOptions = excludedOptions
+            excludedOptions = excludedOptions,
+            recordOnSource = recordOnSource
         )
         return slot
     }
@@ -894,14 +918,17 @@ class PipelineBuilder private constructor(private val shared: Shared) {
      * printed "target" wording must use cast-time targeting instead. [prompt] replaces the
      * derived "Choose <requirement>" the player sees when the choice needs context to make sense.
      * [excluding] drops whatever earlier slots already hold, so "choose a second player … then a
-     * third player" picks someone different each time (Gluntch, the Bestower).
+     * third player" picks someone different each time (Gluntch, the Bestower). [atRandom] has the
+     * engine pick one legal candidate uniformly at random with no decision — "choose an opponent at
+     * random" (Vial Smasher the Fierce); the requirement must ask for exactly one.
      */
     fun selectTarget(
         requirement: TargetRequirement,
         nonTargeting: Boolean = false,
         name: String? = null,
         prompt: String? = null,
-        excluding: List<CollectionSlot> = emptyList()
+        excluding: List<CollectionSlot> = emptyList(),
+        atRandom: Boolean = false
     ): CollectionSlot {
         val slot = CollectionSlot(slotKey("target", nextIndex(), name))
         steps += SelectTargetEffect(
@@ -909,7 +936,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             storeAs = slot.key,
             nonTargeting = nonTargeting,
             prompt = prompt,
-            excluding = excluding.map { it.key }
+            excluding = excluding.map { it.key },
+            atRandom = atRandom
         )
         return slot
     }
@@ -985,6 +1013,7 @@ class PipelineBuilder private constructor(private val shared: Shared) {
      * @param filter only the cards in [from] matching this move; the rest stay where they are.
      * @param lookableInExile the controller may keep looking at face-down exiled cards.
      * @param attachTo the permanent an Aura/Equipment entering the battlefield attaches to.
+     * @param auraHostFilter narrows the host each entering Aura's controller chooses.
      * @param attackDefender what each card put onto the battlefield tapped and attacking attacks.
      */
     fun move(
@@ -1004,7 +1033,9 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         markEnteredViaSourceAbility: Boolean = false,
         filter: GameObjectFilter? = null,
         attachTo: EffectTarget? = null,
-        attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE
+        auraHostFilter: GameObjectFilter? = null,
+        attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE,
+        entersWith: EntersWithCharacteristics? = null
     ) {
         nextIndex()
         steps += MoveCollectionEffect(
@@ -1024,7 +1055,9 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             markEnteredViaSourceAbility = markEnteredViaSourceAbility,
             filter = filter,
             attachTo = attachTo,
-            attackDefender = attackDefender
+            auraHostFilter = auraHostFilter,
+            attackDefender = attackDefender,
+            entersWith = entersWith
         )
     }
 
@@ -1050,6 +1083,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         markEnteredViaSourceAbility: Boolean = false,
         filter: GameObjectFilter? = null,
         attachTo: EffectTarget? = null,
+        auraHostFilter: GameObjectFilter? = null,
+        entersWith: EntersWithCharacteristics? = null,
         name: String? = null
     ): CollectionSlot {
         val slot = CollectionSlot(slotKey("moved", nextIndex(), name))
@@ -1070,7 +1105,9 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             addCounterType = addCounterType,
             markEnteredViaSourceAbility = markEnteredViaSourceAbility,
             filter = filter,
-            attachTo = attachTo
+            attachTo = attachTo,
+            auraHostFilter = auraHostFilter,
+            entersWith = entersWith
         )
         return slot
     }
@@ -1229,6 +1266,32 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     }
 
     /**
+     * Run [block] once per battlefield entity matching [filter] (snapshotted first; the visited
+     * entity is `EffectTarget.IterationEntity` inside) and return, for each collection handle
+     * [block] returns, the union of that collection across every iteration
+     * ([com.wingedsheep.sdk.scripting.effects.ForEachInGroupCollectingEffect]) — the group twin of
+     * [forEachPlayerCollecting]. The follow-up then acts on all of them at once: Rakdos, the
+     * Showstopper's `forEachInGroupCollecting(…) { val heads = runStoringNumber { FlipCoins(1, it) };
+     * listOf(storeEntity(onlyIf = heads is 0)) }` then `destroy(tails)`.
+     */
+    fun forEachInGroupCollecting(
+        filter: GroupFilter,
+        block: PipelineBuilder.() -> List<CollectionSlot>
+    ): List<CollectionSlot> {
+        nextIndex()
+        val inner = PipelineBuilder(shared)
+        val collected = inner.block()
+        require(inner.steps.isNotEmpty()) { "forEachInGroupCollecting { } must add at least one step" }
+        val aggregates = collected.map { CollectionSlot(slotKey("collected", nextIndex(), null)) }
+        steps += com.wingedsheep.sdk.scripting.effects.ForEachInGroupCollectingEffect(
+            filter = filter,
+            effects = inner.steps.toList(),
+            collectCollections = collected.zip(aggregates).associate { (each, all) -> each.key to all.key }
+        )
+        return aggregates
+    }
+
+    /**
      * Run [block] as the body of a do-while loop ([com.wingedsheep.sdk.scripting.effects.RepeatWhileEffect])
      * — once, then again while [repeatCondition] holds — and return, for each collection handle
      * [block] returns, the union of that collection across every pass. Each pass starts from a
@@ -1307,6 +1370,17 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     ): List<NumberSlot> {
         val slots = resultSets.map { NumberSlot(slotKey("diceCount", nextIndex(), null)) }
         steps += Effects.RollDice(count, sides, player, slots.zip(resultSets).associate { (slot, results) -> slot.key to results })
+        return slots
+    }
+
+    /**
+     * "Starting with you, each player votes for [choices]" ([Effects.Vote]). Returns one numeric
+     * handle per choice, in input order, holding how many votes that choice received:
+     * `val (wild, free) = vote("wild", "free")`.
+     */
+    fun vote(vararg choices: String): List<NumberSlot> {
+        val slots = choices.map { NumberSlot(slotKey("votes", nextIndex(), null)) }
+        steps += Effects.Vote(choices.toList(), slots.zip(choices).associate { (slot, choice) -> slot.key to choice })
         return slots
     }
 

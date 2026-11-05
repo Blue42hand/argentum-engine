@@ -402,6 +402,15 @@ object DynamicAmounts {
          */
         fun distinctValues(property: CardNumericProperty): DynamicAmount =
             DynamicAmount.AggregateZone(player, zone, filter, Aggregation.DISTINCT_VALUES, property)
+
+        /**
+         * The number of different mana costs among the matched cards — e.g. over
+         * `GameObjectFilter.Nonland` in your graveyard for "a +1/+1 counter on it for each
+         * different mana cost among nonland cards in your graveyard" (Embodiment of Agonies).
+         * Compares printed symbols, not mana value; cards with no mana cost count for nothing.
+         */
+        fun distinctManaCosts(): DynamicAmount =
+            DynamicAmount.AggregateZone(player, zone, filter, Aggregation.DISTINCT_MANA_COSTS)
     }
 
     // =========================================================================
@@ -551,6 +560,27 @@ object DynamicAmounts {
             filter = GameObjectFilter.Planeswalker,
             aggregation = Aggregation.DISTINCT_PLANESWALKER_SUBTYPES
         )
+
+    /**
+     * The number of creature types (CR 205.3m) among the permanents matching [filter] that
+     * [player] controls — a Human Officer and a Human Scientist count three. Reads projected
+     * subtypes, so a changeling contributes every creature type.
+     */
+    fun creatureTypesAmong(
+        filter: GameObjectFilter = GameObjectFilter.Creature,
+        player: Player = Player.You,
+    ): DynamicAmount = DynamicAmount.AggregateBattlefield(
+        player = player,
+        filter = filter,
+        aggregation = Aggregation.DISTINCT_CREATURE_TYPES
+    )
+
+    /**
+     * Federation (Star Trek ability word) — "the number of creature types among non-Borg
+     * creatures you control".
+     */
+    fun federation(player: Player = Player.You): DynamicAmount =
+        creatureTypesAmong(GameObjectFilter.Creature.notSubtype(Subtype("Borg")), player)
 
     /**
      * Number of differently named lands [player] controls.
@@ -846,6 +876,13 @@ object DynamicAmounts {
         DynamicAmount.TurnTracking(player, TurnTracker.CARDS_DRAWN)
 
     /**
+     * The number of dilemmas [player] has faced this turn — one per time they chose one or more
+     * modes for a spell or ability (Captain Benjamin Sisko).
+     */
+    fun dilemmasFacedThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.DILEMMAS_FACED)
+
+    /**
      * The number of untapped lands [player] controlled at the beginning of this turn — an untap-step
      * snapshot taken before anything untaps (Power Surge).
      */
@@ -952,14 +989,17 @@ object DynamicAmounts {
      * your control this turn"). Counts entries even after the permanent has left or changed type.
      * Set [excludeTriggeringEntity] for "each *other*" — drops the permanent whose entry triggered
      * the ability (and, for simultaneous entries, lets each entrant see the others per the
-     * 2024-04-12 ruling).
+     * 2024-04-12 ruling). Set [excludeSource] for "*another* [subtype]" read off a trigger that isn't
+     * the entry itself — drops the ability's source (Éowyn, Shieldmaiden's "if another Human entered
+     * the battlefield under your control this turn").
      */
     fun subtypeEnteredUnderControlThisTurn(
         subtype: com.wingedsheep.sdk.core.Subtype,
         player: Player = Player.You,
-        excludeTriggeringEntity: Boolean = false
+        excludeTriggeringEntity: Boolean = false,
+        excludeSource: Boolean = false
     ): DynamicAmount =
-        DynamicAmount.SubtypeEnteredUnderControlThisTurn(player, setOf(subtype), excludeTriggeringEntity)
+        DynamicAmount.SubtypeEnteredUnderControlThisTurn(player, setOf(subtype), excludeTriggeringEntity, excludeSource)
 
     /**
      * "The number of [cardType]s that entered the battlefield under [player]'s control this turn"
@@ -979,9 +1019,10 @@ object DynamicAmounts {
     fun subtypesEnteredUnderControlThisTurn(
         subtypes: Set<com.wingedsheep.sdk.core.Subtype>,
         player: Player = Player.You,
-        excludeTriggeringEntity: Boolean = false
+        excludeTriggeringEntity: Boolean = false,
+        excludeSource: Boolean = false
     ): DynamicAmount =
-        DynamicAmount.SubtypeEnteredUnderControlThisTurn(player, subtypes, excludeTriggeringEntity)
+        DynamicAmount.SubtypeEnteredUnderControlThisTurn(player, subtypes, excludeTriggeringEntity, excludeSource)
 
     /**
      * "The number of times [player] descended this turn" (CR 700.11) — count of
@@ -1073,6 +1114,18 @@ object DynamicAmounts {
 
     /** The total number of spells cast during the immediately preceding turn. */
     fun spellsCastLastTurn(): DynamicAmount = DynamicAmount.SpellsCastLastTurn
+
+    /**
+     * Spells [player] has cast this game, from any zone, countered or not. Zero while a spell is
+     * being cast means it is the first: "if this spell is the first spell you've cast this game"
+     * (Once Upon a Time).
+     */
+    fun spellsCastThisGame(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.SpellsCastThisGame(player)
+
+    /** How many extra turns [player] has begun this game ("if you haven't begun an extra turn this game"). */
+    fun extraTurnsBegunThisGame(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.ExtraTurnsBegunThisGame(player)
 
     /** Spells [player] cast during their own last turn (Arboria). */
     fun spellsCastDuringTheirLastTurn(player: Player): DynamicAmount =
@@ -1266,6 +1319,19 @@ object DynamicAmounts {
         DynamicAmount.EntityProperty(
             EffectTarget.Self,
             EntityNumericProperty.AttachmentCount(AttachmentKind.AURA)
+        )
+
+    /**
+     * Number of Auras attached to the triggering permanent, optionally only those [controller]
+     * controls — "draw a card for each Aura **you controlled** that was attached to it" (Hateful
+     * Eidolon), "if an Aura you controlled was attached to it" (Dawn Evangel, as `>= 1`). A dies
+     * trigger reads it from last-known information: the Auras and their controllers as the
+     * creature last existed on the battlefield.
+     */
+    fun aurasAttachedToTriggering(controller: Player = Player.Any): DynamicAmount =
+        DynamicAmount.EntityProperty(
+            EffectTarget.TriggeringEntity,
+            EntityNumericProperty.AttachmentCount(AttachmentKind.AURA, controller)
         )
 
     /**

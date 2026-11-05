@@ -1245,7 +1245,12 @@ data class MayCastWithoutPayingManaCost(
  * @property fromZones The **where** axis — the zones a forbidden spell is cast *from*, read off
  *   the card before it moves to the stack; `null` = any zone. Soulless Jailer:
  *   `PlayersCantCastSpells(Player.Each, GameObjectFilter.Noncreature,
- *   fromZones = setOf(Zone.GRAVEYARD, Zone.EXILE))`.
+ *   fromZones = setOf(Zone.GRAVEYARD, Zone.EXILE))`. Drannith Magistrate: `fromZones = PlayersCantCastSpells.OUTSIDE_HAND`
+ *   ("can't cast spells from anywhere other than their hands").
+ *
+ * Read on every cast, including casts an effect makes while resolving (cascade, discover, "cast it
+ * without paying its mana cost"): a forbidden one never initiates and the effect takes its
+ * "if you don't cast it" branch.
  */
 /**
  * Players matching [affected] can't play lands (CR 305.1) — Worms of the Earth's "players can't
@@ -1316,6 +1321,33 @@ data class CantEnterTheBattlefield(
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
     }
+}
+
+/**
+ * "Permanents can't phase in" — a phase-in prohibition (CR 702.26c: phasing in is the status change
+ * back to "phased in"; CR 101.2: the "can't" wins over the rule or effect that would phase it in).
+ *
+ *  - The City on the Edge of Forever's Human token: `CantPhaseIn`.
+ *
+ * The lock is owned by whichever permanent prints it, so every phase-in path asks it: the untap
+ * step's turn-based phase-in (CR 702.26a) skips every phased-out permanent while it holds, and each
+ * tries again at its controller's next untap step; a "phases out until [source] leaves" link
+ * (Oubliette) whose source leaves while the lock holds simply ends, and the permanent phases in at
+ * a later untap step like any other once the lock is gone. It never stops phasing *out*.
+ *
+ * Deliberately unfiltered: a filter would have to judge an Aura or Equipment that phased out
+ * indirectly by its host (CR 702.26g), and no printed card asks for one yet.
+ *
+ * Neither neighbour takes the axis: [CantEnterTheBattlefield] is the same printer-owned lock for a
+ * zone change (phasing isn't one, CR 702.26d), and `PhaseOutEffect.cantPhaseIn` is a lock the
+ * phasing *effect* stamps on the one permanent it phases out, not a standing static.
+ */
+@SerialName("CantPhaseIn")
+@Serializable
+data object CantPhaseIn : StaticAbility {
+    override val description: String = "Permanents can't phase in"
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility = this
 }
 
 /** "graveyards", "graveyards or exile", "graveyards and libraries"-style rendering of a zone set. */
@@ -1415,6 +1447,38 @@ data class PlayersCantSearchLibraries(
             else -> "Spells and abilities ${affected.description} controls can't cause them to search their library"
         }
     }
+}
+
+/**
+ * The source's controller takes over its opponents' searches of their own libraries and gets the
+ * cards found — Opposition Agent: "You control your opponents while they're searching their
+ * libraries. While an opponent is searching their library, they exile each card they find. You may
+ * play those cards for as long as they remain exiled, and you may spend mana as though it were mana
+ * of any color to cast them."
+ *
+ * Applies to a search (CR 701.23) an opponent of the source's controller makes of their *own*
+ * library — whichever player's spell or ability tells them to. While they search, the source's
+ * controller makes the search's pick, from the same eligible cards the searcher would have had
+ * (so never a card the instruction doesn't ask for). Every card found — in the library or, for "search your graveyard, hand and/or library",
+ * in any of those zones — is exiled instead of going where the instruction says, and the source's
+ * controller may play it for as long as it stays exiled, spending mana as though it were mana of
+ * any color. The rest of the instruction (the shuffle, other effects) still happens, and can't see
+ * the exiled cards.
+ *
+ * If several apply, the one whose source entered the battlefield most recently decides (ruling).
+ * Ignored while the source has lost its abilities.
+ *
+ * Neighbours: [PlayersCantSearchLibraries] forbids a search outright rather than taking it over;
+ * `ControlPlayerDuringResolutionEffect` hands over every choice of a whole resolution, not just a
+ * search's, and moves no card.
+ */
+@SerialName("ControlOpponentsLibrarySearches")
+@Serializable
+data object ControlOpponentsLibrarySearches : StaticAbility {
+    override val description: String =
+        "You control your opponents while they're searching their libraries. While an opponent is " +
+            "searching their library, they exile each card they find. You may play those cards for as " +
+            "long as they remain exiled, and you may spend mana as though it were mana of any color to cast them"
 }
 
 /**
@@ -1529,7 +1593,12 @@ data class PlayersCantCastSpells(
             else -> affected.description.replaceFirstChar { it.uppercase() }
         }
         val spells = (if (spellFilter == GameObjectFilter.Any) "spells" else "${spellFilter.description} spells") +
-            (fromZones?.let { " from ${zonePhrase(it)}" } ?: "")
+            when (fromZones) {
+                null -> ""
+                OUTSIDE_HAND -> if (affected is Player.You) " from anywhere other than your hand"
+                    else " from anywhere other than their hands"
+                else -> " from ${zonePhrase(fromZones)}"
+            }
         if (conditionFromCaster && condition is IsNotYourTurn) {
             append("$who can cast $spells only during their own turns")
             return@buildString
@@ -1551,6 +1620,11 @@ data class PlayersCantCastSpells(
         val newCondition = condition?.applyTextReplacement(replacer)
         return if (newFilter === spellFilter && newCondition === condition) this
         else copy(spellFilter = newFilter, condition = newCondition)
+    }
+
+    companion object {
+        /** [fromZones] for "from anywhere other than their hands" (Drannith Magistrate): every zone but the hand. */
+        val OUTSIDE_HAND: Set<Zone> = Zone.entries.toSet() - Zone.HAND
     }
 }
 
@@ -1579,20 +1653,30 @@ data class PlayersCantCastSpells(
  *    ("During your turn, your opponents can't activate abilities of artifacts, creatures, or
  *    enchantments.")
  *
- * Two further axes, both off by default:
- *  - [nonManaAbilitiesOnly] exempts mana abilities ("… abilities that aren't mana abilities").
+ * Two further axes:
+ *  - [abilities] — *which kinds* of activated ability on a matching source are forbidden, an
+ *    [ActivatedAbilityScope]: every one (the default), all but mana abilities, only loyalty
+ *    abilities, or all but mana and loyalty abilities.
  *  - [anyZone] extends the prohibition past the battlefield to abilities of cards in any zone —
  *    graveyard and hand abilities, cycling, and the crew/saddle actions — for the unqualified
  *    "players can't activate abilities" wording. Off, it speaks of permanents only.
  *
  *  - Yuriko, Blade of the Mighty's activate clause: `PlayersCantActivateAbilities(Player.Each,
- *    condition = IsInPhase(COMBAT, yoursOnly = false), nonManaAbilitiesOnly = true, anyZone = true)`
+ *    condition = IsInPhase(COMBAT, yoursOnly = false), abilities = NON_MANA, anyZone = true)`
  *    ("During combat, players can't … activate abilities that aren't mana abilities.")
+ *  - The Immortal Sun: `PlayersCantActivateAbilities(Player.Each,
+ *    permanentFilter = GameObjectFilter.Planeswalker, abilities = LOYALTY)`
+ *    ("Players can't activate planeswalkers' loyalty abilities.")
+ *  - Overwhelming Splendor: `PlayersCantActivateAbilities(Player.EnchantedPlayer,
+ *    abilities = NON_MANA_NON_LOYALTY, anyZone = true)` ("Enchanted player can't activate
+ *    abilities that aren't mana abilities or loyalty abilities.")
+ *
+ * [Player.EnchantedPlayer] resolves to the player this Aura is attached to.
  *
  * @property affected Who is forbidden, relative to the source's controller.
  * @property permanentFilter Which permanents' abilities are forbidden (matched against the source).
  * @property condition Optional timing/state gate, evaluated in the controller's context; null = always.
- * @property nonManaAbilitiesOnly When true, mana abilities stay activatable.
+ * @property abilities Which kinds of activated ability are forbidden.
  * @property anyZone When true, abilities of cards outside the battlefield are forbidden too.
  */
 @SerialName("PlayersCantActivateAbilities")
@@ -1601,7 +1685,7 @@ data class PlayersCantActivateAbilities(
     val affected: Player = Player.EachOpponent,
     val permanentFilter: GameObjectFilter = GameObjectFilter.Any,
     val condition: Condition? = null,
-    val nonManaAbilitiesOnly: Boolean = false,
+    val abilities: ActivatedAbilityScope = ActivatedAbilityScope.ALL,
     val anyZone: Boolean = false
 ) : StaticAbility {
     override val description: String = buildString {
@@ -1616,9 +1700,11 @@ data class PlayersCantActivateAbilities(
             else -> append("${affected.description} can't activate ")
         }
         append(
-            if (permanentFilter == GameObjectFilter.Any) {
-                if (nonManaAbilitiesOnly) "abilities that aren't mana abilities" else "activated abilities"
-            } else "abilities of ${permanentFilter.description}"
+            when {
+                permanentFilter == GameObjectFilter.Any -> abilities.phrase
+                abilities == ActivatedAbilityScope.ALL -> "abilities of ${permanentFilter.description}"
+                else -> "${abilities.phrase} of ${permanentFilter.description}"
+            }
         )
         when (condition) {
             is IsYourTurn, is IsNotYourTurn, null -> {}
@@ -1630,6 +1716,32 @@ data class PlayersCantActivateAbilities(
         val newCondition = condition?.applyTextReplacement(replacer)
         return if (newFilter === permanentFilter && newCondition === condition) this
         else copy(permanentFilter = newFilter, condition = newCondition)
+    }
+}
+
+/**
+ * Which kinds of activated ability an activation prohibition covers ([PlayersCantActivateAbilities],
+ * [PreventActivatedAbilities]), by the two
+ * ability kinds printed exemptions name: mana abilities (CR 605) and loyalty abilities (CR 606).
+ * Each value is a printed wording, carried in [phrase].
+ */
+@Serializable
+enum class ActivatedAbilityScope(val phrase: String) {
+    /** "can't activate abilities" — every activated ability. */
+    ALL("activated abilities"),
+    /** "abilities that aren't mana abilities" (Yuriko, Blade of the Mighty). */
+    NON_MANA("abilities that aren't mana abilities"),
+    /** "loyalty abilities" (The Immortal Sun). */
+    LOYALTY("loyalty abilities"),
+    /** "abilities that aren't mana abilities or loyalty abilities" (Overwhelming Splendor). */
+    NON_MANA_NON_LOYALTY("abilities that aren't mana abilities or loyalty abilities");
+
+    /** True when an ability of the given kind is forbidden by this scope. */
+    fun covers(isManaAbility: Boolean, isLoyaltyAbility: Boolean): Boolean = when (this) {
+        ALL -> true
+        NON_MANA -> !isManaAbility
+        LOYALTY -> isLoyaltyAbility
+        NON_MANA_NON_LOYALTY -> !isManaAbility && !isLoyaltyAbility
     }
 }
 

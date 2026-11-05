@@ -30,6 +30,149 @@ export interface Announcement {
 
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
+    id: 'set-hou',
+    date: '2026-11-05',
+    kind: 'set',
+    setCode: 'HOU',
+    title: 'Hour of Devastation is complete',
+    body: 'The God-Pharaoh returns to Amonkhet and the Hours bring ruin. Afflict punishes every block, aftermath spells get cast twice, exert and eternalize turn your creatures into relentless attackers, and Deserts reward the decks that play them, across ten two-colour decks from exert aggro to -1/-1 counters.',
+    tryIf: 'aggressive creature decks and squeezing two spells out of one card',
+  },
+  {
+    id: 'set-xln',
+    date: '2026-11-05',
+    kind: 'set',
+    setCode: 'XLN',
+    title: 'Ixalan is complete',
+    body: 'Sail for the hidden golden city as Pirates, Dinosaurs, Merfolk and Vampires race to claim it. Explore grows your creatures while it digs for lands, raid pays off attacking every turn, enrage Dinosaurs punish every block, and Treasure fuels the Pirates\' biggest plays across ten two-colour decks.',
+    tryIf: 'tribal decks and attacking every turn',
+  },
+  {
+    id: 'set-rix',
+    date: '2026-11-04',
+    kind: 'set',
+    setCode: 'RIX',
+    title: 'Rivals of Ixalan is complete',
+    body: 'Race Pirates, Dinosaurs, Merfolk and Vampires to the golden city of Orazca. Ascend rewards a wide board with the city\'s blessing, enrage Dinosaurs punish every block, and its four tribes spread across the ten two-colour decks.',
+    tryIf: 'tribal decks and building a wide board',
+  },
+  {
+    id: 'set-trk',
+    date: '2026-11-03',
+    kind: 'set',
+    setCode: 'TRK',
+    title: 'Star Trek is complete',
+    body:
+      "Star Trek puts the Federation, Klingons, Borg and more on the battlefield: crew and station Spacecraft, face dilemmas with modal spells, assimilate cards into a Borg collective and explore strange new worlds with Planet tokens. Each colour pair has a plan, from hasty Klingon Warriors in black-red to +1/+1 counter medics in green-white, and every pack's land slot can open a Planet dual.",
+    tryIf: 'modal-spell value, Spacecraft and go-wide artifact armies',
+  },
+  {
+    id: 'set-m19',
+    date: '2026-11-03',
+    kind: 'set',
+    setCode: 'M19',
+    title: 'Core Set 2019 is complete',
+    body:
+      "Core Set 2019 follows Nicol Bolas's return with Dragons, elder-dragon bombs and five planeswalkers, built from clean, classic Magic rather than set mechanics. Each colour pair has its own plan: artifacts in white-blue, spells-matter Enigma Drakes in blue-red, lifegain Vampires in white-black, sacrifice aggro in black-red and Dragon ramp in red-green, with a dual land in a third of packs.",
+    tryIf: 'straightforward, back-to-basics Limited with Dragons and planeswalkers',
+  },
+  {
+    id: 'set-grn',
+    date: '2026-11-02',
+    kind: 'set',
+    setCode: 'GRN',
+    title: 'Guilds of Ravnica is complete',
+    body:
+      'Guilds of Ravnica opens the return to the city-plane with five guilds: Boros mentor grows smaller attackers, Dimir surveil sculpts your draws, Golgari undergrowth feeds off creatures in your graveyard, Izzet jump-start casts spells twice, and Selesnya convoke taps a wide board to cast big spells early. Every pack opens a Guildgate, so splashing a third colour is easy.',
+    tryIf: 'guild-based two-colour Limited, graveyard value and spells-matter tempo',
+  },
+  {
+    id: 'set-rna',
+    date: '2026-11-02',
+    kind: 'set',
+    setCode: 'RNA',
+    title: 'Ravnica Allegiance is complete',
+    body:
+      'Ravnica Allegiance brings back five guilds, each with its own mechanic: Azorius addendum rewards main-phase instants, Orzhov afterlife leaves flying Spirits behind, Rakdos spectacle discounts spells once the opponent is bleeding, Gruul riot hands out haste or counters, and Simic adapt grows its creatures. Every pack opens a Guildgate, so dipping into a third colour is easy.',
+    tryIf: 'guild-based two-colour Limited and aggressive or counters-driven decks',
+  },
+  {
+    id: 'set-war',
+    date: '2026-11-01',
+    kind: 'set',
+    setCode: 'WAR',
+    title: 'War of the Spark is complete',
+    body:
+      "War of the Spark is the Ravnica finale: Bolas's Dreadhorde invades, and every pack holds a planeswalker, from uncommon walkers with a static ability to the mythic bombs. Amass builds a growing Zombie Army, proliferate pumps counters and loyalty alike, and every colour pair has a plan, from wide teams of soldiers to an ever-growing undead army.",
+    tryIf: 'planeswalker-heavy Limited, counters and proliferate',
+  },
+  {
+    id: 'set-m20',
+    date: '2026-10-31',
+    kind: 'set',
+    setCode: 'M20',
+    title: 'Core Set 2020 is complete',
+    body:
+      "Core Set 2020 is a classic core set with a tribal twist: Elementals swarm in blue, red and green, ramping lands onto the battlefield with Risen Reef or trampling in behind Creeping Trailblazer. Every colour pair has a straightforward plan, from white-blue fliers and black-white life drain to black-green value from creatures dying, while the Cavaliers and Chandra headline the bombs.",
+    tryIf: 'clean, classic Limited and Elemental tribal decks',
+  },
+  {
+    id: 'set-eld',
+    date: '2026-10-31',
+    kind: 'set',
+    setCode: 'ELD',
+    title: 'Throne of Eldraine is complete',
+    body:
+      "Throne of Eldraine is a fairy-tale world of five castles and the enchanted wilds beyond: Adventure cards let you cast a spell first and the creature later, so one card does two jobs. Knights race for the throne in red, white and black, Food decks bake their way to a long game, blue-black mills both libraries for Drown in the Loch, and adamant rewards going nearly mono-coloured.",
+    tryIf: 'two-for-one Adventure cards, Knight aggro and Food value',
+  },
+  {
+    id: 'set-iko',
+    date: '2026-10-31',
+    kind: 'set',
+    setCode: 'IKO',
+    title: 'Ikoria: Lair of Behemoths is complete',
+    body:
+      "Ikoria is a world of colossal monsters: mutate one creature onto another to build a single towering threat that collects every ability underneath, while Humans bond with beasts by handing out flying, menace, trample and vigilance counters. Cycling keeps every hand smooth and feeds payoffs like Zenith Flare, and each two-colour pair has its own plan, from Sprite Dragon spells to Boneyard Lurker graveyard mutate.",
+    tryIf: 'building one huge monster, keyword counters and cycling',
+  },
+  {
+    id: 'set-thb',
+    date: '2026-10-31',
+    kind: 'set',
+    setCode: 'THB',
+    title: 'Theros Beyond Death is complete',
+    body:
+      "Descend into the Underworld of Theros, where the gods reward devotion: stack your colour's mana symbols to wake Heliod, Thassa or Purphoros, chain enchantments for constellation triggers, and give your heroes Auras that pay off every time they're targeted. Escape lets graveyard cards come back by exiling others, so long games turn on Uro, Kroxa and recurring Underworld creatures, while Sagas play out their story over several turns.",
+    tryIf: 'enchantments, Aura-boosted heroes and graveyard recursion',
+  },
+  {
+    id: 'feature-set-guide',
+    date: '2026-10-30',
+    kind: 'feature',
+    title: 'The Set guide: find a set to play',
+    body:
+      'Set guide, in the top bar, is a guide to every set you can draft or play sealed: what each is about, how its games play, and power, speed and complexity ratings. Filter for easy-to-learn or fast formats, see every set on one speed-by-complexity map, or put up to four side by side. The lobby’s set picker shows the same summary for whichever set you point at, and the play screen shows it under the set you chose.',
+  },
+  {
+    id: 'set-m21',
+    date: '2026-10-30',
+    kind: 'set',
+    setCode: 'M21',
+    title: 'Core Set 2021 is complete',
+    body:
+      "Teferi, Basri, Chandra, Liliana and Garruk headline a straightforward core set where every two-colour pair has a clear plan: Watcher of the Spheres fliers, Conclave Mentor counters, Indulging Patrician life drain, Dire Fleet Warmonger sacrifice aggro and Leafkin Avenger's big creatures. Removal is plentiful and the bombs are huge, so games swing on who draws Terror of the Peaks first.",
+    tryIf: 'classic two-colour Limited, big dragons and planeswalkers',
+  },
+  {
+    id: 'mode-highlander',
+    date: '2026-10-29',
+    kind: 'mode',
+    title: 'Highlander and Canadian Highlander',
+    body:
+      'Two new constructed formats: 100-card singleton decks over the Vintage card pool, no commander, 20 life. Canadian Highlander adds its points list, so you can play Black Lotus or Sol Ring as long as the deck stays within 10 points. Pick either in the deckbuilder, as a lobby’s deck restriction, or as a Constructed format in matchmaking.',
+  },
+  {
     id: 'set-znr',
     date: '2026-10-28',
     kind: 'set',

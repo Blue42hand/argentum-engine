@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.text.TextReplacer
+import com.wingedsheep.sdk.scripting.util.numberToWord
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -450,6 +451,38 @@ data class CreaturesDamagedBySourceAreDoomed(
 }
 
 /**
+ * "Lethal damage dealt to [filter] is determined by their power rather than their toughness"
+ * (Zilortha, Strength Incarnate) — a rule modification, not an ability the creatures gain.
+ *
+ * Every place the engine asks whether damage is lethal reads the matching creature's power instead
+ * of its toughness: the lethal-damage state-based action (CR 704.5g), lethal damage when assigning
+ * trample or multi-blocker combat damage (CR 702.19b), and excess damage (CR 120.4a — Flame Spill,
+ * Hell to Pay). A creature with 0 or less power still needs 1 damage marked on it (704.5g destroys
+ * only a creature with damage marked); the 0-toughness state-based action (704.5f) is not about
+ * damage and is untouched. Deathtouch still makes any damage lethal.
+ *
+ * Lowered to a projected flag ([GroupFilter] resolved on projected state, so the affected set is
+ * live) that a later "loses all abilities" on an affected creature does not remove — only the
+ * source losing its abilities or leaving ends it. Read through
+ * `ProjectedState.lethalDamageThreshold`. Closest neighbours: [AssignDamageEqualToToughness] swaps
+ * power for toughness on the *dealing* side (how much a creature assigns), not the receiving side;
+ * [CantBlock] is the same "group gets a rule flag" shape for a different rule.
+ */
+@SerialName("LethalDamageDeterminedByPower")
+@Serializable
+data class LethalDamageDeterminedByPower(
+    val filter: GroupFilter = GroupFilter.AllCreaturesYouControl
+) : StaticAbility {
+    override val description: String =
+        "Lethal damage dealt to ${filter.description} is determined by their power rather than their toughness"
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
  * Lands matching [filter] produce other mana instead of their normal mana — a replacement on the
  * land's mana ability's output (the land still taps as a mana ability). Three shapes:
  *
@@ -642,6 +675,13 @@ data class PlayFromTopWithAlternativeCost(
  *   through this permission — Falco Spara, Pactweaver's "by removing a counter from a creature you
  *   control in addition to paying their other costs". Not owed when another cost-free permission
  *   (Future Sight, a costless grant) also covers the card. Null for none.
+ * @property castThisWayKeyword The cast-this-way rider: a spell cast from the top through this
+ *   permission gains this keyword, and the permanent it becomes keeps it for
+ *   [castThisWayKeywordDuration] — Thundermane Dragon's "If you cast a creature spell this way, it
+ *   gains haste until end of turn". Frozen onto the spell as it is cast, so it holds even if the
+ *   granting permanent leaves before the spell resolves; a spell that never resolves carries
+ *   nothing. Null for none.
+ * @property castThisWayKeywordDuration How long the resulting permanent keeps [castThisWayKeyword].
  */
 @SerialName("CastSpellTypesFromTopOfLibrary")
 @Serializable
@@ -654,7 +694,17 @@ data class CastSpellTypesFromTopOfLibrary(
      */
     val maxCastsPerTurn: Int? = null,
     val additionalCost: AdditionalCost? = null,
+    val castThisWayKeyword: Keyword? = null,
+    val castThisWayKeywordDuration: Duration = Duration.EndOfTurn,
 ) : StaticAbility {
+    init {
+        // The engine grants the rider whenever this permission covers the cast and no other route
+        // (a card-specific MayPlay, a payment-changing play-from-top grant) takes it over; a limit
+        // or extra cost would need the rider tied to the use that is actually charged.
+        require(castThisWayKeyword == null || (maxCastsPerTurn == null && additionalCost == null)) {
+            "castThisWayKeyword is only supported on unlimited, cost-free top-of-library permissions"
+        }
+    }
     override val description: String = buildString {
         if (maxCastsPerTurn == 1) {
             append("Once each turn, you may cast a ${filter.description} spell from the top of your library")
@@ -665,6 +715,11 @@ data class CastSpellTypesFromTopOfLibrary(
             append(" by ${additionalCost.description.replaceFirstChar { it.lowercase() }} in addition to paying their other costs")
         }
         append(".")
+        if (castThisWayKeyword != null) {
+            append(" If you cast a spell this way, it gains ${castThisWayKeyword.displayName.lowercase()}")
+            castThisWayKeywordDuration.description.takeIf { it.isNotEmpty() }?.let { append(" $it") }
+            append(".")
+        }
     }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
@@ -963,16 +1018,24 @@ data object MayPlayPermanentsFromGraveyard : StaticAbility {
  * Unlike [MayPlayPermanentsFromGraveyard] (Muldrotha), no per-turn usage tracking
  * is needed — the land-drop counter already limits how many lands can be played.
  * Multiple copies are redundant.
+ *
+ * A [ProjectedStaticAbility]: the engine reads it off the holder's projected statics, so a
+ * permanent that *gains* it — from a resolved `GrantStaticAbilityEffect` (Nog, Ambitious Cadet's
+ * "gains 'You may play lands from your graveyard'") or a [GrantStaticAbility] — grants it to its
+ * controller exactly as a printed one does, and loses it with its other abilities.
  */
 @SerialName("MayPlayLandsFromGraveyard")
 @Serializable
-data object MayPlayLandsFromGraveyard : StaticAbility {
+data object MayPlayLandsFromGraveyard : ProjectedStaticAbility {
     override val description: String = "You may play lands from your graveyard"
 }
 
 /**
  * You may play cards in exile matching [filter] — "play", so lands and spells alike (CR 601.3:
  * a permission from an effect is what lets a player cast a card from a zone other than their hand).
+ * Exile is the default zone; [zones] widens the same grant to the player's own graveyard and to
+ * outside the game (their sideboard) — The Holodeck's "Once during each of your turns, you may play
+ * a permanent card you own from outside the game or from your graveyard".
  *
  * Unlike [GrantMayCastFromLinkedExile], the playable set is defined by a *filter over every exile
  * zone* rather than by the cards linked to this permanent. That difference is load-bearing for
@@ -1014,7 +1077,12 @@ data object MayPlayLandsFromGraveyard : StaticAbility {
  *   authorizes one play per turn — a land or a spell, the player's choice. The allowance belongs to
  *   the *granting permanent*, exactly as [GrantMayCastFromLinkedExile.oncePerTurn]'s does: two
  *   granters are two allowances, and one that leaves and returns comes back with a fresh one. A
- *   play is charged to it only when no unlimited grant also covered the card.
+ *   play is charged to it only when no unlimited grant also covered the card. One allowance
+ *   covers every zone in [zones]: The Holodeck's graveyard play and sideboard play share it.
+ * @property zones The zones the grant reaches. [Zone.EXILE] means every player's exile (cards
+ *   exiled from an opponent's library stay in that player's exile); [Zone.GRAVEYARD] and
+ *   [Zone.SIDEBOARD] ("outside the game", CR 400.11a) mean only the granted player's own — "a card
+ *   you own". Defaults to exile alone, the shape every exile grant (Tinybones, Evelyn) already has.
  */
 @SerialName("MayPlayCardsFromExile")
 @Serializable
@@ -1025,16 +1093,25 @@ data class MayPlayCardsFromExile(
     val withAnyManaColor: Boolean = false,
     val oncePerTurn: Boolean = false,
     val spendAsAnyColor: ManaSpentAsAnyColor? = null,
+    val zones: Set<Zone> = setOf(Zone.EXILE),
 ) : StaticAbility {
     init {
         require(!(withAnyManaColor && spendAsAnyColor != null)) {
             "withAnyManaColor already lets all mana stand in for a color; spendAsAnyColor narrows it — set one"
         }
+        require(zones.isNotEmpty() && zones.all { it in PLAYABLE_ZONES }) {
+            "MayPlayCardsFromExile.zones must be a non-empty subset of $PLAYABLE_ZONES, was $zones"
+        }
     }
 
     override val description: String = buildString {
-        if (oncePerTurn) append("Once each turn, you may play ${filter.description} from exile")
-        else append("You may play ${filter.description} from exile")
+        val from = listOfNotNull(
+            "from exile".takeIf { Zone.EXILE in zones },
+            "from your graveyard".takeIf { Zone.GRAVEYARD in zones },
+            "from outside the game".takeIf { Zone.SIDEBOARD in zones },
+        ).joinToString(" or ")
+        if (oncePerTurn) append("Once each turn, you may play ${filter.description} $from")
+        else append("You may play ${filter.description} $from")
         if (condition != null) append(" ${condition.description}")
         if (withAnyManaType) append(", and mana of any type can be spent to cast those spells")
         else if (withAnyManaColor) append(", and you may spend mana as though it were mana of any color to cast it")
@@ -1049,6 +1126,9 @@ data class MayPlayCardsFromExile(
         } else this
     }
 }
+
+/** The zones a [MayPlayCardsFromExile] grant can reach. */
+private val PLAYABLE_ZONES = setOf(Zone.EXILE, Zone.GRAVEYARD, Zone.SIDEBOARD)
 
 /**
  * Prevents all players from cycling cards.
@@ -1072,9 +1152,9 @@ data object PreventCycling : StaticAbility {
  * granted by static effects (e.g., basic-land mana abilities granted to creature-lands
  * while they are creatures).
  *
- * When [nonManaAbilitiesOnly] is true, mana abilities are still allowed and only non-mana
- * activated abilities are blocked — the "… can't be activated unless they're mana abilities"
- * wording (Sharkey, Tyrant of the Shire on opponents' lands). Combine with
+ * [abilities] picks which kinds of activated ability are blocked ([ActivatedAbilityScope]);
+ * `NON_MANA` keeps mana abilities usable — the "… can't be activated unless they're mana
+ * abilities" wording (Sharkey, Tyrant of the Shire on opponents' lands). Combine with
  * [filter].opponentControls() to scope the lock to opponents' permanents.
  *
  * Loyalty abilities of planeswalkers and ability costs that only animate a noncreature
@@ -1084,8 +1164,8 @@ data object PreventCycling : StaticAbility {
  * type-changing effects flow through correctly.
  *
  * @property filter Which permanents' activated abilities are locked (matched via projected state).
- * @property nonManaAbilitiesOnly When true, mana abilities are exempt; only non-mana abilities
- *   are blocked. Defaults to false (block everything, the Cursed Totem shape).
+ * @property abilities Which kinds of activated ability are blocked. Defaults to
+ *   [ActivatedAbilityScope.ALL] (block everything, the Cursed Totem shape).
  * @property anyZone When true, the lock also reaches abilities of cards outside the battlefield —
  *   cycling and typecycling, channel and other hand abilities, graveyard and command-zone
  *   abilities — matched against the card in its zone. This is the "sources with the chosen name"
@@ -1097,13 +1177,15 @@ data object PreventCycling : StaticAbility {
 @Serializable
 data class PreventActivatedAbilities(
     val filter: GameObjectFilter,
-    val nonManaAbilitiesOnly: Boolean = false,
+    val abilities: ActivatedAbilityScope = ActivatedAbilityScope.ALL,
     val anyZone: Boolean = false
 ) : StaticAbility {
-    override val description: String =
-        if (nonManaAbilitiesOnly)
+    override val description: String = when (abilities) {
+        ActivatedAbilityScope.ALL -> "Activated abilities of ${filter.description} can't be activated"
+        ActivatedAbilityScope.NON_MANA ->
             "Activated abilities of ${filter.description} can't be activated unless they're mana abilities"
-        else "Activated abilities of ${filter.description} can't be activated"
+        else -> "${abilities.phrase.replaceFirstChar { it.uppercase() }} of ${filter.description} can't be activated"
+    }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
@@ -1317,51 +1399,86 @@ data class PayLifeForColoredMana(
 }
 
 /**
- * Permanents matching [filter] entering the battlefield don't cause abilities to trigger
- * (CR 603.6 enters-the-battlefield triggers are suppressed).
+ * The zone changes a [SuppressZoneChangeTriggers] lock covers: a matching permanent *entering*
+ * the battlefield (Torpor Orb) and/or a matching permanent *dying* — being put into a graveyard
+ * from the battlefield (Hushbringer).
+ */
+@Serializable
+enum class ZoneChangeTriggerCause(val phrase: String) {
+    ENTERING("entering the battlefield"),
+    DYING("dying")
+}
+
+/**
+ * Permanents matching [filter] entering the battlefield and/or dying (per [causes]) don't cause
+ * abilities to trigger.
  *
  * Models the Torpor Orb family — Torpor Orb / Hushwing Gryff ("Creatures entering don't cause
- * abilities to trigger.") with `filter = GameObjectFilter.Creature`, and Tocatli Honor Guard
+ * abilities to trigger.") with `filter = GameObjectFilter.Creature`, Tocatli Honor Guard
  * ("Creatures entering the battlefield under your control don't cause abilities to trigger") with
- * `filter = GameObjectFilter.Creature.youControl()`.
+ * `filter = GameObjectFilter.Creature.youControl()`, and Hushbringer ("Creatures entering or dying
+ * don't cause abilities to trigger.") with `causes = setOf(ENTERING, DYING)`.
  *
- * This suppresses **every** triggered ability that the matching permanent's entry would cause —
- * the entering permanent's own enters-the-battlefield triggers *and* any other permanent's
+ * **Entering** suppresses every triggered ability that the matching permanent's entry would
+ * cause — the entering permanent's own enters-the-battlefield triggers *and* any other permanent's
  * "whenever a [...] enters" trigger whose triggering object is that permanent (per Torpor Orb's
  * Gatherer rulings). The gate is whether the *entering object* matches [filter] in projected state
  * (continuous effects apply — e.g. with March of the Machines an artifact enters as a creature and
  * is suppressed), not what the watching trigger's text names.
  *
+ * **Dying** suppresses, per Hushbringer's rulings, every ability that triggers on a matching
+ * permanent being put into a graveyard from the battlefield — "dies", "is put into a graveyard from
+ * the battlefield" and "leaves the battlefield" abilities, the batched "one or more creatures die"
+ * shapes included. The dying object is matched against [filter] by its last-known information (an
+ * animated land that dies counts as a creature). These are leaves-the-battlefield abilities, so the
+ * lock looks back in time: a creature dying at the same time as the lock's source (including the
+ * source itself) is still suppressed. An ability that triggers on a card being put into a graveyard
+ * "from anywhere" is not a look-back ability: it is stopped only while the lock's source is still
+ * on the battlefield, and never when it is the dying card's own ability. Abilities that trigger on
+ * the event that caused the death ("whenever you sacrifice a creature") are untouched.
+ *
  * Deliberately **not** affected, matching the rulings:
- *  - Replacement effects (enters with counters, enters tapped) — those are not triggered abilities
- *    and run through the replacement layer, which this never touches.
+ *  - Replacement effects (enters with counters, enters tapped, Leyline of the Void exiling a card
+ *    that would die) — those are not triggered abilities and run through the replacement layer,
+ *    which this never touches.
  *  - "As [this] enters the battlefield" choices (`EntersWithChoice`) — not triggered abilities.
- *  - Triggers caused by anything other than a matching permanent entering (leaves-the-battlefield
- *    triggers, attack triggers, etc.).
+ *  - Triggers caused by any zone change outside [causes], and by any other event (attack
+ *    triggers, sacrifice triggers, etc.).
  *
  * The engine evaluates this as a final filtering pass over the batch's pending triggers, so it
- * covers the per-permanent ETB path, the "one or more permanents entered" batch path, and any
+ * covers the per-permanent paths, the "one or more permanents entered / died" batch paths, and any
  * duplicated (Panharmonicon-style) copies uniformly. Multiple copies are redundant.
  *
- * @property filter Which entering permanents have their entry suppressed (matched via projected
- *   state). Defaults to [GameObjectFilter.Creature].
+ * @property filter Which entering/dying permanents have their zone change suppressed. Defaults to
+ *   [GameObjectFilter.Creature].
  * @property abilitiesOf When set, only triggered abilities *of permanents* matching this filter are
  *   suppressed — matched in projected state against the trigger's source, with this ability's
  *   controller as the reference player, and only while that source is on the battlefield (a
  *   graveyard card's "whenever a creature enters" is not an ability of a permanent). `null`
  *   (default) suppresses every ability, the Torpor Orb shape. Elesh Norn, Mother of Machines —
  *   "Permanents entering don't cause abilities of permanents your opponents control to trigger" —
- *   is `SuppressEntersTriggers(GameObjectFilter.Permanent, abilitiesOf = GameObjectFilter.Permanent.opponentControls())`.
+ *   is `SuppressZoneChangeTriggers(GameObjectFilter.Permanent, abilitiesOf = GameObjectFilter.Permanent.opponentControls())`.
+ * @property causes Which zone changes the lock covers; defaults to entering only.
  */
-@SerialName("SuppressEntersTriggers")
+@SerialName("SuppressZoneChangeTriggers")
 @Serializable
-data class SuppressEntersTriggers(
+data class SuppressZoneChangeTriggers(
     val filter: GameObjectFilter = GameObjectFilter.Creature,
-    val abilitiesOf: GameObjectFilter? = null
+    val abilitiesOf: GameObjectFilter? = null,
+    val causes: Set<ZoneChangeTriggerCause> = setOf(ZoneChangeTriggerCause.ENTERING)
 ) : StaticAbility {
-    override val description: String =
-        if (abilitiesOf == null) "${filter.description} entering the battlefield don't cause abilities to trigger"
-        else "${filter.description} entering the battlefield don't cause abilities of ${abilitiesOf.description} to trigger"
+    init {
+        require(causes.isNotEmpty()) { "SuppressZoneChangeTriggers needs at least one cause" }
+    }
+
+    override val description: String = buildString {
+        append(filter.description)
+        append(" ")
+        append(ZoneChangeTriggerCause.entries.filter { it in causes }.joinToString(" or ") { it.phrase })
+        append(" don't cause abilities")
+        if (abilitiesOf != null) append(" of ${abilitiesOf.description}")
+        append(" to trigger")
+    }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
         val newAbilitiesOf = abilitiesOf?.applyTextReplacement(replacer)
@@ -1388,7 +1505,8 @@ data object PreventManaPoolEmptying : StaticAbility {
 /**
  * Converts the controller's would-be-lost unspent mana into mana of [color] instead of emptying it:
  * "If you would lose unspent mana, that mana becomes [color] instead." Ozai, the Phoenix King (red),
- * Omnath, Locus of All (black).
+ * Omnath, Locus of All (black). A null [color] is colorless — the engine's usual spelling of
+ * colorless mana (Kruphix, God of Horizons: "that mana becomes colorless instead").
  *
  * The colour cousin of [PreventManaPoolEmptying]: where Upwelling *keeps* the mana as-is, this
  * *replaces* the emptying event (CR 500.5 — unspent mana empties from each player's mana pool as
@@ -1397,16 +1515,16 @@ data object PreventManaPoolEmptying : StaticAbility {
  *
  * Only the colour changes. Per Omnath's ruling, mana carrying a spending restriction or a rider keeps
  * it when it changes colour — a restricted unit stays restricted, just recoloured. Colorless mana
- * becomes [color] too.
+ * becomes [color] too; under the colorless form, coloured mana becomes that much colorless mana.
  *
  * The engine checks for this static ability at every step/phase-end mana emptying
  * (`CleanupPhaseManager.emptyManaPools`, and again for firebending mana in `CombatManager.endCombat`).
  */
 @SerialName("ConvertEmptyingMana")
 @Serializable
-data class ConvertEmptyingMana(val color: Color) : StaticAbility {
+data class ConvertEmptyingMana(val color: Color?) : StaticAbility {
     override val description: String =
-        "If you would lose unspent mana, that mana becomes ${color.name.lowercase()} instead"
+        "If you would lose unspent mana, that mana becomes ${color?.name?.lowercase() ?: "colorless"} instead"
 }
 
 /**
@@ -1482,19 +1600,30 @@ data class SkipStepOrPhase(
 }
 
 /**
- * Removes the maximum hand size limit for the controller.
- * Used for cards like Thought Vessel and Reliquary Tower: "You have no maximum hand size."
+ * Removes the maximum hand size limit for a scoped set of players, by default the controller.
+ * Used for cards like Thought Vessel and Reliquary Tower: "You have no maximum hand size";
+ * `NoMaximumHandSize(Player.Each)` is Folio of Fancies' "Players have no maximum hand size."
  *
  * The engine reads it from each permanent's *projected* static abilities
- * (`com.wingedsheep.engine.core.MaximumHandSize`), so it applies to whoever controls a
- * permanent that has it — printed, gained from a resolved effect, or granted by
+ * (`com.wingedsheep.engine.core.MaximumHandSize`), with [player] resolved relative to the
+ * holder's controller — so it applies to whoever controls a permanent that has it (or every
+ * player in scope) whether it is printed, gained from a resolved effect, or granted by
  * [GrantStaticAbility] ("Enchanted creature has 'You have no maximum hand size'", Nerd Rage) —
  * and stops applying when that permanent loses its abilities.
+ *
+ * @property player Who has no maximum hand size, relative to the holder's controller
+ *   (`You` / `EachOpponent` / `Each`).
  */
 @SerialName("NoMaximumHandSize")
 @Serializable
-data object NoMaximumHandSize : ProjectedStaticAbility {
-    override val description: String = "You have no maximum hand size"
+data class NoMaximumHandSize(val player: Player = Player.You) : ProjectedStaticAbility {
+    override val description: String
+        get() = when (player) {
+            Player.You -> "You have no maximum hand size"
+            Player.Each -> "Players have no maximum hand size"
+            Player.EachOpponent -> "Each opponent has no maximum hand size"
+            else -> "${player.description.replaceFirstChar { it.uppercase() }} has no maximum hand size"
+        }
 }
 
 /**
@@ -1546,6 +1675,29 @@ data class SetMaximumHandSize(
 }
 
 /**
+ * "Your devotion to each color and each combination of colors is increased by [amount]" (Altar of
+ * the Pantheon). Raises every devotion count (CR 700.5) its holder's controller has — devotion to
+ * one color, to a combination, and to a chosen color alike — by [amount], once per count however
+ * many colors it names, while the holder is on the battlefield face up. Per the Altar's ruling the
+ * bonus survives the holder losing its abilities. Read where devotion is counted
+ * (`DynamicAmountEvaluator`'s `DynamicAmount.DevotionTo` branch), so a Theros god's "isn't a
+ * creature" threshold, Nykthos's mana and every "equal to your devotion" amount see it.
+ *
+ * It isn't a Rule 613 effect: `StaticAbilityHandler` stamps it as a marker on the printed card as
+ * it enters, because devotion is read in the middle of projection (Layer 4, by the gods) — before
+ * Layer 6 has assembled projected static abilities. Printed only; it cannot sit behind an
+ * "as long as …" gate or be granted.
+ *
+ * @property amount How much each devotion count rises by (positive).
+ */
+@SerialName("ModifyDevotion")
+@Serializable
+data class ModifyDevotion(val amount: Int = 1) : StaticAbility {
+    override val description: String =
+        "Your devotion to each color and each combination of colors is increased by ${numberToWord(amount)}"
+}
+
+/**
  * Raise or lower the maximum hand size of a scoped set of players by a dynamic amount while the
  * holder is on the battlefield and has the ability — "Each opponent's maximum hand size is
  * reduced by seven" (Jin-Gitaxias, Core Augur). [amount] is signed: negative reduces, positive
@@ -1589,13 +1741,29 @@ data class ModifyMaximumHandSize(
  *
  * The engine checks for this static ability during draws. When the controller
  * draws their first card of a turn and this ability is active, the drawn card
- * is revealed (a CardRevealedFromDrawEvent is emitted). Other triggered abilities
- * can then trigger off that reveal event.
+ * is revealed (a CardRevealedFromDrawEvent is emitted, naming every source whose
+ * reveal applied). A `revealsFirstDraw` trigger is linked to its own source's reveal
+ * (CR 607.1 — "this way"), so it fires only when its source is among them.
+ *
+ * @property yourTurnsOnly "the first card you draw on each of your turns" (Keranos, God of
+ *   Storms): the reveal applies only while the controller is the active player.
+ * @property optional "You may reveal the first card you draw each turn as you draw it" (God-Eternal
+ *   Kefnet): the controller is asked as they draw it, before any later card of the same draw
+ *   instruction. Declining means this source didn't reveal it, so its "this way" trigger doesn't
+ *   fire — even if another source's mandatory reveal showed the card anyway.
  */
 @SerialName("RevealFirstDrawEachTurn")
 @Serializable
-data object RevealFirstDrawEachTurn : StaticAbility {
-    override val description: String = "Reveal the first card you draw each turn"
+data class RevealFirstDrawEachTurn(
+    val yourTurnsOnly: Boolean = false,
+    val optional: Boolean = false
+) : StaticAbility {
+    override val description: String = buildString {
+        append(if (optional) "You may reveal" else "Reveal")
+        append(" the first card you draw ")
+        append(if (yourTurnsOnly) "on each of your turns" else "each turn")
+        if (optional) append(" as you draw it")
+    }
 }
 
 /**
@@ -2040,6 +2208,26 @@ data class AdditionalCastOrCopyTriggers(
 }
 
 /**
+ * If you gaining life causes a triggered ability of a permanent you control to trigger, that ability
+ * triggers an additional time (CR 603.2d) — Dr. Beverly Crusher. The **life-gain-cause** analogue of
+ * [AdditionalCastOrCopyTriggers] and [AdditionalAttackTriggers]: neither takes this axis — their
+ * cause is a spell or an attacking creature (an object filter), while the cause here is a player
+ * event with nothing to filter, so it carries no parameters, like [AdditionalDungeonRoomTriggers].
+ *
+ * Only life-gain triggered abilities ("whenever you gain life", "whenever a player gains life",
+ * "… for the first time each turn") are doubled, and only for a life-gain event of the doubler's
+ * controller — an opponent gaining life never doubles. The triggered ability must belong to a
+ * permanent the doubler's controller controls. Multiple copies are additive: N copies add N extra
+ * firings of each affected trigger.
+ */
+@SerialName("AdditionalLifeGainTriggers")
+@Serializable
+data object AdditionalLifeGainTriggers : StaticAbility {
+    override val description: String =
+        "If you gaining life causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time"
+}
+
+/**
  * Room abilities of dungeons you own trigger an additional time (CR 603.2d, 309.4c) — Hama Pashar,
  * Ruin Seeker. The **room-ability** analogue of [AdditionalSourceTriggers]: a dungeon's room abilities
  * trigger from the command zone, where no permanent filter can reach their source, so the scope is
@@ -2129,13 +2317,17 @@ data class AdditionalDeathTriggers(
  *   "any number of lands"
  * @property affected Who gets the extra drops, relative to the source's controller: [Player.You]
  *   (default), [Player.Each], or [Player.EachOpponent].
+ *
+ * A [ProjectedStaticAbility], read off the holder's projected statics — so one gained from a
+ * resolved effect (Nog, Ambitious Cadet) or a [GrantStaticAbility] counts like a printed one, and
+ * "you" is the holder's controller.
  */
 @SerialName("GrantAdditionalLandDrop")
 @Serializable
 data class GrantAdditionalLandDrop(
     val count: Int? = 1,
     val affected: Player = Player.You
-) : StaticAbility {
+) : ProjectedStaticAbility {
     init {
         require(count == null || count > 0) { "GrantAdditionalLandDrop.count must be positive or null, was $count" }
         require(affected == Player.You || affected == Player.Each || affected == Player.EachOpponent) {

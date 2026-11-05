@@ -89,7 +89,8 @@ object TokenFromDefinition {
         staticAbilityHandler: StaticAbilityHandler? = null,
         devourCounters: Int? = null,
         predicateEvaluator: PredicateEvaluator,
-        entrySourceState: GameState? = null
+        entrySourceState: GameState? = null,
+        tokenCreatorId: EntityId = controllerId
     ): EffectResult {
         // As-enters: Devour (CR 702.82) and its variants, raised before the token is minted — see
         // [devourCounters]. Skipped when the controller has nothing to sacrifice; devour then just
@@ -121,7 +122,8 @@ object TokenFromDefinition {
                     controllerId = controllerId,
                     multiplier = devour.multiplier,
                     counterType = devour.counterType,
-                    entrySourceState = entrySourceState
+                    entrySourceState = entrySourceState,
+                    tokenCreatorId = tokenCreatorId
                 )
 
                 return EffectResult.from(state.suspendForDecision(decision, continuation, emptyList()))
@@ -153,7 +155,7 @@ object TokenFromDefinition {
 
         var newState = stateWithId.withEntity(tokenId, container)
         newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.applyBeforeEntry(newState, tokenId, cardRegistry, predicateEvaluator)
-        newState = BattlefieldEntry.place(newState, controllerId, tokenId, tokenCreatorId = controllerId)
+        newState = BattlefieldEntry.place(newState, controllerId, tokenId, tokenCreatorId = tokenCreatorId)
 
         // As-enters: enters tapped (CR 614). The payLifeCost (shock-land) form is land-only. Read from
         // the identity the token entered with — a granted entry copy replaced the minted definition.
@@ -164,7 +166,10 @@ object TokenFromDefinition {
         if (entersTapped != null && entersTapped.payLifeCost == null) {
             val shouldEnterTapped = entersTapped.unlessCondition?.let { condition ->
                 !predicateEvaluator.conditions.evaluate(
-                    newState, condition, EffectContext(sourceId = tokenId, controllerId = controllerId)
+                    newState, condition, EffectContext(sourceId = tokenId, controllerId = controllerId),
+                    entryViews = com.wingedsheep.engine.handlers.effects.entryEvaluationViews(
+                        newState, tokenId, controllerId, entrySourceState ?: state
+                    )
                 )
             } ?: true
             if (shouldEnterTapped) {
@@ -234,7 +239,7 @@ object TokenFromDefinition {
         // counter (chapter I then triggers). BattlefieldEntry.place is the ad-hoc insertion path
         // and intentionally skips enters-with-counters setup, so apply the shared Saga-entry
         // helper here — the same one the standard moveToZone pipeline uses. No-op for non-Sagas.
-        val (sagaState, sagaEvents) = ZoneMovementUtils.applySagaEntryIfNeeded(newState, tokenId, predicateEvaluator)
+        val (sagaState, sagaEvents) = ZoneMovementUtils.applySagaEntryIfNeeded(newState, tokenId, predicateEvaluator, replacementSourceState = entrySourceState)
         newState = sagaState
 
         // CR 306.5b: same for a minted planeswalker — it enters with its printed loyalty counters,

@@ -84,6 +84,7 @@ enum class TriggerCategory {
     CLASHED,
     SCRIED,
     SURVEILED,
+    DILEMMA_FACED,
     PROLIFERATED,
     DISCOVERED,
     EVIDENCE_COLLECTED,
@@ -288,6 +289,7 @@ class TriggerIndex(
                 is SdkGameEvent.PhasesInEvent -> listOf(TriggerCategory.PHASES_IN)
                 is SdkGameEvent.LifeGainEvent -> listOf(TriggerCategory.LIFE_GAIN)
                 is SdkGameEvent.LifeLossEvent -> listOf(TriggerCategory.LIFE_LOSS)
+                is SdkGameEvent.LifePaymentEvent -> listOf(TriggerCategory.LIFE_LOSS)
                 is SdkGameEvent.BecomesTargetEvent -> listOf(TriggerCategory.BECOMES_TARGET)
                 is SdkGameEvent.TurnFaceUpEvent -> listOf(TriggerCategory.TURN_FACE_UP)
                 is SdkGameEvent.MutateEvent -> listOf(TriggerCategory.MUTATED)
@@ -323,6 +325,7 @@ class TriggerIndex(
                 is SdkGameEvent.ClashedEvent -> CLASHED_LIST
                 is SdkGameEvent.ScriedEvent -> SCRIED_LIST
                 is SdkGameEvent.SurveiledEvent -> SURVEILED_LIST
+                is SdkGameEvent.DilemmaFacedEvent -> DILEMMA_FACED_LIST
                 is SdkGameEvent.ProliferatedEvent -> PROLIFERATED_LIST
                 // "Whenever you scry or surveil" indexes under both buckets so either engine event
                 // finds it; the matcher confirms the event is a scry or a surveil.
@@ -341,7 +344,7 @@ class TriggerIndex(
                 is SdkGameEvent.TrainedEvent -> TRAINED_LIST
                 is SdkGameEvent.EvolvedEvent -> EVOLVED_LIST
                 is SdkGameEvent.EnlistedEvent -> ENLISTED_LIST
-                is SdkGameEvent.ExertedAsItAttacksEvent -> EXERTED_LIST
+                is SdkGameEvent.ExertedEvent -> EXERTED_LIST
                 is SdkGameEvent.ChampionedEvent -> CHAMPIONED_LIST
                 is SdkGameEvent.BendPerformedEvent -> BEND_LIST
                 is SdkGameEvent.ManifestedDreadEvent -> MANIFESTED_DREAD_LIST
@@ -380,7 +383,6 @@ class TriggerIndex(
                 is SdkGameEvent.DrawCardsEvent,
                 is SdkGameEvent.ExtraTurnEvent,
                 is SdkGameEvent.CounterSpellEvent,
-                is SdkGameEvent.LifePaymentEvent,
                 is SdkGameEvent.LearnEvent,
                 is SdkGameEvent.ScryEvent,
                 is SdkGameEvent.SurveilEvent -> emptyList()
@@ -439,6 +441,7 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.ClashedEvent -> CLASHED_LIST
             is com.wingedsheep.engine.core.ScriedEvent -> SCRIED_LIST
             is com.wingedsheep.engine.core.SurveiledEvent -> SURVEILED_LIST
+            is com.wingedsheep.engine.core.DilemmaFacedEvent -> DILEMMA_FACED_LIST
             is com.wingedsheep.engine.core.ProliferatedEvent -> PROLIFERATED_LIST
             is com.wingedsheep.engine.core.DiscoveredEvent -> DISCOVERED_LIST
             is com.wingedsheep.engine.core.EvidenceCollectedEvent -> EVIDENCE_COLLECTED_LIST
@@ -496,6 +499,7 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.SubgameEndedEvent,
             is com.wingedsheep.engine.core.TurnSkippedEvent,
             is com.wingedsheep.engine.core.AbilityAutoAnsweredEvent,
+            is com.wingedsheep.engine.core.TriggersOrderedAutomaticallyEvent,
             is com.wingedsheep.engine.core.AbilityCounteredEvent,
             is com.wingedsheep.engine.core.AbilityFizzledEvent,
             is com.wingedsheep.engine.core.AbilityResolvedEvent,
@@ -514,12 +518,14 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.CreatureNoLongerGoadedEvent,
             is com.wingedsheep.engine.core.CreatureTypeChangedEvent,
             is com.wingedsheep.engine.core.CreatureTypeChosenEvent,
+            is com.wingedsheep.engine.core.VoteCastEvent,
             is com.wingedsheep.engine.core.CreatureTypeRevealedEvent,
             is com.wingedsheep.engine.core.CreaturesPairedEvent,
             is com.wingedsheep.engine.core.CreaturesUnpairedEvent,
             is com.wingedsheep.engine.core.DamageAssignedEvent,
             is com.wingedsheep.engine.core.DecisionRequestedEvent,
             is com.wingedsheep.engine.core.DecisionSubmittedEvent,
+            is com.wingedsheep.engine.core.TeamBlockerChoiceEvent,
             is com.wingedsheep.engine.core.DiscardRequiredEvent,
             is com.wingedsheep.engine.core.DoorLockedEvent,
             is com.wingedsheep.engine.core.AttackDeclarationCancelledEvent,
@@ -534,7 +540,6 @@ class TriggerIndex(
             is com.wingedsheep.engine.core.GraveyardOrderedEvent,
             is com.wingedsheep.engine.core.LibraryReorderedEvent,
             is com.wingedsheep.engine.core.LookedAtCardsEvent,
-            is com.wingedsheep.engine.core.LoyaltyChangedEvent,
             is com.wingedsheep.engine.core.ManaAddedEvent,
             is com.wingedsheep.engine.core.ManaSpentEvent,
             is com.wingedsheep.engine.core.ManaPoolChangedEvent,
@@ -604,6 +609,7 @@ class TriggerIndex(
         private val CLASHED_LIST = listOf(TriggerCategory.CLASHED)
         private val SCRIED_LIST = listOf(TriggerCategory.SCRIED)
         private val SURVEILED_LIST = listOf(TriggerCategory.SURVEILED)
+        private val DILEMMA_FACED_LIST = listOf(TriggerCategory.DILEMMA_FACED)
         private val PROLIFERATED_LIST = listOf(TriggerCategory.PROLIFERATED)
         private val DISCOVERED_LIST = listOf(TriggerCategory.DISCOVERED)
         private val EVIDENCE_COLLECTED_LIST = listOf(TriggerCategory.EVIDENCE_COLLECTED)

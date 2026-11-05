@@ -236,6 +236,21 @@ data class PayCountersContinuation(
 ) : AnswerContinuation
 
 /**
+ * Resume after the controller chose how many [counterType] counters to remove from each permanent
+ * offered by [com.wingedsheep.sdk.scripting.effects.RemoveCountersFromAmongEffect]. The response is a
+ * distribution (permanent -> count); the resumer removes them and stores the total under
+ * [storeAmountAs] in the pipeline frame beneath.
+ */
+@Serializable
+data class RemoveCountersFromAmongContinuation(
+    val controllerId: EntityId,
+    val counterType: CounterType,
+    val storeAmountAs: String,
+    val sourceId: EntityId?,
+    val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+) : AnswerContinuation
+
+/**
  * Resume after the controller picks one of a player's spells cast this turn for
  * `ChooseSpellCastThisTurnEffect` (Backdraft). [damageByOption] is aligned with the decision's
  * options; the picked spell's damage is stored in the next frame's pipeline under [storeAs].
@@ -453,6 +468,20 @@ data class StormCopyTargetContinuation(
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+) : AnswerContinuation
+
+/**
+ * Resume a [com.wingedsheep.sdk.scripting.effects.CopyForOtherPossibleTargetsEffect] with
+ * `selection = ONE_CHOSEN` (Beamsplitter Mage) once the copier has picked which of [candidates] the
+ * single copy of [originalId] targets.
+ */
+@Serializable
+data class CopyForChosenPossibleTargetContinuation(
+    val effect: com.wingedsheep.sdk.scripting.effects.CopyForOtherPossibleTargetsEffect,
+    val effectContext: com.wingedsheep.engine.handlers.EffectContext,
+    val originalId: EntityId,
+    val copierId: EntityId,
+    val candidates: List<EntityId>
 ) : AnswerContinuation
 
 /**

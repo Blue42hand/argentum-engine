@@ -65,16 +65,19 @@ class CreateTokenExecutor(
         effect: CreateTokenEffect,
         context: EffectContext
     ): EffectResult {
-        val baseCount = amountEvaluator.evaluate(state, effect.count, context)
+        val baseCount = context.pipeline.chosenValues[FAN_OUT_COUNT_KEY]?.toIntOrNull()
+            ?: amountEvaluator.evaluate(state, effect.count, context)
         if (baseCount <= 0) return EffectResult.success(state)
 
         // Resolve who receives the token — defaults to the spell/ability controller. A
         // multi-player reference ("each opponent creates ...") fans out: every resolved
-        // player creates their own token(s).
+        // player creates their own token(s). A named controller that resolves to nobody — "its
+        // controller" after an "up to one target" chose none (Cavalier of Dawn) — creates
+        // nothing: the effect names no player, so it never falls back to the source's controller.
         val tokenControllerIds = effect.controller
             ?.let { context.resolvePlayerTargets(it, state) }
-            ?.takeIf { it.isNotEmpty() }
             ?: listOf(context.controllerId)
+        if (tokenControllerIds.isEmpty()) return EffectResult.success(state)
 
         var currentState = state
         val allEvents = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
@@ -100,7 +103,12 @@ class CreateTokenExecutor(
                     )
                 )
             )
-            val result = createTokensFor(currentState, effect, playerContext, baseCount, tokenControllerId, rootEffect = effect)
+            val frozenContext = playerContext.copy(pipeline = playerContext.pipeline.copy(
+                chosenValues = playerContext.pipeline.chosenValues + mapOf(FAN_OUT_COUNT_KEY to baseCount.toString(),
+                    FAN_OUT_ACTIVE_KEY to tokenControllerId.value)))
+            val result = createTokensFor(currentState, effect,
+                TokenCreationReplacementHelper.withCreator(frozenContext, tokenControllerId),
+                baseCount, tokenControllerId, rootEffect = effect)
             if (result.error != null) return result
             // A question raised before this player's tokens exist (a CR 508.4 defender, a token
             // substitution): the earlier players' tokens are already on the battlefield, so their
@@ -144,7 +152,8 @@ class CreateTokenExecutor(
         tokenControllerId: EntityId,
         riders: TokenRiders,
         rootEffect: com.wingedsheep.sdk.scripting.effects.Effect,
-        alreadyApplied: Set<com.wingedsheep.engine.replacement.ActiveReplacement> = emptySet()
+        alreadyApplied: Set<com.wingedsheep.engine.replacement.ActiveReplacement> = emptySet(),
+        delayedTriggerControllerId: EntityId = tokenControllerId
     ): EffectResult {
         if (count <= 0) return EffectResult.success(state)
         val normalized = substitution.token.copy(
@@ -161,7 +170,8 @@ class CreateTokenExecutor(
         )
         return createTokensFor(
             state, normalized, context, count, tokenControllerId, rootEffect,
-            appliedSubstitutions = alreadyApplied + substitution.applied
+            appliedSubstitutions = alreadyApplied + substitution.applied,
+            delayedTriggerControllerId = delayedTriggerControllerId
         )
     }
 
@@ -178,11 +188,28 @@ class CreateTokenExecutor(
         effect: CreateTokenEffect,
         context: EffectContext,
         baseCount: Int,
-        tokenControllerId: EntityId,
+        wouldBeControllerId: EntityId,
         rootEffect: com.wingedsheep.sdk.scripting.effects.Effect,
-        appliedSubstitutions: Set<com.wingedsheep.engine.replacement.ActiveReplacement> = emptySet()
+        appliedSubstitutions: Set<com.wingedsheep.engine.replacement.ActiveReplacement> = emptySet(),
+        delayedTriggerControllerId: EntityId = wouldBeControllerId
     ): EffectResult {
         val substituted = appliedSubstitutions.isNotEmpty()
+        // Inside a redirected batch the groups already run under the new controller; the batch
+        // remembers who it was for, and that player keeps the delayed triggers.
+        val delayedController =
+            TokenCreationBatch.wouldBeController(context)
+                ?: delayedTriggerControllerId
+        // "Created under your control instead" (Crafty Cutpurse) comes before every other token
+        // replacement, so the doublers and substitutions below judge the event under the new
+        // controller. Substitutes belong to an event already redirected, and a batch redirected
+        // the whole event before its groups run.
+        val tokenControllerId = if (substituted || TokenCreationBatch.active(context)) wouldBeControllerId
+        else when (val redirect = TokenCreationReplacementHelper.redirectController(
+            state, wouldBeControllerId, context, rootEffect, amountEvaluator.predicates
+        )) {
+            is TokenControllerRedirect.Resolved -> redirect.controllerId
+            is TokenControllerRedirect.Ask -> return redirect.result
+        }
         // Apply token-count replacements (Doubling Season / Exalted Sunborn,
         // and per-N modifiers) before downstream replacements get a look.
         val requestedCount = if (substituted || TokenCreationBatch.active(context)) baseCount else TokenCreationReplacementHelper.applyCountReplacements(
@@ -227,7 +254,8 @@ class CreateTokenExecutor(
         )?.let { lookup ->
             return when (lookup) {
                 is TokenSubstitution -> createSubstituteTokens(
-                    state, lookup, context, count, tokenControllerId, TokenRiders.of(effect), rootEffect, appliedSubstitutions
+                    state, lookup, context, count, tokenControllerId, TokenRiders.of(effect), rootEffect, appliedSubstitutions,
+                    delayedController
                 )
                 is TokenSubstitutionChoice ->
                     TokenCreationReplacementHelper.askForSubstitution(state, lookup, rootEffect, context, count)
@@ -267,7 +295,18 @@ class CreateTokenExecutor(
                 .resolvePlayerTarget(effect.attackedPlayer!!, context, state)
                 ?.takeIf { it in state.getOpponents(tokenControllerId) }
         } else null
-        val chosenDefenders = if (effect.attacking &&
+        val entersAsCreature = if (effect.attacking && cardRegistry != null) {
+            val (probeId, withProbeId) = state.newEntity()
+            val probe = withProbeId.withEntity(probeId, ComponentContainer.of(
+                prospective, TokenComponent, ControllerComponent(tokenControllerId)))
+            val copied = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.applyBeforeEntry(
+                probe, probeId, cardRegistry, amountEvaluator.predicates)
+            copied.entryCopyOrders?.unasked != null ||
+                com.wingedsheep.engine.handlers.effects.entryEvaluationViews(copied, probeId, tokenControllerId, state)
+                    .entrantAsWouldExist.projectedState.isCreature(probeId)
+        } else true
+        val chosenDefenders = if (effect.attacking && entersAsCreature &&
+            com.wingedsheep.engine.mechanics.combat.CombatDefenders.isAttackingPlayer(state, tokenControllerId) &&
             effect.attackDefender == com.wingedsheep.sdk.scripting.effects.EnteringAttackDefender.CONTROLLER_CHOOSES
         ) {
             if (namesDefendingPlayer && namedDefendingPlayer == null) List(count) { null }
@@ -277,13 +316,39 @@ class CreateTokenExecutor(
                 )
         } else null
 
-        val donatedTriggers = donatedTriggeredAbilities(state, effect, context)
+        return materializeTokens(state, effect, context, tokenControllerId, count, emptyList(),
+            TokenEntryReplacements.beforeEvent(state, context).copy(continuationStack = emptyList()),
+            resolvedImageUris, chosenDefenders, identity, donatedTriggeredAbilities(state, effect, context),
+            delayedController, rootEffect,
+            context.pipeline.chosenValues[FAN_OUT_ACTIVE_KEY]?.let(::EntityId) ?: wouldBeControllerId)
+    }
+
+    /** Continue an already-replaced event after one entrant has answered all its entry choices. */
+    internal fun materializeTokens(
+        state: GameState, effect: CreateTokenEffect, context: EffectContext, tokenControllerId: EntityId,
+        count: Int, previousTokenIds: List<EntityId>, entrySourceState: GameState,
+        resolvedImageUris: List<String?>, chosenDefenders: List<EntityId?>?, identity: TokenIdentity,
+        donatedTriggers: List<TriggeredAbility>, delayedController: EntityId,
+        rootEffect: com.wingedsheep.sdk.scripting.effects.Effect, wouldBeControllerId: EntityId
+    ): EffectResult {
+        val effectiveColors = identity.colors
+        val tokenName = identity.name
+        val tokenPower = identity.power
+        val tokenToughness = identity.toughness
+        val tokenTypeLine = identity.typeLine
+        val tokenCardDefinitionId = identity.cardDefinitionId
+        val namesDefendingPlayer = effect.attacking && effect.attackedPlayer != null
+        val namedDefendingPlayer = effect.attackedPlayer?.let {
+            com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.resolvePlayerTarget(it, context, entrySourceState)
+        }?.takeIf { it in entrySourceState.getOpponents(tokenControllerId) }
+        val attackingPlayer = com.wingedsheep.engine.mechanics.combat.CombatDefenders.isAttackingPlayer(state, tokenControllerId)
 
         var newState = state
-        val createdTokens = mutableListOf<EntityId>()
+        val createdTokens = previousTokenIds.toMutableList()
+        val events = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
 
         repeat(count) { indexInBatch ->
-            val resolvedImageUri = resolvedImageUris[indexInBatch % resolvedImageUris.size]
+            val resolvedImageUri = resolvedImageUris[(previousTokenIds.size + indexInBatch) % resolvedImageUris.size]
             val (tokenId, stateWithId) = newState.newEntity()
             newState = stateWithId
             createdTokens.add(tokenId)
@@ -326,14 +391,13 @@ class CreateTokenExecutor(
             // (CR 508.4), else it joins the attack of the source creature (CR 802.2a: defender
             // per attacking creature), falling back to the sole active opponent outside
             // combat-derived contexts.
-            val defenderId = if (!effect.attacking) null
-                else if (chosenDefenders != null) chosenDefenders[indexInBatch]
+            // Only an attacking player's creature can enter attacking: a token redirected to the
+            // defending player (Crafty Cutpurse) enters tapped, not attacking.
+            val defenderId = if (!effect.attacking || !attackingPlayer) null
+                else if (chosenDefenders != null) chosenDefenders[previousTokenIds.size + indexInBatch]
                 else if (namesDefendingPlayer) namedDefendingPlayer
                 else com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
                     .defenderForEnteringAttacker(context, newState, tokenControllerId)
-            if (defenderId != null) {
-                components.add(AttackingComponent(defenderId, defendingPlayerId = com.wingedsheep.engine.mechanics.combat.CombatDefenders.defendingPlayerOf(newState, defenderId)))
-            }
             var container = ComponentContainer.of(*components.toTypedArray())
             // "with toxic 1" — the token's printed numeric keywords ride the same components a
             // card's do, so combat damage and "creatures with toxic" read them.
@@ -345,57 +409,111 @@ class CreateTokenExecutor(
                 )
             }
             newState = newState.withEntity(tokenId, container)
-            // A planeswalker or battle now being attacked is stamped as such (CR 506.4).
-            if (defenderId != null) {
-                newState = com.wingedsheep.engine.mechanics.combat.AttackedPermanents.markAttacked(newState, defenderId)
-            }
 
             // Add to battlefield
             if (cardRegistry != null) newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.applyBeforeEntry(newState, tokenId, cardRegistry, amountEvaluator.predicates)
             newState = TokenEntryReplacements.applyInheritedBundleRiders(newState, tokenId, state,
                 tokenControllerId, context, amountEvaluator.predicates)
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                .place(newState, tokenControllerId, tokenId, tokenCreatorId = context.controllerId)
+                .place(newState, tokenControllerId, tokenId, tokenCreatorId = TokenCreationReplacementHelper.creatorId(context, delayedController))
+            // A copy replacement can make the entrant a noncreature. Only its final identity attacks.
+            if (defenderId != null && newState.projectedState.isCreature(tokenId)) {
+                newState = newState.updateEntity(tokenId) { it.with(AttackingComponent(defenderId,
+                    defendingPlayerId = com.wingedsheep.engine.mechanics.combat.CombatDefenders.defendingPlayerOf(newState, defenderId))) }
+                newState = com.wingedsheep.engine.mechanics.combat.AttackedPermanents.markAttacked(newState, defenderId)
+            }
 
             // Tokens honor global "[filter] enter tapped" replacements from other permanents
             // (Dauntless Dismantler, Authority of the Consuls, …) — BattlefieldEntry.place doesn't
             // set tapped state, so resolve it here now the token carries its controller/type.
-            newState = EnterTappedReplacements.applyCreatedTokenEntryTap(
-                newState, tokenId, tokenControllerId,
+            newState = TokenEntryReplacements.applyEntryTap(
+                newState, tokenId, tokenControllerId, cardRegistry,
                 definedTapped = effect.tapped, attacking = effect.attacking,
-                predicateEvaluator = amountEvaluator.predicates, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context)
+                predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState
             )
             newState = TokenEntryReplacements.applyInitialCounters(
-                newState, tokenId, preCreationState = TokenEntryReplacements.beforeEvent(state, context), controllerId = tokenControllerId,
+                newState, tokenId, preCreationState = entrySourceState, controllerId = tokenControllerId,
                 initialCounters = effect.initialCounters, predicateEvaluator = amountEvaluator.predicates
             )
-        }
 
-        // Apply "enters with counters" replacement effects from other battlefield permanents
-        // (e.g., Gev, Scaled Scorch granting +1/+1 counters to tokens entering under your control).
-        // A token that entered as a copy of a card (a granted entry copy) has that card's own too.
-        val counterEvents = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
-        for (tokenId in createdTokens) {
             val enteredAsCopy = newState.getEntity(tokenId)
                 ?.has<com.wingedsheep.engine.state.components.identity.CopyOfComponent>() == true
-            val (nextState, events) = if (enteredAsCopy && cardRegistry != null) EntersWithReplacements.applyOnEntry(
-                newState, tokenId, tokenControllerId, cardRegistry,
-                predicateEvaluator = amountEvaluator.predicates,
-                replacementSourceState = TokenEntryReplacements.beforeEvent(state, context)
+            val (withCounters, counterEvents) = if (enteredAsCopy && cardRegistry != null) EntersWithReplacements.applyOnEntry(
+                newState, tokenId, tokenControllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates,
+                replacementSourceState = entrySourceState
             ) else EntersWithReplacements.applyGlobal(
-                newState, tokenId, tokenControllerId, cardRegistry,
-                predicateEvaluator = amountEvaluator.predicates, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context)
-            )
-            newState = nextState
-            counterEvents.addAll(events)
+                newState, tokenId, tokenControllerId, cardRegistry, predicateEvaluator = amountEvaluator.predicates,
+                replacementSourceState = entrySourceState)
+            newState = installNativeRiders(withCounters, entrySourceState, effect, context, tokenId, delayedController)
+            events += counterEvents
+            val enteringCard = requireNotNull(newState.getEntity(tokenId)?.get<CardComponent>())
+            val choicePlan = cardRegistry?.let { registry -> TokenEntryReplacements.firstEntersWithChoice(
+                newState, tokenId, registry, amountEvaluator.predicates, replacementSourceState = entrySourceState) }
+            if (choicePlan != null) {
+                val pending = newState.pushContinuation(com.wingedsheep.engine.core.GenericTokenMaterializationContinuation(
+                    effect, context, tokenControllerId, count - indexInBatch - 1, createdTokens.toList(),
+                    entrySourceState, resolvedImageUris, chosenDefenders, identity, donatedTriggers,
+                    delayedController, rootEffect, wouldBeControllerId))
+                val paused = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements.pauseForEntersWithChoice(
+                    state = pending, entityId = tokenId, controllerId = tokenControllerId,
+                    cardComponent = enteringCard, choice = choicePlan.choice, fromZone = null,
+                    carryEvents = events, syntheticRiot = choicePlan.syntheticRiot,
+                    syntheticRiotRemaining = choicePlan.syntheticRiotRemaining,
+                    pendingEntryChoices = choicePlan.pendingEntryChoices, replacementSourceState = entrySourceState)
+                if (paused != null) return EffectResult.from(paused)
+            }
+            val (withSaga, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+                .applySagaEntryIfNeeded(newState, tokenId, amountEvaluator.predicates,
+                    replacementSourceState = entrySourceState)
+            newState = withSaga
+            events += sagaEvents
+            if (cardRegistry != null) {
+                val (withIntrinsic, intrinsicEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+                    .applyIntrinsicEntryCountersIfNeeded(newState, tokenId, tokenControllerId, cardRegistry,
+                        predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState)
+                newState = withIntrinsic
+                events += intrinsicEvents
+            }
+            events += ZoneChangeEvent(entityId = tokenId, entityName = enteringCard.name, fromZone = null,
+                toZone = Zone.BATTLEFIELD, ownerId = tokenControllerId, oldObject = null, newObject = newState.objectRef(tokenId))
         }
 
+        // Apply "create those tokens plus an additional X token" replacements (Worldwalker
+        // Helm) once for this batch. Only the just-created tokens are matched against the
+        // filter, so an added artifact token can't recursively re-trigger.
+        val (afterAdditional, additionalEvents) = if (TokenCreationBatch.active(context)) newState to emptyList() else TokenCreationReplacementHelper
+            .applyAdditionalTokenReplacements(
+                newState, tokenControllerId, createdTokens, effect.tapped,
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = TokenCreationReplacementHelper.creatorId(context, delayedController), eligibleSources = TokenCreationBatch.sources(context)
+                    ?: com.wingedsheep.engine.replacement.ActiveReplacements.all(entrySourceState).map { it.sourceId }.toSet(),
+                handled = context.tokenCreationReplacementsHandled
+            )
+        newState = afterAdditional
+
+        // Publish the freshly-created token entity IDs to the pipeline so sibling effects in a
+        // CompositeEffect can address them via EffectTarget.PipelineTarget(CREATED_TOKENS, index).
+        // Mirrors CreatePredefinedTokenExecutor — lets a composite grant keywords/counters to the
+        // tokens it just made (e.g. Mardu Monument's "create three Warriors; they gain menace and
+        // haste until end of turn").
+        return EffectResult(
+            state = newState,
+            events = events + additionalEvents,
+            updatedCollections = mapOf(CREATED_TOKENS to createdTokens)
+        )
+    }
+
+    private fun installNativeRiders(
+        state: GameState, sourceState: GameState, effect: CreateTokenEffect, context: EffectContext,
+        tokenId: EntityId, delayedController: EntityId
+    ): GameState {
+        var newState = state
+        val createdTokens = listOf(tokenId)
         // If exileAtStep is set, create delayed triggers to exile each created token
         val exileStep = effect.exileAtStep
         if (exileStep != null) {
             val sourceId = context.sourceId ?: context.controllerId
             val sourceName = sourceId.let { id ->
-                state.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
+                sourceState.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
             }
             for (tokenId in createdTokens) {
                 val (delayedTriggerId, stateWithRoutingId) = newState.newRoutingId()
@@ -407,7 +525,8 @@ class CreateTokenExecutor(
                     sourceId = sourceId,
                     objectReferences = context.objectReferences,
                     sourceName = sourceName,
-                    controllerId = tokenControllerId
+                    // The creating effect's player, even when the token went to someone else.
+                    controllerId = delayedController
                 )
                 newState = newState.addDelayedTrigger(delayedTrigger)
             }
@@ -420,7 +539,7 @@ class CreateTokenExecutor(
         if (sacrificeStep != null) {
             val sourceId = context.sourceId ?: context.controllerId
             val sourceName = sourceId.let { id ->
-                state.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
+                sourceState.getEntity(id)?.get<CardComponent>()?.name ?: "Unknown"
             }
             for (tokenId in createdTokens) {
                 val (delayedTriggerId, stateWithRoutingId) = newState.newRoutingId()
@@ -432,12 +551,14 @@ class CreateTokenExecutor(
                     sourceId = sourceId,
                     objectReferences = context.objectReferences,
                     sourceName = sourceName,
-                    controllerId = tokenControllerId
+                    // The creating effect's player, even when the token went to someone else.
+                    controllerId = delayedController
                 )
                 newState = newState.addDelayedTrigger(delayedTrigger)
             }
         }
 
+        if (newState.getEntity(tokenId)?.has<com.wingedsheep.engine.state.components.identity.CopyOfComponent>() != true) {
         // If triggered abilities are specified, grant them permanently to each created token
         if (effect.triggeredAbilities.isNotEmpty()) {
             for (tokenId in createdTokens) {
@@ -520,44 +641,43 @@ class CreateTokenExecutor(
             }
         }
 
-        val events = createdTokens.map { tokenId ->
-            val entity = newState.getEntity(tokenId)!!
-            val card = entity.get<CardComponent>()!!
-            ZoneChangeEvent(
-                entityId = tokenId,
-                entityName = card.name,
-                fromZone = null,
-                toZone = Zone.BATTLEFIELD,
-                ownerId = tokenControllerId,
-                oldObject = null,
-                newObject = newState.objectRef(tokenId)
-            )
         }
-
-        // Apply "create those tokens plus an additional X token" replacements (Worldwalker
-        // Helm) once for this batch. Only the just-created tokens are matched against the
-        // filter, so an added artifact token can't recursively re-trigger.
-        val (afterAdditional, additionalEvents) = if (TokenCreationBatch.active(context)) newState to emptyList() else TokenCreationReplacementHelper
-            .applyAdditionalTokenReplacements(
-                newState, tokenControllerId, createdTokens, effect.tapped,
-                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId, handled = context.tokenCreationReplacementsHandled
-            )
-        newState = afterAdditional
-
-        // Publish the freshly-created token entity IDs to the pipeline so sibling effects in a
-        // CompositeEffect can address them via EffectTarget.PipelineTarget(CREATED_TOKENS, index).
-        // Mirrors CreatePredefinedTokenExecutor — lets a composite grant keywords/counters to the
-        // tokens it just made (e.g. Mardu Monument's "create three Warriors; they gain menace and
-        // haste until end of turn").
-        return EffectResult(
-            state = newState,
-            events = events + counterEvents + additionalEvents,
-            updatedCollections = mapOf(CREATED_TOKENS to createdTokens)
-        )
+        return newState
     }
 
+    internal fun resumeMaterialization(
+        state: GameState, frame: com.wingedsheep.engine.core.GenericTokenMaterializationContinuation
+    ): EffectResult {
+        val result = materializeTokens(state, frame.effect, frame.context, frame.controllerId,
+            frame.remaining, frame.createdTokenIds, frame.entrySourceState, frame.resolvedImageUris,
+            frame.chosenDefenders, frame.identity, frame.donatedTriggers, frame.delayedControllerId,
+            frame.rootEffect, frame.wouldBeControllerId)
+        if (result.outcome !is com.wingedsheep.engine.core.Outcome.Done) return result
+        val original = frame.rootEffect as? CreateTokenEffect ?: return finishNativeEvent(result)
+        // The original fan-out call was suspended. Continue only recipients not yet completed.
+        val chosen = frame.context.pipeline.chosenValues
+        val done = (chosen[FAN_OUT_DONE_KEY]?.split(',')?.filter { it.isNotEmpty() }.orEmpty() +
+            frame.wouldBeControllerId.value).distinct()
+        val prior = chosen[FAN_OUT_CREATED_KEY]?.split(',')?.filter { it.isNotEmpty() }.orEmpty()
+        val created = prior + result.updatedCollections[CREATED_TOKENS].orEmpty().map { it.value }
+        val resumedContext = frame.context.copy(entryAttackDefenders = emptyList(), pipeline = frame.context.pipeline.copy(
+            chosenValues = chosen + mapOf(FAN_OUT_DONE_KEY to done.joinToString(","),
+                FAN_OUT_CREATED_KEY to created.joinToString(","))))
+        val remaining = execute(result.state, original, resumedContext)
+        return finishNativeEvent(remaining.copy(events = result.events + remaining.events))
+    }
+
+    private fun finishNativeEvent(result: EffectResult): EffectResult =
+        if (result.outcome is com.wingedsheep.engine.core.Outcome.Done && result.state.continuationStack.none {
+                it is com.wingedsheep.engine.core.TokenBundleMaterializationContinuation ||
+                    it is com.wingedsheep.engine.core.GenericTokenMaterializationContinuation ||
+                    it is com.wingedsheep.engine.core.PredefinedTokenMaterializationContinuation
+            }) result.copy(state = com.wingedsheep.engine.replacement.ActiveReplacements.purgeSpent(result.state))
+        else result
+
     /** The characteristics a [CreateTokenEffect]'s tokens are created with, resolved once per batch. */
-    internal data class TokenIdentity(
+    @kotlinx.serialization.Serializable
+    data class TokenIdentity(
         val colors: Set<com.wingedsheep.sdk.core.Color>,
         val creatureTypes: Set<String>,
         val name: String,
@@ -645,6 +765,8 @@ class CreateTokenExecutor(
     private companion object {
         /** Chosen-values key listing the players a fanned-out creation already made tokens for. */
         const val FAN_OUT_DONE_KEY = "__tokenFanOutDone"
+        const val FAN_OUT_COUNT_KEY = "__tokenFanOutCount"
+        const val FAN_OUT_ACTIVE_KEY = "__tokenFanOutActive"
 
         /** Chosen-values key listing the tokens those players got, so CREATED_TOKENS still holds them. */
         const val FAN_OUT_CREATED_KEY = "__tokenFanOutCreated"

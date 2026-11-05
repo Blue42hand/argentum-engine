@@ -4,6 +4,7 @@
 
 package com.wingedsheep.mtg.sets.definitions.hml.cards
 
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
@@ -24,7 +25,7 @@ val MerchantScroll = card("Merchant Scroll") {
     oracleText = "Search your library for a blue instant card, reveal that card, put it into your hand, then shuffle."
     spell {
         effect = Patterns.Library.searchLibrary(
-            filter = GameObjectFilter.Instant,
+            filter = GameObjectFilter.Instant.withColor(Color.BLUE),
             destination = SearchDestination.HAND,
             reveal = true
         )

@@ -133,3 +133,18 @@ describe('server-supplied mana payment colors', () => {
   })
 
 })
+
+
+describe('compact generic coverage', () => {
+  it('tracks partial billion-mana costs without expanding the generic units', () => {
+    const result = computeCoverage(['1999999998'], pool({ colorless: 7 }), [], [])
+    expect(result).toHaveLength(1)
+    expect(result[0]).toMatchObject({ symbol: '1999999998', coveredGeneric: 7, floating: false, pending: false })
+  })
+  it('keeps a fully covered large amount and colored pips distinct', () => {
+    const result = computeCoverage(['U', '1999999998'], pool({ blue: 1, colorless: 1999999998 }), [], [])
+    expect(result).toHaveLength(2)
+    expect(result[0]).toMatchObject({ symbol: 'U', floating: true })
+    expect(result[1]).toMatchObject({ coveredGeneric: 1999999998, floating: true })
+  })
+})

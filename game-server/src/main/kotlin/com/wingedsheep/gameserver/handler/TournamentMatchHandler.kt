@@ -1207,6 +1207,8 @@ class TournamentMatchHandler(
                     wins = rs.standing.wins,
                     losses = rs.standing.losses,
                     draws = rs.standing.draws,
+                    forfeitWins = rs.standing.forfeitWins,
+                    forfeitLosses = rs.standing.forfeitLosses,
                 )
             },
         )

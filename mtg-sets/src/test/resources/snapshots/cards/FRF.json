@@ -614,6 +614,143 @@
     ]
 }
 
+// Frontier Siege
+{
+    "name": "Frontier Siege",
+    "manaCost": "{3}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "As this enchantment enters, choose Khans or Dragons.\n• Khans — At the beginning of each of your main phases, add {G}{G}.\n• Dragons — Whenever a creature you control with flying enters, you may have it fight target creature you don't control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Frontier Siege:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "PRECOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "triggerRestriction": {
+                    "type": "SourceChosenModeIs",
+                    "modeId": "khans"
+                }
+            },
+            {
+                "id": "Frontier Siege:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "POSTCOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "triggerRestriction": {
+                    "type": "SourceChosenModeIs",
+                    "modeId": "khans"
+                }
+            },
+            {
+                "id": "Frontier Siege:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature kw:flying ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Fight",
+                        "target1": "TriggeringEntity",
+                        "target2": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "descriptionOverride": "Whenever a creature you control with flying enters, you may have it fight target creature you don't control."
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature"
+                            ],
+                            "controllerPredicate": {
+                                "type": "ControllerNot",
+                                "predicate": "ControlledByYou"
+                            }
+                        }
+                    },
+                    "id": "t0"
+                },
+                "triggerRestriction": {
+                    "type": "SourceChosenModeIs",
+                    "modeId": "dragons"
+                },
+                "descriptionOverride": "Whenever a creature you control with flying enters, you may have it fight target creature you don't control."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "MODE",
+                "modeOptions": [
+                    {
+                        "id": "khans",
+                        "label": "Khans",
+                        "description": "At the beginning of each of your main phases, add {G}{G}.",
+                        "iconKey": "khans"
+                    },
+                    {
+                        "id": "dragons",
+                        "label": "Dragons",
+                        "description": "Whenever a creature you control with flying enters, you may have it fight target creature you don't control.",
+                        "iconKey": "dragons"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "rarity": "RARE",
+        "artist": "James Ryman",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/4/a474981a-581a-49c0-a036-87afaaeea7ef.jpg?1783938679",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "The \"Khans\" ability triggers at the beginning of both your precombat main phase and your postcombat main phase. Unused mana is lost at the end of each step and phase."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "For the \"Dragons\" ability, you decide whether the creature with flying will fight the target creature you don't control as the ability resolves."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "If a permanent enters the battlefield as a copy of one of the Sieges, its controller will make a new choice for that Siege. Which ability the copy has won't depend on the choice made for the original permanent."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Gore Swine
 {
     "name": "Gore Swine",
@@ -1372,7 +1509,17 @@
         "collectorNumber": "46",
         "rarity": "UNCOMMON",
         "artist": "Howard Lyon",
-        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e01367cb-79f4-4ed9-b12c-66f3c30264a0.jpg?1783938704"
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e01367cb-79f4-4ed9-b12c-66f3c30264a0.jpg?1783938704",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "Because the permanent is on the battlefield both before and after it's turned face up, turning a permanent face up doesn't cause any enters-the-battlefield abilities to trigger."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "Unlike a face-down creature that was cast using the morph ability, a manifested creature may still be turned face up after it loses its abilities if it's a creature card."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLUE"
@@ -1618,6 +1765,58 @@
     ]
 }
 
+// Sandblast
+{
+    "name": "Sandblast",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Sandblast deals 5 damage to target attacking or blocking creature.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 5
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "StateOr",
+                                "predicates": [
+                                    "IsAttacking",
+                                    "IsBlocking"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "artist": "Min Yum",
+        "flavorText": "In the Shifting Wastes, more are killed by sand than by steel.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7305cd4-a9f1-4801-bdfe-b07869ed5b56.jpg?1783938710"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Shamanic Revelation
 {
     "name": "Shamanic Revelation",
@@ -1775,6 +1974,41 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Temporal Trespass
+{
+    "name": "Temporal Trespass",
+    "manaCost": "{8}{U}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)\nTake an extra turn after this one. Exile Temporal Trespass.",
+    "keywords": [
+        "DELVE"
+    ],
+    "script": {
+        "spellEffect": "TakeExtraTurn",
+        "selfExileOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "MYTHIC",
+        "artist": "Clint Cearley",
+        "flavorText": "Few truly live in the moment.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/0/a08b7a1e-b404-41ea-875f-b3468501cb4b.jpg?1783938701",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Delve doesn't change a spell's mana cost or mana value. For example, Treasure Cruise's mana value is 8 even if you exiled three cards to cast it."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "You can exile cards to pay only for generic mana, and you can't exile more cards than the generic mana requirement of a spell with delve. For example, you can't exile more than seven cards from your graveyard to cast Treasure Cruise unless an effect has increased its cost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -1941,6 +2175,161 @@
     "colorIdentityOverride": [
         "GREEN"
     ]
+}
+
+// Ugin, the Spirit Dragon
+{
+    "name": "Ugin, the Spirit Dragon",
+    "manaCost": "{8}",
+    "typeLine": "Legendary Planeswalker — Ugin",
+    "oracleText": "+2: Ugin deals 3 damage to any target.\n−X: Exile each permanent with mana value X or less that's one or more colors.\n−10: You gain 7 life, draw seven cards, then put up to seven permanent cards from your hand onto the battlefield.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Ugin, the Spirit Dragon:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 2
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Ugin, the Spirit Dragon:2",
+                "cost": "CostLoyaltyX",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsPermanent",
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "MANA_VALUE",
+                                        "operator": "LTE",
+                                        "amount": "XValue"
+                                    },
+                                    "IsColored"
+                                ]
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "MoveToZone",
+                        "target": "IterationEntity",
+                        "destination": "Exile"
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Exile each permanent with mana value X or less that's one or more colors."
+            },
+            {
+                "id": "Ugin, the Spirit Dragon:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -10
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 7
+                            }
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 7
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand",
+                                        "filter": "permanent"
+                                    },
+                                    "storeAs": "put_candidates"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "put_candidates",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 7
+                                        }
+                                    },
+                                    "storeSelected": "putting",
+                                    "prompt": "Put up to seven permanent cards from your hand onto the battlefield"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "putting",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "MYTHIC",
+        "artist": "Raymond Swanland",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/8/58c1e824-c8a9-4312-8e4c-a29a26d189a4.jpg?1783938716",
+        "rulings": [
+            {
+                "date": "2020-06-23",
+                "text": "If a permanent has {X} in its mana cost, X is considered to be 0."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "The mana value of a token that isn't a copy of another object is 0. A token that is a copy of another object has the same mana cost as that object."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "If you choose to put permanent cards with morph onto the battlefield with the third ability, you must put them onto the battlefield face up."
+            }
+        ]
+    },
+    "startingLoyalty": 7,
+    "colorIdentityOverride": []
 }
 
 // Valorous Stance

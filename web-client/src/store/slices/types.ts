@@ -193,8 +193,8 @@ export interface CombatState {
   /**
    * The seat this declaration is being made for, from the legal action's
    * `playerId`. Matters in multiplayer: a hotseat connection declares for the
-   * acting seat, and a defender's blocks are scoped to the attackers attacking
-   * *them* (CR 509.1b). Null when unknown (legacy 2-player fallbacks apply).
+   * acting seat. The server provides the defending player's or shared team's
+   * eligible blockers and attackers. Null when unknown.
    */
   actingSeat: EntityId | null
   /**
@@ -217,6 +217,8 @@ export interface CombatState {
   attackTargetsByAttacker: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Blocker assignments: blocker ID -> attacker IDs (supports blocking multiple attackers) */
   blockerAssignments: Record<EntityId, EntityId[]>
+  /** Previously submitted team choices: shown as arrows but never included in this seat's input. */
+  proposedBlockerAssignments?: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Valid creatures that can participate (attackers or blockers depending on mode) */
   validCreatures: readonly EntityId[]
   /** Creatures that must attack this combat (from MustAttack, Taunt, etc.) */
@@ -290,9 +292,16 @@ export interface DecisionSelectionState {
   /** Transient warning shown when the user tries an illegal toggle (e.g. clicking past max
    * on a multi-select step). Cleared on the next successful toggle. */
   warning?: string | null
-  /** "... with total mana value N or less": the picks' summed mana value may not exceed `cap`;
-   * `values` holds each option's mana value. */
-  manaValueCap?: { readonly cap: number; readonly values: Readonly<Record<EntityId, number>> } | null
+  /** "... with total mana value / power N or less": for each cap, the picks' summed value may not
+   * exceed `cap`; `values` holds each option's value and `label` names it ("mana value", "power"). */
+  totalCaps?: readonly SelectionTotalCap[] | null
+}
+
+/** One aggregate cap on a decision selection — see [DecisionSelectionState.totalCaps]. */
+export interface SelectionTotalCap {
+  readonly label: string
+  readonly cap: number
+  readonly values: Readonly<Record<EntityId, number>>
 }
 
 /**
@@ -893,7 +902,7 @@ export interface FlipShow {
   /** True on the thrower's own client. */
   isYours: boolean
   /** The thrower's intent, known only on their client before the result arrives. */
-  aim: { x: number; y: number; strength: number } | null
+  aim: { x: number; y: number } | null
   result: {
     landing: FlipLanding
     turnedOver: boolean
@@ -957,6 +966,7 @@ export interface DamageAnimation {
  * A phase in the action pipeline. Computed up front by computePhases().
  */
 export type PipelinePhase =
+  | { type: 'castCostQuote'; rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false }
   | { type: 'modalModes' }
   | { type: 'counterDistribution' }
   | { type: 'xSelection' }
@@ -990,6 +1000,7 @@ export type PipelinePhase =
  * Result reported by a phase's confirm handler.
  */
 export type PhaseResult =
+  | { type: 'castCostQuote'; quote: import('../../types/messages').CastCostQuoteMessage; rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false }
   | { type: 'modalModes'; chosenModes: number[] }
   | {
       type: 'counterDistribution'
@@ -1016,6 +1027,13 @@ export type PhaseResult =
  * Pipeline coordinator state: tracks the action being built and remaining phases.
  */
 export interface ActionPipelineState {
+  /** Preserve the user's explicit manual choice through asynchronous quotes. */
+  autoTapEnabled?: boolean
+  requiresNativeCostQuote?: boolean
+  manaCostQuoted?: boolean
+  costQuote?: import('../../types/messages').CastCostQuoteMessage
+  pendingCostQuote?: { requestId: string; stateVersion: number; rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false }
+
   interactionEpoch: string
   actionInfo: import('../../types').LegalActionInfo
   accumulatedAction: import('../../types').GameAction
@@ -1085,6 +1103,12 @@ export type GameStore = {
   /** The last forced question this client answered for the player, shown as a brief notice. */
   autoAnswerNotice: import('./handlers/autoAnswer').AutoAnswerNotice | null
   dismissAutoAnswerNotice: () => void
+  /**
+   * Automatic ordering just put several of the player's triggers on the stack in an order they
+   * could have chosen — a tip shown once, the first time it happens.
+   */
+  triggerOrderNotice: { key: number; count: number } | null
+  dismissTriggerOrderNotice: () => void
   /** A forced question is waiting to be answered for the player (see `autoAnswer.ts`). */
   autoAnswerPending: boolean
   createGame: (deckList: Record<string, number>, setCode?: string) => void
@@ -1103,7 +1127,7 @@ export type GameStore = {
   submitOptionDecision: (decisionId: string, optionIndex: number) => void
   submitReplacementDecision: (decisionId: string, fromIndex: number, toIndex: number) => void
   submitBudgetModalDecision: (decisionId: string, selectedModeIndices: readonly number[]) => void
-  submitFlipThrow: (decisionId: string, aimX: number, aimY: number, strength: number, sway: number) => void
+  submitFlipThrow: (decisionId: string, velocityX: number, velocityY: number, spin: number) => void
   submitDistributeDecision: (decisionId: string, distribution: Record<EntityId, number>) => void
   submitDamageAssignmentDecision: (decisionId: string, assignments: Record<EntityId, number>) => void
   submitCombatResolutionDecision: (decisionId: string, edges: ReadonlyArray<{ edgeId: string; amount: number }>) => void
@@ -1193,6 +1217,8 @@ export type GameStore = {
     secondCommander?: string | null,
     /** The deck's companion (CR 702.139), a sideboard card; null for none. */
     companion?: string | null,
+    /** The format the deck was built for, or null; see `SubmitQuickGameLobbyDeckMessage.deckFormat`. */
+    deckFormat?: string | null,
   ) => void
   setQuickGameLobbyReady: (ready: boolean) => void
   setQuickGameLobbySetCode: (setCodes: readonly string[]) => void
@@ -1272,6 +1298,8 @@ export type GameStore = {
     options?: { forceManualTap?: boolean },
   ) => void
   advancePipeline: (result: PhaseResult) => void
+  requestCastCostQuote: (rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false) => void
+  receiveCastCostQuote: (quote: import('../../types/messages').CastCostQuoteMessage) => void
   cancelPipeline: () => void
 
   // Board view slice (multiplayer viewed-opponent board + follow-the-action camera)
@@ -1446,6 +1474,8 @@ export type GameStore = {
   startDecisionSelection: (state: DecisionSelectionState) => void
   toggleDecisionSelection: (cardId: EntityId) => void
   decrementDecisionSelection: (cardId: EntityId) => void
+  /** Replace the whole pick at once (quick-select "All" / "Recommended" / "Clear"). Ids outside the pool are dropped. */
+  setDecisionSelection: (cardIds: readonly EntityId[]) => void
   cancelDecisionSelection: (decisionId: string) => void
   confirmDecisionSelection: (decisionId: string) => void
   startDamageDistribution: (state: DamageDistributionState) => void

@@ -282,10 +282,8 @@ class AttachmentTriggerDetector(
             }
             is EventPattern.TapEvent -> {
                 if (event !is TappedEvent || event.entityId != attachedEntityId) return false
-                // A named tap cause ("… becomes tapped to pay a teamwork cost") narrows the
-                // ATTACHED path too; null asks for no particular cause.
-                val reason = trigger.reason
-                if (reason != null && event.reason != reason) return false
+                // A named or excluded tap cause narrows the ATTACHED path too.
+                if (!trigger.matchesCause(event.reason)) return false
                 // "Whenever you tap …" attribution applies on the ATTACHED path too; relative to
                 // the aura/equipment's controller, as everywhere else here.
                 val tapper = trigger.tapper ?: return true
@@ -321,7 +319,7 @@ class AttachmentTriggerDetector(
             // other axis (spellsOnly, sourceFilter, byYou, targetFilter) against the aura's own
             // controller — reusing it rather than restating it keeps the two paths from drifting.
             is EventPattern.BecomesTargetEvent -> {
-                event is BecomesTargetEvent && event.targetEntityId == attachedEntityId &&
+                !trigger.batch && event is BecomesTargetEvent && event.targetEntityId == attachedEntityId &&
                     matcher.matchesBecomesTargetTrigger(
                         trigger, TriggerBinding.ANY, event, auraId, auraControllerId, state
                     )

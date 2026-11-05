@@ -89,7 +89,6 @@ import com.wingedsheep.engine.state.components.identity.PlayWithAdditionalCostCo
 import com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithFixedAlternativeManaCostComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
-import com.wingedsheep.engine.state.components.player.CantCastFromNonHandZonesComponent
 import com.wingedsheep.engine.state.components.player.GrantedSpellKeywordsComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.state.components.player.ManaSpentOnSpellsThisTurnComponent
@@ -285,6 +284,16 @@ internal class CastValidator(
         locked: com.wingedsheep.engine.core.LockedCastPayment,
     ): String? {
         validateAdditionalCosts(state, locked.additionalCosts, action)?.let { return it }
+        validateGraveyardLifeCost(state, action)?.let { return it }
+        val alternativePayment = action.alternativePayment
+        if (alternativePayment != null && !alternativePayment.isEmpty) {
+            if (locked.manaCost == null) {
+                return "Cancel this older mana payment and announce the cast again"
+            }
+            alternativePaymentHandler.validateLockedResources(
+                state, alternativePayment, action.playerId, locked.waterbendAmount,
+            )?.let { return it }
+        }
         if (locked.forageCostRequired && !com.wingedsheep.engine.handlers.costs.ForageCostResolver.canPay(
                 state, action.playerId, excludeCardId = action.cardId
             )) return "Cannot forage: need 3 other cards in graveyard or a Food"
@@ -327,7 +336,7 @@ internal class CastValidator(
         if (action.casualtyCreature != null) {
             validateCasualty(state, action, definition ?: return "Casualty requires a card definition")?.let { return it }
         }
-        return castCostPayer.validateManaPayment(state, action, lockedCost, locked.paymentXValue)
+        return castCostPayer.validateManaPayment(state, action, locked.manaCost ?: lockedCost, locked.paymentXValue)
     }
     /** The life a graveyard-cast permission charges (Festival of Embers) is life paid to cast. */
     private fun validateGraveyardLifeCost(state: GameState, action: CastSpell): String? =
@@ -458,16 +467,8 @@ internal class CastValidator(
             return "You can't play cards from your hand"
         }
 
-        // Avatar's Wrath: "your opponents can't cast spells from anywhere other than their hands."
-        // A per-player, duration-bounded restriction to hand-only casting — any non-hand cast
-        // (flashback/escape from graveyard, foretell/plot/may-play from exile, library top, command
-        // zone) is illegal while the component is present. Ordinary hand casts are untouched.
-        if (!source.inHand && state.getEntity(action.playerId)?.has<CantCastFromNonHandZonesComponent>() == true) {
-            return "You can't cast spells from anywhere other than your hand right now"
-        }
-
         // Single cast-legality chokepoint: per-turn spell limit (Yawgmoth's Agenda), Silence-style
-        // can't-cast, Mana Maze color sharing, and PlayersCantCastSpells (Voice of Victory, …) all
+        // can't-cast, Avatar's Wrath hand-only casting, Mana Maze color sharing, and PlayersCantCastSpells (Voice of Victory, …) all
         // resolve to a reason here, or null if the cast is allowed.
         castPermissionUtils.reasonCannotCast(state, action.playerId, action.cardId, action)?.let { return it }
 
@@ -533,9 +534,17 @@ internal class CastValidator(
                 ?: cardComponent.manaCost.colors,
             action.cardId,
         )
-        if (permissions.none { it.authorizesSpellColors(castColors) }) {
+        // "Cast it if it's a creature spell" (Vivien, Champion of the Wilds): the card types of the
+        // face being cast, by the same rule.
+        val castTypes = ((if (modalBack) cardDef?.backFace?.typeLine else null)
+            ?: action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.typeLine }
+            ?: cardDef?.typeLine
+            ?: cardComponent.typeLine).cardTypes
+        if (permissions.none { it.authorizesSpell(castColors, castTypes) }) {
             val required = permissions.firstNotNullOfOrNull { it.castColorRestriction }?.name?.lowercase()?.let { "$it spells" }
                 ?: permissions.firstNotNullOfOrNull { it.castColorCount }?.let { "spells with exactly $it colors" }
+                ?: permissions.firstNotNullOfOrNull { it.castSpellTypes }
+                    ?.joinToString(" or ") { it.displayName.lowercase() }?.let { "$it spells" }
             return "You may only cast $required from there"
         }
         return null
@@ -769,6 +778,7 @@ internal class CastValidator(
         if (action.declaredCostSlot != null && declaredOptionalCosts(action, optionalCosts(state, action, cardDef)).isEmpty()) {
             val mechanic = when (action.declaredCostSlot) {
                 ChoiceSlot.BARGAINED -> "bargain"
+                ChoiceSlot.BOUGHT_BACK -> "buyback"
                 ChoiceSlot.KICKED -> "kicker"
                 ChoiceSlot.ADDITIONAL_COST_PAID -> "an optional additional cost"
                 else -> action.declaredCostSlot.name.lowercase()

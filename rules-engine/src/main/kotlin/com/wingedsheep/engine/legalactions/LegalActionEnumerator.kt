@@ -61,7 +61,8 @@ class LegalActionEnumerator(
         SaddleEnumerator(),
         ZoneActivatedAbilityEnumerator(Zone.GRAVEYARD, predicateEvaluator = predicateEvaluator),
         ZoneActivatedAbilityEnumerator(Zone.HAND, predicateEvaluator = predicateEvaluator),
-        CommandZoneAbilityEnumerator()
+        ZoneActivatedAbilityEnumerator(Zone.COMMAND, predicateEvaluator = predicateEvaluator),
+        ZoneActivatedAbilityEnumerator(Zone.EXILE, predicateEvaluator = predicateEvaluator),
     )
 
     /**
@@ -132,7 +133,9 @@ class LegalActionEnumerator(
             offers
         }
         return com.wingedsheep.engine.legalactions.enumerators.AdditionalManaForCountersOffer
-            .annotate(context, permitted.map { capXAtSpellMaximum(context, capXAtExactTargetCount(it)) }, predicateEvaluator = predicateEvaluator)
+            .annotate(context, com.wingedsheep.engine.legalactions.enumerators.applyOptionalCostPaymentMetadata(
+                context, permitted.map { capXAtSpellMaximum(context, capXAtExactTargetCount(it)) }
+            ), predicateEvaluator = predicateEvaluator)
     }
 
     /** Reuse every casting rail under an immutable declared-cost pricing context. */

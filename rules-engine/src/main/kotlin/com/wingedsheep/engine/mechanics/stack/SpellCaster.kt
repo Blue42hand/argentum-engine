@@ -109,6 +109,7 @@ internal class SpellCaster(
         revealedAsCostSnapshots: List<EntitySnapshot> = emptyList(),
         exiledAsCostCards: List<EntityId> = emptyList(),
         exiledAsCostSnapshots: List<EntitySnapshot> = emptyList(),
+        tappedPermanents: List<EntityId> = emptyList(),
         chosenEntitySnapshots: List<EntitySnapshot> = emptyList(),
         manaSpentWhite: Int = 0,
         manaSpentBlue: Int = 0,
@@ -257,6 +258,7 @@ internal class SpellCaster(
             revealedAsCostSnapshots = revealedAsCostSnapshots,
             exiledAsCostCards = exiledAsCostCards,
             exiledAsCostSnapshots = exiledAsCostSnapshots,
+            tappedPermanents = tappedPermanents,
             chosenEntitySnapshots = chosenEntitySnapshots,
             manaSpentWhite = manaSpentWhite,
             manaSpentBlue = manaSpentBlue,
@@ -367,6 +369,13 @@ internal class SpellCaster(
                 sacrificedAsCostNames = sacrificedPermanents.mapNotNull { it.name }
             )
         )
+
+        // Choosing the modes of a (true) modal spell is facing a dilemma; gift-style ModalEffects
+        // report zero modes here and don't.
+        val (afterDilemma, dilemmaEvents) =
+            com.wingedsheep.engine.mechanics.modal.Dilemmas.face(newState, casterId, spellName, reportedChosenModesCount)
+        newState = afterDilemma
+        events.addAll(1, dilemmaEvents)
 
         newState = announceTargets(newState, cardId, casterId, spellName, effectiveTargets, events)
         addPermissionRiderEvents(state, castFromZone, cardId, casterId, events)

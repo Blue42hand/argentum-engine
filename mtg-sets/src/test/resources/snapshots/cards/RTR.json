@@ -3401,6 +3401,90 @@
     ]
 }
 
+// Rakdos, Lord of Riots
+{
+    "name": "Rakdos, Lord of Riots",
+    "manaCost": "{B}{B}{R}{R}",
+    "typeLine": "Legendary Creature — Demon",
+    "oracleText": "You can't cast Rakdos unless an opponent lost life this turn.\nFlying, trample\nCreature spells you cast cost {1} less to cast for each 1 life your opponents have lost this turn.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING",
+        "TRAMPLE"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "creature"
+                },
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "Dynamic",
+                        "amount": {
+                            "type": "TurnTracking",
+                            "player": "EachOpponent",
+                            "tracker": "LIFE_LOST_AMOUNT"
+                        }
+                    }
+                }
+            }
+        ],
+        "castRestrictions": [
+            {
+                "type": "CastOnlyIfCondition",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "EachOpponent",
+                        "tracker": "LIFE_LOST"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "187",
+        "rarity": "MYTHIC",
+        "artist": "Vincent Proce",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/4/04f3db71-802f-488c-b40d-ac90df2d660a.jpg?1783940334",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Rakdos can be put onto the battlefield by another spell or ability even if no opponent has lost life that turn."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Rakdos's last ability cares about the total life lost, not necessarily what an opponent's life total is compared to what it was at the beginning of the turn. For example, if an opponent loses 5 life and then gains 10 life in a turn, creature spells you cast will cost {5} less to cast."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Rakdos's last ability can't reduce the colored mana requirement of a creature spell you cast."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Rakdos's last ability won't reduce the cost to cast Rakdos itself. It applies only to creature spells you cast once Rakdos is on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Rest in Peace
 {
     "name": "Rest in Peace",
@@ -3979,6 +4063,43 @@
     ]
 }
 
+// Sphere of Safety
+{
+    "name": "Sphere of Safety",
+    "manaCost": "{4}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Creatures can't attack you or planeswalkers you control unless their controller pays {X} for each of those creatures, where X is the number of enchantments you control.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "AttackTax",
+                "amountPerAttacker": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "enchantment"
+                },
+                "coversPlaneswalkers": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "rarity": "UNCOMMON",
+        "artist": "Slawomir Maniak",
+        "flavorText": "The Rakdos believe that all are eager to join their revels, even when told otherwise.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce3bd0d8-7e44-4cf2-9012-8ff0bc39417f.jpg?1783940373",
+        "rulings": [
+            {
+                "date": "2012-10-01",
+                "text": "If you control Sphere of Safety, your opponents can choose not to attack with a creature with an ability that says it attacks if able."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Sphinx's Revelation
 {
     "name": "Sphinx's Revelation",
@@ -4285,6 +4406,61 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Tavern Swindler
+{
+    "name": "Tavern Swindler",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "{T}, Pay 3 life: Flip a coin. If you win the flip, you gain 6 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Tavern Swindler:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "FlipCoin",
+                    "wonEffect": {
+                        "type": "GainLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 6
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "UNCOMMON",
+        "artist": "Cynthia Sheppard",
+        "flavorText": "Rakdos cultists are her best customers. They never flinch at pain and are seldom good at math.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/47240ed3-f256-45fb-ab38-7b07e672d2ed.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 

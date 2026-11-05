@@ -1065,6 +1065,58 @@
     ]
 }
 
+// Gargoyle Sentinel
+{
+    "name": "Gargoyle Sentinel",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Gargoyle",
+    "oracleText": "Defender (This creature can't attack.)\n{3}: Until end of turn, this creature loses defender and gains flying.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEFENDER"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Gargoyle Sentinel:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "RemoveKeyword",
+                            "keyword": "DEFENDER",
+                            "target": "Self"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "FLYING",
+                            "target": "Self"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "207",
+        "rarity": "UNCOMMON",
+        "artist": "Drew Baker",
+        "flavorText": "\"Do not mistake a quiet rampart for one that is unguarded. Some things stir only when they need to.\"\n—Bonovar, siege commander",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/a/6af328bc-bce5-4024-9da5-853ee16eaa8a.jpg?1783941791"
+    },
+    "colorIdentityOverride": []
+}
+
 // Garruk's Companion
 {
     "name": "Garruk's Companion",
@@ -1580,6 +1632,35 @@
     ]
 }
 
+// Leyline of Sanctity
+{
+    "name": "Leyline of Sanctity",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "If this card is in your opening hand, you may begin the game with it on the battlefield.\nYou have hexproof. (You can't be the target of spells or abilities your opponents control.)",
+    "script": {
+        "staticAbilities": [
+            "GrantHexproofToController"
+        ],
+        "beginOnBattlefield": {}
+    },
+    "metadata": {
+        "collectorNumber": "21",
+        "rarity": "RARE",
+        "artist": "Ryan Pancoast",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/262de9ae-d641-4f0e-af6a-03ce0e1c91d3.jpg?1783941834",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "A player's \"opening hand\" is the hand of cards the player has after all players have taken mulligans. If players have any cards in hand that allow actions to be taken with them from a player's opening hand, the starting player takes all such actions first in any order, followed by each other player in turn order. Then the first turn begins."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Liliana's Caress
 {
     "name": "Liliana's Caress",
@@ -2024,6 +2105,105 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Phylactery Lich
+{
+    "name": "Phylactery Lich",
+    "manaCost": "{B}{B}{B}",
+    "typeLine": "Creature — Zombie",
+    "oracleText": "Indestructible\nAs this creature enters, put a phylactery counter on an artifact you control.\nWhen you control no permanents with phylactery counters on them, sacrifice this creature.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "INDESTRUCTIBLE"
+    ],
+    "script": {
+        "stateTriggeredAbilities": [
+            {
+                "id": "Phylactery Lich:1",
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent"
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "HasCounter",
+                                "counterType": "PHYLACTERY"
+                            }
+                        ]
+                    },
+                    "negate": true
+                },
+                "effect": {
+                    "type": "SacrificeTarget",
+                    "target": "Self"
+                },
+                "descriptionOverride": "When you control no permanents with phylactery counters on them, sacrifice this creature."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "CREATURE_ON_BATTLEFIELD",
+                "permanentFilter": {
+                    "cardPredicates": [
+                        "IsArtifact"
+                    ],
+                    "controllerPredicate": "ControlledByYou"
+                },
+                "then": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PHYLACTERY",
+                            "count": 1,
+                            "target": "ChosenCreature"
+                        }
+                    ],
+                    "descriptionOverride": "Put a phylactery counter on it"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "rarity": "RARE",
+        "artist": "Michael Komarck",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d088983-92c1-4f4d-8abf-dd20347495b5.jpg?1783941813",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "Phylactery Lich's first ability doesn't target the artifact. No player may take actions between the time you choose an artifact and the time you put a phylactery counter on it."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "If you control no artifacts as Phylactery Lich enters the battlefield, its first ability won't do anything. As soon as it enters the battlefield, its last ability will trigger (unless you control some other permanent with a phylactery counter on it) and you'll have to sacrifice it."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "If Phylactery Lich and an artifact are entering the battlefield under your control at the same time, you can't put a phylactery counter on that artifact. You must choose an artifact you control that's already on the battlefield."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "Phylactery Lich's last ability is a \"state trigger.\" Once a state trigger triggers, it won't trigger again as long as the ability is on the stack. If the ability is countered and the trigger condition is still true, it will immediately trigger again."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "Phylactery Lich's last ability checks your permanents for any phylactery counters, not just the specific one that it caused you to put on an artifact. For example, if you control two Phylactery Liches and two different artifacts with phylactery counters, neither Phylactery Lich will be sacrificed if one of those artifacts leaves the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 

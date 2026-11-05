@@ -12,6 +12,7 @@ import com.wingedsheep.sdk.dsl.Costs.additional.Behold
 import com.wingedsheep.sdk.dsl.Costs.additional.ExileFromStorage
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.AdditionalCost
+import com.wingedsheep.sdk.scripting.CardCostAction
 import com.wingedsheep.sdk.scripting.CostZone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.costs.CardMeasure
@@ -19,6 +20,7 @@ import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.costs.PermanentCostAction
 import com.wingedsheep.sdk.scripting.costs.TapCostDirection
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.costs.VariableCostMeasure
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
@@ -215,6 +217,12 @@ object Costs {
     val DiscardSelf: AbilityCost = AbilityCost.DiscardSelf
 
     /**
+     * Reveal this card from your hand (Tetzimoc, Primal Death) — pair with
+     * `activateFromZone = Zone.HAND`. The card stays in hand; no player selection.
+     */
+    val RevealSelf: AbilityCost = AbilityCost.RevealSelf
+
+    /**
      * Discard the specific card you drew most recently this turn (Jandor's Ring).
      * Unpayable when you haven't drawn a card this turn, or the tracked card has
      * since left your hand. The engine resolves the card automatically — no player
@@ -238,6 +246,15 @@ object Costs {
      * [ReturnToHand], the choose-a-permanent-you-control bounce cost, which excludes the source.
      */
     val ReturnSelfToHand: AbilityCost = AbilityCost.ReturnSelfToHand
+
+    /**
+     * Put this card on the bottom of its owner's library (Daniels, Temporal Agent's "Put this card
+     * from your graveyard on the bottom of your library", with `activateFromZone = Zone.GRAVEYARD`).
+     */
+    val PutSelfOnBottomOfLibrary: AbilityCost = AbilityCost.PutSelfIntoLibrary(ZonePlacement.Bottom)
+
+    /** Put this card on top of its owner's library — the [PutSelfOnBottomOfLibrary] mirror. */
+    val PutSelfOnTopOfLibrary: AbilityCost = AbilityCost.PutSelfIntoLibrary(ZonePlacement.Top)
 
     /**
      * Exile the permanent that granted this activated ability (e.g., the equipment
@@ -321,6 +338,13 @@ object Costs {
      */
     fun ExileFromGraveyard(count: Int, filter: GameObjectFilter = GameObjectFilter.Any): AbilityCost =
         AbilityCost.Atom(CostAtom.ExileFrom(Zone.GRAVEYARD, filter, count))
+
+    /**
+     * "Exile a card from your hand" — exile [count] cards matching [filter] from the activating
+     * player's hand (Q, Stacking the Deck's granted exile ability).
+     */
+    fun ExileFromHand(count: Int = 1, filter: GameObjectFilter = GameObjectFilter.Any): AbilityCost =
+        AbilityCost.Atom(CostAtom.ExileFrom(Zone.HAND, filter, count))
 
     /**
      * "Exile another [filter] card from your graveyard" — the graveyard exile cost of an ability
@@ -614,7 +638,8 @@ object Costs {
     /**
      * Put [count] counters of [counterType] on this permanent as part of the activation cost —
      * "{T}, Put a page counter on this artifact: Scry 1" (Mazemind Tome). The accruing mirror of
-     * [RemoveCounterFromSelf]; always payable, since it costs the player nothing they must have.
+     * [RemoveCounterFromSelf]; payable whenever counters can be put on this permanent, since it costs
+     * the player nothing they must have (Solemnity makes it unpayable — Devoted Druid).
      */
     fun PutCounterOnSelf(counterType: CounterType, count: Int = 1): AbilityCost =
         AbilityCost.Atom(CostAtom.PutCountersOnSelf(counterType, count))
@@ -868,7 +893,17 @@ object Costs {
             minCount: Int = 1,
             filter: GameObjectFilter = GameObjectFilter.Any,
             fromZone: CostZone = CostZone.GRAVEYARD
-        ): AdditionalCost = AdditionalCost.ExileVariableCards(minCount, filter, fromZone)
+        ): AdditionalCost = AdditionalCost.VariableCards(CardCostAction.EXILE, minCount, filter, fromZone)
+
+        /**
+         * Discard X (at least [minCount]) cards matching [filter] — "as an additional cost to cast this
+         * spell, discard X cards" (Channeled Force). X may be 0 by default; the number discarded is the
+         * spell's X, read with `DynamicAmount.XValue`.
+         */
+        fun DiscardVariableCards(
+            minCount: Int = 0,
+            filter: GameObjectFilter = GameObjectFilter.Any,
+        ): AdditionalCost = AdditionalCost.VariableCards(CardCostAction.DISCARD, minCount, filter, CostZone.HAND)
 
         /**
          * "You may sacrifice any number of [filter]. This spell costs {[reductionPerUnit]} less to cast
@@ -1089,6 +1124,18 @@ object Costs {
             counterType: CounterType? = null,
             filter: GameObjectFilter = GameObjectFilter.Permanent
         ): AdditionalCost = AdditionalCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.XValue, filter))
+
+        /**
+         * Put [count] [counterType] counters on a [filter] permanent you control — "As an additional
+         * cost to cast this spell, put a -1/-1 counter on a creature you control" (Lethal Sting).
+         * The caster picks the permanent; one that can't take the counters can't pay. Not blight:
+         * [com.wingedsheep.sdk.scripting.conditions.BlightWasPaid] stays false.
+         */
+        fun PutCountersOnPermanent(
+            counterType: CounterType,
+            count: Int = 1,
+            filter: GameObjectFilter = GameObjectFilter.Creature,
+        ): AdditionalCost = AdditionalCost.Atom(CostAtom.PutCountersOnPermanent(counterType, count, filter))
 
         /** Tap [count] untapped permanents matching [filter] you control. */
         fun TapPermanents(count: Int = 1, filter: GameObjectFilter = GameObjectFilter.Creature): AdditionalCost =

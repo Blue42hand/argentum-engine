@@ -1,3 +1,4 @@
+import { blockerDraftExceedsLimits } from '@/utils/combatBlockTargets'
 import { PlayerActionBar } from './overlay/PlayerActionBar'
 import { useMemo, useCallback, useRef, useEffect, useState } from 'react'
 import { useGameStore } from '@/store/gameStore'
@@ -39,7 +40,7 @@ import { usePooledBattlefieldLayout } from './board/usePooledBattlefieldLayout'
 import { CardPreview } from './card'
 import { EmotePicker } from '../tableTalk/EmotePicker'
 import { ChatButton } from '@/components/messages/ChatButton'
-import { TargetingOverlay, ManaColorSelectionOverlay, LifeDisplay, ActiveEffectsBadges, SpeedGauge, DayNightBadge, SubgameBadge, SubgameFrame, ConcedeButton, FullscreenButton, GamePreferencesButton, SpectatorCountBadge, TeamLifeBanner, EliminationNotice, AutoAnswerNotice } from './overlay'
+import { TargetingOverlay, ManaColorSelectionOverlay, LifeDisplay, ActiveEffectsBadges, SpeedGauge, DayNightBadge, SubgameBadge, SubgameFrame, ConcedeButton, FullscreenButton, GamePreferencesButton, SpectatorCountBadge, TeamLifeBanner, EliminationNotice, AutoAnswerNotice, TriggerOrderNotice } from './overlay'
 import { HelpDrawer, HelpDrawerButton } from '../help/HelpDrawer'
 import { markLearnSignal } from '@/learn/signals'
 import { styles } from './board/styles'
@@ -61,6 +62,7 @@ interface GameBoardProps {
  */
 export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardProps) {
   const blockerDeclarationDescription = useGameStore((s) => s.legalActions.find((a) => a.actionType === 'DeclareBlockers')?.description)
+  const pendingDecision = useGameStore((state) => state.pendingDecision)
   const playerGameState = useGameStore((state) => state.gameState)
   const spectatingState = useGameStore((state) => state.spectatingState)
   const sessionId = useGameStore((state) => state.sessionId)
@@ -71,6 +73,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
   const priorityYield = useGameStore((state) => state.priorityYield)
   const setPriorityYield = useGameStore((state) => state.setPriorityYield)
   const combatState = useGameStore((state) => state.combatState)
+  const blockerDraftNeedsUpdate = blockerDraftExceedsLimits(combatState)
   const confirmCombat = useGameStore((state) => state.confirmCombat)
   const clearAttackers = useGameStore((state) => state.clearAttackers)
   const clearBlockerAssignments = useGameStore((state) => state.clearBlockerAssignments)
@@ -671,7 +674,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
       manaAmount: manaSelectionState.sourceManaAmounts?.[entityId] ?? 1,
     }))
     const coverage = computeCoverage(
-      [...coloredReqs, ...Array<string>(genericCount).fill('1')],
+      [...coloredReqs, ...(genericCount > 0 ? [String(genericCount)] : [])],
       pool,
       manaSelectionState.selectedSources,
       sources,
@@ -681,6 +684,11 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
     const colorSatisfied: Record<string, number> = {}
     let satisfied = 0
     for (const pip of coverage) {
+      if (pip.coveredGeneric != null) {
+        colorSatisfied['1'] = (colorSatisfied['1'] ?? 0) + pip.coveredGeneric
+        satisfied += pip.coveredGeneric
+        continue
+      }
       if (!pip.floating && !pip.pending) continue
       colorSatisfied[pip.symbol] = (colorSatisfied[pip.symbol] ?? 0) + 1
       satisfied++
@@ -1277,7 +1285,8 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           minWidth: 0,
         }}>
         {(isHijacking || isHijacked || hotseat) && (() => {
-          const actingName = gameState.players.find((p) => p.playerId === gameState.priorityPlayerId)?.name ?? 'active player'
+          const actingSeat = pendingDecision?.playerId ?? gameState.priorityPlayerId
+          const actingName = gameState.players.find((p) => p.playerId === actingSeat)?.name ?? 'active player'
           const text = hotseat
             ? (responsive.isMobile ? `Acting as ${actingName}` : `Hotseat — acting as ${actingName}`)
             : (() => {
@@ -1887,6 +1896,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
       {isMulti && <EliminationNotice topOffset={effectiveTopOffset} />}
       {/* Below the elimination notice in a pod, so the two never overlap. */}
       <AutoAnswerNotice topOffset={effectiveTopOffset + (isMulti ? 36 : 0)} />
+      <TriggerOrderNotice topOffset={effectiveTopOffset + (isMulti ? 36 : 0)} />
 
       {/* Attack-restriction explainer — "attack left/right" (CR 803.1) and similar
           restrictions are invisible on the board itself, so say exactly who can be
@@ -2092,6 +2102,17 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
 
       {isInCombatMode && combatState?.mode === 'declareBlockers' && (
         <div data-learn="combat-buttons" style={styles.combatButtonContainer}>
+          {blockerDraftNeedsUpdate && (
+            <span role="status" style={{ color: '#ffcc80', fontSize: 12, maxWidth: 360 }}>
+              Block limits changed. Clear blockers or reduce your assignments before confirming.
+            </span>
+          )}
+          {blockerDeclarationDescription && blockerDeclarationDescription !== 'Declare blockers' &&
+            blockerDeclarationDescription !== 'Choose blocker piles' && (
+              <span role="status" style={{ color: '#e0e0e0', fontSize: 12, maxWidth: 360 }}>
+                {blockerDeclarationDescription}
+              </span>
+            )}
           {Object.keys(combatState.blockerAssignments).length === 0 ? (
             <>
               <button
@@ -2109,12 +2130,15 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
             <>
               <button
                 onClick={() => confirmCombat(interactionEpoch)}
+                disabled={blockerDraftNeedsUpdate}
                 style={{
                   ...styles.floatingBarButton,
                   ...styles.combatActionButton,
                   ...compactCombatButton,
                   backgroundColor: '#c62828',
                   border: '1px solid #ef5350',
+                  opacity: blockerDraftNeedsUpdate ? 0.5 : 1,
+                  cursor: blockerDraftNeedsUpdate ? 'not-allowed' : 'pointer',
                 }}
               >
                 Confirm Blocks

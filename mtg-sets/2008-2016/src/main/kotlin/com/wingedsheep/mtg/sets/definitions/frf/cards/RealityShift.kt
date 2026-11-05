@@ -36,5 +36,15 @@ val RealityShift = card("Reality Shift") {
         collectorNumber = "46"
         artist = "Howard Lyon"
         imageUri = "https://cards.scryfall.io/normal/front/e/0/e01367cb-79f4-4ed9-b12c-66f3c30264a0.jpg?1783938704"
+        ruling(
+            "2014-11-24",
+            "Because the permanent is on the battlefield both before and after it's turned face up, turning a " +
+                "permanent face up doesn't cause any enters-the-battlefield abilities to trigger."
+        )
+        ruling(
+            "2014-11-24",
+            "Unlike a face-down creature that was cast using the morph ability, a manifested creature may still be " +
+                "turned face up after it loses its abilities if it's a creature card."
+        )
     }
 }

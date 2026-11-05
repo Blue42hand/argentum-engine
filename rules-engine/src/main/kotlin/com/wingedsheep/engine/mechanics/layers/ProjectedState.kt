@@ -61,6 +61,14 @@ data class ProjectedValues(
     val name: String? = null,
     val keywords: Set<String> = emptySet(),
     val cantHaveKeywords: Set<String> = emptySet(),
+    /**
+     * How many continuous effects granted each `RENOWN_<n>` string in [keywords] since the last "loses all abilities" or removal of that
+     * keyword. [keywords] is a set, so two "attacking creatures you control have renown 1" grants
+     * leave one `RENOWN_1`; this keeps the second instance, which CR 702.112c makes a second
+     * trigger. Printed keywords are not counted. Read it through [ProjectedState.grantedKeywordInstances],
+     * which gates on the keyword still being in [keywords].
+     */
+    val grantedKeywordInstances: Map<String, Int> = emptyMap(),
     /** Point-of-use abilities lowered through GrantStaticAbility, with duplicate instances retained. */
     val staticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList(),
     /**
@@ -80,6 +88,8 @@ data class ProjectedValues(
     val cantAttack: Boolean = false,
     /** Attacking doesn't cause it to tap — a rule modification, not vigilance (Johan). */
     val attacksWithoutTapping: Boolean = false,
+    /** Lethal damage to it is judged by its power rather than its toughness (Zilortha) — a rule modification. */
+    val lethalDamageByPower: Boolean = false,
     val canAttackAsThoughHasty: Boolean = false,
     val cantBlock: Boolean = false,
     val cantBeTurnedFaceUp: Boolean = false,
@@ -104,6 +114,12 @@ data class ProjectedValues(
      * which it survives, from a later one, which strips it (CR 613.7).
      */
     val lostAllAbilitiesTimestamp: Long? = null,
+    /**
+     * True when every "loses all abilities" effect on this object spared its mana abilities
+     * (Blood Sun: "all lands lose all abilities except mana abilities"). Only meaningful with
+     * [lostAllAbilities]; readers of mana abilities ask [ProjectedState.hasLostManaAbilities].
+     */
+    val keepsManaAbilities: Boolean = false,
     /** See [Modification.GrantExileOnDeathAbility]. */
     val hasExileOnDeathAbility: Boolean = false,
     /**
@@ -299,6 +315,18 @@ class ProjectedState(
     fun hasKeyword(entityId: EntityId, keyword: String): Boolean =
         getKeywords(entityId).contains(keyword)
 
+    /**
+     * The number of instances of the granted keyword string [keyword] the object has — one per
+     * continuous effect that granted it (see [ProjectedValues.grantedKeywordInstances]), zero when
+     * the projected keywords don't hold it. A string present without a tally (put there by a path
+     * other than a keyword grant) counts once.
+     */
+    fun grantedKeywordInstances(entityId: EntityId, keyword: String): Int {
+        val values = projectedValues[entityId] ?: return 0
+        if (keyword !in values.keywords) return 0
+        return maxOf(1, values.grantedKeywordInstances[keyword] ?: 0)
+    }
+
     fun hasKeyword(entityId: EntityId, keyword: Keyword): Boolean =
         getKeywords(entityId).containsKeyword(keyword)
 
@@ -311,9 +339,30 @@ class ProjectedState(
      * effects (AddCounters, DoubleCounters, ...) and costs (Blight) alike — agrees. CR 614.17b:
      * because the event can't happen, a player can't even choose to pay a cost that includes it,
      * so blight target pools must exclude such creatures rather than silently dropping the counter.
+     *
+     * Players answer here too: a player can't get counters while a `LockPlayerCountersEffect` lock
+     * on them holds (Suncleanser) or a `PlayersCantGetCounters` static covers them (Solemnity) —
+     * players aren't projected, so both are read through `GameState.cantGetCounters`.
      */
     fun canReceiveCounters(entityId: EntityId): Boolean =
-        !hasKeyword(entityId, com.wingedsheep.sdk.core.AbilityFlag.CANT_RECEIVE_COUNTERS)
+        !hasKeyword(entityId, com.wingedsheep.sdk.core.AbilityFlag.CANT_RECEIVE_COUNTERS) &&
+            !baseState.cantGetCounters(entityId)
+
+    /**
+     * Whether counters of [counterType] can be put on this object: neither the all-kinds
+     * prohibition above nor a kind-scoped one ("can't have +1/+1 counters put on them" —
+     * Blightbeetle) applies. Every path that places a known kind asks this one.
+     */
+    fun canReceiveCounters(entityId: EntityId, counterType: com.wingedsheep.sdk.core.CounterType): Boolean =
+        !hasKeyword(entityId, com.wingedsheep.sdk.core.AbilityFlag.CANT_RECEIVE_COUNTERS) &&
+            !hasKeyword(entityId, cantReceiveCountersKeyword(counterType)) &&
+            !baseState.cantGetCounters(entityId, counterType)
+
+    companion object {
+        /** The projected keyword a kind-scoped `CantReceiveCounters` grants: `CANT_RECEIVE_COUNTERS_<KIND>`. */
+        fun cantReceiveCountersKeyword(counterType: com.wingedsheep.sdk.core.CounterType): String =
+            "${com.wingedsheep.sdk.core.AbilityFlag.CANT_RECEIVE_COUNTERS.name}_${counterType.name}"
+    }
 
     /**
      * Whether this permanent can become suspected, per "can't become suspected" effects (Airtight
@@ -377,6 +426,18 @@ class ProjectedState(
 
     fun cantBlock(entityId: EntityId): Boolean = projectedValues[entityId]?.cantBlock == true
 
+    /**
+     * The total marked damage at which [entityId] has been dealt lethal damage (CR 120.6, 704.5g):
+     * its toughness — or its power, under a "lethal damage … is determined by their power rather
+     * than their toughness" rule modification (Zilortha, Strength Incarnate). Under that rule a
+     * creature with 0 or less power still needs at least 1 damage marked, since 704.5g only
+     * destroys a creature that has damage marked on it.
+     */
+    fun lethalDamageThreshold(entityId: EntityId): Int {
+        val values = projectedValues[entityId] ?: return 0
+        return if (values.lethalDamageByPower) maxOf(values.power ?: 0, 1) else values.toughness ?: 0
+    }
+
     fun cantBeTurnedFaceUp(entityId: EntityId): Boolean =
         projectedValues[entityId]?.cantBeTurnedFaceUp == true
 
@@ -417,6 +478,14 @@ class ProjectedState(
 
     fun hasLostAllAbilities(entityId: EntityId): Boolean =
         projectedValues[entityId]?.lostAllAbilities == true
+
+    /**
+     * Whether this object's own mana abilities (CR 605.1a) are gone: it lost all abilities and no
+     * "except mana abilities" clause spared them. Every reader of a permanent's mana abilities asks
+     * this rather than [hasLostAllAbilities], which also covers Blood Sun's lands.
+     */
+    fun hasLostManaAbilities(entityId: EntityId): Boolean =
+        projectedValues[entityId]?.let { it.lostAllAbilities && !it.keepsManaAbilities } == true
 
     /**
      * Whether an ability-adding effect with layer-6 [timestamp] is undone by a "loses all
@@ -464,6 +533,7 @@ internal fun buildIntermediateProjectedState(
             baseToughness = v.baseToughness,
             keywords = v.keywords.toSet(),
             cantHaveKeywords = v.cantHaveKeywords.toSet(),
+            grantedKeywordInstances = v.grantedKeywordInstances.toMap(),
             staticAbilities = v.staticAbilities.toList(),
             staticAbilitySourceIds = v.staticAbilitySourceIds.toList(),
             enchantmentRestrictions = v.enchantmentRestrictions.toList(),
@@ -475,6 +545,7 @@ internal fun buildIntermediateProjectedState(
             isSuspected = v.isSuspected,
             cantAttack = v.cantAttack,
             attacksWithoutTapping = v.attacksWithoutTapping,
+            lethalDamageByPower = v.lethalDamageByPower,
             canAttackAsThoughHasty = v.canAttackAsThoughHasty,
             cantBlock = v.cantBlock,
             cantBeTurnedFaceUp = v.cantBeTurnedFaceUp,
@@ -488,6 +559,7 @@ internal fun buildIntermediateProjectedState(
             manaAbilityLifeTax = v.manaAbilityLifeTax,
             lostAllAbilities = v.lostAllAbilities,
             lostAllAbilitiesTimestamp = v.lostAllAbilitiesTimestamp,
+            keepsManaAbilities = v.keepsManaAbilities,
             hasExileOnDeathAbility = v.hasExileOnDeathAbility,
             name = v.name
         )

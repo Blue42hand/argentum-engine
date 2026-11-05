@@ -10,6 +10,7 @@ import com.wingedsheep.engine.state.endResolutionControl
  * Core auto-resumers that process continuations without player input:
  * - AdvanceStepContinuation / FinishUntapStepContinuation (the rest of a turn-based step)
  * - ForEachContinuation (remaining ForEach iterations, any iteration space)
+ * - CounterEachUnlessPaysContinuation (next object of a stack-wide counter-unless-pays batch)
  * - DrawReplacementRemainingDrawsContinuation (remaining draws after bounce)
  * - CycleDrawContinuation / TypecycleSearchContinuation (legacy saved games only)
  * - EffectProgram (the rest of an effect program, once the node at its cursor has finished)
@@ -68,6 +69,13 @@ class CoreAutoResumerModule(
             checkForMore(published, events + result.events)
         },
 
+        autoResumer(CounterEachUnlessPaysContinuation::class) { state, continuation, events, checkForMore ->
+            val result = com.wingedsheep.engine.handlers.effects.stack.CounterEachUnlessPays(
+                services.spellCounterer, services.manaSolver
+            ).step(state, continuation)
+            mergeAndContinue(result, events, checkForMore)
+        },
+
         autoResumer(DrawReplacementRemainingDrawsContinuation::class) { state, continuation, events, checkForMore ->
             // The preceding draw and all its replacement work are complete.
             val nextDrawState = state.copy(activeReplacementChain = null)
@@ -86,7 +94,8 @@ class CoreAutoResumerModule(
                         amountEvaluator = services.dynamicAmountEvaluator
                     )
                     val drawResult = drawExecutor.executeDraws(
-                        nextDrawState, continuation.drawingPlayerId, continuation.remainingDraws, announce = announce
+                        nextDrawState, continuation.drawingPlayerId, continuation.remainingDraws, announce = announce,
+                        cycledCardId = continuation.cycledCardId
                     ).toExecutionResult()
                     mergeAndContinue(drawResult, events, checkForMore)
                 }
@@ -277,7 +286,7 @@ class CoreAutoResumerModule(
         // as-enters choice (printed EntersWithChoice or granted riot). That token's choice, every
         // granted-riot instance, and its ETB triggers have now resolved — create the remaining
         // token copies, each of which runs its own as-enters pipeline and may pause again.
-        autoResumer(CreateTokenCopyRemainingContinuation::class, canResume = { it.remaining > 0 }) { state, continuation, events, checkForMore ->
+        autoResumer(CreateTokenCopyRemainingContinuation::class) { state, continuation, events, checkForMore ->
             val staticAbilityHandler = com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry)
             val result = when (val e = continuation.effect) {
                 is com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect ->
@@ -288,7 +297,10 @@ class CoreAutoResumerModule(
                         targetFinder = services.targetFinder
                     ).createTokens(
                         state, e, continuation.context, continuation.controllerId,
-                        continuation.remaining, auraHostId = null,
+                        continuation.remaining, auraHostId = continuation.auraHostId,
+                        prescribedHostId = continuation.prescribedHostId,
+                        entrySourceState = continuation.entrySourceState ?: state,
+                        createdTokenIds = continuation.createdTokenIds,
                     )
                 is com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfSourceEffect ->
                     com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfSourceExecutor(
@@ -296,12 +308,21 @@ class CoreAutoResumerModule(
                         predicateEvaluator = services.predicateEvaluator
                     ).createTokens(
                         state, e, continuation.context, continuation.controllerId, continuation.remaining,
+                        entrySourceState = continuation.entrySourceState ?: state,
+                        createdTokenIds = continuation.createdTokenIds,
                     )
                 else -> com.wingedsheep.engine.core.EffectResult.success(state)
             }
             val grouped = com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.stamp(
                 result, com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.group(continuation.context))
-            mergeAndContinue(grouped.toExecutionResult(), events, checkForMore)
+            if (grouped.outcome !is Outcome.Done) {
+                return@autoResumer mergeAndContinue(grouped.toExecutionResult(), events, checkForMore)
+            }
+            val completed = if (grouped.state.continuationStack.none {
+                    it is TokenBundleMaterializationContinuation || it is GenericTokenMaterializationContinuation ||
+                        it is PredefinedTokenMaterializationContinuation || it is CreateTokenCopyRemainingContinuation
+                }) com.wingedsheep.engine.replacement.ActiveReplacements.purgeSpent(grouped.state) else grouped.state
+            checkForMore(exposeCollectionsToNextFrame(completed, grouped.updatedCollections), events + grouped.events)
         },
 
         // CR 605.3a — the player activated a mana ability while the engine was asking them for a

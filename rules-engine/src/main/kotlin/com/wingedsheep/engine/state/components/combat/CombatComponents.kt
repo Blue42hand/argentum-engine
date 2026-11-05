@@ -355,11 +355,19 @@ data object PlayerAttackedThisTurnComponent : Component
  *
  * [battleAttackerIds] is the subset declared as attacking a **battle** (CR 508.1) in any combat
  * this turn — backs `StatePredicate.AttackedABattleThisTurn` (War Historian).
+ *
+ * [declaredAs] freezes each attacker's projected characteristics at the moment it was declared,
+ * one snapshot per declaration (a creature that attacks in two combats has two). "You attacked
+ * with a Rogue this turn" asks what the creature was when it attacked, not what it is now: the
+ * answer holds after the Rogue dies, its token ceases to exist, or the effect that made it a
+ * Rogue ends (Robber of the Rich, Deepway Navigator rulings). Backs
+ * `PlayerAttackedWithCreaturesThisTurn`.
  */
 @Serializable
 data class PlayerAttackersThisTurnComponent(
     val attackerIds: Set<EntityId>,
-    val battleAttackerIds: Set<EntityId> = emptySet()
+    val battleAttackerIds: Set<EntityId> = emptySet(),
+    val declaredAs: List<com.wingedsheep.engine.state.components.stack.EntitySnapshot> = emptyList()
 ) : Component
 
 /**
@@ -417,3 +425,10 @@ data class GoadedComponent(
 /** Object identities that have blocked this attacker during the current combat, even after departure. */
 @Serializable
 data class BlockersThisCombatComponent(val blockers: Set<com.wingedsheep.engine.state.ObjectRef>) : Component
+
+/** Provisional per-player choices; no creature is blocking until the combined declaration is legal. */
+@Serializable
+data class TeamBlockerChoicesComponent(
+    val choices: Map<EntityId, Map<EntityId, List<EntityId>>> = emptyMap(),
+    val error: String? = null,
+) : Component

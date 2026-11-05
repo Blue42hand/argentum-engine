@@ -50,16 +50,43 @@ class CreatePredefinedTokenExecutor(
         state: GameState,
         effect: CreatePredefinedTokenEffect,
         context: EffectContext
+    ): EffectResult = execute(state, effect, context, rootEffect = effect)
+
+    /**
+     * [rootEffect] is the instruction a replacement question re-runs from the top once answered —
+     * [effect] itself, or the instruction that delegated here (investigate), so the re-run redoes
+     * that instruction's own bookkeeping too.
+     */
+    internal fun execute(
+        state: GameState,
+        effect: CreatePredefinedTokenEffect,
+        originalContext: EffectContext,
+        rootEffect: com.wingedsheep.sdk.scripting.effects.Effect
     ): EffectResult {
+        val creator = effect.controller?.let {
+            originalContext.resolvePlayerTarget(it, state) ?: return EffectResult.success(state)
+        } ?: originalContext.controllerId
+        val context = TokenCreationReplacementHelper.withCreator(originalContext, creator)
         val cardDef = cardRegistry.getCard(effect.tokenType)
             ?: return EffectResult.error(state, "No CardDefinition registered for predefined token '${effect.tokenType}'")
 
+        // A named controller that resolves to nobody ("its controller" after an "up to one
+        // target" chose none) creates nothing — it never falls back to the source's controller.
         val controller = effect.controller
-        val tokenControllerId = if (controller != null) {
+        val wouldBeControllerId = if (controller != null) {
             context.resolvePlayerTarget(controller, state)
-                ?: context.controllerId
+                ?: return EffectResult.success(state)
         } else {
             context.controllerId
+        }
+        // "Created under your control instead" (Crafty Cutpurse) before any other token
+        // replacement; a batch already redirected its whole event.
+        val tokenControllerId = if (TokenCreationBatch.active(context)) wouldBeControllerId
+        else when (val redirect = TokenCreationReplacementHelper.redirectController(
+            state, wouldBeControllerId, context, rootEffect, amountEvaluator.predicates
+        )) {
+            is TokenControllerRedirect.Resolved -> redirect.controllerId
+            is TokenControllerRedirect.Ask -> return redirect.result
         }
 
         // Evaluate dynamic count if set (e.g. Lobelia's "X = the exiled card's power"),
@@ -101,10 +128,10 @@ class CreatePredefinedTokenExecutor(
             return when (lookup) {
                 is TokenSubstitution -> substituteExecutor.createSubstituteTokens(
                     state, lookup, context, tokenCount, tokenControllerId,
-                    riders = TokenRiders(tapped = effect.tapped), rootEffect = effect
+                    riders = TokenRiders(tapped = effect.tapped), rootEffect = rootEffect
                 )
                 is TokenSubstitutionChoice ->
-                    TokenCreationReplacementHelper.askForSubstitution(state, lookup, effect, context, tokenCount)
+                    TokenCreationReplacementHelper.askForSubstitution(state, lookup, rootEffect, context, tokenCount)
             }
         }
 
@@ -214,13 +241,13 @@ class CreatePredefinedTokenExecutor(
             newState = TokenEntryReplacements.applyInheritedBundleRiders(newState, tokenId, state,
                 tokenControllerId, context, amountEvaluator.predicates)
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-                .place(newState, tokenControllerId, tokenId, tokenCreatorId = context.controllerId)
+                .place(newState, tokenControllerId, tokenId, tokenCreatorId = TokenCreationReplacementHelper.creatorId(context, tokenControllerId))
 
             // Predefined Map/Treasure/Clue/etc. tokens honor global "[filter] enter tapped"
             // replacements (Dauntless Dismantler taps an opponent's artifact token).
-            newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
-                .applyCreatedTokenEntryTap(
-                    newState, tokenId, tokenControllerId, definedTapped = effect.tapped,
+            newState = TokenEntryReplacements
+                .applyEntryTap(
+                    newState, tokenId, tokenControllerId, cardRegistry, definedTapped = effect.tapped,
                     predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState
                 )
 
@@ -250,7 +277,7 @@ class CreatePredefinedTokenExecutor(
             }
 
             val (withSaga, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                .applySagaEntryIfNeeded(newState, tokenId, amountEvaluator.predicates)
+                .applySagaEntryIfNeeded(newState, tokenId, amountEvaluator.predicates, replacementSourceState = entrySourceState)
             newState = withSaga
             events += sagaEvents
             val (withIntrinsic, intrinsicEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
@@ -269,7 +296,7 @@ class CreatePredefinedTokenExecutor(
         val (afterAdditional, additionalEvents) = if (TokenCreationBatch.active(context)) newState to emptyList() else TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokenIds, effect.tapped,
-                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId,
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = TokenCreationReplacementHelper.creatorId(context, tokenControllerId),
                 eligibleSources = TokenCreationBatch.sources(context)
                     ?: com.wingedsheep.engine.replacement.ActiveReplacements.all(entrySourceState).map { it.sourceId }.toSet(),
                 handled = context.tokenCreationReplacementsHandled

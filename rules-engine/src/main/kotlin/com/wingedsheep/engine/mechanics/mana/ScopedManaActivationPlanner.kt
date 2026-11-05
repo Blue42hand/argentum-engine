@@ -43,6 +43,14 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
     ): ScopedManaPlanResult = planInternal(state, player, cost, context, xAmount, xColors,
         excludeSources, reservedLife, null)
 
+    /** Execute only source IDs the payer explicitly selected; never used by Auto-pay. */
+    fun planSelectedSources(
+        state: GameState, player: EntityId, cost: ManaCost, context: SpellPaymentContext?,
+        selectedSources: Set<EntityId>, xAmount: Int = 0, xColors: Set<Color> = emptySet(),
+        acceptResult: (GameState) -> Boolean = { true },
+    ): ScopedManaPlanResult = planInternal(state, player, cost, context, xAmount, xColors,
+        emptySet(), 0, null, selectedSources, acceptResult)
+
     /** Verdict only: finish a manually started activation without consuming its enclosing payment. */
     internal fun provePaymentPrefix(
         state: GameState, player: EntityId, cost: ManaCost, context: SpellPaymentContext?,
@@ -54,9 +62,11 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
         state: GameState, player: EntityId, cost: ManaCost, context: SpellPaymentContext?,
         xAmount: Int, xColors: Set<Color>, excludeSources: Set<EntityId>, reservedLife: Int,
         prefixFloor: Int?,
+        selectedSources: Set<EntityId>? = null,
+        acceptResult: (GameState) -> Boolean = { true },
     ): ScopedManaPlanResult {
         val limits = mutableSetOf<ScopedManaSearchLimit>()
-        if (state.activeManaSpendingScope(player) == null)
+        if (selectedSources == null && state.activeManaSpendingScope(player) == null)
             return ScopedManaPlanResult.Unknown(setOf(ScopedManaSearchLimit.NO_SPENDING_SCOPE))
         fun complete(current: GameState): Boolean {
             if (reservedLife > 0 && current.lifeTotal(player) < reservedLife) return false
@@ -68,9 +78,19 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
             val allocation = pool.allocateFloating(cost, context, xAmount, xColors) ?: return false
             val required = current.continuationStack.filterIsInstance<ManaSpendingObligationsContinuation>()
                 .filter { it.playerId == player }.flatMap { it.pendingIds }.toSet()
-            return allocation.pool.dischargedObligations.containsAll(required)
+            return allocation.pool.dischargedObligations.containsAll(required) && acceptResult(current)
         }
-        data class Prefix(val state: GameState, val events: List<GameEvent>)
+        // Explicit selections can contain many interchangeable Treasures. Prefer branches that
+        // cover more of the actual bill rather than enumerating every same-depth color/order.
+        // This is only search ordering: complete() still proves the exact final allocation.
+        fun unpaidUnits(current: GameState): Int {
+            val pool = (current.getEntity(player)?.get<ManaPoolComponent>() ?: ManaPoolComponent())
+                .toManaPool().withSpendingColors(current, player)
+            val partial = pool.payPartial(cost, context)
+            return partial.remainingCost.cmc +
+                (xAmount - partial.newPool.xCoverage(xAmount, xColors, context)).coerceAtLeast(0)
+        }
+        data class Prefix(val state: GameState, val events: List<GameEvent>, val usedSources: Set<EntityId> = emptySet())
         fun settled(current: GameState, floor: Int) =
             current.pendingDecision == null && current.continuationStack.size == floor
         // Finish one activation's production questions, preferring the color the guide wanted.
@@ -100,12 +120,28 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                 snowMana = component.snowMana, manaUnits = component.manaUnits, snowColorless = component.snowColorless)
                 .withSpendingColors(initial, player).payPartial(cost, context)
             val xRemaining = (xAmount - partial.newPool.xCoverage(xAmount, xColors, context)).coerceAtLeast(0)
-            val solution = services.manaSolver.solve(initial, player, partial.remainingCost, xRemaining,
-                excludeSources, context, xManaRestriction = xColors) ?: return null
-            // The guide is one path through the search tree: the root plus one node per activation.
-            if (solution.manaProduced.size >= nodeLimit) return null
+            val solution = if (selectedSources == null) services.manaSolver.solve(
+                initial, player, partial.remainingCost, xRemaining, excludeSources, context,
+                xManaRestriction = xColors) ?: return null else null
+            val sourceIds = selectedSources?.toList() ?: solution!!.manaProduced.keys.toList()
+            if (sourceIds.size >= nodeLimit) return null
             var prefix = Prefix(initial, emptyList())
-            for ((sourceId, wanted) in solution.manaProduced) {
+            var selectedAttempts = 0
+            for (sourceId in sourceIds) {
+                if (complete(prefix.state)) return prefix
+                val wanted = solution?.manaProduced?.get(sourceId) ?: run {
+                    val source = services.manaSolver.findAvailableManaSources(prefix.state, player, context)
+                        .firstOrNull { it.entityId == sourceId } ?: return null
+                    val now = (prefix.state.getEntity(player)?.get<ManaPoolComponent>() ?: ManaPoolComponent())
+                        .toManaPool().withSpendingColors(prefix.state, player)
+                    val unpaid = now.payPartial(cost, context)
+                    val requiredColors = unpaid.remainingCost.colors.ifEmpty {
+                        if (unpaid.newPool.xCoverage(xAmount, xColors, context) < xAmount) xColors else emptySet()
+                    }
+                    val color = (source.producesColors intersect requiredColors).firstOrNull()
+                        ?: if (source.producesColorless) null else source.producesColors.firstOrNull()
+                    ManaProduction(color = color, colorless = if (color == null) 1 else 0)
+                }
                 val candidates = services.legalActionEnumerator.enumerateManaAbilities(prefix.state, player)
                     .filter { (it.action as? ActivateAbility)?.sourceId == sourceId }
                 var fallback: Prefix? = null
@@ -115,7 +151,8 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                     val ability = resolver.lookup(prefix.state, sourceId, base.abilityId)?.ability ?: continue
                     // Same proof boundary as the search: an activation it can't model never certifies.
                     if (!safeCost(ability.cost) || exileCostCount(ability.cost) > 1 ||
-                        hasNestedExileCost(ability.cost) || !manaOnly(ability.effect)) continue
+                        hasNestedExileCost(ability.cost) || !manaOnly(ability.effect) ||
+                        (selectedSources != null && !sourceOnlyCost(ability.cost))) continue
                     val color = wanted.color?.takeIf {
                         candidate.requiresManaColorChoice && ability.effect !is CompositeEffect &&
                             (candidate.availableManaColors?.contains(it) ?: true)
@@ -124,6 +161,7 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                         wanted.color != null) continue
                     val action = base.copy(manaColorChoice = color, paymentStrategy = PaymentStrategy.FromPool)
                     if (handler.validate(prefix.state, action) != null) continue
+                    if (selectedSources != null && ++selectedAttempts >= nodeLimit) return null
                     val executed = handler.execute(prefix.state, action)
                     if (executed.error != null || executed.state.gameOver) continue
                     val done = finish(Prefix(executed.state, prefix.events + executed.events), floor, wanted.color)
@@ -155,7 +193,9 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
             var attempted = 1
             // Short proofs precede irrelevant permutations. Bound attempts, including rejected choices.
             while (pending.isNotEmpty()) {
-                val (current, events) = pending.removeFirst()
+                val next = if (selectedSources == null) pending.removeFirst() else
+                    pending.minByOrNull { unpaidUnits(it.state) }!!.also { pending.remove(it) }
+                val (current, events) = next
                 if (current.pendingDecision == null && current.continuationStack.size == continuationFloor &&
                     complete(current)) return ScopedManaPlanResult.Found(ExecutionResult.success(current, events))
                 if (current.pendingDecision != null) {
@@ -180,7 +220,7 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                             continue
                         }
                         if (result.state.gameOver) continue
-                        pending.add(Prefix(result.state, events + DecisionSubmittedEvent(decision.id, player) + result.events))
+                        pending.add(Prefix(result.state, events + DecisionSubmittedEvent(decision.id, player) + result.events, next.usedSources))
                     }
                     continue
                 }
@@ -201,13 +241,17 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                         limits.add(ScopedManaSearchLimit.UNSUPPORTED_ACTIVATION)
                         continue
                     }
-                    if (base.sourceId in excludeSources) continue
+                    if (base.sourceId in excludeSources ||
+                        (selectedSources != null && (base.sourceId !in selectedSources || base.sourceId in next.usedSources))) continue
                     val ability = resolver.lookup(current, base.sourceId, base.abilityId)?.ability
                     if (ability == null || !safeCost(ability.cost) || exileCostCount(ability.cost) > 1 ||
                         hasNestedExileCost(ability.cost) || !manaOnly(ability.effect)) {
                         limits.add(ScopedManaSearchLimit.UNSUPPORTED_ACTIVATION)
                         continue
                     }
+                    // A source selection authorizes its own activation, not the sacrifice, tap,
+                    // discard or exile of another object. Such choices remain explicit actions.
+                    if (selectedSources != null && !sourceOnlyCost(ability.cost)) continue
                     // Choice previews can omit source-relative costs; the real action validates them.
                     if (!candidate.affordable && !hasCostChoice(ability.cost)) continue
                     // A composite can contain independently chosen colors. A shared activation
@@ -254,7 +298,7 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                             continue
                         }
                         if (result.state.gameOver) continue
-                        pending.add(Prefix(result.state, events + result.events))
+                        pending.add(Prefix(result.state, events + result.events, next.usedSources + base.sourceId))
                     }
                 }
             }
@@ -401,6 +445,13 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
         cost is AbilityCost.Composite && cost.costs.any {
             it is AbilityCost.Composite && exileCostCount(it) > 0
         }
+
+    private fun sourceOnlyCost(cost: AbilityCost): Boolean = when (cost) {
+        AbilityCost.Tap, AbilityCost.SacrificeSelf -> true
+        is AbilityCost.Composite -> cost.costs.isNotEmpty() && cost.costs.all(::sourceOnlyCost)
+        is AbilityCost.Atom -> cost.atom is CostAtom.Mana || cost.atom is CostAtom.PayLife
+        else -> false
+    }
 
     private fun manaOnly(effect: Effect): Boolean = when (effect) {
         is AddManaEffect, is AddColorlessManaEffect, is AddManaOfChoiceEffect, is AddDynamicManaEffect -> true

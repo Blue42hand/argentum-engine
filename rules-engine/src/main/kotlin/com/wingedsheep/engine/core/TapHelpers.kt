@@ -10,6 +10,7 @@ import com.wingedsheep.engine.state.components.battlefield.HasBecomeTappedCompon
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.EntryTapStateComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
+import com.wingedsheep.engine.state.components.battlefield.UntapCountComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.sdk.core.AbilityFlag
@@ -74,7 +75,8 @@ import com.wingedsheep.sdk.scripting.TapReason
  * never tell them apart. It defaults to [TapReason.UNSPECIFIED] and stays there for every tap site
  * the engine has not been taught to name: an unclassified cause must never masquerade as a
  * classified one, because a card reading that cause would then fire wrongly. Only the teamwork
- * additional-cost payment classifies itself today; see [TapReason] for how to add the next cause.
+ * additional-cost payment and the declare-attackers tap classify themselves today; see [TapReason]
+ * for how to add the next cause.
  *
  * **First time each turn.** Every tap through this atom increments the permanent's
  * [HasBecomeTappedComponent] count for the current turn, and [TappedEvent.firstThisTurn] records
@@ -304,6 +306,7 @@ fun untapOrConsumeStun(
             c.with(counters.withRemoved(CounterType.PLUS_ONE_PLUS_ONE, 1))
                 .withEntryTapState(enteredTapped = true)
                 .without<TappedComponent>()
+                .withUntapCounted()
         }
         return newState to listOf(
             CountersRemovedEvent(entityId, CounterType.PLUS_ONE_PLUS_ONE, 1, cardName),
@@ -312,7 +315,7 @@ fun untapOrConsumeStun(
     }
 
     val newState = state.updateEntity(entityId) {
-        it.withEntryTapState(enteredTapped = true).without<TappedComponent>()
+        it.withEntryTapState(enteredTapped = true).without<TappedComponent>().withUntapCounted()
     }
     return newState to listOf(UntappedEvent(entityId, cardName))
 }
@@ -325,6 +328,12 @@ fun untapOrConsumeStun(
 fun enteredBattlefieldTapped(container: ComponentContainer): Boolean =
     container.get<EntryTapStateComponent>()?.enteredTapped ?: container.has<TappedComponent>()
 
+/** The permanent's [UntapCountComponent] clock — how many times it has untapped this battlefield visit. */
+fun untapCount(container: ComponentContainer?): Int = container?.get<UntapCountComponent>()?.count ?: 0
+
+private fun ComponentContainer.withUntapCounted(): ComponentContainer =
+    with(UntapCountComponent(untapCount(this) + 1))
+
 /** Freeze [enteredTapped] as the entry tap state, unless an earlier transition already did. */
 private fun ComponentContainer.withEntryTapState(enteredTapped: Boolean): ComponentContainer =
     if (has<EntryTapStateComponent>()) this else with(EntryTapStateComponent(enteredTapped))
@@ -336,9 +345,11 @@ typealias UntappedOrConsumeEvent = GameEvent
  * True if [entityId] must be skipped by an untap step (CR 502.3) — either the narrow
  * [AbilityFlag.DOESNT_UNTAP] ("doesn't untap during your untap step") or the stronger
  * [AbilityFlag.CANT_BECOME_UNTAPPED], which also blocks untap *effects* and therefore
- * subsumes the untap-step behavior. Use this at every untap-step gate in
- * [BeginningPhaseManager] so both restrictions drop the permanent from the untap list
- * (and from the MAY_NOT_UNTAP / untap-limit choice pools). Universal untap enforcement
+ * subsumes the untap-step behavior. Use this at every gate of the *active* player's own
+ * untap step in [BeginningPhaseManager] so both restrictions drop the permanent from the
+ * untap list (and from the MAY_NOT_UNTAP / untap-limit choice pools). Not for "during each
+ * other player's untap step" untaps (Seedborn Muse): DOESNT_UNTAP is controller-scoped and
+ * doesn't apply there. Universal untap enforcement
  * still lives in [untapOrConsumeStun]; this is the untap-step-only convenience.
  */
 fun ProjectedState.doesntUntapDuringUntapStep(entityId: EntityId): Boolean =

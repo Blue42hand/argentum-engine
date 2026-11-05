@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.effects.token
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.effects.EntersWithReplacements
 import com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils
+import com.wingedsheep.engine.mechanics.ReadAheadSynthesis
 import com.wingedsheep.engine.mechanics.RiotSynthesis
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
@@ -65,6 +66,31 @@ object TokenEntryReplacements {
         return result
     }
 
+
+
+    internal fun applyEntryTap(
+        state: GameState, tokenId: EntityId, controllerId: EntityId, cardRegistry: CardRegistry?,
+        predicateEvaluator: PredicateEvaluator, replacementSourceState: GameState,
+        definedTapped: Boolean = false, attacking: Boolean = false
+    ): GameState {
+        val definition = state.getEntity(tokenId)?.get<CardComponent>()
+            ?.let { cardRegistry?.getCard(it.cardDefinitionId) }
+        val views = com.wingedsheep.engine.handlers.effects.entryEvaluationViews(
+            state, tokenId, controllerId, replacementSourceState)
+        val ownTapped = definition?.script?.replacementEffects
+            ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersTapped>()
+            ?.filter { it.payLifeCost == null }
+            ?.any { replacement -> replacement.unlessCondition?.let { condition ->
+                !predicateEvaluator.conditions.evaluate(state, condition,
+                    com.wingedsheep.engine.handlers.EffectContext(sourceId = tokenId, controllerId = controllerId),
+                    entryViews = views)
+            } ?: true } == true
+        val tapped = definedTapped || ownTapped
+        return com.wingedsheep.engine.handlers.effects.EnterTappedReplacements.applyCreatedTokenEntryTap(
+            state, tokenId, controllerId, definedTapped = tapped,
+            attacking = attacking && state.projectedState.isCreature(tokenId),
+            predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState)
+    }
 
     /**
      * Give a just-placed token the counters its creating effect says it is created / enters with —
@@ -158,7 +184,8 @@ object TokenEntryReplacements {
         // as granted riot here, so its choice cannot hide a grant or overwrite another MODE answer.
         val printedRiot = printedChoices.filter { it == RiotSynthesis.RIOT_CHOICE }
         val riotCount = grantedRiotCount + printedRiot.size
-        val otherChoices = printedChoices.filterNot { it == RiotSynthesis.RIOT_CHOICE }
+        val readAheadChoice = ReadAheadSynthesis.grantedChoice(prospective, tokenId, cardDef, cardRegistry, predicateEvaluator)
+        val otherChoices = (printedChoices.filterNot { it == RiotSynthesis.RIOT_CHOICE } + listOfNotNull(readAheadChoice))
             .sortedBy { it.choiceType.ordinal }
         val firstChoice = if (riotCount > 0) RiotSynthesis.RIOT_CHOICE else otherChoices.firstOrNull() ?: return null
         return EntersWithChoicePlan(

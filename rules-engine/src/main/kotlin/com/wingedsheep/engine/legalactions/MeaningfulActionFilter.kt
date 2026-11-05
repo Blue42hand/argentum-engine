@@ -347,6 +347,10 @@ object MeaningfulActionFilter {
             return PASS_NO_ATTACKERS_DECLARED
         }
 
+        if (isLastWindowBeforeDeckingDraw(state, playerId)) {
+            return respondOrPass(meaningfulActions, "My upkeep with an empty library")
+        }
+
         return if (isMyTurn) {
             shouldAutoPassOnMyTurn(state.step, meaningfulActions)
         } else {
@@ -373,6 +377,7 @@ object MeaningfulActionFilter {
         if (state.stack.isNotEmpty()) return false
 
         val isMyTurn = state.isActiveTurnFor(playerId)
+        if (isLastWindowBeforeDeckingDraw(state, playerId)) return false
         val unconditional =
             if (isMyTurn) UNCONDITIONAL_PASS_ON_MY_TURN else UNCONDITIONAL_PASS_ON_OPPONENT_TURN
         if (state.step in unconditional) return true
@@ -587,6 +592,15 @@ object MeaningfulActionFilter {
         } else {
             AutoPassVerdict(true, "AUTO-PASS: $window ($passSuffix)")
         }
+
+    /**
+     * Our own upkeep with an empty library: the last priority window before the draw step's draw
+     * loses the game (CR 704.5b). Otherwise an unconditional pass, here it stops for any
+     * instant-speed answer — Paradox Shaper putting a graveyard card on the bottom of the library
+     * is the one an AI seat once passed straight through and decked with.
+     */
+    private fun isLastWindowBeforeDeckingDraw(state: GameState, playerId: EntityId): Boolean =
+        state.step == Step.UPKEEP && state.isActiveTurnFor(playerId) && state.getLibrary(playerId).isEmpty()
 
     private fun hasAttackers(state: GameState): Boolean = state.getBattlefield().any { entityId ->
         state.getEntity(entityId)?.get<AttackingComponent>() != null

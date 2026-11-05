@@ -197,21 +197,29 @@ object Conditions {
         )
 
     /**
-     * If an opponent controls more lands than you.
+     * If an opponent controls more lands than you — any single opponent, not their combined
+     * total, so it reads the greatest count among opponents.
      */
     val OpponentControlsMoreLands: ConditionInterface =
         Compare(
-            DynamicAmount.AggregateBattlefield(Player.EachOpponent, GameObjectFilter.Land),
+            DynamicAmount.GreatestAmongPlayers(
+                Player.EachOpponent,
+                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land)
+            ),
             ComparisonOperator.GT,
             DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Land)
         )
 
     /**
-     * If an opponent controls more creatures than you.
+     * If an opponent controls more creatures than you — any single opponent, not their combined
+     * total, so it reads the greatest count among opponents.
      */
     val OpponentControlsMoreCreatures: ConditionInterface =
         Compare(
-            DynamicAmount.AggregateBattlefield(Player.EachOpponent, GameObjectFilter.Creature),
+            DynamicAmount.GreatestAmongPlayers(
+                Player.EachOpponent,
+                DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature)
+            ),
             ComparisonOperator.GT,
             DynamicAmount.AggregateBattlefield(Player.You, GameObjectFilter.Creature)
         )
@@ -1051,7 +1059,7 @@ object Conditions {
 
     /**
      * "If one or more of them entered from exile or was cast from exile" — the batch-enters,
-     * any-of exile counterpart of [TriggeringEntityEnteredOrWasCastFromGraveyard]. Evaluated over
+     * any-of exile counterpart of [TriggeringEntityEnteredOrWasCastFrom]. Evaluated over
      * the permanents a `Triggers.oneOrMore(filter).enter()` batch captured; works as a real
      * intervening-"if" (`interveningIf`) as well as a resolution-time gate. Extraordinary
      * Journey.
@@ -1861,6 +1869,14 @@ object Conditions {
         )
 
     /**
+     * "If you faced a dilemma this turn" (The Caretaker) — at least [atLeast] times this turn the
+     * player chose one or more modes for a spell or ability
+     * ([com.wingedsheep.sdk.scripting.values.TurnTracker.DILEMMAS_FACED]).
+     */
+    fun YouFacedADilemmaThisTurn(atLeast: Int = 1, player: Player = Player.You): ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.DILEMMAS_FACED, atLeast, player)
+
+    /**
      * "If you've paid or lost N or more {E} this turn" (Izzet Generatorium) — every energy counter
      * removed from the player this turn, paid as a cost or lost to an effect
      * ([com.wingedsheep.sdk.scripting.values.TurnTracker.ENERGY_PAID_OR_LOST]).
@@ -1931,6 +1947,13 @@ object Conditions {
      */
     val YouLostLifeThisTurn: ConditionInterface =
         trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LIFE_LOST)
+
+    /**
+     * If you lost life last turn — the turn before this one, whoever's it was (Paladin of Atonement).
+     * Only *losing* life counts, not a net decrease.
+     */
+    val YouLostLifeLastTurn: ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.LIFE_LOST_LAST_TURN)
 
     /**
      * If you gained or lost life this turn.
@@ -2138,9 +2161,25 @@ object Conditions {
      * legendary creature this turn."
      */
     val AnOpponentWasDealtCombatDamageByLegendaryCreatureThisTurn: ConditionInterface =
-        trackerAtLeast(
-            com.wingedsheep.sdk.scripting.values.TurnTracker.DEALT_COMBAT_DAMAGE_BY_LEGENDARY_CREATURE,
-            player = Player.EachOpponent,
+        PlayerWasDealtCombatDamageThisTurnBy(GameObjectFilter.Creature.legendary(), player = Player.EachOpponent)
+
+    /**
+     * If [player] was dealt combat damage this turn by [atLeast] or more distinct sources matching
+     * [sourceFilter], each judged as it was when it dealt the damage — a [Compare] over
+     * [DynamicAmount.CombatDamageSourcesThisTurn]. "A player who was dealt combat damage by three or
+     * more Pirates this turn" (Admiral Beckett Brass, inside `StatePredicate.ControllerMeets`, where
+     * [Player.You] is the candidate's controller); "an opponent was dealt combat damage by a legendary
+     * creature this turn" (Blitzball).
+     */
+    fun PlayerWasDealtCombatDamageThisTurnBy(
+        sourceFilter: GameObjectFilter,
+        atLeast: Int = 1,
+        player: Player = Player.You,
+    ): ConditionInterface =
+        Compare(
+            DynamicAmount.CombatDamageSourcesThisTurn(player, sourceFilter),
+            ComparisonOperator.GTE,
+            DynamicAmount.Fixed(atLeast)
         )
 
     /**
@@ -2198,6 +2237,16 @@ object Conditions {
      */
     fun candidateHasMostLife(): ConditionInterface =
         PlayerHasMostLife(Player.Candidate)
+
+    /**
+     * Candidate restriction: the player being considered is [player]. Wrapped in [Not] it backs
+     * "another target player" relative to a bound player — The Lord of Pain's
+     * `Not(candidateIs(Player.TriggeringPlayer))`, "choose another target player" than the one who
+     * cast the spell. A trigger's targeting binds `Player.TriggeringPlayer` both when targets are
+     * chosen and when they're re-checked at resolution.
+     */
+    fun candidateIs(player: Player): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.PlayerIs(Player.Candidate, player)
 
     /**
      * Candidate-target restriction: the player being targeted has [n] or less life.
@@ -2359,18 +2408,20 @@ object Conditions {
         PermanentTypeEnteredBattlefieldThisTurn(CardType.ARTIFACT)
 
     /**
-     * If a permanent of the given card type was put into the given player's graveyard from the
-     * battlefield this turn — owner-keyed turn history read off the permanent's last-known type
-     * line, so tokens and permanents that have since left the graveyard still count.
+     * If a permanent (of [cardType], or any when `null`) was put into the given player's [toZone] —
+     * graveyard or hand — from the battlefield this turn. Owner-keyed turn history read off the
+     * permanent's last-known type line, so tokens and cards that have since left that zone still count.
      *
-     * Used for Kami of Transience (NEO): "if an enchantment was put into your graveyard from the
-     * battlefield this turn".
+     * Kami of Transience (NEO): "if an enchantment was put into your graveyard from the battlefield
+     * this turn". Miles O'Brien, Transporter Ops (TRK): "if a permanent was returned to your hand from
+     * the battlefield this turn".
      */
-    fun PermanentTypePutIntoGraveyardFromBattlefieldThisTurn(
-        cardType: CardType,
+    fun PermanentPutIntoZoneFromBattlefieldThisTurn(
+        toZone: Zone,
+        cardType: CardType? = null,
         player: Player = Player.You
     ): ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.PermanentTypePutIntoGraveyardFromBattlefieldThisTurn(cardType, player)
+        com.wingedsheep.sdk.scripting.conditions.PermanentPutIntoZoneFromBattlefieldThisTurn(toZone, cardType, player)
 
     /**
      * "If you've scried or surveilled this turn" — Surveillance Phantasm, Desperate Futurescribe,
@@ -2378,6 +2429,10 @@ object Conditions {
      */
     val ScriedOrSurveiledThisTurn: ConditionInterface =
         trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.SCRIED_OR_SURVEILED)
+
+    /** "If you've surveilled this turn" / "as long as you've surveilled this turn" — Darkblade Agent. */
+    val SurveiledThisTurn: ConditionInterface =
+        trackerAtLeast(com.wingedsheep.sdk.scripting.values.TurnTracker.SURVEILED)
 
     /**
      * If you put a counter on a creature this turn.
@@ -2518,6 +2573,14 @@ object Conditions {
      */
     val IsFirstEndStepOfTurn: ConditionInterface =
         com.wingedsheep.sdk.scripting.conditions.IsFirstEndStepOfTurn
+
+    /**
+     * If it's the first upkeep step of the turn (no upkeep step has ended yet this turn) — "at the
+     * beginning of [a player's] first upkeep each turn" as an `interveningIf`, and the loop guard for
+     * [Effects.AddAdditionalUpkeepSteps] with `afterThisStep` (Paradox Haze).
+     */
+    val IsFirstUpkeepStepOfTurn: ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.IsFirstUpkeepStepOfTurn
 
     /**
      * If it's the first combat phase of the turn (not an extra combat phase inserted by
@@ -2728,11 +2791,20 @@ object Conditions {
         com.wingedsheep.sdk.scripting.conditions.TriggeringSpellManaSpentAtLeast(amount)
 
     /**
-     * If the triggering entity entered or was cast from a graveyard.
-     * Used by Twilight Diviner: "if they entered or were cast from a graveyard".
+     * If the triggering entity entered or was cast from a graveyard — the named shorthand for
+     * `TriggeringEntityEnteredOrWasCastFrom(Zone.GRAVEYARD)`, kept because the graveyard is the
+     * zone almost every printed card asks about (like the `AnyEnteredOrWasCastFromGraveyard`
+     * twin). Used by Twilight Diviner: "if they entered or were cast from a graveyard".
      */
     val TriggeringEntityEnteredOrWasCastFromGraveyard: ConditionInterface =
-        com.wingedsheep.sdk.scripting.conditions.TriggeringEntityEnteredOrWasCastFromGraveyard
+        com.wingedsheep.sdk.scripting.conditions.TriggeringEntityEnteredOrWasCastFrom(Zone.GRAVEYARD)
+
+    /**
+     * If the triggering entity entered from [zone] or was cast from [zone] — the zone-general form
+     * of [TriggeringEntityEnteredOrWasCastFromGraveyard]. Fblthp, the Lost (`Zone.LIBRARY`).
+     */
+    fun TriggeringEntityEnteredOrWasCastFrom(zone: Zone): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.TriggeringEntityEnteredOrWasCastFrom(zone)
 
     /**
      * If the triggering entity had a -1/-1 counter on it when it left the battlefield.
@@ -2896,6 +2968,17 @@ object Conditions {
     /** [CollectionSharesCardType] over a pipeline handle. */
     fun CollectionSharesCardType(collection: CollectionSlot): ConditionInterface =
         CollectionSharesCardType(collection.key)
+
+    /**
+     * Condition: "if all cards in the named collection share a card type" — one card type is
+     * common to every card (All Good Things...). False for an empty collection.
+     */
+    fun AllInCollectionShareCardType(collection: String): ConditionInterface =
+        com.wingedsheep.sdk.scripting.conditions.CollectionSharesCardType(collection, all = true)
+
+    /** [AllInCollectionShareCardType] over a pipeline handle. */
+    fun AllInCollectionShareCardType(collection: CollectionSlot): ConditionInterface =
+        AllInCollectionShareCardType(collection.key)
 
     // =========================================================================
     // Composite Conditions

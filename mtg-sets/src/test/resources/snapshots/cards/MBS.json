@@ -20,7 +20,7 @@
                 "target": "IterationEntity"
             }
         },
-        "selfShuffleIntoLibraryOnResolve": true
+        "selfLibraryPlacementOnResolve": "Shuffled"
     },
     "metadata": {
         "collectorNumber": "39",
@@ -61,7 +61,7 @@
                 "id": "t0"
             }
         ],
-        "selfShuffleIntoLibraryOnResolve": true
+        "selfLibraryPlacementOnResolve": "Shuffled"
     },
     "metadata": {
         "collectorNumber": "20",
@@ -284,7 +284,7 @@
                 "EmitLibrarySearchedEvent"
             ]
         },
-        "selfShuffleIntoLibraryOnResolve": true
+        "selfLibraryPlacementOnResolve": "Shuffled"
     },
     "metadata": {
         "collectorNumber": "81",
@@ -532,6 +532,70 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Lead the Stampede
+{
+    "name": "Lead the Stampede",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at the top five cards of your library. You may reveal any number of creature cards from among them and put the revealed cards into your hand. Put the rest on the bottom of your library in any order.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    },
+                    "storeAs": "looked"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "looked",
+                    "selection": "ChooseAnyNumber",
+                    "filter": "creature",
+                    "storeSelected": "kept",
+                    "storeRemainder": "rest",
+                    "prompt": "You may reveal any number of creature cards and put them into your hand",
+                    "showAllCards": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "kept",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "rest",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "ControllerChooses"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "82",
+        "rarity": "UNCOMMON",
+        "artist": "Efrem Palacios",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/66ed14c8-38c6-4da5-a6ee-f814478161d2.jpg?1783941375"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -884,7 +948,7 @@
                 "id": "t0"
             }
         ],
-        "selfShuffleIntoLibraryOnResolve": true
+        "selfLibraryPlacementOnResolve": "Shuffled"
     },
     "metadata": {
         "collectorNumber": "74",
@@ -901,6 +965,48 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Shimmer Myr
+{
+    "name": "Shimmer Myr",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Myr",
+    "oracleText": "Flash\nYou may cast artifact spells as though they had flash.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantFlashToSpellType",
+                "filter": "artifact",
+                "controllerOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "129",
+        "rarity": "RARE",
+        "artist": "Jana Schirmer & Johannes Voss",
+        "flavorText": "It evades Phyrexians by hiding in the spaces between seconds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/478c1a5b-237b-4ecb-be73-3c6dafd5ae53.jpg?1783941364",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Once you announce that you're casting a spell, players can't attempt to remove Shimmer Myr from the battlefield to make that casting illegal. Removing Shimmer Myr after you've cast a spell won't affect that spell."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Shimmer Myr has no effect on artifact lands because they aren't cast as spells."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Slagstorm
@@ -1082,7 +1188,7 @@
             ],
             "imageUri": "https://cards.scryfall.io/normal/front/7/d/7d400b41-813d-4a63-848f-5eb4db4bf3bb.jpg?1783903575"
         },
-        "selfShuffleIntoLibraryOnResolve": true
+        "selfLibraryPlacementOnResolve": "Shuffled"
     },
     "metadata": {
         "collectorNumber": "19",

@@ -85,7 +85,7 @@ class EffectExecutorRegistry(
         registerModule(LinkedExileExecutors(zones))
         registerModule(RegenerationExecutors())
         registerModule(BendExecutors())
-        registerModule(CompositeExecutors(::recurse, cardRegistry, targetFinder, decisionHandler, amountEvaluator = amountEvaluator, targetValidator = targetValidator, plainExecutor = ::execute))
+        registerModule(CompositeExecutors(::recurse, zones, cardRegistry, targetFinder, decisionHandler, amountEvaluator = amountEvaluator, targetValidator = targetValidator, plainExecutor = ::execute))
         registerModule(
             DrawingExecutors(
                 ::recurse,
@@ -177,7 +177,6 @@ class EffectExecutorRegistry(
                 when (effect) {
                     is com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect -> effect.from
                     is com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect -> effect.from
-                    else -> null
                 }))
         } else executed
         val references = instructionContext.objectReferences.authorize(result.events)
@@ -186,7 +185,10 @@ class EffectExecutorRegistry(
         val completed = runReplacementRiders(recorded, context).let { done ->
             // An instruction is one event for "the next time …" replacement grants: one it spent
             // has done its job once the instruction is over (see ActiveReplacements.purgeSpent).
-            if (done.outcome is Outcome.Done && done.state.continuationStack.none { it is com.wingedsheep.engine.core.TokenBundleMaterializationContinuation })
+            if (done.outcome is Outcome.Done && done.state.continuationStack.none { it is com.wingedsheep.engine.core.TokenBundleMaterializationContinuation ||
+                    it is com.wingedsheep.engine.core.GenericTokenMaterializationContinuation ||
+                    it is com.wingedsheep.engine.core.PredefinedTokenMaterializationContinuation ||
+                    it is com.wingedsheep.engine.core.CreateTokenCopyRemainingContinuation })
                 done.copy(state = com.wingedsheep.engine.replacement.ActiveReplacements.purgeSpent(done.state))
             else done
         }

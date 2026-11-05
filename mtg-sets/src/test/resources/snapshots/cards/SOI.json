@@ -188,9 +188,11 @@
         "replacementEffects": [
             {
                 "type": "EntersAsCopy",
-                "entersWithCounters": {
-                    "count": "XValue"
-                }
+                "entersWithCounters": [
+                    {
+                        "count": "XValue"
+                    }
+                ]
             }
         ],
         "cantBeCountered": true
@@ -1986,6 +1988,57 @@
     "colorIdentityOverride": [
         "BLUE",
         "BLACK"
+    ]
+}
+
+// Dual Shot
+{
+    "name": "Dual Shot",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "oracleText": "Dual Shot deals 1 damage to each of up to two target creatures.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": "IterationSpace.Targets",
+            "body": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "target": {
+                    "type": "ContextTarget",
+                    "index": 0
+                }
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 2,
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "153",
+        "artist": "Joseph Meehan",
+        "flavorText": "There is an eagerness among the Quiver of Kessig to prove they are the equal of the other cathar orders.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7ac4fa4-4a03-41a9-b7e4-c3a6da89472f.jpg?1783937755",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "You can’t target the same creature twice to have Dual Shot deal 2 damage to it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -5065,6 +5118,23 @@
                                     "target": "IterationEntity"
                                 }
                             }
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Group",
+                                "filter": {
+                                    "baseFilter": "creature ctrl:you"
+                                }
+                            },
+                            "body": {
+                                "type": "GrantKeywordVariantsSharedByGroup",
+                                "keyword": "HEXPROOF",
+                                "group": {
+                                    "baseFilter": "creature ctrl:you"
+                                },
+                                "target": "IterationEntity"
+                            }
                         }
                     ],
                     "descriptionOverride": "Creatures you control gain first strike until end of turn if a creature you control has first strike. The same is true for flying, deathtouch, double strike, haste, hexproof, indestructible, lifelink, menace, reach, trample, and vigilance."
@@ -5631,6 +5701,57 @@
         "artist": "James Ryman",
         "flavorText": "\"Nothing will cool the fire in their blood. They are too far gone. We must keep them away from our towns at any cost.\"\n—Cosper Lowe of the Silbern Guard",
         "imageUri": "https://cards.scryfall.io/normal/front/c/c/cc4d04bc-6263-43b0-9b01-894a532cd3ed.jpg?1783937746"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Reduce to Ashes
+{
+    "name": "Reduce to Ashes",
+    "manaCost": "{4}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Reduce to Ashes deals 5 damage to target creature. If that creature would die this turn, exile it instead.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MarkExileOnDeath",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "176",
+        "artist": "Jason A. Engle",
+        "flavorText": "Previously the training center for cathars, the Elgaud Grounds are now used by the Lunarch Inquisition to punish those considered to be heretics.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/2/a2e23215-ced7-4c44-8595-dd9df3d8227b.jpg"
     },
     "colorIdentityOverride": [
         "RED"
@@ -6293,6 +6414,50 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Sleep Paralysis
+{
+    "name": "Sleep Paralysis",
+    "manaCost": "{3}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nWhen this Aura enters, tap enchanted creature.\nEnchanted creature doesn't untap during its controller's untap step.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sleep Paralysis:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "TapUntap",
+                    "target": "EnchantedCreature"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "DOESNT_UNTAP"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "87",
+        "artist": "Josu Hernaiz",
+        "flavorText": "Sleep doesn't always mean rest.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/0/f010e4f4-f1a3-4062-834c-eec5f1f443d6.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

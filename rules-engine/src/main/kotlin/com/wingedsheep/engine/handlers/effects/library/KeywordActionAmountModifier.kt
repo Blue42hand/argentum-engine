@@ -146,7 +146,7 @@ private inline fun <reified T : ReplacementEffect> forEachApplicable(
 ) {
     val conditionEvaluator = predicateEvaluator.conditions
     for (entityId in state.getBattlefield()) {
-        val replacementSource = state.getEntity(entityId)?.get<ReplacementEffectSourceComponent>() ?: continue
+        val replacementSource = state.activeReplacementSource(entityId) ?: continue
         val sourceControllerId = state.projectedState.getController(entityId)
 
         for (effect in replacementSource.replacementEffects) {

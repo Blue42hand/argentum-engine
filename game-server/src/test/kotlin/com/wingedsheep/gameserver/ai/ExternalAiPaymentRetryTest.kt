@@ -162,7 +162,7 @@ class ExternalAiPaymentRetryTest : FunSpec({
         aiGameManager = mockk(relaxed = true),
         matchResultSink = mockk(relaxed = true),
         rankedResultSink = mockk(relaxed = true),
-        deckProfiler = mockk(relaxed = true),
+        deckProfiler = mockk(relaxed = true), anteSpoilsSink = mockk(relaxed = true),
     )
 
     test("rejected payment asks the same pilot for a correction and retains its decision origin") {

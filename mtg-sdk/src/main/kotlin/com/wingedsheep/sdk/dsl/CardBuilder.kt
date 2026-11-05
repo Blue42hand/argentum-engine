@@ -15,6 +15,7 @@ import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.Effect
@@ -489,6 +490,15 @@ class CardBuilder(private val name: String) {
      */
     fun rampage(n: Int) {
         keywordAbilityList.add(KeywordAbility.rampage(n))
+    }
+
+    /**
+     * Add Afflict N (CR 702.130) — "Whenever this creature becomes blocked, defending player loses
+     * N life." Only the keyword is stored: the engine derives the trigger from the projected
+     * keyword — see [com.wingedsheep.sdk.scripting.Afflict].
+     */
+    fun afflict(n: Int) {
+        keywordAbilityList.add(KeywordAbility.afflict(n))
     }
 
     // The set-mechanic helpers mobilize / firebending / sneak / decayed / vivid* / impending /
@@ -987,7 +997,8 @@ class CardBuilder(private val name: String) {
             classLevels = classLevelsList.toList(),
             sagaChapters = sagaChaptersList.toList(),
             selfExileOnResolve = spellBuilder?.exilesOnResolve ?: false,
-            selfShuffleIntoLibraryOnResolve = spellBuilder?.shufflesIntoLibraryOnResolve ?: false,
+            selfExileTimeCounters = spellBuilder?.exileTimeCounters ?: 0,
+            selfLibraryPlacementOnResolve = spellBuilder?.libraryPlacementOnResolve,
             paradigm = spellBuilder?.isParadigm ?: false,
             returnTransformedFromGraveyardOnResolve = spellBuilder?.returnTransformedFromGraveyardMarker,
             selfAlternativeCost = selfAlternativeCost,
@@ -1023,6 +1034,13 @@ class CardBuilder(private val name: String) {
             if (warp != null) add(KeywordAbility.Warp(ManaCost.parse(warp!!)))
             if (dash != null) add(KeywordAbility.Dash(ManaCost.parse(dash!!)))
             if (evoke != null) add(KeywordAbility.Evoke(ManaCost.parse(evoke!!)))
+        }
+
+        // "Exile <name> with N time counters on it." lands the card suspended (CR 702.62b), which
+        // needs the card to have suspend — every card printing the clause does.
+        require((spellBuilder?.exileTimeCounters ?: 0) == 0 || finalKeywordAbilities.any { it is KeywordAbility.Suspend }) {
+            "$name uses selfExile(timeCounters) without a printed suspend keyword; a card exiled with " +
+                "time counters is only suspended if it has suspend (CR 702.62b)"
         }
 
         // Derive simple keywords from parameterized keyword abilities
@@ -1092,18 +1110,26 @@ class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : Tar
     /** "X can't be greater than [xMaximum]" — checked once, as X is announced (null = no cap). */
     var xMaximum: DynamicAmount? = null
     private var selfExileOnResolve: Boolean = false
+    private var selfExileTimeCounters: Int = 0
 
     /**
      * Mark this spell to exile itself on resolution instead of going to the graveyard.
      * Used for cards that say "Exile <card name>."
+     *
+     * [timeCounters] is "Exile <card name> with N time counters on it." — the card lands in exile
+     * suspended (CR 702.62b), so it needs a printed `KeywordAbility.suspend(...)`; the card build
+     * rejects it otherwise. See [com.wingedsheep.sdk.model.CardScript.selfExileTimeCounters].
      */
-    fun selfExile() {
+    fun selfExile(timeCounters: Int = 0) {
+        require(timeCounters >= 0) { "selfExile(timeCounters) must be non-negative" }
         selfExileOnResolve = true
+        selfExileTimeCounters = timeCounters
     }
 
     internal val exilesOnResolve: Boolean get() = selfExileOnResolve
+    internal val exileTimeCounters: Int get() = selfExileTimeCounters
 
-    private var selfShuffleIntoLibraryOnResolve: Boolean = false
+    private var selfLibraryPlacementOnResolve: ZonePlacement? = null
 
     /**
      * Mark this spell to shuffle itself into its owner's library on resolution instead of going to
@@ -1114,27 +1140,38 @@ class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : Tar
      *
      * Does not outrank flashback (CR 702.34a) or harmonize (CR 702.180a): those replace "anywhere
      * else any time it would leave the stack" rather than naming the graveyard, so a flashbacked
-     * spell with this clause is exiled. See [com.wingedsheep.sdk.model.CardScript.selfShuffleIntoLibraryOnResolve].
+     * spell with this clause is exiled. See [com.wingedsheep.sdk.model.CardScript.selfLibraryPlacementOnResolve].
      */
     fun selfShuffleIntoLibrary() {
-        selfShuffleIntoLibraryOnResolve = true
+        selfLibraryPlacementOnResolve = ZonePlacement.Shuffled
     }
 
-    internal val shufflesIntoLibraryOnResolve: Boolean get() = selfShuffleIntoLibraryOnResolve
+    /**
+     * Mark this spell to put itself on the bottom of its owner's library on resolution instead of
+     * going to the graveyard, without shuffling. Used for cards that say "Put <card name> on the
+     * bottom of its owner's library." (Sanguine Sacrament). Same seam and precedence as
+     * [selfShuffleIntoLibrary]; see [com.wingedsheep.sdk.model.CardScript.selfLibraryPlacementOnResolve].
+     */
+    fun selfPutOnBottomOfLibrary() {
+        selfLibraryPlacementOnResolve = ZonePlacement.Bottom
+    }
+
+    internal val libraryPlacementOnResolve: ZonePlacement? get() = selfLibraryPlacementOnResolve
 
     /**
-     * A card prints "Exile <card name>." or "Shuffle <card name> into its owner's library.", never
-     * both — they are two spellings of the same slot, the CR 608.2n destination. Setting both is a
+     * A card prints "Exile <card name>." or "Shuffle <card name> into its owner's library." (or "Put
+     * <card name> on the bottom of its owner's library."), never both — they are two spellings of the same slot, the CR 608.2n destination. Setting both is a
      * card-authoring mistake, and without this it resolves silently to whichever clause
      * `StackResolver` happens to check first. Order-independent, so it also catches
-     * [paradigm] (which implies [selfExile]) paired with [selfShuffleIntoLibrary] either way round.
+     * [paradigm] (which implies [selfExile]) paired with [selfShuffleIntoLibrary] / [selfPutOnBottomOfLibrary]
+     * either way round.
      *
      * [com.wingedsheep.sdk.model.CardScript]'s own `init` rejects the same pair; this one runs first
      * for anything built through the DSL, purely so the message can name the offending card.
      */
     internal fun validateResolutionDestination(cardName: String) {
-        require(!(selfExileOnResolve && selfShuffleIntoLibraryOnResolve)) {
-            "$cardName sets both selfExile() and selfShuffleIntoLibrary(); a spell has one " +
+        require(!(selfExileOnResolve && selfLibraryPlacementOnResolve != null)) {
+            "$cardName sets both selfExile() and a self-to-library clause; a spell has one " +
                 "CR 608.2n destination, so pick the clause the card actually prints"
         }
     }
@@ -2221,6 +2258,7 @@ class CardFaceBuilder(private val name: String) {
     private val stateTriggeredAbilities: MutableList<StateTriggeredAbility> = mutableListOf()
     private val activatedAbilities: MutableList<ActivatedAbility> = mutableListOf()
     private val staticAbilities: MutableList<StaticAbility> = mutableListOf()
+    private val replacementEffects: MutableList<ReplacementEffect> = mutableListOf()
     private val additionalCostsList: MutableList<AdditionalCost> = mutableListOf()
     private var spellBuilder: SpellBuilder? = null
 
@@ -2259,6 +2297,16 @@ class CardFaceBuilder(private val name: String) {
     }
 
     /**
+     * A replacement effect on this face. For a Room face it applies only while the door is unlocked
+     * (CR 709.5; the engine folds unlocked-face replacement effects via `RoomFaceStatics`) —
+     * Torture Pit: "If a source you control would deal noncombat damage to an opponent, it deals
+     * that much damage plus 2 instead."
+     */
+    fun replacementEffect(effect: ReplacementEffect) {
+        replacementEffects.add(effect)
+    }
+
+    /**
      * Define the spell effect for this face. Used by Adventure faces (instant/sorcery — Adventure)
      * and any future split layout that casts a face as a non-permanent spell.
      */
@@ -2282,6 +2330,9 @@ class CardFaceBuilder(private val name: String) {
             rawSpellEffect
         }
         spellBuilder?.validateResolutionDestination(name)
+        require((spellBuilder?.exileTimeCounters ?: 0) == 0) {
+            "$name: selfExile(timeCounters) is a whole-card clause (suspend), not supported on a face"
+        }
         val script = CardScript(
             spellEffect = spellEffect,
             targetRequirements = spellBuilder?.targetRequirements ?: emptyList(),
@@ -2289,9 +2340,10 @@ class CardFaceBuilder(private val name: String) {
             stateTriggeredAbilities = stateTriggeredAbilities.toList(),
             activatedAbilities = activatedAbilities.toList(),
             staticAbilities = staticAbilities.toList(),
+            replacementEffects = replacementEffects.toList(),
             additionalCosts = additionalCostsList.toList(),
             selfExileOnResolve = spellBuilder?.exilesOnResolve ?: false,
-            selfShuffleIntoLibraryOnResolve = spellBuilder?.shufflesIntoLibraryOnResolve ?: false,
+            selfLibraryPlacementOnResolve = spellBuilder?.libraryPlacementOnResolve,
             paradigm = spellBuilder?.isParadigm ?: false,
         )
         return CardFace(

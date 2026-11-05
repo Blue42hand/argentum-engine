@@ -1,8 +1,6 @@
 package com.wingedsheep.ai.engine.knowledge
 
-import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
-import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
 
 /**
  * Which way a [DynamicAmount] can point, read off its shape without a game state.
@@ -15,8 +13,8 @@ import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
  * so is enough to call the modifier a gain.
  *
  * The `when` is exhaustive on purpose: a new [DynamicAmount] member must decide here rather than
- * fall through to a guess. Anything that can genuinely land on either side — power, toughness, a
- * life total mid-resolution, a pipeline variable — is [UNKNOWN], and callers treat that exactly as
+ * fall through to a guess. Anything that can genuinely land on either side — a life total
+ * mid-resolution, a pipeline variable — is [UNKNOWN], and callers treat that exactly as
  * they treated a non-fixed amount before.
  */
 internal enum class AmountSign {
@@ -69,14 +67,16 @@ internal enum class AmountSign {
             is DynamicAmount.GreatestAmongPlayers -> of(amount.inner)
             is DynamicAmount.LeastAmongPlayers -> of(amount.inner)
 
-            // Power and toughness can be negative; so can a life total before state-based actions.
-            is DynamicAmount.EntityProperty -> when (amount.numericProperty) {
-                EntityNumericProperty.Power, EntityNumericProperty.Toughness,
-                EntityNumericProperty.BasePower, EntityNumericProperty.BaseToughness -> UNKNOWN
-                else -> GAIN
-            }
-            is DynamicAmount.AggregateBattlefield -> ofCardProperty(amount.property)
-            is DynamicAmount.AggregateZone -> ofCardProperty(amount.property)
+            // A power or toughness can be negative, but CR 107.1b floors a calculation that yields
+            // a negative result at zero: "+X/+X where X is its power", "double its power" never
+            // take anything away. Doubling a negative power is the rule's exception (CR 701.10c
+            // makes it -X/-0), a corner too rare to give up reading every doubler as a pump. Inside a sum the operand is still a raw value, so
+            // "X minus its power" stays unknown through [sum].
+            // The same floor holds for an aggregate: a total power, a greatest toughness.
+            is DynamicAmount.EntityProperty, is DynamicAmount.AggregateBattlefield,
+            is DynamicAmount.AggregateZone -> GAIN
+            // A life total is read as-is, not floored by an effect: it can be at or below zero
+            // before state-based actions.
             is DynamicAmount.YourLifeTotal, is DynamicAmount.LifeTotal -> UNKNOWN
             // Opaque at analysis time: a pipeline variable or a trigger-context value could be anything.
             is DynamicAmount.VariableReference, is DynamicAmount.ContextProperty -> UNKNOWN
@@ -85,6 +85,7 @@ internal enum class AmountSign {
 
             // Counts, mana values, mana spent, X: none of them can go below zero.
             is DynamicAmount.Speed, is DynamicAmount.DungeonsCompleted, is DynamicAmount.PlayerCounterCount, is DynamicAmount.CardsCycledThisGame,
+            is DynamicAmount.SpellsCastThisGame, is DynamicAmount.ExtraTurnsBegunThisGame,
             is DynamicAmount.StartingLifeTotal, is DynamicAmount.UnspentMana, is DynamicAmount.XValue,
             is DynamicAmount.LastKnownSourceCounters, is DynamicAmount.LastKnownDamageDealtToSource,
             is DynamicAmount.CastX, is DynamicAmount.CastChoice, is DynamicAmount.TotalManaSpent,
@@ -94,7 +95,8 @@ internal enum class AmountSign {
             is DynamicAmount.DistinctCardTypesInCollections, is DynamicAmount.ManaValueSumOfCollection,
             is DynamicAmount.PlayerCount, is DynamicAmount.CountPlayersWith, is DynamicAmount.GraveyardRelativeCount,
             is DynamicAmount.Count, is DynamicAmount.UnlockedDoors, is DynamicAmount.StationCharge,
-            is DynamicAmount.TurnTracking, is DynamicAmount.SpellsCastThisTurn, is DynamicAmount.SpellsCastLastTurn,
+            is DynamicAmount.TurnTracking, is DynamicAmount.CombatDamageSourcesThisTurn,
+            is DynamicAmount.SpellsCastThisTurn, is DynamicAmount.SpellsCastLastTurn,
             is DynamicAmount.CraftedMaterialsTotalPower, is DynamicAmount.CraftedMaterialsTotalManaValue,
             is DynamicAmount.CraftedMaterialsColorCount, is DynamicAmount.CreaturesThatCrewedOrSaddledThisTurn,
             is DynamicAmount.CardTypeEnteredUnderControlThisTurn, is DynamicAmount.SubtypeEnteredUnderControlThisTurn,
@@ -108,12 +110,6 @@ internal enum class AmountSign {
             n > 0 -> GAIN
             n < 0 -> LOSS
             else -> ZERO
-        }
-
-        private fun ofCardProperty(property: CardNumericProperty?): AmountSign = when (property) {
-            CardNumericProperty.POWER, CardNumericProperty.TOUGHNESS -> UNKNOWN
-            null, CardNumericProperty.MANA_VALUE, CardNumericProperty.COUNTERS,
-            CardNumericProperty.COLOR_COUNT -> GAIN
         }
 
         private fun sum(a: AmountSign, b: AmountSign): AmountSign = when {

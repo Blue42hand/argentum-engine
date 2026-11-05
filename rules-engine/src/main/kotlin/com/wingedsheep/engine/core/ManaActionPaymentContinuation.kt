@@ -30,4 +30,8 @@ data class LockedCastPayment(
     val dedicatedAlternativeCostType: AlternativeCostType?,
     val emerge: KeywordAbility.Emerge? = null,
     val availableSources: List<ManaSourceOption>,
+    /** Mana still owed after the announced convoke, delve, waterbend and improvise payments. */
+    val manaCost: ManaCost? = null,
+    val waterbendAmount: Int = 0,
+    val tapForGenericCost: ManaCost? = null,
 )

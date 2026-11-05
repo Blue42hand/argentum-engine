@@ -43,6 +43,7 @@ import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
 import com.wingedsheep.engine.state.components.identity.RingBearerComponent
 import com.wingedsheep.engine.state.components.player.CombatPhaseEndedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.InAdditionalEndStepComponent
+import com.wingedsheep.engine.state.components.player.UpkeepStepEndedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.player.PlayerTurnsTakenComponent
 import com.wingedsheep.engine.state.components.player.CombatDamageReceivedThisTurnComponent
@@ -90,6 +91,7 @@ import com.wingedsheep.sdk.scripting.conditions.IsInPhase
 import com.wingedsheep.sdk.scripting.conditions.IsInStep
 import com.wingedsheep.sdk.scripting.conditions.IsFirstCombatPhaseOfTurn
 import com.wingedsheep.sdk.scripting.conditions.IsFirstEndStepOfTurn
+import com.wingedsheep.sdk.scripting.conditions.IsFirstUpkeepStepOfTurn
 import com.wingedsheep.sdk.scripting.conditions.IsNotYourTurn
 import com.wingedsheep.sdk.scripting.conditions.IsOpponentsTurn
 import com.wingedsheep.sdk.scripting.conditions.IsPlayersTurn
@@ -126,7 +128,7 @@ import com.wingedsheep.sdk.scripting.conditions.TargetSharesMostCommonColor
 import com.wingedsheep.sdk.scripting.conditions.ColorIsMostCommon
 import com.wingedsheep.engine.mechanics.ManaValues
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
-import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityEnteredOrWasCastFromGraveyard
+import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityEnteredOrWasCastFrom
 import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadCounters
 import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityHadMinusOneMinusOneCounter
 import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityWasHistoric
@@ -153,7 +155,7 @@ import com.wingedsheep.sdk.scripting.conditions.YouControlSource
 import com.wingedsheep.sdk.scripting.conditions.PlayerAttackedWithCreaturesThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PermanentLeftBattlefieldThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PermanentTypeEnteredBattlefieldThisTurn
-import com.wingedsheep.sdk.scripting.conditions.PermanentTypePutIntoGraveyardFromBattlefieldThisTurn
+import com.wingedsheep.sdk.scripting.conditions.PermanentPutIntoZoneFromBattlefieldThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCastSpellsThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerCommittedCrimeThisTurn
 import com.wingedsheep.sdk.scripting.conditions.PlayerHasCitysBlessing
@@ -314,6 +316,7 @@ class ConditionEvaluator(
             com.wingedsheep.sdk.scripting.conditions.AfterCombatThisTurn,
             IsFirstCombatPhaseOfTurn,
             IsFirstEndStepOfTurn,
+            IsFirstUpkeepStepOfTurn,
             IsFirstSpellPaidWithTreasureManaCastThisTurn,
             is IsInPhase,
             is IsInStep,
@@ -334,7 +337,7 @@ class ConditionEvaluator(
             is PermanentEnteredFaceDownThisTurn,
             is PermanentLeftBattlefieldThisTurn,
             is PermanentTypeEnteredBattlefieldThisTurn,
-            is PermanentTypePutIntoGraveyardFromBattlefieldThisTurn,
+            is PermanentPutIntoZoneFromBattlefieldThisTurn,
             is PlayerActivatedExhaustAbilitiesThisTurn,
             is PlayerAttackedPlayerThisTurn,
             is PlayerCommittedCrimeThisTurn,
@@ -373,7 +376,7 @@ class ConditionEvaluator(
             is TargetMarkedDamageExceedsToughness,
             is TargetSharesMostCommonColor,
             is ThisAbilityActivatedThisTurnAtLeast,
-            TriggeringEntityEnteredOrWasCastFromGraveyard,
+            is TriggeringEntityEnteredOrWasCastFrom,
             TriggeringEntityHadCounters,
             TriggeringEntityHadMinusOneMinusOneCounter,
             is TriggeringEntityWas,
@@ -483,6 +486,15 @@ class ConditionEvaluator(
                 state.step == Step.END &&
                     state.activePlayerId?.let {
                         state.getEntity(it)?.has<InAdditionalEndStepComponent>()
+                    } != true
+            }
+
+            // True in an upkeep step while no upkeep step has ended yet this turn — the natural one, not
+            // an extra one added after it (Paradox Haze) or after a later phase (Obeka). Board-derived.
+            is IsFirstUpkeepStepOfTurn -> {
+                state.step == Step.UPKEEP &&
+                    state.activePlayerId?.let {
+                        state.getEntity(it)?.has<UpkeepStepEndedThisTurnComponent>()
                     } != true
             }
 
@@ -620,7 +632,7 @@ class ConditionEvaluator(
                 val record = sourceId?.let { state.getEntity(it) }
                     ?.get<com.wingedsheep.engine.state.components.combat.TimesAttackedThisTurnComponent>()
                 val attacked = when {
-                    record == null || sourceId == null -> emptySet()
+                    sourceId == null || record == null -> emptySet()
                     sourceId in state.getBattlefield() ->
                         record.attackedPlayersFor(state.turnNumber, state.objectRef(sourceId))
                     record.turnNumber == state.turnNumber -> record.attackedPlayerIds
@@ -791,11 +803,18 @@ class ConditionEvaluator(
             }
             is PermanentTypeEnteredBattlefieldThisTurn ->
                 evaluatePermanentTypeEnteredBattlefieldThisTurnCtx(state, condition, ctx)
-            is PermanentTypePutIntoGraveyardFromBattlefieldThisTurn -> {
-                val playerId = resolvePlayer(state, condition.player, ctx)
-                playerId != null && state.getEntity(playerId)
-                    ?.get<com.wingedsheep.engine.state.components.player.CardTypesPutIntoGraveyardFromBattlefieldThisTurnComponent>()
-                    ?.types?.contains(condition.cardType) == true
+            is PermanentPutIntoZoneFromBattlefieldThisTurn -> {
+                val player = resolvePlayer(state, condition.player, ctx)?.let { state.getEntity(it) }
+                val types = when (condition.toZone) {
+                    Zone.HAND -> player
+                        ?.get<com.wingedsheep.engine.state.components.player.CardTypesReturnedToHandFromBattlefieldThisTurnComponent>()
+                        ?.types
+                    Zone.GRAVEYARD -> player
+                        ?.get<com.wingedsheep.engine.state.components.player.CardTypesPutIntoGraveyardFromBattlefieldThisTurnComponent>()
+                        ?.types
+                    else -> null
+                }.orEmpty()
+                condition.cardType?.let { it in types } ?: types.isNotEmpty()
             }
             is PermanentLeftBattlefieldThisTurn ->
                 evaluatePermanentLeftBattlefieldThisTurnCtx(state, condition, ctx)
@@ -937,8 +956,8 @@ class ConditionEvaluator(
                 ifResolution { evaluateTriggeringSpellCastWithoutPayingMana(state, it) }
             is com.wingedsheep.sdk.scripting.conditions.TriggeringSpellManaSpentAtLeast ->
                 ifResolution { evaluateTriggeringSpellManaSpentAtLeast(state, condition.amount, it) }
-            is TriggeringEntityEnteredOrWasCastFromGraveyard ->
-                ifResolution { evaluateTriggeringEntityEnteredOrWasCastFromGraveyard(state, it) }
+            is TriggeringEntityEnteredOrWasCastFrom ->
+                ifResolution { evaluateTriggeringEntityEnteredOrWasCastFrom(state, condition.zone, it) }
             is TriggeringEntityHadMinusOneMinusOneCounter ->
                 ifResolution { (it.triggerContext?.minusOneMinusOneCounterCount ?: 0) > 0 }
             is TriggeringEntityHadCounters ->
@@ -1653,15 +1672,8 @@ class ConditionEvaluator(
             else -> listOfNotNull(resolvePlayer(state, condition.player, ctx))
         }
         if (playerIds.isEmpty()) return 0
-        // Attackers are recorded per declaring player, so the union is the set of creatures that
-        // attacked at all this turn — a creature counts once even if two scopes both name it.
-        val attackerIds = playerIds.flatMapTo(mutableSetOf()) { playerId ->
-            state.getEntity(playerId)
-                ?.get<PlayerAttackersThisTurnComponent>()
-                ?.attackerIds
-                ?: emptySet()
-        }
-        if (attackerIds.isEmpty()) return 0
+        val records = playerIds.mapNotNull { state.getEntity(it)?.get<PlayerAttackersThisTurnComponent>() }
+        if (records.all { it.attackerIds.isEmpty() }) return 0
         val predicateContext = when (ctx) {
             is Resolution -> PredicateContext.fromEffectContext(ctx.effectContext, ctx.entryViews)
             // The filter's own "you control" clauses are relative to the ability's controller,
@@ -1670,15 +1682,35 @@ class ConditionEvaluator(
                 controllerId = resolvePlayer(state, Player.You, ctx) ?: playerIds.first()
             )
         }
-        val projected = ctx.projectedStateFor(state)
-        var matches = 0
-        for (id in attackerIds) {
-            if (predicates.matches(state, projected, id, condition.filter, predicateContext)) {
-                matches++
-                if (matches >= cap) return matches
+        // "Attacked with a Rogue" reads each creature as it was declared (its snapshot), so the
+        // answer survives the creature dying, its token ceasing to exist, or the effect that made
+        // it a Rogue ending. Attackers are recorded per declaring player, so a creature counts once
+        // even if two scopes both name it — or if it matched in more than one combat.
+        val matched = mutableSetOf<EntityId>()
+        for (record in records) {
+            for (snapshot in record.declaredAs) {
+                if (snapshot.entityId in matched) continue
+                if (predicates.matchesSnapshot(state, snapshot, condition.filter, predicateContext, onBattlefield = true)) {
+                    matched += snapshot.entityId
+                    if (matched.size >= cap) return matched.size
+                }
             }
         }
-        return matches
+        // A record written before declarations carried snapshots (an older serialized game) has
+        // only ids; fall back to the live projected read for those.
+        val legacy = records.flatMapTo(mutableSetOf()) { record ->
+            record.attackerIds - record.declaredAs.mapTo(mutableSetOf()) { it.entityId }
+        } - matched
+        if (legacy.isNotEmpty()) {
+            val projected = ctx.projectedStateFor(state)
+            for (id in legacy) {
+                if (predicates.matches(state, projected, id, condition.filter, predicateContext)) {
+                    matched += id
+                    if (matched.size >= cap) return matched.size
+                }
+            }
+        }
+        return matched.size
     }
 
     private fun evaluateAttackedPlayerThisTurnCtx(
@@ -1914,7 +1946,7 @@ class ConditionEvaluator(
     /**
      * "If one or more of them entered from [zone] or was cast from [zone]" — an *any* over the
      * batch-enters capture; the batch counterpart of
-     * [evaluateTriggeringEntityEnteredOrWasCastFromGraveyard], reading the same provenance markers.
+     * [evaluateTriggeringEntityEnteredOrWasCastFrom], reading the same provenance markers.
      * An empty capture is false: nothing entered from [zone].
      */
     private fun evaluateAnyEnteredOrWasCastFrom(state: GameState, zone: Zone, context: EffectContext): Boolean {
@@ -1925,16 +1957,10 @@ class ConditionEvaluator(
         }
     }
 
-    /** Whether [entity] carries the entered-from or cast-from provenance marker for [zone] (exile or graveyard). */
+    /** Whether [entity] carries the entered-from or cast-from provenance marker for [zone]. */
     private fun enteredOrWasCastFrom(entity: com.wingedsheep.engine.state.ComponentContainer, zone: Zone): Boolean =
-        when (zone) {
-            Zone.GRAVEYARD ->
-                entity.has<com.wingedsheep.engine.state.components.battlefield.CastFromGraveyardComponent>() ||
-                    entity.has<com.wingedsheep.engine.state.components.battlefield.EnteredFromGraveyardComponent>()
-            else ->
-                entity.has<com.wingedsheep.engine.state.components.battlefield.CastFromExileComponent>() ||
-                    entity.has<com.wingedsheep.engine.state.components.battlefield.EnteredFromExileComponent>()
-        }
+        castFromMarker(entity, zone) ||
+            entity.get<com.wingedsheep.engine.state.components.battlefield.EnteredFromZoneComponent>()?.zone == zone
 
     /**
      * Triggering-entity counterpart of [evaluateNoManaSpentToCast] for a spell still on the stack
@@ -2236,13 +2262,22 @@ class ConditionEvaluator(
         return zone == null || castFromMarker(entity, zone)
     }
 
-    private fun evaluateTriggeringEntityEnteredOrWasCastFromGraveyard(
+    private fun evaluateTriggeringEntityEnteredOrWasCastFrom(
         state: GameState,
+        zone: Zone,
         context: EffectContext
     ): Boolean {
         val entityId = context.triggeringEntityId ?: return false
+        // The triggering permanent may have left since the ability triggered (Fblthp shuffled
+        // away in response to its own enters trigger): the zone change stripped its provenance
+        // markers, so read the last-known record frozen for it (CR 608.2h).
+        val departed = context.triggerContext?.triggeringLastKnownSnapshot?.takeIf { it.entityId == entityId }
+            ?: context.lastKnownSourceSnapshot?.takeIf { it.entityId == entityId }
+        departed?.let {
+            return it.castFromZone == zone || it.enteredFromZone == zone
+        }
         val entity = state.getEntity(entityId) ?: return false
-        return enteredOrWasCastFrom(entity, Zone.GRAVEYARD)
+        return enteredOrWasCastFrom(entity, zone)
     }
 
     private fun evaluateTriggeringEntityWasNotPutByThisSource(
@@ -2389,8 +2424,8 @@ class ConditionEvaluator(
         val marked = state.getEntity(entityId)
             ?.get<com.wingedsheep.engine.state.components.battlefield.DamageComponent>()
             ?.amount ?: 0
-        val toughness = projected.getToughness(entityId) ?: return false
-        return marked > toughness
+        // Past lethal: toughness, or power under a lethal-damage-by-power rule (Zilortha).
+        return marked > projected.lethalDamageThreshold(entityId)
     }
 
     /**
@@ -2519,11 +2554,19 @@ class ConditionEvaluator(
         context: EffectContext
     ): Boolean {
         val collection = context.pipeline.storedCollections[condition.collection] ?: return false
-        if (collection.size < 2) return false
-        val seenTypes = mutableSetOf<com.wingedsheep.sdk.core.CardType>()
         val unknown = context.pipeline.storedCollections[
             com.wingedsheep.engine.handlers.effects.EffectDiscardDestinations.UNDEFINED + ":" + condition.collection
         ].orEmpty().toSet()
+        if (condition.all) {
+            // "All of those cards share a card type": one card type common to every card.
+            val typeSets = collection.filter { it !in unknown }.map { entityId ->
+                state.getEntity(entityId)?.get<CardComponent>()?.typeLine?.cardTypes.orEmpty()
+            }
+            if (typeSets.isEmpty()) return false
+            return typeSets.reduce { acc, types -> acc intersect types }.isNotEmpty()
+        }
+        if (collection.size < 2) return false
+        val seenTypes = mutableSetOf<com.wingedsheep.sdk.core.CardType>()
         for (entityId in collection) {
             if (entityId in unknown) continue
             val cardTypes = state.getEntity(entityId)?.get<CardComponent>()?.typeLine?.cardTypes ?: continue

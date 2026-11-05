@@ -1,51 +1,40 @@
 package com.wingedsheep.mtg.sets.definitions.eld.cards
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.conditions.Compare
-import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Dwarven Mine
  * Land — Mountain
+ *
  * ({T}: Add {R}.)
  * This land enters tapped unless you control three or more other Mountains.
  * When this land enters untapped, create a 1/1 red Dwarf creature token.
+ *
+ * Same shape as Mystic Sanctuary: the Mountain subtype supplies the mana ability, and "enters
+ * untapped" is the `untapped()` state predicate on the self enters trigger.
  */
 val DwarvenMine = card("Dwarven Mine") {
+    manaCost = ""
     colorIdentity = "R"
     typeLine = "Land — Mountain"
     oracleText = "({T}: Add {R}.)\n" +
         "This land enters tapped unless you control three or more other Mountains.\n" +
         "When this land enters untapped, create a 1/1 red Dwarf creature token."
 
-    // The Mountain subtype supplies the intrinsic red mana ability.
-    replacementEffect(
-        EntersTapped(
-            unlessCondition = Conditions.CompareAmounts(
-                DynamicAmounts.battlefield(
-                    Player.You,
-                    GameObjectFilter.Land.withSubtype("Mountain"),
-                    excludeSelf = true,
-                ).count(),
-                ComparisonOperator.GTE,
-                3,
-            )
-        )
-    )
+    replacementEffect(EntersTapped(
+        unlessCondition = Conditions.YouControlOtherAtLeast(3, GameObjectFilter.Land.withSubtype(Subtype.MOUNTAIN))
+    ))
 
     triggeredAbility {
-        trigger = Triggers.self.enters()
-        interveningIf = Conditions.SourceIsUntapped
+        trigger = Triggers.self.matching(GameObjectFilter.Any.untapped()).enters()
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

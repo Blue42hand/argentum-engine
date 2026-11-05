@@ -111,7 +111,7 @@ class GrantedCombatRequirementTimestampTest : FunSpec({
         val me = d.activePlayer!!
         val creature = d.putCreatureOnBattlefield(me, "Grizzly Bears")
         d.removeSummoningSickness(creature)
-        val result = MustAttackGroupExecutor().execute(
+        val result = MustAttackGroupExecutor(d.services.dynamicAmountEvaluator).execute(
             d.state,
             MustAttackGroupEffect(GroupFilter.AllCreatures, MustAttackDefender.Any, Duration.EndOfTurn),
             EffectContext(sourceId = null, controllerId = me),

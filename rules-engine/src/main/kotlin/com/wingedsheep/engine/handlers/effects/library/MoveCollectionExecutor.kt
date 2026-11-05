@@ -32,6 +32,7 @@ import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardOrder
 import com.wingedsheep.sdk.scripting.effects.EnteringAttackDefender
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
+import com.wingedsheep.sdk.scripting.effects.EntersWithCharacteristics
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.engine.state.components.stack.captureEntitySnapshots
 import com.wingedsheep.sdk.scripting.effects.MoveType
@@ -82,6 +83,48 @@ class MoveCollectionExecutor(
         } else {
             allCards
         }
+        // "Spells and abilities your opponents control can't cause you to discard cards or sacrifice
+        // permanents" (Tamiyo, Collector of Tales; Sigarda, Host of Herons): a protected player's
+        // share of the discard stays in their hand, and of the sacrifice on the battlefield. Those
+        // cards leave this collection too, so a later "the discarded / sacrificed" step sees only
+        // what really moved — as do permanents that can't be sacrificed at all. A discard paid as a
+        // cost is the payer's own act and passes through.
+        val compelled = when (effect.moveType) {
+            MoveType.Discard -> com.wingedsheep.sdk.scripting.CompelledAction.DISCARD.takeUnless { context.discardIsCost }
+            MoveType.Sacrifice -> com.wingedsheep.sdk.scripting.CompelledAction.SACRIFICE
+            else -> null
+        }
+        if (compelled != null && cards.isNotEmpty()) {
+            val causeControllerId = context.effectControllerId ?: context.controllerId
+            val byPlayer = if (compelled == com.wingedsheep.sdk.scripting.CompelledAction.DISCARD) {
+                discardsByPlayer(state, cards, context.controllerId)
+            } else {
+                cards.groupBy { state.projectedState.getController(it) ?: context.controllerId }
+            }
+            val kept = byPlayer.filter { (playerId, _) ->
+                !com.wingedsheep.engine.mechanics.CompelledActionImmunity.appliesTo(
+                    state, playerId, causeControllerId, compelled, predicateEvaluator
+                )
+            }.values.flatten().filterTo(HashSet()) {
+                // A permanent that "can't be sacrificed" (Zurgo, Thunder's Decree's Warrior tokens)
+                // stays put, and out of the collection, as the targeted sacrifice leaves it.
+                compelled != com.wingedsheep.sdk.scripting.CompelledAction.SACRIFICE ||
+                    com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.canBeSacrificed(state, it)
+            }
+            if (kept.size < cards.size) {
+                val rest = stored.filter { it in kept || it !in cards }
+                val result = execute(state, effect, context.copy(pipeline = context.pipeline.copy(
+                    storedCollections = context.pipeline.storedCollections + (effect.from to rest)
+                )))
+                return result.copy(updatedCollections = mapOf(effect.from to rest) + result.updatedCollections)
+            }
+        }
+
+        // Cards a controlled search found (Opposition Agent) are exiled instead of going where the
+        // instruction says, and the player who controlled the search may play them. The rest of the
+        // collection moves as written, without them — later steps can't see them in exile.
+        val searchFound = LibrarySearchControl.foundCards(context.pipeline.storedCollections, cards)
+        if (searchFound.isNotEmpty()) return exileSearchFound(state, effect, context, cards, searchFound)
 
         if (effect.moveType == MoveType.Discard) context = context.copy(discardCollectionName = effect.from)
         val destination = effect.destination
@@ -102,7 +145,7 @@ class MoveCollectionExecutor(
                 val destPlayerId = resolvePlayer(destination.player, context, state)
                     ?: return EffectResult.error(state, "Could not resolve destination player for MoveCollection")
                 val chooserId = if (effect.order == CardOrder.OwnerChooses) destPlayerId else context.controllerId
-                return pauseForOrderDecision(state, context, emptyList(), Zone.LIBRARY, destPlayerId, destination.placement, chooserId, effect.revealed)
+                return pauseForOrderDecision(state, context, emptyList(), Zone.LIBRARY, destPlayerId, destination.placement, chooserId, effect.revealed, effect.storeMovedAs)
             }
             // Nothing to move, but for library shuffles we still shuffle (e.g., ShuffleGraveyardIntoLibrary
             // shuffles even when the graveyard is empty, per the card's rules text).
@@ -135,7 +178,7 @@ class MoveCollectionExecutor(
         }
 
         if (effect.faceDown == null) {
-            val entrants = cards.filter { id ->
+            var entrants = cards.filter { id ->
                 when (destination) {
                     is CardDestination.ToZone -> destination.zone == Zone.BATTLEFIELD
                     is CardDestination.ToZoneExiledFrom -> originZoneOf(state, id, destination.fallback) == Zone.BATTLEFIELD
@@ -151,6 +194,15 @@ class MoveCollectionExecutor(
             com.wingedsheep.engine.handlers.effects.copy.EffectCopyEntry.prepare(
                 state, effect, context, entrants, cardRegistry, predicateEvaluator
             )?.let { return it }
+            // Sent elsewhere instead (Containment Priest's exile), judged after any entry copy
+            // (CR 616.1c): such a card never enters, so it asks none of the questions below; the
+            // move itself applies the redirect. One simultaneous entry, so read off this board.
+            entrants = entrants.filterNot { (id, controller) ->
+                ZoneMovementUtils.entryRedirected(
+                    state, id, state.logicalZone(id)?.zoneType, controller, context.entryCopies[id],
+                    cardRegistry, predicateEvaluator, effect.entersWith
+                )
+            }
             // "If this would enter, you may [pay] instead" (EntersOnlyIfPaid) — asked once each entry
             // copy is settled (CR 614.12), since it decides whether each card enters at all.
             com.wingedsheep.engine.handlers.effects.EffectEntryPayments.prepare(
@@ -189,7 +241,7 @@ class MoveCollectionExecutor(
 
         var result = when (destination) {
             is CardDestination.ToZone ->
-                moveToZone(state, context, cards, destination, effect.order, effect.revealed, effect.moveType, effect.faceDown, effect.noRegenerate, effect.storeMovedAs, effect.underOwnersControl, effect.revealToSelf, fromCollection = effect.from, entryCounterType = effect.addCounterType, countHidden = countHidden)
+                moveToZone(state, context, cards, destination, effect.order, effect.revealed, effect.moveType, effect.faceDown, effect.noRegenerate, effect.storeMovedAs, effect.underOwnersControl, effect.revealToSelf, fromCollection = effect.from, entryCounterType = effect.addCounterType, countHidden = countHidden, entersWith = effect.entersWith)
             is CardDestination.ToZoneExiledFrom ->
                 moveToZonesExiledFrom(state, context, cards, destination, effect)
         }
@@ -249,6 +301,49 @@ class MoveCollectionExecutor(
         }
         return withDepartedPermanents(state, result, cards)
     }
+
+    private fun exileSearchFound(
+        state: GameState,
+        effect: MoveCollectionEffect,
+        context: EffectContext,
+        cards: List<EntityId>,
+        found: Map<EntityId, EntityId>,
+    ): EffectResult {
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        for ((owner, owned) in found.keys.groupBy { ownerOf(state, it) ?: context.controllerId }) {
+            val exiled = moveCardsToZone(
+                newState, context, owned, CardDestination.ToZone(Zone.EXILE), owner, revealed = effect.revealed
+            )
+            if (exiled.outcome !is Outcome.Done) return exiled
+            newState = exiled.state
+            events += exiled.events
+        }
+        for ((controller, granted) in found.entries.groupBy({ it.value }, { it.key })) {
+            newState = LibrarySearchControl.grantPlay(newState, granted, controller, context.sourceId)
+        }
+        // Found cards are gone from every collection, so no later step can see them in exile — not
+        // this collection, not an alias of it, not a controlled-search pool.
+        val stripped = context.pipeline.storedCollections
+            .filterValues { pool -> pool.any { it in found } }
+            .mapValues { (_, pool) -> pool.filter { it !in found } }
+        val rest = cards.filter { it !in found }
+        if (rest.isEmpty()) {
+            return EffectResult.success(newState, events).copy(
+                updatedCollections = stripped + listOfNotNull(effect.storeMovedAs).associateWith { emptyList() }
+            )
+        }
+        val restResult = execute(
+            newState, effect.copy(filter = null),
+            context.copy(pipeline = context.pipeline.copy(
+                storedCollections = context.pipeline.storedCollections + stripped + (effect.from to rest)
+            ))
+        )
+        return restResult.copy(events = events + restResult.events, updatedCollections = stripped + restResult.updatedCollections)
+    }
+
+    private fun ownerOf(state: GameState, cardId: EntityId): EntityId? =
+        state.getEntity(cardId)?.get<OwnerComponent>()?.playerId ?: state.getEntity(cardId)?.get<CardComponent>()?.ownerId
 
     /**
      * Point each card that entered attacking at the defender its controller chose for it (CR 508.4).
@@ -357,7 +452,8 @@ class MoveCollectionExecutor(
         val rest = moveToZone(
             newState, context, others, destination, effect.order, effect.revealed, effect.moveType,
             effect.faceDown, effect.noRegenerate, storeMovedAs, effect.underOwnersControl, effect.revealToSelf,
-            entryCounterType = effect.addCounterType, replacementSourceState = state
+            entryCounterType = effect.addCounterType, replacementSourceState = state,
+            entersWith = effect.entersWith
         )
         val collections = if (storeMovedAs != null) {
             rest.updatedCollections + (storeMovedAs to (moved + (rest.updatedCollections[storeMovedAs] ?: emptyList())))
@@ -462,7 +558,7 @@ class MoveCollectionExecutor(
                 CardDestination.ToZone(zone),
                 effect.order, effect.revealed, effect.moveType, effect.faceDown,
                 effect.noRegenerate, effect.storeMovedAs, effect.underOwnersControl, effect.revealToSelf,
-                entryCounterType = effect.addCounterType
+                entryCounterType = effect.addCounterType, entersWith = effect.entersWith
             )
             runningState = groupResult.state
             events.addAll(groupResult.events)
@@ -578,7 +674,8 @@ class MoveCollectionExecutor(
         fromCollection: String? = null,
         entryCounterType: com.wingedsheep.sdk.core.CounterType? = null,
         replacementSourceState: GameState? = null,
-        countHidden: Boolean = false
+        countHidden: Boolean = false,
+        entersWith: EntersWithCharacteristics? = null
     ): EffectResult {
         val destPlayerId = resolvePlayer(destination.player, context, state)
             ?: return EffectResult.error(state, "Could not resolve destination player for MoveCollection")
@@ -607,7 +704,7 @@ class MoveCollectionExecutor(
             val noOrderToChoose = cards.size == 1
             val alreadySeen = cards.isNotEmpty() && cards.all { it in shown }
             if (countHidden || ((!isBottom || cards.size > 1) && !(alreadySeen && noOrderToChoose))) {
-                return pauseForOrderDecision(state, context, cards, destZone, destPlayerId, destination.placement, chooserId, revealed)
+                return pauseForOrderDecision(state, context, cards, destZone, destPlayerId, destination.placement, chooserId, revealed, storeMovedAs)
             }
         }
 
@@ -618,7 +715,7 @@ class MoveCollectionExecutor(
             cards to state
         }
 
-        val result = moveCardsToZone(stateForMove, context, orderedCards, destination, destPlayerId, revealed, moveType, faceDown, noRegenerate, storeMovedAs, underOwnersControl, revealToSelf, entryCounterType, replacementSourceState)
+        val result = moveCardsToZone(stateForMove, context, orderedCards, destination, destPlayerId, revealed, moveType, faceDown, noRegenerate, storeMovedAs, underOwnersControl, revealToSelf, entryCounterType, replacementSourceState, entersWith)
 
         // Random library placement: the mover doesn't know where the cards landed, so strip
         // their reveal markers. moveCardsToZone marks moved cards as revealed to the controller
@@ -647,7 +744,8 @@ class MoveCollectionExecutor(
         destPlayerId: EntityId,
         placement: ZonePlacement = ZonePlacement.Top,
         playerId: EntityId = context.controllerId,
-        revealed: Boolean = false
+        revealed: Boolean = false,
+        storeMovedAs: String? = null
     ): EffectResult {
 
         // Build card info map for the UI
@@ -696,7 +794,8 @@ class MoveCollectionExecutor(
             destinationZone = destZone,
             destinationPlayerId = destPlayerId,
             placement = placement,
-            revealed = revealed
+            revealed = revealed,
+            storeMovedAs = storeMovedAs
         )
 
         return EffectResult.from(state.suspendForDecision(decision, continuation))
@@ -720,7 +819,8 @@ class MoveCollectionExecutor(
         underOwnersControl: Boolean = false,
         revealToSelf: Boolean = true,
         entryCounterType: com.wingedsheep.sdk.core.CounterType? = null,
-        replacementSourceState: GameState? = null
+        replacementSourceState: GameState? = null,
+        entersWith: EntersWithCharacteristics? = null
     ): EffectResult {
         val destZone = destination.zone
 
@@ -746,7 +846,7 @@ class MoveCollectionExecutor(
 
                 if (nonAuraCards.isNotEmpty()) {
                     val nonAuraResult = moveCardsToZoneInternal(
-                        newState, context, nonAuraCards, destination, destPlayerId, revealed, moveType, faceDown, noRegenerate, storeMovedAs, underOwnersControl, revealToSelf, entryCounterType, replacementSourceState
+                        newState, context, nonAuraCards, destination, destPlayerId, revealed, moveType, faceDown, noRegenerate, storeMovedAs, underOwnersControl, revealToSelf, entryCounterType, replacementSourceState, entersWith
                     )
                     newState = nonAuraResult.state
                     events.addAll(nonAuraResult.events)
@@ -771,12 +871,15 @@ class MoveCollectionExecutor(
                     sourceName = context.sourceId?.let { newState.getEntity(it)?.get<CardComponent>()?.name },
                     underOwnersControl = underOwnersControl,
                     // The whole batch enters simultaneously: none of it can host these Auras.
-                    excludedHosts = cards
+                    excludedHosts = cards,
+                    // "Return them to the battlefield tapped" covers the Auras too (Brought Back).
+                    tapped = destination.placement == ZonePlacement.Tapped ||
+                        destination.placement == ZonePlacement.TappedAndAttacking
                 )
             }
         }
 
-        return moveCardsToZoneInternal(state, context, cards, destination, destPlayerId, revealed, moveType, faceDown, noRegenerate, storeMovedAs, underOwnersControl, revealToSelf, entryCounterType, replacementSourceState)
+        return moveCardsToZoneInternal(state, context, cards, destination, destPlayerId, revealed, moveType, faceDown, noRegenerate, storeMovedAs, underOwnersControl, revealToSelf, entryCounterType, replacementSourceState, entersWith)
     }
 
     /**
@@ -797,7 +900,9 @@ class MoveCollectionExecutor(
         sourceId: EntityId?,
         sourceName: String?,
         underOwnersControl: Boolean = false,
-        excludedHosts: List<EntityId> = emptyList()
+        excludedHosts: List<EntityId> = emptyList(),
+        tapped: Boolean = false,
+        objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment()
     ): EffectResult {
         val cardComponent = state.getEntity(auraId)?.get<CardComponent>()
         val cardDef = cardComponent?.let { cardRegistry.getCard(it.cardDefinitionId) }
@@ -807,7 +912,7 @@ class MoveCollectionExecutor(
             // No aura target defined — skip this aura (leave in current zone)
             return continueAuraProcessingOrFinish(
                 state, events, remainingAuras, controllerId, destPlayerId, sourceId, sourceName,
-                underOwnersControl, excludedHosts
+                underOwnersControl, excludedHosts, tapped, objectReferences
             )
         }
 
@@ -823,7 +928,7 @@ class MoveCollectionExecutor(
             // No legal targets — Aura stays in current zone per Rule 303.4g
             return continueAuraProcessingOrFinish(
                 state, events, remainingAuras, controllerId, destPlayerId, sourceId, sourceName,
-                underOwnersControl, excludedHosts
+                underOwnersControl, excludedHosts, tapped, objectReferences
             )
         }
 
@@ -855,16 +960,20 @@ class MoveCollectionExecutor(
             sourceId = sourceId,
             sourceName = sourceName,
             underOwnersControl = underOwnersControl,
-            excludedHosts = excludedHosts
+            excludedHosts = excludedHosts,
+            tapped = tapped,
+            objectReferences = objectReferences
         )
 
-        return EffectResult.from(state.suspendForDecision(decision, continuation, emptyList()))
+        return EffectResult.from(state.suspendForDecision(decision, continuation, events))
     }
 
     /**
-     * Continue processing remaining auras, or finish if no more.
+     * Continue processing remaining auras, or finish if no more. An Aura with no legal host stays
+     * where it is (CR 303.4g) and the next one is asked about; the resumer re-enters here after
+     * each answer.
      */
-    private fun continueAuraProcessingOrFinish(
+    internal fun continueAuraProcessingOrFinish(
         state: GameState,
         events: List<GameEvent>,
         remainingAuras: List<EntityId>,
@@ -873,7 +982,9 @@ class MoveCollectionExecutor(
         sourceId: EntityId?,
         sourceName: String?,
         underOwnersControl: Boolean = false,
-        excludedHosts: List<EntityId> = emptyList()
+        excludedHosts: List<EntityId> = emptyList(),
+        tapped: Boolean = false,
+        objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment()
     ): EffectResult {
         if (remainingAuras.isNotEmpty()) {
             val nextAuraId = remainingAuras.first()
@@ -891,7 +1002,9 @@ class MoveCollectionExecutor(
                 sourceId = sourceId,
                 sourceName = sourceName,
                 underOwnersControl = underOwnersControl,
-                excludedHosts = excludedHosts
+                excludedHosts = excludedHosts,
+                tapped = tapped,
+                objectReferences = objectReferences
             )
         }
         return EffectResult.success(state, events)
@@ -909,10 +1022,11 @@ class MoveCollectionExecutor(
         context: EffectContext? = null,
         replacementSourceState: GameState? = null,
         paidToEnter: Boolean = false,
+        tapped: Boolean = false,
     ): Pair<GameState, List<GameEvent>> {
         val transition = zones.moveToZone(state, auraId, Zone.BATTLEFIELD,
             com.wingedsheep.engine.handlers.effects.ZoneEntryOptions(
-                controllerId = destPlayerId, auraHostId = targetId,
+                controllerId = destPlayerId, auraHostId = targetId, tapped = tapped,
                 entryCounters = listOfNotNull(entryCounterType?.let { com.wingedsheep.engine.handlers.effects.SuppliedEntryCounter(it) }),
                 entryCounterReplacementState = replacementSourceState,
                 entryChoices = context?.entryChoices?.get(auraId)?.values.orEmpty(),
@@ -942,7 +1056,8 @@ class MoveCollectionExecutor(
         underOwnersControl: Boolean = false,
         revealToSelf: Boolean = true,
         entryCounterType: com.wingedsheep.sdk.core.CounterType? = null,
-        replacementSourceState: GameState? = null
+        replacementSourceState: GameState? = null,
+        entersWith: EntersWithCharacteristics? = null
     ): EffectResult {
         val destZone = destination.zone
         val events = mutableListOf<GameEvent>()
@@ -1106,6 +1221,7 @@ class MoveCollectionExecutor(
                 grantedRiotModes = context.entryChoices[cardId]?.riotModes.orEmpty(),
                 paidToEnter = com.wingedsheep.engine.handlers.effects.EffectEntryPayments.paid(context, cardId),
                 auraHostId = context.entryAuraHosts[cardId],
+                entersWith = entersWith?.takeIf { destZone == Zone.BATTLEFIELD },
                 libraryPlacement = chosenPlacement,
                 tapped = destination.placement == ZonePlacement.Tapped || destination.placement == ZonePlacement.TappedAndAttacking,
                 tappedAndAttacking = destination.placement == ZonePlacement.TappedAndAttacking,
@@ -1162,10 +1278,16 @@ class MoveCollectionExecutor(
                 events.addAll(counterEvents)
             }
 
-            if (primaryArrival?.toZone == chosenZone) movedIds.add(cardId)
+            // Putting a card elsewhere in its own library preserves the object and emits a
+            // reorder, not a primary zone transition. It still satisfies a tracked placement
+            // ("put those cards on the bottom; if you do ...") and participates in a final shuffle.
+            val reorderedWithinLibrary = fromZone == Zone.LIBRARY && chosenZone == Zone.LIBRARY &&
+                transitionResult.actualDestination == Zone.LIBRARY &&
+                transitionResult.redirectResult?.destinationZone == Zone.LIBRARY
+            if (primaryArrival?.toZone == chosenZone || reorderedWithinLibrary) movedIds.add(cardId)
             if (primaryArrival?.toZone == chosenZone) movedIds.addAll(transitionResult.events.filterIsInstance<ZoneChangeEvent>()
                 .filter { it.meldedPermanent?.entityId == cardId }.map { it.entityId })
-            if (primaryArrival?.toZone == Zone.LIBRARY) {
+            if (primaryArrival?.toZone == Zone.LIBRARY || reorderedWithinLibrary) {
                 librariesReceivingCards.add(actualDestPlayerId)
             }
         }

@@ -125,11 +125,10 @@ class GatedEffectExecutor(
             return executeDoAction(state, gate, effect, context)
         }
 
-        // Gate.MayPayX: a number-chooser pay-gate, not a yes/no — prompt 0..max affordable generic
-        // mana, pay the chosen X, and run `then` with X bound into the context. Reuses the existing
-        // MayPayXContinuation / resumeMayPayX machinery (only the type recognition moved onto the frame).
+        // Gate.MayPayX: "Pay {X}?" and then, on yes, a 0..max affordable number chooser — X = 0 is a
+        // real payment, distinct from declining. Both answers go to MayPayXContinuation / resumeMayPayX.
         if (gate is Gate.MayPayX) {
-            return executeMayPayX(state, effect, context)
+            return executeMayPayX(state, gate, effect, context)
         }
 
         // Gate.MayPayAnyAmountOfLife: the life twin — prompt 0..payable life (MayPayLifeXContinuation).
@@ -193,7 +192,7 @@ class GatedEffectExecutor(
             }
             // A search that also reads a hand or graveyard ("search your graveyard and/or library")
             // can still be chosen for those zones; its gather drops only the forbidden library.
-            if (searcher != null && leadingSearch != null &&
+            if (searcher != null &&
                 LibrarySearchRestrictions.readsOnlyLibraries(leadingSearch.source) &&
                 LibrarySearchRestrictions.isSearchForbidden(
                     state, searcher, context.effectControllerId ?: context.controllerId,
@@ -257,14 +256,6 @@ class GatedEffectExecutor(
             return executeWaterbendPayment(state, playerId, pay.cost, effect.then, effect.otherwise, context)
         }
 
-        // The controller said yes when they chose this ability's target (the target decision
-        // offered a decline) — don't ask the same question again. Cleared for the branch so a
-        // later "you may" inside it still asks.
-        if (gate is Gate.MayDecide && context.consentAnsweredAtTargeting) {
-            val answered = context.copy(consentAnsweredAtTargeting = false)
-            return effectExecutor(state, effect.then, answered)
-        }
-
         // Persistent auto-answer yield (backlog §C): if the decision-maker has remembered a yes/no
         // for this ability, resolve the "you may" question without prompting and run the matching
         // branch. Scoped to Gate.MayDecide — the pure may-question — never a cost/pay gate, so a
@@ -317,7 +308,7 @@ class GatedEffectExecutor(
             is Gate.MayPay -> effect.hint
             is Gate.WhenCondition -> effect.hint // unreachable: handled by the synchronous branch above
             is Gate.DoAction -> effect.hint // unreachable: handled by the action-drain branch above
-            is Gate.MayPayX -> effect.hint // unreachable: handled by the number-chooser branch above
+            is Gate.MayPayX -> effect.hint // unreachable: handled by its own yes/no-then-number branch above
             is Gate.MayPayAnyAmountOfLife -> effect.hint // unreachable: handled by the number-chooser branch above
             is Gate.OnceEachTurn -> effect.hint // unreachable: handled by the budget branch above
         }
@@ -344,7 +335,8 @@ class GatedEffectExecutor(
             peerOptions = labels != null,
             yesDetail = labels?.yesDetail,
             noDetail = labels?.noDetail,
-            yesAvailable = yesAvailable
+            yesAvailable = yesAvailable,
+            canRememberAnswer = gate is Gate.MayDecide && context.abilityIdentity != null
         ) }
 
         val continuation = GatedEffectContinuation(
@@ -416,7 +408,7 @@ class GatedEffectExecutor(
             predicateEvaluator = predicateEvaluator
         ).filterNot {
             (cost.excludeSource && it == context.sourceId) ||
-                state.projectedState.hasKeyword(it, com.wingedsheep.sdk.core.AbilityFlag.CANT_BE_SACRIFICED)
+                !com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.canBeSacrificed(state, it)
         }
 
     /**
@@ -594,14 +586,19 @@ class GatedEffectExecutor(
     }
 
     /**
-     * Resolve a [Gate.MayPayX] gate (the lowered `Effects.MayPayX`). Computes the most generic mana
-     * the decision-maker can produce and, if any, pauses with a 0..max number chooser; the existing
-     * [MayPayXContinuation] resumer (`resumeMayPayX`) then auto-taps the chosen X and runs
-     * [GatedEffect.then] with `xValue` bound into the context. An unaffordable gate (max <= 0) falls
-     * through to [GatedEffect.otherwise] (or nothing), mirroring the former executor's silent skip.
+     * Resolve a [Gate.MayPayX] gate (the lowered `Effects.MayPayX`). Two answers, because declining
+     * and paying {0} are different choices: X = 0 is a real payment, so "you may pay {X}. When you
+     * do, return target creature card with mana value X" can return a mana value 0 card (Isareth
+     * the Awakener, Halo Forager). First a "Pay {X}?" yes/no — "no" runs [GatedEffect.otherwise]
+     * (or nothing) — then, on "yes", a 0..max-affordable number chooser; [MayPayXContinuation]
+     * answers both (`resumeMayPayX`), auto-tapping the chosen X and running [GatedEffect.then] with
+     * `xValue` bound. With no mana available the "yes" pays X = 0 without asking for a number.
+     * A fixed [Gate.MayPayX.additionalManaCost] ("{X}{R}") the payer can't afford makes "yes"
+     * impossible, so the prompt is skipped and [GatedEffect.otherwise] runs — as for [Gate.MayPay].
      */
     private fun executeMayPayX(
         state: GameState,
+        gate: Gate.MayPayX,
         effect: GatedEffect,
         context: EffectContext
     ): EffectResult {
@@ -609,8 +606,7 @@ class GatedEffectExecutor(
             ?.let { TargetResolutionUtils.resolvePlayerTarget(it, context, state) }
             ?: context.controllerId
 
-        val maxAffordable = manaSolver.getAvailableManaCount(state, playerId, spellContext = SpellPaymentContext())
-        if (maxAffordable <= 0) {
+        if (!gate.additionalManaCost.isEmpty() && !manaSolver.canPay(state, playerId, gate.additionalManaCost, allowPhyrexianLife = false, spellContext = SpellPaymentContext())) {
             return effect.otherwise
                 ?.let { effectExecutor(state, it, context) }
                 ?: EffectResult.success(state)
@@ -619,21 +615,25 @@ class GatedEffectExecutor(
         val sourceName = context.sourceId?.let { sourceId ->
             state.getEntity(sourceId)?.get<CardComponent>()?.name
         }
+        val decisionContext = decisionContext(context, sourceName)
 
-        val decision = { decisionId: String -> ChooseNumberDecision(
+        val decision = { decisionId: String -> YesNoDecision(
             id = decisionId,
             playerId = playerId,
-            prompt = "Pay {X}? Choose X (0 to decline)",
-            context = decisionContext(context, sourceName),
-            minValue = 0,
-            maxValue = maxAffordable
+            prompt = SourceReferenceText.sentence(effect, SourceReferenceText.referenceFor(state, context.sourceId)),
+            context = decisionContext,
+            yesText = "Pay {X}${gate.additionalManaCost}",
+            noText = "Don't pay",
+            hint = effect.hint
         ) }
 
         val continuation = MayPayXContinuation(
             playerId = playerId,
+            additionalManaCost = gate.additionalManaCost,
             sourceName = sourceName,
             effect = effect.then,
-            maxX = maxAffordable,
+            otherwise = effect.otherwise,
+            decisionContext = decisionContext,
             effectContext = context
         )
 

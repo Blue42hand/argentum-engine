@@ -112,8 +112,10 @@ class TargetFinder(
         pipelineContext: PredicateContext? = null
     ): List<EntityId> {
         val candidates = when (requirement) {
-            is TargetPlayer -> findPlayerTargets(state, requirement, controllerId, sourceId, ignoreTargetingRestrictions)
-            is TargetOpponent -> findOpponentTargets(state, requirement, controllerId, sourceId, ignoreTargetingRestrictions)
+            is TargetPlayer -> findPlayerTargets(state, requirement, controllerId, sourceId, ignoreTargetingRestrictions,
+                triggeringEntityId ?: pipelineContext?.triggeringEntityId, pipelineContext?.triggeringPlayerId)
+            is TargetOpponent -> findOpponentTargets(state, requirement, controllerId, sourceId, ignoreTargetingRestrictions,
+                triggeringEntityId ?: pipelineContext?.triggeringEntityId, pipelineContext?.triggeringPlayerId)
             is AnyTarget -> {
                 val candidates = findAnyTargets(state, controllerId, sourceId, targetingSourceType)
                 if (requirement.filter == GameObjectFilter.Any) candidates else {
@@ -151,7 +153,7 @@ class TargetFinder(
         }
         // CantBeTargetedBy: keyed on the source and this requirement, so computed once.
         val untargetableKeywords = UntargetableByRules.blockingKeywords(state, sourceId, targetingSourceType, requirement)
-        // CardsInZonesCantBeTargeted (Ground Seal): read only once an off-battlefield card shows up.
+        // CardsInZonesCantBeTargeted (Ground Seal; Tomik): read once, on the first non-player candidate.
         val zoneLocks by lazy(LazyThreadSafetyMode.NONE) { UntargetableByRules.zoneLocks(state) }
         return candidates.filter { id ->
             if (id in state.turnOrder) {
@@ -161,7 +163,7 @@ class TargetFinder(
             } else {
                 (sourceColors == null || !ColorProtection.isProtected(projected, id, sourceColors)) &&
                     !UntargetableByRules.isBlocked(state, id, untargetableKeywords) &&
-                    (projected.getProjectedValues(id) != null || !UntargetableByRules.isZoneLocked(state, id, zoneLocks, predicateEvaluator))
+                    !UntargetableByRules.isZoneLocked(state, id, controllerId, zoneLocks, predicateEvaluator)
             }
         }
     }
@@ -171,13 +173,16 @@ class TargetFinder(
         requirement: TargetPlayer,
         controllerId: EntityId,
         sourceId: EntityId?,
-        ignoreTargetingRestrictions: Boolean = false
+        ignoreTargetingRestrictions: Boolean = false,
+        triggeringEntityId: EntityId? = null,
+        triggeringPlayerId: EntityId? = null
     ): List<EntityId> {
         return state.turnOrder.filter { playerId ->
             state.hasEntity(playerId) &&
                 (ignoreTargetingRestrictions ||
                     (!playerHasShroud(state, playerId) && !playerHasHexproofAgainst(state, playerId, controllerId))) &&
-                PlayerTargetRestriction.isSatisfied(state, requirement.restriction, playerId, controllerId, sourceId, predicateEvaluator = predicateEvaluator)
+                PlayerTargetRestriction.isSatisfied(state, requirement.restriction, playerId, controllerId, sourceId,
+                    triggeringEntityId, triggeringPlayerId, predicateEvaluator = predicateEvaluator)
         }
     }
 
@@ -186,11 +191,14 @@ class TargetFinder(
         requirement: TargetOpponent,
         controllerId: EntityId,
         sourceId: EntityId?,
-        ignoreTargetingRestrictions: Boolean = false
+        ignoreTargetingRestrictions: Boolean = false,
+        triggeringEntityId: EntityId? = null,
+        triggeringPlayerId: EntityId? = null
     ): List<EntityId> {
         return state.turnOrder.filter { it != controllerId && state.hasEntity(it) &&
-            (ignoreTargetingRestrictions || (!playerHasShroud(state, it) && !playerHasHexproof(state, it))) &&
-            PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, controllerId, sourceId, predicateEvaluator = predicateEvaluator) }
+            (ignoreTargetingRestrictions || (!playerHasShroud(state, it) && !playerHasHexproofAgainst(state, it, controllerId))) &&
+            PlayerTargetRestriction.isSatisfied(state, requirement.restriction, it, controllerId, sourceId,
+                triggeringEntityId, triggeringPlayerId, predicateEvaluator = predicateEvaluator) }
     }
 
     /**
@@ -214,10 +222,11 @@ class TargetFinder(
         }
 
         // Source-card-type restriction (Artifact Ward) is checked first because, unlike the
-        // opponent-ability restriction, it is NOT controller-gated: a matching source can't target
-        // the warded creature even if the same player controls both. It still only blocks abilities
+        // opponent-ability restriction, its default form is NOT controller-gated: a matching source
+        // can't target the warded creature even if the same player controls both (the
+        // opponents-only form, Species 8472, is gated inside the helper). It still only blocks abilities
         // (not spells); the helper handles the spell/unknown-source short-circuit.
-        if (SourceTypeTargeting.cantBeTargetedBySourceTypeAbility(state, entityId, sourceId, targetingSourceType)) {
+        if (SourceTypeTargeting.cantBeTargetedBySourceTypeAbility(state, entityId, sourceId, controllerId, targetingSourceType)) {
             return true
         }
 
@@ -241,7 +250,7 @@ class TargetFinder(
 
         // Add opponents (excluding those with shroud or hexproof)
         targets.addAll(state.turnOrder.filter { it != controllerId && state.hasEntity(it) &&
-            !playerHasShroud(state, it) && !playerHasHexproof(state, it) })
+            !playerHasShroud(state, it) && !playerHasHexproofAgainst(state, it, controllerId) })
 
         // Add all planeswalkers on the battlefield
         val battlefield = state.getBattlefield()
@@ -659,19 +668,11 @@ class TargetFinder(
         ControllerShroud.appliesTo(state, playerId, predicateEvaluator = predicateEvaluator)
 
     /**
-     * Check if a player has hexproof (from a permanent like Shalai, Voice of Plenty).
-     * Unlike shroud, hexproof only prevents opponents from targeting — the player can still
-     * target themselves.
-     */
-    private fun playerHasHexproof(state: GameState, playerId: EntityId): Boolean =
-        ControllerHexproof.appliesTo(state, playerId, predicateEvaluator = predicateEvaluator)
-
-    /**
      * Check if a player has hexproof against a specific controller.
      * Returns true if the player has hexproof AND the controller is an opponent.
      */
     private fun playerHasHexproofAgainst(state: GameState, playerId: EntityId, controllerId: EntityId): Boolean {
-        return playerId != controllerId && playerHasHexproof(state, playerId)
+        return ControllerHexproof.appliesAgainst(state, playerId, controllerId, predicateEvaluator = predicateEvaluator)
     }
 
     /**

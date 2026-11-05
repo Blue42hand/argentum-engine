@@ -41,16 +41,28 @@ data class SkipCombatPhasesEffect(
  * what they controlled when this resolved (Icebreaker Kraken ruling, 2021-02-05): a creature they
  * gain control of in between doesn't untap either. The controller gate lives in [target]; the
  * filter names only the kind of permanent.
+ *
+ * With [lockedAtResolution] the set is fixed instead: only the [permanents] that player controls as
+ * this resolves are held, and only if that player still controls them at the step — Sleep's "Tap all
+ * creatures target player controls. Those creatures don't untap during that player's next untap
+ * step." (2018-07-13 ruling: every creature they controlled as it resolved, not just the ones it
+ * tapped). A creature that changes control untaps normally in its new controller's untap step.
  */
 @SerialName("SkipUntap")
 @Serializable
 data class SkipUntapEffect(
     val target: EffectTarget = EffectTarget.PlayerRef(Player.TargetOpponent),
-    val permanents: GameObjectFilter = GameObjectFilter.Creature or GameObjectFilter.Land
+    val permanents: GameObjectFilter = GameObjectFilter.Creature or GameObjectFilter.Land,
+    val lockedAtResolution: Boolean = false
 ) : Effect {
     override val description: String =
-        "${describeSkippedPermanents(permanents).replaceFirstChar { it.uppercase() }} ${target.description} " +
-            "controls don't untap during their next untap step"
+        if (lockedAtResolution) {
+            "${describeSkippedPermanents(permanents).replaceFirstChar { it.uppercase() }} ${target.description} " +
+                "controls now don't untap during that player's next untap step"
+        } else {
+            "${describeSkippedPermanents(permanents).replaceFirstChar { it.uppercase() }} ${target.description} " +
+                "controls don't untap during their next untap step"
+        }
 }
 
 /**
@@ -301,7 +313,8 @@ data object AddBeginningPhaseEffect : Effect {
 
 /**
  * Give the controller additional upkeep steps after the current phase
- * (Obeka, Splitter of Seconds: "you get that many additional upkeep steps after this phase").
+ * (Obeka, Splitter of Seconds: "you get that many additional upkeep steps after this phase"), or,
+ * with [afterThisStep], directly after the current upkeep step (Paradox Haze).
  *
  * Per CR 500.10, adding an upkeep step after a phase creates the beginning phase that normally
  * contains the upkeep step, with its untap and draw steps skipped. The phases are inserted after
@@ -309,17 +322,27 @@ data object AddBeginningPhaseEffect : Effect {
  * (CR 500.8: most recently created phase occurs first), so any extra combat happens before the
  * extra upkeeps. "At the beginning of [your] upkeep" abilities trigger in each (CR 503.1a).
  *
- * Always added to the controller of the effect (CR 500.10a — "you get" steps are never added to
- * another player's turn).
+ * With [afterThisStep] the steps are instead added directly after the current upkeep step
+ * (Paradox Haze: "that player gets an additional upkeep step after this step"). Per CR 500.9 that
+ * inserts a bare upkeep step into the same beginning phase — no new phase — and the turn then goes
+ * on to its draw step. Only meaningful while resolving during an upkeep step — the count is drained
+ * when an upkeep step ends, and dropped at cleanup if none does. Guard a rider that re-triggers in it with
+ * [com.wingedsheep.sdk.scripting.conditions.IsFirstUpkeepStepOfTurn].
+ *
+ * Always added to the active player's turn: the effects that use this resolve on the turn of the
+ * player who gets the steps (CR 500.10a — "you get" steps are never added to another player's turn).
  *
  * @param amount The number of additional upkeep steps to add (e.g. the combat damage dealt).
+ * @param afterThisStep Insert the steps after the current (upkeep) step rather than after this phase.
  */
 @SerialName("AddAdditionalUpkeepSteps")
 @Serializable
 data class AddAdditionalUpkeepStepsEffect(
-    val amount: DynamicAmount
+    val amount: DynamicAmount,
+    val afterThisStep: Boolean = false
 ) : Effect {
-    override val description: String = "You get ${amount.description} additional upkeep step(s) after this phase"
+    override val description: String =
+        "You get ${amount.description} additional upkeep step(s) after this ${if (afterThisStep) "step" else "phase"}"
 }
 
 /**
@@ -528,14 +551,24 @@ data class PreventLandPlaysThisTurnEffect(
  * @property ability The triggered ability to create
  * @property duration How long the ability lasts
  * @property descriptionOverride Optional override for the auto-generated description (for emblem display)
+ * @property emblem True when the ability belongs to an emblem (CR 114) — "you get an emblem with
+ *   '…'". The emblem itself is then the ability's source: a colorless object with no other
+ *   characteristics (CR 114.3), so "this emblem deals 1 damage to you" is damage from a colorless
+ *   source named for the emblem, and the ability keeps working after the planeswalker that made it
+ *   is gone. False keeps the creating card as the source (Dimensional Breach, False Cure).
  */
 @SerialName("CreateGlobalTriggeredAbility")
 @Serializable
 data class CreateGlobalTriggeredAbilityEffect(
     val ability: TriggeredAbility,
     val duration: Duration = Duration.Permanent,
-    val descriptionOverride: String? = null
+    val descriptionOverride: String? = null,
+    val emblem: Boolean = false
 ) : Effect {
+    init {
+        require(!emblem || duration == Duration.Permanent) { "An emblem lasts for the rest of the game" }
+    }
+
     override val description: String = descriptionOverride ?: when (duration) {
         Duration.Permanent -> ability.description
         else -> "${duration.description.replaceFirstChar { it.uppercase() }}, " +
@@ -693,17 +726,36 @@ enum class HijackScope {
  *
  * @param target The player(s) who can't cast matching spells
  * @param duration EndOfTurn (default), EndOfYourNextTurn (the effect controller's next turn —
- *   Single Combat), or Permanent
+ *   Single Combat), UntilYourNextTurn, DuringAffectedPlayersNextTurn (only during each banned
+ *   player's own next turn — Sphinx's Decree), or Permanent
  * @param spellFilter Which announced spells are prohibited; Any preserves the blanket ban.
+ * @param moreAllowed How many more spells each target may still cast before the ban takes hold,
+ *   counted from resolution — "You can cast only one more spell this turn" (Irencrag Feat) is
+ *   `moreAllowed = 1`. 0 (the default) bans at once. The allowance counts every spell against the
+ *   per-turn cast count, so it needs the blanket filter and an end-of-turn duration.
  */
 @SerialName("CantCastSpells")
 @Serializable
 data class CantCastSpellsEffect(
     val target: EffectTarget,
     val duration: Duration = Duration.EndOfTurn,
-    val spellFilter: GameObjectFilter = GameObjectFilter.Any
+    val spellFilter: GameObjectFilter = GameObjectFilter.Any,
+    val moreAllowed: Int = 0
 ) : Effect {
+    init {
+        require(moreAllowed >= 0)
+        require(moreAllowed == 0 || (spellFilter == GameObjectFilter.Any && duration == Duration.EndOfTurn)) {
+            "moreAllowed counts every spell this turn: it needs spellFilter = Any and duration = EndOfTurn"
+        }
+    }
+
     override val description: String = buildString {
+        if (moreAllowed > 0) {
+            append("${target.description.replaceFirstChar { it.uppercase() }} can cast only ")
+            append(if (moreAllowed == 1) "one more spell " else "$moreAllowed more spells ")
+            append(duration.description)
+            return@buildString
+        }
         append("${target.description.replaceFirstChar { it.uppercase() }} can't cast ")
         if (spellFilter != GameObjectFilter.Any) append("${spellFilter.description} ")
         append("spells ${duration.description}")
@@ -734,6 +786,33 @@ data class CantSearchLibrariesEffect(
 ) : Effect {
     override val description: String =
         "${target.description.replaceFirstChar { it.uppercase() }} can't search libraries ${duration.description}"
+}
+
+/**
+ * The [target] player(s) can't block with more than [maxBlockers] creatures this combat —
+ * "Whenever Mirri attacks, each opponent can't block with more than one creature this combat"
+ * (Mirri, Weatherlight Duelist).
+ *
+ * A one-shot that stamps each player, so the cap outlives its source: Mirri leaving the
+ * battlefield before blockers are declared doesn't lift it. It caps the blockers *that player*
+ * declares (each blocker counts once, however many attackers it blocks) and lapses as the combat
+ * phase ends. The two closest types: the [com.wingedsheep.sdk.scripting.BlockerCountLimit]
+ * static caps every player's blockers together and ends when its permanent leaves, and
+ * [CantSearchLibrariesEffect]-style player stamps carry no count.
+ *
+ * @param target The player(s) whose blocks are capped — `PlayerRef(Player.EachOpponent)` for
+ *   "each opponent".
+ * @param maxBlockers How many creatures each of them may still block with.
+ */
+@SerialName("BlockerCountLimitThisCombat")
+@Serializable
+data class BlockerCountLimitThisCombatEffect(
+    val target: EffectTarget,
+    val maxBlockers: Int
+) : Effect {
+    override val description: String =
+        "${target.description.replaceFirstChar { it.uppercase() }} can't block with more than " +
+            "${if (maxBlockers == 1) "one creature" else "$maxBlockers creatures"} this combat"
 }
 
 /**
@@ -844,6 +923,11 @@ data class CantActivateLoyaltyAbilitiesEffect(
  *   `planeswalkerFilter = Planeswalker.youControl()`, `times = 2`. Like the static
  *   [com.wingedsheep.sdk.scripting.LoyaltyActivationPermission], allowances take the largest, never a
  *   sum.
+ * - [additionalActivations] adds to the count half instead of raising it. The Chain Veil: "For each
+ *   planeswalker you control, you may activate one of its loyalty abilities once this turn as
+ *   though none of its loyalty abilities have been activated this turn." — `additionalActivations
+ *   = 1`. Unlike [times], these sum: across grants, and on top of the largest maximum (each Chain
+ *   Veil resolution is one more activation).
  *
  * A resolution-time one-shot that records the grant on the player, so it outlives the spell or
  * ability that made it. [planeswalkerFilter] is matched against the ability's source on projected
@@ -859,12 +943,16 @@ data class GrantLoyaltyActivationPermissionEffect(
     val planeswalkerFilter: GameObjectFilter = GameObjectFilter.Planeswalker,
     val instantSpeed: Boolean = false,
     val times: Int = 1,
-    val duration: Duration = Duration.EndOfTurn
+    val duration: Duration = Duration.EndOfTurn,
+    val additionalActivations: Int = 0
 ) : Effect {
     init {
         require(times >= 1) { "GrantLoyaltyActivationPermissionEffect.times must be at least 1, was $times" }
-        require(instantSpeed || times >= 2) {
-            "GrantLoyaltyActivationPermissionEffect must lift timing or allow at least two activations"
+        require(additionalActivations >= 0) {
+            "GrantLoyaltyActivationPermissionEffect.additionalActivations must not be negative, was $additionalActivations"
+        }
+        require(instantSpeed || times >= 2 || additionalActivations >= 1) {
+            "GrantLoyaltyActivationPermissionEffect must lift timing or allow more activations"
         }
     }
 
@@ -882,6 +970,9 @@ data class GrantLoyaltyActivationPermissionEffect(
         if (times >= 2) append(if (times == 2) " twice" else " $times times")
         if (instantSpeed) append(" on any player's turn any time you could cast an instant")
         if (times >= 2) append(" rather than only once")
+        if (additionalActivations >= 1) {
+            append(if (additionalActivations == 1) " one additional time" else " $additionalActivations additional times")
+        }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
@@ -1284,7 +1375,7 @@ data class CreatePermanentEmblemEffect(
 data class GainCitysBlessingEffect(
     val target: EffectTarget = EffectTarget.Controller
 ) : Effect {
-    override val description: String = "${target.description.replaceFirstChar { it.uppercase() }} gets the city's blessing"
+    override val description: String = "${target.description.replaceFirstChar { it.uppercase() }} ${if (target.description.equals("you", ignoreCase = true)) "get" else "gets"} the city's blessing"
 }
 
 /**
@@ -1409,7 +1500,8 @@ data class ChangeSpeedEffect(
 
 /**
  * Removes the target player's maximum hand size for the rest of the game
- * ("you have no maximum hand size for the rest of the game").
+ * ("you have no maximum hand size for the rest of the game"), or for a shorter [duration]
+ * ("you have no maximum hand size until your next turn" — Deep Space Scan, Live Long and Prosper).
  *
  * Unlike [com.wingedsheep.sdk.scripting.NoMaximumHandSize] — a permanent's *static* ability
  * that only applies while that permanent is on the battlefield (Reliquary Tower, Thought Vessel)
@@ -1420,14 +1512,25 @@ data class ChangeSpeedEffect(
  *
  * @param target The player who loses their maximum hand size. Defaults to the ability's
  *   controller, matching "you have no maximum hand size for the rest of the game".
+ * @param duration How long the player has no maximum hand size: [Duration.Permanent] (the rest of
+ *   the game, the default) or [Duration.UntilYourNextTurn] — keyed to the effect's controller, so it
+ *   lapses after the untap step of *their* next turn even when [target] is another player.
  */
 @SerialName("RemoveMaximumHandSize")
 @Serializable
 data class RemoveMaximumHandSizeEffect(
-    val target: EffectTarget = EffectTarget.Controller
+    val target: EffectTarget = EffectTarget.Controller,
+    val duration: Duration = Duration.Permanent
 ) : Effect {
+    init {
+        require(duration == Duration.Permanent || duration == Duration.UntilYourNextTurn) {
+            "RemoveMaximumHandSize supports Duration.Permanent and Duration.UntilYourNextTurn, not $duration"
+        }
+    }
+
     override val description: String =
-        "${target.description.replaceFirstChar { it.uppercase() }} has no maximum hand size for the rest of the game"
+        "${target.description.replaceFirstChar { it.uppercase() }} has no maximum hand size " +
+            if (duration == Duration.Permanent) "for the rest of the game" else duration.description
 }
 
 /**
@@ -1524,6 +1627,52 @@ data class LockLifeLossEffect(
             Duration.EndOfTurn -> append(" this turn")
             Duration.UntilYourNextTurn -> append(" until your next turn")
             else -> {}
+        }
+    }
+}
+
+/**
+ * Lock [target] player's counters — "that player can't get counters" for [duration] (CR 122.1:
+ * players can have counters too). While the lock holds, no counter of any kind can be put on that
+ * player: placements by effects, damage (infect and toxic poison), proliferate and replacement
+ * effects all put none, and a cost that would give that player counters ("Ward—Get five poison
+ * counters") can't be paid.
+ *
+ * The player-scoped sibling of granting a permanent [com.wingedsheep.sdk.core.AbilityFlag.CANT_RECEIVE_COUNTERS]
+ * (`Effects.GrantKeyword(AbilityFlag.CANT_RECEIVE_COUNTERS, …)`): players aren't projected, so a
+ * floating grant can't reach them — the lock tags the player directly, as [LockLifeGainEffect] /
+ * [LockLifeLossEffect] do for life. Neither of those takes the axis (they lock a life total, this
+ * locks counters), and the Melira-style cap (`CapCounterPlacementThisTurn`) is a replacement's
+ * turn-scoped, kind-scoped result rather than an effect a card can name.
+ *
+ * Durations: [Duration.WhileSourceOnBattlefield] (Suncleanser — "for as long as this creature
+ * remains on the battlefield"; the lock ends for good once that source object leaves, and a new
+ * object with the same card does not revive it, CR 611.2b), [Duration.EndOfTurn] and
+ * [Duration.Permanent]. Non-player targets are a no-op.
+ *
+ * @param target The player who can't get counters.
+ * @param duration How long the lock lasts.
+ */
+@SerialName("LockPlayerCounters")
+@Serializable
+data class LockPlayerCountersEffect(
+    val target: EffectTarget = EffectTarget.PlayerRef(Player.TargetPlayer),
+    val duration: Duration = Duration.Permanent
+) : Effect {
+    init {
+        require(
+            duration is Duration.WhileSourceOnBattlefield ||
+                duration == Duration.EndOfTurn || duration == Duration.Permanent
+        ) { "LockPlayerCountersEffect supports WhileSourceOnBattlefield, EndOfTurn and Permanent, not $duration" }
+    }
+
+    override val description: String = buildString {
+        append(target.description.replaceFirstChar { it.uppercase() })
+        append(" can't get counters")
+        when (duration) {
+            Duration.Permanent -> append(" for the rest of the game")
+            Duration.EndOfTurn -> append(" this turn")
+            else -> append(" ").append(duration.description)
         }
     }
 }

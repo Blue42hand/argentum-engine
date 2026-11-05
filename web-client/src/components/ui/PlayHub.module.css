@@ -425,6 +425,10 @@
 .setIcon { font-size: 20px; color: var(--hub-text); }
 .setName { flex: 1 1 auto; min-width: 0; font-weight: 500; }
 .setChange { font-size: 13px; color: #b7c7ff; }
+.setTagline { margin: 2px 0 0; font-size: 13px; line-height: 1.45; color: var(--hub-muted, #b4bccd); }
+.setGuideLink { align-self: flex-start; font-size: 13px; color: #b7c7ff; }
+.setGuideLink:hover { color: #f2b45c; }
+.setGuideLink:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 2px; }
 
 /* ── Your deck ──────────────────────────────────────────────────────────── */
 

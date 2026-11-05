@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.mechanics.targeting.withTargetConstraints
+import com.wingedsheep.engine.mechanics.targeting.withTotalCap
 import com.wingedsheep.engine.state.components.identity.copiableCardComponent
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
@@ -44,6 +45,7 @@ class ModalAndCloneContinuationResumer(
         resumer(KeywordActionOrderContinuation::class, ::resumeKeywordActionOrder),
         resumer(EffectCopyAuraEntryContinuation::class, ::resumeEffectCopyAuraEntry),
         resumer(EnteringAttackDefenderContinuation::class, ::resumeEnteringAttackDefender),
+        resumer(com.wingedsheep.engine.core.EnteringAttackChoiceContinuation::class, ::resumeEnteringAttackChoice),
         resumer(CloneAuraEntryContinuation::class, ::resumeCloneAuraEntry),
         resumer(CloneEntersContinuation::class, ::resumeCloneEnters),
         resumer(MutateMergeContinuation::class, ::resumeMutateMerge),
@@ -92,6 +94,24 @@ class ModalAndCloneContinuationResumer(
         val result = services.effectExecutorRegistry.execute(state, continuation.effect, context)
         if (result.outcome !is Outcome.Done) return result.toExecutionResult()
         return checkForMore(result.stateWithOutputsHandedOn(), result.events)
+    }
+
+    /**
+     * Record what a creature that entered tapped and attacking through a global replacement is
+     * attacking (CR 508.4) — [com.wingedsheep.engine.handlers.effects.EnteringAttackChoice].
+     */
+    private fun resumeEnteringAttackChoice(
+        state: GameState, continuation: com.wingedsheep.engine.core.EnteringAttackChoiceContinuation,
+        response: DecisionResponse, checkForMore: CheckForMore,
+    ): ExecutionResult {
+        if (response !is TargetsResponse) return ExecutionResult.error(state, "Expected a defender choice")
+        val defender = response.selectedTargets[0]?.singleOrNull()
+            ?: return ExecutionResult.error(state, "Choose exactly one player, planeswalker or battle to attack")
+        return checkForMore(
+            com.wingedsheep.engine.handlers.effects.EnteringAttackChoice.answer(
+                state, continuation.entrantId, continuation.controllerId, defender),
+            emptyList(),
+        )
     }
 
     private fun resumeCloneAuraEntry(
@@ -375,9 +395,16 @@ class ModalAndCloneContinuationResumer(
         // For single-mode flow, preserve revert-to-mode-selection by passing the full modes list
         // when there's only one chosen mode and it needs targets. For multi-mode, don't allow cancel.
         val allowCancelBackToModes = continuation.chooseCount == 1 && chosenModes.size == 1
+        // A mode choice made while an ability resolves is still facing a dilemma; declining every
+        // pick of a "choose up to" isn't, and neither is re-picking after cancelling back out of
+        // the first pick's target prompt.
+        val (stateAfterDilemma, dilemmaEvents) = com.wingedsheep.engine.mechanics.modal.Dilemmas.face(
+            state, continuation.controllerId, continuation.sourceName ?: "modal ability",
+            if (continuation.dilemmaAlreadyFaced) 0 else chosenModes.size
+        )
         return processChosenModeQueue(
             services = services,
-            state = state,
+            state = stateAfterDilemma,
             queue = chosenModes,
             controllerId = continuation.controllerId,
             sourceId = continuation.sourceId,
@@ -390,7 +417,7 @@ class ModalAndCloneContinuationResumer(
             pipeline = continuation.pipeline,
             resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             objectReferences = continuation.objectReferences,
-            accumulatedEvents = emptyList(),
+            accumulatedEvents = dilemmaEvents,
             checkForMore = checkForMore
         )
     }
@@ -547,14 +574,21 @@ class ModalAndCloneContinuationResumer(
         copiedId: EntityId,
         xValue: Int?,
     ): Pair<GameState, List<GameEvent>> {
-        val count = EntersWithReplacements.copyEntryCounterCount(
+        val kinds = EntersWithReplacements.copyEntryCounters(
             state, rider, entityId, copiedId, controllerId, xValue, services.predicateEvaluator
         )
         val entityName = state.getEntity(entityId)?.get<CardComponent>()?.name ?: ""
-        return EntersWithReplacements.placeEntryCounters(
-            state, entityId, rider.counterType, count, controllerId, entityName,
-            predicateEvaluator = services.predicateEvaluator
-        )
+        var newState = state
+        val events = mutableListOf<GameEvent>()
+        for ((kind, count) in kinds) {
+            val (afterKind, kindEvents) = EntersWithReplacements.placeEntryCounters(
+                newState, entityId, kind, count, controllerId, entityName,
+                predicateEvaluator = services.predicateEvaluator
+            )
+            newState = afterKind
+            events.addAll(kindEvents)
+        }
+        return newState to events
     }
 
     /**
@@ -642,10 +676,9 @@ class ModalAndCloneContinuationResumer(
                 // the copy effect, so it only applies when a copy was actually made. Stamped before
                 // the permanent enters so it is genuinely *entering* with them: state-based actions
                 // never see the 0/0, and enters-with-counters triggers read the final total.
-                val extraCounters = continuation.entersWithCounters
-                if (extraCounters != null) {
+                for (rider in continuation.entersWithCounters) {
                     val (afterCounters, counterEvents) = applyCopyEntryCounters(
-                        newState, spellId, controllerId, extraCounters, selectedCreatureId, spellComponent.xValue
+                        newState, spellId, controllerId, rider, selectedCreatureId, spellComponent.xValue
                     )
                     newState = afterCounters
                     events.addAll(counterEvents)
@@ -761,13 +794,14 @@ class ModalAndCloneContinuationResumer(
 
         // "except it enters with N additional +1/+1 counters on it" — likewise only when a copy
         // was actually made.
-        val bfExtraCounters = continuation.entersWithCounters
-        if (copyApplied && bfExtraCounters != null && selectedId != null) {
-            val (afterCounters, counterEvents) = applyCopyEntryCounters(
-                newState, entityId, continuation.controllerId, bfExtraCounters, selectedId, xValue = null
-            )
-            newState = afterCounters
-            outEvents.addAll(counterEvents)
+        if (copyApplied && selectedId != null) {
+            for (rider in continuation.entersWithCounters) {
+                val (afterCounters, counterEvents) = applyCopyEntryCounters(
+                    newState, entityId, continuation.controllerId, rider, selectedId, xValue = null
+                )
+                newState = afterCounters
+                outEvents.addAll(counterEvents)
+            }
         }
 
         // "When you do, exile that card." (graveyard copies) — exile the copied card afterward.
@@ -894,7 +928,9 @@ class ModalAndCloneContinuationResumer(
                 }
                 val modeId = continuation.modeOptionIds.getOrNull(response.optionIndex)
                     ?: return ExecutionResult.error(state, "Invalid mode option index: ${response.optionIndex}")
-                state.updateEntity(spellId) { c ->
+                // A granted-riot answer is applied directly below; recording it would overwrite the
+                // printed MODE choice (printed riot's counter/haste) that the card's statics read.
+                if (continuation.syntheticRiot) state else state.updateEntity(spellId) { c ->
                     com.wingedsheep.engine.state.components.identity.EntryCharacteristicsBaking.bake(
                         c.withCastChoice(ChoiceSlot.MODE, ChoiceValue.TextChoice(modeId)), modeId, services.cardRegistry
                     )
@@ -979,10 +1015,40 @@ class ModalAndCloneContinuationResumer(
             ?: return ExecutionResult.error(state, "Spell has no CardComponent")
         val cardDef = services.cardRegistry.getCard(cardComponent.cardDefinitionId)
 
-        val nextChoice = cardDef?.script?.replacementEffects
-            ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithChoice>()
-            ?.sortedBy { it.choiceType.ordinal }
-            ?.firstOrNull { it.choiceType.ordinal > continuation.choiceType.ordinal }
+        // A granted read-ahead choice isn't printed, so it is synthesized here too in case an
+        // earlier choice (a printed one, or granted riot) paused first.
+        val nextChoice = (cardDef?.script?.replacementEffects
+            ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithChoice>().orEmpty() +
+            listOfNotNull(com.wingedsheep.engine.mechanics.ReadAheadSynthesis.grantedChoice(
+                newState, spellId, cardDef, services.cardRegistry, services.predicateEvaluator
+            )))
+            .sortedBy { it.choiceType.ordinal }
+            .firstOrNull { it.choiceType.ordinal > continuation.choiceType.ordinal }
+
+        // Granted riot (a lord's, or one frozen onto the spell by a mana rider) sits in the MODE
+        // slot. When a printed choice was asked first — printed riot itself, or an earlier
+        // creature-type choice — the granted instances are still owed (CR 702.136b): ask them once
+        // the printed chain has passed MODE, before any later printed choice.
+        val riotOrdinal = com.wingedsheep.engine.mechanics.RiotSynthesis.RIOT_CHOICE.choiceType.ordinal
+        if (!continuation.syntheticRiot &&
+            continuation.choiceType.ordinal <= riotOrdinal &&
+            (nextChoice == null || nextChoice.choiceType.ordinal > riotOrdinal)
+        ) {
+            val grantedRiot = com.wingedsheep.engine.mechanics.RiotSynthesis.grantedRiotInstanceCount(
+                newState, spellId, services.cardRegistry, services.predicateEvaluator
+            )
+            if (grantedRiot > 0) {
+                val pause = services.stackResolver.pauseForEntersWithChoice(
+                    newState, spellId, controllerId, ownerId, cardComponent,
+                    com.wingedsheep.engine.mechanics.RiotSynthesis.RIOT_CHOICE,
+                    syntheticRiot = true,
+                    syntheticRiotRemaining = grantedRiot - 1
+                )
+                if (pause != null && pause.outcome is Outcome.Paused) {
+                    return ExecutionResult.propagatePause(pause.state, syntheticRiotEvents + pause.events)
+                }
+            }
+        }
 
         if (nextChoice != null) {
             val result = services.stackResolver.pauseForEntersWithChoice(
@@ -1110,11 +1176,13 @@ class ModalAndCloneContinuationResumer(
         val cardComponent = entityContainer?.get<CardComponent>()
         val cardDef = cardComponent?.let { services.cardRegistry.getCard(it.cardDefinitionId) }
 
-        val nextChoices = continuation.pendingEntryChoices ?: cardDef?.script?.replacementEffects
-            ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithChoice>()
-            ?.sortedBy { it.choiceType.ordinal }
-            ?.filter { it.choiceType.ordinal > continuation.choiceType.ordinal }
-            .orEmpty()
+        val nextChoices = continuation.pendingEntryChoices ?: (cardDef?.script?.replacementEffects
+            ?.filterIsInstance<com.wingedsheep.sdk.scripting.EntersWithChoice>().orEmpty() +
+            listOfNotNull(com.wingedsheep.engine.mechanics.ReadAheadSynthesis.grantedChoice(
+                newState, entityId, cardDef, services.cardRegistry, services.predicateEvaluator
+            )))
+            .sortedBy { it.choiceType.ordinal }
+            .filter { it.choiceType.ordinal > continuation.choiceType.ordinal }
 
         // A chained choice that can't be presented (null) is skipped for the next one.
         for ((choiceIndex, nextChoice) in nextChoices.withIndex()) {
@@ -1137,7 +1205,8 @@ class ModalAndCloneContinuationResumer(
         // just chosen (CR 702.155b), so they can only be placed now. No-op for a non-Saga, and for a
         // Saga whose entry already placed them (a land played or moved through the zone pipeline).
         val (sagaState, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-            .applySagaEntryIfNeeded(newState, entityId, services.predicateEvaluator)
+            .applySagaEntryIfNeeded(newState, entityId, services.predicateEvaluator,
+                replacementSourceState = continuation.replacementSourceState)
         newState = sagaState
         val intrinsicEvents = mutableListOf<GameEvent>()
         if (continuation.pendingEntryChoices != null) {
@@ -1147,6 +1216,16 @@ class ModalAndCloneContinuationResumer(
                 replacementSourceState = continuation.replacementSourceState ?: newState)
             newState = intrinsicState
             intrinsicEvents.addAll(events)
+        }
+
+        // "Enters under the control of an opponent of your choice": it was placed before the
+        // question could be asked, so it moves to the chosen player's battlefield now — still
+        // part of the entry, which nothing has seen yet.
+        com.wingedsheep.engine.handlers.effects.ChosenEntryController.of(
+            cardDef, newState.getEntity(entityId)?.get<com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent>()?.chosen,
+        )?.let { chosen ->
+            newState = com.wingedsheep.engine.handlers.effects.ChosenEntryController
+                .enterUnder(newState, entityId, chosen)
         }
 
         // Emit the entry event, so the permanent's enters triggers (landfall, "when ~ enters") fire
@@ -1589,7 +1668,8 @@ class ModalAndCloneContinuationResumer(
             ),
             devourCounters = response.selectedCards.size * continuation.multiplier,
             predicateEvaluator = services.predicateEvaluator,
-            entrySourceState = continuation.entrySourceState
+            entrySourceState = continuation.entrySourceState,
+            tokenCreatorId = continuation.tokenCreatorId
         ).toExecutionResult()
 
         // The mint can pause again (a devour creature that also has an as-enters choice); carry the
@@ -1652,7 +1732,12 @@ class ModalAndCloneContinuationResumer(
             controllerId = continuation.controllerId,
         )
 
-        val result = services.effectExecutorRegistry.execute(state, CompositeEffect(effects), context).toExecutionResult()
+        // Picking a budget modal's modes ("choose up to five {P} worth of modes") is facing a dilemma.
+        val (stateAfterDilemma, dilemmaEvents) = com.wingedsheep.engine.mechanics.modal.Dilemmas.face(
+            state, continuation.controllerId, continuation.sourceName ?: "modal spell", sortedIndices.size
+        )
+        val executed = services.effectExecutorRegistry.execute(stateAfterDilemma, CompositeEffect(effects), context).toExecutionResult()
+        val result = executed.copy(events = dilemmaEvents + executed.events)
         if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, result.events.toList())
     }
@@ -1676,7 +1761,6 @@ class ModalAndCloneContinuationResumer(
 
         val chosenId = response.selectedCards.first()
         val context = continuation.effectContext
-            ?: com.wingedsheep.engine.handlers.EffectContext(continuation.sourceId, continuation.controllerId)
         if (com.wingedsheep.engine.handlers.effects.token.TokenBundleReplacements.enabled(state, context)) {
             val created = services.effectExecutorRegistry.execute(state,
                 com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect(
@@ -1688,7 +1772,8 @@ class ModalAndCloneContinuationResumer(
         val result = com.wingedsheep.engine.handlers.effects.token.CreateTokenCopyOfChosenPermanentExecutor.createTokenCopy(
             state, chosenId, continuation.controllerId,
             staticAbilityHandler, services.cardRegistry,
-            predicateEvaluator = services.predicateEvaluator
+            predicateEvaluator = services.predicateEvaluator,
+            effect = continuation.effect, context = continuation.effectContext,
         ).toExecutionResult()
         if (result.outcome is Outcome.Paused) return result
         return checkForMore(result.state, result.events.toList())
@@ -1801,7 +1886,8 @@ class ModalAndCloneContinuationResumer(
             triggeringEntityId = continuation.triggeringEntityId,
             outerTargets = continuation.outerTargets,
             outerNamedTargets = continuation.outerNamedTargets,
-            pipeline = continuation.pipeline
+            pipeline = continuation.pipeline,
+            dilemmaAlreadyFaced = true
         )
 
         return state.suspendForDecision(
@@ -1832,18 +1918,11 @@ class ModalAndCloneContinuationResumer(
 
         val chosenEffect = continuation.choices[choiceIndex].effect
 
-        // Build context preserving original targets so ContextTarget references still work
-        val context = EffectContext(
-            programOrigin = continuation.programOrigin ?: com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(com.wingedsheep.sdk.scripting.effects.ChooseActionEffect::class),
-            resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
-            sourceId = continuation.sourceId,
-            objectReferences = continuation.objectReferences,
-            controllerId = continuation.controllerId,
-            targets = continuation.targets,
-            triggeringEntityId = continuation.triggeringEntityId,
-            pipeline = PipelineState(namedTargets = continuation.namedTargets),
-            chosenCounterType = continuation.chosenCounterType
-        )
+        // The context the choice paused in, whole — targets, X, pipeline state and all.
+        val context = continuation.context.let {
+            if (it.programOrigin != null) it
+            else it.copy(programOrigin = com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(com.wingedsheep.sdk.scripting.effects.ChooseActionEffect::class))
+        }
 
         val result = services.effectExecutorRegistry.execute(state, chosenEffect, context).toExecutionResult()
 
@@ -1931,25 +2010,24 @@ internal fun processChosenModeQueue(
         )
         val compatible = com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.eligible(state, legalTargets, req)
         legalTargetsMap[index] = compatible
+        val targetContext = {
+            EffectContext(
+                sourceId = sourceId,
+                objectReferences = objectReferences,
+                controllerId = controllerId,
+                xValue = xValue,
+                triggeringEntityId = triggeringEntityId,
+                pipeline = pipeline
+            )
+        }
         TargetRequirementInfo(
             index = index,
             description = req.description,
             mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
             minTargets = req.effectiveMinCount,
             maxTargets = if (req.unlimited) compatible.size else req.count,
-            totalManaValueAtMost = com.wingedsheep.engine.mechanics.targeting.resolveTotalManaValueCap(
-                state, req, services.dynamicAmountEvaluator
-            ) {
-                EffectContext(
-                    sourceId = sourceId,
-                    objectReferences = objectReferences,
-                    controllerId = controllerId,
-                    xValue = xValue,
-                    triggeringEntityId = triggeringEntityId,
-                    pipeline = pipeline
-                )
-            }
         ).withTargetConstraints(state, req, compatible)
+            .withTotalCap(state, req, compatible, services.dynamicAmountEvaluator, targetContext)
     }
 
     val allSatisfied = requirementInfos.all { info ->

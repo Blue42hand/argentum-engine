@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.AdditionalCost
 import com.wingedsheep.sdk.scripting.CardNamePool
+import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
@@ -1494,13 +1495,27 @@ data class MoveCollectionEffect(
      */
     val attachTo: EffectTarget? = null,
     /**
+     * For a move onto the battlefield without [attachTo]: narrows the host each Aura card's
+     * controller chooses as it enters (CR 303.4f) to permanents that also match this filter, "you"
+     * being the effect's controller — "return any number of Aura cards … attached to creatures you
+     * control" (Storm Herald), "only creatures can be enchanted this way" (Retether). Each Aura still
+     * needs a host its own enchant ability allows; one with no host in the intersection stays where
+     * it is (CR 303.4g). Null (the default) offers every host the Aura's enchant ability allows.
+     */
+    val auraHostFilter: GameObjectFilter? = null,
+    /**
      * What each card put onto the battlefield [ZonePlacement.TappedAndAttacking] attacks. The
      * default, [EnteringAttackDefender.JOIN_SOURCE], joins a defending player already in this
      * combat; [EnteringAttackDefender.CONTROLLER_CHOOSES] is a bare "tapped and attacking" as
      * printed (CR 508.4) — the controller picks a defending player, a planeswalker one controls or
      * a battle one protects for each card, before any of them moves (Minion of the Mighty).
      */
-    val attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE
+    val attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE,
+    /**
+     * Characteristics each card moved to the battlefield has as it enters — "they enter as 5/5
+     * creatures in addition to their other types" (Dance of the Manse). See [EntersWithCharacteristics].
+     */
+    val entersWith: EntersWithCharacteristics? = null,
 ) : Effect {
     init {
         require(attackDefender != EnteringAttackDefender.RETURNED_ATTACKER) {
@@ -1510,6 +1525,9 @@ data class MoveCollectionEffect(
             attackDefender == EnteringAttackDefender.JOIN_SOURCE ||
                 (destination as? CardDestination.ToZone)?.placement == ZonePlacement.TappedAndAttacking
         ) { "attackDefender needs a ToZone destination with placement = TappedAndAttacking" }
+        require(auraHostFilter == null || attachTo == null) {
+            "auraHostFilter narrows a chosen host; attachTo names the host outright — set one, not both"
+        }
     }
 
     override val description: String = buildString {
@@ -1530,6 +1548,7 @@ data class MoveCollectionEffect(
         // (Safe Haven, Oblivion Ring's cousins). Dropping it from the generated text loses the
         // one detail that distinguishes it from a plain return to the battlefield.
         if (underOwnersControl) append(" under its owner's control")
+        auraHostFilter?.let { append(" attached to ${it.description}") }
         if (lookableInExile) append(". You may look at those cards for as long as they remain exiled")
     }
 }
@@ -1579,7 +1598,20 @@ enum class OptionType {
      * free text. Pair the stored name with [com.wingedsheep.sdk.scripting.predicates.CardPredicate.NameEqualsChosen]
      * to match cards by it. Used by "name a card" effects (Desperate Research, etc.).
      */
-    CARD_NAME
+    CARD_NAME;
+
+    /**
+     * The durable cast-choices slot a choice of this type is recorded under when
+     * [ChooseOptionEffect.recordOnSource] is set — the slot the matching `EntersWithChoice` writes.
+     */
+    val recordSlot: ChoiceSlot
+        get() = when (this) {
+            CREATURE_TYPE -> ChoiceSlot.CREATURE_TYPE
+            COLOR -> ChoiceSlot.COLOR
+            BASIC_LAND_TYPE -> ChoiceSlot.LAND_TYPE
+            CARD_TYPE -> ChoiceSlot.CARD_TYPE
+            CARD_NAME -> ChoiceSlot.CARD_NAME
+        }
 }
 
 /**
@@ -1598,6 +1630,13 @@ enum class OptionType {
  *   ("choose a nonland card name" — Cranial Extraction). Ignored for every other option type.
  * @property chooser Who makes the choice — the controller by default, or another player the text
  *   names: "target player chooses a card name" (Petra Sphinx) is [Chooser.TargetPlayer].
+ * @property recordOnSource Also record the choice **durably on the source permanent**, under the
+ *   option type's [ChoiceSlot] ([OptionType.recordSlot]) in its cast-choices bag — the same slot the
+ *   as-enters `EntersWithChoice` writes, replacing any prior value. For a choice made by a resolving
+ *   ability that a *later* resolution reads back ("II — Choose a card name. III — When you cast a
+ *   spell with the chosen name …", Medomai's Prophecy): read it with
+ *   `GameObjectFilter.namedFromChosenComponent()` / `.ofChosenCardTypeComponent()`. With no source
+ *   permanent on the battlefield nothing is recorded; the pipeline variable is stored either way.
  */
 @SerialName("ChooseOption")
 @Serializable
@@ -1607,7 +1646,8 @@ data class ChooseOptionEffect(
     val prompt: String? = null,
     val excludedOptions: List<String> = emptyList(),
     val cardNamePool: CardNamePool = CardNamePool.ANY,
-    val chooser: Chooser = Chooser.Controller
+    val chooser: Chooser = Chooser.Controller,
+    val recordOnSource: Boolean = false
 ) : Effect {
     override val description: String = buildString {
         append("Choose ")
@@ -1616,11 +1656,7 @@ data class ChooseOptionEffect(
             OptionType.COLOR -> "a color"
             OptionType.BASIC_LAND_TYPE -> "a basic land type"
             OptionType.CARD_TYPE -> "a card type"
-            OptionType.CARD_NAME -> when (cardNamePool) {
-                CardNamePool.ANY -> "a card name"
-                CardNamePool.NONLAND -> "a nonland card name"
-                CardNamePool.LAND -> "a land card name"
-            }
+            OptionType.CARD_NAME -> cardNamePool.nounPhrase
         })
     }
 }
@@ -1718,6 +1754,7 @@ data class EachPlayerChoosesCreatureTypeEffect(
  * @property requirement The target requirement (reuses all existing TargetRequirement types)
  * @property storeAs Name of the collection to store the selected target IDs in
  * @property prompt Optional player-facing prompt overriding the derived "Choose <requirement>"
+ * @property atRandom The engine picks one legal candidate uniformly at random instead of a player
  */
 @SerialName("SelectTarget")
 @Serializable
@@ -1746,9 +1783,24 @@ data class SelectTargetEffect(
      * before the choice is offered or auto-picked. A missing collection excludes nothing. Empty
      * leaves the choice unrestricted, as before.
      */
-    val excluding: List<String> = emptyList()
+    val excluding: List<String> = emptyList(),
+    /**
+     * `true` for "choose … at random" (Vial Smasher the Fierce's "choose an opponent at random"):
+     * the engine, not a player, picks uniformly among the legal candidates with the game's seeded
+     * RNG, presents no decision, and stores the pick in [storeAs] exactly like a chosen one — an
+     * empty collection when there is no candidate. Only a single, mandatory pick can be random, so
+     * the requirement must ask for exactly one target. Usually paired with [nonTargeting].
+     */
+    val atRandom: Boolean = false
 ) : Effect {
-    override val description: String = prompt ?: "Choose ${requirement.description}"
+    init {
+        require(!atRandom || requirement.requiresExactlyOneTarget) {
+            "atRandom picks exactly one candidate: ${requirement.description} must ask for exactly one, not optional"
+        }
+    }
+
+    override val description: String =
+        prompt ?: if (atRandom) "Choose ${requirement.description} at random" else "Choose ${requirement.description}"
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newRequirement = requirement.applyTextReplacement(replacer)
@@ -1942,6 +1994,17 @@ data class GrantMayPlayFromExileEffect(
      */
     val castColorCount: Int? = null,
     /**
+     * When set, the permission authorizes casting only spells that have at least one of these
+     * **card types**, checked — like [castColorRestriction] — against the face actually being cast
+     * rather than the card in exile. Models "you may cast it if it's a creature spell" (Vivien,
+     * Champion of the Wilds −2: an exiled Adventurer card's instant or sorcery Adventure is not a
+     * creature spell, so only its creature half is castable) and "an instant or sorcery spell"
+     * wording. A cast-time check only: it never stops a land play, so pair it with
+     * `nonLandOnly = true` for "cast" wording. Distinct from a `FilterCollection` over the exiled
+     * cards, which decides which cards get a permission at all.
+     */
+    val castSpellTypes: Set<com.wingedsheep.sdk.core.CardType>? = null,
+    /**
      * Caps how many plays the permission over the whole collection authorises; null (the default)
      * is unlimited. Each cast (or land play) of a granted card spends one, and the last one revokes
      * the grant for every card still in the group. `1` models "you may cast **an** instant or sorcery
@@ -1960,6 +2023,7 @@ data class GrantMayPlayFromExileEffect(
             "withAnyManaColor already lets all mana stand in for a color; spendAsAnyColor narrows it — set one"
         }
         require(maxPlays == null || maxPlays >= 1) { "maxPlays must be at least 1, or null for unlimited" }
+        require(castSpellTypes == null || castSpellTypes.isNotEmpty()) { "castSpellTypes must name a type, or be null for any spell" }
     }
 
     override val description: String = buildString {
@@ -1981,6 +2045,10 @@ data class GrantMayPlayFromExileEffect(
             else -> "those cards"
         }
         append("${expiry.description.replaceFirstChar { it.uppercase() }}, $who may $verb $what from exile")
+        if (castSpellTypes != null) {
+            val types = castSpellTypes.joinToString(" or ") { it.displayName.lowercase() }
+            append(" if it's ${if (types.first() in "aeiou") "an" else "a"} $types spell")
+        }
         if (castFaceIndex != null) append(" as its alternative face")
         if (fixedAlternativeCostIsManaValue) {
             append(if (waterbend) " by waterbending {X} rather than paying their mana cost, where X is their mana value"
@@ -2099,16 +2167,25 @@ data class ConditionalOnCollectionEffect(
  *   your next turn, you may play those cards … without paying their mana costs" (Ignite the
  *   Future). A non-turn-keyed expiry ([MayPlayExpiry.Permanent], the source-keyed ones) never
  *   expires at cleanup: the paired permission's own revocation is what ends the play.
+ * @property ownerControls When true, each card's waiver belongs to its *owner* rather than the
+ *   effect's controller (a turn-keyed [expiry] then follows that owner's turns) — "its owner may
+ *   cast it without paying its mana cost" (Release to the Wind). Pair with a
+ *   [GrantMayPlayFromExileEffect] that also sets `ownerControls`.
  */
 @SerialName("GrantPlayWithoutPayingCost")
 @Serializable
 data class GrantPlayWithoutPayingCostEffect(
     val from: String,
-    val expiry: MayPlayExpiry = MayPlayExpiry.EndOfTurn
+    val expiry: MayPlayExpiry = MayPlayExpiry.EndOfTurn,
+    val ownerControls: Boolean = false
 ) : Effect {
-    override val description: String =
-        if (expiry == MayPlayExpiry.EndOfTurn) "Until end of turn, you may play those cards without paying their mana costs"
-        else "You may play those cards without paying their mana costs ${expiry.description}"
+    override val description: String = when {
+        ownerControls && expiry == MayPlayExpiry.EndOfTurn ->
+            "Until end of turn, its owner may play that card without paying its mana cost"
+        ownerControls -> "Its owner may play that card without paying its mana cost ${expiry.description}"
+        expiry == MayPlayExpiry.EndOfTurn -> "Until end of turn, you may play those cards without paying their mana costs"
+        else -> "You may play those cards without paying their mana costs ${expiry.description}"
+    }
 }
 
 /**

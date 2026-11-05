@@ -249,12 +249,13 @@ export function applyManaPoolToCost(
     const idx = remaining.findIndex((s) => /^\d+$/.test(s))
     if (idx < 0) break
     const value = parseInt(remaining[idx]!, 10)
-    if (value > 1) {
-      remaining[idx] = String(value - 1)
+    const paid = Math.min(generic, value)
+    if (value > paid) {
+      remaining[idx] = String(value - paid)
     } else {
       remaining.splice(idx, 1)
     }
-    generic--
+    generic -= paid
   }
 
   return remaining

@@ -39,13 +39,23 @@ class CabarettiCourtyardScenarioTest : FunSpec({
         game.getLifeTotal(you) shouldBe 21
     }
 
-    test("a library with only a disallowed basic offers no search choice but still gains life") {
+    test("a disallowed-only library keeps the private search prompt and gains life after failing to find") {
         val game = driver(Deck.of("Island" to 40))
         val you = game.player1
         val card = game.putCardInHand(you, "Cabaretti Courtyard")
         game.playLand(you, card).error shouldBe null
         game.bothPass()
         game.bothPass()
+
+        // The presence of a search question must not reveal whether the hidden library matched.
+        val decision = game.pendingDecision.shouldBeInstanceOf<SelectCardsDecision>()
+        decision.librarySearch shouldBe true
+        decision.options shouldBe emptyList()
+        decision.minSelections shouldBe 0
+        decision.maxSelections shouldBe 0
+        game.getLifeTotal(you) shouldBe 20
+        game.submitCardSelection(you, emptyList()).error shouldBe null
+        while (game.state.stack.isNotEmpty() && !game.isPaused) game.bothPass()
 
         game.pendingDecision shouldBe null
         game.findPermanent(you, "Island") shouldBe null

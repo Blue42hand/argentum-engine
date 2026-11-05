@@ -73,6 +73,21 @@ internal class CardSelectionValue private constructor(
         return if (card.isLand) landScore(cardId, card) else spellScore(cardId, card)
     }
 
+    /**
+     * Short of lands: some spell in hand costs more than the lands in play and in hand add up to,
+     * so the next land drawn is mana a held card is waiting on. The same reach
+     * `CardAdvantage` reads to tell a land in hand worth a card from a surplus one
+     * ([AiProfile.surplusLandsReadTheHand]).
+     */
+    val landShort: Boolean
+        get() = handSpells.any { it.second.manaValue > landsInPlay + handLands.size }
+
+    /** The mean [score] of the player's library cards — what a random draw is worth; 0 when it is empty. */
+    fun averageDraw(): Double {
+        val library = state.getZone(playerId, Zone.LIBRARY)
+        return if (library.isEmpty()) 0.0 else library.sumOf { score(it) } / library.size
+    }
+
     /** Turns until [card] is castable on mana alone, given what is coming. Exposed for tests. */
     internal fun turnsUntilCastable(cardId: EntityId, card: CardComponent): Double {
         val otherHandLands = handLands.filter { it.first != cardId }

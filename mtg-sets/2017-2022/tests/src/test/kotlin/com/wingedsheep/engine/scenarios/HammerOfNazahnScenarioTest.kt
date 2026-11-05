@@ -83,8 +83,7 @@ class HammerOfNazahnScenarioTest : ScenarioTestBase() {
     private fun leaveTrigger(game: TestGame, name: String = source) {
         cast(game, name)
         game.resolveStack().forEach { it.error shouldBe null }
-        game.state.pendingDecision.shouldBeInstanceOf<YesNoDecision>()
-        game.answerYesNo(true).error shouldBe null
+        // Targets are announced when the trigger is stacked; consent is asked at resolution.
         val targets = game.state.pendingDecision.shouldBeInstanceOf<ChooseTargetsDecision>()
         targets.targetRequirements.single().minTargets shouldBe 1
         targets.legalTargets[0]!!.contains(game.findPermanent("Centaur Courser")) shouldBe true

@@ -32,7 +32,9 @@ class GameGymEnvMulliganTest : FunSpec({
                 skipMulligans = skipMulligans,
                 startingPlayerIndex = 0,
                 seed = 20261019L
-            )
+            ),
+            perspectivePlayerIndex = 0,
+            defaultRevealAll = false,
         )
         return gym
     }

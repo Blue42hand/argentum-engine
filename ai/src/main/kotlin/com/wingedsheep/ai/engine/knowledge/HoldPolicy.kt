@@ -1,5 +1,8 @@
 package com.wingedsheep.ai.engine.knowledge
 
+import com.wingedsheep.sdk.scripting.costs.CostAtom
+import com.wingedsheep.sdk.scripting.AbilityCost
+import com.wingedsheep.ai.engine.evaluation.SynergyPresence
 import com.wingedsheep.ai.engine.evaluation.EvaluationWeights
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
@@ -16,9 +19,12 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.state.components.stack.TargetsComponent
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.ModalEffect
 
 /**
  * "Is this the window for this card?" — the timing half of Phase 6.
@@ -51,6 +57,17 @@ class HoldPolicy(
      * which is where the whole idea lives.
      */
     private val holdRemovalForBetterTargets: Boolean = false,
+    /**
+     * [com.wingedsheep.ai.engine.AiProfile.payoffsReadTheirFuel]: under [holdRemovalForBetterTargets],
+     * a payoff's fuel counts toward whether it is worth the removal spell.
+     */
+    private val payoffsReadTheirFuel: Boolean = false,
+    /**
+     * Under [holdRemovalForBetterTargets], a creature's recurring growth and repeatable production
+     * ([com.wingedsheep.ai.engine.evaluation.GrowthPotential]) count toward whether it is worth the
+     * removal spell — Kiora of Fire and Ashes on nine lands is not a 2/2.
+     */
+    private val removalWorthReadsGrowth: Boolean = false,
     /**
      * [AiProfile.holdCountersForBetterSpells][com.wingedsheep.ai.engine.AiProfile.holdCountersForBetterSpells]
      * — charge a counterspell for answering a spell smaller than what the caster can still deploy.
@@ -140,6 +157,28 @@ class HoldPolicy(
      */
     private val tapToGrowAtTheirEndStep: Boolean = false,
     /**
+     * [AiProfile.tapToPingAtTheirEndStep][com.wingedsheep.ai.engine.AiProfile.tapToPingAtTheirEndStep]
+     * — hold a creature's "{T}: deal damage to each opponent" for the window where the tap costs
+     * no attack and no block. See [SelfTapPingWindow].
+     */
+    private val tapToPingAtTheirEndStep: Boolean = false,
+    /**
+     * [AiProfile.borrowedCreaturesGoHome][com.wingedsheep.ai.engine.AiProfile.borrowedCreaturesGoHome]
+     * — refuse an until-end-of-turn steal once the turn has no fight left for the borrowed creature
+     * ([ExpiringGrantWindow], `PayoffKind.BORROW`).
+     */
+    private val borrowedCreaturesGoHome: Boolean = false,
+    /**
+     * [AiProfile.castBansDenyTheirTurn][com.wingedsheep.ai.engine.AiProfile.castBansDenyTheirTurn]
+     * — reward a cast ban where it denies an opponent a whole turn of casting ([CastBanWindow]).
+     */
+    private val castBansDenyTheirTurn: Boolean = false,
+    /**
+     * [AiProfile.forcedAttacksOnTheirTurn][com.wingedsheep.ai.engine.AiProfile.forcedAttacksOnTheirTurn]
+     * — reward a forced attack where it makes an opponent attack this turn ([ForcedAttackWindow]).
+     */
+    private val forcedAttacksOnTheirTurn: Boolean = false,
+    /**
      * The profile's `EvaluationWeights.boardPresence`, so [RemovalPatience] can quote its discount
      * in the same currency as the board value it compares against. The default is the compiled
      * fallback's, which is what every profile that does not opt in would have used anyway.
@@ -151,7 +190,15 @@ class HoldPolicy(
      * declines.
      */
     private val legalActions: ((GameState, EntityId) -> List<LegalAction>)? = null,
+    /**
+     * [AiProfile.holdRemovalForUnseenThreats][com.wingedsheep.ai.engine.AiProfile.holdRemovalForUnseenThreats]
+     * — the opponents' decklists, so [RemovalPatience] can raise its bar for the creatures they
+     * have not drawn yet ([UnseenThreats]). Null reads the board alone.
+     */
+    private val opponentKnowledge: com.wingedsheep.ai.engine.hidden.OpponentKnowledge? = null,
 ) {
+    private val synergy = SynergyPresence(intents)
+    private val unseenThreats = opponentKnowledge?.let { UnseenThreats(it, intents) }
 
     /** Whether this policy can say anything. False when the agent has no card knowledge. */
     val isEnabled: Boolean get() = intents.isEnabled
@@ -190,7 +237,9 @@ class HoldPolicy(
             .takeIf { it !is TimingVerdict.Neutral }
             ?.let { return it }
 
-        val intent = intents.forName(cardName) ?: return TimingVerdict.Neutral
+        // A modal cast is read off the modes it chose, not the union the card carries in hand.
+        val intent = (if (cast != null) intents.forCast(cardName, cast) else intents.forName(cardName))
+            ?: return TimingVerdict.Neutral
 
         // A permanent whose entry has nothing to point at — or an Aura whose entry is gated on a
         // creature it is not being cast onto — does nothing in any window. Nor does a sweep over
@@ -206,6 +255,53 @@ class HoldPolicy(
                     UnspendableManaGrant.holds(state, playerId, definition, leaf, legalActions))
             ) {
                 return TimingVerdict.NoWindow
+            }
+            // An end-of-turn shrink with no fight left to shrink — the spell twin of the
+            // activation reading in [activationVerdictFor].
+            val resolves = definition?.let { castEffects(it, cast) }
+            // So does a keyword granted until end of turn (Jump's flying) with no fight left to
+            // spend it in. A combat trick keeps its own reading in [windowVerdictFor].
+            if (resolves != null && ExpiringGrantWindow.castBuysNothing(
+                    state, playerId, resolves, cast.targets + cast.modeTargetsOrdered.flatten(), intents,
+                    readKeywordGrants = refuseUnspendableGrants && IntentTag.COMBAT_TRICK !in intent.tags,
+                    fightMustBeOn = intent.speed == Speed.INSTANT && state.stack.isEmpty(),
+                )
+            ) {
+                return TimingVerdict.NoWindow
+            }
+        }
+        // A creature borrowed until end of turn after the turn's last fight goes home unused.
+        if (borrowedCreaturesGoHome && cast != null) {
+            val resolves = intents.definition(cardName)?.let { castEffects(it, cast) }
+            if (resolves != null && ExpiringGrantWindow.castBuysNothing(
+                    state, playerId, resolves, cast.targets + cast.modeTargetsOrdered.flatten(), intents,
+                    readBorrows = true, readShrinks = refuseWastedPayoffs,
+                )
+            ) {
+                return TimingVerdict.NoWindow
+            }
+        }
+
+        // A ban on an opponent's spells, where it covers their whole turn: the board score sees only
+        // the card spent, so name the window. An instant (Silence in their upkeep) is cast there
+        // outright; a sorcery (Sphinx's Decree) only with mana nothing else wants this turn.
+        if (castBansDenyTheirTurn && cast != null && IntentTag.CAST_BAN in intent.tags) {
+            val definition = intents.definition(cardName)
+            if (definition != null && CastBanWindow.deniesATurn(state, playerId, definition)) {
+                return TimingVerdict.Adjust(
+                    CAST_BAN_WINDOW, reason = "ban denies their turn", onlyWhenIdle = intent.speed != Speed.INSTANT,
+                )
+            }
+        }
+
+        // "Creatures target opponent controls attack this turn if able", on their turn before they
+        // attack: the only window "this turn" holds an attack of theirs at all.
+        if (forcedAttacksOnTheirTurn && cast != null && IntentTag.FORCED_ATTACK in intent.tags) {
+            val definition = intents.definition(cardName)
+            if (definition != null && ForcedAttackWindow.forcesAnAttack(state, playerId, definition, cast.targets.mapNotNull { (it as? ChosenTarget.Player)?.playerId })) {
+                return TimingVerdict.Adjust(
+                    FORCED_ATTACK_WINDOW, reason = "forces their attack", onlyWhenIdle = intent.speed != Speed.INSTANT,
+                )
             }
         }
 
@@ -236,6 +332,19 @@ class HoldPolicy(
     }
 
     /**
+     * What [cast] resolves: the spell's effect, or for a modal spell the modes it chose. Null for a
+     * shape this does not read — a split or adventure face, a fused cast, or a modal spell cast
+     * without its modes named.
+     */
+    private fun castEffects(definition: CardDefinition, cast: CastSpell): List<Effect>? {
+        if (cast.faceIndex != null || cast.castFused || definition.cardFaces.isNotEmpty()) return null
+        val effect = definition.script.spellEffect ?: return null
+        if (effect !is ModalEffect) return listOf(effect)
+        if (cast.chosenModes.isEmpty()) return null
+        return cast.chosenModes.map { effect.modes.getOrNull(it)?.effect ?: return null }
+    }
+
+    /**
      * The patience discount for [cast], or `0.0` when the flags are off or the shape doesn't fit.
      *
      * The two bars are summed rather than chosen between, which costs nothing: each declines on the
@@ -252,7 +361,12 @@ class HoldPolicy(
         val card = state.getEntity(cast.cardId)?.get<CardComponent>() ?: return 0.0
 
         val removal = if (holdRemovalForBetterTargets) {
-            RemovalPatience.discount(state, playerId, intent, card, cast.targets, boardPresenceWeight)
+            RemovalPatience.discount(
+                state, playerId, intent, card, cast.targets, boardPresenceWeight,
+                synergy = if (payoffsReadTheirFuel) synergy else null,
+                growth = if (removalWorthReadsGrowth) intents.growth else null,
+                unseenThreats = unseenThreats,
+            )
         } else {
             0.0
         }
@@ -286,12 +400,20 @@ class HoldPolicy(
     ): TimingVerdict {
         if (activation == null) return TimingVerdict.Neutral
         if (!(holdExpiringGrantsForCombat || refuseUnspendableGrants || refuseDeadSearches ||
-                refuseEmptyPayoffs || drawWithIdleMana || refuseWastedPayoffs || tapToGrowAtTheirEndStep)
+                refuseEmptyPayoffs || drawWithIdleMana || refuseWastedPayoffs || tapToGrowAtTheirEndStep ||
+                tapToPingAtTheirEndStep || forcedAttacksOnTheirTurn)
         ) {
             return TimingVerdict.Neutral
         }
         val ability = intents.activatedAbility(cardName, activation.abilityId)
             ?: return TimingVerdict.Neutral
+        if (forcedAttacksOnTheirTurn && ForcedAttackWindow.readsActivation(ability.effect)) {
+            return if (ForcedAttackWindow.forcesAnAttack(
+                    state, playerId, ability.effect,
+                    activation.targets.mapNotNull { (it as? ChosenTarget.Player)?.playerId },
+                )) TimingVerdict.Adjust(FORCED_ATTACK_WINDOW, reason = "forces their attack")
+            else TimingVerdict.NoWindow
+        }
         // A search that can find nothing is a lost permanent and a shuffle, in every window.
         if (refuseDeadSearches) {
             val predicates = intents.predicates
@@ -308,7 +430,11 @@ class HoldPolicy(
         if (tapToGrowAtTheirEndStep && SelfTapGrowthWindow.holds(state, playerId, ability, activation)) {
             return TimingVerdict.NoWindow
         }
-        if (!(holdExpiringGrantsForCombat || refuseUnspendableGrants || refuseWastedPayoffs)) {
+        // The same for damage to each opponent, unless that damage ends the game now.
+        if (tapToPingAtTheirEndStep && SelfTapPingWindow.holds(state, playerId, ability, activation)) {
+            return TimingVerdict.NoWindow
+        }
+        if (!(holdExpiringGrantsForCombat || refuseUnspendableGrants || refuseWastedPayoffs || borrowedCreaturesGoHome)) {
             return TimingVerdict.Neutral
         }
         val holds = ExpiringGrantWindow.holds(
@@ -319,14 +445,15 @@ class HoldPolicy(
             readShrinks = refuseWastedPayoffs,
             readRestrictions = refuseWastedPayoffs,
             lifelinkWaitsForBlocks = lifelinkWaitsForBlocks,
+            readBorrows = borrowedCreaturesGoHome,
         )
         return if (holds) TimingVerdict.NoWindow else TimingVerdict.Neutral
     }
 
     /**
-     * An instant-speed activation that only draws, judged under [drawWithIdleMana]: cashed at the
-     * opponent's end step, held everywhere before it while an instant-speed card in hand wants the
-     * mana. Null when the ability is not that shape or the hold does not apply.
+     * An instant-speed activation that only draws, scries or surveils ([ACTIVATION_FLOW_TAGS]), judged under
+     * [drawWithIdleMana]: cashed at the opponent's end step, held everywhere before it while an
+     * instant-speed card in hand wants the mana. Null when the ability is not that shape or the hold does not apply.
      *
      * The misplay (2026-10-11 logs, game 2 turn 11): Omashu City's "{4}, {T}, Sacrifice this land:
      * Draw a card" activated in our precombat main, tapping five of six lands while Pillar Launch
@@ -348,14 +475,64 @@ class HoldPolicy(
         ability: ActivatedAbility,
     ): TimingVerdict? {
         if (ability.isManaAbility || ability.timing != TimingRule.InstantSpeed) return null
-        if (CardIntentAnalyzer.analyzeEffect(ability.effect).tags != setOf(IntentTag.DRAW)) return null
+        if (createsTemporaryTrigger(ability.effect)) return null
+        val tags = CardIntentAnalyzer.analyzeEffect(ability.effect).tags
+        if (tags.isEmpty() || !tags.all { it in ACTIVATION_FLOW_TAGS }) return null
+        // A copy-and-cast (Isochron Scepter) also reads as DRAW, but the copy is a spell that wants
+        // its own window — an imprinted Fog in the opponent's combat — not the end step.
+        if (EffectWalker.payoffLeaves(ability.effect).any {
+                it is com.wingedsheep.sdk.scripting.effects.CopyCardIntoCollectionEffect ||
+                    it is com.wingedsheep.sdk.scripting.effects.CopyCollectionIntoCollectionEffect
+            }
+        ) return null
+        // A look at the top is worth about nothing on the board, so the window's bonus would decide
+        // alone: it may only spend what empties at cleanup anyway, never life or a permanent
+        // (Doom Whisperer's 2 life, Zahur's sacrifice). A draw is a card, worth its own price.
+        if (IntentTag.DRAW !in tags && !costsOnlyUntilCleanup(ability.cost)) return null
         if (isOpponentEndStep(state, playerId)) {
-            return TimingVerdict.Adjust(END_STEP_WINDOW, reason = "draw at their end step")
+            return TimingVerdict.Adjust(END_STEP_WINDOW, reason = "card flow at their end step")
         }
         if (state.stack.isNotEmpty()) return null
         if (!holdsInstantSpeedCard(state, playerId)) return null
         if (Patience.releasedOutright(state, state.projectedState, playerId)) return null
         return TimingVerdict.NoWindow
+    }
+
+    /**
+     * Whether the payoff waits on a trigger's event rather than landing on resolution: a temporary
+     * global trigger, or a triggered ability granted to a permanent (Ascendant Spirit's "whenever this
+     * deals combat damage to a player, draw a card" upgrade wants this turn's attack, not their end step).
+     */
+    private fun createsTemporaryTrigger(effect: com.wingedsheep.sdk.scripting.effects.Effect): Boolean =
+        EffectWalker.payoffLeaves(effect).any {
+            (it is com.wingedsheep.sdk.scripting.effects.CreateGlobalTriggeredAbilityEffect &&
+                it.duration != com.wingedsheep.sdk.scripting.Duration.Permanent) ||
+                it is com.wingedsheep.sdk.scripting.effects.GrantTriggeredAbilityEffect
+        }
+
+    /** Whether [cast] resolves a death-return grant — see [ExpiringGrantWindow.returnsFromDeathThisTurn]. */
+    private fun castReturnsFromDeath(state: GameState, cast: CastSpell?): Boolean {
+        if (cast == null) return false
+        val name = state.getEntity(cast.cardId)?.get<CardComponent>()?.name ?: return false
+        val definition = intents.definition(name) ?: return false
+        return castEffects(definition, cast)?.any { effect ->
+            EffectWalker.payoffLeaves(effect).any(ExpiringGrantWindow::returnsFromDeathThisTurn)
+        } == true
+    }
+
+    private fun castCreatesTemporaryTrigger(state: GameState, cast: CastSpell?): Boolean {
+        if (cast == null) return false
+        val name = state.getEntity(cast.cardId)?.get<CardComponent>()?.name ?: return false
+        val definition = intents.definition(name) ?: return false
+        return castEffects(definition, cast)?.any(::createsTemporaryTrigger) == true
+    }
+
+    /** Whether [cost] spends only mana and untapped permanents — what the turn's cleanup takes back anyway. */
+    private fun costsOnlyUntilCleanup(cost: AbilityCost): Boolean = when (cost) {
+        AbilityCost.Free, AbilityCost.Tap -> true
+        is AbilityCost.Atom -> cost.atom is CostAtom.Mana || cost.atom is CostAtom.TapPermanents
+        is AbilityCost.Composite -> cost.costs.all(::costsOnlyUntilCleanup)
+        else -> false
     }
 
     /**
@@ -381,9 +558,11 @@ class HoldPolicy(
     ): Boolean {
         if (cast == null) return false
         if (!intent.tags.all { it in CARD_FLOW_TAGS }) return false
-        if (intent.tags.isEmpty() && !intent.selectsIntoHand) return false
+        // A scry beside an unread payoff (a bounce, a discard) is a rider, not the spell's purpose.
+        if ((intent.tags - IntentTag.CARD_SELECTION).isEmpty() && !intent.selectsIntoHand) return false
         val card = state.getEntity(cast.cardId)?.get<CardComponent>() ?: return false
         if (card.typeLine.isPermanent) return false
+        if (intents.definition(card.name)?.script?.spellEffect?.let(::createsTemporaryTrigger) == true) return false
         if (intent.wishFilters.isNotEmpty() && !holdsWishableCard(state, playerId, intent)) return false
         return state.isActiveTurnFor(playerId) && state.step == Step.POSTCOMBAT_MAIN &&
             state.stack.isEmpty() && !holdsInstantSpeedCard(state, playerId)
@@ -467,6 +646,20 @@ class HoldPolicy(
                 else -> responseWindowFor(state, playerId, intent)
             }
 
+            // "Until end of turn, target creature gains 'when this creature dies, return it to its
+            // owner's hand'" (Verdant Rebirth, Feign Death): protection spent only if the creature
+            // dies this turn. On an empty stack outside a fight nothing can kill it before cleanup,
+            // so the grant is thrown away — and a cantrip's draw would otherwise pay for casting it
+            // there. Held for the removal it answers ([responseWindowFor]) or the fight its target
+            // is in; Patience's releases still let it go as a plain cantrip in a long game.
+            refuseUnspendableGrants && IntentTag.PROTECTION in intent.tags && castReturnsFromDeath(state, cast) -> when {
+                stackHasSomething -> responseWindowFor(state, playerId, intent)
+                cast!!.targets.any { (it as? ChosenTarget.Permanent)?.entityId?.let { id -> ExpiringGrantWindow.inFightNow(state, id) } == true } ->
+                    TimingVerdict.Neutral
+                Patience.releasedOutright(state, state.projectedState, playerId) -> TimingVerdict.Neutral
+                else -> TimingVerdict.NoWindow
+            }
+
             // A permanent with flash, deployed where the ambush window is still ahead of us.
             //
             // This is the one branch that returns a verdict on the *wrong* window rather than a
@@ -539,6 +732,7 @@ class HoldPolicy(
             // removal branch gives at length: rewarding the better window is a comparison, and
             // charging the worse one is a preference a constant cannot price.
             cashCantripsInTheEndStep && IntentTag.DRAW in intent.tags &&
+                !castCreatesTemporaryTrigger(state, cast) &&
                 isOpponentEndStep(state, playerId) -> TimingVerdict.Adjust(END_STEP_WINDOW)
 
             else -> TimingVerdict.Neutral
@@ -627,6 +821,10 @@ class HoldPolicy(
     private fun responseWindowFor(state: GameState, playerId: EntityId, pump: CardIntent): TimingVerdict {
         val projected = state.projectedState
         var unreadable = false
+        // A trick that also protects (hexproof, indestructible, regeneration, a dies-and-returns
+        // grant) can answer removal toughness is no defence against. Whether it answers *this* one
+        // (indestructible doesn't stop exile) is the simulation's call: no bonus, but no veto.
+        var protectable = false
 
         for (stackId in state.stack) {
             val container = state.getEntity(stackId) ?: continue
@@ -645,15 +843,29 @@ class HoldPolicy(
                     .filter { projected.getController(it) == playerId }
             }
 
-            // Null reach on a card we *did* read is destruction, exile or bounce — see
-            // [CardIntent.removalReach]. Toughness is no defence against any of them.
-            val reach = threat.removalReach ?: continue
+            // Null reach on a card we *did* read is destruction, exile or bounce — toughness is no
+            // defence against any of them — or a dynamic amount (X burn, a -X/-X) whose size the
+            // static reading cannot bound; see [CardIntent.removalReach]. No pump is priced against
+            // either — but a trick that also protects may still answer one ([protectable]).
+            val reach = threat.removalReach
+            val protects = IntentTag.PROTECTION in pump.tags && threat.tags.any { it in REMOVAL_TAGS }
+            if (reach == null) {
+                if (protects && victims.any { projected.isCreature(it) }) protectable = true
+                continue
+            }
             if (victims.any { savedByPump(state, projected, it, reach, pump) }) {
                 return TimingVerdict.Adjust(RESPONSE_WINDOW)
             }
+            // Burn that kills a creature its pump can't lift out of range (or a pump-less
+            // protection grant, Withstand Death against a Shock) may still be answered by the grant.
+            if (protects && victims.any { dyingTo(state, projected, it, reach) }) protectable = true
         }
 
-        return if (unreadable) TimingVerdict.Adjust(RESPONSE_WINDOW) else TimingVerdict.NoWindow
+        return when {
+            unreadable -> TimingVerdict.Adjust(RESPONSE_WINDOW)
+            protectable -> TimingVerdict.Neutral
+            else -> TimingVerdict.NoWindow
+        }
     }
 
     /**
@@ -671,10 +883,18 @@ class HoldPolicy(
         reach: Int,
         pump: CardIntent,
     ): Boolean {
-        if (!projected.isCreature(creature)) return false
-        val toughness = projected.getToughness(creature) ?: return false
-        val remaining = toughness - (state.getEntity(creature)?.get<DamageComponent>()?.amount ?: 0)
+        val remaining = remainingToughness(state, projected, creature) ?: return false
         return remaining <= reach && remaining + pump.pumpToughness > reach
+    }
+
+    /** Whether [creature] dies to [reach] damage — damage already marked counts (CR 704.5g). */
+    private fun dyingTo(state: GameState, projected: ProjectedState, creature: EntityId, reach: Int): Boolean =
+        remainingToughness(state, projected, creature)?.let { it <= reach } == true
+
+    private fun remainingToughness(state: GameState, projected: ProjectedState, creature: EntityId): Int? {
+        if (!projected.isCreature(creature)) return null
+        val toughness = projected.getToughness(creature) ?: return null
+        return toughness - (state.getEntity(creature)?.get<DamageComponent>()?.amount ?: 0)
     }
 
     /**
@@ -708,6 +928,19 @@ class HoldPolicy(
          */
         const val END_STEP_WINDOW = 1.5
 
+        /**
+         * The reward for an [IntentTag.CAST_BAN] cast where it denies an opponent a whole turn
+         * ([CastBanWindow]). Sized like [END_STEP_WINDOW]: both name the window a card is strictly
+         * better spent in, which the board score is blind to.
+         */
+        const val CAST_BAN_WINDOW = 1.5
+
+        /**
+         * The reward for an [IntentTag.FORCED_ATTACK] cast on the opponent's turn before they attack
+         * ([ForcedAttackWindow]) — sized like [CAST_BAN_WINDOW], for the same reason.
+         */
+        const val FORCED_ATTACK_WINDOW = 1.5
+
         val COMBAT_STEPS = setOf(
             Step.BEGIN_COMBAT, Step.DECLARE_ATTACKERS, Step.DECLARE_BLOCKERS,
             Step.FIRST_STRIKE_COMBAT_DAMAGE, Step.COMBAT_DAMAGE,
@@ -720,8 +953,11 @@ class HoldPolicy(
 
         val REMOVAL_TAGS = setOf(IntentTag.REMOVAL, IntentTag.EXILE_REMOVAL, IntentTag.SWEEPER)
 
-        /** Tags of a spell whose whole payoff is cards into hand — see [idleDrawWindow]. */
-        val CARD_FLOW_TAGS = setOf(IntentTag.DRAW, IntentTag.TUTOR)
+        /** Tags of a spell whose whole payoff is card flow — cards into hand, or a scry — see [idleDrawWindow]. */
+        val CARD_FLOW_TAGS = setOf(IntentTag.DRAW, IntentTag.TUTOR, IntentTag.CARD_SELECTION)
+
+        /** What [drawActivationVerdict] cashes at the opponent's end step: a draw, or a look at the top (scry, surveil). */
+        val ACTIVATION_FLOW_TAGS = setOf(IntentTag.DRAW, IntentTag.CARD_SELECTION)
 
         /** Our turn, attackers already declared — see [trickTargetSitsOutTheFight]. */
         val ATTACKERS_DECLARED_STEPS = setOf(

@@ -70,10 +70,13 @@ class CreateTokenCopyOfEquippedCreatureExecutor(
         val equippedCard = equippedContainer.copiableCardComponent()
             ?: return EffectResult.success(state)
 
-        val controllerId = context.controllerId
-
-        val (tokenId, stateWithId) = state.newEntity()
-        var newState = stateWithId
+        // "Created under your control instead" (Crafty Cutpurse) before any other token replacement.
+        val controllerId = when (val redirect = TokenCreationReplacementHelper.redirectController(
+            state, context.controllerId, context, effect, predicateEvaluator
+        )) {
+            is TokenControllerRedirect.Resolved -> redirect.controllerId
+            is TokenControllerRedirect.Ask -> return redirect.result
+        }
 
         // Copy the equipped creature's CardComponent. `isDoubleFaced` is cleared, not inherited:
         // a token is not a card (CR 111.1) — see CreateTokenCopyOfTargetExecutor.
@@ -82,6 +85,28 @@ class CreateTokenCopyOfEquippedCreatureExecutor(
         )
         val tokenCard = CopyExceptionApplier.apply(equippedCard, exceptions)
             .copy(ownerId = controllerId, isDoubleFaced = false)
+
+        // "If one or more tokens would be created under your control, that many … are created
+        // instead" (Holo-Engineer) replaces the copy too. "That token gains haste" still reaches
+        // the substitutes — they are the tokens the instruction created.
+        TokenCreationReplacementHelper.substituteIfReplaced(
+            state, tokenCard, controllerId, 1, context, effect,
+            predicateEvaluator, staticAbilityHandler, cardRegistry,
+        )?.let { substituted ->
+            if (!effect.grantHaste || substituted.outcome !is com.wingedsheep.engine.core.Outcome.Done) return substituted
+            var hasted = substituted.state
+            val hasteEvents = substituted.updatedCollections[com.wingedsheep.sdk.scripting.effects.CREATED_TOKENS].orEmpty()
+                .flatMap { tokenId ->
+                    val grant = GrantKeywordExecutor().execute(hasted,
+                        GrantKeywordEffect(Keyword.HASTE.name, EffectTarget.SpecificEntity(tokenId), Duration.Permanent), context)
+                    hasted = grant.state
+                    grant.events
+                }
+            return substituted.copy(state = hasted, events = substituted.events + hasteEvents)
+        }
+
+        val (tokenId, stateWithId) = state.newEntity()
+        var newState = stateWithId
 
         val components = mutableListOf<Component>(
             tokenCard,
@@ -113,7 +138,7 @@ class CreateTokenCopyOfEquippedCreatureExecutor(
         newState = TokenEntryReplacements.applyInheritedBundleRiders(newState, tokenId, state,
             controllerId, context, predicateEvaluator)
         newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
-            .place(newState, controllerId, tokenId, tokenCreatorId = context.controllerId)
+            .place(newState, controllerId, tokenId, tokenCreatorId = TokenCreationReplacementHelper.creatorId(context, context.controllerId))
 
         // Helm grants haste separately from its copy exception, so it survives face changes
         // without becoming part of the token's copiable text.
@@ -126,8 +151,8 @@ class CreateTokenCopyOfEquippedCreatureExecutor(
 
         // A token copy honors global "[filter] enter tapped" replacements (Authority of the
         // Consuls / Dauntless Dismantler on an opponent's token copy).
-        newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
-            .applyCreatedTokenEntryTap(newState, tokenId, controllerId, predicateEvaluator = predicateEvaluator, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context))
+        newState = TokenEntryReplacements
+            .applyEntryTap(newState, tokenId, controllerId, cardRegistry, predicateEvaluator = predicateEvaluator, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context))
 
         // As-enters "enters with counters" (CR 614.1c): the copied creature's own EntersWithCounters
         // (a copy of a creature that "enters with a +1/+1 counter") plus global grants from other
@@ -177,7 +202,7 @@ class CreateTokenCopyOfEquippedCreatureExecutor(
         // the token enters as a Saga with its on-enter lore counter. BattlefieldEntry.place skips
         // enters-with-counters setup, so apply the shared Saga-entry helper. No-op for non-Sagas.
         val (sagaState, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-            .applySagaEntryIfNeeded(newState, tokenId, predicateEvaluator)
+            .applySagaEntryIfNeeded(newState, tokenId, predicateEvaluator, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context))
 
         // CR 306.5b: the equipped creature can be a planeswalker card animated by its own ability
         // (Gideon Blackblade) — the copy keeps the printed planeswalker types and loyalty (copiable

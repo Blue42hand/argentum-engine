@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
 import type { YesNoDecision, ClientGameState } from '@/types'
 import { AbilityText } from '../ui/ManaSymbols'
@@ -15,6 +16,11 @@ const NOT_POSSIBLE = 'Not possible right now'
  * creatures in turn) — the subject this instance is about.
  *
  * Supports an optional hint (e.g., keyword reminder text) and a View Battlefield button.
+ *
+ * A pure "you may" of a card ability (`canRememberAnswer`) also offers "remember my answer": the
+ * answer is submitted as usual and set as an Always Yes / Always No yield on the ability, so every
+ * later copy resolves without asking. Revocable from the stack's yield menu or the Active yields
+ * panel.
  */
 export function YesNoDecisionUI({
   decision,
@@ -29,13 +35,24 @@ export function YesNoDecisionUI({
   // The server asks even when "yes" is impossible, so the question doesn't reveal hidden cards;
   // then "no" is the only answer and "yes" is shown disabled.
   const yesAvailable = decision.yesAvailable !== false
+  const setAbilityYield = useGameStore((s) => s.setAbilityYield)
+  const identity = decision.canRememberAnswer ? decision.context.abilityIdentity : null
+  const [remember, setRemember] = useState(false)
+
+  const answer = (choice: boolean) => {
+    // The yield goes first on the same socket, so it is in force before the answer is processed.
+    if (remember && identity) {
+      setAbilityYield(identity.cardDefinitionId, identity.abilityId, choice ? 'ALWAYS_ANSWER_YES' : 'ALWAYS_ANSWER_NO')
+    }
+    submitYesNoDecision(decision.id, choice)
+  }
 
   const handleYes = () => {
-    if (yesAvailable) submitYesNoDecision(decision.id, true)
+    if (yesAvailable) answer(true)
   }
 
   const handleNo = () => {
-    submitYesNoDecision(decision.id, false)
+    answer(false)
   }
 
   const cards = resolveDecisionCards(decision.context, gameState)
@@ -94,6 +111,18 @@ export function YesNoDecisionUI({
             <AbilityText text={decision.noText} size={16} />
           </button>
         </div>
+      )}
+
+      {identity && (
+        <label className={`${styles.rememberAnswer} ${remember ? styles.rememberAnswerOn : ''}`}>
+          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
+          <span>
+            Remember my answer — don’t ask again{decision.context.sourceName ? ` for ${decision.context.sourceName}` : ''}
+            <span className={styles.rememberAnswerHint}>
+              Every copy of this ability gets the same answer for the rest of the game. Undo it from Active yields.
+            </span>
+          </span>
+        </label>
       )}
     </>
   )

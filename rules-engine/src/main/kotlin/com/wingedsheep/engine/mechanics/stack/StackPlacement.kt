@@ -156,7 +156,7 @@ internal object StackPlacement {
         // Clone cast-time state; per 707.10 the copy inherits every decision made for
         // the original. The data-class copy preserves: xValue, declaredCostSlot (bar a granted offspring), wasBlightPaid,
         // wasWarped, wasEvoked, sacrificedPermanents (snapshots of P/T + subtypes), damageDistribution,
-        // chosenCreatureType, exiledCardCount, beheldCards, convokedCreatures (CR 707.10: an
+        // chosenCreatureType, exiledCardCount, beheldCards, convokedCreatures, tappedPermanents (CR 707.10: an
         // effect of the copy that refers to objects used to pay its costs uses the original's).
         // castFromZone is cleared: a copy isn't cast (707.10), so it wasn't cast from any zone —
         // "if this spell was cast from a graveyard" is false for it (Sevinne's Reclamation ruling).
@@ -208,7 +208,7 @@ internal object StackPlacement {
                         is ChosenTarget.Spell -> t.spellEntityId
                         is ChosenTarget.Card -> t.cardId
                     }
-                    sourceSpell.damageDistribution?.get(id(old))?.let { amount -> put(id(new), (get(id(new)) ?: 0) + amount) }
+                    sourceSpell.damageDistribution[id(old)]?.let { amount -> put(id(new), (get(id(new)) ?: 0) + amount) }
                 }
             }
         )
@@ -295,6 +295,7 @@ internal object StackPlacement {
         cantBeCopied: Boolean = false,
         isLoyalty: Boolean = false,
         loyaltyCountersRemoved: Int = 0,
+        sourceLastKnown: com.wingedsheep.engine.state.components.stack.EntitySnapshot? = null,
     ): ExecutionResult {
         val (abilityId, stateWithId) = state.newEntity()
 
@@ -331,6 +332,7 @@ internal object StackPlacement {
                     isLoyalty = isLoyalty,
                     loyaltyCountersRemoved = loyaltyCountersRemoved,
                     keyword = ability.activatedAbility?.keyword,
+                    sourceLastKnown = sourceLastKnown,
                 )
             )
         }

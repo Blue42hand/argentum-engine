@@ -280,6 +280,80 @@
     ]
 }
 
+// Beastmaster Ascension
+{
+    "name": "Beastmaster Ascension",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a creature you control attacks, you may put a quest counter on Beastmaster Ascension.\nAs long as Beastmaster Ascension has seven or more quest counters on it, creatures you control get +5/+5.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Beastmaster Ascension:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "AddCounters",
+                        "counterType": "QUEST",
+                        "count": 1,
+                        "target": "Self"
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 5,
+                    "toughnessBonus": 5,
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": {
+                            "type": "CounterCount",
+                            "counterType": "QUEST"
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "RARE",
+        "artist": "Alex Horley-Orlandelli",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/02d7ea78-d539-4c34-8bb3-941353e3da46.jpg?1783942137",
+        "rulings": [
+            {
+                "date": "2009-10-01",
+                "text": "If you attack with multiple creatures, Beastmaster Ascension's first ability triggers multiple times."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Blade of the Bloodchief
 {
     "name": "Blade of the Bloodchief",
@@ -519,6 +593,60 @@
         "imageUri": "https://cards.scryfall.io/normal/front/1/e/1e9d1ff2-9ce3-4737-af1d-9fc82e4dffe6.jpg?1783942128"
     },
     "colorIdentityOverride": []
+}
+
+// Blood Seeker
+{
+    "name": "Blood Seeker",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Vampire Shaman",
+    "oracleText": "Whenever a creature an opponent controls enters, you may have that player lose 1 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Blood Seeker:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:opponent",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "LoseLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "ControllerOfTriggeringEntity"
+                    },
+                    "descriptionOverride": "Whenever a creature an opponent controls enters, you may have that player lose 1 life."
+                },
+                "descriptionOverride": "Whenever a creature an opponent controls enters, you may have that player lose 1 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "artist": "Greg Staples",
+        "flavorText": "A drop now is all he needs to find you later.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/1/d1abc9e8-9ecf-4665-9ea5-ee18ab83c148.jpg?1783942157",
+        "rulings": [
+            {
+                "date": "2011-09-22",
+                "text": "Life loss is not the same as damage. Blood Seeker's ability will not cause creatures with bloodthirst to enter with +1/+1 counters."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
 }
 
 // Bloodchief Ascension

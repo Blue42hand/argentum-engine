@@ -24,7 +24,9 @@ import kotlin.reflect.KClass
  * "spells with the same mana value as that spell" fixes the triggering spell's mana value when
  * the trigger resolves. A chosen card name is frozen the same way: Academic Probation's
  * "opponents can't cast spells with the chosen name" reads the name out of the pipeline now, since
- * a later cast check has no pipeline to read it from.
+ * a later cast check has no pipeline to read it from. A [CantCastSpellsEffect.moreAllowed]
+ * allowance is fixed the same way: the ban binds once the player's spell count this turn reaches
+ * its count now plus the allowance (Irencrag Feat).
  */
 class CantCastSpellsExecutor(
     private val amounts: DynamicAmountEvaluator
@@ -47,10 +49,13 @@ class CantCastSpellsExecutor(
             is Duration.Permanent -> PlayerEffectRemoval.Permanent
             is Duration.EndOfYourNextTurn -> PlayerEffectRemoval.EndOfYourNextTurn
             is Duration.UntilYourNextTurn -> PlayerEffectRemoval.UntilYourNextTurn
+            is Duration.DuringAffectedPlayersNextTurn -> PlayerEffectRemoval.DuringYourNextTurn
             else -> PlayerEffectRemoval.EndOfTurn
         }
-        val expiresAfterTurn =
-            if (removeOn == PlayerEffectRemoval.EndOfYourNextTurn) state.turnNumber + 1 else null
+        val expiresAfterTurn = when (removeOn) {
+            PlayerEffectRemoval.EndOfYourNextTurn, PlayerEffectRemoval.DuringYourNextTurn -> state.turnNumber + 1
+            else -> null
+        }
 
         val spellFilter = lockIn(effect.spellFilter, state, context)
         val newState = targetIds.fold(state) { acc, targetId ->
@@ -61,7 +66,9 @@ class CantCastSpellsExecutor(
                     removeOn = removeOn,
                     sourceId = context.sourceId,
                     controllerId = context.controllerId,
-                    expiresAfterTurn = expiresAfterTurn
+                    expiresAfterTurn = expiresAfterTurn,
+                    activeFromSpellCount = effect.moreAllowed.takeIf { it > 0 }
+                        ?.let { (acc.playerSpellsCastThisTurn[targetId] ?: 0) + it }
                 )))
             }
         }

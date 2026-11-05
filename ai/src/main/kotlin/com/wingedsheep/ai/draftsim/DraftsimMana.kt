@@ -73,6 +73,18 @@ internal object DraftsimMana {
         return true
     }
 
+    /**
+     * Whether a deck making [allowed] can pay the colored pips of an activated ability's [cost]: a
+     * plain pip needs its colour, a hybrid either half; a Phyrexian pip (2 life) and a `{2/C}` pip
+     * (two generic) always can. Mirrors [com.wingedsheep.ai.engine.ActivationMana.payable].
+     */
+    fun activationPayable(cost: String, allowed: Collection<String>): Boolean =
+        SYMBOL.findAll(cost).all { m ->
+            val sym = m.groupValues[1].uppercase()
+            val colors = COLORS.filter { sym.contains(it) }
+            colors.isEmpty() || sym.contains('P') || sym.any { it.isDigit() } || colors.any { it in allowed }
+        }
+
     /** `offPipsInString(cost, A)` (`Uf`): hybrids with no allowed side + plain colored pips off A. */
     private fun offPipsInString(cost: String, allowed: Set<String>): Int {
         var n = 0
@@ -124,6 +136,23 @@ internal object DraftsimMana {
             else for (c in s.colors) plain[c] = (plain[c] ?: 0) + 1
         }
         return CastRequirement(plain, groups)
+    }
+
+    /**
+     * Each face's coloured requirement, for the castability weight ([DraftsimCastability]): what
+     * [castRequirement] reads, per face, less the symbols that never strand a spell — a Phyrexian pip
+     * (payable with life) and a `{2/G}` (payable with generic mana).
+     */
+    fun faceRequirements(cost: String): List<CastRequirement> = faces(cost).map { face ->
+        val plain = HashMap<String, Int>()
+        val groups = mutableListOf<List<String>>()
+        for (m in SYMBOL.findAll(face)) {
+            val raw = m.groupValues[1].uppercase()
+            val s = symbols("{$raw}").single()
+            if (s.phyrexian || s.colors.isEmpty() || raw.any { it.isDigit() }) continue
+            if (s.hybrid) groups += s.colors else for (c in s.colors) plain[c] = (plain[c] ?: 0) + 1
+        }
+        CastRequirement(plain, groups)
     }
 
     /**

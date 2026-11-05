@@ -181,11 +181,12 @@ class ReflexiveTriggerEffectExecutor(
             targetingSourceType = TargetingSourceType.TRIGGERED_ABILITY,
             // Carry granterId so the "may" feasibility check honors a granter-relative exclusion —
             // e.g. Dire Blunderbuss must NOT offer the sacrifice when the only artifact is the
-            // granting Equipment itself. Minimal context (granterId only) matches the actual
+            // granting Equipment itself. The same context (granterId + earlier picks) as the actual
             // selection path in SelectTargetPipelineExecutor, so feasibility and execution agree.
             pipelineContext = com.wingedsheep.engine.handlers.PredicateContext(
                 controllerId = context.controllerId,
-                granterId = context.granterId
+                granterId = context.granterId,
+                storedCollections = context.pipeline.storedCollections
             )
         ).any { candidate ->
             // Mirror the executor's earlier-pick exclusion, so feasibility and execution agree.
@@ -198,7 +199,7 @@ class ReflexiveTriggerEffectExecutor(
             BattlefieldFilterUtils.findMatchingOnBattlefield(
                 state, action.filter.youControl(), context, excludeSelfId = excludeId,
                 predicateEvaluator = predicateEvaluator
-            ).size >= action.count
+            ).count { com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.canBeSacrificed(state, it) } >= action.count
         }
         is ChooseActionEffect -> action.choices.any { choice ->
             checkFeasibility(state, context.controllerId, choice.feasibilityCheck, predicateEvaluator, manaSolver, publicOnly)
@@ -410,6 +411,8 @@ class ReflexiveTriggerEffectExecutor(
         is com.wingedsheep.sdk.scripting.references.Player.ActivePlayerFirst -> state.turnOrder
         is com.wingedsheep.sdk.scripting.references.Player.EachStartingWithYou ->
             state.turnOrderStartingWith(context.controllerId)
+        is com.wingedsheep.sdk.scripting.references.Player.EachStartingWithNextOpponent ->
+            state.turnOrderStartingWithNextOpponent(context.controllerId)
         is com.wingedsheep.sdk.scripting.references.Player.EachOpponent ->
             state.turnOrder.filter { it != context.controllerId }
         is com.wingedsheep.sdk.scripting.references.Player.EachOtherPlayer ->

@@ -2987,6 +2987,118 @@
     "colorIdentityOverride": []
 }
 
+// Myr Battlesphere
+{
+    "name": "Myr Battlesphere",
+    "manaCost": "{7}",
+    "typeLine": "Artifact Creature — Myr Construct",
+    "oracleText": "When this creature enters, create four 1/1 colorless Myr artifact creature tokens.\nWhenever this creature attacks, you may tap X untapped Myr you control. If you do, this creature gets +X/+0 until end of turn and deals X damage to the player or planeswalker it's attacking.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 7
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Myr Battlesphere:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 4
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Myr"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/1/8/182308b3-86e0-46d8-9104-95576a3d3921.jpg?1783941681",
+                    "artifactToken": true
+                }
+            },
+            {
+                "id": "Myr Battlesphere:2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "ControlledPermanents",
+                                "filter": "permanent Myr untapped ctrl:you"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": "ChooseAnyNumber",
+                            "storeSelected": "selected1",
+                            "prompt": "Tap any number of untapped Myr you control",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "TapUntapCollection",
+                            "collectionName": "selected1"
+                        },
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "VariableReference",
+                                "variableName": "selected1_count"
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": "Self"
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "VariableReference",
+                                "variableName": "selected1_count"
+                            },
+                            "target": {
+                                "type": "AttackedBy",
+                                "attacker": "Self"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever this creature attacks, you may tap X untapped Myr you control. If you do, this creature gets +X/+0 until end of turn and deals X damage to the player or planeswalker it's attacking."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "180",
+        "rarity": "RARE",
+        "artist": "Franz Vohwinkel",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/0/b0ae94ed-7314-470b-baba-f2f58bbc894a.jpg?1783941703",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "You choose the value for X as the last ability resolves. You can't choose a value for X that's greater than the number of untapped Myr you control."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "You can tap any untapped Myr you control as the last ability resolves, not just the Myr tokens you created with the first ability. This includes Myr that haven't been under your control since your most recent turn began."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "As the last ability resolves, you can tap untapped Myr you control even if Myr Battlesphere is no longer on the battlefield by then. If that has happened, Myr Battlesphere won't be able to get the +X/+0 bonus, but it will still deal X damage to the appropriate player or planeswalker."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Myrsmith
 {
     "name": "Myrsmith",
@@ -4146,6 +4258,62 @@
     ]
 }
 
+// Slice in Twain
+{
+    "name": "Slice in Twain",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target artifact or enchantment.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact|enchantment"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "127",
+        "rarity": "UNCOMMON",
+        "artist": "Efrem Palacios",
+        "flavorText": "\"The hypocrisy of these elves is thicker than steel—destroying 'unnatural metal' with their own enchanted swords.\"\n—Kara Vrist, Neurok agent",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/e/de9c572a-6dc0-432f-92e9-c52fb0efddb5.jpg?1783941716",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "If the target artifact or enchantment is an illegal target by the time Slice in Twain resolves, the entire spell doesn’t resolve. You won’t draw a card. If, on the other hand, the target is a legal target but isn’t destroyed (most likely because it has indestructible), you’ll draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Snapsail Glider
 {
     "name": "Snapsail Glider",
@@ -5054,6 +5222,67 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Turn to Slag
+{
+    "name": "Turn to Slag",
+    "manaCost": "{3}{R}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Turn to Slag deals 5 damage to target creature. Destroy all Equipment attached to that creature.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "DestroyAllEquipmentOnTarget",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "106",
+        "artist": "Zoltan Boros & Gabor Szikszai",
+        "flavorText": "\"If it wasn't a blackened, stinking, melted abomination before, it certainly is now.\"\n—Koth of the Hammer",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/66fd5b49-b4f2-40da-94d5-6d6fc69506f6.jpg?1783941721",
+        "rulings": [
+            {
+                "date": "2020-06-23",
+                "text": "Turn to Slag can target a creature that has no Equipment attached to it."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "If the target creature is an illegal target by the time Turn to Slag tries to resolve, the spell won't resolve. You won't destroy any Equipment."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 

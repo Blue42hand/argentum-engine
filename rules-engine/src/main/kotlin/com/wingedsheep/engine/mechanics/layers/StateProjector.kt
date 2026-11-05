@@ -14,6 +14,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
+import com.wingedsheep.engine.state.components.identity.copiableCardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownModeComponent
 import com.wingedsheep.engine.state.components.identity.RingBearerComponent
 import com.wingedsheep.engine.state.components.identity.ToxicComponent
@@ -111,18 +112,23 @@ class StateProjector {
                 // Disguise (CR 702.168a) and cloak (CR 701.58a) list one more: ward {2}. It is part
                 // of this characteristic-defining effect, not an ability of the card underneath,
                 // so it lives on the mode and ends the moment the permanent is turned face up.
+                // The effect that put it onto the battlefield face down may specify others instead
+                // (CR 708.2a) — Tezzeret, Cruel Machinist's "They're 5/5 artifact creatures".
+                // copiableCardComponent() is the one mapping of those face-down values; the copy
+                // effects, the client view and this base all read it.
+                val faceDownCard = container.copiableCardComponent()
                 val faceDownWard = container.get<FaceDownModeComponent>()?.mode?.faceDownWard
                 projectedValues[entityId] = MutableProjectedValues(
-                    power = 2,
-                    toughness = 2,
+                    power = faceDownCard?.baseStats?.basePower ?: 2,
+                    toughness = faceDownCard?.baseStats?.baseToughness ?: 2,
                     keywords = if (faceDownWard != null) {
                         mutableSetOf(Keyword.WARD.name)
                     } else {
                         mutableSetOf()
                     },
-                    colors = mutableSetOf(),
-                    types = mutableSetOf("CREATURE"),
-                    subtypes = mutableSetOf(),
+                    colors = faceDownCard?.colors?.mapTo(linkedSetOf()) { it.name } ?: mutableSetOf(),
+                    types = faceDownCard?.let { extractTypes(it) } ?: mutableSetOf("CREATURE"),
+                    subtypes = faceDownCard?.typeLine?.subtypes?.mapTo(linkedSetOf()) { it.value } ?: mutableSetOf(),
                     controllerId = container.get<ControllerComponent>()?.playerId,
                     isFaceDown = true
                 )
@@ -386,8 +392,10 @@ class StateProjector {
                 projectedValues[effect.sourceId]?.lostAllAbilities == true) continue
             // "Can't block" is a rules effect, not a characteristic: it applies once Layer 6 has
             // settled who still has which ability (CR 613.11), so a lose-all-abilities effect
-            // strips a static's restriction whatever the two timestamps are.
-            if (effect.modification is Modification.SetCantBlock) {
+            // strips a static's restriction whatever the two timestamps are. Zilortha's "lethal
+            // damage … is determined by their power" is the same kind of rules effect.
+            if (effect.modification is Modification.SetCantBlock ||
+                effect.modification is Modification.SetLethalDamageByPower) {
                 deferredCantBlock += effect to startedBeforeAbility
                 continue
             }
@@ -406,28 +414,6 @@ class StateProjector {
             effectApplicator.applyEffect(effect, state, projectedValues,
                 restrictionSurvivesSourceAbilityRemoval = startedBeforeAbility)
         }
-        // A static ability's effect exists only while its source has the ability (CR 604.2): a
-        // Craven Giant that lost all abilities can block, and so can a creature whose "can't
-        // block" came from an enchantment that lost its abilities. A restriction created by a
-        // resolved spell or ability is independent of anyone's abilities (CR 611.2a), as is one
-        // belonging to an effect that started applying before Layer 6 (CR 613.6).
-        for ((effect, startedBeforeAbility) in deferredCantBlock) {
-            if (effect.fromStaticAbility && !startedBeforeAbility &&
-                effect.sourceId !in staticRemoveAllAbilitiesSources && !gainedAfterRemoval(effect) &&
-                projectedValues[effect.sourceId]?.lostAllAbilities == true) continue
-            effectApplicator.applyEffect(withKeywordSetResolved(effect), state, projectedValues)
-        }
-        for ((effect, startedBeforeAbility) in deferredMustAttack) {
-            if (effect.fromStaticAbility && !startedBeforeAbility &&
-                effect.sourceId !in staticRemoveAllAbilitiesSources && !gainedAfterRemoval(effect) &&
-                projectedValues[effect.sourceId]?.lostAllAbilities == true) continue
-            effectApplicator.applyEffect(withKeywordSetResolved(effect), state, projectedValues)
-        }
-        for ((effect, startedBeforeAbility) in deferredCantAttack) {
-            effectApplicator.applyEffect(withKeywordSetResolved(effect), state, projectedValues,
-                restrictionSurvivesSourceAbilityRemoval = startedBeforeAbility)
-        }
-
         // Rule 122.1b: re-apply keyword counters after Layer 6.
         // Counters that grant a keyword are themselves abilities of the object. When a "loses
         // all abilities" effect (Layer 6) was applied above, those counter-granted keywords
@@ -522,6 +508,43 @@ class StateProjector {
 
         // Apply counters (layer 7d)
         effectApplicator.applyCounters(state, projectedValues)
+
+        // The deferred "can't block" / "can't attack" restrictions affect game rules, so they apply
+        // after all other continuous effects (CR 613.11) — once every characteristic is settled, P/T
+        // included — and a group that reads keywords or P/T is re-resolved here: Temur Charm's
+        // "creatures with power 3 or less can't block this turn" and Rumbling Ruin's frozen count
+        // keep tracking power as counters and pumps change it. A locked CR 613.6 group keeps its
+        // frozen set.
+        //
+        // A static ability's effect exists only while its source has the ability (CR 604.2): a
+        // Craven Giant that lost all abilities can block, and so can a creature whose "can't
+        // block" came from an enchantment that lost its abilities (likewise a Zilortha that lost
+        // its abilities no longer judges lethal damage by power). A restriction created by a
+        // resolved spell or ability is independent of anyone's abilities (CR 611.2a), as is one
+        // belonging to an effect that started applying before Layer 6 (CR 613.6).
+        fun withFinalSetResolved(effect: ContinuousEffect): ContinuousEffect {
+            val filter = effect.affectsFilter ?: return effect
+            if (!filterResolver.isKeywordDependentFilter(filter) &&
+                !filterResolver.isPowerToughnessDependentFilter(filter)) return effect
+            return effect.copy(affectedEntities = lockAffected(effect,
+                filterResolver.resolveAffectedEntities(state, effect.sourceId, filter, projectedValues, effect.controllerId)))
+        }
+        for ((effect, startedBeforeAbility) in deferredCantBlock) {
+            if (effect.fromStaticAbility && !startedBeforeAbility &&
+                effect.sourceId !in staticRemoveAllAbilitiesSources && !gainedAfterRemoval(effect) &&
+                projectedValues[effect.sourceId]?.lostAllAbilities == true) continue
+            effectApplicator.applyEffect(withFinalSetResolved(effect), state, projectedValues)
+        }
+        for ((effect, startedBeforeAbility) in deferredMustAttack) {
+            if (effect.fromStaticAbility && !startedBeforeAbility &&
+                effect.sourceId !in staticRemoveAllAbilitiesSources && !gainedAfterRemoval(effect) &&
+                projectedValues[effect.sourceId]?.lostAllAbilities == true) continue
+            effectApplicator.applyEffect(withFinalSetResolved(effect), state, projectedValues)
+        }
+        for ((effect, startedBeforeAbility) in deferredCantAttack) {
+            effectApplicator.applyEffect(withFinalSetResolved(effect), state, projectedValues,
+                restrictionSurvivesSourceAbilityRemoval = startedBeforeAbility)
+        }
 
         // Post-layer pass: grant CANT_BE_BLOCKED to creatures qualifying via
         // CantBeBlockedWhilePropertyAtMost (Tetsuko Umezawa, Fugitive; Stature, Size Shifter).
@@ -626,6 +649,7 @@ class StateProjector {
                 name = v.name,
                 keywords = v.keywords,
                 cantHaveKeywords = v.cantHaveKeywords,
+                grantedKeywordInstances = v.grantedKeywordInstances,
                 staticAbilities = v.staticAbilities.toList(),
                 staticAbilitySourceIds = v.staticAbilitySourceIds.toList(),
                 enchantmentRestrictions = v.enchantmentRestrictions.toList(),
@@ -637,6 +661,7 @@ class StateProjector {
                 isSuspected = v.isSuspected,
                 cantAttack = v.cantAttack,
                 attacksWithoutTapping = v.attacksWithoutTapping,
+                lethalDamageByPower = v.lethalDamageByPower,
                 canAttackAsThoughHasty = v.canAttackAsThoughHasty,
                 cantBlock = v.cantBlock,
                 cantBeTurnedFaceUp = v.cantBeTurnedFaceUp,
@@ -650,6 +675,7 @@ class StateProjector {
                 manaAbilityLifeTax = v.manaAbilityLifeTax,
                 lostAllAbilities = v.lostAllAbilities,
                 lostAllAbilitiesTimestamp = v.lostAllAbilitiesTimestamp,
+                keepsManaAbilities = v.keepsManaAbilities,
                 hasExileOnDeathAbility = v.hasExileOnDeathAbility,
                 basicLandTypesSetByEffect = v.basicLandTypesSetByEffect
             )
@@ -1043,19 +1069,11 @@ class StateProjector {
 
         // 2. Collect floating effects (from resolved spells like Giant Growth)
         for (floating in state.floatingEffects) {
-            if (floating.duration is Duration.WhileSourceTapped) {
-                val sourceId = floating.sourceId
-                if (sourceId == null || !state.getBattlefield().contains(sourceId) ||
-                    state.getEntity(sourceId)?.has<TappedComponent>() != true) {
-                    continue
-                }
-            }
-            if (floating.duration is Duration.WhileSourceTappedAndAffectedPowerAtMostSource) {
-                val sourceId = floating.sourceId
-                if (sourceId == null || !state.getBattlefield().contains(sourceId) ||
-                    state.getEntity(sourceId)?.has<TappedComponent>() != true) {
-                    continue
-                }
+            if ((floating.duration is Duration.WhileSourceTapped ||
+                    floating.duration is Duration.WhileSourceTappedAndAffectedPowerAtMostSource) &&
+                !GrantDurationGate.sourceTapped(state, floating)
+            ) {
+                continue
             }
             if (floating.duration is Duration.WhileSourceOnBattlefield) {
                 val sourceId = floating.sourceId
@@ -1074,13 +1092,10 @@ class StateProjector {
             }
             // Seasinger — both halves at once. The battlefield and tapped halves are checkable
             // here; the source-controller half joins WhileYouControlSource's post-Layer-2 sweep.
-            if (floating.duration is Duration.WhileYouControlSourceAndSourceTapped) {
-                val sourceId = floating.sourceId
-                if (sourceId == null || !state.getBattlefield().contains(sourceId) ||
-                    state.getEntity(sourceId)?.has<TappedComponent>() != true
-                ) {
-                    continue
-                }
+            if (floating.duration is Duration.WhileYouControlSourceAndSourceTapped &&
+                !GrantDurationGate.sourceTapped(state, floating)
+            ) {
+                continue
             }
             // "for as long as [the source Aura/Equipment] remains attached to it" — gate the whole
             // effect on the source still being on the battlefield (CR 611.2b). The per-affected
@@ -1180,7 +1195,7 @@ class StateProjector {
                         // comes back if that reverses. Distinct from the latching Duration.While…
                         // gates above.
                         sourceCondition = floating.effect.sourceCondition,
-                        // "for as long as you control it" (e.g. suspend haste — CR 702.62g):
+                        // "for as long as you control it" (e.g. suspend haste — CR 702.62a):
                         // the gate is applied after Layer 2, against the projected controller,
                         // so the effect drops the instant another player gains control.
                         controllerGate = if (floating.duration is Duration.WhileControlledByController) {

@@ -85,7 +85,7 @@ export interface GameplaySliceActions {
   submitOptionDecision: (decisionId: string, optionIndex: number) => void
   submitReplacementDecision: (decisionId: string, fromIndex: number, toIndex: number) => void
   submitBudgetModalDecision: (decisionId: string, selectedModeIndices: readonly number[]) => void
-  submitFlipThrow: (decisionId: string, aimX: number, aimY: number, strength: number, sway: number) => void
+  submitFlipThrow: (decisionId: string, velocityX: number, velocityY: number, spin: number) => void
   submitDistributeDecision: (decisionId: string, distribution: Record<EntityId, number>) => void
   submitDamageAssignmentDecision: (decisionId: string, assignments: Record<EntityId, number>) => void
   submitCombatResolutionDecision: (decisionId: string, edges: ReadonlyArray<{ edgeId: string; amount: number }>) => void
@@ -123,6 +123,8 @@ export interface GameplaySliceActions {
   setError: (error: ErrorState) => void
   clearError: () => void
   dismissAutoAnswerNotice: () => void
+  triggerOrderNotice: { key: number; count: number } | null
+  dismissTriggerOrderNotice: () => void
 }
 
 export type GameplaySlice = GameplaySliceState & GameplaySliceActions
@@ -153,6 +155,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
   spectatorNames: [],
   autoAnswerNotice: null,
   autoAnswerPending: false,
+  triggerOrderNotice: null,
 
   // Actions
   createGame: (deckList, setCode) => {
@@ -390,7 +393,7 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
     get().submitAction(action, decisionInteractionEpoch(action.response.decisionId))
   },
 
-  submitFlipThrow: (decisionId, aimX, aimY, strength, sway) => {
+  submitFlipThrow: (decisionId, velocityX, velocityY, spin) => {
     const { pendingDecision } = get()
     if (!pendingDecision || pendingDecision.id !== decisionId || pendingDecision.type !== 'FlipOntoBattlefieldDecision') return
 
@@ -402,7 +405,11 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
       sourceImageUri: pendingDecision.flippedImageUri,
       flipperId: pendingDecision.playerId,
       isYours: true,
-      aim: { x: aimX, y: aimY, strength },
+      // Where the flick carries before spin and scatter: the flight heads there until the landing arrives.
+      aim: {
+        x: pendingDecision.table.handX + velocityX * pendingDecision.release.flightTime,
+        y: pendingDecision.table.handY + velocityY * pendingDecision.release.flightTime,
+      },
       result: null,
       startedAt: Date.now(),
     })
@@ -412,10 +419,9 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
       response: {
         type: 'FlipThrowResponse' as const,
         decisionId,
-        aimX,
-        aimY,
-        strength,
-        sway,
+        velocityX,
+        velocityY,
+        spin,
       },
     }
     get().submitAction(action, decisionInteractionEpoch(action.response.decisionId))
@@ -738,4 +744,5 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
   },
 
   dismissAutoAnswerNotice: () => set({ autoAnswerNotice: null }),
+  dismissTriggerOrderNotice: () => set({ triggerOrderNotice: null }),
 })

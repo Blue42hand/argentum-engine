@@ -20,6 +20,7 @@ import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.sdk.model.CardLayout
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.engine.state.permissions.MayPlayPermission
+import com.wingedsheep.engine.state.permissions.StaticMayPlayGrants
 import com.wingedsheep.engine.mechanics.AlternativeFaceCasts
 import com.wingedsheep.engine.mechanics.ModalDfcCasts
 import com.wingedsheep.engine.core.CastSpell
@@ -551,9 +552,13 @@ class CastFromZoneEnumerator(
         val exileCandidates = state.turnOrder.flatMap { pid -> state.getExile(pid).map { it to "EXILE" } }
         val graveyardCandidates = state.turnOrder.flatMap { pid -> state.getGraveyard(pid).map { it to "GRAVEYARD" } }
         // "You may play a card you own from outside the game this turn" (Wish): the player's own
-        // sideboard (CR 400.11a) under a stored permission. Only their own — "a card you own".
-        // A Limited sideboard is the whole unplayed pool, so skip it outright without a grant.
-        val sideboardCandidates = if (state.mayPlayPermissions.none { it.controllerId == playerId }) emptyList()
+        // sideboard (CR 400.11a) under a stored permission, or under a static grant reaching it (The
+        // Holodeck). Only their own — "a card you own". A Limited sideboard is the whole unplayed
+        // pool, so skip it outright without a grant.
+        val sideboardCandidates = if (
+            state.mayPlayPermissions.none { it.controllerId == playerId } &&
+            !StaticMayPlayGrants.coversZone(state, playerId, Zone.SIDEBOARD, context.cardRegistry, context.conditionEvaluator)
+        ) emptyList()
         else state.getZone(ZoneKey(playerId, Zone.SIDEBOARD)).map { it to "SIDEBOARD" }
         for ((cardId, sourceZoneLabel) in exileCandidates + graveyardCandidates + sideboardCandidates) {
             val container = state.getEntity(cardId) ?: continue
@@ -620,12 +625,15 @@ class CastFromZoneEnumerator(
                             prepareFace?.manaCost?.colors ?: castDef?.colors ?: cardComponent.manaCost.colors,
                             cardId,
                         )
-                        if (permissions.none { it.authorizesSpellColors(castColors) }) {
-                            continue
-                        }
                         val castName = if (castDef != null && castDef !== cardDef) castDef.name else cardComponent.name
                         val effectiveScript = castDef?.script
                         val effectiveTypeLine = if (castDef != null && castDef !== cardDef) castDef.typeLine else cardComponent.typeLine
+                        // "Cast it if it's a creature spell" (Vivien, Champion of the Wilds) is the
+                        // same face-level check on card types: an Adventurer's instant half is not a
+                        // creature spell.
+                        if (permissions.none { it.authorizesSpell(castColors, effectiveTypeLine.cardTypes) }) {
+                            continue
+                        }
                         // The CastSpell this offer submits: the face index, or the modal-back selector.
                         fun castAction(free: Boolean = false): CastSpell =
                             if (option.modalBack != null) CastSpell(
@@ -735,7 +743,7 @@ class CastFromZoneEnumerator(
                         val blightCreatures = if (printedBlightOrPay != null) {
                             val projected = state.projectedState
                             projected.getBattlefieldControlledBy(playerId)
-                                .filter { projected.isCreature(it) && projected.canReceiveCounters(it) }
+                                .filter { projected.isCreature(it) && projected.canReceiveCounters(it, com.wingedsheep.sdk.core.CounterType.MINUS_ONE_MINUS_ONE) }
                         } else emptyList()
                         val blightPricing = if (cardDef != null) blightCreatures.firstOrNull()?.let { candidate ->
                             context.declaredCastPricing(castAction().copy(
@@ -3148,6 +3156,7 @@ class CastFromZoneEnumerator(
 
                     val kickLabel = when {
                         declaredSlot == ChoiceSlot.BARGAINED -> "Bargained"
+                        declaredSlot == ChoiceSlot.BOUGHT_BACK -> "Buyback"
                         // An unnamed optional additional cost names what it pays ("Sacrifice an artifact").
                         declaredSlot == ChoiceSlot.ADDITIONAL_COST_PAID ->
                             additionalCostKicker?.additionalCost?.description?.replaceFirstChar { it.uppercase() }

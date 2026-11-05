@@ -58,12 +58,6 @@ data class EffectContext(
      */
     val abilityIdentity: com.wingedsheep.sdk.scripting.AbilityIdentity? = null,
     /**
-     * The resolving triggered ability's leading "you may" was answered yes when its target was
-     * chosen ([com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent.consentAnsweredAtTargeting]).
-     * Consumed by the first `Gate.MayDecide` the effect reaches, which clears it for its branch.
-     */
-    val consentAnsweredAtTargeting: Boolean = false,
-    /**
      * The concrete ability captured at activation. Resolution must not rediscover it from a
      * source or grant that can change before resolving (including "retain this ability" copies).
      * Null for spells, triggers, and synthesized activations without an ActivatedAbility.
@@ -86,6 +80,13 @@ data class EffectContext(
      * synthesized abilities that carry no such restriction.
      */
     val sourceFaceChanges: Int? = null,
+    /**
+     * The source's untap clock as the resolving activated ability went on the stack
+     * ([com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent.sourceUntapCount]),
+     * stamped onto every floating effect it creates with a source-tapped duration. Null for spells,
+     * triggers and synthesized abilities, whose source-tapped effects gate on the tapped state alone.
+     */
+    val sourceUntapCount: Int? = null,
     /** Battlefield visit of the resolving ability's source. */
     val sourceBattlefieldTimestamp: Long? = null,
     /**
@@ -207,7 +208,7 @@ data class EffectContext(
     val modeTargetRequirementsOrdered: List<List<TargetRequirement>> = emptyList(),
     val modeTargetsOrdered: List<List<ChosenTarget>> = emptyList(),
     val modeTargetRequirements: Map<Int, List<TargetRequirement>> = emptyMap(),
-    /** Number of cards exiled as an additional cost (for ExileVariableCards) */
+    /** Number of cards exiled as an additional cost (for an exiling AdditionalCost.VariableCards) */
     val exiledCardCount: Int = 0,
     /** X chosen for [com.wingedsheep.sdk.scripting.AdditionalCost.BlightVariable] */
     val additionalCostBlightAmount: Int = 0,
@@ -662,7 +663,6 @@ data class EffectContext(
             controllerId = ability.controllerId,
             granterId = ability.granterId,
             abilityIdentity = ability.abilityIdentity,
-            consentAnsweredAtTargeting = ability.consentAnsweredAtTargeting,
             sourceFaceChanges = ability.sourceFaceChanges,
             sourceBattlefieldTimestamp = ability.sourceBattlefieldTimestamp,
             objectReferences = ability.objectReferences,

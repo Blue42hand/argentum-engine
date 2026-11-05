@@ -6,6 +6,7 @@ import com.wingedsheep.engine.state.components.identity.RoomFace
 import com.wingedsheep.engine.state.components.identity.RoomFaceId
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.mtg.sets.definitions.dsk.cards.UnholyAnnexRitualChamber
+import com.wingedsheep.mtg.sets.definitions.war.cards.GodEternalKefnet
 import com.wingedsheep.mtg.sets.definitions.woe.cards.VirtueOfLoyalty
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -40,6 +41,12 @@ class CardIntentAnalyzerTest : ScenarioTestBase() {
     )
 
     init {
+        test("a standing cast-from-graveyard permission reads as recursion and a graveyard payoff") {
+            val sarcophagus = cardRegistry.requireCard("Abandoned Sarcophagus")
+            CardIntentAnalyzer.analyze(sarcophagus).tags shouldContain IntentTag.RECURSION
+            GraveyardSynergy.isPayoff(sarcophagus) shouldBe true
+        }
+
         test("a repeatable tapper reads as a repeatable tapper") {
             val intent = intentOf("Icy Manipulator")
             intent.tags shouldContain IntentTag.TAPPER
@@ -51,13 +58,21 @@ class CardIntentAnalyzerTest : ScenarioTestBase() {
             }
         }
 
-        test("a mana rock is ramp, and is worth about a land") {
+        test("a team-wide can't-block or can't-be-blocked turn reads as an evasion grant") {
+            intentOf("Rumbling Ruin").tags shouldContain IntentTag.EVASION_GRANT
+            intentOf("Barrage of Boulders").tags shouldContain IntentTag.EVASION_GRANT
+            intentOf("Jace, Arcane Strategist").tags shouldContain IntentTag.EVASION_GRANT
+        }
+
+        test("a mana rock is ramp, and is worth about a land plus the card it can still cash in") {
             val intent = intentOf("Mind Stone")
             intent.tags shouldContain IntentTag.RAMP
             withClue("the draw ability sacrifices the rock, so it is not a repeatable engine") {
                 intent.repeatable shouldBe false
             }
-            intent.staticPriorValue shouldBeLessThan 1.0
+            withClue("a rock alone is the mana-source rung (0.7); the draw its sacrifice still holds is the one-shot rung") {
+                intent.staticPriorValue shouldBe 1.0
+            }
         }
 
         test("an anthem carries its per-creature bonus separately from its prior") {
@@ -158,6 +173,14 @@ class CardIntentAnalyzerTest : ScenarioTestBase() {
             intent.staticPriorValue shouldBe CardIntent.UNKNOWN.staticPriorValue
         }
 
+        test("copying a card to cast the copy reads as card advantage") {
+            // God-Eternal Kefnet: "copy that card and you may cast the copy" is an extra spell on
+            // top of the hand — a repeatable draw engine, not an unread blank.
+            val intent = CardIntentAnalyzer.analyze(GodEternalKefnet)
+            intent.tags shouldContain IntentTag.DRAW
+            intent.repeatable shouldBe true
+        }
+
         test("a Room's rules text lives on its faces, and the analyzer reads it") {
             // Top-level script is empty for a split card (CR 709) — reading only that priced this
             // repeatable draw engine as a vanilla enchantment, and the AI never cast it.
@@ -242,6 +265,24 @@ class CardIntentAnalyzerTest : ScenarioTestBase() {
                 IntentCatalog.NONE.forPermanent(
                     roomPermanent("Unholy Annex"), UnholyAnnexRitualChamber.name
                 ).shouldBeEmpty()
+            }
+        }
+
+        test("a delayed trigger reads as the effect it fires, minus the price of taking back its own") {
+            withClue("Cockatrice: the creature it blocked is destroyed at end of combat — removal, only later") {
+                intentOf("Cockatrice").tags shouldContain IntentTag.REMOVAL
+            }
+            withClue("Mishra's Bauble: the draw at the next upkeep is card draw") {
+                intentOf("Mishra's Bauble").tags shouldContain IntentTag.DRAW
+            }
+            for (name in listOf("Through the Breach", "Animate Dead", "Coalstoke Gearhulk", "Long River Lurker")) {
+                withClue("$name: sacrificing, exiling or blinking the creature it put in is its price, not removal") {
+                    intentOf(name).tags shouldNotContain IntentTag.REMOVAL
+                }
+            }
+            withClue("Tilonalli's Summoner: exiling \"those tokens\" it made at the end step is its price, not removal") {
+                intentOf("Tilonalli's Summoner").tags shouldNotContain IntentTag.REMOVAL
+                intentOf("Tilonalli's Summoner").tags shouldContain IntentTag.TOKEN_MAKER
             }
         }
 

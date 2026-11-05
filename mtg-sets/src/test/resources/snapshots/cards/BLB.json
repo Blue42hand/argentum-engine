@@ -1078,9 +1078,13 @@
                                 "condition": {
                                     "type": "Compare",
                                     "left": {
-                                        "type": "AggregateBattlefield",
-                                        "player": "EachOpponent",
-                                        "filter": "land"
+                                        "type": "GreatestAmongPlayers",
+                                        "players": "EachOpponent",
+                                        "inner": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "land"
+                                        }
                                     },
                                     "operator": "GT",
                                     "right": {
@@ -1127,9 +1131,13 @@
                                 "condition": {
                                     "type": "Compare",
                                     "left": {
-                                        "type": "AggregateBattlefield",
-                                        "player": "EachOpponent",
-                                        "filter": "creature"
+                                        "type": "GreatestAmongPlayers",
+                                        "players": "EachOpponent",
+                                        "inner": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "creature"
+                                        }
                                     },
                                     "operator": "GT",
                                     "right": {
@@ -3003,50 +3011,6 @@
     ]
 }
 
-// Charmed Sleep
-{
-    "name": "Charmed Sleep",
-    "manaCost": "{1}{U}{U}",
-    "typeLine": "Enchantment — Aura",
-    "oracleText": "Enchant creature\nWhen this Aura enters, tap enchanted creature.\nEnchanted creature doesn't untap during its controller's untap step.",
-    "script": {
-        "triggeredAbilities": [
-            {
-                "id": "Charmed Sleep:1",
-                "trigger": {
-                    "type": "ZoneChangeEvent",
-                    "to": "Battlefield"
-                },
-                "effect": {
-                    "type": "TapUntap",
-                    "target": "EnchantedCreature"
-                }
-            }
-        ],
-        "staticAbilities": [
-            {
-                "type": "GrantKeyword",
-                "keyword": "DOESNT_UNTAP"
-            }
-        ],
-        "auraTarget": {
-            "type": "TargetObject",
-            "filter": {
-                "baseFilter": "creature"
-            }
-        }
-    },
-    "metadata": {
-        "collectorNumber": "388",
-        "artist": "Titus Lunter",
-        "imageUri": "https://cards.scryfall.io/normal/front/7/d/7d171802-2604-45a5-a0f2-ab5afa1db5d5.jpg?1721428082",
-        "inBooster": false
-    },
-    "colorIdentityOverride": [
-        "BLUE"
-    ]
-}
-
 // Cindering Cutthroat
 {
     "name": "Cindering Cutthroat",
@@ -3425,52 +3389,6 @@
     },
     "colorIdentityOverride": [
         "BLACK"
-    ]
-}
-
-// Colossification
-{
-    "name": "Colossification",
-    "manaCost": "{5}{G}{G}",
-    "typeLine": "Enchantment — Aura",
-    "oracleText": "Enchant creature\nWhen this Aura enters, tap enchanted creature.\nEnchanted creature gets +20/+20.",
-    "script": {
-        "triggeredAbilities": [
-            {
-                "id": "Colossification:1",
-                "trigger": {
-                    "type": "ZoneChangeEvent",
-                    "to": "Battlefield"
-                },
-                "effect": {
-                    "type": "TapUntap",
-                    "target": "EnchantedCreature"
-                }
-            }
-        ],
-        "staticAbilities": [
-            {
-                "type": "ModifyStats",
-                "powerBonus": 20,
-                "toughnessBonus": 20
-            }
-        ],
-        "auraTarget": {
-            "type": "TargetObject",
-            "filter": {
-                "baseFilter": "creature"
-            }
-        }
-    },
-    "metadata": {
-        "collectorNumber": "392",
-        "rarity": "RARE",
-        "artist": "Johan Grenier",
-        "imageUri": "https://cards.scryfall.io/normal/front/c/2/c2cad902-ffd2-4bab-b114-b4b6df2ac6b3.jpg?1721428099",
-        "inBooster": false
-    },
-    "colorIdentityOverride": [
-        "GREEN"
     ]
 }
 
@@ -5980,109 +5898,6 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
-}
-
-// Fabled Passage
-{
-    "name": "Fabled Passage",
-    "manaCost": "",
-    "typeLine": "Land",
-    "oracleText": "{T}, Sacrifice this land: Search your library for a basic land card, put it onto the battlefield tapped, then shuffle. Then if you control four or more lands, untap that land.",
-    "script": {
-        "activatedAbilities": [
-            {
-                "id": "Fabled Passage:1",
-                "cost": {
-                    "type": "CostComposite",
-                    "costs": [
-                        "CostTap",
-                        "CostSacrificeSelf"
-                    ]
-                },
-                "effect": {
-                    "type": "Composite",
-                    "effects": [
-                        {
-                            "type": "GatherCards",
-                            "source": {
-                                "type": "FromZone",
-                                "zone": "Library",
-                                "filter": "basicland"
-                            },
-                            "storeAs": "gathered0",
-                            "search": true
-                        },
-                        {
-                            "type": "SelectFromCollection",
-                            "from": "gathered0",
-                            "selection": {
-                                "type": "ChooseUpTo",
-                                "count": {
-                                    "type": "Fixed",
-                                    "amount": 1
-                                }
-                            },
-                            "storeSelected": "selected1"
-                        },
-                        {
-                            "type": "MoveCollection",
-                            "from": "selected1",
-                            "destination": {
-                                "type": "ToZone",
-                                "zone": "Battlefield",
-                                "placement": "Tapped"
-                            },
-                            "storeMovedAs": "moved2"
-                        },
-                        "ShuffleLibrary",
-                        "EmitLibrarySearchedEvent",
-                        {
-                            "type": "Gated",
-                            "gate": {
-                                "type": "Gate.WhenCondition",
-                                "condition": {
-                                    "type": "Compare",
-                                    "left": {
-                                        "type": "AggregateBattlefield",
-                                        "player": "You",
-                                        "filter": "land"
-                                    },
-                                    "operator": "GTE",
-                                    "right": {
-                                        "type": "Fixed",
-                                        "amount": 4
-                                    }
-                                }
-                            },
-                            "then": {
-                                "type": "TapUntapCollection",
-                                "collectionName": "moved2",
-                                "tap": false
-                            }
-                        }
-                    ]
-                }
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "252",
-        "rarity": "RARE",
-        "artist": "Adam Paquette",
-        "flavorText": "Beyond Valley lies danger—and promise.",
-        "imageUri": "https://cards.scryfall.io/normal/front/8/8/8809830f-d8e1-4603-9652-0ad8b00234e9.jpg?1721427315",
-        "rulings": [
-            {
-                "date": "2020-06-23",
-                "text": "The land that you put onto the battlefield will be counted when determining whether you control four or more lands, but Fabled Passage will not."
-            },
-            {
-                "date": "2020-06-23",
-                "text": "If you control four or more lands, the basic land doesn't enter untapped; it enters tapped and then you untap it."
-            }
-        ]
-    },
-    "colorIdentityOverride": []
 }
 
 // Feather of Flight
@@ -19218,48 +19033,6 @@
     "colorIdentityOverride": [
         "BLACK",
         "RED"
-    ]
-}
-
-// Thieving Otter
-{
-    "name": "Thieving Otter",
-    "manaCost": "{2}{U}",
-    "typeLine": "Creature — Otter",
-    "oracleText": "Whenever this creature deals damage to an opponent, draw a card.",
-    "creatureStats": {
-        "power": 2,
-        "toughness": 2
-    },
-    "script": {
-        "triggeredAbilities": [
-            {
-                "id": "Thieving Otter:1",
-                "trigger": {
-                    "type": "DealsDamageEvent",
-                    "recipient": {
-                        "type": "RecipientPlayer",
-                        "player": "EachOpponent"
-                    }
-                },
-                "effect": {
-                    "type": "DrawCards",
-                    "count": {
-                        "type": "Fixed",
-                        "amount": 1
-                    }
-                }
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "390",
-        "artist": "Jakub Kasper",
-        "imageUri": "https://cards.scryfall.io/normal/front/5/2/52a258be-39e3-4689-b2d0-7c353ce7d574.jpg?1721428090",
-        "inBooster": false
-    },
-    "colorIdentityOverride": [
-        "BLUE"
     ]
 }
 

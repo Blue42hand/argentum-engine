@@ -38,9 +38,6 @@ import com.wingedsheep.sdk.scripting.EntersTapped
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
 import com.wingedsheep.sdk.scripting.ConditionalStaticAbility
-import com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard
-import com.wingedsheep.engine.state.components.identity.emblemStaticAbilitiesOf
-import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.sdk.scripting.MayPlayPermanentsFromGraveyard
 import com.wingedsheep.engine.legalactions.utils.LandDropUtils
 import com.wingedsheep.sdk.scripting.PlayFromTopOfLibrary
@@ -93,7 +90,7 @@ class PlayLandHandler(
         }
 
         // Check land drop availability (accounts for static ability bonuses)
-        if (!LandDropUtils.hasLandPlayLeft(state, action.playerId, cardRegistry, conditionEvaluator)) {
+        if (!LandDropUtils.hasLandPlayLeft(state, action.playerId)) {
             return "You have already played a land this turn"
         }
 
@@ -258,12 +255,13 @@ class PlayLandHandler(
         // Record Muldrotha graveyard land permission usage
         if (fromZone == Zone.GRAVEYARD) {
             newState = recordGraveyardPlayPermissionUsage(newState, action.playerId, CardType.LAND.name)
-            // Mark "entered from a graveyard" for ETB conditions (Oscorp Industries: "when this land
-            // enters from a graveyard, you lose 2 life"). Lands bypass ZoneTransitionService, which
-            // normally stamps this component, so set it here.
-            newState = newState.updateEntity(action.cardId) { c ->
-                c.with(com.wingedsheep.engine.state.components.battlefield.EnteredFromGraveyardComponent)
-            }
+        }
+        // Mark the zone it entered from for ETB conditions (Oscorp Industries: "when this land
+        // enters from a graveyard, you lose 2 life"; a land played from the top of the library or
+        // from exile likewise entered from there). Lands bypass ZoneTransitionService, which
+        // normally stamps this component, so set it here.
+        newState = newState.updateEntity(action.cardId) { c ->
+            c.with(com.wingedsheep.engine.state.components.battlefield.EnteredFromZoneComponent(fromZone))
         }
 
         // The land-play signal (CR 305.1). [landPlayedEvent] rides alongside every entry
@@ -312,6 +310,47 @@ class PlayLandHandler(
         if (fromZone == Zone.EXILE || fromZone == Zone.GRAVEYARD || fromZone == Zone.SIDEBOARD) {
             newState = newState.spendCappedMayPlayFor(action.cardId, action.playerId)
         }
+        // A replacement that sends the entering land elsewhere instead — Containment Priest's "if a
+        // nontoken creature would enter and it wasn't cast, exile it instead" catches a played land
+        // creature (Dryad Arbor), since playing a land isn't casting it. Judged after the face is
+        // chosen (CR 614.12: as it would exist on the battlefield). The land was still played: the
+        // drop is spent and "whenever you play a land" still sees it.
+        val entryRedirect = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.checkZoneChangeRedirect(
+            newState, action.cardId, fromZone, Zone.BATTLEFIELD, predicateEvaluator = predicateEvaluator,
+            entersAsCreature = {
+                com.wingedsheep.engine.handlers.effects.EntryCharacteristics.wouldBeCreature(
+                    newState, action.cardId, action.playerId, entryCopy = null, faceDown = false,
+                    cardRegistry, predicateEvaluator
+                )
+            }
+        )
+        if (entryRedirect.destinationZone != Zone.BATTLEFIELD) {
+            val ownerId = printedCardComponent.ownerId ?: action.playerId
+            val destination = entryRedirect.destinationZone
+            newState = spendPlayAllowances(state, newState, action, fromZone)
+                .updateEntity(action.cardId) { c ->
+                    c.without<ControllerComponent>()
+                        .without<com.wingedsheep.engine.state.components.battlefield.EnteredFromZoneComponent>()
+                }
+                .addToZone(ZoneKey(ownerId, destination), action.cardId)
+                .updateEntity(action.playerId) { c ->
+                    c.with((c.get<LandDropsComponent>() ?: LandDropsComponent()).use())
+                }
+            val redirectedEvent = com.wingedsheep.engine.core.ZoneChangeEvent(
+                action.cardId,
+                newState.getEntity(action.cardId)?.get<CardComponent>()?.name ?: printedCardComponent.name,
+                fromZone,
+                destination,
+                ownerId,
+                oldObject = state.objectRef(action.cardId),
+                newObject = newState.objectRef(action.cardId),
+            )
+            return ExecutionResult.success(
+                newState.tick(),
+                listOfNotNull(redirectedEvent, riderPlayEventFor(state, action, fromZone), landPlayedEvent)
+            )
+        }
+
         // A land creature (Dryad Arbor) is a creature entering: a granted "enters as a copy"
         // applies before it is placed, and everything below reads the copied identity.
         newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy
@@ -380,67 +419,23 @@ class PlayLandHandler(
         if (permissionForcesTapped && !landEntersUntapped) {
             newState = newState.updateEntity(action.cardId) { c -> c.with(TappedComponent) }
         }
-        // "When you play a card this way, …" rider (Fires of Mount Doom). If this land was
-        // played from exile via a may-play permission carrying a rider, capture the linked
-        // event BEFORE removing the permission so the rider's delayed triggered ability fires.
-        val riderPlayEvent: com.wingedsheep.engine.core.CardPlayedFromPermissionEvent? =
-            if (fromZone == Zone.EXILE) {
-                state.mayPlayPermissions.firstOrNull { permission ->
-                    permission.riderLinkId != null &&
-                        permission.controllerId == action.playerId &&
-                        action.cardId in permission.cardIds &&
-                        permission.sourceId != null
-                }?.let { permission ->
-                    com.wingedsheep.engine.core.CardPlayedFromPermissionEvent(
-                        cardId = action.cardId,
-                        controllerId = action.playerId,
-                        sourceId = permission.sourceId!!,
-                        linkId = permission.riderLinkId!!
-                    )
-                }
-            } else null
+        // "When you play a card this way, …" rider (Fires of Mount Doom), captured before the
+        // permission goes.
+        val riderPlayEvent = riderPlayEventFor(state, action, fromZone)
 
         // The land's may-play grants went as it entered the battlefield (a new object, CR 400.7);
         // what's left is the once-per-turn bookkeeping and the linked-exile pile.
-        if (fromZone == Zone.EXILE) {
-            // Record once-per-turn linked-exile permission usage (Hauken's Insight — "Once during
-            // each of your turns, you may play a land or cast a spell"). Resolved against the
-            // pre-play `state`: the unlink below removes the card from its granter's pile, after
-            // which nothing connects the two. The marker is the same one `CastSpellHandler`
-            // stamps, which is what makes the land and the spell share one allowance.
-            val linkedGranter = com.wingedsheep.engine.handlers.effects.linkedexile.LinkedExilePlayUtils
-                .landGranterFor(state, action.playerId, action.cardId, legality)
-            if (linkedGranter?.ability?.oncePerTurn == true) {
-                newState = newState.updateEntity(linkedGranter.sourceId) { c ->
-                    c.with(
-                        com.wingedsheep.engine.state.components.battlefield
-                            .MayCastFromLinkedExileUsedThisTurnComponent
-                    )
-                }
-            }
-            // The filter-defined sibling (Evelyn, the Covetous): a land play spends the same
-            // once-each-turn allowance a cast would.
-            state.oncePerTurnGranterToSpend(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
-                ?.let { granter ->
-                    newState = newState.updateEntity(granter) { c ->
-                        c.with(
-                            com.wingedsheep.engine.state.components.battlefield
-                                .MayCastFromLinkedExileUsedThisTurnComponent
-                        )
-                    }
-                }
-            // Drop the card from any linked-exile granter (Valgavoth) now that it has left exile,
-            // so the granter no longer lists it. (Lands bypass ZoneTransitionService, which would
-            // otherwise unlink on the way out.)
-            newState = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                .unlinkFromAllLinkedExiles(newState, action.cardId)
-        }
+        newState = spendPlayAllowances(state, newState, action, fromZone)
         // CR 712.8f — a modal double-faced permanent has only the characteristics of the face
         // that's up. Everything below (the entry event's name, enters-tapped, the as-enters
         // replacements) has to read the face actually played, not the printed front.
         val cardComponent = newState.getEntity(action.cardId)?.get<CardComponent>()
             ?: printedCardComponent
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
+        // The land's own entry replacements, read off it as it exists on the battlefield (CR
+        // 614.12): under Blood Sun or Blood Moon it has already lost "enters tapped", "enters with
+        // counters", "as this enters, choose" and "enters as a copy", so none of them apply.
+        val ownEntryDef = cardDef?.takeUnless { newState.projectedState.hasLostAllAbilities(action.cardId) }
 
         // "This land enters with two charge counters on it" (the vivid lands) and the global
         // enters-with replacements other permanents carry (Doubling Season's extra counters,
@@ -462,14 +457,37 @@ class PlayLandHandler(
                 newState = afterRider
                 riderEvents
             } ?: emptyList()
-        val entersWithEvents: List<com.wingedsheep.engine.core.GameEvent> = landRiderEvents + if (cardDef != null) {
-            val (afterOwn, ownEvents) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
-                .applyFromDefinition(newState, action.cardId, cardDef, action.playerId, predicateEvaluator = predicateEvaluator, preEntryZone = sourceZoneKey)
+        val grantedReadAhead = com.wingedsheep.engine.mechanics.ReadAheadSynthesis
+            .grantedChoice(newState, action.cardId, cardDef, cardRegistry, predicateEvaluator)
+        val entersWithEvents: List<com.wingedsheep.engine.core.GameEvent> = landRiderEvents + (if (cardDef != null) {
+            val (afterOwn, ownEvents) = if (ownEntryDef == null) newState to emptyList<com.wingedsheep.engine.core.GameEvent>() else com.wingedsheep.engine.handlers.effects.EntersWithReplacements
+                .applyFromDefinition(newState, action.cardId, ownEntryDef, action.playerId, predicateEvaluator = predicateEvaluator, preEntryZone = sourceZoneKey)
             val (afterGlobal, globalEvents) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements
                 .applyGlobal(afterOwn, action.cardId, action.playerId, cardRegistry, predicateEvaluator = predicateEvaluator, preEntryZone = sourceZoneKey)
             newState = afterGlobal
             ownEvents + globalEvents
-        } else emptyList()
+        } else emptyList()) + run {
+            // A Saga land (Urza's Saga) enters with its lore counter like any Saga (CR 714.3a);
+            // the land path bypasses ZoneTransitionService, so it's placed here — unless it has
+            // read ahead granted: its count is the number asked below, and that choice's resumer
+            // places the counters once it is answered. An exit that never reaches that question
+            // places them itself ([placeWithheldSagaEntry]).
+            if (grantedReadAhead != null) return@run emptyList()
+            val (afterSaga, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+                .applySagaEntryIfNeeded(newState, action.cardId, predicateEvaluator, replacementSourceState = state)
+            newState = afterSaga
+            sagaEvents
+        }
+
+        // A Saga land whose lore counters were withheld for a granted read-ahead question, leaving
+        // through a path that won't ask it: it enters with the intrinsic single counter.
+        fun placeWithheldSagaEntry(): List<com.wingedsheep.engine.core.GameEvent> {
+            if (grantedReadAhead == null) return emptyList()
+            val (afterSaga, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+                .applySagaEntryIfNeeded(newState, action.cardId, predicateEvaluator, replacementSourceState = state)
+            newState = afterSaga
+            return sagaEvents
+        }
 
         // OnEnterRun — generic "as ~ enters, run [effect]" replacement.
         // Runs BEFORE the EntersTapped check so effects like
@@ -477,9 +495,9 @@ class PlayLandHandler(
         // synchronously with entry. That rider consults EnterUntappedReplacements itself, so
         // returning early here doesn't skip "lands enter untapped". May pause for player input
         // via continuations.
-        if (cardDef != null) {
+        if (ownEntryDef != null) {
             val onEnter = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
-                .onEnterRunEffectFor(cardDef)
+                .onEnterRunEffectFor(ownEntryDef)
             if (onEnter != null) {
                 // Use up the land drop and emit the entry event before running the
                 // effect — by this point the land is fully on the battlefield and
@@ -498,7 +516,7 @@ class PlayLandHandler(
                     newObject = enteredObject,
                 )
                 val onEnterEvents = mutableListOf<com.wingedsheep.engine.core.GameEvent>(zoneChangeEvent)
-                onEnterEvents.addAll(entersWithEvents)
+                onEnterEvents.addAll(entersWithEvents + placeWithheldSagaEntry())
                 riderPlayEvent?.let { onEnterEvents.add(it) }
                 onEnterEvents.add(landPlayedEvent)
                 newState = newState.tick()
@@ -535,8 +553,8 @@ class PlayLandHandler(
         // characteristics onto this land, adds the extra subtype, taps it if the rider says so, and
         // fires the entry's ETB triggers. Only engaged when a candidate exists — otherwise the land
         // just enters as its printed self via the normal finish below.
-        if (cardDef != null) {
-            val entersAsCopy = cardDef.script.replacementEffects
+        if (ownEntryDef != null) {
+            val entersAsCopy = ownEntryDef.script.replacementEffects
                 .filterIsInstance<EntersAsCopy>()
                 .firstOrNull { it.copyOf == null }
             if (entersAsCopy != null &&
@@ -576,8 +594,8 @@ class PlayLandHandler(
         // EntersUntapped effect (The Wandering Minstrel) applies — the land falls through to the
         // normal untapped finish, so a shock land's "pay life or enter tapped" prompt is elided
         // (paying is moot when the land enters untapped regardless).
-        if (cardDef != null && !landEntersUntapped) {
-            val entersTapped = cardDef.script.replacementEffects.filterIsInstance<EntersTapped>().firstOrNull()
+        if (ownEntryDef != null && !landEntersUntapped) {
+            val entersTapped = ownEntryDef.script.replacementEffects.filterIsInstance<EntersTapped>().firstOrNull()
             if (entersTapped != null) {
                 // Permission already forced tapped — skip the shock-land "pay life" prompt
                 // and any conditional script logic; the land is already on the battlefield tapped.
@@ -602,7 +620,8 @@ class PlayLandHandler(
 
                     // The entry ZoneChangeEvent is emitted by the resumer once the life payment is
                     // settled, so the land's enters triggers are detected exactly once.
-                    val events = entersWithEvents + listOfNotNull(riderPlayEvent, landPlayedEvent)
+                    val events = entersWithEvents + placeWithheldSagaEntry() +
+                        listOfNotNull(riderPlayEvent, landPlayedEvent)
                     newState = newState.tick()
 
                     val continuation = com.wingedsheep.engine.core.PayLifeOrEnterTappedLandContinuation(
@@ -665,7 +684,7 @@ class PlayLandHandler(
         // Process first choice in priority order: COLOR → CREATURE_TYPE
         // Continuations handle chaining to subsequent choices.
         if (cardDef != null) {
-            val printedChoices = cardDef.script.replacementEffects.filterIsInstance<EntersWithChoice>()
+            val printedChoices = ownEntryDef?.script?.replacementEffects.orEmpty().filterIsInstance<EntersWithChoice>()
             // Granted Riot (a land that is a Spider with riot granted — vanishingly rare, but wired
             // for consistency with the token/spell entry seams; one choice per grant, CR 702.136b).
             val grantedRiotCount = com.wingedsheep.engine.mechanics.RiotSynthesis
@@ -673,7 +692,8 @@ class PlayLandHandler(
             val syntheticRiotChoice = if (grantedRiotCount > 0) {
                 com.wingedsheep.engine.mechanics.RiotSynthesis.RIOT_CHOICE
             } else null
-            val firstChoice = (printedChoices + listOfNotNull(syntheticRiotChoice))
+            // Granted read ahead on a land Saga (Urza's Saga under Barbara Wright).
+            val firstChoice = (printedChoices + listOfNotNull(syntheticRiotChoice, grantedReadAhead))
                 .sortedBy { it.choiceType.ordinal }
                 .firstOrNull()
             if (firstChoice != null) {
@@ -702,6 +722,7 @@ class PlayLandHandler(
                         fromZone = fromZone,
                         entryOldObject = state.objectRef(action.cardId),
                         entryNewObject = enteredObject,
+                        replacementSourceState = state,
                         carryEvents = events,
                         cardNameOptions = if (firstChoice.choiceType == ChoiceType.CARD_NAME) {
                             cardRegistry.cardNamesIn(firstChoice.cardNamePool).toList()
@@ -829,7 +850,7 @@ class PlayLandHandler(
 
     /**
      * Check if a land card is in the player's graveyard and there's permission to play it.
-     * Handles both Crucible-style (MayPlayLandsFromGraveyard, no usage tracking) and
+     * Handles both Crucible-style ([com.wingedsheep.sdk.scripting.MayPlayLandsFromGraveyard], no usage tracking) and
      * Muldrotha-style (MayPlayPermanentsFromGraveyard, per-type usage tracked).
      */
     private fun isInGraveyardWithPlayPermission(
@@ -866,6 +887,103 @@ class PlayLandHandler(
         return hasNonPermissionGraveyardLandPlay(state, playerId, cardId)
     }
 
+
+    /**
+     * "When you play a card this way, …" (Fires of Mount Doom): the event a land played from exile
+     * through a rider-carrying may-play permission raises. Read off the pre-play [state].
+     */
+    private fun riderPlayEventFor(
+        state: GameState,
+        action: PlayLand,
+        fromZone: Zone
+    ): com.wingedsheep.engine.core.CardPlayedFromPermissionEvent? {
+        if (fromZone != Zone.EXILE) return null
+        return state.mayPlayPermissions.firstOrNull { permission ->
+            permission.riderLinkId != null &&
+                permission.controllerId == action.playerId &&
+                action.cardId in permission.cardIds &&
+                permission.sourceId != null
+        }?.let { permission ->
+            com.wingedsheep.engine.core.CardPlayedFromPermissionEvent(
+                cardId = action.cardId,
+                controllerId = action.playerId,
+                sourceId = permission.sourceId!!,
+                linkId = permission.riderLinkId!!
+            )
+        }
+    }
+
+    /**
+     * A land played from exile, a graveyard or a sideboard spends the once-per-turn allowance it was
+     * played through (Hauken's Insight, Evelyn, The Holodeck); one played from exile also leaves any
+     * linked-exile pile. Granters are resolved against the pre-play [state]; the result builds on
+     * [newState].
+     */
+    private fun spendPlayAllowances(
+        state: GameState,
+        newState: GameState,
+        action: PlayLand,
+        fromZone: Zone
+    ): GameState {
+        if (fromZone == Zone.GRAVEYARD || fromZone == Zone.SIDEBOARD) {
+            // A graveyard land a non-permission route already plays (Crucible of Worlds, Muldrotha's
+            // land allowance — recorded on its own — or Mayhem), or an unlimited rider-free
+            // `MayCastFromGraveyard(playsLands = true)` grant could carry for free, leaves a
+            // filter-defined once-per-turn grant (The Holodeck) untouched. A limited or rider-bearing
+            // graveyard grant (Serra Paragon) is the one spared instead — the same rule the cast path
+            // follows when the player casts through the may-play offer.
+            if (fromZone == Zone.GRAVEYARD && (
+                    hasNonPermissionGraveyardLandPlay(state, action.playerId, action.cardId) ||
+                        zoneResolver.freeGraveyardGrantCovers(state, action.playerId, action.cardId, land = true)
+                    )
+            ) {
+                return newState
+            }
+            return state.oncePerTurnGranterToSpend(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
+                ?.let { granter ->
+                    newState.updateEntity(granter) { c ->
+                        c.with(
+                            com.wingedsheep.engine.state.components.battlefield
+                                .MayCastFromLinkedExileUsedThisTurnComponent
+                        )
+                    }
+                } ?: newState
+        }
+        if (fromZone != Zone.EXILE) return newState
+        var result = newState
+        // Record once-per-turn linked-exile permission usage (Hauken's Insight — "Once during
+        // each of your turns, you may play a land or cast a spell"). Resolved against the
+        // pre-play `state`: the unlink below removes the card from its granter's pile, after
+        // which nothing connects the two. The marker is the same one `CastSpellHandler`
+        // stamps, which is what makes the land and the spell share one allowance.
+        val linkedGranter = com.wingedsheep.engine.handlers.effects.linkedexile.LinkedExilePlayUtils
+            .landGranterFor(state, action.playerId, action.cardId, legality)
+        if (linkedGranter?.ability?.oncePerTurn == true) {
+            result = result.updateEntity(linkedGranter.sourceId) { c ->
+                c.with(
+                    com.wingedsheep.engine.state.components.battlefield
+                        .MayCastFromLinkedExileUsedThisTurnComponent
+                )
+            }
+        }
+        // The filter-defined sibling (Evelyn, the Covetous): a land play spends the same
+        // once-each-turn allowance a cast would.
+        state.oncePerTurnGranterToSpend(action.cardId, action.playerId, conditionEvaluator, cardRegistry)
+            ?.let { granter ->
+                result = result.updateEntity(granter) { c ->
+                    c.with(
+                        com.wingedsheep.engine.state.components.battlefield
+                            .MayCastFromLinkedExileUsedThisTurnComponent
+                    )
+                }
+            }
+        // Drop the card from any linked-exile granter (Valgavoth) now that it has left exile,
+        // so the granter no longer lists it. (Lands bypass ZoneTransitionService, which would
+        // otherwise unlink on the way out.)
+        result = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+            .unlinkFromAllLinkedExiles(result, action.cardId)
+        return result
+    }
     /**
      * The graveyard land permissions that aren't a per-card may-play grant: Crucible-style
      * statics and emblems, Muldrotha's land allowance, and Mayhem.
@@ -875,7 +993,7 @@ class PlayLandHandler(
         playerId: EntityId,
         cardId: EntityId
     ): Boolean {
-        if (hasLandGraveyardPlayPermission(state, playerId)) return true
+        if (LandDropUtils.hasGraveyardLandPlayPermission(state, playerId)) return true
         if (findGraveyardPlayPermissionSource(state, playerId, CardType.LAND.name) != null) return true
         // Mayhem (CR 702.187c): a Mayhem land discarded this turn may be played from the graveyard.
         val discardedThisTurn = state.getEntity(playerId)
@@ -892,35 +1010,9 @@ class PlayLandHandler(
     }
 
     /**
-     * Returns true if the player controls a permanent — or has an emblem — with
-     * [MayPlayLandsFromGraveyard] (Crucible of Worlds style — no per-turn usage tracking needed).
-     */
-    private fun hasLandGraveyardPlayPermission(state: GameState, playerId: EntityId): Boolean {
-        for (entityId in state.getBattlefield(playerId)) {
-            val cardDef = state.getEntity(entityId)?.faceUpCardDefinition(cardRegistry) ?: continue
-            val classLevel = state.getEntity(entityId)?.get<ClassLevelComponent>()?.currentLevel
-            for (ability in cardDef.script.effectiveStaticAbilities(classLevel)) {
-                // Unwrap mode/condition-gated abilities (e.g. Glacierwood Siege's Sultai mode)
-                // and honor the gate against this source permanent.
-                if (ability is ConditionalStaticAbility) {
-                    if (ability.ability is MayPlayLandsFromGraveyard &&
-                        evaluateStaticGate(state, ability.condition, entityId, playerId)
-                    ) {
-                        return true
-                    }
-                } else if (ability is MayPlayLandsFromGraveyard) {
-                    return true
-                }
-            }
-        }
-        // An emblem the player has (Wrenn and Realmbreaker's −7) grants it from outside every zone.
-        return state.emblemStaticAbilitiesOf(playerId).any { (_, ability) -> ability is MayPlayLandsFromGraveyard }
-    }
-
-    /**
      * Evaluate a [ConditionalStaticAbility] gating condition against a specific source
-     * permanent. Used so a mode/condition-gated graveyard-play permission only applies
-     * while its gate holds (e.g. Glacierwood Siege only when "Sultai" is the chosen mode).
+     * permanent. Used so a condition-gated play-from-the-top-of-your-library permission only
+     * applies while its gate holds.
      */
     private fun evaluateStaticGate(
         state: GameState,

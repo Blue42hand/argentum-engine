@@ -3637,7 +3637,8 @@
                                                 }
                                             ]
                                         }
-                                    ]
+                                    ],
+                                    "controllerPredicate": "ControlledByYou"
                                 }
                             },
                             "id": "t0"
@@ -12986,9 +12987,12 @@
                     "zone": "Graveyard"
                 },
                 "id": "t0",
-                "totalManaValueAtMost": {
-                    "type": "Fixed",
-                    "amount": 3
+                "totalAtMost": {
+                    "property": "MANA_VALUE",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
                 }
             }
         ]
@@ -15220,9 +15224,13 @@
                 "interveningIf": {
                     "type": "Compare",
                     "left": {
-                        "type": "AggregateBattlefield",
-                        "player": "EachOpponent",
-                        "filter": "land"
+                        "type": "GreatestAmongPlayers",
+                        "players": "EachOpponent",
+                        "inner": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "land"
+                        }
                     },
                     "operator": "GT",
                     "right": {

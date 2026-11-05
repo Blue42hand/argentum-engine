@@ -38,7 +38,7 @@ import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 
 /** The mana a cast charges and the X actually paid as mana at payment time. */
-internal data class ComputedCastCost(val cost: ManaCost, val paymentXValue: Int, val delveGenericCap: Int?)
+internal data class ComputedCastCost(val cost: ManaCost, val paymentXValue: Int, val delveGenericCap: Int?, val tapForGenericCost: ManaCost)
 
 /**
  * The "determine total cost" stage of casting a spell (CR 601.2f): the cost the caster locks in once
@@ -238,7 +238,7 @@ internal class CastCostTotaller(
         }
 
         val delveGenericCap = if (effectiveCost.hasX) null else effectiveCost.genericAmount
-        return ComputedCastCost(costAfterImprovise, paymentXValue(state, action, cardDef, effectiveCost), delveGenericCap)
+        return ComputedCastCost(costAfterImprovise, paymentXValue(state, action, cardDef, effectiveCost), delveGenericCap, costAfterAltPayment)
     }
 
     /**

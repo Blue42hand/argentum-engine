@@ -73,7 +73,14 @@ internal class PermanentEntry(
         cardComponent: CardComponent?,
         cardDef: com.wingedsheep.sdk.model.CardDefinition?
     ): Pair<GameState, List<GameEvent>> {
-        val controllerId = spellComponent.casterId
+        // A resolving permanent spell enters under its controller's control (CR 608.3a) unless it
+        // says otherwise:
+        // "enters under the control of an opponent of your choice" was answered as it resolved,
+        // and the answer rides the stack object's as-enters choices.
+        val controllerId = com.wingedsheep.engine.handlers.effects.ChosenEntryController.of(
+            cardDef,
+            state.getEntity(spellId)?.get<com.wingedsheep.engine.state.components.battlefield.CastChoicesComponent>()?.chosen,
+        ) ?: spellComponent.casterId
         // A cast-this-way entry rider frozen on this spell at cast time (The Tomb of Aclazotz,
         // Kaldring, the Rimestaff).
         // Captured before the `updateEntity` block below strips it; applied on entry further down.
@@ -185,7 +192,8 @@ internal class PermanentEntry(
             if (loreCount > 0) {
                 newState = com.wingedsheep.engine.handlers.effects.DamageUtils
                     .markCounterOnControlledPermanent(newState, spellId, CounterType.LORE, entering = true)
-                counterEvents.add(CountersAddedEvent(spellId, CounterType.LORE, loreCount, cardDef.name))
+                // CR 122.6a — the entering Saga's controller puts its entry counters on it.
+                counterEvents.add(CountersAddedEvent(spellId, CounterType.LORE, loreCount, cardDef.name, placedBy = controllerId))
             }
         }
 
@@ -921,6 +929,16 @@ internal class PermanentEntry(
         // entity is on the battlefield so its controller/type resolve for the filter. CR 614: an
         // applicable "enters untapped" replacement still wins, and a self-EntersTapped that already
         // tapped it stands. Sneak sets its own tapped-and-attacking state below, so skip it here.
+        // "Instead it enters tapped and attacking" (PermanentsEnterTapped.attackDefender — Kira
+        // Nerys, Firebrand): a tapped-and-attacking entry, so an "enters untapped" replacement
+        // doesn't undo the tap. A sneaked permanent is already attacking its own defender.
+        if (!spellComponent.wasSneaked &&
+            com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
+                .entersAttacking(newState, spellId, predicateEvaluator = conditionEvaluator.predicates)
+        ) {
+            return com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
+                .enterTappedAndAttacking(newState, spellId, controllerId)
+        }
         if (cardDef != null && !spellComponent.castFaceDown && !spellComponent.wasSneaked) {
             val alreadyTapped = newState.getEntity(spellId)?.has<TappedComponent>() == true
             val entersUntapped = com.wingedsheep.engine.handlers.effects.EnterUntappedReplacements
@@ -1142,6 +1160,10 @@ internal class PermanentEntry(
         newState = ownState
         events.addAll(ownEvents)
 
+        val (sunburstState, sunburstEvents) = applySunburst(newState, entityId, cardDef, controllerId)
+        newState = sunburstState
+        events.addAll(sunburstEvents)
+
         val (globalState, globalEvents) = EntersWithReplacements.applyGlobal(
             newState, entityId, controllerId, cardRegistry,
             predicateEvaluator = conditionEvaluator.predicates, replacementSourceState = replacementSourceState
@@ -1150,5 +1172,43 @@ internal class PermanentEntry(
         events.addAll(globalEvents)
 
         return newState to events
+    }
+
+    /**
+     * Sunburst (CR 702.44a) — "If this object is entering the battlefield from the stack as a
+     * creature, it enters with a +1/+1 counter on it for each color of mana spent to cast it.
+     * Otherwise, it enters with a charge counter on it for each color of mana spent to cast it."
+     *
+     * Synthesized here, on the stack-resolution path only, because the keyword functions only as
+     * the object enters *from the stack*: a sunburst permanent put onto the battlefield any other way
+     * gets no counters. Whether it enters as a creature — and whether it still has sunburst at all —
+     * is read off the object as it would exist on the battlefield (CR 614.12,
+     * [com.wingedsheep.engine.handlers.effects.EntryCharacteristics]), so an artifact March of the
+     * Machines animates gets +1/+1 counters. The printed keyword gates the scratch projection so
+     * ordinary permanents never pay for it. Colorless mana is not a color (CR 105.1), so a spell paid
+     * only with colorless mana enters with no counters.
+     */
+    private fun applySunburst(
+        state: GameState,
+        entityId: EntityId,
+        cardDef: com.wingedsheep.sdk.model.CardDefinition,
+        controllerId: EntityId,
+    ): Pair<GameState, List<GameEvent>> {
+        if (com.wingedsheep.sdk.core.Keyword.SUNBURST !in cardDef.keywords) return state to emptyList()
+        val predicates = conditionEvaluator.predicates
+        val entering = com.wingedsheep.engine.handlers.effects.EntryCharacteristics.projectedAsEntering(
+            state, entityId, controllerId, entryCopy = null, cardRegistry, predicates
+        ) ?: return state to emptyList()
+        if (!entering.hasKeyword(entityId, com.wingedsheep.sdk.core.Keyword.SUNBURST)) return state to emptyList()
+        val colors = predicates.amounts.evaluate(
+            state,
+            com.wingedsheep.sdk.scripting.values.DynamicAmount.DistinctColorsManaSpent(),
+            EffectContext(sourceId = entityId, controllerId = controllerId),
+        )
+        val kind = if (entering.isCreature(entityId)) CounterType.PLUS_ONE_PLUS_ONE else CounterType.CHARGE
+        val name = state.getEntity(entityId)?.get<CardComponent>()?.name ?: ""
+        return EntersWithReplacements.placeEntryCounters(
+            state, entityId, kind, colors, controllerId, name, predicateEvaluator = predicates
+        )
     }
 }

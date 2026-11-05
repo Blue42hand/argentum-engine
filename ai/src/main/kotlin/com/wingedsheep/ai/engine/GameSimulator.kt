@@ -125,6 +125,39 @@ class GameSimulator(
     }
 
     /**
+     * The decision the engine raises immediately after [response] answers [state]'s pending one,
+     * before any automatic resolution — null when it raises none or rejects the response. A
+     * single engine step, for a caller that needs to see the follow-up prompt itself rather than
+     * the quiet state [simulateDecision] resolves (and, with a [decisionResolver], answers) past.
+     */
+    fun nextDecisionAfter(state: GameState, response: DecisionResponse): PendingDecision? {
+        val pending = state.pendingDecision ?: return null
+        val result = processor.process(state, SubmitDecision(pending.playerId, response)).result
+        return if (result.error == null && result.outcome is Outcome.Paused) result.pendingDecision else null
+    }
+
+    /**
+     * [action] applied as one engine step, with nothing resolved after it: a cast leaves its spell
+     * on the stack and priority with whoever the rules give it to. Null when the engine rejects
+     * the action or pauses for a decision. For a caller that hands priority around the stack
+     * itself — [TargetResponses] letting an opponent answer a spell before it resolves.
+     */
+    fun step(state: GameState, action: GameAction): GameState? {
+        if (state.pendingDecision != null) return null
+        val result = processor.process(state, action).result
+        return if (result.error == null && result.outcome !is Outcome.Paused) result.state else null
+    }
+
+    /** Whether the action itself opens a locked mana payment window, before any resolver answers. */
+    internal fun opensManaPaymentWindow(state: GameState, action: GameAction): Boolean {
+        if (state.pendingDecision != null) return false
+        val result = processor.process(state, action).result
+        return result.outcome is Outcome.Paused &&
+            result.pendingDecision is SelectManaSourcesDecision &&
+            (result.state.peekContinuation() as? Suspension)?.answer is ManaActionPaymentContinuation
+    }
+
+    /**
      * Get all legal actions for a player.
      */
     fun getLegalActions(state: GameState, playerId: EntityId): List<LegalAction> {

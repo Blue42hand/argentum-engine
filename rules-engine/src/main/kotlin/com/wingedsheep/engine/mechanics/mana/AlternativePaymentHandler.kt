@@ -107,6 +107,13 @@ class AlternativePaymentHandler(
         tapForGeneric = if (hasWaterbend) TapForGeneric.WATERBEND else null,
     )
 
+    /** Capabilities were authorized at announcement; only their chosen resources can become stale. */
+    fun validateLockedResources(
+        state: GameState, payment: AlternativePaymentChoice, playerId: EntityId, waterbendAmount: Int,
+    ): String? = validate(state, payment, playerId,
+        allowsDelve = true, allowsConvoke = true, allowsHarmonize = true,
+        tapForGeneric = if (waterbendAmount > 0) TapForGeneric.WATERBEND else TapForGeneric.IMPROVISE)
+
     private fun validate(
         state: GameState,
         payment: AlternativePaymentChoice,
@@ -226,6 +233,14 @@ class AlternativePaymentHandler(
         playerId: EntityId,
         cardDef: CardDefinition,
         cardId: EntityId? = null
+    ): AlternativePaymentResult = applySelected(state, cost, payment, playerId,
+        effectivelyHasKeyword(state, playerId, cardDef, Keyword.DELVE, cardId),
+        effectivelyHasKeyword(state, playerId, cardDef, Keyword.CONVOKE, cardId),
+        hasHarmonize(state, cardId, cardDef))
+
+    private fun applySelected(
+        state: GameState, cost: ManaCost, payment: AlternativePaymentChoice, playerId: EntityId,
+        allowsDelve: Boolean, allowsConvoke: Boolean, allowsHarmonize: Boolean,
     ): AlternativePaymentResult {
         var currentState = state
         var reducedCost = cost
@@ -234,8 +249,7 @@ class AlternativePaymentHandler(
 
         // Handle Delve
         if (payment.delvedCards.isNotEmpty()) {
-            val hasDelve = effectivelyHasKeyword(state, playerId, cardDef, Keyword.DELVE, cardId)
-            if (hasDelve) {
+            if (allowsDelve) {
                 val delveResult = applyDelve(currentState, reducedCost, payment.delvedCards, playerId)
                 currentState = delveResult.newState
                 reducedCost = delveResult.reducedCost
@@ -245,8 +259,7 @@ class AlternativePaymentHandler(
 
         // Handle Convoke
         if (payment.convokedCreatures.isNotEmpty()) {
-            val hasConvoke = effectivelyHasKeyword(state, playerId, cardDef, Keyword.CONVOKE, cardId)
-            if (hasConvoke) {
+            if (allowsConvoke) {
                 val convokeResult = applyConvoke(currentState, reducedCost, payment.convokedCreatures, playerId)
                 currentState = convokeResult.newState
                 reducedCost = convokeResult.reducedCost
@@ -257,7 +270,7 @@ class AlternativePaymentHandler(
 
         // Handle Harmonize — tap one creature you control to reduce the generic cost by its power.
         val harmonizeCreature = payment.harmonizeCreature
-        if (harmonizeCreature != null && hasHarmonize(state, cardId, cardDef)) {
+        if (harmonizeCreature != null && allowsHarmonize) {
             val harmonizeResult = applyHarmonize(currentState, reducedCost, harmonizeCreature, playerId)
             currentState = harmonizeResult.newState
             reducedCost = harmonizeResult.reducedCost
@@ -265,6 +278,21 @@ class AlternativePaymentHandler(
         }
 
         return AlternativePaymentResult(reducedCost, currentState, events, convoked)
+    }
+
+    /** Pay the announced resources even if a mana ability removed the granting permanent. */
+    fun applyLockedForSpell(
+        state: GameState, cost: ManaCost, payment: AlternativePaymentChoice, playerId: EntityId,
+        locked: com.wingedsheep.engine.core.LockedCastPayment, xGeneric: Int,
+    ): AlternativePaymentResult {
+        val netCost = requireNotNull(locked.manaCost)
+        val base = applySelected(state, cost, payment, playerId,
+            allowsDelve = true, allowsConvoke = true, allowsHarmonize = true)
+        val taps = applyTapForGeneric(base.newState, locked.tapForGenericCost ?: base.reducedCost, payment, playerId,
+            if (locked.waterbendAmount > 0) TapForGeneric.WATERBEND else TapForGeneric.IMPROVISE,
+            maxGenericReduction = if (locked.waterbendAmount > 0) locked.waterbendAmount else Int.MAX_VALUE,
+            xOverflow = if (locked.waterbendAmount > 0) 0 else xGeneric)
+        return AlternativePaymentResult(netCost, taps.newState, base.events + taps.events, base.convokedCreatures)
     }
 
     /**

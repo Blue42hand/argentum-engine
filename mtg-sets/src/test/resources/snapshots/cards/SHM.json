@@ -875,6 +875,67 @@
     }
 }
 
+// Devoted Druid
+{
+    "name": "Devoted Druid",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "{T}: Add {G}.\nPut a -1/-1 counter on this creature: Untap this creature.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Devoted Druid:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Devoted Druid:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomPutCountersOnSelf",
+                        "counterType": "MINUS_ONE_MINUS_ONE"
+                    }
+                },
+                "effect": {
+                    "type": "TapUntap",
+                    "target": "Self",
+                    "tap": false
+                },
+                "descriptionOverride": "Put a -1/-1 counter on this creature: Untap this creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "artist": "Darrell Riche",
+        "flavorText": "\"Mana lurks in all things, even in the depths of one's own heart.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/820e2f07-f637-4144-b45a-0e1430dcf55e.jpg?1783942744",
+        "rulings": [
+            {
+                "date": "2018-12-07",
+                "text": "If you can't put -1/-1 counters on Devoted Druid (due to an effect such as that of Solemnity), you can't activate its second ability. If you can put counters on it, but that is modified by an effect (such as that of Vizier of Remedies), you can activate the ability even if paying the cost causes no counters to be put on Devoted Druid."
+            },
+            {
+                "date": "2018-12-07",
+                "text": "You put the -1/-1 counter on Devoted Druid as a cost to activate its ability, not when it resolves. If paying the cost causes Devoted Druid to have 0 toughness, it's put into your graveyard before you can untap it and before you can even pay the cost again."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Drove of Elves
 {
     "name": "Drove of Elves",
@@ -1696,6 +1757,57 @@
         "artist": "Brandon Kitkouski",
         "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2fd4959-bfff-46dc-b568-b6d69ef8eac9.jpg?1783942733"
     }
+}
+
+// Greater Auramancy
+{
+    "name": "Greater Auramancy",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Other enchantments you control have shroud. (A permanent with shroud can't be the target of spells or abilities.)\nEnchanted creatures you control have shroud.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "SHROUD",
+                "filter": {
+                    "baseFilter": "enchantment ctrl:you",
+                    "excludeSelf": true
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "SHROUD",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            "IsEnchanted"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "rarity": "RARE",
+        "artist": "Chuck Lukacs",
+        "flavorText": "A delicate veil of glamers can prove as sturdy as iron.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/1/1177787f-bf1e-438b-9615-97d03b04128c.jpg?1783942768",
+        "rulings": [
+            {
+                "date": "2008-05-01",
+                "text": "If you have two on the battlefield, they’ll each grant the other one shroud."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
 }
 
 // Heap Doll
@@ -3482,6 +3594,38 @@
         "flavorText": "Things of beauty are in constant peril. The riders whisk them to safety, ahead of the encroaching darkness.",
         "imageUri": "https://cards.scryfall.io/normal/front/9/d/9d9574f6-40b3-4fe2-950c-234bc358ecf6.jpg?1783942766"
     }
+}
+
+// Runed Halo
+{
+    "name": "Runed Halo",
+    "manaCost": "{W}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "As this enchantment enters, choose a card name.\nYou have protection from the chosen card name. (You can't be targeted, dealt damage, or enchanted by anything with that name.)",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantProtectionToController",
+                "scope": "ProtectionScope.ChosenCardName"
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "CARD_NAME",
+                "cardNamePool": "ANY"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "21",
+        "rarity": "RARE",
+        "artist": "Steve Prescott",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/92b45f79-f23e-4eef-8cac-91780dc2a044.jpg?1783942765"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
 }
 
 // Rustrazor Butcher

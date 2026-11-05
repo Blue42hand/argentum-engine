@@ -35,6 +35,7 @@ internal object TokenBundleEntryRiders {
         if (tokens.isEmpty()) return trial
         check(tokens.size == 1) { "A bundle native entry must materialize exactly one token" }
         val controller = frame.bundle.controllerId
+        if (!CombatDefenders.isAttackingPlayer(before, controller)) return trial
         val mode = when (original) {
             is CreateTokenEffect -> original.attackDefender
             is CreateTokenCopyOfTargetEffect -> original.attackDefender

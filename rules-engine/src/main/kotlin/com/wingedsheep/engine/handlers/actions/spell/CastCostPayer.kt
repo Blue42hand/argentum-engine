@@ -6,8 +6,6 @@ import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.LockedCastPayment
-import com.wingedsheep.engine.core.LifeChangeReason
-import com.wingedsheep.engine.core.LifeChangedEvent
 import com.wingedsheep.engine.core.ManaSpentEvent
 import com.wingedsheep.engine.core.PaymentStrategy
 import com.wingedsheep.engine.core.tap
@@ -15,7 +13,6 @@ import com.wingedsheep.engine.handlers.ConditionEvaluator
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.costs.ForageCostResolver
-import com.wingedsheep.engine.handlers.effects.DamageUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.handlers.effects.bend.BendEvents
 import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
@@ -151,7 +148,12 @@ internal class CastCostPayer(
         // X — is untouched.
         val paymentXValue = lockedPayment?.paymentXValue
             ?: castCostTotaller.paymentXValue(ledger.state, action, cardDef, totalCost)
-        var cost = payWithPermanentsAndCards(ledger, totalCost, cardDef, playForFree)
+        if (lockedPayment?.manaCost != null && action.alternativePayment != null) {
+            alternativePaymentHandler.validateLockedResources(
+                ledger.state, action.alternativePayment, action.playerId, lockedPayment.waterbendAmount,
+            )?.let { return CastPaymentOutcome.Failed(it) }
+        }
+        var cost = payWithPermanentsAndCards(ledger, totalCost, cardDef, playForFree, lockedPayment)
 
         // "Mana of any type can be spent" / "as though it were mana of any color" — relax the
         // requirements the cast permission waives (Taster of Wares, Stolen Strategy). A one-spell
@@ -198,7 +200,7 @@ internal class CastCostPayer(
         if (isForageCast) {
             payGraveyardForage(ledger)?.let { return CastPaymentOutcome.Failed(it) }
         }
-        payGraveyardLifeCost(ledger)
+        payGraveyardLifeCost(ledger)?.let { return CastPaymentOutcome.Failed(it) }
         payTargetLifeTaxes(ledger, lockedPayment?.additionalLifeCost)?.let { return CastPaymentOutcome.Failed(it) }
 
         return CastPaymentOutcome.Paid(
@@ -279,8 +281,26 @@ internal class CastCostPayer(
         totalCost: ManaCost,
         cardDef: CardDefinition?,
         playForFree: Boolean,
+        lockedPayment: LockedCastPayment? = null,
     ): ManaCost {
         val action = ledger.action
+        if (lockedPayment?.manaCost != null) {
+            action.alternativePayment?.takeUnless { it.isEmpty }?.let { payment ->
+                val result = alternativePaymentHandler.applyLockedForSpell(
+                    ledger.state, totalCost, payment, action.playerId, lockedPayment,
+                    xGeneric = (action.xValue ?: 0) * totalCost.xCount,
+                )
+                ledger.state = result.newState
+                ledger.events.addAll(result.events)
+                ledger.convokedCreatures.putAll(result.convokedCreatures)
+            }
+            if (lockedPayment.waterbendAmount > 0) {
+                val (bendState, bendEvent) = BendEvents.record(ledger.state, action.playerId, BendType.WATER)
+                ledger.state = bendState
+                ledger.events.add(bendEvent)
+            }
+            return lockedPayment.manaCost
+        }
         var cost = totalCost
         val alternativePayment = action.alternativePayment
 
@@ -394,16 +414,19 @@ internal class CastCostPayer(
         }
     }
 
-    /** The life a graveyard-cast permission charges (e.g., Festival of Embers). */
-    private fun payGraveyardLifeCost(ledger: SpellCostLedger) {
+    /**
+     * The life a graveyard-cast permission charges (e.g., Festival of Embers) — a life payment, so
+     * it goes through [LifePaymentService] like every other one: Ashiok can replace it and "whenever
+     * you pay life" sees it.
+     */
+    private fun payGraveyardLifeCost(ledger: SpellCostLedger): String? {
         val lifeCost = ledger.action.graveyardLifeCost
-        if (lifeCost <= 0) return
-        val currentLife = ledger.state.lifeTotal(ledger.playerId) // CR 810.9a — team's shared total
-        val (written, newLife) = DamageUtils.writeLifeReduction(ledger.state, ledger.playerId, currentLife, currentLife - lifeCost, predicateEvaluator)
-        ledger.state = written
-        if (newLife == currentLife) return
-        ledger.events.add(LifeChangedEvent(ledger.playerId, currentLife, newLife, LifeChangeReason.LIFE_LOSS))
-        ledger.state = DamageUtils.markLifeLostThisTurn(ledger.state, ledger.playerId, lifeCost)
+        if (lifeCost <= 0) return null
+        val (afterPayment, paymentEvents) = LifePaymentService.pay(zones, ledger.state, ledger.playerId, lifeCost)
+            ?: return "Cannot pay $lifeCost life to cast this spell"
+        ledger.state = afterPayment
+        ledger.events.addAll(paymentEvents)
+        return null
     }
 
     /**
@@ -585,6 +608,14 @@ internal class CastCostPayer(
     fun relaxForCastPermission(state: GameState, action: CastSpell, cost: ManaCost, paymentXValue: Int = action.xValue ?: 0): ManaCost =
         relaxation(state, action, cost, paymentXValue, allowOneSpellRider = true).first
 
+    /** Shared payable symbols for validation and read-only quotes, including life substitutions.
+     * The caller supplies the payment restriction view when the cast restricts mana sources. */
+    fun payableManaCost(
+        state: GameState, action: CastSpell, cost: ManaCost, paymentXValue: Int,
+        allowOneSpellRider: Boolean = true,
+    ): ManaCost = LifePayableMana.apply(state, cardRegistry, action.playerId,
+        relaxation(state, action, cost, paymentXValue, allowOneSpellRider).first)
+
     /** [relaxForCastPermission], with the one-spell rider it would spend (null when none). */
     private fun relaxation(
         state: GameState,
@@ -639,6 +670,27 @@ internal class CastCostPayer(
         )
     }
 
+    /** Produce the locked bill using only the sources the player selected in the mana window. */
+    fun produceSelectedMana(
+        state: GameState, action: CastSpell, cost: ManaCost, paymentXValue: Int,
+        selectedSources: Set<EntityId>, acceptResult: (GameState) -> Boolean,
+    ): com.wingedsheep.engine.core.ExecutionResult? {
+        val card = state.getEntity(action.cardId)?.get<CardComponent>() ?: return null
+        val cardDef = cardRegistry.getCard(card.cardDefinitionId)
+        val restricted = manaSourceRestriction(state, action, cardDef)
+        val paymentState = restricted?.state ?: state
+        val effectiveCost = LifePayableMana.apply(paymentState, cardRegistry, action.playerId,
+            relaxation(paymentState, action, cost, paymentXValue, allowOneSpellRider = true).first)
+        val planned = manaSolver.planSelectedActivations(
+            paymentState, action.playerId, effectiveCost, spellPaymentContext(paymentState, action, card),
+            selectedSources, paymentXValue * effectiveCost.xCount.coerceAtLeast(1),
+            xManaRestriction(action, cardDef),
+            acceptResult = { acceptResult(restricted?.restore(it) ?: it) },
+        ) as? com.wingedsheep.engine.mechanics.mana.ScopedManaPlanResult.Found ?: return null
+        val result = planned.execution
+        return result.copy(state = restricted?.restore(result.state) ?: result.state)
+    }
+
     /**
      * Whether the caster can pay [cost] (with [paymentXValue] as the X paid in mana) the way their
      * [CastSpell.paymentStrategy] says they will; null when they can. A cast restricted to mana from
@@ -650,23 +702,21 @@ internal class CastCostPayer(
         cost: ManaCost,
         paymentXValue: Int = action.xValue ?: 0,
         allowOneSpellRider: Boolean = true,
+        includeManualMana: Boolean = true,
     ): String? {
         val cardDef = state.getEntity(action.cardId)?.get<CardComponent>()?.let { cardRegistry.getCard(it.cardDefinitionId) }
         val restricted = manaSourceRestriction(state, action, cardDef)
-        return validateManaPaymentIn(restricted?.state ?: state, action, cost, paymentXValue, allowOneSpellRider)
+        return validateManaPaymentIn(restricted?.state ?: state, action, cost, paymentXValue, allowOneSpellRider, includeManualMana)
     }
 
-    private fun validateManaPaymentIn(state: GameState, action: CastSpell, cost: ManaCost, paymentXValue: Int, allowOneSpellRider: Boolean): String? {
+    private fun validateManaPaymentIn(state: GameState, action: CastSpell, cost: ManaCost, paymentXValue: Int, allowOneSpellRider: Boolean, includeManualMana: Boolean): String? {
         val xValue = paymentXValue
         val cardComponent = state.getEntity(action.cardId)?.get<CardComponent>()
         val spellCtx = spellPaymentContext(state, action, cardComponent)
 
         // "Mana of any type can be spent" — relax colored requirements when the cast permission
         // carries that flag (e.g. Taster of Wares, Cruelclaw's Heist).
-        val effectiveCost = LifePayableMana.apply(
-            state, cardRegistry, action.playerId,
-            relaxation(state, action, cost, xValue, allowOneSpellRider).first
-        )
+        val effectiveCost = payableManaCost(state, action, cost, xValue, allowOneSpellRider)
 
         // "Spend only [colors] on X" restriction (Soul Burn) — limits which mana can pay X.
         val cardDef = cardComponent?.let { cardRegistry.getCard(it.cardDefinitionId) }
@@ -680,7 +730,7 @@ internal class CastCostPayer(
 
         return when (action.paymentStrategy) {
             is PaymentStrategy.AutoPay -> {
-                if (!manaSolver.canPay(state, action.playerId, validationCost, xValue, spellContext = spellCtx, xManaRestriction = xManaRestriction)) {
+                if (!manaSolver.canPay(state, action.playerId, validationCost, xValue, spellContext = spellCtx, xManaRestriction = xManaRestriction, includeManualMana = includeManualMana)) {
                     "Not enough mana to cast this spell"
                 } else null
             }

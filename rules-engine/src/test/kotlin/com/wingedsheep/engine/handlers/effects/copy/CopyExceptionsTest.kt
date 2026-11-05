@@ -464,7 +464,7 @@ class CopyExceptionsTest : FunSpec({
         val copy = CopyExceptionApplier.apply(flipped, ifCreatureChangeling)
         copy.baseKeywords shouldBe emptySet()
         copy.flipSide.shouldNotBeNull().baseKeywords shouldBe setOf(Keyword.TRAMPLE, Keyword.CHANGELING)
-        copy.flipSide!!.typeLine.supertypes shouldBe setOf(Supertype.LEGENDARY, Supertype.SNOW)
+        copy.flipSide.typeLine.supertypes shouldBe setOf(Supertype.LEGENDARY, Supertype.SNOW)
     }
 
     test("conditional clauses merge, render and predict the type line") {

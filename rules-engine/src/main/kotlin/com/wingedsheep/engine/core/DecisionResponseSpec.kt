@@ -108,9 +108,9 @@ fun PendingDecision.responseSpec(): DecisionResponseSpec = when (this) {
     is FlipOntoBattlefieldDecision -> DecisionResponseSpec(
         responseType = "FlipThrowResponse",
         requiredFields = mapOf(
-            "aimX" to DecisionResponseFieldKind.NUMBER,
-            "aimY" to DecisionResponseFieldKind.NUMBER,
-            "strength" to DecisionResponseFieldKind.NUMBER,
+            "velocityX" to DecisionResponseFieldKind.NUMBER,
+            "velocityY" to DecisionResponseFieldKind.NUMBER,
+            "spin" to DecisionResponseFieldKind.NUMBER,
         ),
     )
     is AssignDamageDecision -> DecisionResponseSpec(

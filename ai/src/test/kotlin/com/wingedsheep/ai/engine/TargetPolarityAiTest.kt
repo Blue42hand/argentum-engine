@@ -37,6 +37,7 @@ import com.wingedsheep.mtg.sets.definitions.woe.cards.DiminisherWitch
 import com.wingedsheep.mtg.sets.definitions.woe.cards.EmberethVeteran
 import com.wingedsheep.mtg.sets.definitions.fin.cards.RestorationMagic
 import com.wingedsheep.mtg.sets.definitions.mh3.cards.ProudPackRhino
+import com.wingedsheep.mtg.sets.definitions.m19.cards.Suncleanser
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.OptionChosenResponse
@@ -127,6 +128,13 @@ class TargetPolarityAiTest : FunSpec({
             val modal = ProudPackRhino.script.triggeredAbilities.single().effect as ModalEffect
             TargetPolarityAnalyzer.forMode(modal.modes[0]) shouldBe listOf(TargetPolarity.BENEFICIAL)
         }
+        test("a counter lock on a player is aimed at them; stripping a creature's counters is either-way") {
+            val modal = Suncleanser.script.triggeredAbilities.single().effect as ModalEffect
+            // "Target opponent loses all counters. That player can't get counters …"
+            TargetPolarityAnalyzer.forMode(modal.modes[1]) shouldBe listOf(TargetPolarity.HARMFUL)
+            // Clearing +1/+1 counters off theirs or -1/-1 counters off ours: the board decides.
+            TargetPolarityAnalyzer.forMode(modal.modes[0]) shouldBe listOf(TargetPolarity.UNKNOWN)
+        }
         test("a tiered spell's slots are its chosen tier's") {
             // Cure and Cura: "target permanent gains hexproof and indestructible" (Cura adds 3 life).
             TargetPolarityAnalyzer.forSpellModes(RestorationMagic, listOf(0)) shouldBe listOf(TargetPolarity.BENEFICIAL)
@@ -147,9 +155,9 @@ class TargetPolarityAiTest : FunSpec({
             TargetPolarityAnalyzer.forSpell(BlackWard) shouldBe listOf(TargetPolarity.BENEFICIAL)
             TargetPolarityAnalyzer.forSpell(Lignify) shouldBe listOf(TargetPolarity.HARMFUL)
         }
-        test("either-way effects stay unknown") {
+        test("known bounce is flexible while mixed effects stay unknown") {
             // Bouncing our own creature in response to removal is a real play.
-            TargetPolarityAnalyzer.forSpell(Unsummon) shouldBe listOf(TargetPolarity.UNKNOWN)
+            TargetPolarityAnalyzer.forSpell(Unsummon) shouldBe listOf(TargetPolarity.FLEXIBLE)
             // "Prevent combat damage dealt to and by": a Fog on their attacker or armour on ours.
             TargetPolarityAnalyzer.forSpell(Sandskin) shouldBe listOf(TargetPolarity.UNKNOWN)
         }

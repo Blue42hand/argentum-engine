@@ -22,6 +22,11 @@ import kotlinx.serialization.Serializable
  * @property target Which spells/costs the modifier applies to.
  * @property modification How the cost is changed (reduce/increase, generic/colored, fixed/dynamic).
  * @property gating Optional extra restriction (e.g. only the first matching spell each turn).
+ *
+ * A [ProjectedStaticAbility], so a [GrantStaticAbility] can hand it to other permanents — Jubilant
+ * Skybonder's "creatures you control with flying have 'Spells your opponents cast that target this
+ * creature cost {2} more to cast'". Each holder's granted instance is its own modifier, read
+ * relative to the holder: a spell targeting two such creatures costs {4} more.
  */
 @SerialName("ModifySpellCost")
 @Serializable
@@ -31,7 +36,7 @@ data class ModifySpellCost(
     val gating: CostGating = CostGating.None,
     /** Optional additional life payment elected once per instance while announcing the spell. */
     val optionalLifePayment: Int? = null,
-) : StaticAbility {
+) : ProjectedStaticAbility {
     init { require(optionalLifePayment == null || optionalLifePayment > 0) }
 
     override val description: String = buildDescription()
@@ -1125,13 +1130,14 @@ enum class SpecialActionKind(val costPhrase: String) {
  * *ability*, not the permanent, so a matching permanent's ordinary activated abilities cost full
  * price while its exhaust ability is discounted.
  *
- * [onlyIfTargetIsSource] narrows it to activations that **target the static's own source** —
- * Bladegraft Aspirant's "Activated abilities of Equipment you control that target this creature
- * cost {1} less to activate." →
- * `ReduceActivatedAbilityCost(GroupFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()), DynamicAmounts.fixed(1), onlyIfTargetIsSource = true)`.
+ * [targeting] narrows it to activations that **target a permanent the group matches**, read
+ * relative to the static's source — Bladegraft Aspirant's "Activated abilities of Equipment you
+ * control that target this creature cost {1} less to activate." →
+ * `ReduceActivatedAbilityCost(GroupFilter(GameObjectFilter.Artifact.withSubtype(Subtype.EQUIPMENT).youControl()), DynamicAmounts.fixed(1), targeting = GroupFilter.source())`.
  * Targets are chosen before the total cost is determined (CR 601.2c before 601.2f, via CR 602.2b),
  * so at payment the reduction is exact; at enumeration (targets not yet chosen) it is offered
- * optimistically for any targeted ability while the source is a creature. The activated-ability
+ * optimistically for any targeted ability. It is the same axis as
+ * [IncreaseActivatedAbilityCost.targeting]. The activated-ability
  * sibling of [ReduceEquipCost.targetFilter], which covers *equip* abilities whatever their
  * source.
  *
@@ -1170,7 +1176,8 @@ enum class SpecialActionKind(val costPhrase: String) {
  * @property amount Dynamic generic-mana reduction applied to each matching ability's cost.
  * @property manaFloor Minimum total mana the cost may be reduced to (default 0).
  * @property onceOnlyKind When set, only abilities of that keyword (`ActivatedAbility.onceOnlyKind`) are reduced.
- * @property onlyIfTargetIsSource When true, only activations that target this static's source are reduced.
+ * @property targeting When set, only activations with a chosen target matching this group (relative
+ *   to the static's source: [GroupFilter.source] is "this creature") are reduced.
  * @property excludeManaAbilities When true, mana abilities (CR 605) are not reduced.
  * @property reach Which activations the reduction sees — see [ActivatedAbilityReach].
  * @property firstEachTurn When true, only the controller's first activation this turn of an ability
@@ -1187,14 +1194,14 @@ data class ReduceActivatedAbilityCost(
     val amount: DynamicAmount,
     val manaFloor: Int = 0,
     val onceOnlyKind: OnceOnlyAbilityKind? = null,
-    val onlyIfTargetIsSource: Boolean = false,
+    val targeting: GroupFilter? = null,
     val excludeManaAbilities: Boolean = false,
     val reach: ActivatedAbilityReach = ActivatedAbilityReach.MATCHING_PERMANENTS,
     val keyword: com.wingedsheep.sdk.core.Keyword? = null,
     val firstEachTurn: Boolean = false
 ) : StaticAbility {
     init {
-        require(!(firstEachTurn && reach == ActivatedAbilityReach.ACTIVATED_BY_YOU)) {
+        require(!(firstEachTurn && reach != ActivatedAbilityReach.MATCHING_PERMANENTS)) {
             "firstEachTurn counts activations of permanents; use the MATCHING_PERMANENTS reach"
         }
     }
@@ -1209,18 +1216,20 @@ data class ReduceActivatedAbilityCost(
             val noun = filter.baseFilter.description
             val article = if (noun.firstOrNull()?.lowercaseChar() in setOf('a', 'e', 'i', 'o', 'u')) "an" else "a"
             append("The first activated ability of $article $noun you activate each turn")
-        } else if (reach == ActivatedAbilityReach.ACTIVATED_BY_YOU) {
+        } else if (reach != ActivatedAbilityReach.MATCHING_PERMANENTS) {
+            val who = reach.activatorPhrase
             append(
                 when {
-                    keyword != null -> "${keyword.displayName} abilities you activate"
-                    onceOnlyKind != null -> "${onceOnlyKind.displayName.replaceFirstChar { it.uppercase() }} abilities you activate"
-                    else -> "Abilities you activate"
+                    keyword != null -> "${keyword.displayName} abilities $who"
+                    onceOnlyKind != null -> "${onceOnlyKind.displayName.replaceFirstChar { it.uppercase() }} abilities $who"
+                    else -> "Abilities $who"
                 }
             )
             if (excludeManaAbilities) append(" that aren't mana abilities")
-        } else if (onlyIfTargetIsSource) {
+            if (targeting != null) append(" that target ${targeting.description}")
+        } else if (targeting != null) {
             append(abilities.replaceFirstChar { it.uppercase() })
-            append(" of ${filter.description} that target this permanent")
+            append(" of ${filter.description} that target ${targeting.description}")
         } else {
             append(filter.description.replaceFirstChar { it.uppercase() })
             append("'s $abilities")
@@ -1239,29 +1248,44 @@ data class ReduceActivatedAbilityCost(
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
         val newAmount = amount.applyTextReplacement(replacer)
-        return if (newFilter !== filter || newAmount !== amount) copy(filter = newFilter, amount = newAmount) else this
+        val newTargeting = targeting?.applyTextReplacement(replacer)
+        return if (newFilter !== filter || newAmount !== amount || newTargeting !== targeting) {
+            copy(filter = newFilter, amount = newAmount, targeting = newTargeting)
+        } else this
     }
 }
 
 /**
- * Which activations a [ReduceActivatedAbilityCost] sees.
+ * Which activations a [ReduceActivatedAbilityCost] or [IncreaseActivatedAbilityCost] sees.
  */
 @Serializable
-enum class ActivatedAbilityReach {
+enum class ActivatedAbilityReach(
+    /** How the description names the activator ("you activate"); empty for [MATCHING_PERMANENTS]. */
+    val activatorPhrase: String,
+) {
     /**
      * Abilities of permanents on the battlefield that the static's `filter` matches, whoever
      * activates them — "activated abilities of creatures you control" (Training Grounds). An ability
      * activated from a hand or graveyard card is not reduced (Training Grounds' ruling: cycling and
      * unearth are untouched).
      */
-    MATCHING_PERMANENTS,
+    MATCHING_PERMANENTS(""),
 
     /**
      * Every ability the static's controller activates, from any zone — the battlefield, a hand
      * card's cycling or channel, a graveyard card's unearth — whose source matches the static's
      * `filter.baseFilter`. "Abilities you activate" (Zirda, the Dawnwaker).
      */
-    ACTIVATED_BY_YOU
+    ACTIVATED_BY_YOU("you activate"),
+
+    /**
+     * Every ability an **opponent** of the static's controller activates, from any zone, whose
+     * source matches the static's `filter.baseFilter` — the opponent-side mirror of
+     * [ACTIVATED_BY_YOU]. "Abilities your opponents activate cost {1} more to activate" (Tithe
+     * Taker): the activator decides, so an opponent's cycling from hand is taxed, and so is an
+     * ability of a permanent the static's controller owns that an opponent activates.
+     */
+    ACTIVATED_BY_OPPONENTS("your opponents activate")
 }
 
 /**
@@ -1285,21 +1309,50 @@ enum class ActivatedAbilityReach {
  * @property excludeManaAbilities Leave mana abilities (CR 605) untaxed — Suppression Field's
  *   "unless they're mana abilities". A board-wide tax without this would price every land's
  *   `{T}: Add …` at {2} more, which is the opposite of what the card says. The flag is the mirror of
- *   [PreventActivatedAbilities]'s `nonManaAbilitiesOnly`; the ability's own `isManaAbility` flag
+ *   [PreventActivatedAbilities]'s `abilities = NON_MANA`; the ability's own `isManaAbility` flag
  *   (CR 605.1a, enforced by `CardLinter`) is what the engine reads.
+ * @property loyaltyAbilitiesOnly Tax only loyalty abilities (the ability's `isPlaneswalkerAbility`
+ *   flag) — Eidolon of Obstruction's "Loyalty abilities of planeswalkers your opponents control cost
+ *   {1} more to activate". The tax is mana prepended to the loyalty cost ("{1}, +1:"); the loyalty
+ *   change itself is untouched.
+ * @property reach Which activations the tax sees — the same axis as
+ *   [ReduceActivatedAbilityCost.reach]. The default taxes abilities of battlefield sources [filter]
+ *   matches; [ActivatedAbilityReach.ACTIVATED_BY_OPPONENTS] is Tithe Taker's "abilities your
+ *   opponents activate cost {1} more to activate unless they're mana abilities" — every opponent
+ *   activation from any zone whose source matches [filter]'s `baseFilter`. Wrap it in a
+ *   [ConditionalStaticAbility] for a "during your turn" gate.
+ * @property targeting When set, only activations with a chosen target matching this group (relative
+ *   to the static's source) are taxed — Kopala, Warden of Waves' "Abilities your opponents activate
+ *   that target a Merfolk you control cost {2} more to activate" is
+ *   `IncreaseActivatedAbilityCost(GroupFilter(GameObjectFilter.Any), DynamicAmounts.fixed(2), reach = ActivatedAbilityReach.ACTIVATED_BY_OPPONENTS, targeting = GroupFilter(GameObjectFilter.Permanent.withSubtype(Subtype.MERFOLK).youControl()))`.
+ *   An ability targeting several matching permanents is taxed once (Kopala's ruling). Targets are
+ *   chosen before the total cost is determined (CR 601.2c before 601.2f, via CR 602.2b), so the tax
+ *   is exact at payment; enumeration, before targets exist, offers the ability untaxed. Triggered
+ *   abilities are never taxed — this prices activations only. The same axis as
+ *   [ReduceActivatedAbilityCost.targeting].
  */
 @SerialName("IncreaseActivatedAbilityCost")
 @Serializable
 data class IncreaseActivatedAbilityCost(
     val filter: GroupFilter,
     val amount: DynamicAmount,
-    val excludeManaAbilities: Boolean = false
+    val excludeManaAbilities: Boolean = false,
+    val loyaltyAbilitiesOnly: Boolean = false,
+    val reach: ActivatedAbilityReach = ActivatedAbilityReach.MATCHING_PERMANENTS,
+    val targeting: GroupFilter? = null,
 ) : StaticAbility {
     override val description: String = buildString {
-        append(filter.description.replaceFirstChar { it.uppercase() })
+        val kind = if (loyaltyAbilitiesOnly) "loyalty" else "activated"
+        if (reach == ActivatedAbilityReach.MATCHING_PERMANENTS) {
+            append(filter.description.replaceFirstChar { it.uppercase() })
+            append("'s $kind abilities")
+        } else {
+            append(if (loyaltyAbilitiesOnly) "Loyalty abilities ${reach.activatorPhrase}" else "Abilities ${reach.activatorPhrase}")
+        }
+        if (targeting != null) append(" that target ${targeting.description}")
         when (amount) {
-            is DynamicAmount.Fixed -> append("'s activated abilities cost {${amount.amount}} more to activate")
-            else -> append("'s activated abilities cost {X} more to activate, where X is ${amount.description}")
+            is DynamicAmount.Fixed -> append(" cost {${amount.amount}} more to activate")
+            else -> append(" cost {X} more to activate, where X is ${amount.description}")
         }
         if (excludeManaAbilities) append(" unless they're mana abilities")
     }
@@ -1307,8 +1360,37 @@ data class IncreaseActivatedAbilityCost(
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
         val newAmount = amount.applyTextReplacement(replacer)
-        return if (newFilter !== filter || newAmount !== amount) copy(filter = newFilter, amount = newAmount) else this
+        val newTargeting = targeting?.applyTextReplacement(replacer)
+        return if (newFilter !== filter || newAmount !== amount || newTargeting !== targeting) {
+            copy(filter = newFilter, amount = newAmount, targeting = newTargeting)
+        } else this
     }
+}
+
+/**
+ * Planeswalkers' loyalty abilities this permanent's controller activates cost an additional
+ * [+amount] — Carth the Lion's "Planeswalkers' loyalty abilities you activate cost an additional
+ * [+1] to activate."
+ *
+ * The loyalty part of the cost is totalled before any counter moves (CR 601.2f via CR 602.2b): a
+ * [+1] costs [+2], a [0] costs [+1], a [−3] costs [−2] — two counters removed at once, so it can be
+ * activated with only two loyalty — and a [−X] costs [−X+1] (X itself is unchanged, so the
+ * ability's effect still reads the chosen X). Several of these are cumulative (printed ruling). The
+ * extra counters of a [+N] are *put* on the planeswalker as part of the one payment, so placement
+ * replacements (Vorinclex) apply once, to the total.
+ *
+ * Scope is the activator, not the planeswalker's controller or the ability's origin: it reaches
+ * every loyalty ability its controller activates, granted ones included.
+ *
+ * @property amount Loyalty added to each such cost (positive).
+ */
+@SerialName("LoyaltyAbilitiesCostAdditional")
+@Serializable
+data class LoyaltyAbilitiesCostAdditional(
+    val amount: Int = 1
+) : StaticAbility {
+    override val description: String =
+        "Planeswalkers' loyalty abilities you activate cost an additional [+$amount] to activate"
 }
 
 /**

@@ -179,14 +179,17 @@ data class TargetRequirementInfo(
      */
     val distinctCategories: Map<EntityId, List<String>>? = null,
     /**
-     * When non-null, the combined mana value of the chosen card targets for this requirement may
-     * not exceed this cap — "any number of target creature cards with total mana value X or less"
-     * (Fire Lord Sozin). Already resolved to a concrete integer at decision-build time (so a
-     * `DynamicAmount.XValue` cap reflects the X just paid); the interactive
-     * [DecisionValidators.validateTargets] rejects a selection whose summed `manaValue` exceeds it.
-     * `null` imposes no aggregate cap.
+     * When non-null, the summed value of the chosen targets may not exceed this cap — the
+     * requirement's `TotalCap` ("any number of target creature cards with total power 10 or less",
+     * Nethroi, Apex of Death) already resolved to an integer at decision-build time (so an
+     * `XValue` cap reflects the X just paid). [totalCapLabel] names the summed property and
+     * [targetValues] holds each candidate's share; all three are set together. `null` imposes no cap.
      */
-    val totalManaValueAtMost: Int? = null,
+    val totalCap: Int? = null,
+    /** The summed property's name for the running tally ("mana value", "power"); set with [totalCap]. */
+    val totalCapLabel: String? = null,
+    /** Each candidate's value toward [totalCap], computed server-side; set with [totalCap]. */
+    val targetValues: Map<EntityId, Int>? = null,
     /**
      * When true, no two chosen targets for this requirement may share a name — "target creature
      * cards with different names" (Behold the Sinister Six!). Enforced against each selected
@@ -375,7 +378,14 @@ data class SelectCardsDecision(
     val librarySearch: Boolean = false,
     /** Per-option repeat capacity for allocating units (such as counters) on permanents.
      * Null means ordinary distinct-card selection. Counts include every repeated occurrence. */
-    val selectionLimits: Map<EntityId, Int>? = null
+    val selectionLimits: Map<EntityId, Int>? = null,
+    /**
+     * The subset of [options] the engine suggests for the deciding player, offered by the client as
+     * a one-click "Recommended" pick the player can then adjust. Advice only — it never constrains
+     * what may be submitted, and must itself be a legal selection. null means no suggestion
+     * (proliferate fills it: see `ProliferateExecutor.recommendedRecipients`).
+     */
+    val recommendedSelection: List<EntityId>? = null
 ) : PendingDecision
 
 @Serializable
@@ -419,7 +429,14 @@ data class YesNoDecision(
      * only which answers it offers. A decision with this false is forced, so the AI and the human
      * auto-answer both say "no" without a prompt.
      */
-    val yesAvailable: Boolean = true
+    val yesAvailable: Boolean = true,
+    /**
+     * True when this is a pure "you may" question of a card ability that a persistent
+     * ALWAYS_ANSWER_YES / ALWAYS_ANSWER_NO yield on [DecisionContext.abilityIdentity] would answer
+     * next time — so the client can offer "don't ask again" right on the prompt. False for pay
+     * gates and anything else a yield never auto-answers.
+     */
+    val canRememberAnswer: Boolean = false
 ) : PendingDecision
 
 /**
@@ -765,7 +782,12 @@ data class SearchCardInfo(
      * characteristic-defining `*` power. Lets a hidden-zone selection UI group cards
      * by power for [SelectCardsDecision.onePerPower].
      */
-    val power: Int? = null
+    val power: Int? = null,
+    /**
+     * The zone the card is in, so a selection spanning several zones can group a hidden card
+     * (a library card the client state doesn't carry) under its own zone heading.
+     */
+    val zone: com.wingedsheep.sdk.core.Zone? = null
 )
 
 /**
@@ -1081,9 +1103,9 @@ data class BudgetModalDecision(
 
 /**
  * Player must physically flip a card onto the battlefield (Chaos Orb). The engine lays the
- * battlefield out as [table]; the player answers with a [FlipThrowResponse] — where they aim and
- * how hard they let go — and the engine rolls where it lands. [release] is the strength meter the
- * engine scores the release against, so the client can draw its zones.
+ * battlefield out as [table]; the player answers with a [FlipThrowResponse] — the flick they let
+ * go with — and the engine rolls where it lands. [release] holds the numbers the engine scores a
+ * flick against, so the client can draw its spin gauge.
  */
 @Serializable
 @SerialName("FlipOntoBattlefieldDecision")
@@ -1100,20 +1122,33 @@ data class FlipOntoBattlefieldDecision(
 ) : PendingDecision
 
 /**
- * Response to [FlipOntoBattlefieldDecision]: the aim point in table millimetres, the release
- * strength (0..1) and where the throwing hand's sideways sway was at release (-1 full left ..
- * 1 full right, from the thrower's seat; 0 is straight). Out-of-range values are clamped by the
- * engine, never trusted.
+ * Response to [FlipOntoBattlefieldDecision]: the flick the card left the hand with — its velocity
+ * in table millimetres per second ([velocityX], [velocityY]; the table's y grows towards the
+ * thrower, so a forward flick has a negative [velocityY]) and how fast it was spinning, in turns
+ * per second. Out-of-range values are clamped by the engine, never trusted.
  */
 @Serializable
 @SerialName("FlipThrowResponse")
 data class FlipThrowResponse(
     override val decisionId: String,
-    val aimX: Double,
-    val aimY: Double,
-    val strength: Double,
-    val sway: Double = 0.0,
-) : DecisionResponse
+    val velocityX: Double,
+    val velocityY: Double,
+    val spin: Double,
+) : DecisionResponse {
+    companion object {
+        /** A flick that carries exactly to ([x], [y]) on [table] with [spin] — for the AI and tests. */
+        fun toward(
+            decisionId: String,
+            table: com.wingedsheep.engine.mechanics.dexterity.FlipTable,
+            x: Double,
+            y: Double,
+            spin: Double = com.wingedsheep.engine.mechanics.dexterity.FlipPhysics.IDEAL_SPIN,
+        ): FlipThrowResponse {
+            val (vx, vy) = com.wingedsheep.engine.mechanics.dexterity.FlipPhysics.flickToward(table, x, y)
+            return FlipThrowResponse(decisionId, vx, vy, spin)
+        }
+    }
+}
 
 /**
  * A single mode option in a budget modal decision (cost + description, no effect data).

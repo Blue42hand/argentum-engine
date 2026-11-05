@@ -147,6 +147,60 @@ For an escape cast, the legal action includes `alternativeCostType: "ESCAPE"` an
 unchanged when submitting the action: two escape abilities on the same card can carry different
 costs. The engine checks that the selected ability is currently available.
 
+### B1. Read-only Cast Cost Quote (Client <-> Server)
+
+While collecting a cast announcement, the client can request the native price for its current
+choices before showing a cost-sensitive selector. Send the offered `CastSpell` action with the
+choices collected so far, using seat-visible IDs exactly as received. Preserve its offered cast
+variant fields; the engine admits only choices allowed by a currently available native offer.
+
+```json
+{
+  "type": "requestCastCostQuote",
+  "requestId": "cast-cost-17",
+  "stateVersion": 42,
+  "interactionEpoch": "current-interaction-epoch",
+  "action": {
+    "type": "CastSpell",
+    "playerId": "player-1",
+    "cardId": "ent-6",
+    "declaredCostTimes": 2
+  }
+}
+```
+
+`requestId` is a nonblank correlation ID of at most 128 characters. `stateVersion` and
+`interactionEpoch` must describe the client's current delivered state and interaction. Under the
+session lock, the server verifies the authenticated socket still owns the seat, checks that the
+seat may act for this announcement, and derives the offer and quote from one captured current
+state. A client cannot obtain quotes for an opponent's hidden card or an unavailable cast variant.
+
+The response echoes all three origin fields; it does not advance the state version. A successful
+`castCostQuote` contains only these cost scalars in addition to the echoed fields:
+
+| Field | Meaning |
+| --- | --- |
+| `manaCostString` | Remaining payable mana after the declared alternative payments, with the chosen X already substituted. Do not subtract those payments again. |
+| `delveGenericCap` | Native generic-cost cap before alternative payments. |
+| `tapForGenericMax` | Native generic-payment cap after earlier alternatives and before the selected tap-for-generic payments, including any narrower waterbend cap. |
+| `tapForGenericCostString` | Native mana bill before the selected tap-for-generic payments, with X substituted. |
+
+An unavailable or stale quote has `error: "Cast cost quote is stale or unavailable"`; cost fields
+are nullable and may be absent. This generic error does not disclose hidden card or rules-state
+details. Transport/session errors retain the existing connection error contract.
+
+The client accepts a reply only while that request is pending and its request ID, state version,
+and interaction epoch still match. Canceled, replaced, or stale replies cannot resume a selector.
+The current UI cancels a pending quote after 15 seconds; a quote error or timeout asks the player
+to choose the spell again instead of submitting it or automatically retrying the quote.
+
+A quote is not a cast, an affordability guarantee, or a locked cost. It activates no mana
+abilities, spends no resources, and changes no game state, on success or error. Each request prices
+one partial announcement; the client requests fresh prices as relevant choices change rather than
+enumerating every possible payment count. Final action submission still performs native legality
+and payment validation.
+
+
 ### B2. Persistent Yields (Client -> Server)
 
 MTGO-style per-ability yields (backlog §C). Keyed by the ability's **AbilityIdentity**
@@ -170,6 +224,12 @@ another player's yields), each `{ cardDefinitionId, abilityId, displayName, unti
 wholeGame, autoAnswer }`. A triggered/activated ability on the stack carries its `abilityIdentity`
 in its `ClientCard`, so the stack-item context menu can target it. When a yield auto-answers a
 may-question, the server emits an `abilityAutoAnswered` log event (shown only to the controller).
+
+Trigger ordering (CR 603.3b): `{ "type": "setTriggerOrdering", "manual": true }` asks the server to
+let this player order their own simultaneous triggers (an `OrderTriggersDecision`). A player in Full
+Control is asked regardless of this setting. When automatic ordering places several of a player's
+triggers in an order they could have chosen, the server emits a `triggersOrderedAutomatically` event
+(`{ count }`, shown only to that player); the client turns the first one into a one-time tip.
 
 ### B3. Deck Tracker (`deck` on the client state)
 
@@ -270,7 +330,7 @@ Set-level metadata for the deckbuilder, pickers, and the **Set Completion** view
 plain HTTP JSON.
 
 **List sets** — `GET /api/sets` → `[{ "code", "name", "releaseDate" }]` (every catalogued set).
-**Booster-ready** — `GET /api/sets/booster-ready` → `[{ "setCode", "setName", "implementedCount", "incomplete" }]`
+**Booster-ready** — `GET /api/sets/booster-ready` → `[{ "setCode", "setName", "implementedCount", "incomplete", "releaseDate", "extensionSet" }]` (the Set guide reads this list)
 (subset draftable for sealed/draft).
 
 **Set coverage** — `GET /api/sets/coverage` → per-set card-implementation coverage, newest release
@@ -536,7 +596,15 @@ sealed, or premade), then one N-player game".
   seat-order grouping if the manual assignment can't form two equal teams. The result flows to
   `GameSession.teams` → `GameConfig.teams`. The two modes differ only in the engine `Format` chosen:
   - `TWO_HEADED_GIANT` — exactly four players (`Format.TwoHeadedGiant`): teams share one 30-life
-    total, take shared turns, fight combined combat, and win/lose together.
+    total, take shared turns, fight combined combat, and win/lose together. A single
+    `DeclareBlockers` submission covers both teammates: `validBlockers` includes eligible
+    creatures across their boards, and `blockableAttackers` names attacks that this declaration
+    may block. The client uses these lists directly rather than inferring eligibility from
+    card ownership or the attacked seat; confirming completes the whole team's declaration.
+    If effects assign teammates' choices to different input actors, each owner submits separately
+    and `proposedBlockerAssignments` carries the prior choices for display only. The engine applies
+    the declaration atomically after validating the combined map; an illegal aggregate restarts
+    the choices with an explanatory action description, without firing block triggers.
   - `TEAM_VS_TEAM` — an even pod of 4/6/8 (`Format.TeamVsTeam`, i.e. 2v2/3v3/4v4): **nothing is
     shared** (CR 808.5). Each player keeps their own 20 life and their own turn, is eliminated
     individually (CR 104.3b), and a team loses only once all its members have left (CR 104.2c).

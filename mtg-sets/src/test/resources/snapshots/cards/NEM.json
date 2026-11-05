@@ -2810,7 +2810,7 @@
                     {
                         "type": "TargetObject",
                         "filter": {
-                            "baseFilter": {},
+                            "baseFilter": "noncreature",
                             "zone": "Stack"
                         },
                         "id": "t0"

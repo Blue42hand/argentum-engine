@@ -2,6 +2,10 @@ package com.wingedsheep.engine.hidden
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CardsSelectedResponse
+import com.wingedsheep.engine.core.ChooseColorDecision
+import com.wingedsheep.engine.core.ColorChosenResponse
+import com.wingedsheep.engine.core.Suspension
+import com.wingedsheep.engine.core.EntersWithChoiceOnBattlefieldContinuation
 import com.wingedsheep.engine.core.ChooseOptionDecision
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.GameAction
@@ -18,6 +22,7 @@ import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.engine.support.HiddenIdentityForkChecker
 import com.wingedsheep.engine.support.HiddenIdentityForkChecker.End
 import com.wingedsheep.engine.support.ScenarioTestBase
+import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
@@ -227,6 +232,67 @@ class HiddenIdentityForkCasesTest : ScenarioTestBase() {
         play(game, SubmitDecision(game.player2Id, CardsSelectedResponse(game.state.pendingDecision!!.id, emptyList())))
 
     init {
+        for (orderFork in listOf(false, true)) {
+            test("a land color choice preserves a hidden library ${if (orderFork) "order" else "identity"} fork through its frozen entry world") {
+                val game = p2Turn(listOf("Valgavoth's Lair"), listOf("Balustrade Wurm", "Violent Urge"))
+                val start = game.state
+                val hidden = cardIn(start, game.player2Id, "Balustrade Wurm", inHand = false)
+                val partner = cardIn(start, game.player2Id, "Violent Urge", inHand = false)
+                val actions = mutableListOf<GameAction>().apply {
+                    play(game, PlayLand(game.player2Id, cardIn(start, game.player2Id, "Valgavoth's Lair")))
+                    val choice = game.state.pendingDecision.shouldBeInstanceOf<ChooseColorDecision>()
+                    play(game, SubmitDecision(game.player2Id, ColorChosenResponse(choice.id, Color.GREEN)))
+                }
+                val outcome = if (orderFork) checker.checkOrderFork(start, hidden, partner, game.player2Id, actions)
+                    else checker.checkZoneFork(start, hidden, cardRegistry.requireCard("Violent Urge"), game.player1Id, actions)
+                outcome.leak.shouldBeNull()
+                outcome.end shouldBe End.Completed
+                outcome.checked shouldBe actions.size
+                outcome.checked shouldBe 2
+            }
+        }
+
+        for (faceDown in listOf(false, true)) {
+            test("a ${if (faceDown) "face-down" else "library"} fork rewrites only its own unchanged object in saved entry worlds") {
+                val game = if (faceDown) scenario().withPlayers().withCardInHand(2, "Valgavoth's Lair")
+                    .withCardOnBattlefield(2, "Grizzly Bears").withActivePlayer(2)
+                    .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN).build()
+                    else p2Turn(listOf("Valgavoth's Lair"), listOf("Grizzly Bears"))
+                val hidden = if (faceDown) game.findPermanent("Grizzly Bears")!!
+                    else cardIn(game.state, game.player2Id, "Grizzly Bears", inHand = false)
+                if (faceDown) game.state = game.state.updateEntity(hidden) { it.with(FaceDownComponent) }
+                val start = game.state
+                val replacement = cardRegistry.requireCard("Hill Giant")
+                val fork = if (faceDown) checker.faceDownFork(start, hidden, replacement, game.player1Id)
+                    else checker.zoneFork(start, hidden, replacement, game.player1Id)
+                game.execute(PlayLand(game.player2Id, cardIn(start, game.player2Id, "Valgavoth's Lair")))
+                game.state.pendingDecision.shouldBeInstanceOf<ChooseColorDecision>()
+                val suspended = game.state.continuationStack.last().shouldBeInstanceOf<Suspension>()
+                val answer = suspended.answer.shouldBeInstanceOf<EntersWithChoiceOnBattlefieldContinuation>()
+                val snapshot = answer.replacementSourceState.shouldNotBeNull()
+                val identity = snapshot.objectIdentities.getValue(hidden)
+                val historical = snapshot.copy(objectIdentities = snapshot.objectIdentities +
+                    (hidden to identity.copy(generation = identity.generation - 1)))
+                val reincarnated = snapshot.copy(objectIdentities = snapshot.objectIdentities +
+                    (hidden to identity.copy(generation = identity.generation + 1)))
+                val changedIdentity = snapshot.updateEntity(hidden) { container ->
+                    container.with(container.get<CardComponent>()!!.copy(name = "Already transformed"))
+                }
+                for (saved in listOf(snapshot.withoutEntity(hidden), historical, reincarnated, changedIdentity)) {
+                    val withSnapshot = game.state.copy(continuationStack = game.state.continuationStack.dropLast(1) +
+                        suspended.copy(answer = answer.copy(replacementSourceState = saved)))
+                    val rewritten = fork.withForkedIdentity(withSnapshot)
+                    rewritten.getEntity(hidden)?.get<CardComponent>()?.name shouldBe "Hill Giant"
+                    val kept = (rewritten.continuationStack.last() as Suspension).answer as EntersWithChoiceOnBattlefieldContinuation
+                    kept.replacementSourceState shouldBe saved
+                }
+                val rewritten = fork.withForkedIdentity(game.state)
+                val sameObject = (rewritten.continuationStack.last() as Suspension).answer as EntersWithChoiceOnBattlefieldContinuation
+                sameObject.replacementSourceState!!.getEntity(hidden)?.get<CardComponent>()?.name shouldBe "Hill Giant"
+                sameObject.replacementSourceState!!.objectRef(hidden) shouldBe snapshot.objectRef(hidden)
+            }
+        }
+
         test("a disclosure the same action makes can't excuse the question it asks") {
             // The Herald reveals the hand and asks only when it holds a Goblin.
             val game = p2Turn(listOf("Leaky Test Herald", "Boggart Mob"))

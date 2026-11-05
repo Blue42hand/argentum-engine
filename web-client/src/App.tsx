@@ -1,4 +1,4 @@
-import { retainLegalBlockAssignments } from '@/utils/combatBlockTargets'
+import { refreshBlockerOffer } from '@/utils/combatBlockTargets'
 import { Suspense, lazy, memo, useEffect, useMemo, useRef } from 'react'
 import { GameBoard } from './components/game/GameBoard'
 import { GameUI } from './components/ui/GameUI'
@@ -33,9 +33,8 @@ import { PostGamePanel } from '@/components/tableTalk/PostGamePanel'
 import { useTableTalkStore } from '@/store/tableTalkStore'
 import { LearnCoach } from '@/components/learn/LearnCoach'
 import { useViewingPlayer, useBattlefieldCards, selectTeamMap } from './store/selectors'
-import type { ClientAttacker, EntityId } from './types'
+import type { EntityId } from './types'
 import { GameOverReason } from './types'
-import { defendingPlayerOf } from './utils/combatTargets'
 
 // Limited-format and spectator screens are a minority of sessions but about a third of this
 // chunk, so they load on demand. Each keeps its own <Suspense> — the one in main.tsx would blank
@@ -69,37 +68,39 @@ function preloadSecondaryScreens() {
  * The in-game interaction overlays. None takes props beyond the epoch key — each reads its own
  * store slice — so memoizing the group keeps App's own re-render on every server message (it
  * watches gameState and legalActions to drive combat mode) from re-rendering all of them.
+ * Each key is `<overlay>:<epoch>`: the epoch remounts the overlay when the interaction changes, and
+ * the prefix keeps the siblings' keys distinct, which React requires within one fragment.
  */
 const InGameOverlays = memo(function InGameOverlays({ interactionEpoch }: { interactionEpoch: string | null }) {
   return (
     <>
       {/* X cost selection overlay (when casting spells with X in cost) */}
-      <XCostSelector key={interactionEpoch} />
+      <XCostSelector key={`XCostSelector:${interactionEpoch}`} />
 
       {/* Blight X variable additional cost overlay (e.g., Soul Immolation) */}
-      <BlightVariableSelector key={interactionEpoch} />
-      <PayXLifeSelector key={interactionEpoch} />
+      <BlightVariableSelector key={`BlightVariableSelector:${interactionEpoch}`} />
+      <PayXLifeSelector key={`PayXLifeSelector:${interactionEpoch}`} />
 
       {/* Choose-N modal (Spree / "choose one or more") mode-selection panel */}
-      <ModalModeSelector key={interactionEpoch} />
+      <ModalModeSelector key={`ModalModeSelector:${interactionEpoch}`} />
 
       {/* Convoke selection overlay (when casting spells with Convoke) */}
-      <ConvokeSelector key={interactionEpoch} />
+      <ConvokeSelector key={`ConvokeSelector:${interactionEpoch}`} />
 
       {/* Tap-for-generic selection overlay (improvise CR 702.126 / waterbend costs) */}
-      <TapForGenericSelector key={interactionEpoch} />
+      <TapForGenericSelector key={`TapForGenericSelector:${interactionEpoch}`} />
 
       {/* Harmonize creature-tap overlay (when casting from graveyard via Harmonize) */}
-      <HarmonizeSelector key={interactionEpoch} />
+      <HarmonizeSelector key={`HarmonizeSelector:${interactionEpoch}`} />
 
       {/* Tap-for-power selection overlay (crewing Vehicles / saddling Mounts) */}
-      <TapForPowerSelector key={interactionEpoch} />
+      <TapForPowerSelector key={`TapForPowerSelector:${interactionEpoch}`} />
 
       {/* Delve selection overlay (when casting spells with Delve) */}
-      <DelveSelector key={interactionEpoch} />
+      <DelveSelector key={`DelveSelector:${interactionEpoch}`} />
 
       {/* Damage distribution overlay (for DividedDamageEffect spells like Forked Lightning) */}
-      <DamageDistributionModal key={interactionEpoch} />
+      <DamageDistributionModal key={`DamageDistributionModal:${interactionEpoch}`} />
 
       {/* Decision overlay (for pending decisions like discard to hand size) */}
       <DecisionUI />
@@ -111,6 +112,8 @@ const InGameOverlays = memo(function InGameOverlays({ interactionEpoch }: { inte
 })
 
 export default function App() {
+  const waitingForCostQuote = useGameStore((state) => state.pipelineState?.pendingCostQuote != null)
+  const cancelPipeline = useGameStore((state) => state.cancelPipeline)
   const interactionEpoch = useGameStore((state) => state.interactionEpoch)
   const connectionStatus = useGameStore((state) => state.connectionStatus)
   const gameState = useGameStore((state) => state.gameState)
@@ -233,20 +236,8 @@ export default function App() {
         const blockersAction = legalActions.find(
           (a) => a.actionType === 'DeclareBlockers' || a.action.type === 'DeclareBlockers'
         )
-        const updatedValidCreatures = blockersAction?.validBlockers ?? []
-        const updatedValidBlockTargets = blockersAction?.validBlockTargets
-        if (JSON.stringify(updatedValidCreatures) !== JSON.stringify([...combatState.validCreatures]) ||
-            JSON.stringify(updatedValidBlockTargets) !== JSON.stringify(combatState.validBlockTargets)) {
-          const cleanedAssignments = retainLegalBlockAssignments(
-            combatState.blockerAssignments, updatedValidCreatures, updatedValidBlockTargets,
-          )
-          startCombat({
-            ...combatState,
-            validCreatures: [...updatedValidCreatures],
-            validBlockTargets: updatedValidBlockTargets,
-            blockerAssignments: cleanedAssignments,
-          })
-        }
+        const refreshed = refreshBlockerOffer(combatState, blockersAction, gameState.combat?.attackers ?? [])
+        if (refreshed !== combatState) startCombat(refreshed)
       }
       // Already in combat mode, don't re-enter
       return
@@ -323,22 +314,12 @@ export default function App() {
         ? [...blockersAction.validBlockers]
         : []
 
-      // Attacking creatures come from the server's authoritative combat state rather than
-      // "the viewing player's opponent" — in single-client hotseat the seat we control (the
-      // defender) can be the top row, so the attackers are the viewer's own creatures.
-      // In multiplayer a defender may only block attackers attacking *them* or their
-      // planeswalkers (CR 509.1b) — scope to the acting defender's slice of the combat.
-      // In a 2-player game every attacker attacks the sole defender, so this keeps all.
-      const defendingSeat = blockersAction?.action.type === 'DeclareBlockers'
-        ? blockersAction.action.playerId
-        : null
-      const attacksSeat = (a: ClientAttacker): boolean => {
-        if (!defendingSeat) return true
-        if (a.attackingTarget.type === 'Player') return a.attackingTarget.playerId === defendingSeat
-        return defendingPlayerOf(a.attackingTarget.permanentId, gameState?.cards) === defendingSeat
-      }
-      const relevantAttackers = (gameState?.combat?.attackers ?? []).filter(attacksSeat)
-      const attackingCreatures: EntityId[] = relevantAttackers.map((a) => a.creatureId)
+      // The engine scopes this list to the defender or shared-turn team, including attacks
+      // on teammates' permanents. The client only selects the matching combat presentation.
+      const attackingCreatures = [...(blockersAction?.blockableAttackers ?? [])]
+      const blockableSet = new Set(attackingCreatures)
+      const relevantAttackers = (gameState?.combat?.attackers ?? [])
+        .filter((attacker) => blockableSet.has(attacker.creatureId))
 
       // Find attackers that must be blocked by all (from combat state in game state)
       const mustBeBlockedAttackers: EntityId[] = relevantAttackers
@@ -369,6 +350,7 @@ export default function App() {
         validAttackTargets: [],
         attackTargetsByAttacker: {},
         blockerAssignments,
+        proposedBlockerAssignments: blockersAction?.proposedBlockerAssignments ?? {},
         validCreatures,
         mandatoryAttackers: [],
         attackingCreatures,
@@ -418,6 +400,12 @@ export default function App() {
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       {/* Main game board (2D) */}
       {showGame && <GameBoard />}
+      {showGame && waitingForCostQuote && (
+        <div role="status" style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 1000,
+          background: '#1e293b', color: '#fff', padding: '12px 16px', borderRadius: 8 }}>
+          Refreshing spell cost… <button onClick={cancelPipeline}>Cancel</button>
+        </div>
+      )}
 
       {/* Opponent decision indicator (shown during game when opponent is deciding) */}
       {showGame && <OpponentDecisionIndicator />}

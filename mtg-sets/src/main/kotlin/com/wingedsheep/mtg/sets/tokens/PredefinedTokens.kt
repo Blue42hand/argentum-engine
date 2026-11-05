@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
 import com.wingedsheep.sdk.dsl.DynamicAmounts
@@ -344,6 +345,26 @@ object PredefinedTokens {
 
         metadata {
             imageUri = "https://cards.scryfall.io/normal/front/b/b/bb1e78e6-a9e7-48a4-9231-61fb331c5837.jpg?1721426299"
+        }
+    }
+
+    /**
+     * Neuroflux Heirloom — a colorless Equipment artifact token with:
+     * "Equipped creature gets +1/+1" and equip {2}. The Sword shape under Star Trek's name;
+     * created (and attached) by Gwyndala, the Progeny.
+     */
+    val NeurofluxHeirloom = card("Neuroflux Heirloom") {
+        typeLine = "Artifact — Equipment"
+
+        staticAbility {
+            ability = ModifyStats(+1, +1, Filters.EquippedCreature)
+        }
+
+        equipAbility("{2}")
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/d/8/d811c3c3-6b5b-4b42-be4f-0a455313ccd3.jpg?1793364366"
+            artist = "David Frasheski"
         }
     }
 
@@ -745,6 +766,29 @@ object PredefinedTokens {
 
         metadata {
             imageUri = "https://cards.scryfall.io/normal/front/6/b/6b76b7a4-f398-4bb4-833e-97ec0d4e581a.jpg?1726236906"
+        }
+    }
+
+    /**
+     * New Planet — the colorless Planet land token Star Trek's terraforming cards create
+     * (Gaseous Anomaly, David and Carol Marcus, Genesis Effect, …): "Token Land — Planet" with
+     * "{T}: Add one mana of any color." Planet is a non-basic land type with no intrinsic mana
+     * ability, so the ability is written out.
+     */
+    val NewPlanet = card("New Planet") {
+        typeLine = "Token Land — Planet"
+        oracleText = "{T}: Add one mana of any color."
+
+        activatedAbility {
+            cost = Costs.Tap
+            effect = Effects.AddAnyColorMana(1)
+            manaAbility = true
+            timing = TimingRule.ManaAbility
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/2/1/21d855f7-fd5c-4eb4-b997-a905849806b9.jpg?1793364386"
+            artist = "David Frasheski"
         }
     }
 
@@ -1369,6 +1413,30 @@ object PredefinedTokens {
     }
 
     /**
+     * Feather — a red artifact token with "{1}, Sacrifice Feather: Return target Phoenix card from
+     * your graveyard to the battlefield tapped." Created by Everquill Phoenix when it mutates.
+     * Red from its color indicator (CR 204), like [Frog].
+     */
+    val Feather = card("Feather") {
+        typeLine = "Artifact"
+        colorIdentity = "R"
+        oracleText = "{1}, Sacrifice Feather: Return target Phoenix card from your graveyard to the battlefield tapped."
+
+        activatedAbility {
+            val phoenix = target(
+                TargetFilter(GameObjectFilter.Any.withSubtype("Phoenix").ownedByYou(), zone = Zone.GRAVEYARD)
+            )
+            cost = Costs.Composite(Costs.Mana("{1}"), Costs.SacrificeSelf)
+            effect = Effects.PutOntoBattlefield(phoenix, tapped = true)
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/a/9/a9cc7c63-5d13-4fd6-af9d-4a26c2bab8e6.jpg?1783930943"
+            artist = "Lie Setiawan"
+        }
+    }
+
+    /**
      * Tamiyo's Notebook — a legendary colorless Book artifact token with
      * "Spells you cast cost {2} less to cast" and "{T}: Draw a card."
      * Created by Tamiyo, Compleated Sage's −7.
@@ -1427,6 +1495,7 @@ object PredefinedTokens {
         JustOneGlass,
         Map,
         Sword,
+        NeurofluxHeirloom,
         Cragflame,
         IcingdeathFrostTongue,
         Mutavault,
@@ -1440,6 +1509,7 @@ object PredefinedTokens {
         Incubator,
         Drone,
         Everywhere,
+        NewPlanet,
         Munitions,
         Mutagen,
         Frog,
@@ -1467,6 +1537,7 @@ object PredefinedTokens {
         IcyManalith,
         ReplicatedRing,
         TamiyosNotebook,
+        Feather,
         Gold
     )
 }
