@@ -113,6 +113,14 @@ data class GameConfig(
      * reproduces the setting its game was recorded with.
      */
     val preserveGraveyardOrder: Boolean? = null,
+    /**
+     * Play this game for ante (CR 407): after turn order is set and libraries are shuffled, each
+     * player antes one random card of their deck before anyone draws (407.2). Off by default —
+     * ante is an optional variation, and the cards that read "Remove this card from your deck
+     * before playing if you're not playing for ante" are only legal when it is on (407.3); the
+     * server's deck validation enforces that, not the engine.
+     */
+    val playingForAnte: Boolean = false,
 )
 
 /**
@@ -461,6 +469,30 @@ class GameInitializer(
         for (playerId in playerIds) {
             state = shuffleLibrary(state, playerId)
             events.add(LibraryShuffledEvent(playerId, ShuffleCause.GAME_SETUP))
+        }
+
+        // 4b. Ante (CR 407.2): "after determining which player goes first but before players draw
+        // any cards", each player puts one random card from their deck into the ante. Turn order is
+        // already set, so ante in turn order. A random pick from the freshly shuffled library — not
+        // just its top card — keeps the RNG stream honest to the rule's wording.
+        if (config.playingForAnte) {
+            state = state.copy(playingForAnte = true)
+            for (playerId in state.turnOrder) {
+                val libraryKey = ZoneKey(playerId, Zone.LIBRARY)
+                val library = state.getZone(libraryKey)
+                if (library.isEmpty()) continue
+                val (cardId, rolled) = state.nextRandom { pick(library) }
+                state = rolled.moveToZone(cardId, libraryKey, ZoneKey(playerId, Zone.ANTE))
+                events.add(
+                    ZoneChangeEvent(
+                        entityId = cardId,
+                        entityName = state.getEntity(cardId)?.get<CardComponent>()?.name ?: "",
+                        fromZone = Zone.LIBRARY,
+                        toZone = Zone.ANTE,
+                        ownerId = playerId,
+                    )
+                )
+            }
         }
 
         // 5. Draw initial hands

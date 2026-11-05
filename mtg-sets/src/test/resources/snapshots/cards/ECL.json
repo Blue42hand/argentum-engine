@@ -3243,7 +3243,8 @@
                         ]
                     }
                 },
-                "ShuffleLibrary"
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
             ]
         }
     },
@@ -6143,7 +6144,10 @@
             {
                 "id": "Eclipsed Realms:2",
                 "cost": "CostTap",
-                "effect": "AddAnyColorManaSpendOnChosenType",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "restriction": "OfChosenType"
+                },
                 "timing": "ManaAbility",
                 "isManaAbility": true
             }
@@ -12407,7 +12411,7 @@
             {
                 "id": "Moonshadow:1",
                 "trigger": {
-                    "type": "CardsPutIntoYourGraveyardEvent",
+                    "type": "CardsPutIntoGraveyardEvent",
                     "filter": "permanent"
                 },
                 "binding": "ANY",
@@ -12714,7 +12718,8 @@
                                         "player": "TriggeringPlayer"
                                     },
                                     "storeAs": "gathered0",
-                                    "search": true
+                                    "search": true,
+                                    "searcher": "TriggeringPlayer"
                                 },
                                 {
                                     "type": "SelectFromCollection",
@@ -12746,7 +12751,8 @@
                                         "type": "PlayerRef",
                                         "player": "TriggeringPlayer"
                                     }
-                                }
+                                },
+                                "EmitLibrarySearchedEvent"
                             ]
                         }
                     ]
@@ -16226,8 +16232,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 3
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
                                 }
                             },
                             "then": {

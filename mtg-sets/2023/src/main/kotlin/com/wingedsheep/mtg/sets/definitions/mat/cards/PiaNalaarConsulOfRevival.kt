@@ -1,6 +1,7 @@
 package com.wingedsheep.mtg.sets.definitions.mat.cards
 
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
@@ -12,11 +13,15 @@ import com.wingedsheep.sdk.scripting.events.SpellCastPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
 /**
- * Pia Nalaar, Consul of Revival — March of the Machine: The Aftermath #42.
+ * Pia Nalaar, Consul of Revival — March of the Machine: The Aftermath #42
+ * {R}{W} · Legendary Creature — Human Artificer · 2/3
  *
- * A spell cast from exile and a land played from exile are distinct game actions, so the printed
- * trigger is represented as two event atoms with the same token-creation payoff. This preserves the
- * land-play semantics: moving an exiled land onto the battlefield without playing it does not fire.
+ * Thopters you control have haste.
+ * Whenever you play a land from exile or cast a spell from exile, create a 1/1 colorless Thopter
+ * artifact creature token with flying.
+ *
+ * The "play a land or cast a spell" trigger is two triggered abilities, one per event: a land play
+ * from exile (`playsLandFrom(Zone.EXILE)`) and a spell cast from exile.
  */
 val PiaNalaarConsulOfRevival = card("Pia Nalaar, Consul of Revival") {
     manaCost = "{R}{W}"
@@ -30,15 +35,13 @@ val PiaNalaarConsulOfRevival = card("Pia Nalaar, Consul of Revival") {
 
     staticAbility {
         ability = GrantKeyword(
-            keyword = Keyword.HASTE,
-            filter = GroupFilter(
-                GameObjectFilter.Creature.youControl().withSubtype("Thopter")
-            ),
+            Keyword.HASTE,
+            GroupFilter(GameObjectFilter.Permanent.withSubtype(Subtype.THOPTER).youControl())
         )
     }
 
     triggeredAbility {
-        trigger = Triggers.you.playsLand(fromZone = Zone.EXILE)
+        trigger = Triggers.you.playsLandFrom(Zone.EXILE)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

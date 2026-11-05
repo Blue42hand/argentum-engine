@@ -41,6 +41,49 @@
     "colorIdentityOverride": []
 }
 
+// Atraxa, Praetors' Voice
+{
+    "name": "Atraxa, Praetors' Voice",
+    "manaCost": "{G}{W}{U}{B}",
+    "typeLine": "Legendary Creature — Phyrexian Angel Horror",
+    "oracleText": "Flying, vigilance, deathtouch, lifelink\nAt the beginning of your end step, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "VIGILANCE",
+        "DEATHTOUCH",
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Atraxa, Praetors' Voice:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": "Proliferate"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "28",
+        "rarity": "MYTHIC",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/3/c34ae834-775e-447a-a330-0270c227c667.jpg?1783937085"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE",
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Breya, Etherium Shaper
 {
     "name": "Breya, Etherium Shaper",
@@ -248,6 +291,66 @@
     "colorIdentityOverride": []
 }
 
+// Deepglow Skate
+{
+    "name": "Deepglow Skate",
+    "manaCost": "{4}{U}",
+    "typeLine": "Creature — Fish",
+    "oracleText": "When this creature enters, double the number of each kind of counter on any number of target permanents.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Deepglow Skate:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "DoubleCounters",
+                        "counterType": null
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "unlimited": true,
+                    "filter": {
+                        "baseFilter": "permanent"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, double the number of each kind of counter on any number of target permanents."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "7",
+        "rarity": "RARE",
+        "artist": "Jason Kang",
+        "flavorText": "Its graceful glide paints the ocean floor with strokes of luminescence.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0f7c787f-2134-4cfd-901f-d5e45e62de1e.jpg?1783937090",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "To double the number of each kind of counter on a permanent, put another counter on it for each counter it already has. Effects that interact with counters being put onto permanents apply as appropriate."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "You can choose no targets if you don't want to double the counters on any permanents."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Entrapment Maneuver
 {
     "name": "Entrapment Maneuver",
@@ -357,6 +460,102 @@
     },
     "colorIdentityOverride": [
         "WHITE",
+        "BLUE"
+    ]
+}
+
+// Thrasios, Triton Hero
+{
+    "name": "Thrasios, Triton Hero",
+    "manaCost": "{G}{U}",
+    "typeLine": "Legendary Creature — Merfolk Wizard",
+    "oracleText": "{4}: Scry 1, then reveal the top card of your library. If it's a land card, put it onto the battlefield tapped. Otherwise, draw a card.\nPartner (You can have two commanders if both have partner.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywordAbilities": [
+        "Partner"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Thrasios, Triton Hero:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Scry",
+                            "count": 1
+                        },
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered1"
+                        },
+                        {
+                            "type": "RevealCollection",
+                            "from": "gathered1",
+                            "fromZone": "Library"
+                        },
+                        {
+                            "type": "ConditionalOnCollection",
+                            "collection": "gathered1",
+                            "ifNotEmpty": {
+                                "type": "MoveCollection",
+                                "from": "gathered1",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ifEmpty": {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "land"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "46",
+        "rarity": "RARE",
+        "artist": "Josu Hernaiz",
+        "flavorText": "Beneath crashing waves lies an ocean of secrets waiting to be explored.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/1/21e27b91-c7f1-4709-aa0d-8b5d81b22a0a.jpg?1783937081",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "The nonland card you reveal will be the card you draw."
+            },
+            {
+                "date": "2016-11-08",
+                "text": "No player may take another action while you're resolving the activated ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
         "BLUE"
     ]
 }

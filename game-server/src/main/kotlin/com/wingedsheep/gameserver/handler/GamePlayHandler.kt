@@ -22,6 +22,7 @@ import com.wingedsheep.gameserver.config.GameProperties
 import com.wingedsheep.gameserver.deck.EasterEggDeckInjector
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.GameRestartedEvent
+import com.wingedsheep.engine.core.SubgameStartedEvent
 import com.wingedsheep.engine.core.PlayerLostEvent
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.components.identity.LifeTotalComponent
@@ -52,7 +53,8 @@ class GamePlayHandler(
     private val aiGameManager: AiGameManager,
     private val matchResultSink: com.wingedsheep.gameserver.stats.MatchResultSink,
     private val rankedResultSink: com.wingedsheep.gameserver.ranking.RankedResultSink,
-    private val deckProfiler: com.wingedsheep.gameserver.stats.DeckProfiler
+    private val deckProfiler: com.wingedsheep.gameserver.stats.DeckProfiler,
+    private val anteSpoilsSink: com.wingedsheep.gameserver.stats.AnteSpoilsSink,
 ) {
     private val logger = LoggerFactory.getLogger(GamePlayHandler::class.java)
 
@@ -118,7 +120,7 @@ class GamePlayHandler(
             is ClientMessage.CreateGame -> handleCreateGame(session, message)
             is ClientMessage.JoinGame -> handleJoinGame(session, message)
             is ClientMessage.SubmitAction -> handleSubmitAction(session, message)
-            is ClientMessage.Concede -> handleConcede(session)
+            is ClientMessage.Concede -> handleConcede(session, message.subgameOnly)
             is ClientMessage.CancelGame -> handleCancelGame(session)
             is ClientMessage.KeepHand -> handleKeepHand(session)
             is ClientMessage.Mulligan -> handleMulligan(session)
@@ -132,6 +134,7 @@ class GamePlayHandler(
             is ClientMessage.SetAbilityYield -> handleSetAbilityYield(session, message)
             is ClientMessage.ClearAbilityYield -> handleClearAbilityYield(session, message)
             is ClientMessage.ClearAllYields -> handleClearAllYields(session)
+            is ClientMessage.SetTriggerOrdering -> handleSetTriggerOrdering(session, message)
             is ClientMessage.RequestUndo -> handleRequestUndo(session)
 
             is ClientMessage.RequestResync -> handleRequestResync(session)
@@ -614,7 +617,7 @@ class GamePlayHandler(
         }
     }
 
-    private fun handleConcede(session: WebSocketSession) {
+    private fun handleConcede(session: WebSocketSession, subgameOnly: Boolean = false) {
         val playerSession = sessionRegistry.getPlayerSession(session.id)
         if (playerSession == null) {
             sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected")
@@ -623,8 +626,8 @@ class GamePlayHandler(
 
         val gameSession = getGameSession(session, playerSession) ?: return
 
-        logger.info("Player ${playerSession.playerName} conceded game ${gameSession.sessionId}")
-        concedeSeat(gameSession, playerSession.playerId)
+        logger.info("Player ${playerSession.playerName} conceded ${if (subgameOnly) "the subgame of" else "game"} ${gameSession.sessionId}")
+        concedeSeat(gameSession, playerSession.playerId, subgameOnly)
     }
 
     /**
@@ -634,8 +637,8 @@ class GamePlayHandler(
      * everyone else just sees the seat drop out of the state. In a 2-player game conceding always
      * ends it — the degenerate case.
      */
-    internal fun concedeSeat(gameSession: GameSession, playerId: EntityId) {
-        gameSession.playerConcedes(playerId)
+    internal fun concedeSeat(gameSession: GameSession, playerId: EntityId, subgameOnly: Boolean = false) {
+        val events = gameSession.concede(playerId, subgameOnly)
         if (gameSession.isGameOver()) {
             handleGameOver(gameSession, GameOverReason.CONCESSION)
             return
@@ -658,7 +661,7 @@ class GamePlayHandler(
                 }
             }
         }
-        broadcastStateUpdate(gameSession, emptyList())
+        broadcastStateUpdate(gameSession, events)
     }
 
     /**
@@ -710,18 +713,23 @@ class GamePlayHandler(
         // like a rules outcome the players brought about rather than a loop nobody could break.
         val customMessage = gameSession.stallMessage()
             ?: events.filterIsInstance<PlayerLostEvent>().firstOrNull()?.message
-        val message = ServerMessage.GameOver(winnerId, gameOverReason, customMessage, gameSession.sessionId, winnerIds)
+        val ante = settleAnte(gameSession)
+        val message = ServerMessage.GameOver(winnerId, gameOverReason, customMessage, gameSession.sessionId, winnerIds, ante)
 
         gameSession.getPlayers()
             .filterNot { it.playerId in gameSession.departedForMatch }
             .forEach { sender.send(it.webSocketSession, message) }
 
-        // Notify spectators that the game has ended and return them to tournament overview
+        // Spectators get the same result the players do — winner, reason and the public end-of-game
+        // message carry nothing hidden — so they see the game end on the final board instead of
+        // being dropped back to the overview mid-combat. They leave with StopSpectating (the
+        // client's "Back to Overview" button, or its auto-return), which answers SpectatingStopped
+        // and the active matches as it always has.
         for (spectator in gameSession.getSpectators()) {
             if (spectator.webSocketSession.isOpen) {
-                sender.send(spectator.webSocketSession, ServerMessage.SpectatingStopped)
+                sender.send(spectator.webSocketSession, message)
             }
-            // Clear their spectating state
+            // The game is over: a reconnect/refresh goes to the overview, not back into this game.
             sessionRegistry.getIdentityByWsId(spectator.webSocketSession.id)?.let { identity ->
                 identity.currentSpectatingGameId = null
             }
@@ -920,6 +928,66 @@ class GamePlayHandler(
     }
 
     /**
+     * Settle a game played for ante (CR 407) — see [com.wingedsheep.engine.mechanics.ante.AnteSettlement]
+     * for which cards changed hands. In a Limited tournament the cards move between the players'
+     * pools for the rest of the event ([TournamentLobby.anteSettlesIntoPools]); everywhere else they
+     * are spoils, recorded on the signed-in players' profiles. Null when the game wasn't for ante.
+     */
+    private fun settleAnte(gameSession: GameSession): com.wingedsheep.gameserver.protocol.AnteOutcome? {
+        val state = gameSession.getStateForTesting() ?: return null
+        if (!state.playingForAnte) return null
+        val transfers = com.wingedsheep.engine.mechanics.ante.AnteSettlement.settle(state)
+        val names = gameSession.getPlayers().associate { it.playerId to it.playerName }
+        val lobby = gameRepository.getLobbyForGame(gameSession.sessionId)?.let { lobbyRepository.findLobbyById(it) }
+        val intoPools = lobby?.anteSettlesIntoPools == true
+
+        val refills = mutableMapOf<com.wingedsheep.sdk.model.EntityId, String?>()
+        if (intoPools && transfers.isNotEmpty()) {
+            for (transfer in transfers) {
+                val change = lobby!!.transferAnteCard(transfer.fromPlayerId, transfer.toPlayerId, transfer.cardName)
+                refills[transfer.cardId] = change?.refilledWith
+            }
+            lobbyRepository.saveLobby(lobby!!)
+        } else if (transfers.isNotEmpty()) {
+            val persistenceInfo = gameSession.getPlayerPersistenceInfo()
+            val userIds = gameSession.getPlayers().associate { player ->
+                val isAi = persistenceInfo[player.playerId]?.isAi == true
+                player.playerId to if (isAi) null else sessionRegistry.getIdentityByWsId(player.webSocketSession.id)?.userId
+            }
+            runCatching {
+                anteSpoilsSink.record(transfers.map { t ->
+                    com.wingedsheep.gameserver.stats.RecordedSpoil(
+                        gameId = gameSession.sessionId,
+                        cardName = t.cardName,
+                        imageUri = t.imageUri,
+                        winnerUserId = userIds[t.toPlayerId],
+                        winnerName = names[t.toPlayerId] ?: "Opponent",
+                        loserUserId = userIds[t.fromPlayerId],
+                        loserName = names[t.fromPlayerId] ?: "Opponent",
+                    )
+                })
+            }.onFailure { logger.error("Failed to record ante spoils for game ${gameSession.sessionId}", it) }
+        }
+
+        return com.wingedsheep.gameserver.protocol.AnteOutcome(
+            scope = if (intoPools) com.wingedsheep.gameserver.protocol.AnteScope.EVENT
+            else com.wingedsheep.gameserver.protocol.AnteScope.SPOILS,
+            transfers = transfers.map { t ->
+                com.wingedsheep.gameserver.protocol.AnteTransferInfo(
+                    cardName = t.cardName,
+                    imageUri = t.imageUri,
+                    fromPlayerId = t.fromPlayerId,
+                    fromPlayerName = names[t.fromPlayerId] ?: "Opponent",
+                    toPlayerId = t.toPlayerId,
+                    toPlayerName = names[t.toPlayerId] ?: "Opponent",
+                    cause = t.cause.name,
+                    refilledWith = refills[t.cardId],
+                )
+            },
+        )
+    }
+
+    /**
      * End a game nobody is playing — the sweeper's [com.wingedsheep.gameserver.session.AbandonedGamePolicy]
      * or an admin from the Live overview. A started game ends as a draw through the normal game-over
      * path, so seats, spectators, the lobby, the replay and the AI controllers are all finalized as for
@@ -1007,7 +1075,7 @@ class GamePlayHandler(
                 // has re-seated behind the overlay) but before the spectator feed.
                 notifyEliminatedSeats(gameSession)
 
-                if (allEvents.any { it is GameRestartedEvent }) beginRestartedGameMulligans(gameSession)
+                if (allEvents.any { it is GameRestartedEvent || it is SubgameStartedEvent }) beginRestartedGameMulligans(gameSession)
 
                 // Update spectators. (Replay recording no longer happens here — the compact replay
                 // records the input stream as actions are applied, and reconstructs snapshots on demand.)
@@ -1281,8 +1349,8 @@ class GamePlayHandler(
 
         val gameSession = getGameSession(session, playerSession) ?: return
 
-        gameSession.setStopOverrides(playerSession.playerId, message.myTurnStops, message.opponentTurnStops)
-        logger.info("Player ${playerSession.playerName} set stop overrides: myTurn=${message.myTurnStops}, opponentTurn=${message.opponentTurnStops}")
+        gameSession.setStopOverrides(playerSession.playerId, message.myTurnStops, message.opponentTurnStops, message.ownStackStops)
+        logger.info("Player ${playerSession.playerName} set stop overrides: myTurn=${message.myTurnStops}, opponentTurn=${message.opponentTurnStops}, ownStack=${message.ownStackStops}")
 
         // Broadcast state update so the UI reflects the change (and next stop point updates)
         broadcastStateUpdate(gameSession, emptyList())
@@ -1333,6 +1401,17 @@ class GamePlayHandler(
 
         gameSession.clearAllYields(playerSession.playerId)
         broadcastStateUpdate(gameSession, emptyList())
+    }
+
+    private fun handleSetTriggerOrdering(session: WebSocketSession, message: ClientMessage.SetTriggerOrdering) {
+        val playerSession = sessionRegistry.getPlayerSession(session.id)
+        if (playerSession == null) {
+            sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected")
+            return
+        }
+        val gameSession = getGameSession(session, playerSession) ?: return
+
+        gameSession.setManualTriggerOrdering(playerSession.playerId, message.manual)
     }
 
     private fun handleRequestUndo(session: WebSocketSession) {
@@ -1700,13 +1779,19 @@ class GamePlayHandler(
         val passIsLegal = gameSession.getLegalActions(aiPlayerId).any {
             it.action is com.wingedsheep.engine.core.PassPriority
         }
-        return cancelPending + when (gameSession.getStateForTesting()?.step) {
+        // A declaration routed to the AI from another seat (Master Warcraft, Brutal Hordechief) is
+        // still that seat's, so its do-nothing fallback must name that seat.
+        val state = gameSession.getStateForTesting()
+        val declaringSeat = state?.turnOrder?.firstOrNull {
+            it != aiPlayerId && com.wingedsheep.engine.mechanics.combat.CombatDeclarationControl.declarerFor(state, it) == aiPlayerId
+        } ?: aiPlayerId
+        return cancelPending + when (state?.step) {
             com.wingedsheep.sdk.core.Step.DECLARE_BLOCKERS -> {
-                val declare = com.wingedsheep.engine.core.DeclareBlockers(aiPlayerId, emptyMap())
+                val declare = com.wingedsheep.engine.core.DeclareBlockers(declaringSeat, emptyMap())
                 if (passIsLegal) listOf(pass, declare) else listOf(declare, pass)
             }
             com.wingedsheep.sdk.core.Step.DECLARE_ATTACKERS -> {
-                val declare = com.wingedsheep.engine.core.DeclareAttackers(aiPlayerId, emptyMap())
+                val declare = com.wingedsheep.engine.core.DeclareAttackers(declaringSeat, emptyMap())
                 if (passIsLegal) listOf(pass, declare) else listOf(declare, pass)
             }
             else -> listOf(pass)

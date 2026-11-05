@@ -34,6 +34,11 @@ data class EntryChoiceAnswers(
     val values: Map<ChoiceSlot, ChoiceValue> = emptyMap(),
     val riotInstances: Int? = null,
     val riotModes: List<String> = emptyList(),
+    /**
+     * The [com.wingedsheep.sdk.scripting.EntersOnlyIfPaid] answer: `true` paid, `false` declined or
+     * unable to pay, `null` not asked yet ([EffectEntryPayments]).
+     */
+    val paidToEnter: Boolean? = null,
 )
 
 /**
@@ -63,7 +68,8 @@ object EffectEntryChoices {
         val playerOrder = state.apnapOrder.withIndex().associate { it.value to it.index }
         for ((id, controller) in entrants.entries.sortedBy { playerOrder[it.value] ?: Int.MAX_VALUE }) {
             if (id in state.getBattlefield()) continue
-            val entering = context.entryCopies[id]
+            val entering = (com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy
+                .find(state, id, predicateEvaluator)?.chosen(context.entryCopies[id]) ?: context.entryCopies[id])
                 ?.let { EffectCopyEntry.apply(state, id, it).getEntity(id)?.get<CardComponent>() }
                 ?: state.getEntity(id)?.get<CardComponent>()
                 ?: continue
@@ -143,6 +149,14 @@ object EffectEntryChoices {
         val prior = context.entryChoices[entityId] ?: EntryChoiceAnswers()
         return context.copy(entryChoices = context.entryChoices + (entityId to prior.copy(
             asked = prior.asked + choiceType, values = prior.values + (slot to value),
+        )))
+    }
+
+    /** [context] with [entityId]'s optional [choiceType] question asked and declined — nothing recorded. */
+    fun declined(context: EffectContext, entityId: EntityId, choiceType: ChoiceType): EffectContext {
+        val prior = context.entryChoices[entityId] ?: EntryChoiceAnswers()
+        return context.copy(entryChoices = context.entryChoices + (entityId to prior.copy(
+            asked = prior.asked + choiceType,
         )))
     }
 

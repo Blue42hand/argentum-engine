@@ -24,12 +24,14 @@ class CompositeExecutors(
     private val targetFinder: TargetFinder,
     private val decisionHandler: DecisionHandler = DecisionHandler(),
     private val amountEvaluator: DynamicAmountEvaluator,
-    private val targetValidator: TargetValidator
+    private val targetValidator: TargetValidator,
+    /** The registry's plain entry point (no depth bump), for the effect interpreter's leaves. */
+    private val plainExecutor: (GameState, Effect, EffectContext) -> EffectResult = effectExecutor,
 ) : ExecutorModule {
-    private val compositeEffectExecutor = CompositeEffectExecutor(effectExecutor)
+    private val compositeEffectExecutor = CompositeEffectExecutor(plainExecutor)
     private val createDelayedTriggerExecutor = CreateDelayedTriggerExecutor(dynamicAmountEvaluator = amountEvaluator)
     private val forEachExecutor = ForEachExecutor(effectExecutor, predicateEvaluator = amountEvaluator.predicates, cardRegistry = cardRegistry)
-    private val forEachCapturedControllerExecutor = ForEachCapturedControllerExecutor(effectExecutor)
+    private val forEachCapturedControllerExecutor = ForEachCapturedControllerExecutor(plainExecutor)
     private val mayRevealCardFromHandEffectExecutor = MayRevealCardFromHandEffectExecutor(effectExecutor, predicateEvaluator = amountEvaluator.predicates)
     private val beholdEffectExecutor = BeholdEffectExecutor(effectExecutor, predicateEvaluator = amountEvaluator.predicates)
     private val budgetModalEffectExecutor = BudgetModalEffectExecutor(effectExecutor)
@@ -47,7 +49,7 @@ class CompositeExecutors(
     private val flipCoinsUntilLossExecutor = FlipCoinsUntilLossExecutor(cardRegistry, decisionHandler)
     private val chooseActionEffectExecutor = ChooseActionEffectExecutor(effectExecutor, cardRegistry, predicateEvaluator = amountEvaluator.predicates)
     private val repeatDynamicTimesExecutor = RepeatDynamicTimesExecutor(effectExecutor, amountEvaluator = amountEvaluator)
-    private val chooseNumberThenExecutor = ChooseNumberThenExecutor(decisionHandler, amountEvaluator)
+    private val chooseNumberThenExecutor = ChooseNumberThenExecutor(decisionHandler, amountEvaluator, effectExecutor)
 
     override fun executors(): List<EffectExecutor<*>> = listOf(
         budgetModalEffectExecutor,
@@ -67,7 +69,8 @@ class CompositeExecutors(
         flipCoinExecutor,
         flipTwoCoinsExecutor,
         flipCoinsExecutor,
-        RollDiceExecutor(amountEvaluator),
+        RollDiceExecutor(amountEvaluator, cardRegistry),
+        FlipOntoBattlefieldExecutor(amountEvaluator.predicates),
         flipCoinsUntilLossExecutor,
         repeatWhileExecutor,
         repeatDynamicTimesExecutor,

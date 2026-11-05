@@ -1330,7 +1330,8 @@
                                     "zone": "Library",
                                     "filter": "creature|land"
                                 },
-                                "storeAs": "gathered0"
+                                "storeAs": "gathered0",
+                                "search": true
                             },
                             {
                                 "type": "SelectFromCollection",
@@ -1722,13 +1723,9 @@
             {
                 "id": "Aurelia, the Law Above:1",
                 "trigger": {
-                    "type": "AttackEvent",
-                    "requires": [
-                        {
-                            "type": "AttackerCountAtLeast",
-                            "n": 3
-                        }
-                    ]
+                    "type": "YouAttackEvent",
+                    "minAttackers": 3,
+                    "player": "Each"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -1743,13 +1740,9 @@
             {
                 "id": "Aurelia, the Law Above:2",
                 "trigger": {
-                    "type": "AttackEvent",
-                    "requires": [
-                        {
-                            "type": "AttackerCountAtLeast",
-                            "n": 5
-                        }
-                    ]
+                    "type": "YouAttackEvent",
+                    "minAttackers": 5,
+                    "player": "Each"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -4687,7 +4680,7 @@
                         }
                     ]
                 },
-                "descriptionOverride": "To solve — if there are no suspected Skeleton creature in your battlefield"
+                "descriptionOverride": "To solve — if you control no suspected Skeleton creatures"
             }
         ],
         "activatedAbilities": [
@@ -4980,7 +4973,7 @@
                         }
                     ]
                 },
-                "descriptionOverride": "To solve — the amount of life your gained this turn is at least 5"
+                "descriptionOverride": "To solve — you gained 5 or more life this turn"
             }
         ],
         "activatedAbilities": [
@@ -8205,7 +8198,10 @@
                             "effects": [
                                 {
                                     "type": "GatherCards",
-                                    "source": "Self",
+                                    "source": {
+                                        "type": "Entity",
+                                        "entity": "Self"
+                                    },
                                     "storeAs": "gathered0"
                                 },
                                 {
@@ -11538,7 +11534,7 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "MarkMustAttackThisTurn",
+                            "type": "MarkMustAttack",
                             "target": {
                                 "type": "BoundVariable",
                                 "name": "t0"
@@ -13056,7 +13052,10 @@
                         "Investigate",
                         {
                             "type": "PlayAdditionalLands",
-                            "count": 1
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
                         }
                     ]
                 }
@@ -14283,7 +14282,7 @@
                 }
             }
         ],
-        "mayStartOnBattlefield": true
+        "beginOnBattlefield": {}
     },
     "metadata": {
         "collectorNumber": "217",
@@ -15777,8 +15776,14 @@
                         "gate": {
                             "type": "Gate.WhenCondition",
                             "condition": {
-                                "type": "PlayerControlsMostPermanents",
-                                "player": "You"
+                                "type": "PlayerHasMost",
+                                "player": "You",
+                                "amount": {
+                                    "type": "Count",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature"
+                                }
                             }
                         },
                         "then": {
@@ -16004,7 +16009,10 @@
                 "modification": {
                     "type": "IncreaseColoredPerUnit",
                     "symbols": "{W}{U}",
-                    "countSource": "ChosenTargetsBeyondTheFirst"
+                    "countSource": {
+                        "type": "ChosenTargets",
+                        "beyond": 1
+                    }
                 }
             }
         ]

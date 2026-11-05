@@ -91,6 +91,19 @@ class DeckValidatorTest : FunSpec({
         ))
         register(legend("Test Green Companion", "{1}{G}", KeywordAbility.doctorsCompanion()))
         register(legend("Test Red Doctor", "{1}{R}", null, subtypes = setOf(Subtype("Time Lord"), Subtype.DOCTOR)))
+
+        // An ante card (CR 407.3). Scryfall marks real ante cards banned everywhere, so this one is
+        // "legal" only in Pauper — the ante tests below check that the ban doesn't bite in an ante game.
+        register(CardDefinition.creature(
+            name = "Test Ante Bear",
+            manaCost = ManaCost.parse("{1}{G}"),
+            subtypes = setOf(Subtype("Bear")),
+            power = 2,
+            toughness = 2,
+        ).copy(
+            oracleText = "Remove Test Ante Bear from your deck before playing if you're not playing for ante.",
+            legalFormats = setOf(DeckFormat.PAUPER),
+        ))
     }
     val validator = DeckValidator(registry)
 
@@ -518,6 +531,37 @@ class DeckValidatorTest : FunSpec({
     test("the second commander listed again in the library trips the singleton cap") {
         codes(pairDeckOf("Test Green Partner", "Test Red Partner", extras = listOf("Test Red Partner")))
             .shouldContain("TOO_MANY_COPIES")
+    }
+
+    test("an ante card is recognised from its Oracle text (CR 407.3)") {
+        registry.getCard("Test Ante Bear")!!.requiresAnte shouldBe true
+        registry.getCard("Test Green Bear")!!.requiresAnte shouldBe false
+    }
+
+    test("an ante card in the deck is REQUIRES_ANTE when not playing for ante") {
+        val result = validator.validate(mapOf("Test Ante Bear" to 1, "Forest" to 39))
+        result.valid shouldBe false
+        val issue = result.errors.single { it.code == "REQUIRES_ANTE" }
+        issue.cardName shouldBe "Test Ante Bear"
+        issue.message shouldContainString "played for ante"
+    }
+
+    test("an ante card is legal when playing for ante, even in a format that bans it") {
+        val deck = mapOf("Test Ante Bear" to 1, "Forest" to 59)
+        validator.validate(deck, playingForAnte = true).valid shouldBe true
+        val vintage = validator.validate(deck, DeckFormat.VINTAGE, playingForAnte = true)
+        withClue(vintage.errors) { vintage.valid shouldBe true }
+        // Without ante the only complaint is the ante one, not a second NOT_LEGAL_IN_FORMAT.
+        validator.validate(deck, DeckFormat.VINTAGE).errors.map { it.code } shouldBe listOf("REQUIRES_ANTE")
+    }
+
+    test("an ante card in the sideboard is REQUIRES_ANTE when not playing for ante") {
+        val deck = Deck(
+            cards = List(40) { "Forest" },
+            sideboard = listOf(com.wingedsheep.sdk.model.CardEntry("Test Ante Bear")),
+        )
+        validator.validate(deck).errors.map { it.code } shouldBe listOf("REQUIRES_ANTE")
+        validator.validate(deck, playingForAnte = true).valid shouldBe true
     }
 
     test("Commander-draft validation applies the same pairing rules against the pool") {

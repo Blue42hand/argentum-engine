@@ -67,6 +67,9 @@ data class AnimateLandEffect(
  * @property creatureTypes Creature subtypes to *set*, replacing all existing subtypes (e.g.,
  *   "Dragon"; "Fractal" loses all other creature types — Layer 4 set effect)
  * @property removeTypes Types to remove (e.g., "PLANESWALKER")
+ * @property removeSubtypes Subtypes to remove, keeping every other subtype — "it isn't an
+ *   Equipment" when an Equipment animates itself (Dancing Sword). Card types go in [removeTypes];
+ *   replacing *all* creature subtypes is [creatureTypes].
  * @property colors Colors to set, replacing all existing colors (null = keep existing). An explicit
  *   set loses all other colors (e.g. green+blue for a Fractal).
  * @property imageUri Optional *display-only* card-image override shown for the animated permanent
@@ -105,7 +108,8 @@ data class BecomeCreatureEffect(
      */
     val dynamicPower: DynamicAmount? = null,
     /** Optional dynamic base toughness — see [dynamicPower]. */
-    val dynamicToughness: DynamicAmount? = null
+    val dynamicToughness: DynamicAmount? = null,
+    val removeSubtypes: Set<String> = emptySet()
 ) : Effect {
     override val description: String = buildString {
         val ptText = if (dynamicPower != null && dynamicToughness != null) "*/*"
@@ -281,6 +285,23 @@ data class BecomeSaddledEffect(
 }
 
 /**
+ * Target Vehicle becomes crewed (CR 702.122e) — the bookkeeping half of a crew ability's
+ * resolution, composed after its "becomes an artifact creature until end of turn". Changes no
+ * characteristic: it records the resolution and emits the engine's `BecameCrewedEvent`, which
+ * "whenever this Vehicle becomes crewed [for the first time each turn]" triggers match. The crew
+ * handler composes it; cards don't author it.
+ *
+ * @property target The Vehicle whose crew ability resolved
+ */
+@SerialName("BecomeCrewed")
+@Serializable
+data class BecomeCrewedEffect(
+    val target: EffectTarget = EffectTarget.Self
+) : Effect {
+    override val description: String = "${target.description} becomes crewed"
+}
+
+/**
  * Target permanent becomes solved (CR 719.3b) — the resolving effect of a Case's "To solve"
  * triggered ability. Stamps the engine's `SolvedComponent`, which the Case's "Solved —" abilities
  * read back through `Conditions.SourceIsSolved` / `StatePredicate.IsSolved`.
@@ -354,7 +375,7 @@ data class BecomeMonstrousEffect(
  * "You may activate loyalty abilities of [target] [times] times this turn rather than only once"
  * — a one-shot, per-planeswalker relaxation of the once-per-turn loyalty rule (CR 606.3) for the
  * rest of the turn (Kaito, Dancing Shadow). The per-permanent sibling of the controller-wide
- * static [com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation] (Oath of Teferi).
+ * static [com.wingedsheep.sdk.scripting.LoyaltyActivationPermission] (Oath of Teferi).
  *
  * Not additive: resolving it twice, or alongside Oath of Teferi, still allows [times]
  * activations — the allowance is the largest one granted, not a sum. Activations already made
@@ -570,8 +591,8 @@ data class UnattachEquipmentEffect(
 }
 
 /**
- * Put a targeted Aura or Equipment card onto the battlefield **attached to a permanent the
- * effect's controller chooses** at resolution. The card is the [target] (e.g. a targeted
+ * Put a targeted Aura or Equipment card onto the battlefield **attached to a permanent chosen
+ * at resolution** — by the effect's controller unless [chooser] names someone else. The card is the [target] (e.g. a targeted
  * Aura/Equipment in a graveyard); the host is chosen as the effect resolves and is therefore
  * NOT a target — only the host filter constrains it ([hostFilter], default "a creature you
  * control"). Models "Return target Aura or Equipment card from your graveyard to the
@@ -586,13 +607,19 @@ data class UnattachEquipmentEffect(
  *    can't enter (it stays in its current zone — Rule 303.4g).
  *
  * @property target The Aura or Equipment card to put onto the battlefield (e.g. a graveyard target).
- * @property hostFilter Which permanents are eligible hosts (default: a creature you control).
+ * @property hostFilter Which permanents are eligible hosts (default: a creature you control),
+ *   read with "you" as the effect's controller.
+ * @property chooser Who picks the host. The card still enters under the effect controller's
+ *   control whoever picks — Takklemaggot: "that creature's controller chooses a creature …
+ *   return this card to the battlefield under your control attached to that creature"
+ *   ([Chooser.ControllerOfTriggeringEntity]).
  */
 @SerialName("PutOntoBattlefieldAttachedToChosen")
 @Serializable
 data class PutOntoBattlefieldAttachedToChosenEffect(
     val target: EffectTarget = EffectTarget.ContextTarget(0),
-    val hostFilter: GameObjectFilter = GameObjectFilter.Creature.youControl()
+    val hostFilter: GameObjectFilter = GameObjectFilter.Creature.youControl(),
+    val chooser: Chooser = Chooser.Controller,
 ) : Effect {
     override val description: String =
         "Put ${target.description} onto the battlefield attached to ${hostFilter.description}"
@@ -661,6 +688,32 @@ data class RecordChosenLinkedExileEffect(
     val from: String,
 ) : Effect {
     override val description: String = "Note the chosen card"
+}
+
+/**
+ * Records the cards in the pipeline collection [from] in [permanent]'s linked-exile pile
+ * (its `LinkedExileComponent`), so that permanent's own abilities can later name them as "the
+ * cards exiled with it" — `CardSource.FromLinkedExile` from a leaves-the-battlefield trigger.
+ * Only cards still in exile are linked; nothing moves.
+ *
+ * Every other linker (`MoveCollection(linkToSource = true)`, `ExileUntilLeaves`, an exile cost
+ * with `linkToSource`) files the cards under the *resolving ability's* source. This one is for
+ * a pile that belongs to another object: Mechtitan Core exiles itself and four other permanents
+ * as a cost, and the Mechtitan token it creates returns those four when *it* leaves —
+ * `PipelineTarget(CREATED_TOKENS)` as [permanent], `CardSource.ExiledAsCost` as [from].
+ *
+ * No-op when [permanent] isn't on the battlefield (the token was never created).
+ *
+ * @property from Name of the pipeline collection holding the exiled cards.
+ * @property permanent The permanent whose linked-exile pile the cards join.
+ */
+@SerialName("LinkCollectionToPermanent")
+@Serializable
+data class LinkCollectionToPermanentEffect(
+    val from: String,
+    val permanent: EffectTarget,
+) : Effect {
+    override val description: String = "Those cards are exiled with ${permanent.description}"
 }
 
 // =============================================================================

@@ -10,6 +10,7 @@ import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent
 import com.wingedsheep.engine.state.components.battlefield.ChoiceValue
 import com.wingedsheep.engine.state.components.battlefield.withCastChoice
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
@@ -22,6 +23,7 @@ import com.wingedsheep.engine.state.components.identity.EmblemStaticAbilityCompo
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.filters.unified.Scope
 import com.wingedsheep.sdk.scripting.effects.CreatePermanentEmblemEffect
@@ -73,7 +75,19 @@ class CreatePermanentEmblemExecutor : EffectExecutor<CreatePermanentEmblemEffect
         val (emblemId, stateWithId) = state.newEntity()
         var emblemContainer: ComponentContainer = ComponentContainer.EMPTY
             .with(ControllerComponent(controllerId))
-            .with(EmblemSourceComponent(sourceName = sourceName, description = resolvedDescription))
+            .with(
+                EmblemSourceComponent(
+                    sourceName = sourceName,
+                    description = resolvedDescription,
+                    // The creating object's battlefield visit, so the emblem's "cards exiled with
+                    // <creator>" reads that visit's pile.
+                    creatorId = context.sourceId,
+                    creatorEntryTimestamp = context.sourceBattlefieldTimestamp
+                        ?: context.sourceId?.let {
+                            state.getEntity(it)?.get<com.wingedsheep.engine.state.components.battlefield.BattlefieldEntryTimestampComponent>()?.timestamp
+                        },
+                )
+            )
         if (chosenType != null) {
             emblemContainer = emblemContainer.withCastChoice(
                 ChoiceSlot.CREATURE_TYPE, ChoiceValue.TextChoice(chosenType)
@@ -109,6 +123,15 @@ class CreatePermanentEmblemExecutor : EffectExecutor<CreatePermanentEmblemEffect
                         oracleText = resolvedDescription,
                     )
                 )
+        }
+
+        // Replacement effects the emblem has itself (Serra the Benevolent's "If you control a
+        // creature, damage that would reduce your life total to less than 1 reduces it to 1
+        // instead."), read beside the battlefield through GameState.emblemReplacementHolders.
+        if (effect.ownedReplacementEffects.isNotEmpty()) {
+            emblemContainer = emblemContainer.with(
+                ReplacementEffectSourceComponent(effect.ownedReplacementEffects)
+            )
         }
 
         var newState = stateWithId.withEntity(emblemId, emblemContainer)
@@ -153,6 +176,25 @@ class CreatePermanentEmblemExecutor : EffectExecutor<CreatePermanentEmblemEffect
                 affectedEntities = emptySet(),
                 duration = Duration.Permanent,
                 context = emblemContext,
+                dynamicGroupFilter = ability.filter
+            )
+        }
+
+        // An owned "<group> get +X/+X for each …" (Ellywick Tumblestrum's emblem) is a layer-7c
+        // modification whose amount is re-read every projection with the emblem as its source, so
+        // "you" is the emblem's controller and the bonus follows the count as it changes.
+        for (ability in effect.ownedStaticAbilities) {
+            if (ability !is GrantDynamicStats) continue
+            newState = newState.addFloatingEffect(
+                layer = Layer.POWER_TOUGHNESS,
+                modification = SerializableModification.ModifyPowerToughnessDynamic(
+                    powerBonus = ability.powerBonus,
+                    toughnessBonus = ability.toughnessBonus
+                ),
+                affectedEntities = emptySet(),
+                duration = Duration.Permanent,
+                context = emblemContext,
+                sublayer = Sublayer.MODIFICATIONS,
                 dynamicGroupFilter = ability.filter
             )
         }

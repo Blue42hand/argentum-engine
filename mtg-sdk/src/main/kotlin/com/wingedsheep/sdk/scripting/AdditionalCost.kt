@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.costs.CostAtom
+import com.wingedsheep.sdk.scripting.costs.PermanentCostAction
 import com.wingedsheep.sdk.scripting.text.TextReplaceable
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import kotlinx.serialization.SerialName
@@ -109,20 +110,66 @@ sealed interface AdditionalCost : TextReplaceable<AdditionalCost> {
     }
 
     /**
-     * Sacrifice any number of permanents matching the given filter as an additional cost.
-     * Each sacrifice reduces the spell's generic mana cost by [costReductionPerCreature].
-     * Example: "You may sacrifice any number of creatures. This spell costs {2} less for each creature sacrificed."
+     * "As an additional cost to cast this spell, you may <action> any number of <filter>. This spell
+     * costs {N} less to cast for each <one> <action>ed this way." The caster chooses how many (zero
+     * included), and each one takes [reductionPerUnit] generic mana off the total cost (CR 601.2f —
+     * the announced X is generic mana in that total, so the discount keeps paying into an {X}).
      *
-     * @property filter Which permanents can be sacrificed
-     * @property costReductionPerCreature Generic mana reduction per sacrificed creature
+     *  - `SACRIFICE` — permanents you control (Torgaar, Famine Incarnate; Rottenmouth Viper).
+     *  - `TAP` — untapped permanents you control; a cost, not the {T} symbol, so summoning sickness
+     *    doesn't matter (Explosive Singularity).
+     *  - `EXILE` with [fromZone] `HAND` — cards in your hand other than the spell itself (the
+     *    Kamigawa: Neon Dynasty March cycle). Exiling permanents for a discount isn't printed, so
+     *    `EXILE` is hand-only for now.
+     *
+     * Closest neighbours: [CostAtom.VariablePermanents] (a variable-count cost whose count becomes
+     * the ability's X, never a discount, and battlefield-only) and [ExileVariableCards] (the count is
+     * the spell's X). Here the count is a *price*, not a value the effect reads.
+     *
+     * @property action what is done with each chosen object.
+     * @property filter which objects may be chosen.
+     * @property reductionPerUnit generic mana taken off per object chosen.
+     * @property fromZone where the chosen objects are: `BATTLEFIELD`, or `HAND` for `EXILE`.
      */
-    @SerialName("SacrificeCreaturesForCostReduction")
+    @SerialName("AnyNumberForCostReduction")
     @Serializable
-    data class SacrificeCreaturesForCostReduction(
-        val filter: GameObjectFilter = GameObjectFilter.Creature,
-        val costReductionPerCreature: Int = 2
+    data class AnyNumberForCostReduction(
+        val action: PermanentCostAction,
+        val filter: GameObjectFilter,
+        val reductionPerUnit: Int,
+        val fromZone: CostZone = CostZone.BATTLEFIELD
     ) : AdditionalCost {
-        override val description: String = "You may sacrifice any number of creatures. This spell costs {$costReductionPerCreature} less to cast for each creature sacrificed this way."
+        init {
+            require(
+                if (action == PermanentCostAction.EXILE) fromZone == CostZone.HAND else fromZone == CostZone.BATTLEFIELD
+            ) { "AnyNumberForCostReduction: $action from $fromZone is not supported" }
+        }
+
+        override val description: String get() =
+            "You may ${choice.replaceFirstChar { it.lowercase() }}. This spell costs {$reductionPerUnit} " +
+                "less to cast for each ${if (fromZone == CostZone.HAND) "card" else singular()} " +
+                "${when (action) {
+                    PermanentCostAction.SACRIFICE -> "sacrificed"
+                    PermanentCostAction.TAP -> "tapped"
+                    PermanentCostAction.EXILE -> "exiled"
+                }} this way."
+
+        /** The choice on its own — "Tap any number of untapped creatures you control" — for a picker prompt. */
+        val choice: String get() = when (action) {
+            PermanentCostAction.SACRIFICE -> "Sacrifice any number of ${plural()}"
+            PermanentCostAction.TAP -> "Tap any number of untapped ${plural()} you control"
+            PermanentCostAction.EXILE -> "Exile any number of ${cardsNoun()} from your hand"
+        }
+
+        private fun singular(): String = filter.copy(controllerPredicate = null).description
+
+        private fun plural(): String = com.wingedsheep.sdk.scripting.util.pluralNounPhrase(singular())
+
+        // A colour-only filter describes itself as "white"; a hand pick is always of cards.
+        private fun cardsNoun(): String = filter.description.let {
+            if (it.endsWith("card")) com.wingedsheep.sdk.scripting.util.pluralNounPhrase(it) else "$it cards"
+        }
+
         override fun applyTextReplacement(replacer: TextReplacer): AdditionalCost {
             val newFilter = filter.applyTextReplacement(replacer)
             return if (newFilter !== filter) copy(filter = newFilter) else this
@@ -159,7 +206,10 @@ sealed interface AdditionalCost : TextReplaceable<AdditionalCost> {
      * consume *different* payment fields (sacrifice vs. discard vs. exile) disambiguate cleanly. Two
      * options that consume the *same* field (e.g. two different Sacrifice filters) are not
      * distinguishable by payment alone — declare [Choice.choiceSlot] to require an explicit
-     * branch selection and retain it for later effects.
+     * branch selection and retain it for later effects. An option that consumes *no* payment field
+     * — pay N life (Dusk Mangler: "sacrifice a creature, discard a card, or pay 4 life") — can't be
+     * recovered from the payment at all, so a [Choice] with a pay-life option must name its branch
+     * slot (enforced at construction).
      */
     @SerialName("ChoiceCost")
     @Serializable
@@ -168,6 +218,12 @@ sealed interface AdditionalCost : TextReplaceable<AdditionalCost> {
         /** Store the explicitly chosen zero-based branch in this durable cast-choice slot. */
         val choiceSlot: ChoiceSlot? = null,
     ) : AdditionalCost {
+        init {
+            require(choiceSlot != null || options.none { (it as? Atom)?.atom is CostAtom.PayLife }) {
+                "A Choice with a pay-life option must declare a choiceSlot: paying life fills no payment field"
+            }
+        }
+
         override val description: String get() = options.joinToString(" or ") { it.description }
 
         override fun applyTextReplacement(replacer: TextReplacer): AdditionalCost {
@@ -219,6 +275,31 @@ sealed interface AdditionalCost : TextReplaceable<AdditionalCost> {
         val minCount: Int = 0
     ) : AdditionalCost {
         override val description: String = "Pay X life"
+    }
+
+    /**
+     * Have other players gain life as the cost — "rather than pay this spell's mana cost, you may
+     * have **an opponent** gain 3 life" (Invigorate) or "… have **each other player** gain 6 life"
+     * (Reverent Silence). Only ever printed as the non-mana half of a [SelfAlternativeCost].
+     *
+     * With [eachOtherPlayer] false the caster names one opponent as the cost is paid (CR 601.2h); the
+     * engine offers one cast per opponent who could gain life, and the pick travels in
+     * [AdditionalCostPayment.lifeGainRecipient]. A player who *can't* gain life can't be made to gain
+     * it to pay, but one whose gain would be *replaced* (Sulfuric Vortex) still can — the cost's
+     * action is then replaced like any other life gain (Invigorate ruling, 2020-08-07).
+     *
+     * @property amount Life each recipient gains
+     * @property eachOtherPlayer Every other player gains [amount], rather than one opponent of the
+     *           caster's choice
+     */
+    @SerialName("OthersGainLife")
+    @Serializable
+    data class OthersGainLife(
+        val amount: Int,
+        val eachOtherPlayer: Boolean = false
+    ) : AdditionalCost {
+        override val description: String =
+            if (eachOtherPlayer) "Have each other player gain $amount life" else "Have an opponent gain $amount life"
     }
 
     /**
@@ -505,8 +586,12 @@ data class AdditionalCostPayment(
      * exile cost: mixing them into one list would make "which permanents paid which leg" ambiguous.
      * The engine derives the ability's X from this list — its size, or the total mana value of its
      * members, per the atom's `xMeasure`.
+     *
+     * `null` means the payer hasn't chosen yet, so an activation pauses to ask; an empty list is the
+     * answer "none", legal for an "any number of" cost (minCount 0). Without the distinction a
+     * zero pick read back as "not chosen" and re-raised the same prompt forever.
      */
-    val variableCostPermanents: List<EntityId> = emptyList(),
+    val variableCostPermanents: List<EntityId>? = null,
 
     /** Cards chosen via Behold (from battlefield or hand) */
     val beheldCards: List<EntityId> = emptyList(),
@@ -562,7 +647,22 @@ data class AdditionalCostPayment(
      * counters of `counterType` from `entityId`. The engine validates that the sum
      * matches the cost's totalCount and that each creature has enough of each type.
      */
-    val distributedCounterRemovals: List<DistributedCounterRemoval> = emptyList()
+    val distributedCounterRemovals: List<DistributedCounterRemoval> = emptyList(),
+
+    /**
+     * The opponent the caster named to gain life for an [AdditionalCost.OthersGainLife] "an
+     * opponent gains N life" cost. Pre-filled on each per-opponent cast the engine offers; `null`
+     * is accepted only when exactly one opponent could gain the life.
+     */
+    val lifeGainRecipient: EntityId? = null,
+
+    /**
+     * How many cards a [com.wingedsheep.sdk.scripting.costs.CostAtom.Mill] cost mills, chosen by the
+     * payer when the order of the mill replacements that apply to them changes the count (a doubler
+     * next to a "+4", CR 616.1). `null` when there was no order to choose; the engine accepts only a
+     * count some order actually produces.
+     */
+    val millCount: Int? = null
 ) {
     /** Check if any costs were paid */
     val isEmpty: Boolean
@@ -570,7 +670,7 @@ data class AdditionalCostPayment(
                 discardedCards.isEmpty() &&
                 lifePaid == 0 &&
                 exiledCards.isEmpty() &&
-                variableCostPermanents.isEmpty() &&
+                variableCostPermanents.isNullOrEmpty() &&
                 beheldCards.isEmpty() &&
                 revealedCards.isEmpty() &&
                 cardsPutOnLibrary.isEmpty() &&
@@ -579,7 +679,8 @@ data class AdditionalCostPayment(
                 blightTargets.isEmpty() &&
                 blightAmount == 0 &&
                 payXLifeAmount == 0 &&
-                distributedCounterRemovals.isEmpty()
+                distributedCounterRemovals.isEmpty() &&
+                lifeGainRecipient == null
 
     companion object {
         val NONE = AdditionalCostPayment()
@@ -600,3 +701,4 @@ data class DistributedCounterRemoval(
     val counterType: String,
     val count: Int
 )
+

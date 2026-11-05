@@ -182,13 +182,20 @@ data class CounterEffect(
 ) : Effect {
     override val description: String = buildString {
         when (target) {
-            CounterTarget.Ability -> append("Counter target activated or triggered ability")
+            CounterTarget.Ability -> {
+                append(
+                    if (targetSource == CounterTargetSource.TriggeringEntity) "Counter that ability"
+                    else "Counter target activated or triggered ability"
+                )
+                appendUnlessPays()
+            }
             CounterTarget.SpellOrAbility -> {
                 if (filter != null) {
                     append("Counter target ${filter.baseFilter.description}")
                 } else {
                     append("Counter target spell or ability")
                 }
+                appendUnlessPays()
             }
             CounterTarget.Spell -> {
                 when (condition) {
@@ -201,13 +208,9 @@ data class CounterEffect(
                             append("Counter target spell")
                         }
                     }
-                    is CounterCondition.UnlessPaysMana -> {
-                        append("Counter target spell unless its controller pays ${condition.cost}")
-                        condition.onPaid?.let { append(". If they do, ${it.description.replaceFirstChar(Char::lowercase)}") }
-                    }
-                    is CounterCondition.UnlessPaysDynamic -> {
-                        append("Counter target spell unless its controller pays ${condition.amount.description}")
-                        condition.onPaid?.let { append(". If they do, ${it.description.replaceFirstChar(Char::lowercase)}") }
+                    is CounterCondition.UnlessPaysMana, is CounterCondition.UnlessPaysDynamic -> {
+                        append("Counter target spell")
+                        appendUnlessPays()
                     }
                 }
                 when (val dest = counterDestination) {
@@ -244,6 +247,16 @@ data class CounterEffect(
                 }
             }
         }
+    }
+
+    private fun StringBuilder.appendUnlessPays() {
+        val (price, onPaid) = when (condition) {
+            CounterCondition.Always -> return
+            is CounterCondition.UnlessPaysMana -> condition.cost.toString() to condition.onPaid
+            is CounterCondition.UnlessPaysDynamic -> condition.amount.description to condition.onPaid
+        }
+        append(" unless its controller pays $price")
+        onPaid?.let { append(". If they do, ${it.description.replaceFirstChar(Char::lowercase)}") }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
@@ -893,24 +906,35 @@ data class StormCopyEffect(
  * @property target The effect target referencing the spell to copy (typically ContextTarget(0))
  */
 /**
- * Grant a keyword to a spell or ability on the stack until it leaves the stack.
+ * Grant a keyword to a spell or ability on the stack.
  * Used for cards like Spinerock Tyrant: "those spells gain wither" — the granted
- * keyword applies for damage/source checks while the spell resolves, then * disappears with the spell.
+ * keyword applies for damage/source checks while the spell resolves, then disappears with the spell.
+ *
+ * A permanent spell's grant carries through to the permanent the spell becomes (CR 400.7a), for
+ * [duration]: Tyvar Kell's emblem — "Whenever you cast an Elf spell, it gains haste until end of
+ * turn" — is `duration = Duration.EndOfTurn`. The keyword is frozen onto the stack object and
+ * granted as the permanent enters, so a spell that's countered or otherwise never resolves carries
+ * nothing into its next zone (CR 400.7).
  *
  * @property keyword The keyword to grant (enum name)
  * @property target The effect target referencing the spell on the stack
  *                  (typically [EffectTarget.TriggeringEntity] or [EffectTarget.ContextTarget])
+ * @property duration How long the permanent a permanent spell becomes keeps [keyword]; an
+ *                  instant or sorcery has no permanent, so its grant simply ends with the spell.
  */
 @SerialName("GrantKeywordToSpell")
 @Serializable
 data class GrantKeywordToSpellEffect(
     val keyword: String,
-    val target: EffectTarget = EffectTarget.TriggeringEntity
+    val target: EffectTarget = EffectTarget.TriggeringEntity,
+    val duration: Duration = Duration.Permanent,
 ) : Effect {
-    constructor(keyword: Keyword, target: EffectTarget = EffectTarget.TriggeringEntity) :
-        this(keyword.name, target)
+    constructor(keyword: Keyword, target: EffectTarget = EffectTarget.TriggeringEntity, duration: Duration = Duration.Permanent) :
+        this(keyword.name, target, duration)
 
-    override val description: String = com.wingedsheep.sdk.scripting.util.describeKeywordGrant(target.description, keyword)
+    override val description: String =
+        com.wingedsheep.sdk.scripting.util.describeKeywordGrant(target.description, keyword) +
+            (duration.description.takeIf { it.isNotEmpty() }?.let { " $it" } ?: "")
 }
 
 @SerialName("CopyTargetSpell")
@@ -962,11 +986,30 @@ data class CopyTargetSpellEffect(
     /** Copiable characteristic exceptions, applied before the copy is put on the stack. */
     @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
-    val exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None
+    val exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
+    /**
+     * The starting loyalty of the token the copy resolves into, replacing the printed one, when the
+     * copied spell is a planeswalker spell (CR 707.10f). Read against the copied spell's X, so
+     * [DynamicAmount.XValue] is "has starting loyalty X" — the rider casualty X puts on its copy
+     * (Ob Nixilis, the Adversary). Null keeps the printed loyalty; ignored for non-permanent copies.
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val tokenStartingLoyalty: DynamicAmount? = null,
+    /**
+     * Whether the copier may choose new targets for each copy (CR 707.10c — only when the effect
+     * says so). False is the plain "copy that spell": every copy keeps the original's targets and
+     * modes verbatim with no decision (CR 707.10), as Reflections of Littjara words it.
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val mayChooseNewTargets: Boolean = true
 ) : Effect {
     override val description: String = run {
-        val main = if (copies == DynamicAmount.Fixed(1)) "Copy target spell"
-            else "Copy target spell ${copies.description} times"
+        // "that spell" when the copied spell is the trigger's own ("copy it"), not a chosen target.
+        val spell = if (target == EffectTarget.TriggeringEntity) "that spell" else "target spell"
+        val main = if (copies == DynamicAmount.Fixed(1)) "Copy $spell"
+            else "Copy $spell ${copies.description} times"
         val clauses = exceptions.clauses()
         if (clauses.isEmpty()) main else "$main except ${clauses.joinToString(" and ")}"
     }
@@ -1300,6 +1343,34 @@ data class GrantNextSpellKeywordEffect(
 }
 
 /**
+ * "For one spell this turn, you may spend mana as though it were mana of any type to pay that
+ * spell's mana cost. (Additional costs are still paid normally.)" (North Star) — a one-shot,
+ * turn-scoped rider in the [GrantNextSpellKeywordEffect] family, but **not** a "next spell" one:
+ * the printed text lets the player pick which spell, so the rider is spent only by the first
+ * matching cast whose mana payment actually needs it (CR 118.14 / 609.4b). A matching spell the
+ * player pays with the right types leaves it waiting; an unused rider clears at the turn boundary.
+ *
+ * Only the colored, hybrid, Phyrexian and colorless pips of the spell's own mana cost are relaxed —
+ * pips added by additional costs (kicker and the like) still need their printed type.
+ *
+ * @property spellFilter Which spells the rider may apply to (defaults to any spell).
+ */
+@SerialName("GrantOneSpellAnyManaType")
+@Serializable
+data class GrantOneSpellAnyManaTypeEffect(
+    val spellFilter: GameObjectFilter = GameObjectFilter.Any
+) : Effect {
+    override val description: String = buildString {
+        append("For one ")
+        if (spellFilter != GameObjectFilter.Any) append("${spellFilter.description} ")
+        append("spell this turn, you may spend mana as though it were mana of any type to pay that spell's mana cost")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect =
+        copy(spellFilter = spellFilter.applyTextReplacement(replacer))
+}
+
+/**
  * "Spells [player] casts [duration] that match [spellFilter] cost {X} less — or, with
  * [increase], {X} more — to cast": a duration-bounded, player-scoped generic cost modifier
  * installed when this effect resolves. Not to be confused with the static
@@ -1337,6 +1408,9 @@ data class GrantNextSpellKeywordEffect(
  * @property duration How long the modifier lasts.
  * @property player Whose spells are affected, resolved at execution time.
  * @property increase `true` for a tax ("cost {X} more"), `false` for a discount.
+ * @property nextSpellOnly `true` for the one-shot "the next spell you cast this turn [that matches]
+ *   costs {X} less" (Peerless Samurai): the first matching spell the player casts this turn spends
+ *   the modifier, whether or not it needed the discount. Only valid with [Duration.EndOfTurn].
  */
 @SerialName("ModifySpellCosts")
 @Serializable
@@ -1346,8 +1420,12 @@ data class ModifySpellCostsEffect(
     val duration: Duration = Duration.EndOfTurn,
     val player: Player = Player.You,
     val increase: Boolean = false,
+    val nextSpellOnly: Boolean = false,
 ) : Effect {
     init {
+        require(!nextSpellOnly || duration == Duration.EndOfTurn) {
+            "ModifySpellCostsEffect.nextSpellOnly supports only EndOfTurn, not $duration"
+        }
         require(duration == Duration.EndOfTurn || duration == Duration.UntilYourNextTurn) {
             "ModifySpellCostsEffect supports EndOfTurn or UntilYourNextTurn, not $duration"
         }
@@ -1357,11 +1435,19 @@ data class ModifySpellCostsEffect(
     }
 
     override val description: String = buildString {
-        append("Spells ")
-        append(if (player == Player.You) "you cast " else "${player.description} casts ")
-        append(if (duration == Duration.EndOfTurn) "this turn" else duration.description)
-        append(" that are ${spellFilter.description}")
-        append(" cost ")
+        if (nextSpellOnly) {
+            append("The next ")
+            if (spellFilter != GameObjectFilter.Any) append("${spellFilter.description} ")
+            append("spell ")
+            append(if (player == Player.You) "you cast" else "${player.description} casts")
+            append(" this turn costs ")
+        } else {
+            append("Spells ")
+            append(if (player == Player.You) "you cast " else "${player.description} casts ")
+            append(if (duration == Duration.EndOfTurn) "this turn" else duration.description)
+            append(" that are ${spellFilter.description}")
+            append(" cost ")
+        }
         val direction = if (increase) "more" else "less"
         val fixed = (amount as? DynamicAmount.Fixed)?.amount
         if (fixed != null) append("{$fixed} $direction to cast")

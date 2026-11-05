@@ -3248,9 +3248,16 @@
                     {
                         "type": "ActivationOnlyIfCondition",
                         "condition": {
-                            "type": "CreatureWithSubtypeDiedThisTurn",
-                            "subtype": "Skeleton",
-                            "present": false,
+                            "type": "CreatureDiedThisTurnMatching",
+                            "filter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    {
+                                        "type": "NotSubtype",
+                                        "subtype": "Skeleton"
+                                    }
+                                ]
+                            },
                             "player": "You"
                         }
                     }
@@ -3385,19 +3392,6 @@
                                 "zone": "Battlefield"
                             },
                             "attachTo": "Self"
-                        },
-                        {
-                            "type": "ConditionalOnCollection",
-                            "collection": "selected1",
-                            "ifNotEmpty": {
-                                "type": "AttachTargetEquipmentToCreature",
-                                "equipmentTarget": {
-                                    "type": "PipelineTarget",
-                                    "collectionName": "selected1"
-                                },
-                                "creatureTarget": "Self"
-                            },
-                            "filter": "Equipment"
                         }
                     ]
                 },
@@ -9656,7 +9650,11 @@
                         "target": "Self",
                         "destination": "Battlefield",
                         "placement": "TappedAndAttacking",
-                        "addCounterType": "PLUS_ONE_PLUS_ONE"
+                        "entryCounters": [
+                            {
+                                "counterType": "PLUS_ONE_PLUS_ONE"
+                            }
+                        ]
                     }
                 },
                 "activeZones": [
@@ -12286,7 +12284,7 @@
                                 }
                             },
                             "storeSelected": "found",
-                            "prompt": "Search your library for a creature black card to put onto the battlefield",
+                            "prompt": "Search your library for a black creature card to put onto the battlefield",
                             "selectedLabel": "Put onto the battlefield"
                         },
                         {
@@ -13816,23 +13814,7 @@
         "toughness": 2
     },
     "keywords": [
-        "HASTE",
-        "ESCAPE"
-    ],
-    "keywordAbilities": [
-        {
-            "type": "Escape",
-            "cost": "{3}{R}",
-            "additionalCost": {
-                "type": "AdditionalAtom",
-                "atom": {
-                    "type": "AtomExileFrom",
-                    "zone": "Graveyard",
-                    "count": 4,
-                    "excludeSelf": true
-                }
-            }
-        }
+        "HASTE"
     ],
     "script": {
         "triggeredAbilities": [
@@ -13854,6 +13836,24 @@
                     "attacking": true
                 },
                 "descriptionOverride": "Whenever Squee attacks, create a 1/1 red Goblin creature token that's tapped and attacking."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "MayCastSelfFromZones",
+                "zones": [
+                    "Graveyard"
+                ],
+                "additionalCost": {
+                    "type": "AdditionalAtom",
+                    "atom": {
+                        "type": "AtomExileFrom",
+                        "zone": "Graveyard",
+                        "count": 4,
+                        "excludeSelf": true
+                    }
+                },
+                "alternativeManaCost": "{3}{R}"
             }
         ]
     },

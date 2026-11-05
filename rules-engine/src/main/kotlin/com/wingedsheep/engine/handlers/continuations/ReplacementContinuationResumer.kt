@@ -20,7 +20,8 @@ class ReplacementContinuationResumer(
 ) : ContinuationResumerModule, AutoResumerModule {
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
-        resumer(ReplacementChoiceContinuation::class, ::resumeReplacementChoice)
+        resumer(ReplacementChoiceContinuation::class, ::resumeReplacementChoice),
+        resumer(KeywordActionInsteadContinuation::class, ::resumeKeywordActionInstead)
     )
 
     override fun autoResumers(): List<AutoResumer<*>> = listOf(
@@ -43,6 +44,36 @@ class ReplacementContinuationResumer(
             resumeReplacementResolve(state, continuation, events, checkForMore)
         }
     )
+
+    /**
+     * Resume a keyword action after the player answered an optional "instead" replacement
+     * ([KeywordActionInsteadContinuation]). Yes: the replacement's effect runs rooted at its
+     * source, and the action doesn't happen. No: the remaining offers are put in turn, and with
+     * none left the action runs as printed.
+     */
+    private fun resumeKeywordActionInstead(
+        state: GameState,
+        continuation: KeywordActionInsteadContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is YesNoResponse) {
+            return ExecutionResult.error(state, "Expected yes/no response for a keyword-action replacement")
+        }
+        val execute = services.effectExecutorRegistry::execute
+        val offer = continuation.offers.first()
+        val result = if (response.choice) {
+            execute(state, offer.replacementEffect,
+                com.wingedsheep.engine.handlers.effects.KeywordActionReplacements.replacementContext(state, offer))
+        } else {
+            com.wingedsheep.engine.handlers.effects.KeywordActionReplacements.offerInstead(
+                state, continuation.action, continuation.offers.drop(1),
+                continuation.reissue, continuation.actionContext, execute
+            )
+        }.toExecutionResult()
+        if (result.outcome is Outcome.Paused) return result
+        return checkForMore(result.state, result.events.toList())
+    }
 
     /**
      * Resume after the player chose one of multiple competing replacement
@@ -87,7 +118,8 @@ class ReplacementContinuationResumer(
             state = stateWithRemaining,
             gathered = chosen,
             event = continuation.pendingEvent,
-            alreadyApplied = continuation.alreadyApplied
+            alreadyApplied = continuation.alreadyApplied,
+            parentOrigin = continuation.context?.programOrigin,
         )
 
         return when (result) {
@@ -163,7 +195,10 @@ class ReplacementContinuationResumer(
         val resumeContinuation = ReplacementResolveContinuation
 
         val stateWithResumeFrame = state.pushContinuation(resumeContinuation).let {
-            if (restoreDrawChain) it.pushContinuation(RestoreReplacementChainContinuation(drawParentChain)) else it
+            // `applied` keeps the chain the processor stamped (CR 614.5) in force across a
+            // pause inside the replacement effect, scoped to it until the frame pops.
+            if (restoreDrawChain) it.pushContinuation(RestoreReplacementChainContinuation(drawParentChain,
+                applied = state.activeReplacementChain ?: emptySet())) else it
         }
 
         // Execute the new effect

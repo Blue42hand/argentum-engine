@@ -1,51 +1,52 @@
 package com.wingedsheep.mtg.sets.definitions.snc.cards
 
+import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
-private const val RIVETEERS_OVERLOOK_ORACLE =
-    "When this land enters, sacrifice it. When you do, search your library for a basic Swamp, " +
-        "Mountain, or Forest card, put it onto the battlefield tapped, then shuffle and you gain 1 life."
-
 /**
- * Riveteers Overlook — Streets of New Capenna #255
- * Land
+ * Riveteers Overlook — Streets of New Capenna #255. One of SNC's family fetch lands.
  *
  * When this land enters, sacrifice it. When you do, search your library for a basic Swamp,
  * Mountain, or Forest card, put it onto the battlefield tapped, then shuffle and you gain 1 life.
  *
- * The sacrifice and the "when you do" payoff are a genuine reflexive trigger (CR 603.12). If the
- * land cannot be sacrificed when the enters-the-battlefield trigger resolves, the search/life-gain
- * reflexive ability is not created.
+ * The sacrifice is gated on the land still being on the battlefield: if it left before the
+ * enters trigger resolved, it can't be sacrificed, so the reflexive "when you do" never triggers.
  */
 val RiveteersOverlook = card("Riveteers Overlook") {
     colorIdentity = ""
     typeLine = "Land"
-    oracleText = RIVETEERS_OVERLOOK_ORACLE
+    oracleText = "When this land enters, sacrifice it. When you do, search your library for a basic " +
+        "Swamp, Mountain, or Forest card, put it onto the battlefield tapped, then shuffle and you gain 1 life."
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.ReflexiveTrigger(
-            action = Effects.SacrificeTarget(EffectTarget.Self),
-            optional = false,
-            reflexiveEffect = (Patterns.Library.searchLibrary(
-                    filter = GameObjectFilter.BasicLand.withAnySubtype("Swamp", "Mountain", "Forest"),
+        effect = Effects.If(
+            condition = Conditions.SourceInZone(Zone.BATTLEFIELD),
+            then = Effects.ReflexiveTrigger(
+                action = Effects.SacrificeTarget(EffectTarget.Self),
+                optional = false,
+                reflexiveEffect = Patterns.Library.searchLibrary(
+                    filter = GameObjectFilter.BasicLand.withAnyOfSubtypes(
+                        listOf(Subtype.SWAMP, Subtype.MOUNTAIN, Subtype.FOREST)
+                    ),
+                    count = 1,
                     destination = SearchDestination.BATTLEFIELD,
                     entersTapped = true,
-                ) then
-                Effects.GainLife(1)),
-            descriptionOverride = "Sacrifice this land. When you do, search your library for a " +
-                "basic Swamp, Mountain, or Forest card, put it onto the battlefield tapped, then " +
-                "shuffle and you gain 1 life.",
+                    shuffleAfter = true
+                ) then Effects.GainLife(1),
+                descriptionOverride = "Sacrifice this land. When you do, search your library for a basic " +
+                    "Swamp, Mountain, or Forest card, put it onto the battlefield tapped, then shuffle and you gain 1 life."
+            )
         )
-        description = RIVETEERS_OVERLOOK_ORACLE
     }
 
     metadata {

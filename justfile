@@ -69,7 +69,7 @@ test-class CLASS *ARGS:
 loop-gate *ARGS:
     scripts/loop-gate {{ARGS}}
 
-# Re-bless per-set card snapshot goldens after an intentional change (review the diff: only your cards should move)
+# Re-bless per-set card snapshot goldens after an intentional change (a loop passes --rebless to loop-gate instead) (review the diff: only your cards should move)
 [group: 'build']
 rebless-cards:
     scripts/gradle-locked :mtg-sets:test --tests "*CardDefinitionSnapshotTest" -DupdateSnapshots=true
@@ -159,6 +159,15 @@ ai-game-logs GAMES="24" SEED="20261009" AGENT="live" SEATS="2" ATTACK="LEFT":
     scripts/gradle-locked :ai:test --tests "*.GameLogBenchmark" -Dbenchmark=true -DgameLog=true \
         -DgameLogGames={{GAMES}} -DgameLogSeed={{SEED}} -DgameLogAgent={{AGENT}} -DgameLogSeats={{SEATS}} \
         -DgameLogAttackMode={{ATTACK}} -DgameLogDir={{justfile_directory()}}/ai/build/game-logs
+
+# DIR comes from `scripts/fetch-ai-games --out DIR` (needs WINGEDSHEEP_ADMIN_PASSWORD). Logs use the
+# `ai-game-logs` format with full information and the AI seats marked; a replay current code no
+# longer reproduces is cut at the divergence and flagged at the top. See the `ai-game-review` skill.
+# Re-simulate the server replays in DIR into readable <gameId>.log files beside them
+[group: 'ai']
+ai-replay-logs DIR:
+    scripts/gradle-locked :game-server:test --tests "*.ReplayLogExport" -Dbenchmark=true -DreplayLog=true \
+        -DreplayLogDir="$(cd "{{DIR}}" && pwd)"
 
 # ECL apprentice promotion ladder. Artifacts are installed outside the repository and selected with
 # -Dargentum.ai.apprentice.dir; missing or invalid files safely use the production evaluator.
@@ -290,6 +299,25 @@ set-loop CODE="" MODEL="" PRIORITY="":
 [group: 'ai']
 commander-loop MODEL="" TOP="":
     scripts/commander-loop "{{MODEL}}" "{{TOP}}"
+
+# Guided setup: check tools, pick a set or paste a decklist, pick Claude Code/Codex + model, and go
+[group: 'ai']
+contribute:
+    scripts/contribute
+
+# Waits out subscription usage limits; stop with `touch .claude/loop-runs/cards-<list>.stop`.
+# --local: test + commit each unit on one local branch (no PRs) so you open a single PR at the end.
+# Implement the missing cards of a card list or decklist: card-loop <list-file> [model] [--local]
+[group: 'ai']
+[no-cd]
+card-loop *ARGS:
+    {{justfile_directory()}}/scripts/card-loop {{ARGS}}
+
+# Which cards of a card list or decklist are implemented and which are missing: card-list-status <list-file>
+[group: 'build']
+[no-cd]
+card-list-status *ARGS:
+    {{justfile_directory()}}/scripts/card-list-status {{ARGS}}
 
 # Rank the cards EDHREC's top Commander decks run that we lack, in deck-completion order
 [group: 'build']
@@ -567,6 +595,20 @@ dev:
     trap 'kill "$server_pid" "$client_pid" 2>/dev/null || true; wait "$server_pid" "$client_pid" 2>/dev/null || true' EXIT INT TERM
     wait "$server_pid" "$client_pid"
 
+# This worktree's server (dev endpoints on) and client on their own ports, for a manual UI check
+# alongside other checkouts. Occupied ports fail rather than silently showing another checkout's app.
+[group: 'dev']
+ui-dev SERVER_PORT CLIENT_PORT:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    GAME_DEV_ENDPOINTS_ENABLED=true scripts/gradle-locked :game-server:bootRun \
+      --args='--spring.profiles.active=local --server.port={{SERVER_PORT}}' &
+    server_pid=$!
+    (cd web-client && GAME_SERVER_URL=http://localhost:{{SERVER_PORT}} npm run dev -- --port {{CLIENT_PORT}} --strictPort) &
+    client_pid=$!
+    trap 'kill "$server_pid" "$client_pid" 2>/dev/null || true; wait "$server_pid" "$client_pid" 2>/dev/null || true' EXIT INT TERM
+    wait "$server_pid" "$client_pid"
+
 # Start the game server with Onslaught set enabled
 [group: 'dev']
 server-ons:
@@ -726,16 +768,6 @@ e2e-install-browsers:
 [group: 'e2e']
 e2e-test PATTERN:
     cd e2e-scenarios && npx playwright test {{PATTERN}}
-
-# Isolated Chromium verification for agent loops; choose two unused ports per worktree.
-[group: 'e2e']
-e2e-loop PATTERN CLIENT_PORT SERVER_PORT:
-    cd e2e-scenarios && E2E_CLIENT_PORT='{{CLIENT_PORT}}' E2E_SERVER_PORT='{{SERVER_PORT}}' npx playwright test --config=playwright.loop.config.ts '{{PATTERN}}'
-
-# Started and stopped by Playwright's loop config, with the machine-global build semaphore.
-[group: 'e2e']
-e2e-server PORT:
-    GAME_DEV_ENDPOINTS_ENABLED=true scripts/gradle-locked :game-server:bootRun --args='--spring.profiles.active=local --server.port={{PORT}}'
 
 # Run E2E tests under the Playwright Inspector (step through, inspect selectors)
 [group: 'e2e']

@@ -112,13 +112,35 @@ sealed interface ManaRestriction {
     }
 
     /**
+     * "Spend this mana only to cast spells with exactly [count] colors." Matches a spell whose
+     * colors (CR 105.2) number exactly [count], read off the spell being cast — a hybrid pip
+     * counts both its colors. Meeting of the Five (`count = 3`). A colorless spell has zero
+     * colors, but "spend this mana only to cast colorless spells" is [ColorlessSpellsOnly].
+     */
+    @SerialName("SpellsWithExactColorCount")
+    @Serializable
+    data class SpellsWithExactColorCount(val count: Int) : ManaRestriction {
+        init {
+            require(count in 1..5) { "a spell has 1 to 5 colors; use ColorlessSpellsOnly for none" }
+        }
+        override val description: String =
+            "Spend this mana only to cast spells with exactly ${listOf("one", "two", "three", "four", "five")[count - 1]} " +
+                if (count == 1) "color" else "colors"
+    }
+
+    /**
      * "Spend this mana only to cast legendary spells." Matches spells with the Legendary supertype
-     * (Great Hall of the Citadel, Delighted Halfling).
+     * (Great Hall of the Citadel, Delighted Halfling). [creatureOnly] narrows it to legendary
+     * *creature* spells (The Ringhart Crest's "or a legendary creature spell"), the same axis
+     * [SpellsWithManaValueAtLeast] and [SubtypeSpellsOrAbilitiesOnly] carry.
      */
     @SerialName("LegendarySpellsOnly")
     @Serializable
-    data object LegendarySpellsOnly : ManaRestriction {
-        override val description: String = "Spend this mana only to cast legendary spells"
+    data class LegendarySpellsOnly(
+        val creatureOnly: Boolean = false,
+    ) : ManaRestriction {
+        override val description: String =
+            "Spend this mana only to cast legendary ${if (creatureOnly) "creature spells" else "spells"}"
     }
 
     /**
@@ -151,10 +173,59 @@ sealed interface ManaRestriction {
         }
     }
 
+    /**
+     * "Spend this mana only to cast a [creature] spell of the chosen type" — the *unbound* form of
+     * [SubtypeSpellsOrAbilitiesOnly], for a card that chose a creature type as it entered (CR 614.12
+     * "as enters" choice) and makes mana restricted to it: Cavern of Souls, Secluded Courtyard, The
+     * Ringhart Crest. The engine binds it the moment the mana is made, replacing it — also inside an
+     * [AnyOf] / [AllOf] — with `SubtypeSpellsOrAbilitiesOnly(<the producing source's chosen type>,
+     * creatureOnly)`, so the pool only ever holds the self-contained bound form. Left unbound (the
+     * source never chose a type) it is satisfied by nothing.
+     *
+     * A separate type rather than a placeholder subtype string on [SubtypeSpellsOrAbilitiesOnly]:
+     * a sentinel value would let a printed subtype and "the chosen one" collide, and
+     * [SubtypeSpellsOnly] (a fixed set of subtypes) has the same problem.
+     */
+    @SerialName("OfChosenType")
+    @Serializable
+    data class OfChosenType(
+        val creatureOnly: Boolean = false,
+    ) : ManaRestriction {
+        override val description: String = if (creatureOnly) {
+            "Spend this mana only to cast a creature spell of the chosen type"
+        } else {
+            "Spend this mana only to cast a spell of the chosen type or activate an ability of a source of the chosen type"
+        }
+    }
+
     @SerialName("CastFromExileOnly")
     @Serializable
     data object CastFromExileOnly : ManaRestriction {
         override val description: String = "Spend this mana only to cast spells from exile"
+    }
+
+    /**
+     * "Spend this mana only to cast spells from your graveyard." Satisfied by casting a spell
+     * from the caster's **own** graveyard — by flashback, disturb, harmonize, escape, or a
+     * graveyard-cast permission alike. A card cast out of an opponent's graveyard doesn't
+     * qualify ("your graveyard"), and ability activations never do. Rootcoil Creeper.
+     */
+    @SerialName("CastFromGraveyardOnly")
+    @Serializable
+    data object CastFromGraveyardOnly : ManaRestriction {
+        override val description: String = "Spend this mana only to cast spells from your graveyard"
+    }
+
+    /**
+     * "Spend this mana only to pay a disturb cost." Satisfied only by casting a spell for its
+     * disturb alternative cost (CR 702.146a — cast transformed from the graveyard). A plain cast
+     * of the same card from hand, a flashback cast, and ability activations don't qualify.
+     * Compose with [AnyOf] — Unblinking Observer is `AnyOf(DisturbCostOnly, InstantOrSorceryOnly)`.
+     */
+    @SerialName("DisturbCostOnly")
+    @Serializable
+    data object DisturbCostOnly : ManaRestriction {
+        override val description: String = "Spend this mana only to pay a disturb cost"
     }
 
     /**
@@ -196,6 +267,36 @@ sealed interface ManaRestriction {
     @Serializable
     data object UnlockDoorOnly : ManaRestriction {
         override val description: String = "Spend this mana only to unlock a door"
+    }
+
+    /**
+     * "Spend this mana only to foretell a card from your hand."
+     *
+     * Satisfied by the foretell special action's fixed {2} payment (CR 702.143a), not by casting
+     * the foretold card later for its foretell cost — that is a spell cast, which
+     * [SpellsWithKeywordOnly] (`Keyword.FORETELL`) covers. Karfell Harbinger:
+     * `AnyOf(ForetellOnly, InstantOrSorceryOnly)`; Niko Defies Destiny:
+     * `AnyOf(ForetellOnly, SpellsWithKeywordOnly(Keyword.FORETELL))`.
+     */
+    @SerialName("ForetellOnly")
+    @Serializable
+    data object ForetellOnly : ManaRestriction {
+        override val description: String = "Spend this mana only to foretell a card from your hand"
+    }
+
+    /**
+     * "Spend this mana only to cast spells that have [keyword]" — a spell whose card has the
+     * keyword in its definition (printed, or derived from a parameterized keyword ability such as
+     * foretell or flashback). A keyword granted to the spell by another effect isn't read yet. Niko Defies Destiny's "cast spells that have foretell" is
+     * `SpellsWithKeywordOnly(Keyword.FORETELL)`. Rejects ability activations and non-cast spends.
+     */
+    @SerialName("SpellsWithKeywordOnly")
+    @Serializable
+    data class SpellsWithKeywordOnly(
+        val keyword: com.wingedsheep.sdk.core.Keyword
+    ) : ManaRestriction {
+        override val description: String =
+            "Spend this mana only to cast spells that have ${keyword.displayName.lowercase()}"
     }
 
     /**
@@ -290,6 +391,26 @@ sealed interface ManaRestriction {
     @Serializable
     data object EquipAbilityActivationOnly : ManaRestriction {
         override val description: String = "Spend this mana only to activate equip abilities"
+    }
+
+    /**
+     * "Spend this mana only to … gain a Class level." Satisfied only by paying the cost of a
+     * Class's level-up ability (CR 716.2c: "to gain a Class level" means to activate an ability
+     * indicated by a class level bar; CR 716.2a — "[Cost]: Level N" is an activated ability, "Activate
+     * only if this Class is level N-1 and only as a sorcery"): the ability the engine builds with
+     * a `LevelUpClassEffect`.
+     *
+     * The level-up sibling of [EquipAbilityActivationOnly], and kept as its own atom for the same
+     * reason: neither [AbilityActivationOnly] nor `CardTypeSpellsOrAbilitiesOnly(ENCHANTMENT)` /
+     * `SubtypeSpellsOrAbilitiesOnly("Class")` can separate a Class's level-up from the other
+     * activated abilities its levels grant (Druid Class's, Rogue Class's), which share its source.
+     * Sorcerer Class's "Spend this mana only to cast an instant or sorcery spell or to gain a
+     * Class level" is `AnyOf(InstantOrSorceryOnly, ClassLevelUpOnly)`.
+     */
+    @SerialName("ClassLevelUpOnly")
+    @Serializable
+    data object ClassLevelUpOnly : ManaRestriction {
+        override val description: String = "Spend this mana only to gain a Class level"
     }
 
     /**
@@ -398,6 +519,11 @@ sealed interface ManaRestriction {
      * any zone (battlefield, hand, graveyard, etc.) — the engine evaluates source type from
      * the activating source's [com.wingedsheep.sdk.core.TypeLine] (plus projected types for
      * battlefield permanents) at payment time.
+     *
+     * [permanentSourcesOnly] narrows the abilities half to sources on the battlefield — "spend this
+     * mana only to activate an ability of a creature", where Tazri, Stalwart Survivor's ruling
+     * (2023-05-12) excludes creature *cards* in other zones (cycling from hand, unearth from a
+     * graveyard).
      */
     @SerialName("CardTypeSpellsOrAbilitiesOnly")
     @Serializable
@@ -406,6 +532,7 @@ sealed interface ManaRestriction {
         val allowSpells: Boolean = true,
         val allowAbilities: Boolean = false,
         val negated: Boolean = false,
+        val permanentSourcesOnly: Boolean = false,
     ) : ManaRestriction {
         init {
             require(allowSpells || allowAbilities) {
@@ -418,7 +545,7 @@ sealed interface ManaRestriction {
             val typeName = (if (negated) "non" else "") + cardType.displayName.lowercase()
             val clauses = buildList {
                 if (allowSpells) add("cast $typeName spells")
-                if (allowAbilities) add("activate abilities of $typeName sources")
+                if (allowAbilities) add(if (permanentSourcesOnly) "activate abilities of ${typeName}s" else "activate abilities of $typeName sources")
             }
             append(clauses.joinToString(" or "))
         }

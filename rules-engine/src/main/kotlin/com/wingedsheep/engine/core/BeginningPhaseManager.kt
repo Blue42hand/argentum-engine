@@ -21,6 +21,7 @@ import com.wingedsheep.engine.state.components.player.CardsInHandAtTurnStartComp
 import com.wingedsheep.engine.state.components.player.SkipNextUntapStepComponent
 import com.wingedsheep.engine.state.components.player.UntappedLandsAtTurnStartComponent
 import com.wingedsheep.engine.state.components.player.SkipUntapComponent
+import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.core.CounterType
@@ -29,11 +30,13 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.UntapDuringOtherUntapSteps
+import com.wingedsheep.engine.state.components.identity.emblemStaticAbilitiesOf
 import com.wingedsheep.sdk.scripting.UntapFilteredDuringOtherUntapSteps
 import com.wingedsheep.sdk.scripting.UntapSelfDuringOtherUntapSteps
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
+import com.wingedsheep.engine.state.components.identity.faceUpCardDefinition
 
 /**
  * Handles beginning phase logic: untap step, upkeep step, and saga lore counters.
@@ -163,19 +166,12 @@ class BeginningPhaseManager(
                 container.has<TappedComponent>()
         }.keys.filter { entityId ->
             // If the controller has a skip untap component, check if this permanent should be skipped
-            val skipUntap = skipUntapByPlayer[projected.getController(entityId)]
-            if (skipUntap != null) {
-                val cardComponent = newState.getEntity(entityId)?.get<CardComponent>()
-                val typeLine = cardComponent?.typeLine
-                val isCreature = typeLine?.isCreature == true
-                val isLand = typeLine?.isLand == true
-
-                // Skip this permanent if it matches the skip criteria
-                val shouldSkip = (skipUntap.affectsCreatures && isCreature) ||
-                    (skipUntap.affectsLands && isLand)
-                !shouldSkip
-            } else {
-                true
+            val controller = projected.getController(entityId)
+            val skipUntap = skipUntapByPlayer[controller]
+            // Current characteristics, not the card's: a face-down permanent is a creature whatever
+            // it is (CR 708.2), and type-changing effects count too.
+            skipUntap == null || controller == null || skipUntap.permanents.none { filter ->
+                predicateEvaluator.matches(newState, projected, entityId, filter, PredicateContext(controllerId = controller))
             }
         }
 
@@ -281,16 +277,23 @@ class BeginningPhaseManager(
             val selfUntapIds = mutableListOf<EntityId>()
 
             for (permanentId in projectedForSeedborn.getBattlefieldControlledBy(playerId)) {
-                val card = newState.getEntity(permanentId)?.get<CardComponent>() ?: continue
-                val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+                val cardDef = newState.getEntity(permanentId)?.faceUpCardDefinition(cardRegistry) ?: continue
                 for (ability in cardDef.script.staticAbilities) {
                     when (ability) {
-                        is UntapDuringOtherUntapSteps -> untapAll = true
+                        is UntapDuringOtherUntapSteps ->
+                            if (actsInStepOf(newState, ability.duringStepsOf, playerId, activePlayer)) untapAll = true
                         is UntapFilteredDuringOtherUntapSteps -> filteredUntapFilters.add(ability.filter)
                         is UntapSelfDuringOtherUntapSteps -> selfUntapIds.add(permanentId)
                         else -> {}
                     }
                 }
+            }
+            // An emblem's own "Untap all permanents you control during each opponent's untap step"
+            // (Teferi, Who Slows the Sunset) — emblems sit in no zone, so the battlefield scan misses them.
+            for ((_, ability) in newState.emblemStaticAbilitiesOf(playerId)) {
+                if (ability is UntapDuringOtherUntapSteps &&
+                    actsInStepOf(newState, ability.duringStepsOf, playerId, activePlayer)
+                ) untapAll = true
             }
 
             if (untapAll) {
@@ -389,6 +392,13 @@ class BeginningPhaseManager(
             }
         }
 
+        // CR 712.20 — a permanent the day/night change above turned into an "attach it to a player"
+        // Aura face gets its player now, still inside the untap step: no one has priority and the
+        // enchanted player's upkeep triggers must see the attachment. May pause for the choice;
+        // every caller parks the rest of the turn beneath it.
+        com.wingedsheep.engine.handlers.effects.permanent.attachments.TransformAttachToPlayer
+            .settle(newState, cardRegistry, predicateEvaluator, events)?.let { return it }
+
         return ExecutionResult.success(newState, events)
     }
 
@@ -463,9 +473,17 @@ class BeginningPhaseManager(
             val cardComponent = container.get<CardComponent>() ?: continue
             val sagaComponent = container.get<SagaComponent>() ?: continue
 
-            // This entity is a Saga — add a lore counter and mark newly triggered chapters
+            // This entity is a Saga — add a lore counter and mark newly triggered chapters. The
+            // lore counter is put on by a turn-based action (CR 714.3c): a placement, so the
+            // placement replacements see it (Innkeeper's Talent), but not an effect's, so
+            // Doubling Season's "if an effect would put" doesn't.
             val counters = container.get<CountersComponent>() ?: CountersComponent()
-            val newLoreCount = counters.getCount(CounterType.LORE) + 1
+            val added = com.wingedsheep.engine.handlers.effects.ReplacementEffectUtils.applyCounterPlacementModifiers(
+                newState, entityId, CounterType.LORE, 1, placerId = projected.getController(entityId),
+                predicateEvaluator = predicateEvaluator, byEffect = false
+            )
+            if (added <= 0) continue
+            val newLoreCount = counters.getCount(CounterType.LORE) + added
 
             // Determine which chapters this lore counter triggers
             val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
@@ -479,11 +497,11 @@ class BeginningPhaseManager(
             }
 
             newState = newState.updateEntity(entityId) { c ->
-                c.with(counters.withAdded(CounterType.LORE, 1))
+                c.with(counters.withAdded(CounterType.LORE, added))
                     .with(updatedSaga)
             }
             newState = com.wingedsheep.engine.handlers.effects.DamageUtils.markCounterOnControlledPermanent(newState, entityId, CounterType.LORE)
-            events.add(CountersAddedEvent(entityId, CounterType.LORE, 1, cardComponent.name))
+            events.add(CountersAddedEvent(entityId, CounterType.LORE, added, cardComponent.name))
         }
 
         return ExecutionResult.success(newState, events)
@@ -528,13 +546,15 @@ class BeginningPhaseManager(
     ): Boolean = when (predicate) {
         // Graveyard-only predicates; untap filters never see a card with the marker.
         // Cast history is cleared before the turn's untap step.
-        StatePredicate.HasManaAbility -> predicateEvaluator.matchesStatePredicate(state, entityId, predicate, projected = projected)
+        StatePredicate.HasManaAbility, is StatePredicate.HasActivatedAbilities -> predicateEvaluator.matchesStatePredicate(state, entityId, predicate, projected = projected)
         StatePredicate.SharesNameWithSpellCastThisTurn -> false
         StatePredicate.PutIntoGraveyardThisTurn -> false
         StatePredicate.MilledThisTurn -> false
+        // Hand-only predicate; untap candidates are battlefield permanents.
+        StatePredicate.DrawnThisTurn -> false
         StatePredicate.PutIntoGraveyardFromBattlefieldThisTurn -> false
         // Combat-partner history is cleared at cleanup, so nothing has blocked anything yet this turn.
-        is StatePredicate.BlockedOrWasBlockedByEntityThisTurn -> false
+        is StatePredicate.BlockPairedWithEntityThisTurn -> false
         is StatePredicate.IsBlockingEntity -> false
         // Untap candidates are battlefield permanents, so back face up is the whole CR 701.27g test.
         StatePredicate.IsTransformed ->
@@ -543,6 +563,8 @@ class BeginningPhaseManager(
             container.has<com.wingedsheep.engine.state.components.identity.CommanderComponent>()
         // No granter context in untap filtering — granter-relative exclusion is resolution-time only.
         StatePredicate.IsGrantingPermanent -> false
+        // Likewise no trigger context in untap filtering.
+        StatePredicate.IsTriggeringEntity -> false
         // Counter history is plain per-entity state, so answer it exactly rather than falling open.
         // In practice cleanup wiped the marker at the end of the previous turn, so this is false for
         // every permanent by the time the untap step runs on a normal turn.
@@ -594,7 +616,9 @@ class BeginningPhaseManager(
         is StatePredicate.Or -> predicate.predicates.any { matchesStatePredicateForUntap(state, projected, entityId, it, container) }
         is StatePredicate.And -> predicate.predicates.all { matchesStatePredicateForUntap(state, projected, entityId, it, container) }
         is StatePredicate.Not -> !matchesStatePredicateForUntap(state, projected, entityId, predicate.predicate, container)
-        StatePredicate.ControlledSinceTurnBegan -> ControlHistory.matches(state, projected, entityId)
+        StatePredicate.StartedTurnUntapped -> ControlHistory.startedTurnUntapped(state, entityId)
+        is StatePredicate.ControlledContinuouslySince ->
+            ControlHistory.controlledSince(state, projected, entityId, predicate.since)
         // Least-mana-value comparison remains unsupported by this narrow untap evaluator.
         is StatePredicate.HasLeastManaValueAmong -> false
         is StatePredicate.IsAttackingDefenderOf -> false
@@ -623,16 +647,19 @@ class BeginningPhaseManager(
         StatePredicate.IsUnblocked,
         StatePredicate.InSameBandAsSource,
         StatePredicate.IsBlockingSource,
+        StatePredicate.IsBlockedBySource,
         StatePredicate.IsCombatPairedWithSource,
         StatePredicate.IsBlockingIterationEntity,
         StatePredicate.CreatedBySource,
-        StatePredicate.EnteredThisTurn,
+        is StatePredicate.EnteredThisTurn,
         StatePredicate.ActivatedThisTurn,
-        StatePredicate.WasDealtDamageThisTurn,
+        is StatePredicate.WasDealtDamageThisTurn,
         StatePredicate.HasDealtCombatDamageToPlayer,
         StatePredicate.DealtCombatDamageToSourceControllerThisTurn,
         StatePredicate.ControllerDealtCombatDamageBySourceThisTurn,
         StatePredicate.WasDealtDamageBySourceThisTurn,
+        StatePredicate.DealtDamageToSourceThisTurn,
+        is StatePredicate.WasDealtDamageThisTurnBy,
         StatePredicate.DealtDamageToSourceControllerThisTurn,
         StatePredicate.AttackedThisTurn,
         StatePredicate.AttackedABattleThisTurn,
@@ -661,17 +688,19 @@ class BeginningPhaseManager(
         StatePredicate.CrewedOrSaddledSourceThisTurn,
         StatePredicate.CrewedOrSaddledBySourceThisTurn,
         StatePredicate.IsWarpExiled,
+        StatePredicate.IsForetold,
         StatePredicate.NotTargetedByAbilityFromSameNamedSource,
         StatePredicate.IsSource,
         StatePredicate.IsAttachedToBySource,
         StatePredicate.IsAttachedToSource,
         StatePredicate.ExiledWithSource,
+        StatePredicate.ExiledByYou,
         StatePredicate.WasCastForWarp -> true
-        is StatePredicate.WasCastFromZone -> true
+        is StatePredicate.WasCast -> true
         StatePredicate.HasSingleTarget -> true
         is StatePredicate.AttachedToCardType -> true
         is StatePredicate.AttachedTo -> true
-        is StatePredicate.ControllerControls -> true
+        is StatePredicate.ControllerMeets -> true
         is StatePredicate.IsEnchantedByAura -> true
     }
 }

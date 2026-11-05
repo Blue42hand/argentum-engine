@@ -313,13 +313,18 @@ object ManaSpending {
         ),
         atom(
             "cast legendary spells",
-            ManaRestriction.LegendarySpellsOnly,
+            ManaRestriction.LegendarySpellsOnly(),
             "cast a legendary spell",
         ),
         atom(
             "cast colorless spells",
             ManaRestriction.ColorlessSpellsOnly,
             "cast a colorless spell",
+        ),
+        atom(
+            "cast spells with exactly three colors",
+            ManaRestriction.SpellsWithExactColorCount(3),
+            "cast a spell with exactly three colors",
         ),
         atom(
             "cast kicked spells",
@@ -332,6 +337,12 @@ object ManaSpending {
             "cast a face-down spell",
         ),
         atom("cast spells from exile", ManaRestriction.CastFromExileOnly),
+        atom(
+            "cast spells from your graveyard",
+            ManaRestriction.CastFromGraveyardOnly,
+            "cast a spell from your graveyard",
+        ),
+        atom("pay a disturb cost", ManaRestriction.DisturbCostOnly),
         // Singular-only, because that is the only number Oracle prints it in: the clause names one
         // spell's origin rather than a class of card, so there is nothing to make plural.
         atom("cast a spell from anywhere other than your hand", ManaRestriction.CastFromNonHandOnly),

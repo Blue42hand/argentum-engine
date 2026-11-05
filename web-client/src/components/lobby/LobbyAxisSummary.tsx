@@ -24,7 +24,16 @@ import {
 import { HelpTip } from '../help/HelpTip'
 import styles from '../ui/GameUI.module.css'
 
-export function LobbyAxisSummary({ axes, jumpstart = false }: { axes: AxisSelection; jumpstart?: boolean }) {
+export function LobbyAxisSummary({
+  axes,
+  jumpstart = false,
+  ante = false,
+}: {
+  axes: AxisSelection
+  jumpstart?: boolean
+  /** Playing for ante (CR 407) — like Commander, the one fact a joining player must not miss. */
+  ante?: boolean
+}) {
   return (
     <div className={styles.axisSummary} data-testid="lobby-axis-summary">
       <AxisChip name="Cards" value={jumpstart ? 'Jump In' : cardsLabel(axes.cards)} topicId={cardsTopicId(axes.cards)} />
@@ -33,6 +42,7 @@ export function LobbyAxisSummary({ axes, jumpstart = false }: { axes: AxisSelect
       )}
       <AxisChip name="Table" value={tableLabel(axes.table)} topicId={tableTopicId(axes.table)} />
       <AxisChip name="Event" value={eventLabel(axes.event)} topicId={eventTopicId(axes.event)} />
+      {ante && <AxisChip name="Stakes" value="For ante" topicId="playing-for-ante" />}
     </div>
   )
 }

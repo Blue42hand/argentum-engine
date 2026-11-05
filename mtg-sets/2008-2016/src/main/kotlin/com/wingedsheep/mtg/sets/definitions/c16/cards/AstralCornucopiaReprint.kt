@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.c16.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Astral Cornucopia reprint in Commander 2016. */
 val AstralCornucopiaReprint = Printing(
     oracleId = "1bc42024-52da-4d93-8b47-544f0a4a72a1",
     name = "Astral Cornucopia",

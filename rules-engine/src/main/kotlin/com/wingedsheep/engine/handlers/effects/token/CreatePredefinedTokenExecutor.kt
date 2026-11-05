@@ -90,24 +90,23 @@ class CreatePredefinedTokenExecutor(
         // "If one or more artifact tokens would be created under your control, that many 5/5 red
         // Dragon creature tokens with flying are created instead" (Draconic Visitor). Treasure,
         // Clue, Food, Map and the rest are artifact tokens, so this is the path it bites hardest.
-        val prospective = CardComponent(
-            cardDefinitionId = effect.tokenType,
-            name = effect.tokenType,
-            manaCost = cardDef.manaCost,
-            typeLine = cardDef.typeLine,
-            baseStats = cardDef.creatureStats,
-            baseKeywords = cardDef.keywords,
-            colors = cardDef.colorIdentityOverride ?: cardDef.colors,
-            ownerId = tokenControllerId
-        )
-        TokenCreationReplacementHelper.findTokenSubstitution(state, tokenControllerId, prospective, predicateEvaluator = amountEvaluator.predicates, eligibleSources = TokenCreationBatch.sources(context), handled = context.tokenCreationReplacementsHandled)
-            ?.let { substitute ->
-                return substituteExecutor.createSubstituteTokens(
-                    state, substitute, context,
-                    tokenCount,
-                    tokenControllerId
+        val prospective = prospectiveToken(cardDef, effect, tokenControllerId)
+        TokenCreationReplacementHelper.findTokenSubstitution(
+            state, tokenControllerId, prospective,
+            predicateEvaluator = amountEvaluator.predicates,
+            eligibleSources = TokenCreationBatch.sources(context),
+            choices = context.pipeline.chosenValues,
+            handled = context.tokenCreationReplacementsHandled,
+        )?.let { lookup ->
+            return when (lookup) {
+                is TokenSubstitution -> substituteExecutor.createSubstituteTokens(
+                    state, lookup, context, tokenCount, tokenControllerId,
+                    riders = TokenRiders(tapped = effect.tapped), rootEffect = effect
                 )
+                is TokenSubstitutionChoice ->
+                    TokenCreationReplacementHelper.askForSubstitution(state, lookup, effect, context, tokenCount)
             }
+        }
 
         // Art: an explicit per-card override wins, then the art printed by the set the creating
         // card came from (so a reprint mints its own set's Treasure), then the one canonical
@@ -127,11 +126,28 @@ class CreatePredefinedTokenExecutor(
             )?.takeIf { it.isNotEmpty() }
             ?: listOf(cardDef.metadata.imageUri)
 
+        return createTokens(state, effect, context, tokenControllerId, tokenCount, emptyList(),
+            TokenEntryReplacements.beforeEvent(state, context).copy(continuationStack = emptyList()), resolvedImageUris)
+    }
+
+    /** Resume the already-replaced event; neither its counts nor its substitutions run twice. */
+    internal fun createTokens(
+        state: GameState,
+        effect: CreatePredefinedTokenEffect,
+        context: EffectContext,
+        tokenControllerId: EntityId,
+        tokenCount: Int,
+        previousTokenIds: List<EntityId>,
+        entrySourceState: GameState,
+        resolvedImageUris: List<String?>
+    ): EffectResult {
+        val cardDef = cardRegistry.requireCard(effect.tokenType)
         var newState = state
-        val createdTokenIds = mutableListOf<EntityId>()
+        val createdTokenIds = previousTokenIds.toMutableList()
+        val events = mutableListOf<com.wingedsheep.engine.core.GameEvent>()
 
         repeat(tokenCount) { indexInBatch ->
-            val resolvedImageUri = resolvedImageUris[indexInBatch % resolvedImageUris.size]
+            val resolvedImageUri = resolvedImageUris[(previousTokenIds.size + indexInBatch) % resolvedImageUris.size]
             val (tokenId, stateWithId) = newState.newEntity()
             newState = stateWithId
             createdTokenIds.add(tokenId)
@@ -146,9 +162,9 @@ class CreatePredefinedTokenExecutor(
                 // A token has no mana cost unless its creator defines one (CR 202.1b) — the
                 // Spellgorger Weird is a {2}{R} token — so the definition's cost is carried as
                 // printed (ManaCost.ZERO when it has none). A colored token without a cost has
-                // its color in its color indicator (CR 204), stored as colorIdentityOverride;
+                // its color in its color indicator (CR 204), stored as colorIndicator;
                 // otherwise its colors derive from that mana cost.
-                colors = cardDef.colorIdentityOverride ?: cardDef.colors,
+                colors = cardDef.colors,
                 ownerId = tokenControllerId,
                 imageUri = resolvedImageUri
             )
@@ -194,6 +210,9 @@ class CreatePredefinedTokenExecutor(
 
             newState = newState.withEntity(tokenId, container)
 
+            newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.applyBeforeEntry(newState, tokenId, cardRegistry, amountEvaluator.predicates)
+            newState = TokenEntryReplacements.applyInheritedBundleRiders(newState, tokenId, state,
+                tokenControllerId, context, amountEvaluator.predicates)
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
                 .place(newState, tokenControllerId, tokenId, tokenCreatorId = context.controllerId)
 
@@ -202,21 +221,47 @@ class CreatePredefinedTokenExecutor(
             newState = com.wingedsheep.engine.handlers.effects.EnterTappedReplacements
                 .applyCreatedTokenEntryTap(
                     newState, tokenId, tokenControllerId, definedTapped = effect.tapped,
-                    predicateEvaluator = amountEvaluator.predicates, replacementSourceState = state
+                    predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState
                 )
-        }
 
-        val events = createdTokenIds.map { tokenId ->
-            ZoneChangeEvent(
-                entityId = tokenId,
-                entityName = effect.tokenType,
-                fromZone = null,
-                toZone = Zone.BATTLEFIELD,
-                ownerId = tokenControllerId,
-                oldObject = null,
-                newObject = newState.objectRef(tokenId)
-            )
-        }.toMutableList<com.wingedsheep.engine.core.GameEvent>()
+            val (withCounters, counterEvents) = com.wingedsheep.engine.handlers.effects.EntersWithReplacements.applyOnEntry(
+                newState, tokenId, tokenControllerId, cardRegistry,
+                predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState)
+            newState = withCounters
+            events += counterEvents
+
+            // Use the copied identity, and defer its entry event until every as-enters choice finishes.
+            val enteringCard = requireNotNull(newState.getEntity(tokenId)?.get<CardComponent>())
+            val choicePlan = TokenEntryReplacements.firstEntersWithChoice(
+                newState, tokenId, cardRegistry, predicateEvaluator = amountEvaluator.predicates,
+                replacementSourceState = entrySourceState)
+            if (choicePlan != null) {
+                val pending = newState.pushContinuation(com.wingedsheep.engine.core.PredefinedTokenMaterializationContinuation(
+                    effect, context, tokenControllerId, tokenCount - indexInBatch - 1,
+                    createdTokenIds.toList(), entrySourceState, resolvedImageUris))
+                val paused = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements.pauseForEntersWithChoice(
+                    state = pending, entityId = tokenId, controllerId = tokenControllerId,
+                    cardComponent = enteringCard, choice = choicePlan.choice, fromZone = null,
+                    carryEvents = events, syntheticRiot = choicePlan.syntheticRiot,
+                    syntheticRiotRemaining = choicePlan.syntheticRiotRemaining,
+                    pendingEntryChoices = choicePlan.pendingEntryChoices,
+                    replacementSourceState = entrySourceState)
+                if (paused != null) return EffectResult.from(paused)
+            }
+
+            val (withSaga, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+                .applySagaEntryIfNeeded(newState, tokenId, amountEvaluator.predicates)
+            newState = withSaga
+            events += sagaEvents
+            val (withIntrinsic, intrinsicEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+                .applyIntrinsicEntryCountersIfNeeded(newState, tokenId, tokenControllerId, cardRegistry,
+                    predicateEvaluator = amountEvaluator.predicates, replacementSourceState = entrySourceState)
+            newState = withIntrinsic
+            events += intrinsicEvents
+            events += ZoneChangeEvent(
+                entityId = tokenId, entityName = enteringCard.name, fromZone = null, toZone = Zone.BATTLEFIELD,
+                ownerId = tokenControllerId, oldObject = null, newObject = newState.objectRef(tokenId))
+        }
 
         // Apply "create those tokens plus an additional X token" replacements (Worldwalker
         // Helm) once for this batch. Only the original tokens are matched against the filter,
@@ -224,10 +269,16 @@ class CreatePredefinedTokenExecutor(
         val (afterAdditional, additionalEvents) = if (TokenCreationBatch.active(context)) newState to emptyList() else TokenCreationReplacementHelper
             .applyAdditionalTokenReplacements(
                 newState, tokenControllerId, createdTokenIds, effect.tapped,
-                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId, handled = context.tokenCreationReplacementsHandled
+                cardRegistry, staticAbilityHandler, amountEvaluator.predicates, tokenCreatorId = context.controllerId,
+                eligibleSources = TokenCreationBatch.sources(context)
+                    ?: com.wingedsheep.engine.replacement.ActiveReplacements.all(entrySourceState).map { it.sourceId }.toSet(),
+                handled = context.tokenCreationReplacementsHandled
             )
         newState = afterAdditional
         events.addAll(additionalEvents)
+        if (!TokenCreationBatch.active(context) && newState.continuationStack.none {
+                it is com.wingedsheep.engine.core.TokenBundleMaterializationContinuation
+            }) newState = com.wingedsheep.engine.replacement.ActiveReplacements.purgeSpent(newState)
 
         // Publish the freshly-created token entity IDs to the pipeline so
         // sibling effects in a CompositeEffect can address them via
@@ -240,4 +291,20 @@ class CreatePredefinedTokenExecutor(
             updatedCollections = mapOf(CREATED_TOKENS to createdTokenIds)
         )
     }
+
+    /** The would-be predefined token, for the replacements that test a token before it exists. */
+    internal fun prospectiveToken(
+        cardDef: com.wingedsheep.sdk.model.CardDefinition,
+        effect: CreatePredefinedTokenEffect,
+        tokenControllerId: EntityId
+    ) = CardComponent(
+        cardDefinitionId = effect.tokenType,
+        name = effect.tokenType,
+        manaCost = cardDef.manaCost,
+        typeLine = cardDef.typeLine,
+        baseStats = cardDef.creatureStats,
+        baseKeywords = cardDef.keywords,
+        colors = cardDef.colors,
+        ownerId = tokenControllerId
+    )
 }

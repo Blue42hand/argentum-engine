@@ -115,7 +115,6 @@ class KenessosPriestOfThassaScenarioTest : FunSpec({
         val d = setup()
         val you = d.activePlayer!!
         d.putCreatureOnBattlefield(you, "Kenessos, Priest of Thassa")
-        // Two different cards: copies of one card have no order to choose, so no prompt.
         d.putCardOnTopOfLibrary(you, "Grizzly Bears")
         d.putCardOnTopOfLibrary(you, "Plains")
         val top = d.state.getLibrary(you).take(2)
@@ -157,6 +156,10 @@ class KenessosPriestOfThassaScenarioTest : FunSpec({
         val bear = d.putCardOnTopOfLibrary(you, "Centaur Courser")
 
         d.activateLook(you, kenessos)
+        // The battlefield pick is asked even with no Serpent on top (#3340), with nothing to pick.
+        val battlefieldPick = d.pendingDecision as SelectCardsDecision
+        battlefieldPick.options shouldBe emptyList()
+        d.submitCardSelection(you, emptyList())
         val decision = d.pendingDecision as SelectCardsDecision
         decision.options shouldBe listOf(bear)
         d.submitCardSelection(you, listOf(bear)) // the "put on bottom" choice

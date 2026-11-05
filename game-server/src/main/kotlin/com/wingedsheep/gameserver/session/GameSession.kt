@@ -1,10 +1,12 @@
 package com.wingedsheep.gameserver.session
 
+import com.wingedsheep.engine.legalactions.OwnStackStop
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.view.ClientEvent
 import com.wingedsheep.engine.view.ClientEventTransformer
 import com.wingedsheep.engine.view.ClientGameState
 import com.wingedsheep.engine.view.ClientStateTransformer
+import com.wingedsheep.engine.view.DecisionEnricher
 import com.wingedsheep.engine.view.StateDiffCalculator
 import com.wingedsheep.engine.view.LegalActionEnricher
 import com.wingedsheep.gameserver.ai.AiReplayHistory
@@ -361,10 +363,18 @@ class GameSession(
                     put("after", persistenceJson.encodeToJsonElement(GameState.serializer(), value))
                 })
             }
+            val previousDepth = field?.subgameDepth
             field = value
             liveStateRevision.incrementAndGet()
             priorityYields.keys.toList().forEach { getPriorityYield(it) }
             if (value != null) recordEliminations(value)
+            // A Magic subgame starting or ending (CR 729) swaps in a whole different game: every
+            // seat gets it as a full state rather than as a delta against the other game.
+            if (previousDepth != null && value != null && value.subgameDepth != previousDepth) {
+                priorityYields.keys.toList().forEach { cancelPriorityYield(it, stop = true) }
+                lastSentState.clear()
+                stateVersions.clear()
+            }
         }
 
     /**
@@ -376,9 +386,11 @@ class GameSession(
     private val eliminationOrder = CopyOnWriteArrayList<EntityId>()
 
     private fun recordEliminations(state: GameState) {
-        for (playerId in state.turnOrder) {
+        // Losing a subgame (CR 729) isn't leaving the table: only the main game decides who's out.
+        val main = state.outermostGame
+        for (playerId in main.turnOrder) {
             if (playerId in eliminationOrder) continue
-            if (state.getEntity(playerId)?.has<PlayerLostComponent>() == true) {
+            if (main.getEntity(playerId)?.has<PlayerLostComponent>() == true) {
                 eliminationOrder.add(playerId)
             }
         }
@@ -389,7 +401,7 @@ class GameSession(
 
     /** Player seats that have not been eliminated yet. */
     fun getActivePlayerIds(): List<EntityId> = synchronized(stateLock) {
-        val state = gameState ?: return@synchronized emptyList()
+        val state = gameState?.outermostGame ?: return@synchronized emptyList()
         players.keys.mapNotNull { playerId ->
             playerId.takeUnless { state.getEntity(it)?.has<PlayerLostComponent>() == true }
         }
@@ -415,7 +427,7 @@ class GameSession(
      * for a seat with no loss marker — same fallback [getGameOverReason] uses.
      */
     fun getEliminationReason(playerId: EntityId): GameOverReason =
-        gameOverReasonFor(gameState?.getEntity(playerId)?.get<PlayerLostComponent>()?.reason)
+        gameOverReasonFor(gameState?.outermostGame?.getEntity(playerId)?.get<PlayerLostComponent>()?.reason)
 
     /** Checkpoint for undoing the last non-respondable action (e.g., play land, declare attackers) */
     @Volatile
@@ -501,6 +513,14 @@ class GameSession(
      */
     @Volatile
     var attackMode: com.wingedsheep.sdk.core.AttackMode = com.wingedsheep.sdk.core.AttackMode.MULTIPLE
+
+    /**
+     * Whether this game is played for ante (CR 407). Set by the lobby handler before [startGame]
+     * and forwarded to [GameConfig.playingForAnte]; never true for ranked games. Recorded in the
+     * [com.wingedsheep.gameserver.replay.ReplaySetup] because anteing consumes RNG.
+     */
+    @Volatile
+    var playingForAnte: Boolean = false
 
     /**
      * Team partitioning for team variants (Two-Headed Giant — CR 810), as lists of seat indices
@@ -651,7 +671,8 @@ class GameSession(
 
     data class StopOverrideSettings(
         val myTurnStops: Set<Step> = emptySet(),
-        val opponentTurnStops: Set<Step> = emptySet()
+        val opponentTurnStops: Set<Step> = emptySet(),
+        val ownStackStops: Set<OwnStackStop> = emptySet()
     )
 
     enum class PriorityMode {
@@ -898,7 +919,8 @@ class GameSession(
      * same value for both teammates; in non-team games this is the player's own total.
      */
     fun getLifeTotals(): List<Int> {
-        val state = gameState ?: return emptyList()
+        // The match's life totals, not those of a subgame being played inside it (CR 729).
+        val state = gameState?.outermostGame ?: return emptyList()
         return getPlayers().map { player ->
             if (state.getEntity(player.playerId)?.get<LifeTotalComponent>() != null) {
                 state.lifeTotal(player.playerId)
@@ -912,7 +934,9 @@ class GameSession(
      * when given, flags that recipient's own seat ([PlayerSeatInfo.isYou]); spectators pass null.
      */
     fun seatInfos(viewerId: EntityId? = null): List<ServerMessage.PlayerSeatInfo> {
-        val state = gameState
+        // Seats are the main game's: a subgame (CR 729) starts its turn order elsewhere, and leaves
+        // out anyone already out of the main game, but nobody changes chairs.
+        val state = gameState?.outermostGame
         val turnOrder = state?.turnOrder
         val seated = getPlayers()
         return seated.mapIndexed { joinIndex, player ->
@@ -975,13 +999,14 @@ class GameSession(
             useHandSmoother = useHandSmoother,
             format = engineFormat,
             attackMode = attackMode,
+            playingForAnte = playingForAnte,
             // Team partitioning for Two-Headed Giant (CR 810); null for non-team games. The seat
             // indices line up with playerConfigs, which preserves the join/turn order of `players`.
             teams = teams,
         )
 
         val result = gameInitializer.initializeGame(config)
-        gameState = result.state
+        gameState = actionProcessor.beginGame(result.state, result.events).state
         replayStartedAt = Instant.now()
         lastActionAt = replayStartedAt
         // Capture everything needed to reconstruct this game later, including the seed the engine
@@ -992,6 +1017,7 @@ class GameSession(
             preserveGraveyardOrder = result.state.preserveGraveyardOrder,
             format = engineFormat,
             attackMode = attackMode,
+            playingForAnte = config.playingForAnte,
             startingHandSize = config.startingHandSize,
             skipMulligans = config.skipMulligans,
             useHandSmoother = config.useHandSmoother,
@@ -1524,13 +1550,24 @@ class GameSession(
      * Synchronized to prevent lost updates.
      */
     fun playerConcedes(playerId: EntityId): GameState? = synchronized(stateLock) {
-        val state = gameState ?: return null
-        val action = Concede(playerId)
+        concede(playerId)
+        gameState
+    }
+
+    /**
+     * [playerId] concedes. During a Magic subgame (CR 729) a player may concede just the subgame
+     * ([subgameOnly]) — the main game then resumes, with whatever the subgame's loss costs them
+     * there — or, by default, the main game too, leaving the table. Returns the events, so a
+     * subgame that ends this way reaches the log like any other.
+     */
+    fun concede(playerId: EntityId, subgameOnly: Boolean = false): List<GameEvent> = synchronized(stateLock) {
+        val state = gameState ?: return emptyList()
+        val action = Concede(playerId, includingMainGames = !subgameOnly)
         val result = actionProcessor.process(state, action).result
 
         gameState = result.state
         if (result.error == null) recordAction(action, state, result)
-        result.state
+        result.events
     }
 
     /**
@@ -1630,9 +1667,23 @@ class GameSession(
         val legalActions = renaming?.toSeat(engineLegalActions, legalActionsSerializer) ?: engineLegalActions
         val clientEvents = renaming?.toSeat(engineClientEvents, clientEventsSerializer) ?: engineClientEvents
         val pendingDecision = enginePendingDecision?.let { renaming?.toSeat(it, PendingDecision.serializer()) ?: it }
+        // A question with one legal answer: hand the browser that answer so it needn't stop the
+        // player for it. The in-process AI answers these itself through the same TrivialDecisions.
+        val autoAnswer = if (useEngineDecisionIds) null else pendingDecision?.let { seatDecision ->
+            state.pendingDecision?.let { ForcedDecisionAutoAnswer.responseFor(it, seatDecision) }
+        }
+        // Whether everyone can see the question is forced, so the browser needn't pause before
+        // answering it (#3340).
+        val autoAnswerPublic = autoAnswer != null &&
+            state.pendingDecision?.let { ForcedDecisionAutoAnswer.isPublic(state, it, visibility) } == true
 
-        // Accumulate into persistent game log (filter noisy events)
-        val logEntries = clientEvents.filter { it !is ClientEvent.PermanentTapped && it !is ClientEvent.PermanentUntapped && it !is ClientEvent.ManaAdded }
+        // Accumulate into persistent game log (filter noisy events). An ability's resolution is a
+        // per-update signal for clients, not a log line: the trigger/activation line and the
+        // effect's own events already narrate it, and every trigger would otherwise log twice.
+        val logEntries = clientEvents.filter {
+            it !is ClientEvent.PermanentTapped && it !is ClientEvent.PermanentUntapped &&
+                it !is ClientEvent.ManaAdded && it !is ClientEvent.AbilityResolved
+        }
         val playerLog = gameLogs.getOrPut(playerId) { mutableListOf() }
         playerLog.addAll(logEntries)
 
@@ -1647,21 +1698,28 @@ class GameSession(
             // The same notion of "meaningful" the stop decision itself uses — otherwise the
             // button can promise a stop (say, at the opponent's end step for a spell we can't
             // actually pay for) that never arrives.
-            val hasMeaningfulActions = autoPassManager.getMeaningfulActions(legalActions).isNotEmpty()
+            // An inert action (Forcefield before blockers) isn't worth a stop now, but it is the
+            // kind that comes alive later in the turn — and the stop then arrives — so the label
+            // mustn't promise to skip past it ("To My Turn").
+            val hasMeaningfulActions = autoPassManager.getMeaningfulActions(legalActions).isNotEmpty() ||
+                legalActions.any { it.inertReason != null }
             autoPassManager.getNextStopPoint(state, playerId, hasMeaningfulActions, myTurnStops = playerOverrides.myTurnStops, opponentTurnStops = playerOverrides.opponentTurnStops, stopsMode = playerMode == PriorityMode.STOPS)
         } else {
             null
         }
 
         // Include opponent decision status for the player who is NOT driving this
-        // decision — i.e. when their seat is not the actor for the affected player.
-        val opponentDecisionStatus = state.pendingDecision?.takeIf { state.actorFor(it.playerId) != playerId }?.let {
+        // decision — i.e. when their seat is not the actor for the affected player. A private
+        // question (the miracle reveal) is never announced: its existence is the secret.
+        val opponentDecisionStatus = state.pendingDecision?.takeIf {
+            state.actorFor(it.playerId) != playerId && !state.pendingQuestionIsPrivate
+        }?.let {
             decisionEnricher.createOpponentDecisionStatus(it, state, playerId)
         }
 
         val stateWithLog = clientState.copy(gameLog = playerLog.toList())
-        val stopOverrideInfo = if (playerOverrides.myTurnStops.isNotEmpty() || playerOverrides.opponentTurnStops.isNotEmpty()) {
-            ServerMessage.StopOverrideInfo(playerOverrides.myTurnStops, playerOverrides.opponentTurnStops)
+        val stopOverrideInfo = if (playerOverrides != StopOverrideSettings()) {
+            ServerMessage.StopOverrideInfo(playerOverrides.myTurnStops, playerOverrides.opponentTurnStops, playerOverrides.ownStackStops)
         } else {
             null
         }
@@ -1692,11 +1750,11 @@ class GameSession(
         if (previous != null) {
             // Compute delta and send smaller message
             val delta = StateDiffCalculator.computeDelta(previous, stateWithLog)
-            return ServerMessage.StateDeltaUpdate(delta, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch, activeYield)
+            return ServerMessage.StateDeltaUpdate(delta, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch, priorityYield = activeYield, autoAnswer = autoAnswer, autoAnswerPublic = autoAnswerPublic)
         }
 
         // First update — send full state
-        return ServerMessage.StateUpdate(stateWithLog, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch, activeYield)
+        return ServerMessage.StateUpdate(stateWithLog, clientEvents, legalActions, pendingDecision, nextStopPoint, opponentDecisionStatus, stopOverrideInfo, isUndoAvailable(playerId), priorityModeStr, version, interactionEpoch, priorityYield = activeYield, autoAnswer = autoAnswer, autoAnswerPublic = autoAnswerPublic)
     }
 
     /** [value] with every card id in [playerId]'s own names; unchanged for a seat that has none. */
@@ -1772,10 +1830,15 @@ class GameSession(
      * Set per-step stop overrides for a player.
      * When a stop is set for a step, auto-pass will not skip that step.
      */
-    fun setStopOverrides(playerId: EntityId, myTurnStops: Set<Step>, opponentTurnStops: Set<Step>) = synchronized(stateLock) {
+    fun setStopOverrides(
+        playerId: EntityId,
+        myTurnStops: Set<Step>,
+        opponentTurnStops: Set<Step>,
+        ownStackStops: Set<OwnStackStop> = emptySet()
+    ) = synchronized(stateLock) {
         cancelPriorityYield(playerId)
-        stopOverrides[playerId] = StopOverrideSettings(myTurnStops, opponentTurnStops)
-        logger.info("Player $playerId set stop overrides: myTurn=$myTurnStops, opponentTurn=$opponentTurnStops")
+        stopOverrides[playerId] = StopOverrideSettings(myTurnStops, opponentTurnStops, ownStackStops)
+        logger.info("Player $playerId set stop overrides: myTurn=$myTurnStops, opponentTurn=$opponentTurnStops, ownStack=$ownStackStops")
     }
 
     /**
@@ -1892,6 +1955,21 @@ class GameSession(
         }
     }
 
+    /**
+     * Set whether [playerId] orders their own simultaneous triggers (CR 603.3b). Like a yield it
+     * lives on the GameState and changes what the engine asks, so it is recorded for replay too.
+     */
+    fun setManualTriggerOrdering(playerId: EntityId, manual: Boolean) = synchronized(stateLock) {
+        val state = gameState ?: return@synchronized
+        if (state.ordersOwnTriggers(playerId) == manual) return@synchronized
+        gameState = state.withManualTriggerOrdering(playerId, manual)
+        recordYield(
+            if (manual) com.wingedsheep.gameserver.replay.ReplayYieldOp.MANUAL_TRIGGER_ORDERING
+            else com.wingedsheep.gameserver.replay.ReplayYieldOp.AUTOMATIC_TRIGGER_ORDERING,
+            playerId, null, null
+        )
+    }
+
     // =========================================================================
     // Auto-Pass Management
     // =========================================================================
@@ -1977,7 +2055,7 @@ class GameSession(
             overrides
         }
 
-        return if (autoPassManager.shouldAutoPass(state, priorityPlayer, legalActions, effectiveOverrides.myTurnStops, effectiveOverrides.opponentTurnStops, stopsMode = playerMode == PriorityMode.STOPS)) {
+        return if (autoPassManager.shouldAutoPass(state, priorityPlayer, legalActions, effectiveOverrides.myTurnStops, effectiveOverrides.opponentTurnStops, stopsMode = playerMode == PriorityMode.STOPS, ownStackStops = effectiveOverrides.ownStackStops)) {
             priorityPlayer
         } else {
             null
@@ -2174,9 +2252,13 @@ class GameSession(
         val state = gameState ?: return null
         if (!state.gameOver) return null
 
-        // If no winner, it's a draw (both players lost simultaneously)
+        // No winner is a draw. A stalled or abandoned game, or every remaining player losing at once,
+        // is DRAW; a draw the engine reached while someone was still in — "the game is a draw"
+        // (CR 104.4c, Divine Intervention) — is CARD_EFFECT. Seats eliminated earlier in a pod keep
+        // their loss marker, so this asks whether anyone is still in, not whether anyone lost.
         if (state.winnerId == null) {
-            return GameOverReason.DRAW
+            val someoneStillIn = state.turnOrder.any { state.getEntity(it)?.get<PlayerLostComponent>() == null }
+            return if (someoneStillIn && stallMessage() == null) GameOverReason.CARD_EFFECT else GameOverReason.DRAW
         }
 
         // Find why the losing side lost. In Two-Headed Giant a whole team is defeated, so prefer a

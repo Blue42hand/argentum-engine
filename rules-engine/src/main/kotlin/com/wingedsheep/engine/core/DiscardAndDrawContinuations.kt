@@ -65,6 +65,10 @@ data class DrawUpToContinuation(
     val originalMaxCards: Int = 0,
     val storeNotDrawnAs: String? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    /** The label the creating effect ran under; the draw its resume runs keeps it. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val programOrigin: com.wingedsheep.engine.core.ProgramOrigin? = null,
 ) : AnswerContinuation
 
 /**
@@ -125,6 +129,50 @@ data class StaticDrawReplacementContinuation(
     val alreadyApplied: Set<ReplacementEffectIdentity> = emptySet(),
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
 ) : AnswerContinuation
+
+/**
+ * The rest of a shared-turn team's draw step (CR 805.4b): [remainingTeammates]' draws, then
+ * [activePlayer]'s. Pushed beneath each teammate's draw so that a pause in it — a miracle reveal, an
+ * optional draw replacement — still leads to the rest of the team drawing; popped when the draw
+ * completes without one.
+ */
+@Serializable
+data class DrawStepTeamDrawsContinuation(
+    val activePlayer: EntityId,
+    val remainingTeammates: List<EntityId>
+) : AutomaticContinuation
+
+/**
+ * The rest of the draw step's draws by players other than the active one — "You draw a card during
+ * each opponent's draw step" ([com.wingedsheep.sdk.scripting.DrawDuringOtherDrawSteps]): one card
+ * per entry of [remainingDrawers], then priority to [activePlayer]. Pushed beneath each draw-step
+ * draw that precedes them so a pause in it still leads to these draws.
+ */
+@Serializable
+data class DrawStepOtherDrawsContinuation(
+    val activePlayer: EntityId,
+    val remainingDrawers: List<EntityId>
+) : AutomaticContinuation
+
+/**
+ * Resume after a player answers whether to reveal a card with miracle as they draw it (CR 702.94a:
+ * "you may reveal this card from your hand as you draw it if it's the first card you've drawn this
+ * turn").
+ *
+ * Asked between cards: the rest of the draw instruction waits beneath this question in a
+ * [DrawReplacementRemainingDrawsContinuation]. A [PrivateQuestion] — it exists only because the
+ * card has miracle, so its owner's opponents must not learn it was asked.
+ *
+ * @property playerId The player who drew the card and is asked
+ * @property cardId The card with miracle, now in that player's hand
+ * @property cost The miracle cost the card had when drawn, for the prompt and the trigger's text
+ */
+@Serializable
+data class MiracleRevealContinuation(
+    val playerId: EntityId,
+    val cardId: EntityId,
+    val cost: com.wingedsheep.sdk.core.ManaCost
+) : AnswerContinuation, PrivateQuestion
 
 /**
  * Resume the draw step of a cycling action after cycling triggers have resolved.

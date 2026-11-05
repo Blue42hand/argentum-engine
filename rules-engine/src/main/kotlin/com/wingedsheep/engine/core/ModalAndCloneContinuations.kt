@@ -261,10 +261,22 @@ data class ModalTargetContinuation(
  * @property toughnessOverride When non-null, overrides the copy's base toughness (Superior Spider-Man: 4)
  * @property exileCopiedCard When true, exile the copied card after copying it (Superior Spider-Man:
  *   "When you do, exile that card"). Used for graveyard copies.
- * @property additionalCounters When non-null, the number of additional +1/+1 counters the copy
- *   enters with (Altered Ego's "except it enters with X additional +1/+1 counters on it"). Applied
- *   only when a copy was actually made — declining the copy declines the counters too.
+ * @property entersWithCounters When non-null, the counters the copy enters with (Altered Ego's
+ *   "except it enters with X additional +1/+1 counters on it", Undercover Operative's conditional
+ *   shield counter). Applied only when a copy was actually made — declining the copy declines the
+ *   counters too.
  */
+/**
+ * Resume a resolving mutating creature spell once its controller has chosen over or under
+ * (CR 702.140c): the yes answer puts [spellId] on top of [targetId], no puts it under.
+ */
+@Serializable
+data class MutateMergeContinuation(
+    val spellId: EntityId,
+    val targetId: EntityId,
+    val controllerId: EntityId,
+) : AnswerContinuation
+
 @Serializable
 data class CloneEntersContinuation(
     val spellId: EntityId,
@@ -280,7 +292,7 @@ data class CloneEntersContinuation(
     val powerOverride: Int? = null,
     val toughnessOverride: Int? = null,
     val exileCopiedCard: Boolean = false,
-    val additionalCounters: DynamicAmount? = null,
+    val entersWithCounters: com.wingedsheep.sdk.scripting.CopyEntryCounters? = null,
     /** [com.wingedsheep.sdk.scripting.EntersAsCopy.duration] — `EndOfTurn` tags the copy to revert at cleanup. */
     val duration: com.wingedsheep.sdk.scripting.Duration = com.wingedsheep.sdk.scripting.Duration.Permanent
 ) : AnswerContinuation
@@ -303,8 +315,8 @@ data class CloneEntersContinuation(
  * @property controllerId Its controller (also the copy chooser).
  * @property fromZone The zone the permanent came from, used to synthesize the entry event.
  * @property tappedIfCopied Tap the permanent iff it entered as a copy ("enter tapped as a copy").
- * @property additionalCounters Additional +1/+1 counters the permanent enters with iff it entered
- *   as a copy. See [CloneEntersContinuation.additionalCounters].
+ * @property entersWithCounters Counters the permanent enters with iff it entered as a copy. See
+ *   [CloneEntersContinuation.entersWithCounters].
  */
 @Serializable
 data class CloneEntersOnBattlefieldContinuation(
@@ -321,7 +333,7 @@ data class CloneEntersOnBattlefieldContinuation(
     val toughnessOverride: Int? = null,
     val exileCopiedCard: Boolean = false,
     val tappedIfCopied: Boolean = false,
-    val additionalCounters: DynamicAmount? = null,
+    val entersWithCounters: com.wingedsheep.sdk.scripting.CopyEntryCounters? = null,
     /** See [CloneEntersContinuation.duration]. */
     val duration: com.wingedsheep.sdk.scripting.Duration = com.wingedsheep.sdk.scripting.Duration.Permanent,
     /** Actual entry refs, retained across every as-enters decision. */
@@ -351,6 +363,11 @@ data class EntersWithChoiceSpellContinuation(
     val choiceType: com.wingedsheep.sdk.scripting.ChoiceType,
     val creatureTypes: List<String> = emptyList(),
     val cardTypes: List<com.wingedsheep.sdk.core.CardType> = emptyList(),
+    /**
+     * For [com.wingedsheep.sdk.scripting.ChoiceType.PLANESWALKER_TYPE] choices, the positionally
+     * aligned list of planeswalker type options presented (Deification).
+     */
+    val planeswalkerTypes: List<String> = emptyList(),
     /**
      * For [com.wingedsheep.sdk.scripting.ChoiceType.MODE] choices, the
      * positionally aligned list of mode ids. The response's chosen index
@@ -418,6 +435,9 @@ data class EntersWithChoiceOnBattlefieldContinuation(
     val choiceType: com.wingedsheep.sdk.scripting.ChoiceType,
     val creatureTypes: List<String> = emptyList(),
     val cardTypes: List<com.wingedsheep.sdk.core.CardType> = emptyList(),
+    /** For [com.wingedsheep.sdk.scripting.ChoiceType.PLANESWALKER_TYPE] choices, see
+     *  [EntersWithChoiceSpellContinuation.planeswalkerTypes]. */
+    val planeswalkerTypes: List<String> = emptyList(),
     /** For [com.wingedsheep.sdk.scripting.ChoiceType.MODE] choices, see
      *  [EntersWithChoiceSpellContinuation.modeOptionIds]. */
     val modeOptionIds: List<String> = emptyList(),
@@ -441,7 +461,11 @@ data class EntersWithChoiceOnBattlefieldContinuation(
     /** The printed name of a permanent that entered as a copy, for the entry event. */
     val copyOfOriginalName: String? = null,
     /** Token instruction identity retained across chained as-enters choices. */
-    val simultaneousEntryGroup: String? = null
+    val simultaneousEntryGroup: String? = null,
+    /** Pre-event replacement sources, retained across every token entry choice. */
+    val replacementSourceState: com.wingedsheep.engine.state.GameState? = null,
+    /** Explicit token choice tail; null retains the generic permanent-entry chain. */
+    val pendingEntryChoices: List<com.wingedsheep.sdk.scripting.EntersWithChoice>? = null
 ) : AnswerContinuation
 
 /**
@@ -564,7 +588,8 @@ data class DevourMintedTokenContinuation(
     val cardDefinitionId: String,
     val controllerId: EntityId,
     val multiplier: Int,
-    val counterType: CounterType
+    val counterType: CounterType,
+    val entrySourceState: com.wingedsheep.engine.state.GameState? = null
 ) : AnswerContinuation
 
 /**
@@ -592,6 +617,10 @@ data class BudgetModalContinuation(
     val selectedModeIndices: List<Int> = emptyList(),
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
     val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
+    /** The label the creating effect ran under; the program its resume runs keeps it. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val programOrigin: com.wingedsheep.engine.core.ProgramOrigin? = null,
 ) : AnswerContinuation
 
 /**
@@ -685,6 +714,8 @@ data class CreateTokenCopyRemainingContinuation(
  * @property targets Original targets from the effect context (preserved for ContextTarget resolution)
  * @property namedTargets Named targets from the pipeline state
  * @property triggeringEntityId The entity that triggered the ability
+ * @property chosenCounterType The kind an enclosing counter-kind loop is visiting, so a chosen
+ *   `RemoveCountersOfIteratedKind` / `AddCountersOfChosenKind(kindFrom = ITERATION)` still reads it
  */
 @Serializable
 data class ChooseActionContinuation(
@@ -698,4 +729,9 @@ data class ChooseActionContinuation(
     val triggeringEntityId: EntityId? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
     val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
+    val chosenCounterType: com.wingedsheep.sdk.core.CounterType? = null,
+    /** The label the creating effect ran under; the program its resume runs keeps it. */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val programOrigin: com.wingedsheep.engine.core.ProgramOrigin? = null,
 ) : AnswerContinuation

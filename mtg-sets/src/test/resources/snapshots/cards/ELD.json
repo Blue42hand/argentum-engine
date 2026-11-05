@@ -188,6 +188,129 @@
     "colorIdentityOverride": []
 }
 
+// Ayara, First of Locthwain
+{
+    "name": "Ayara, First of Locthwain",
+    "manaCost": "{B}{B}{B}",
+    "typeLine": "Legendary Creature — Elf Noble",
+    "oracleText": "Whenever Ayara or another black creature you control enters, each opponent loses 1 life and you gain 1 life.\n{T}, Sacrifice another black creature: Draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ayara, First of Locthwain:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever Ayara or another black creature you control enters, each opponent loses 1 life and you gain 1 life."
+            },
+            {
+                "id": "Ayara, First of Locthwain:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature black ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever Ayara or another black creature you control enters, each opponent loses 1 life and you gain 1 life."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Ayara, First of Locthwain:3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature black",
+                                "excludeSelf": true
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "{T}, Sacrifice another black creature: Draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "75",
+        "rarity": "RARE",
+        "artist": "Ryan Pancoast",
+        "flavorText": "Mourning shifts seamlessly to celebration as she chooses her next suitor.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/d/ed0ace28-9a33-4f0d-b8c8-f5517f20ccf1.jpg?1783932644",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "In a Two-Headed Giant game, Ayara's first ability causes the opposing team to lose 1 life twice, and you gain 1 life once."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Bake into a Pie
 {
     "name": "Bake into a Pie",
@@ -519,6 +642,91 @@
     ]
 }
 
+// Cauldron Familiar
+{
+    "name": "Cauldron Familiar",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Cat",
+    "oracleText": "When this creature enters, each opponent loses 1 life and you gain 1 life.\nSacrifice a Food: Return this card from your graveyard to the battlefield.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Cauldron Familiar:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Cauldron Familiar:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomSacrifice",
+                        "filter": "Food"
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
+                },
+                "activateFromZone": "Graveyard"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "81",
+        "rarity": "UNCOMMON",
+        "artist": "Milivoj Ćeran",
+        "flavorText": "Every day the cat returns to kill the same mouse, which sinks again into the cauldron's brew.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/a/9a539a23-8383-4525-82dd-acfe1d219fe9.jpg?1783932642",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "You can't activate Cauldron Familiar's last ability unless it's in your graveyard."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "In a Two-Headed Giant game, Cauldron Familiar's first ability causes the opposing team to lose 1 life twice, and you gain 1 life once."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Charming Prince
 {
     "name": "Charming Prince",
@@ -714,6 +922,140 @@
     ]
 }
 
+// Chulane, Teller of Tales
+{
+    "name": "Chulane, Teller of Tales",
+    "manaCost": "{2}{G}{W}{U}",
+    "typeLine": "Legendary Creature — Human Druid",
+    "oracleText": "Vigilance\nWhenever you cast a creature spell, draw a card, then you may put a land card from your hand onto the battlefield.\n{3}, {T}: Return target creature you control to its owner's hand.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Chulane, Teller of Tales:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand",
+                                        "filter": "land"
+                                    },
+                                    "storeAs": "put_candidates"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "put_candidates",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "putting"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "putting",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Chulane, Teller of Tales:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "Return target creature you control to its owner's hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "326",
+        "rarity": "MYTHIC",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/3/83f43730-1c1f-4150-8771-d901c54bedc4.jpg?1783932548",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "Chulane's triggered ability resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "Chulane's triggered ability doesn't count as playing a land. It can put a land card onto the battlefield even if you've already played your land for the turn, and even if it's not your turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE",
+        "BLUE"
+    ]
+}
+
 // Dwarven Mine
 {
     "name": "Dwarven Mine",
@@ -826,7 +1168,10 @@
                 },
                 {
                     "type": "PlayAdditionalLands",
-                    "count": 1
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
                 }
             ]
         }
@@ -1887,6 +2232,102 @@
     ]
 }
 
+// Korvold, Fae-Cursed King
+{
+    "name": "Korvold, Fae-Cursed King",
+    "manaCost": "{2}{B}{R}{G}",
+    "typeLine": "Legendary Creature — Dragon Noble",
+    "oracleText": "Flying\nWhenever Korvold enters or attacks, sacrifice another permanent.\nWhenever you sacrifice a permanent, put a +1/+1 counter on Korvold and draw a card.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Korvold, Fae-Cursed King:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "ZoneChangeEvent",
+                            "to": "Battlefield"
+                        },
+                        "AttackEvent"
+                    ]
+                },
+                "effect": {
+                    "type": "Sacrifice",
+                    "filter": "permanent",
+                    "excludeSource": true
+                },
+                "descriptionOverride": "Whenever Korvold enters or attacks, sacrifice another permanent."
+            },
+            {
+                "id": "Korvold, Fae-Cursed King:2",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "permanent",
+                    "perPermanent": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever you sacrifice a permanent, put a +1/+1 counter on Korvold and draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "329",
+        "rarity": "MYTHIC",
+        "artist": "Wisnu Tan",
+        "flavorText": "Transformed at his own wedding, he promptly ate the banquet, the gifts, and the guests.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/92ea1575-eb64-43b5-b604-c6e23054f228.jpg?1783932546",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "If you somehow control no other permanents, you can attack with Korvold. You won't sacrifice anything, and there's no penalty for being unable to do so."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "A legendary permanent that is put into a graveyard because of the \"legend rule\" isn't sacrificed."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If you sacrifice a permanent as part of a spell or activated ability's cost, Korvold's last ability will resolve before that spell or ability."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If you sacrifice Korvold, its last ability triggers. You won't put a +1/+1 counter on anything, but you'll draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED",
+        "GREEN"
+    ]
+}
+
 // Linden, the Steadfast Queen
 {
     "name": "Linden, the Steadfast Queen",
@@ -2143,6 +2584,254 @@
         ]
     },
     "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Maraleaf Pixie
+{
+    "name": "Maraleaf Pixie",
+    "manaCost": "{G}{U}",
+    "typeLine": "Creature — Faerie",
+    "oracleText": "Flying\n{T}: Add {G} or {U}.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Maraleaf Pixie:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Maraleaf Pixie:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "196",
+        "rarity": "UNCOMMON",
+        "artist": "Matt Cavotta",
+        "flavorText": "Neither hostile nor friendly, pixies flit through the forest seeking the treasures of the wilds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e6d7f9c9-dd83-4684-a949-1c22f316138a.jpg?1783932595"
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE"
+    ]
+}
+
+// Mirrormade
+{
+    "name": "Mirrormade",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "You may have this enchantment enter as a copy of any artifact or enchantment on the battlefield.",
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "copyFilter": {
+                    "cardPredicates": [
+                        {
+                            "type": "Or",
+                            "predicates": [
+                                "IsArtifact",
+                                "IsEnchantment"
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "RARE",
+        "artist": "Volkan Baǵa",
+        "flavorText": "\"Share your darkest secret and the Mirror will reveal your soul's essence.\"\n—Ceri, royal mirrorkeeper",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/1/a10c1407-d397-4caa-b7b7-e7d91ffd4ee9.jpg?1783932654",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "If the chosen permanent is copying something else (for example, if the chosen permanent is another Mirrormade), then Mirrormade enters the battlefield as whatever the chosen permanent copied."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If Mirrormade somehow enters the battlefield at the same time as another artifact or enchantment, it can't become a copy of that permanent. You may choose only a permanent that's already on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Oko, Thief of Crowns
+{
+    "name": "Oko, Thief of Crowns",
+    "manaCost": "{1}{G}{U}",
+    "typeLine": "Legendary Planeswalker — Oko",
+    "oracleText": "+2: Create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")\n+1: Target artifact or creature loses all abilities and becomes a green Elk creature with base power and toughness 3/3.\n−5: Exchange control of target artifact or creature you control and target creature an opponent controls with power 3 or less.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Oko, Thief of Crowns:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 2
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Oko, Thief of Crowns:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "BecomeArtifact",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "cardTypes": [
+                                "CREATURE"
+                            ],
+                            "subtypes": [
+                                "Elk"
+                            ],
+                            "colors": [
+                                "GREEN"
+                            ]
+                        },
+                        {
+                            "type": "SetBaseStats",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "power": {
+                                "type": "Fixed",
+                                "amount": 3
+                            },
+                            "toughness": {
+                                "type": "Fixed",
+                                "amount": 3
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature|artifact"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Oko, Thief of Crowns:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -5
+                },
+                "effect": {
+                    "type": "ExchangeControl",
+                    "target1": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    },
+                    "target2": {
+                        "type": "BoundVariable",
+                        "name": "t2"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature|artifact ctrl:you"
+                        },
+                        "id": "t1"
+                    },
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature pow<=3 ctrl:opponent"
+                        },
+                        "id": "t2"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "197",
+        "rarity": "MYTHIC",
+        "artist": "Yongjae Choi",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/4/3462a3d0-5552-49fa-9eb7-100960c55891.jpg?1791803810",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "Oko's second ability overwrites all colors and creature types the affected creature has. It's just a green Elk. The creature keeps any supertypes (such as legendary) it has, but loses any other card types it has (such as artifact)."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "Oko's second ability overwrites all previous effects that set the creature's base power and toughness to specific values. Any power- or toughness-setting effects that start to apply after Oko's second ability resolves will overwrite this effect."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "The effects of Oko's second ability lasts indefinitely. It doesn't expire during the cleanup step or if you or Oko leave the game."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If the affected creature gains an ability after Oko's second ability resolves, it will keep that ability."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "If either of the target permanents is an illegal target when Oko's last ability resolves, the exchange won't happen."
+            },
+            {
+                "date": "2019-10-04",
+                "text": "The effects of Oko's third ability lasts indefinitely. It doesn't expire during the cleanup step or if the creature you take has its power raised above 3 later."
+            }
+        ]
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "GREEN",
         "BLUE"
     ]
 }
@@ -2705,6 +3394,69 @@
     ]
 }
 
+// Savvy Hunter
+{
+    "name": "Savvy Hunter",
+    "manaCost": "{1}{B}{G}",
+    "typeLine": "Creature — Human Warrior",
+    "oracleText": "Whenever this creature attacks or blocks, create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")\nSacrifice two Foods: Draw a card.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Savvy Hunter:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                }
+            },
+            {
+                "id": "Savvy Hunter:2",
+                "trigger": "BlockEvent",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Savvy Hunter:3",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomSacrifice",
+                        "filter": "Food",
+                        "count": 2
+                    }
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "200",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Dos Santos",
+        "flavorText": "None of the other villagers dare venture into the wilds, so she feeds the whole hamlet herself.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/5/15c98441-2b31-4e48-a399-f36dffcfa41d.jpg?1783932594"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Scorching Dragonfire
 {
     "name": "Scorching Dragonfire",
@@ -3205,6 +3957,77 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Stormfist Crusader
+{
+    "name": "Stormfist Crusader",
+    "manaCost": "{B}{R}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "Menace\nAt the beginning of your upkeep, each player draws a card and loses 1 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Stormfist Crusader:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "Each"
+                            }
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "Each"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "203",
+        "rarity": "RARE",
+        "artist": "Chris Rallis",
+        "flavorText": "\"As she reached the pinnacle, lightning flashed and her eyes blazed with newfound power.\"\n—*Legend of the Gilded Knights*",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/27425f2e-e0b2-489d-877d-8257d2026bfd.jpg?1783932593",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "In a Two-Headed Giant game, Stormfist Crusader's triggered ability causes each team to lose 1 life twice after each player on that team has drawn a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
     ]
 }
 
@@ -3744,6 +4567,119 @@
     ]
 }
 
+// Trail of Crumbs
+{
+    "name": "Trail of Crumbs",
+    "manaCost": "{1}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, create a Food token. (It's an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")\nWhenever you sacrifice a Food, you may pay {1}. If you do, look at the top two cards of your library. You may reveal a permanent card from among them and put it into your hand. Put the rest on the bottom of your library in any order.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Trail of Crumbs:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                }
+            },
+            {
+                "id": "Trail of Crumbs:2",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "artifact Food",
+                    "perPermanent": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{1}"
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
+                                },
+                                "storeAs": "looked"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "looked",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "filter": "permanent",
+                                "storeSelected": "kept",
+                                "storeRemainder": "rest",
+                                "prompt": "You may reveal a permanent card from among them and put it into your hand",
+                                "showAllCards": true
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "kept",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                },
+                                "revealed": true
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "rest",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Bottom"
+                                },
+                                "order": "ControllerChooses"
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "Whenever you sacrifice a Food, you may pay {1}. If you do, look at the top two cards of your library. You may reveal a permanent card from among them and put it into your hand. Put the rest on the bottom of your library in any order."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "179",
+        "rarity": "UNCOMMON",
+        "artist": "Daarken",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/6/2688ac16-4ed6-4e79-815a-be173deb4603.jpg?1783932603",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "While resolving the second triggered ability, you can't pay {1} multiple times to look at more cards."
+            },
+            {
+                "date": "2024-11-08",
+                "text": "If an effect refers to a Food, it means any Food artifact, not just a Food artifact token."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Weapon Rack
 {
     "name": "Weapon Rack",
@@ -4242,6 +5178,76 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Witch's Oven
+{
+    "name": "Witch's Oven",
+    "manaCost": "{1}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}, Sacrifice a creature: Create a Food token. If the sacrificed creature's toughness was 4 or greater, create two Food tokens instead. (They're artifacts with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Witch's Oven:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "SacrificedAsCost",
+                                "numericProperty": "Toughness"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 4
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "CreatePredefinedToken",
+                        "tokenType": "Food",
+                        "count": 2
+                    },
+                    "otherwise": {
+                        "type": "CreatePredefinedToken",
+                        "tokenType": "Food"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "237",
+        "rarity": "UNCOMMON",
+        "artist": "Alexander Forssberg",
+        "flavorText": "The wafting smells are both scrumptious and suspicious.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/4/04ef8493-d986-45f8-a718-617b028f7ad4.jpg?1783932580",
+        "rulings": [
+            {
+                "date": "2019-10-04",
+                "text": "No player may take actions between the time you announce you're activating Witch's Oven's ability and the time you sacrifice a creature. Notably, they can't try to remove or shrink the creature you'd like to bake."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Wolf's Quarry

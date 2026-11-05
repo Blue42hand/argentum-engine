@@ -120,6 +120,12 @@ export interface UnifiedLobbyView {
   /** Whether the host may currently add an AI seat. */
   canAddAi: boolean
   ranked: { available: boolean; on: boolean }
+  /**
+   * Play for ante (CR 407). `available` is whether the host may offer it at all; `lockedReason` is
+   * set while it can't be switched on — ranked forces ante off server-side, so the row stays
+   * visible but disabled and says why.
+   */
+  ante: { available: boolean; on: boolean; lockedReason: string | null }
   teams: LobbyTeams
   /**
    * The settings group holding the reason Start is disabled, when one does.
@@ -222,6 +228,12 @@ export function fromQuickGameLobby(
     isPublic: lobby.isPublic,
     canAddAi: isHost && opts.aiEnabled && !lobby.vsAi && lobby.players.length < 2,
     ranked: { available: lobby.rankedEligible ?? false, on: lobby.ranked ?? false },
+    ante: anteView(
+      // A matchmade lobby's settings are fixed by the queue, which never plays for ante.
+      !lobby.matchmade,
+      lobby.playingForAnte ?? false,
+      (lobby.rankedEligible ?? false) && (lobby.ranked ?? false),
+    ),
     // The server's `QuickGameLobby.twoHeadedGiant` exists but no client has ever reached it (gap
     // #6): it isn't in `QuickGameLobbyStateMessage` at all, so there is nothing here to read.
     teams: { mode: 'NONE' },
@@ -434,7 +446,17 @@ export function fromTournamentLobby(
     canAddAi: isWaiting && lobbyState.isHost && opts.aiEnabled && playerCount < maxPlayers,
     // Ranked is a 1v1-bracket-only concept server-side (`TournamentLobby.rankedEligible`).
     ranked: { available: axes.table === 'ONE_V_ONE', on: s.ranked ?? false },
+    ante: anteView(true, s.playingForAnte ?? false, axes.table === 'ONE_V_ONE' && (s.ranked ?? false)),
     teams: tournamentTeams(lobbyState),
+  }
+}
+
+/** Shared by both lobby kinds: ranked games never play for ante, so ranked locks the row off. */
+function anteView(available: boolean, on: boolean, rankedOn: boolean): UnifiedLobbyView['ante'] {
+  return {
+    available,
+    on: on && !rankedOn,
+    lockedReason: rankedOn ? 'Ranked games never play for ante — switch to Casual first' : null,
   }
 }
 

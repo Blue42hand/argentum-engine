@@ -113,6 +113,14 @@ class QuickGameLobby(
     var ranked: Boolean = false
 
     /**
+     * Play for ante (CR 407): each player antes a random card before the opening draw, and ante
+     * cards ([com.wingedsheep.sdk.model.CardDefinition.requiresAnte]) become legal in decks
+     * (CR 407.3). Never on together with [ranked] — the handler clears it when ranked is set.
+     */
+    @Volatile
+    var playingForAnte: Boolean = false
+
+    /**
      * Set when matchmaking paired the two players. Format and [ranked] were the queue they agreed to,
      * so the host-only settings are locked, and either player leaving closes the lobby — there's no
      * host to wait for a replacement opponent.

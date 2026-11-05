@@ -49,7 +49,7 @@ class SealedDeckGenerator(
     /**
      * Generates a sealed deck from 8 boosters of a random available set.
      *
-     * @return A map of card name (or "Name#SetCode-CollectorNumber" for lands) to count
+     * @return A map of "Name#SetCode-CollectorNumber" printing identifiers (plain names for cards with no printing coordinates) to count
      */
     fun generate(): Map<String, Int> = generate(randomSetCode())
 
@@ -57,7 +57,7 @@ class SealedDeckGenerator(
      * Generates a sealed deck from 8 boosters of the specified set.
      *
      * @param setCode The set to generate boosters from
-     * @return A map of card name (or "Name#SetCode-CollectorNumber" for lands) to count
+     * @return A map of "Name#SetCode-CollectorNumber" printing identifiers (plain names for cards with no printing coordinates) to count
      */
     fun generate(setCode: String): Map<String, Int> = generateDeck(setCode).deckList
 
@@ -72,11 +72,7 @@ class SealedDeckGenerator(
         val pool = boosterGenerator.generateSealedPool(setCode, boosterCount = 8)
         val deck = buildSealedDeck(pool, setCode)
 
-        // Pin the basics to the set's standard art, exactly as a human's submitted deck is.
-        return GeneratedDeck(
-            deckList = BoosterGenerator.withBasicLandArt(deck, boosterGenerator.getBasicLands(setCode)),
-            sideboard = SideboardDerivation.fromPool(pool, deck),
-        )
+        return pinnedToPool(deck, pool, boosterGenerator.getBasicLands(setCode))
     }
 
     /**
@@ -89,7 +85,7 @@ class SealedDeckGenerator(
      *
      * @param setCodes the sets to open boosters from; a single-element list behaves exactly like
      *        [generate].
-     * @return A map of card name (or "Name#SetCode-CollectorNumber" for lands) to count
+     * @return A map of "Name#SetCode-CollectorNumber" printing identifiers (plain names for cards with no printing coordinates) to count
      */
     fun generate(setCodes: List<String>): Map<String, Int> = generateDeck(setCodes).deckList
 
@@ -102,9 +98,24 @@ class SealedDeckGenerator(
         val pool = boosterGenerator.generateSealedPool(setCodes, boosterCount = 8)
         val deck = buildSealedDeck(pool, setCodes.first())
 
+        return pinnedToPool(deck, pool, boosterGenerator.getBasicLands(setCodes))
+    }
+
+    /**
+     * Pins every card to the printing it was opened as, exactly as a human's sealed deck is
+     * (`FreeForAllHandler` / `TournamentMatchHandler`): the basics to the set's standard art, and
+     * each reprint to the pool's own printing. Without the reprint pin a bare name resolves to the
+     * canonical definition — an Onslaught Clone would be played with Alpha's art.
+     */
+    private fun pinnedToPool(
+        deck: Map<String, Int>,
+        pool: List<CardDefinition>,
+        basics: Map<String, CardDefinition>,
+    ): GeneratedDeck {
+        val printings = pool + basics.values
         return GeneratedDeck(
-            deckList = BoosterGenerator.withBasicLandArt(deck, boosterGenerator.getBasicLands(setCodes)),
-            sideboard = SideboardDerivation.fromPool(pool, deck),
+            deckList = BoosterGenerator.withCardArt(deck, printings),
+            sideboard = BoosterGenerator.withCardArt(SideboardDerivation.fromPool(pool, deck), printings),
         )
     }
 

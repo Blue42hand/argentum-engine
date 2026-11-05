@@ -357,6 +357,45 @@
     ]
 }
 
+// Bedevil
+{
+    "name": "Bedevil",
+    "manaCost": "{B}{B}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target artifact, creature, or planeswalker.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact|creature|planeswalker"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "157",
+        "rarity": "RARE",
+        "artist": "Seb McKinnon",
+        "flavorText": "\"It's easy to get taken in by the spectacle, to enjoy a bit of naughty amusement. But make no mistake: the Cult of Rakdos is a danger.\"\n—Tajic",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/1/81e2b96b-ecf2-4dd9-bc9d-3c46ee8c59e6.jpg?1783933657"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Biogenic Upgrade
 {
     "name": "Biogenic Upgrade",
@@ -2766,6 +2805,150 @@
     ]
 }
 
+// Incubation Druid
+{
+    "name": "Incubation Druid",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "{T}: Add one mana of any type that a land you control could produce. If this creature has a +1/+1 counter on it, add three mana of that type instead.\n{3}{G}{G}: Adapt 3. (If this creature has no +1/+1 counters on it, put three +1/+1 counters on it.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Incubation Druid:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "colorSet": {
+                        "type": "ManaColorSet.LandsCouldProduce",
+                        "scope": "YOU"
+                    },
+                    "amount": {
+                        "type": "Conditional",
+                        "condition": {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": {
+                                "statePredicates": [
+                                    {
+                                        "type": "HasCounter",
+                                        "counterType": "PLUS_ONE_PLUS_ONE"
+                                    }
+                                ]
+                            }
+                        },
+                        "ifTrue": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "ifFalse": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add one mana of any color that a land you control could produce (three if this creature has a +1/+1 counter on it)."
+            },
+            {
+                "id": "Incubation Druid:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Conditional",
+                        "condition": {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": {
+                                "statePredicates": [
+                                    {
+                                        "type": "HasCounter",
+                                        "counterType": "PLUS_ONE_PLUS_ONE"
+                                    }
+                                ]
+                            }
+                        },
+                        "ifTrue": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "ifFalse": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "timing": "ManaAbility",
+                "restrictions": [
+                    {
+                        "type": "ActivationOnlyIfCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": {
+                                "cardPredicates": [
+                                    "IsLand",
+                                    "CouldProduceColorlessMana"
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add {C} ({C}{C}{C} if this creature has a +1/+1 counter on it). Activate only if a land you control could produce colorless mana."
+            },
+            {
+                "id": "Incubation Druid:3",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}{G}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "Adapt",
+                    "amount": 3
+                },
+                "descriptionOverride": "{3}{G}{G}: Adapt 3."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "rarity": "RARE",
+        "artist": "Daniel Ljunggren",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/075bbe5d-d0f3-4be3-a3a6-072d5d3d614c.jpg?1783933668",
+        "rulings": [
+            {
+                "date": "2019-01-25",
+                "text": "The types of mana are white, blue, black, red, green, and colorless."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "Incubation Druid doesn't care about any restrictions or riders your lands put on the mana they produce. It just produces one mana of the appropriate type, with no restrictions or riders."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "Incubation Druid checks the effects of all mana-producing abilities of lands you control, but it doesn't check their costs or legality."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "You can always activate an ability that will cause a creature to adapt. As that ability resolves, if the creature has a +1/+1 counter on it for any reason, you simply won't put any +1/+1 counters on it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Justiciar's Portal
 {
     "name": "Justiciar's Portal",
@@ -2834,6 +3017,67 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Lavinia, Azorius Renegade
+{
+    "name": "Lavinia, Azorius Renegade",
+    "manaCost": "{W}{U}",
+    "typeLine": "Legendary Creature — Human Soldier",
+    "oracleText": "Each opponent can't cast noncreature spells with mana value greater than the number of lands that player controls.\nWhenever an opponent casts a spell, if no mana was spent to cast it, counter that spell.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Lavinia, Azorius Renegade:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Counter",
+                    "targetSource": "CounterTargetSource.TriggeringEntity"
+                },
+                "interveningIf": "TriggeringSpellCastWithoutPayingMana"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "PlayersCantCastSpells",
+                "spellFilter": {
+                    "cardPredicates": [
+                        "IsNoncreature",
+                        {
+                            "type": "Not",
+                            "predicate": {
+                                "type": "ManaValueAtMostDynamic",
+                                "amount": {
+                                    "type": "AggregateBattlefield",
+                                    "player": "You",
+                                    "filter": "land"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "189",
+        "rarity": "RARE",
+        "artist": "Steven Belledin",
+        "flavorText": "\"I told Jace that Ravnica would fall apart if he didn't take his responsibilities seriously. I didn't want to be right.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/4/c497d496-1232-4614-93b0-9864fa93c29f.jpg?1783933643"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
     ]
 }
 
@@ -2944,6 +3188,67 @@
     ]
 }
 
+// Ministrant of Obligation
+{
+    "name": "Ministrant of Obligation",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Human Cleric",
+    "oracleText": "Afterlife 2 (When this creature dies, create two 1/1 white and black Spirit creature tokens with flying.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ministrant of Obligation:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE",
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Spirit"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/4/5/45b3bdd7-b093-4bfd-8a9a-965e72bfefb3.jpg?1783933602"
+                },
+                "descriptionOverride": "Afterlife 2 (When this creature dies, create two 1/1 white and black Spirit creature tokens with flying.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "rarity": "UNCOMMON",
+        "artist": "Bastien L. Deharme",
+        "flavorText": "When the price of your sins comes due, the Church of Deals is there to collect.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/f/bf2a093a-25f0-4247-94dc-550865d86317.jpg?1783933721",
+        "rulings": [
+            {
+                "date": "2019-01-25",
+                "text": "Because blockers are chosen all at once, you can't block with a creature with afterlife, wait for it to die, then block with the resulting Spirit tokens."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Noxious Groodion
 {
     "name": "Noxious Groodion",
@@ -2962,6 +3267,66 @@
         "artist": "Simon Dominic",
         "flavorText": "\"Behold the groodion! Ichor-slurper, oozing fiend. Foulest wonder underground. Grandest vermin of them all!\"\n—Zalin the Gutter Bard",
         "imageUri": "https://cards.scryfall.io/normal/front/b/6/b6cb3d78-1a60-4e9b-b387-afeb58677536.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Orzhov Enforcer
+{
+    "name": "Orzhov Enforcer",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "Deathtouch\nAfterlife 1 (When this creature dies, create a 1/1 white and black Spirit creature token with flying.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "DEATHTOUCH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Orzhov Enforcer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE",
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Spirit"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/4/5/45b3bdd7-b093-4bfd-8a9a-965e72bfefb3.jpg?1783933602"
+                },
+                "descriptionOverride": "Afterlife 1 (When this creature dies, create a 1/1 white and black Spirit creature token with flying.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "UNCOMMON",
+        "artist": "Matt Stewart",
+        "flavorText": "\"You'll pay what you owe, with your money or your life.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/a/6a72b49e-be14-485b-a467-31cbac9aa1c5.jpg?1783933692",
+        "rulings": [
+            {
+                "date": "2019-01-25",
+                "text": "Because blockers are chosen all at once, you can't block with a creature with afterlife, wait for it to die, then block with the resulting Spirit tokens."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLACK"
@@ -3096,6 +3461,129 @@
     "colorIdentityOverride": [
         "BLACK",
         "WHITE"
+    ]
+}
+
+// Priest of Forgotten Gods
+{
+    "name": "Priest of Forgotten Gods",
+    "manaCost": "{1}{B}",
+    "typeLine": "Creature — Human Cleric",
+    "oracleText": "{T}, Sacrifice two other creatures: Any number of target players each lose 2 life and sacrifice a creature of their choice. You add {B}{B} and draw a card. (Activate only as an instant.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Priest of Forgotten Gods:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        {
+                                            "type": "StateNot",
+                                            "predicate": "IsSource"
+                                        }
+                                    ]
+                                },
+                                "count": 2
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ForEach",
+                            "space": "IterationSpace.Targets",
+                            "body": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "LoseLife",
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 2
+                                        },
+                                        "target": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
+                                    },
+                                    {
+                                        "type": "ForceSacrifice",
+                                        "filter": "creature",
+                                        "target": {
+                                            "type": "ContextTarget",
+                                            "index": 0
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "BLACK",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetPlayer",
+                        "unlimited": true,
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{T}, Sacrifice two other creatures: Any number of target players each lose 2 life and sacrifice a creature of their choice. You add {B}{B} and draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "83",
+        "rarity": "RARE",
+        "artist": "Zack Stella",
+        "flavorText": "The Orzhov are not the only religious tradition on Ravnica, nor the oldest.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/3/e3378fe8-3355-48aa-90d4-9cb739200160.jpg?1783933689",
+        "rulings": [
+            {
+                "date": "2019-01-25",
+                "text": "You may target players who can't sacrifice a creature. Those players still lose 2 life."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "Because it may have targets, the ability of Priest of Forgotten Gods isn't a mana ability. It uses the stack and can be responded to, even if no targets were chosen."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "You can activate the ability of Priest of Forgotten Gods without choosing any targets if you wish. You'll still add {B}{B} and draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -4674,6 +5162,77 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Teysa Karlov
+{
+    "name": "Teysa Karlov",
+    "manaCost": "{2}{W}{B}",
+    "typeLine": "Legendary Creature — Human Advisor",
+    "oracleText": "If a creature dying causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time.\nCreature tokens you control have vigilance and lifelink.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "AdditionalDeathTriggers",
+                "permanentsYouControl": {}
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "VIGILANCE",
+                "filter": {
+                    "baseFilter": "creature token ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "LIFELINK",
+                "filter": {
+                    "baseFilter": "creature token ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "212",
+        "rarity": "RARE",
+        "artist": "Magali Villeneuve",
+        "flavorText": "While Kaya is guildmaster, Teysa waits patiently at the center of the Orzhov web of power.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/c/bcfaa19e-995e-447d-a0a2-46e5d117d5ec.jpg?1783933635",
+        "rulings": [
+            {
+                "date": "2019-01-25",
+                "text": "Teysa affects a creature's own \"when this creature dies\" triggered abilities as well as other triggered abilities that trigger when that creature dies."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "Teysa's effect doesn't copy the triggered ability; it just causes the ability to trigger twice. Choices such as modes and targets are made separately for each instance."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "An ability that triggers when a creature \"leaves the battlefield\" will trigger twice if that creature leaves the battlefield by dying."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "An ability that triggers on an event that causes a creature to die doesn't trigger twice. For example, an ability that triggers \"whenever you sacrifice a creature\" triggers only once."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "If a creature dying at the same time as Teysa (including Teysa itself dying) causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time."
+            },
+            {
+                "date": "2019-01-25",
+                "text": "If you somehow control two Teysas, a creature dying causes abilities to trigger three times, not four."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
     ]
 }
 

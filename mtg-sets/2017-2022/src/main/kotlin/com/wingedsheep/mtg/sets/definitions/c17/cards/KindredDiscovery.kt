@@ -1,22 +1,23 @@
 package com.wingedsheep.mtg.sets.definitions.c17.cards
 
-import com.wingedsheep.sdk.dsl.Triggers
-
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
-import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 
 /**
- * Kindred Discovery
- * {3}{U}{U}
- * Enchantment
+ * Kindred Discovery — Commander 2017 #11 (canonical printing)
+ * {3}{U}{U} · Enchantment
+ *
+ * As this enchantment enters, choose a creature type.
+ * Whenever a creature you control of the chosen type enters or attacks, draw a card.
+ *
+ * "Enters or attacks" is one triggered ability, so it is a single [Triggers.or] over the two
+ * ANY-bound atoms rather than two abilities. Both read the creature type chosen on this
+ * enchantment through `withChosenSubtype()`; with no type chosen, nothing matches (ruling).
  */
 val KindredDiscovery = card("Kindred Discovery") {
     manaCost = "{3}{U}{U}"
@@ -25,14 +26,16 @@ val KindredDiscovery = card("Kindred Discovery") {
     oracleText = "As this enchantment enters, choose a creature type.\n" +
         "Whenever a creature you control of the chosen type enters or attacks, draw a card."
 
-    replacementEffect(EntersWithChoice(ChoiceType.CREATURE_TYPE))
+    replacementEffect(EntersWithChoice(choiceType = ChoiceType.CREATURE_TYPE))
 
     triggeredAbility {
+        val chosenType = GameObjectFilter.Creature.youControl().withChosenSubtype()
         trigger = Triggers.or(
-            Triggers.a(GameObjectFilter.Creature.youControl().withChosenSubtype()).enters(),
-            Triggers.a(GameObjectFilter.Creature.youControl().withChosenSubtype()).attacks(),
+            Triggers.a(chosenType).enters(),
+            Triggers.a(chosenType).attacks(),
         )
         effect = Effects.DrawCards(1)
+        description = "Whenever a creature you control of the chosen type enters or attacks, draw a card."
     }
 
     metadata {

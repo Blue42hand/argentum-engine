@@ -6,6 +6,7 @@ import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
@@ -14,7 +15,6 @@ import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
-import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.model.EntityId
@@ -125,8 +125,8 @@ class CounterEffectExecutor(
         onPaid: com.wingedsheep.sdk.scripting.effects.Effect?,
         context: EffectContext
     ): EffectResult {
-        val payingPlayerId = getSpellCasterId(state, spellEntityId)
-            ?: return EffectResult.error(state, "Spell not found on stack")
+        val payingPlayerId = TargetResolutionUtils.stackObjectController(state, spellEntityId)
+            ?: return EffectResult.error(state, "Spell or ability not found on stack")
 
         val manaSolver = ManaSolver(cardRegistry, predicateEvaluator)
         if (!manaSolver.canPay(state, payingPlayerId, cost, spellContext = SpellPaymentContext())) {
@@ -143,8 +143,8 @@ class CounterEffectExecutor(
         condition: CounterCondition.UnlessPaysDynamic,
         context: EffectContext
     ): EffectResult {
-        val payingPlayerId = getSpellCasterId(state, spellEntityId)
-            ?: return EffectResult.error(state, "Spell not found on stack")
+        val payingPlayerId = TargetResolutionUtils.stackObjectController(state, spellEntityId)
+            ?: return EffectResult.error(state, "Spell or ability not found on stack")
 
         val totalGenericCost = amountEvaluator.evaluate(state, condition.amount, context)
 
@@ -162,12 +162,6 @@ class CounterEffectExecutor(
         }
 
         return offerPayment(state, effect, spellEntityId, payingPlayerId, manaCost, condition.onPaid, context)
-    }
-
-    private fun getSpellCasterId(state: GameState, spellEntityId: EntityId): EntityId? {
-        val spellEntity = state.getEntity(spellEntityId) ?: return null
-        val spellComponent = spellEntity.get<SpellOnStackComponent>() ?: return null
-        return spellComponent.casterId
     }
 
     private fun offerPayment(
@@ -199,7 +193,7 @@ class CounterEffectExecutor(
             playerId = payingPlayerId,
             sourceId = context.sourceId,
             sourceName = sourceName,
-            prompt = "Pay $manaCost to prevent your spell from being countered?",
+            prompt = "Pay $manaCost to prevent your ${if (state.isSpellOnStack(spellEntityId)) "spell" else "ability"} from being countered?",
             yesText = "Pay $manaCost",
             noText = "Don't pay",
             answer = continuation

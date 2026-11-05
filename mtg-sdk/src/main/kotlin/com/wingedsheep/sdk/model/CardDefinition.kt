@@ -316,6 +316,38 @@ data class CardDefinition(
         get() = Keyword.DEVOID in keywords || keywordAbilities.any { it.keyword == Keyword.DEVOID }
 
     /**
+     * The subtypes this card's own "[this] is also a [subtype]" abilities define — every top-level
+     * [com.wingedsheep.sdk.scripting.GrantSubtype] in [script] whose filter is the source itself
+     * (Tajuru Paragon: "Tajuru Paragon is also a Cleric, Rogue, Warrior, and Wizard."). Printed on
+     * the object it describes and unconditional, such an ability is characteristic-defining (CR
+     * 604.3a), and CDAs function in every zone (CR 604.3) — so, like [Keyword.DEVOID] in [colors],
+     * it belongs to the card's derived characteristics rather than to a battlefield-only layer-4
+     * effect: the engine folds these into the entity's type line wherever the card is, and doesn't
+     * also project them as a timestamped effect. [typeLine] itself stays as printed.
+     *
+     * A self-`GrantSubtype` wrapped in a condition ("as long as …") or granted by another object is
+     * not a CDA and isn't counted here; it stays an ordinary layer-4 effect.
+     */
+    val selfDefinedSubtypes: Set<Subtype>
+        get() = script.staticAbilities.mapNotNullTo(linkedSetOf()) { ability ->
+            (ability as? com.wingedsheep.sdk.scripting.GrantSubtype)
+                ?.takeIf { it.filter == com.wingedsheep.sdk.scripting.filters.unified.GroupFilter.source() }
+                ?.let { Subtype(it.subtype) }
+        }
+
+    /**
+     * The card's type line with its [selfDefinedSubtypes] folded in — the object's actual types in
+     * every zone. Read this, not the printed [typeLine], wherever a card off the battlefield is
+     * judged by its subtypes (a spell being cast against "Wizard spells cost {1} less", a card in a
+     * graveyard). Identical to [typeLine] for every card without such a CDA.
+     */
+    val characteristicTypeLine: TypeLine
+        get() = selfDefinedSubtypes.let { cda ->
+            if (cda.isEmpty() || typeLine.subtypes.containsAll(cda)) typeLine
+            else typeLine.copy(subtypes = typeLine.subtypes + cda)
+        }
+
+    /**
      * Color identity per CR 903.4: the colors of any mana symbols in the card's mana cost or
      * rules text, plus any colors defined by characteristic-defining abilities or color
      * indicators. Used by Commander/Brawl deck-construction to determine which cards may share
@@ -484,6 +516,16 @@ data class CardDefinition(
         found
     }
 
+    /**
+     * Whether this card may only be played in a game played for ante — its Oracle text carries
+     * "Remove this card from your deck before playing if you're not playing for ante." CR 407.3:
+     * when not playing for ante, players can't include these cards in their decks or sideboards.
+     * Read off the Oracle text once per definition; delegated, so never serialized.
+     */
+    val requiresAnte: Boolean by lazy {
+        oracleText.contains("if you're not playing for ante", ignoreCase = true)
+    }
+
     /** The effect when this spell resolves (for instants/sorceries) */
     val spellEffect get() = script.spellEffect
 
@@ -532,6 +574,13 @@ data class CardDefinition(
      */
     val hasCycling: Boolean
         get() = keywordAbilities.any { it is com.wingedsheep.sdk.scripting.KeywordAbility.Cycling }
+
+    /**
+     * Does this card have a kicker ability — kicker or multikicker (CR 702.33)? Printed abilities
+     * only. Backs `CardPredicate.HasKicker` via `CardComponent.hasKicker`.
+     */
+    val hasKicker: Boolean
+        get() = keywordAbilities.any { it is com.wingedsheep.sdk.scripting.KeywordAbility.OptionalAdditionalCost && it.isKicker }
 
     /** Static abilities (continuous effects) on this card */
     val staticAbilities get() = script.staticAbilities

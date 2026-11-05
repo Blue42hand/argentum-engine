@@ -1,6 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.token
 
-import com.wingedsheep.engine.core.EffectContinuation
+import com.wingedsheep.engine.core.EffectProgram
 import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.core.GameLimits
 import com.wingedsheep.engine.core.Outcome
@@ -32,6 +32,10 @@ class CreateTokenBatchExecutor(
     private val staticAbilityHandler: StaticAbilityHandler,
 ) : EffectExecutor<CreateTokenBatchEffect> {
     override val effectType: KClass<CreateTokenBatchEffect> = CreateTokenBatchEffect::class
+
+    /** Read only for the would-be tokens a batch-wide substitution question tests. */
+    private val creatureTokens by lazy { CreateTokenExecutor(amountEvaluator, staticAbilityHandler, cardRegistry) }
+    private val predefinedTokens by lazy { CreatePredefinedTokenExecutor(cardRegistry, staticAbilityHandler, amountEvaluator) }
 
     override fun execute(state: GameState, effect: CreateTokenBatchEffect, context: EffectContext): EffectResult {
         if (effect.groups.isEmpty()) {
@@ -82,6 +86,25 @@ class CreateTokenBatchExecutor(
                 else -> error("Unsupported token group")
             }
         }
+        // A batch is one creation event, so a substitution that asks (Jinnie Fay's Cats or Dogs)
+        // asks once for all of it, before any group is created; every group then reads the answer.
+        if (totalCount > 0) {
+            for (group in groups) {
+                val prospective = when (group) {
+                    is CreateTokenEffect -> creatureTokens.identity(state, group, context).prospective(group, controller)
+                    is CreatePredefinedTokenEffect -> cardRegistry.getCard(group.tokenType)
+                        ?.let { predefinedTokens.prospectiveToken(it, group, controller) }
+                    else -> null
+                } ?: continue
+                val lookup = TokenCreationReplacementHelper.findTokenSubstitution(
+                    state, controller, prospective, amountEvaluator.predicates,
+                    choices = context.pipeline.chosenValues,
+                )
+                if (lookup is TokenSubstitutionChoice) {
+                    return TokenCreationReplacementHelper.askForSubstitution(state, lookup, effect, context, totalCount)
+                }
+            }
+        }
         val batchContext = context.copy(controllerId = controller, pipeline = context.pipeline.copy(
             storedCollections = context.pipeline.storedCollections + mapOf(
                 TokenCreationBatch.BEFORE to state.getBattlefield(),
@@ -91,7 +114,8 @@ class CreateTokenBatchExecutor(
         val finish = CreateTokenBatchEffect(emptyList())
         // The finalizer is below a replacement decision. Both accepting the copy replacement and
         // declining it reach that same finalizer, including after serialization of a paused game.
-        val pendingFinish = state.pushContinuation(EffectContinuation(listOf(finish), batchContext))
+        val pendingFinish = state.pushContinuation(EffectProgram.queued(listOf(finish), batchContext,
+            origin = batchContext.programOrigin))
         val replacement = TokenCreationReplacementHelper.checkReplacement(
             pendingFinish, CompositeEffect(groups), batchContext, totalCount, controller,
             cardRegistry, staticAbilityHandler, amountEvaluator.predicates,

@@ -386,13 +386,13 @@ object LibraryPatterns {
      * "Target player scries [count]" (CR 701.22) — a *player-scoped* scry. When [target] is the
      * effect's own controller this is identical to [scry] (returns the compact [ScryEffect] macro);
      * otherwise it expands to a [scryPipeline] whose gather/library-moves read the *target* player's
-     * library and whose top/bottom decision is made by that player ([Chooser.TargetPlayer]) — the
+     * library and whose top/bottom decision is made by that player ([effectTargetToChooser]) — the
      * scry twin of [mill]`(count, target)`. Used by modal "• Target player scries N" modes (Bumi,
      * King of Three Trials), where the player is the chosen mode's local [EffectTarget.ContextTarget].
      */
     fun scry(count: Int, target: EffectTarget): Effect = when (target) {
         EffectTarget.Controller -> ScryEffect(count)
-        else -> scryPipeline(count, scryPlayer(target), Chooser.TargetPlayer)
+        else -> scryPipeline(count, scryPlayer(target), effectTargetToChooser(target))
     }
 
     /**
@@ -408,7 +408,7 @@ object LibraryPatterns {
         is DynamicAmount.Fixed -> scry(count.amount, target)
         else -> when (target) {
             EffectTarget.Controller -> scryPipeline(count)
-            else -> scryPipeline(count, scryPlayer(target), Chooser.TargetPlayer)
+            else -> scryPipeline(count, scryPlayer(target), effectTargetToChooser(target))
         }
     }
 
@@ -1004,6 +1004,30 @@ object LibraryPatterns {
                 MoveCollectionEffect(
                     from = "exiled_top",
                     destination = CardDestination.ToZone(Zone.EXILE, player)
+                )
+            )
+        )
+    }
+
+    /**
+     * Ante the top card of a player's library — put it into the ante (CR 407.4): "ante the top
+     * card of your library" (Contract from Below), "each player antes the top card of their
+     * library" (Demonic Attorney, under `Effects.ForEachPlayer`). Same Gather → Move pipeline as
+     * [exileTop], destination [Zone.ANTE]. Only the owner can ante a card (407.4), which a
+     * library top always satisfies. Only meaningful in a game played for ante — the only games
+     * these cards are legal in (407.3).
+     */
+    fun anteTop(target: EffectTarget = EffectTarget.Controller): CompositeEffect {
+        val player = effectTargetToPlayer(target)
+        return CompositeEffect(
+            listOf(
+                GatherCardsEffect(
+                    source = CardSource.TopOfLibrary(DynamicAmount.Fixed(1), player),
+                    storeAs = "anted_top"
+                ),
+                MoveCollectionEffect(
+                    from = "anted_top",
+                    destination = CardDestination.ToZone(Zone.ANTE, player)
                 )
             )
         )

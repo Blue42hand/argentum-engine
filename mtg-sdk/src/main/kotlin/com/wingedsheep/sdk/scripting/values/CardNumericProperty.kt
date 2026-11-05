@@ -7,15 +7,23 @@ import kotlinx.serialization.Serializable
  * Used with [DynamicAmount.AggregateBattlefield].
  */
 @Serializable
-enum class CardNumericProperty(val description: String) {
+enum class CardNumericProperty(val description: String, val pluralDescription: String = "${description}s") {
     MANA_VALUE("mana value"),
     POWER("power"),
-    TOUGHNESS("toughness"),
+    TOUGHNESS("toughness", "toughness values"),
     /**
      * Counters of every kind on the permanent — "the number of counters on permanents you control"
      * (Hydra Trainer). A single kind is [DynamicAmount.AggregateBattlefield.counterType] instead.
      */
-    COUNTERS("counters")
+    COUNTERS("counters", "counter counts"),
+    /**
+     * The number of colors the object has (CR 105.2), 0–5 — projected on the battlefield, so a
+     * layer-5 color change counts. Compared against a late-bound amount it reads "a creature card
+     * that's exactly that many colors plus one" (Evolving Door) via
+     * [com.wingedsheep.sdk.scripting.predicates.CardPredicate.CompareNumericProperty]; a fixed
+     * count stays [com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasExactlyColors].
+     */
+    COLOR_COUNT("number of colors", "numbers of colors")
 }
 
 /**

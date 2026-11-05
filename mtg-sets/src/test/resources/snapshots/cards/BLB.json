@@ -2199,10 +2199,15 @@
         "power": 2,
         "toughness": 1
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -3785,10 +3790,15 @@
         "power": 2,
         "toughness": 2
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -4422,12 +4432,15 @@
         "toughness": 3
     },
     "keywords": [
-        "FLYING"
+        "FLYING",
+        "OFFSPRING"
     ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{B}"
+            "manaCost": "{B}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -6022,6 +6035,7 @@
                             "storeMovedAs": "moved2"
                         },
                         "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent",
                         {
                             "type": "Gated",
                             "gate": {
@@ -6455,12 +6469,15 @@
         "toughness": 2
     },
     "keywords": [
-        "FLYING"
+        "FLYING",
+        "OFFSPRING"
     ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{3}"
+            "manaCost": "{3}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -6824,10 +6841,15 @@
         "power": 1,
         "toughness": 2
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -7687,8 +7709,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 2
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
                                 }
                             },
                             "then": {
@@ -9237,8 +9268,8 @@
                 "cost": "{3}{G}",
                 "replacementEffects": [
                     {
-                        "type": "DoubleCounterPlacement",
-                        "placedByYou": true,
+                        "type": "ScaleCounterPlacement",
+                        "placer": "You",
                         "appliesTo": "CounterPlacementEvent"
                     }
                 ]
@@ -9387,10 +9418,15 @@
         "power": 3,
         "toughness": 2
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{1}"
+            "manaCost": "{1}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -11481,7 +11517,7 @@
     "script": {
         "staticAbilities": [
             {
-                "type": "SetBaseToughnessForCreatureGroup",
+                "type": "SetBasePowerToughnessStatic",
                 "toughness": 1,
                 "filter": {
                     "baseFilter": "creature ctrl:opponent"
@@ -11521,10 +11557,15 @@
         "power": 1,
         "toughness": 2
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -13312,12 +13353,15 @@
         "toughness": 1
     },
     "keywords": [
-        "TRAMPLE"
+        "TRAMPLE",
+        "OFFSPRING"
     ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -14254,60 +14298,6 @@
     ]
 }
 
-// Rabid Bite
-{
-    "name": "Rabid Bite",
-    "manaCost": "{1}{G}",
-    "typeLine": "Sorcery",
-    "oracleText": "Target creature you control deals damage equal to its power to target creature you don't control.",
-    "script": {
-        "spellEffect": {
-            "type": "DealDamage",
-            "amount": {
-                "type": "EntityProperty",
-                "entity": {
-                    "type": "BoundVariable",
-                    "name": "t0"
-                },
-                "numericProperty": "Power"
-            },
-            "target": {
-                "type": "BoundVariable",
-                "name": "t1"
-            },
-            "damageSource": {
-                "type": "BoundVariable",
-                "name": "t0"
-            }
-        },
-        "targetRequirements": [
-            {
-                "type": "TargetObject",
-                "filter": {
-                    "baseFilter": "creature ctrl:you"
-                },
-                "id": "t0"
-            },
-            {
-                "type": "TargetObject",
-                "filter": {
-                    "baseFilter": "creature ctrl:opponent"
-                },
-                "id": "t1"
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "394",
-        "artist": "John Thacker",
-        "imageUri": "https://cards.scryfall.io/normal/front/5/3/53a73200-b798-4bfd-a431-8b94e17b70be.jpg?1721428112",
-        "inBooster": false
-    },
-    "colorIdentityOverride": [
-        "GREEN"
-    ]
-}
-
 // Rabid Gnaw
 {
     "name": "Rabid Gnaw",
@@ -15156,9 +15146,10 @@
         ],
         "additionalCosts": [
             {
-                "type": "SacrificeCreaturesForCostReduction",
+                "type": "AnyNumberForCostReduction",
+                "action": "SACRIFICE",
                 "filter": "nonland permanent",
-                "costReductionPerCreature": 1
+                "reductionPerUnit": 1
             }
         ]
     },
@@ -15264,10 +15255,15 @@
         "power": 4,
         "toughness": 4
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -17242,10 +17238,15 @@
         "power": 3,
         "toughness": 3
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{1}{U}"
+            "manaCost": "{1}{U}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -17935,12 +17936,15 @@
         "toughness": 1
     },
     "keywords": [
-        "FLYING"
+        "FLYING",
+        "OFFSPRING"
     ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}{B}"
+            "manaCost": "{2}{B}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -18118,10 +18122,15 @@
         "power": 2,
         "toughness": 1
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -19045,10 +19054,15 @@
         "power": 2,
         "toughness": 2
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -19303,10 +19317,15 @@
         "power": 4,
         "toughness": 3
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{3}"
+            "manaCost": "{3}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -19997,10 +20016,15 @@
         "power": 1,
         "toughness": 2
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{4}"
+            "manaCost": "{4}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {
@@ -21345,10 +21369,15 @@
         "power": 4,
         "toughness": 4
     },
+    "keywords": [
+        "OFFSPRING"
+    ],
     "keywordAbilities": [
         {
             "type": "Kicker",
-            "manaCost": "{2}"
+            "manaCost": "{2}",
+            "displayPrefix": "Offspring",
+            "keyword": "OFFSPRING"
         }
     ],
     "script": {

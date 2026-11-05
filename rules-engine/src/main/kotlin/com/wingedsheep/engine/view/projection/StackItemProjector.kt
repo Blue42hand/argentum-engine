@@ -71,8 +71,8 @@ internal class StackItemProjector(
             colors = sourceColors(state, activatedAbility.sourceId, sourceCard),
             oracleText = activatedAbility.descriptionOverride
                 ?: stackText.runtimeAbilityText(state, entityId, activatedAbility)
-                ?: stackText.effectDisplayText(
-                    activatedAbility.effect, stackText.selfNounFor(state, activatedAbility.sourceId)
+                ?: StackTextRenderer.effectDisplayText(
+                    activatedAbility.effect, StackTextRenderer.selfNounFor(state, activatedAbility.sourceId)
                 ),
             power = null,
             toughness = null,
@@ -169,8 +169,8 @@ internal class StackItemProjector(
             colors = sourceColors(state, triggeredAbility.sourceId, sourceCard),
             oracleText = triggeredAbility.descriptionOverride
                 ?: stackText.runtimeAbilityText(state, entityId, triggeredAbility)
-                ?: stackText.effectDisplayText(
-                    triggeredAbility.effect, stackText.selfNounFor(state, triggeredAbility.sourceId)
+                ?: StackTextRenderer.effectDisplayText(
+                    triggeredAbility.effect, StackTextRenderer.selfNounFor(state, triggeredAbility.sourceId)
                 ),
             power = null,
             toughness = null,
@@ -227,7 +227,12 @@ internal class StackItemProjector(
             state.projectedState.getColors(sourceId).mapNotNull { name ->
                 Color.entries.firstOrNull { it.name == name }
             }.toSet()
-        } else visibleCard?.colors.orEmpty()
+        } else visibleCard?.let { card ->
+            // An off-battlefield color effect (Mycosynth Lattice) overrides the shown printed colors.
+            state.projectedState.offBattlefieldColors(sourceId)
+                ?.mapNotNullTo(linkedSetOf()) { name -> Color.entries.firstOrNull { it.name == name } }
+                ?: card.colors
+        }.orEmpty()
 
     /**
      * Find which zone an entity is currently in.

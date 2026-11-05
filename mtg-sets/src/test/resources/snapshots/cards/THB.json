@@ -608,6 +608,136 @@
     ]
 }
 
+// Daxos, Blessed by the Sun
+{
+    "name": "Daxos, Blessed by the Sun",
+    "manaCost": "{W}{W}",
+    "typeLine": "Legendary Enchantment Creature — Demigod",
+    "oracleText": "Daxos's toughness is equal to your devotion to white. (Each {W} in the mana costs of permanents you control counts toward your devotion to white.)\nWhenever another creature you control enters or dies, you gain 1 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": {
+            "type": "Dynamic",
+            "source": {
+                "type": "DevotionTo",
+                "colors": [
+                    "WHITE"
+                ]
+            }
+        }
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Daxos, Blessed by the Sun:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature ctrl:you",
+                            "to": "Battlefield"
+                        },
+                        {
+                            "type": "ZoneChangeEvent",
+                            "filter": "creature ctrl:you",
+                            "from": "Battlefield",
+                            "to": "Graveyard"
+                        }
+                    ]
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Whenever another creature you control enters or dies, you gain 1 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "9",
+        "rarity": "UNCOMMON",
+        "artist": "Lius Lasahido",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0fd2adb3-a6f4-448e-af2a-15ca92b1de63.jpg?1783931602",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "Because damage remains marked on a creature until the damage is removed as the turn ends, nonlethal damage dealt to Daxos may become lethal if your devotion to white decreases during that turn."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If another creature you control enters the battlefield at the same time as Daxos, you gain 1 life for that creature. Similarly, if another creature you control dies at the same time as Daxos, you gain 1 life for that creature. However, in the unusual case that Daxos dies at the same time that another creature enters the battlefield or vice versa, you won't gain 1 life for that creature."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "The ability that defines Daxos's toughness works in all zones, not just the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Demon of Loathing
+{
+    "name": "Demon of Loathing",
+    "manaCost": "{5}{B}{B}",
+    "typeLine": "Creature — Demon",
+    "oracleText": "Flying, trample\nWhenever this creature deals combat damage to a player, that player sacrifices a creature of their choice.",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "keywords": [
+        "FLYING",
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Demon of Loathing:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "effect": {
+                    "type": "ForceSacrifice",
+                    "filter": "creature",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "292",
+        "rarity": "RARE",
+        "artist": "Tomasz Jedruszek",
+        "flavorText": "Hatred is a potent ally, but an insatiable master.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/7/57564f6f-7c99-4325-8a0e-22342e73767b.jpg?1783931489",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "If a creature is dealt lethal damage at the same time that Demon of Loathing deals combat damage to its controller, that player can't sacrifice that creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Discordant Piper
 {
     "name": "Discordant Piper",
@@ -1310,6 +1440,100 @@
     ]
 }
 
+// Gravebreaker Lamia
+{
+    "name": "Gravebreaker Lamia",
+    "manaCost": "{4}{B}",
+    "typeLine": "Enchantment Creature — Snake Lamia",
+    "oracleText": "Lifelink\nWhen this creature enters, search your library for a card, put it into your graveyard, then shuffle.\nSpells you cast from your graveyard cost {1} less to cast.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Gravebreaker Lamia:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library"
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your graveyard",
+                            "selectedLabel": "Put into your graveyard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCastFromZones",
+                    "zones": [
+                        "Graveyard"
+                    ]
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "98",
+        "rarity": "RARE",
+        "artist": "Lius Lasahido",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/0/408a2073-d068-44bc-b596-5a3a3a446ee1.jpg?1783931567",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "Gravebreaker Lamia's last ability doesn't give you permission to cast cards from your graveyard. You need something else allowing you to do so, such as the escape keyword ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Grim Physician
 {
     "name": "Grim Physician",
@@ -1363,6 +1587,207 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Heliod's Intervention
+{
+    "name": "Heliod's Intervention",
+    "manaCost": "{X}{W}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Destroy X target artifacts and/or enchantments.\n• Target player gains twice X life.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": "IterationSpace.Targets",
+                        "body": {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "ContextTarget",
+                                "index": 0
+                            },
+                            "destination": "Graveyard",
+                            "byDestruction": true
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "artifact|enchantment"
+                            },
+                            "id": "t0",
+                            "dynamicMaxCount": "XValue",
+                            "dynamicMinCount": "XValue"
+                        }
+                    ],
+                    "description": "Destroy X target artifacts and/or enchantments"
+                },
+                {
+                    "effect": {
+                        "type": "GainLife",
+                        "amount": {
+                            "type": "Multiply",
+                            "amount": "XValue",
+                            "multiplier": 2
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t1"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetPlayer",
+                            "id": "t1"
+                        }
+                    ],
+                    "description": "Target player gains twice X life"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "rarity": "RARE",
+        "artist": "Daarken",
+        "flavorText": "\"I bring a dawn that no night can follow.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f1c16dd-38e9-4974-b570-8678c114a549.jpg?1783931596",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "The second mode of Heliod's Intervention causes the player to gain one amount of life equal to twice X. It doesn't cause the player to gain X life then gain X life again."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Heliod, Sun-Crowned
+{
+    "name": "Heliod, Sun-Crowned",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Enchantment Creature — God",
+    "oracleText": "Indestructible\nAs long as your devotion to white is less than five, Heliod isn't a creature.\nWhenever you gain life, put a +1/+1 counter on target creature or enchantment you control.\n{1}{W}: Another target creature gains lifelink until end of turn.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "INDESTRUCTIBLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Heliod, Sun-Crowned:1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature|enchantment ctrl:you"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "Whenever you gain life, put a +1/+1 counter on target creature or enchantment you control."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Heliod, Sun-Crowned:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "LIFELINK",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature",
+                            "excludeSelf": true
+                        },
+                        "id": "t1"
+                    }
+                ],
+                "descriptionOverride": "{1}{W}: Another target creature gains lifelink until end of turn."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "RemoveCardType",
+                    "cardType": "CREATURE"
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "DevotionTo",
+                        "colors": [
+                            "WHITE"
+                        ]
+                    },
+                    "operator": "LT",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 5
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "rarity": "MYTHIC",
+        "artist": "Lius Lasahido",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/1/01a8576e-cadc-4521-aadd-3a05f0bc4d20.jpg?1783931597",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "Heliod's triggered ability triggers just once for each life-gaining event, whether it's 1 life from Daxos, Blessed by the Sun or 3 life from Cling to Dust."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Heliod can be the target of its own triggered ability."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If a God stops being a creature, it loses the type creature and the creature type God. It continues to be a legendary enchantment."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "The type-changing ability that can make a God not be a creature functions only on the battlefield. It's always a creature card in other zones, regardless of your devotion to its color. It's always a creature spell while it's on the stack."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -2003,6 +2428,83 @@
     ]
 }
 
+// Nadir Kraken
+{
+    "name": "Nadir Kraken",
+    "manaCost": "{1}{U}{U}",
+    "typeLine": "Creature — Kraken",
+    "oracleText": "Whenever you draw a card, you may pay {1}. If you do, put a +1/+1 counter on this creature and create a 1/1 blue Tentacle creature token.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nadir Kraken:1",
+                "trigger": "DrawEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{1}"
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 1,
+                                "target": "Self"
+                            },
+                            {
+                                "type": "CreateToken",
+                                "power": 1,
+                                "toughness": 1,
+                                "colors": [
+                                    "BLUE"
+                                ],
+                                "creatureTypes": [
+                                    "Tentacle"
+                                ],
+                                "imageUri": "https://cards.scryfall.io/normal/front/7/b/7b9f04f7-587e-4774-8aaa-09e8520efacb.jpg?1783931454"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "RARE",
+        "artist": "Dan Murayama Scott",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/8/7817e039-e509-4b6f-b5a3-deb3769bbdc8.jpg?1783931582",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "While resolving Nadir Kraken's ability, you can't pay {1} multiple times to create multiple Tentacles or to give it multiple +1/+1 counters."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "You choose whether to pay {1} after drawing the card and seeing what it is. If you draw multiple cards, you see them all before deciding how many of the resulting triggers you'll pay {1} for."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If Nadir Kraken leaves the battlefield after its ability has triggered, you can still pay {1} and get a Tentacle, even though you won't put a +1/+1 counter on Nadir Kraken."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Naiad of Hidden Coves
 {
     "name": "Naiad of Hidden Coves",
@@ -2164,6 +2666,77 @@
         "artist": "Christopher Burdett",
         "flavorText": "Where its feet tread, the thunder of many others will follow.",
         "imageUri": "https://cards.scryfall.io/normal/front/2/c/2cf2b6be-80a8-4464-a909-8cc658196a14.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Nyx Lotus
+{
+    "name": "Nyx Lotus",
+    "manaCost": "{4}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "Nyx Lotus enters tapped.\n{T}: Choose a color. Add an amount of mana of that color equal to your devotion to that color. (Your devotion to a color is the number of mana symbols of that color in the mana costs of permanents you control.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Nyx Lotus:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "amount": {
+                        "type": "DevotionTo",
+                        "colors": [],
+                        "ofChosenColor": true
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Choose a color. Add an amount of mana of that color equal to your devotion to that color."
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "235",
+        "rarity": "RARE",
+        "artist": "Raoul Vitale",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/b/5bd6353f-d119-40e6-895c-030a11a7a2fe.jpg?1783931514"
+    },
+    "colorIdentityOverride": []
+}
+
+// Nyxbloom Ancient
+{
+    "name": "Nyxbloom Ancient",
+    "manaCost": "{4}{G}{G}{G}",
+    "typeLine": "Enchantment Creature — Elemental",
+    "oracleText": "Trample\nIf you tap a permanent for mana, it produces three times as much of that mana instead.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "TRAMPLE"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "MultiplyManaOnSourceTap",
+                "sourceFilter": "permanent ctrl:you",
+                "multiplier": 3
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "190",
+        "rarity": "MYTHIC",
+        "artist": "Filip Burburan",
+        "flavorText": "Ancient yet ever-young, it is wise and subtle—and cruel and reckless as the spring itself.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/3/a391da36-0b40-46ea-b771-50d2b920207e.jpg?1783931531"
     },
     "colorIdentityOverride": [
         "GREEN"
@@ -3019,6 +3592,88 @@
     ]
 }
 
+// Rise to Glory
+{
+    "name": "Rise to Glory",
+    "manaCost": "{3}{W}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one or both —\n• Return target creature card from your graveyard to the battlefield.\n• Return target Aura card from your graveyard to the battlefield.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Battlefield",
+                        "fromZone": "Graveyard"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature own:you",
+                                "zone": "Graveyard"
+                            },
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Return target creature card from your graveyard to the battlefield"
+                },
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t1"
+                        },
+                        "destination": "Battlefield",
+                        "fromZone": "Graveyard"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "Aura own:you",
+                                "zone": "Graveyard"
+                            },
+                            "id": "t1"
+                        }
+                    ],
+                    "description": "Return target Aura card from your graveyard to the battlefield"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1
+        }
+    },
+    "metadata": {
+        "collectorNumber": "225",
+        "rarity": "UNCOMMON",
+        "artist": "Howard Lyon",
+        "flavorText": "A hero dies, and a legend arises.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/f/cf6c11c8-64a1-46a4-979c-56a6d5b873d3.jpg?1783931519",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "If an Aura is put onto the battlefield without being cast, the Aura's controller-to-be chooses what it will enchant as it comes back onto the battlefield. An Aura put onto the battlefield this way doesn't target anything (so it could be attached to an opponent's permanent with hexproof, for example), but the Aura's enchant ability restricts what it can be attached to. If the Aura can't legally be attached to anything, it remains in its current zone."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Because modes are performed sequentially, an Aura returned to the battlefield with Rise to Glory can enchant a creature returned to the battlefield with Rise to Glory."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
 // Rumbling Sentry
 {
     "name": "Rumbling Sentry",
@@ -3798,6 +4453,133 @@
     ]
 }
 
+// Tectonic Giant
+{
+    "name": "Tectonic Giant",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Elemental Giant",
+    "oracleText": "Whenever this creature attacks or becomes the target of a spell an opponent controls, choose one —\n• This creature deals 3 damage to each opponent.\n• Exile the top two cards of your library. Choose one of them. Until the end of your next turn, you may play that card.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Tectonic Giant:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        "AttackEvent",
+                        {
+                            "type": "BecomesTargetEvent",
+                            "byOpponent": true,
+                            "spellsOnly": true
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "EachOpponent"
+                                }
+                            },
+                            "description": "This creature deals 3 damage to each opponent"
+                        },
+                        {
+                            "effect": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "TopOfLibrary",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 2
+                                            }
+                                        },
+                                        "storeAs": "gathered0"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "gathered0",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Exile"
+                                        }
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "gathered0",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "selected2",
+                                        "prompt": "Choose a card you may play until the end of your next turn"
+                                    },
+                                    {
+                                        "type": "GrantMayPlayFromExile",
+                                        "from": "selected2",
+                                        "expiry": {
+                                            "type": "UntilControllerStep",
+                                            "step": "CLEANUP",
+                                            "includeCurrentTurn": false
+                                        }
+                                    }
+                                ]
+                            },
+                            "description": "Exile the top two cards of your library. Choose one of them. Until the end of your next turn, you may play that card"
+                        }
+                    ],
+                    "countsAsModalSpell": false
+                },
+                "descriptionOverride": "Whenever this creature attacks or becomes the target of a spell an opponent controls, choose one — 3 damage to each opponent; or exile the top two cards of your library and choose one you may play until the end of your next turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "158",
+        "rarity": "RARE",
+        "artist": "Slawomir Maniak",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/f/6f226550-fc9f-4964-ac62-74f84d0ac3f3.jpg?1783931544",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "An ability that triggers when a creature becomes the target of a spell resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If a spell targets Tectonic Giant more than once, its ability triggers only once."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "You choose which of the exiled cards you'll be able to play while the ability is resolving. You can't wait to pick one later. The other card remains in exile."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Tectonic Giant doesn't change when you can play the exiled card. For example, if you exile a sorcery card, you can cast it only during your main phase when the stack is empty. If you exile a land card, you can play it only during your main phase and only if you have an available land play remaining."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Terror of Mount Velus
 {
     "name": "Terror of Mount Velus",
@@ -4009,6 +4791,84 @@
         "imageUri": "https://cards.scryfall.io/normal/front/7/b/7b497153-69a8-480e-b02f-88afec9d5053.jpg?1783931515"
     },
     "colorIdentityOverride": []
+}
+
+// Thryx, the Sudden Storm
+{
+    "name": "Thryx, the Sudden Storm",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Legendary Creature — Elemental Giant",
+    "oracleText": "Flash (You may cast this spell any time you could cast an instant.)\nFlying\nSpells you cast with mana value 5 or greater cost {1} less to cast and can't be countered.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLASH",
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "mv>=5"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            },
+            {
+                "type": "GrantCantBeCountered",
+                "filter": {
+                    "cardPredicates": [
+                        {
+                            "type": "ManaValueAtLeast",
+                            "min": 5
+                        }
+                    ],
+                    "statePredicates": [
+                        "WasCast"
+                    ],
+                    "controllerPredicate": "ControlledByYou"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "76",
+        "rarity": "RARE",
+        "artist": "Mathias Kollros",
+        "flavorText": "Even in their mountain fortresses, the Akroans have learned not to anger Thassa.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/2/4238b089-c6d8-4e4b-b6a1-a0f89e3b4968.jpg?1783931574",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying, add any cost increases, then apply any cost reductions (such as that of Thryx). The mana value of the spell remains unchanged, no matter what the total cost to cast it was."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "For spells with {X} in their mana costs, use the value chosen for X to determine the spell's mana value."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Thryx's last ability doesn't apply to itself while it's a spell."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "A spell or ability that counters spells can still target spells you control with mana value 5 or greater. When that spell or ability resolves, your spell won't be countered, but any additional effects of the countering spell or ability will still happen."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If Thryx enters the battlefield while a spell with mana value 5 or greater that you cast is on the stack, that spell can't be countered, even though you don't get the {1} discount."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // Thundering Chariot
@@ -4314,6 +5174,80 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Warbriar Blessing
+{
+    "name": "Warbriar Blessing",
+    "manaCost": "{1}{G}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature you control\nWhen this Aura enters, enchanted creature fights up to one target creature you don't control. (Each deals damage equal to its power to the other.)\nEnchanted creature gets +0/+2.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Warbriar Blessing:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Fight",
+                    "target1": "EnchantedCreature",
+                    "target2": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature"
+                            ],
+                            "controllerPredicate": {
+                                "type": "ControllerNot",
+                                "predicate": "ControlledByYou"
+                            }
+                        }
+                    },
+                    "id": "t0"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 0,
+                "toughnessBonus": 2
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "204",
+        "artist": "Michele Parisi",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/1/11d64cab-2ed1-46d9-8034-0c2ba3f2e1ed.jpg?1783931526",
+        "rulings": [
+            {
+                "date": "2020-01-24",
+                "text": "If the target creature is an illegal target when Warbriar Blessing's triggered ability tries to resolve, the ability doesn't resolve. If the enchanted creature is no longer on the battlefield, the target creature won't deal or be dealt damage."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If Warbriar Blessing leaves the battlefield before its enters-the-battlefield triggered ability resolves, the creature it last enchanted before it left will be the one to fight."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 

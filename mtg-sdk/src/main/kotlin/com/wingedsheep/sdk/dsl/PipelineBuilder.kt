@@ -3,6 +3,7 @@ package com.wingedsheep.sdk.dsl
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.conditions.CollectionContainsMatch
 import com.wingedsheep.sdk.scripting.conditions.Condition
@@ -22,6 +23,7 @@ import com.wingedsheep.sdk.scripting.effects.CopyCollectionIntoCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.EachPlayerChoosesCreatureTypeEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect
+import com.wingedsheep.sdk.scripting.effects.FlipOntoBattlefieldEffect
 import com.wingedsheep.sdk.scripting.effects.ForEachCapturedControllerEffect
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.GatherSubtypesEffect
@@ -29,6 +31,7 @@ import com.wingedsheep.sdk.scripting.effects.GatherUntilMatchEffect
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.scripting.effects.LookAudience
+import com.wingedsheep.sdk.scripting.effects.EnteringAttackDefender
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.MoveType
 import com.wingedsheep.sdk.scripting.effects.NoteCreatureTypeEffect
@@ -132,8 +135,19 @@ fun GameObjectFilter.withSubtypeInStoredList(slot: StringListSlot): GameObjectFi
 fun GameObjectFilter.withoutSubtypeInStoredList(slot: StringListSlot): GameObjectFilter =
     withoutSubtypeInStoredList(slot.key)
 
+/** Match cards with the card type chosen into [slot] (`chooseOption(OptionType.CARD_TYPE)`). */
+fun GameObjectFilter.ofChosenCardTypeFromVariable(slot: ChosenSlot): GameObjectFilter =
+    ofChosenCardTypeFromVariable(slot.key)
+
 /** Match cards whose name equals the name captured in [slot] (cross-namespace handle overload). */
 fun GameObjectFilter.namedFromVariable(slot: ChosenSlot): GameObjectFilter = namedFromVariable(slot.key)
+
+/**
+ * Match cards whose name is **not** the name captured in [slot] — "a nonland card with a different
+ * name than that spell" (Tibalt's Trickery). Nothing captured matches every card.
+ */
+fun GameObjectFilter.notNamedFromVariable(slot: ChosenSlot): GameObjectFilter =
+    withCardPredicate(CardPredicate.Not(CardPredicate.NameEqualsChosen(slot.key)))
 
 /** All creatures of the creature type chosen into [slot] ([GroupFilter.ChosenSubtypeCreatures]). */
 fun GroupFilter.Companion.ChosenSubtypeCreatures(slot: ChosenSlot, excludeSelf: Boolean = false): GroupFilter =
@@ -259,7 +273,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         revealed: Boolean = false,
         name: String? = null,
         search: Boolean = false,
-        lookAudience: LookAudience = LookAudience.Controller
+        lookAudience: LookAudience = LookAudience.Controller,
+        searcher: Player = Player.You
     ): CollectionSlot {
         val slot = CollectionSlot(slotKey("gathered", nextIndex(), name))
         steps += GatherCardsEffect(
@@ -267,7 +282,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             storeAs = slot.key,
             revealed = revealed,
             lookAudience = lookAudience,
-            search = search
+            search = search,
+            searcher = searcher
         )
         return slot
     }
@@ -292,6 +308,16 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         revealed = revealed,
         name = name
     )
+
+    /**
+     * Flip this card onto the battlefield and collect the permanents matching [filter] it touches
+     * ([FlipOntoBattlefieldEffect]) — Chaos Orb. Empty unless the card turned over completely.
+     */
+    fun flipOntoBattlefield(filter: GameObjectFilter = GameObjectFilter.Permanent, name: String? = null): CollectionSlot {
+        val slot = CollectionSlot(slotKey("touched", nextIndex(), name))
+        steps += FlipOntoBattlefieldEffect(storeTouchedAs = slot.key, filter = filter)
+        return slot
+    }
 
     /**
      * Mill [count] cards from [player]'s library (CR 701.17) and return the milled cards —
@@ -776,9 +802,13 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     // =========================================================================
 
     /** Snapshot the controller of each card in [from] as a parallel list ([CaptureControllersEffect]). */
-    fun captureControllers(from: CollectionSlot, name: String? = null): CollectionSlot {
+    fun captureControllers(
+        from: CollectionSlot,
+        name: String? = null,
+        asLastBlockedBy: EffectTarget? = null
+    ): CollectionSlot {
         val slot = CollectionSlot(slotKey("controllers", nextIndex(), name))
-        steps += CaptureControllersEffect(from = from.key, storeAs = slot.key)
+        steps += CaptureControllersEffect(from = from.key, storeAs = slot.key, asLastBlockedBy = asLastBlockedBy)
         return slot
     }
 
@@ -812,16 +842,18 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     /**
      * Player names a card ([ChooseOptionEffect] over [OptionType.CARD_NAME]); with
      * [excludeBasicLandNames], "choose a card name other than a basic land card name"; with
-     * [pool] = [CardNamePool.NONLAND], "choose a nonland card name".
+     * [pool] = [CardNamePool.NONLAND], "choose a nonland card name"; with [chooser] =
+     * [Chooser.TargetPlayer], "target player chooses a card name" (Petra Sphinx).
      */
     fun chooseCardName(
         prompt: String? = null,
         excludeBasicLandNames: Boolean = false,
         pool: CardNamePool = CardNamePool.ANY,
+        chooser: Chooser = Chooser.Controller,
         name: String? = null
     ): ChosenSlot {
         val slot = ChosenSlot(slotKey("cardName", nextIndex(), name))
-        steps += Effects.ChooseCardName(slot.key, prompt, excludeBasicLandNames, pool)
+        steps += Effects.ChooseCardName(slot.key, prompt, excludeBasicLandNames, pool, chooser)
         return slot
     }
 
@@ -953,6 +985,7 @@ class PipelineBuilder private constructor(private val shared: Shared) {
      * @param filter only the cards in [from] matching this move; the rest stay where they are.
      * @param lookableInExile the controller may keep looking at face-down exiled cards.
      * @param attachTo the permanent an Aura/Equipment entering the battlefield attaches to.
+     * @param attackDefender what each card put onto the battlefield tapped and attacking attacks.
      */
     fun move(
         from: CollectionSlot,
@@ -970,7 +1003,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         addCounterType: CounterType? = null,
         markEnteredViaSourceAbility: Boolean = false,
         filter: GameObjectFilter? = null,
-        attachTo: EffectTarget? = null
+        attachTo: EffectTarget? = null,
+        attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE
     ) {
         nextIndex()
         steps += MoveCollectionEffect(
@@ -989,7 +1023,8 @@ class PipelineBuilder private constructor(private val shared: Shared) {
             addCounterType = addCounterType,
             markEnteredViaSourceAbility = markEnteredViaSourceAbility,
             filter = filter,
-            attachTo = attachTo
+            attachTo = attachTo,
+            attackDefender = attackDefender
         )
     }
 
@@ -1158,6 +1193,18 @@ class PipelineBuilder private constructor(private val shared: Shared) {
     }
 
     /**
+     * Run [block] once per kind of counter among the permanents matching [filter]
+     * ([com.wingedsheep.sdk.scripting.effects.IterationSpace.CounterKindsAmong]). Inside, the
+     * visited kind is what `Effects.AddCountersOfChosenKind(kindFrom = CounterKindSource.ITERATION)`
+     * places and what a `{counter}` placeholder in a selection prompt names; collections made
+     * before the loop stay readable — "then for each kind of counter among creatures you control,
+     * put a counter of that kind on either of those tokens" (Exotic Pets).
+     */
+    fun forEachCounterKindAmong(filter: GroupFilter, block: PipelineBuilder.() -> Unit) {
+        steps += com.wingedsheep.sdk.scripting.effects.ForEachCounterKindAmongEffect(filter, nestedAsEffect(block))
+    }
+
+    /**
      * Run [block] once per player matching [players] (the iterated player is `Player.You` inside,
      * with a fresh collection scope per iteration) and return, for each collection handle [block]
      * returns, the union of that collection across every iteration
@@ -1207,6 +1254,25 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         return aggregates
     }
 
+    /**
+     * Run [block] as the body of a do-while loop ([com.wingedsheep.sdk.scripting.effects.RepeatWhileEffect])
+     * whose [RepeatCondition] [block] returns — so the condition can read the slots the body just
+     * filled, which a condition fixed up front cannot name. "Roll a d20. … 15—20 | Create one of
+     * those tokens. You may roll again." (Delina, Wild Mage) returns a
+     * [RepeatCondition.PlayerChooses] whose `onlyIf` compares the pass's roll. Each pass starts from a
+     * fresh collection scope; nothing the body stores outlives the loop.
+     */
+    fun repeatProcess(block: PipelineBuilder.() -> RepeatCondition) {
+        nextIndex()
+        val inner = PipelineBuilder(shared)
+        val repeatCondition = inner.block()
+        require(inner.steps.isNotEmpty()) { "repeatProcess { } must add at least one step" }
+        steps += RepeatWhileEffect(
+            body = inner.steps.singleOrNull() ?: CompositeEffect(inner.steps.toList()),
+            repeatCondition = repeatCondition,
+        )
+    }
+
     // =========================================================================
     // Escape hatches
     // =========================================================================
@@ -1242,6 +1308,33 @@ class PipelineBuilder private constructor(private val shared: Shared) {
         val slots = resultSets.map { NumberSlot(slotKey("diceCount", nextIndex(), null)) }
         steps += Effects.RollDice(count, sides, player, slots.zip(resultSets).associate { (slot, results) -> slot.key to results })
         return slots
+    }
+
+    /**
+     * Roll one batch and return a numeric handle to its *result* — the sum of every kept die's
+     * natural result plus [modifier] (CR 706.2), summed over every roller when [player] names
+     * several. For one die rolled by one player that is the die's result, which a
+     * results table reads with `Conditions.CompareAmounts` (CR 706.3a); a negative [modifier] is
+     * "roll a d20 and subtract X" and may push the result to zero or below.
+     */
+    fun rollDiceResult(
+        count: DynamicAmount = DynamicAmount.Fixed(1),
+        sides: Int = 6,
+        player: EffectTarget = EffectTarget.Controller,
+        modifier: DynamicAmount = DynamicAmount.Fixed(0),
+    ): NumberSlot {
+        val slot = NumberSlot(slotKey("diceResult", nextIndex(), null))
+        steps += Effects.RollDice(count, sides, player, modifier = modifier, storeTotalAs = slot.key)
+        return slot
+    }
+
+    /**
+     * Run [block] only if [condition] holds at this point of the pipeline ([Effects.If]). Handles
+     * from the outer scope — a [rollDiceResult] result, a gathered collection — are visible inside.
+     */
+    fun ifThen(condition: Condition, block: PipelineBuilder.() -> Unit) {
+        nextIndex()
+        steps += Effects.If(condition, nestedAsEffect(block))
     }
 
     /** Like [runStoringCollection], for an effect that records a number (`storeHeadsAs = it`). */

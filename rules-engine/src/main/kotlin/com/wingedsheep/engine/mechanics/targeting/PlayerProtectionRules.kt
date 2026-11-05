@@ -5,6 +5,7 @@ import com.wingedsheep.engine.mechanics.ControllerGrants
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.GrantsControllerProtectionComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.player.PlayerHexproofFromComponent
 import com.wingedsheep.engine.state.components.player.PlayerProtectionComponent
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ProtectionScope
@@ -48,11 +49,38 @@ object PlayerProtectionRules {
                 // Each scope carries its own "as long as …" gate, re-evaluated here on every read
                 // because the marker was stamped once, on entry — see [ControllerGrantMarker].
                 ?.any {
+                    val scope = ProtectionKeywords.resolveChosen(it.scope, container) ?: return@any false
                     ControllerGrants.isActive(state, entityId, it.condition, predicateEvaluator = predicateEvaluator) &&
-                        scopeMatchesSource(state, playerId, it.scope, sourceId, casterId)
+                        scopeMatchesSource(state, playerId, scope, sourceId, casterId)
                 } == true
         }
     }
+
+    /**
+     * True if [playerId] has "hexproof from [quality]" (CR 702.11d, [PlayerHexproofFromComponent])
+     * against the source [sourceId] controlled by [casterId] — Veil of Summer. Hexproof never
+     * stops the player's own spells and abilities, and an unknown source matches no quality.
+     */
+    fun hasHexproofFromSource(state: GameState, playerId: EntityId, sourceId: EntityId?, casterId: EntityId?): Boolean {
+        val grants = state.getEntity(playerId)?.get<PlayerHexproofFromComponent>()?.grants ?: return false
+        if (casterId == null || casterId == playerId || sourceId == null) return false
+        return grants.any { scopeMatchesSource(state, playerId, it.scope, sourceId, casterId) }
+    }
+
+    /**
+     * Whether [sourceId] (controlled by [casterId]) can't target [playerId] for a source-dependent
+     * reason: protection (CR 702.16) or hexproof from a quality (CR 702.11d). Full hexproof and
+     * shroud don't depend on the source and are checked separately. Targeting reads this; damage
+     * and attachment read [isProtectedFromSource], since hexproof only stops targeting.
+     */
+    fun blocksTargeting(
+        state: GameState,
+        playerId: EntityId,
+        sourceId: EntityId?,
+        casterId: EntityId?,
+        predicateEvaluator: PredicateEvaluator
+    ): Boolean = isProtectedFromSource(state, playerId, sourceId, casterId, predicateEvaluator) ||
+        hasHexproofFromSource(state, playerId, sourceId, casterId)
 
     private fun scopeMatchesSource(
         state: GameState,
@@ -69,26 +97,25 @@ object PlayerProtectionRules {
         // off-battlefield characteristics rather than an absent battlefield projection.
         val card = state.getEntity(sourceId)?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()
         val onBattlefield = sourceId in state.getBattlefield()
+        // Projected on the battlefield, the card's own (or an off-battlefield SetColors') elsewhere.
+        fun colors(): Set<String> = if (card == null && !onBattlefield) emptySet() else projected.colorsOf(sourceId)
+        fun hasCardType(cardType: String): Boolean = if (onBattlefield) projected.hasType(sourceId, cardType.uppercase())
+            else card?.typeLine?.cardTypes?.any { it.name.equals(cardType, ignoreCase = true) } == true
         return when (scope) {
-            is ProtectionScope.Color -> if (onBattlefield) scope.color.name in projected.getColors(sourceId)
-                else scope.color in card?.colors.orEmpty()
-            is ProtectionScope.Colors -> scope.colors.any { color ->
-                if (onBattlefield) color.name in projected.getColors(sourceId) else color in card?.colors.orEmpty()
-            }
-            is ProtectionScope.NonColor -> if (onBattlefield) scope.color.name !in projected.getColors(sourceId)
-                else scope.color !in card?.colors.orEmpty()
-            ProtectionScope.Multicolored -> if (onBattlefield) projected.getColors(sourceId).size >= 2
-                else card?.colors.orEmpty().size >= 2
-            ProtectionScope.Monocolored -> if (onBattlefield) projected.getColors(sourceId).size == 1
-                else card?.colors.orEmpty().size == 1
-            is ProtectionScope.Subtype -> if (onBattlefield)
+            is ProtectionScope.Color -> scope.color.name in colors()
+            is ProtectionScope.Colors -> scope.colors.any { it.name in colors() }
+            is ProtectionScope.NonColor -> scope.color.name !in colors()
+            ProtectionScope.Multicolored -> colors().size >= 2
+            ProtectionScope.Monocolored -> colors().size == 1
+            is ProtectionScope.Subtype -> (if (onBattlefield)
                 projected.getSubtypes(sourceId).any { it.equals(scope.subtype, ignoreCase = true) }
-                else card?.typeLine?.subtypes?.any { it.value.equals(scope.subtype, ignoreCase = true) } == true
-            is ProtectionScope.Supertype -> if (onBattlefield)
+                else card?.typeLine?.subtypes?.any { it.value.equals(scope.subtype, ignoreCase = true) } == true) &&
+                (scope.cardType?.let { hasCardType(it) } ?: true)
+            is ProtectionScope.Supertype -> (if (onBattlefield)
                 projected.getSupertypes(sourceId).any { it.equals(scope.supertype, ignoreCase = true) }
-                else card?.typeLine?.supertypes?.any { it.name.equals(scope.supertype, ignoreCase = true) } == true
-            is ProtectionScope.CardType -> if (onBattlefield) projected.hasType(sourceId, scope.cardType.uppercase())
-                else card?.typeLine?.cardTypes?.any { it.name.equals(scope.cardType, ignoreCase = true) } == true
+                else card?.typeLine?.supertypes?.any { it.name.equals(scope.supertype, ignoreCase = true) } == true) &&
+                (scope.cardType?.let { hasCardType(it) } ?: true)
+            is ProtectionScope.CardType -> hasCardType(scope.cardType)
             is ProtectionScope.EachOpponent -> {
                 val sourceController = casterId
                     ?: projected.getController(sourceId)
@@ -102,6 +129,9 @@ object PlayerProtectionRules {
             // An ability kind is a property of the targeting spell-or-ability, not of the source
             // object this reading is given; no player-protection grant names one.
             ProtectionScope.ActivatedAbilities, ProtectionScope.TriggeredAbilities -> false
+            // Bound to a granting permanent's choice — resolved by the caller; unbound it protects
+            // from nothing (a one-shot grant has no permanent to read the choice from).
+            is ProtectionScope.ChosenCardType -> false
         }
     }
 }

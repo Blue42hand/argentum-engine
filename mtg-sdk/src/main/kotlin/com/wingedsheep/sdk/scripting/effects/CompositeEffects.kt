@@ -242,10 +242,29 @@ data class ModalEffect(
      * `SpellCastPredicate.IsModal` and `ContextPropertyKey.MODES_CHOSEN_ON_TRIGGERING_SPELL`
      * see only true modal spells.
      */
-    val countsAsModalSpell: Boolean = true
+    val countsAsModalSpell: Boolean = true,
+    /**
+     * "You **may** choose two" (Shadrix Silverquill): the controller may pick no modes at all,
+     * but once they pick one they are held to the printed `[minChooseCount, chooseCount]`. So
+     * `chooseCount = 2` with this set allows exactly zero or two modes — never one, which
+     * `minChooseCount = 0` alone would allow (Shadrix's ruling). Choosing none removes the
+     * ability from the stack (CR 603.3c). Read where a modal *triggered* ability announces its
+     * modes (`TriggerProcessor`); every printed card with this wording is a triggered ability.
+     */
+    val mayChooseNone: Boolean = false,
+    /**
+     * "Each mode must target a different player" (Shadrix Silverquill, Vindictive Lich, Balor, the
+     * TMNT duos): no object or player may be a target of more than one chosen mode. The engine
+     * only offers a mode when the modes picked so far plus it can still be given distinct targets
+     * (and enough of them to reach the minimum), and narrows each later mode's legal targets to
+     * the ones the earlier modes didn't take — so with one opponent, Vindictive Lich can choose
+     * only one of its opponent modes. Read on the triggered-ability announcement path, like
+     * [mayChooseNone].
+     */
+    val eachModeTargetsDifferent: Boolean = false
 ) : Effect {
     override val description: String = buildString {
-        append("Choose ")
+        append(if (mayChooseNone) "You may choose " else "Choose ")
         when {
             excludeModesChosenThisTurn -> append("one that hasn't been chosen this turn")
             excludePreviouslyChosenModes -> append("one that hasn't been chosen")
@@ -261,6 +280,15 @@ data class ModalEffect(
                 3 -> append("three")
                 else -> append(chooseCount)
             }
+        }
+        if (eachModeTargetsDifferent) {
+            val allPlayers = modes.all { mode ->
+                mode.targetRequirements.all {
+                    it is com.wingedsheep.sdk.scripting.targets.TargetPlayer ||
+                        it is com.wingedsheep.sdk.scripting.targets.TargetOpponent
+                }
+            }
+            append(if (allPlayers) ". Each mode must target a different player" else ". Each mode must have a different target")
         }
         append(" —\n")
         modes.forEachIndexed { index, mode ->
@@ -536,6 +564,21 @@ sealed interface SuccessCriterion {
     @SerialName("SuccessCriterion.TurnedFaceUp")
     @Serializable
     data object TurnedFaceUp : SuccessCriterion
+
+    /**
+     * Action succeeded iff the gated action actually *transformed a permanent* — a
+     * `TransformedEvent` was emitted during the action (CR 701.27). Transforming is not a zone move,
+     * so [Auto] can't infer it, and [Always] would report success for the cases the rules call
+     * failures: a permanent that isn't a transforming double-faced permanent (a single-faced
+     * token, or a single-faced permanent that became a copy of one) doesn't transform (CR 701.27c), and a daybound/nightbound permanent can't
+     * transform except by its own keyword.
+     *
+     * Enduring Angel: "instead transform this creature and your life total becomes 3. Then if this
+     * creature didn't transform this way, you lose the game."
+     */
+    @SerialName("SuccessCriterion.Transformed")
+    @Serializable
+    data object Transformed : SuccessCriterion
 }
 
 /**
@@ -738,6 +781,39 @@ enum class DelayedTriggerTiming {
 }
 
 /**
+ * Which beginnings a step-based [CreateDelayedTriggerEffect] waits for: its [step][CreateDelayedTriggerEffect.step]
+ * exactly, or any step of the same kind. A separate axis from [DelayedTriggerTiming] (the earliest
+ * *turn*) and [CreateDelayedTriggerEffect.fireOnPlayer] (*whose* turn), because it decides which
+ * *step* of a turn qualifies.
+ */
+@Serializable
+enum class DelayedTriggerStepScope {
+    /** Only the beginning of the named step itself — "at the beginning of the next end step". */
+    @SerialName("Step")
+    STEP,
+
+    /**
+     * The beginning of whichever main phase comes next — "at the beginning of your next main
+     * phase". The precombat and postcombat main phases are individually and collectively "the main
+     * phase" (CR 505.1), and an additional main phase is a postcombat main phase (CR 505.1a), so
+     * cast during your precombat main phase or your combat phase, the trigger fires in that turn's
+     * postcombat main phase (Mana Drain's ruling). The `step` it pairs with must be a main phase.
+     */
+    @SerialName("AnyMainPhase")
+    ANY_MAIN_PHASE;
+
+    /**
+     * Whether the beginning of [current] fires a trigger scheduled for [scheduled] under this scope.
+     * [ANY_MAIN_PHASE] ignores [scheduled]; [CreateDelayedTriggerEffect]'s `init` guard is what
+     * keeps it a main phase.
+     */
+    fun matches(scheduled: com.wingedsheep.sdk.core.Step, current: com.wingedsheep.sdk.core.Step): Boolean = when (this) {
+        STEP -> scheduled == current
+        ANY_MAIN_PHASE -> current.isMainPhase
+    }
+}
+
+/**
  * Create a delayed triggered ability that fires at a specific step.
  *
  * When executed, bakes any context-dependent target references (ContextTarget)
@@ -821,6 +897,11 @@ data class CreateDelayedTriggerEffect(
      */
     val timing: DelayedTriggerTiming = DelayedTriggerTiming.CURRENT_TURN_OR_LATER,
     /**
+     * Which step beginnings fire this step-based delayed trigger: [step] exactly (default), or any
+     * main phase ("your next main phase"). See [DelayedTriggerStepScope].
+     */
+    val stepScope: DelayedTriggerStepScope = DelayedTriggerStepScope.STEP,
+    /**
      * Target requirement chosen *each time* the delayed trigger fires. Used for delayed
      * triggers whose effect targets, e.g. "Whenever you cast a noncreature spell this turn,
      * **target** creature you control gains double strike" (Rediscover the Way). The chosen
@@ -863,8 +944,15 @@ data class CreateDelayedTriggerEffect(
      */
     val carryCollections: List<String> = emptyList()
 ) : Effect {
+    init {
+        require(stepScope != DelayedTriggerStepScope.ANY_MAIN_PHASE || step?.isMainPhase == true) {
+            "DelayedTriggerStepScope.ANY_MAIN_PHASE needs a main-phase step, got $step"
+        }
+    }
+
     override val description: String = when {
         trigger != null -> "create a delayed trigger that fires on ${trigger.event::class.simpleName}"
+        stepScope == DelayedTriggerStepScope.ANY_MAIN_PHASE -> "create a delayed trigger at the beginning of the next main phase"
         step != null -> "create a delayed trigger at the beginning of the next ${step.displayName}"
         else -> "create a delayed trigger"
     }
@@ -1233,6 +1321,10 @@ sealed interface RepeatCondition {
      * @property prompt Text shown in the yes/no decision
      * @property yesText Label for the "repeat" button
      * @property noText Label for the "stop" button
+     * @property onlyIf When set, the offer is made only after a pass where this condition holds,
+     *   read like [WhileCondition] against that pass's own outputs; otherwise the loop stops
+     *   without asking. "15—20 | Create one of those tokens. You may roll again." (Delina, Wild
+     *   Mage) is the roll's row gating the choice. Null (the default) asks after every pass.
      */
     @SerialName("PlayerChooses")
     @Serializable
@@ -1240,7 +1332,8 @@ sealed interface RepeatCondition {
         val decider: EffectTarget,
         val prompt: String,
         val yesText: String = "Repeat",
-        val noText: String = "Stop"
+        val noText: String = "Stop",
+        val onlyIf: Condition? = null
     ) : RepeatCondition
 
     /**
@@ -1300,7 +1393,10 @@ data class RepeatWhileEffect(
         append(body.description)
         append(". Repeat this process")
         when (repeatCondition) {
-            is RepeatCondition.PlayerChooses -> append(" as many times as ${repeatCondition.decider.description} chooses")
+            is RepeatCondition.PlayerChooses -> {
+                append(" as many times as ${repeatCondition.decider.description} chooses")
+                repeatCondition.onlyIf?.let { append(" while ${it.description}") }
+            }
             is RepeatCondition.WhileCondition -> append(" while ${repeatCondition.condition.description}")
         }
     }
@@ -1398,7 +1494,9 @@ sealed interface FeasibilityCheck {
 /**
  * A labeled option in a [ChooseActionEffect].
  *
- * @property label Human-readable label shown in the UI (e.g., "Sacrifice a nonland permanent")
+ * @property label Human-readable label shown in the UI (e.g., "Sacrifice a nonland permanent").
+ *   Inside a counter-kind loop (`ForEachCounterKindOn` / `ForEachCounterKindAmong`), `{counter}`
+ *   is replaced by the visited kind's printed name ("Put another {counter} counter on it").
  * @property effect The effect executed when this option is chosen
  * @property feasibilityCheck Optional check — if non-null and the check fails, this option is hidden
  */

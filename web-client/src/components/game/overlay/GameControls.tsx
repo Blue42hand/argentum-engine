@@ -19,6 +19,9 @@ export function ConcedeButton() {
   // Rides inside the button so the confirm row keeps its width — beside the buttons it ran into
   // the top-right board's name plate, below them into that cell's collapse button.
   const podNote = teamConcedes ? 'your team is out' : isPod ? 'the others play on' : null
+  // During a Magic subgame (Shahrazad, CR 729) there are two games to give up: the subgame alone —
+  // the main game then resumes, and losing it costs what the spell says — or the whole game.
+  const inSubgame = useGameStore((state) => state.gameState?.subgame != null)
   const [confirming, setConfirming] = useState(false)
   const responsive = useResponsiveContext()
 
@@ -32,29 +35,41 @@ export function ConcedeButton() {
   }
 
   if (confirming) {
+    const confirmStyle: React.CSSProperties = {
+      padding: responsive.isMobile ? '6px 10px' : '8px 14px',
+      fontSize: responsive.fontSize.small,
+      background: 'var(--gradient-danger)',
+      color: 'white',
+      border: '1px solid rgba(255, 255, 255, 0.15)',
+      borderRadius: 'var(--chrome-radius)',
+      cursor: 'pointer',
+      fontWeight: 600,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      lineHeight: 1.15,
+    }
+    const note = (text: string | null) => text && !responsive.isMobile && (
+      <span style={{ fontSize: 9, fontWeight: 500, opacity: 0.85 }}>{text}</span>
+    )
     return (
       <div style={base}>
+        {inSubgame && (
+          <button
+            onClick={() => { concede(true); setConfirming(false) }}
+            style={{ ...confirmStyle, background: 'linear-gradient(150deg, #8a6a2c 0%, #5b3f14 100%)' }}
+            data-testid="concede-subgame"
+          >
+            <span>Concede subgame</span>
+            {note('the main game resumes')}
+          </button>
+        )}
         <button
           onClick={() => { concede(); setConfirming(false) }}
-          style={{
-            padding: responsive.isMobile ? '6px 10px' : '8px 14px',
-            fontSize: responsive.fontSize.small,
-            background: 'var(--gradient-danger)',
-            color: 'white',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderRadius: 'var(--chrome-radius)',
-            cursor: 'pointer',
-            fontWeight: 600,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            lineHeight: 1.15,
-          }}
+          style={confirmStyle}
         >
-          <span>{confirmLabel}</span>
-          {podNote && !responsive.isMobile && (
-            <span style={{ fontSize: 9, fontWeight: 500, opacity: 0.85 }}>{podNote}</span>
-          )}
+          <span>{inSubgame ? 'Concede the game' : confirmLabel}</span>
+          {note(inSubgame ? 'leave the main game too' : podNote)}
         </button>
         <button
           onClick={() => setConfirming(false)}
@@ -104,6 +119,8 @@ export function ConcedeButton() {
  */
 export function StandaloneConcedeButton() {
   const concede = useGameStore((state) => state.concede)
+  // A subgame's own mulligan (CR 729): conceding the subgame and the whole game are different.
+  const inSubgame = useGameStore((state) => state.gameState?.subgame != null)
   const [confirming, setConfirming] = useState(false)
 
   const base: React.CSSProperties = {
@@ -116,22 +133,31 @@ export function StandaloneConcedeButton() {
   }
 
   if (confirming) {
+    const confirmStyle: React.CSSProperties = {
+      padding: '8px 14px',
+      fontSize: 13,
+      background: 'var(--gradient-danger)',
+      color: 'white',
+      border: '1px solid rgba(255, 255, 255, 0.15)',
+      borderRadius: 'var(--chrome-radius)',
+      cursor: 'pointer',
+      fontWeight: 600,
+    }
     return (
       <div style={base}>
+        {inSubgame && (
+          <button
+            onClick={() => { concede(true); setConfirming(false) }}
+            style={{ ...confirmStyle, background: 'linear-gradient(150deg, #8a6a2c 0%, #5b3f14 100%)' }}
+          >
+            Concede subgame
+          </button>
+        )}
         <button
           onClick={() => { concede(); setConfirming(false) }}
-          style={{
-            padding: '8px 14px',
-            fontSize: 13,
-            background: 'var(--gradient-danger)',
-            color: 'white',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            borderRadius: 'var(--chrome-radius)',
-            cursor: 'pointer',
-            fontWeight: 600,
-          }}
+          style={confirmStyle}
         >
-          Confirm
+          {inSubgame ? 'Concede the game' : 'Confirm'}
         </button>
         <button
           onClick={() => setConfirming(false)}

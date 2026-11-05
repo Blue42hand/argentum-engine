@@ -14,7 +14,7 @@ package com.wingedsheep.engine.core
  *     rather than crashing (worse — undetectable downstream).
  *
  * No real game ever needs the huge number: per the Magic Tournament Rules (loops are a shortcut,
- * a mandatory loop is a draw — see [StateBasedActionChecker]'s 104.4c handling), gigantic
+ * a mandatory loop is a draw — see [StateBasedActionChecker]'s 104.4b handling), gigantic
  * quantities are never literally materialized. So the policy here is **clamp aggressively**: a
  * value that hits [MAX_QUANTITY] or an effect that hits a structural cap is, for every practical
  * purpose, "you've already won." We clamp (never wrap), and `System.err`-log when a cap actually

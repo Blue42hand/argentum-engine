@@ -864,7 +864,11 @@
                             "type": "BoundVariable",
                             "name": "t0"
                         },
-                        "affectsLands": false
+                        "permanents": {
+                            "cardPredicates": [
+                                "IsCreature"
+                            ]
+                        }
                     },
                     "targetRequirements": [
                         {
@@ -3903,7 +3907,7 @@
                     "permanent": "TriggeringEntity",
                     "newController": {
                         "type": "PlayerRef",
-                        "player": "ControllerOfTargetingSource"
+                        "player": "ControllerOfCause"
                     }
                 },
                 "descriptionOverride": "Whenever enchanted creature becomes the target of a spell or ability, that spell or ability's controller gains control of that creature."
@@ -5297,7 +5301,7 @@
                             }
                         },
                         "body": {
-                            "type": "MarkMustAttackThisTurn",
+                            "type": "MarkMustAttack",
                             "target": "IterationEntity"
                         }
                     },
@@ -5791,7 +5795,10 @@
                 {
                     "effect": {
                         "type": "PlayAdditionalLands",
-                        "count": 2
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        }
                     },
                     "description": "You may play up to two additional lands this turn"
                 }

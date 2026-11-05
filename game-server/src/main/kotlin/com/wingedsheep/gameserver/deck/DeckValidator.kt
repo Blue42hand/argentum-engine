@@ -55,6 +55,7 @@ class DeckValidator @Autowired constructor(
         format: DeckFormat? = null,
         cardEntries: List<DeckEntryDTO>? = null,
         commanderPrinting: PrintingRef? = null,
+        playingForAnte: Boolean = false,
     ): DeckValidationResult = runValidation(
         deckList = deckList,
         format = format,
@@ -62,6 +63,7 @@ class DeckValidator @Autowired constructor(
         commanderAware = false,
         cardEntries = cardEntries,
         commanderPrintings = emptyMap(),
+        playingForAnte = playingForAnte,
     )
 
     /**
@@ -75,7 +77,7 @@ class DeckValidator @Autowired constructor(
      * trips the singleton cap), and so a two-commander deck's 100 cards include both commanders
      * (CR 702.124b).
      */
-    fun validate(deck: Deck, format: DeckFormat? = null): DeckValidationResult {
+    fun validate(deck: Deck, format: DeckFormat? = null, playingForAnte: Boolean = false): DeckValidationResult {
         val commanders = deck.commanders
         val counts = deck.cards.groupingBy { it }.eachCount().toMutableMap()
         for (commander in commanders) counts.merge(commander, 1, Int::plus)
@@ -95,6 +97,7 @@ class DeckValidator @Autowired constructor(
                 .toMap(),
             companion = deck.companion,
             sideboard = deck.sideboard.map { it.name },
+            playingForAnte = playingForAnte,
         )
     }
 
@@ -127,6 +130,10 @@ class DeckValidator @Autowired constructor(
      *   overload). Only commander-aware calls raise MISSING_COMMANDER for a null commander —
      *   the legacy [Map] overload doesn't surface a commander field, so silently skipping
      *   keeps existing submission paths working until they migrate to [Deck].
+     * @param playingForAnte whether the game this deck is for is played for ante. When false, ante
+     *   cards ([CardDefinition.requiresAnte]) in the deck or sideboard are REQUIRES_ANTE errors
+     *   (CR 407.3); when true they are also exempt from format legality, which Scryfall marks them
+     *   banned in purely because of ante.
      */
     private fun runValidation(
         deckList: Map<String, Int>,
@@ -137,6 +144,7 @@ class DeckValidator @Autowired constructor(
         commanderPrintings: Map<String, PrintingRef> = emptyMap(),
         companion: String? = null,
         sideboard: List<String> = emptyList(),
+        playingForAnte: Boolean = false,
     ): DeckValidationResult {
         val errors = mutableListOf<DeckValidationIssue>()
         val warnings = mutableListOf<DeckValidationIssue>()
@@ -211,6 +219,12 @@ class DeckValidator @Autowired constructor(
                     cardName = cardName
                 )
             }
+            // Ante cards (CR 407.3) belong only in a game played for ante. In one, their format
+            // legality is moot: every format bans them solely for being ante cards.
+            if (card.requiresAnte) {
+                if (!playingForAnte) errors += requiresAnteIssue(cardName)
+                continue
+            }
             // Format legality. Cards with no recorded legality (custom test cards, missing Scryfall
             // data) are accepted silently — only an explicit "this card is not in $format" rejects.
             if (format != null && card.legalFormats.isNotEmpty() && format !in card.legalFormats) {
@@ -220,6 +234,16 @@ class DeckValidator @Autowired constructor(
                     cardName = cardName
                 )
             }
+        }
+
+        // CR 407.3 covers the sideboard too. Skip names already reported from the deck itself.
+        if (!playingForAnte) {
+            sideboard
+                .mapNotNull { cardRegistry.getCard(it) }
+                .filter { it.requiresAnte && it.name !in countsByBaseName }
+                .map { it.name }
+                .distinct()
+                .forEach { errors += requiresAnteIssue(it) }
         }
 
         when {
@@ -263,6 +287,12 @@ class DeckValidator @Autowired constructor(
             warnings = warnings
         )
     }
+
+    private fun requiresAnteIssue(cardName: String) = DeckValidationIssue(
+        code = "REQUIRES_ANTE",
+        message = "$cardName can only be played in a game played for ante",
+        cardName = cardName,
+    )
 
     /**
      * Enforces the commander-specific rules layered on top of the constructed baseline:
@@ -535,7 +565,7 @@ class DeckValidator @Autowired constructor(
             for (commander in commanders) merge(commander, 1, Int::plus)
         }
 
-        // Resolve every submitted card; basic lands bypass the pool-membership check (the lobby
+        // Resolve every submitted card; nonsnow basic lands bypass the pool-membership check (the lobby
         // ships basics out-of-band via lobby.basicLands).
         for ((cardName, submitted) in allCounts) {
             val card = cardRegistry.getCard(cardName)
@@ -547,7 +577,7 @@ class DeckValidator @Autowired constructor(
                 )
                 continue
             }
-            if (card.typeLine.isBasicLand) continue
+            if (card.typeLine.isBasicLand && !card.typeLine.isSnow) continue
 
             val available = poolCounts[cardName] ?: 0
             if (submitted > available) {

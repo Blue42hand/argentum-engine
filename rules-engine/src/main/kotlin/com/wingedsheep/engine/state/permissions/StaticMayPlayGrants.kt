@@ -5,14 +5,16 @@ import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
+import com.wingedsheep.engine.state.components.battlefield.MayCastFromLinkedExileUsedThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
+import com.wingedsheep.engine.state.components.identity.emblemStaticAbilitiesOf
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.MayPlayCardsFromExile
 
 /**
  * Live [MayPlayPermission]s derived from [MayPlayCardsFromExile] static abilities on the
- * battlefield — "During your turn, you may play cards you don't own with stash counters on them
+ * battlefield and on emblems — "During your turn, you may play cards you don't own with stash counters on them
  * from exile" (Tinybones, Bauble Burglar).
  *
  * These permissions are *not* stored on [GameState]: a filter-defined static grant has to be
@@ -57,6 +59,11 @@ internal object StaticMayPlayGrants {
 
         val projected = state.projectedState
         return grants.mapNotNull { (granterId, ability) ->
+            // "Once each turn" (Evelyn, the Covetous): a granter whose allowance is spent offers
+            // nothing until its marker is cleared at end of turn.
+            if (ability.oncePerTurn &&
+                state.getEntity(granterId)?.has<MayCastFromLinkedExileUsedThisTurnComponent>() == true
+            ) return@mapNotNull null
             val matches = predicateEvaluator.matches(
                 state, projected, cardId, ability.filter,
                 PredicateContext(controllerId = playerId, sourceId = granterId),
@@ -72,6 +79,9 @@ internal object StaticMayPlayGrants {
                 // resolve against the granting permanent rather than the exiled card.
                 condition = ability.condition,
                 withAnyManaType = ability.withAnyManaType,
+                withAnyManaColor = ability.withAnyManaColor,
+                spendAsAnyColor = ability.spendAsAnyColor,
+                oncePerTurn = ability.oncePerTurn,
                 // Derived permissions are never stored, so end-of-turn cleanup never sees them;
                 // `permanent` keeps any code that inspects the flag from treating them as expiring.
                 permanent = true,
@@ -82,8 +92,8 @@ internal object StaticMayPlayGrants {
 
     /**
      * The [MayPlayCardsFromExile] abilities [playerId] controls, paired with the permanent that
-     * grants them. Empty unless [playerId] controls such a permanent — their conditions are gated
-     * later, by the shared permission read path.
+     * grants them (or the emblem that has them). Empty unless [playerId] controls such a permanent
+     * or has such an emblem — their conditions are gated later, by the shared permission read path.
      */
     private fun grantsFor(
         state: GameState,
@@ -104,6 +114,11 @@ internal object StaticMayPlayGrants {
                 if (ability !is MayPlayCardsFromExile) continue
                 grants.add(granterId to ability)
             }
+        }
+        // An emblem the player has (Tibalt, Cosmic Impostor's "You may play cards exiled with
+        // Tibalt") grants from outside every zone; the emblem entity stands in for the granter.
+        for ((emblemId, ability) in state.emblemStaticAbilitiesOf(playerId)) {
+            if (ability is MayPlayCardsFromExile) grants.add(emblemId to ability)
         }
         return grants
     }

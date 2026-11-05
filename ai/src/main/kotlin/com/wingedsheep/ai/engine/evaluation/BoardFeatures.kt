@@ -138,6 +138,23 @@ data class CreatureValuation(
      * [com.wingedsheep.ai.engine.AiProfile.defendPlaneswalkers] sets it.
      */
     val walkersFaceTheNextAttack: Boolean = false,
+    /**
+     * Read a planeswalker's loyalty abilities off the battlefield it stands on — its printed ones
+     * plus any another permanent grants it (`GrantActivatedAbility`, the FRA "Way of the X" cards)
+     * — when [walkersFaceTheNextAttack] asks whether it can only spend loyalty
+     * ([com.wingedsheep.ai.engine.knowledge.IntentCatalog.loyaltyIsOnlyFuel]). A Jace token under
+     * Way of the Pyromancer has a +1 and is priced as the engine it now is.
+     * [com.wingedsheep.ai.engine.AiProfile.spendFuelWalkers] sets it.
+     */
+    val grantedLoyaltyAbilities: Boolean = false,
+    /**
+     * Under [walkersFaceTheNextAttack], price a planeswalker as the engine it is
+     * ([PlaneswalkerThreat.engineBoardValue]): its abilities read where it stands (granted ones
+     * included), an engine worth at least [PlaneswalkerThreat.ENGINE_VALUE] beyond its loyalty, its
+     * ultimate a threat that grows as it climbs, and a minus-only walker's counters worth the share
+     * of a card each one buys. [com.wingedsheep.ai.engine.AiProfile.walkersPricedAsEngines] sets it.
+     */
+    val walkersAsEngines: Boolean = false,
 ) {
     companion object {
         /** Neither correction: what every number published before 2026-08-10 was measured on. */
@@ -379,7 +396,13 @@ object BoardPresence : BoardFeature {
                 // again — see [PlaneswalkerThreat.boardValue].
                 val damage = projected.getController(entityId)
                     ?.let { PlaneswalkerThreat.expectedDamage(state, projected, it) } ?: 0
-                return PlaneswalkerThreat.boardValue(!intents.loyaltyIsOnlyFuel(card.name), prior, loyalty, damage)
+                if (creatureValuation.walkersAsEngines) {
+                    val shape = PlaneswalkerThreat.shape(state, entityId, null, engines = intents)
+                    return PlaneswalkerThreat.engineBoardValue(shape, prior, loyalty, damage)
+                }
+                val fuelOnly = if (creatureValuation.grantedLoyaltyAbilities) intents.loyaltyIsOnlyFuel(state, entityId)
+                else intents.loyaltyIsOnlyFuel(card.name)
+                return PlaneswalkerThreat.boardValue(!fuelOnly, prior, loyalty, damage)
             }
             return maxOf(4.0, prior + loyalty * LOYALTY_VALUE)
         }
@@ -1109,6 +1132,14 @@ object ThreatAssessment : BoardFeature {
     private fun urgency(life: Int, power: Int): Double =
         if (power <= 0 || life <= 0) 0.0 else minOf(power.toDouble() / life, 1.0)
 
+    /**
+     * What a race lead of [lead] urgency is worth, unweighted: the [RACE_URGENCY_SCALE] with the
+     * same 2.0 / 1.5 slopes [score] applies. Public so a consumer pricing one side of the race on
+     * its own — `CombatAdvisor`'s follow-up under `AiProfile.attacksReadTheRace` — uses this scale
+     * rather than a second one.
+     */
+    fun raceLeadValue(lead: Double): Double = lead * RACE_URGENCY_SCALE * if (lead > 0) 2.0 else 1.5
+
     /** Score with the historical turns-linear race and its `99.0` sentinel. */
     override fun score(state: GameState, projected: ProjectedState, playerId: EntityId): Double =
         score(state, projected, playerId, discountedRaceClock = false)
@@ -1176,7 +1207,7 @@ object ThreatAssessment : BoardFeature {
                 // Urgency, not turns — see [RACE_URGENCY_SCALE]. Same slopes, same sign, and the
                 // no-clock sentinel simply does not exist on this path.
                 val lead = urgency(theirLife, myAttackPower) - urgency(myLife, theirAttackPower)
-                score += lead * RACE_URGENCY_SCALE * if (lead > 0) 2.0 else 1.5
+                score += raceLeadValue(lead)
             } else {
                 // How many turns until opponent kills us (if we can't block)
                 val turnsUntilDead =

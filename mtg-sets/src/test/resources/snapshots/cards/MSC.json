@@ -203,7 +203,11 @@
                     },
                     "destination": "Battlefield",
                     "fromZone": "Graveyard",
-                    "addCounterType": "FINALITY"
+                    "entryCounters": [
+                        {
+                            "counterType": "FINALITY"
+                        }
+                    ]
                 },
                 "targetRequirements": [
                     {

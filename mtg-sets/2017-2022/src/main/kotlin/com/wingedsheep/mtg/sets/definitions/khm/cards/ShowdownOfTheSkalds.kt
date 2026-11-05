@@ -2,27 +2,52 @@ package com.wingedsheep.mtg.sets.definitions.khm.cards
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardSource
+import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
+/**
+ * Showdown of the Skalds — Kaldheim #229
+ * {2}{R}{W} · Enchantment — Saga
+ *
+ * (As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)
+ * I — Exile the top four cards of your library. Until the end of your next turn, you may play those cards.
+ * II, III — Whenever you cast a spell this turn, put a +1/+1 counter on target creature you control.
+ *
+ * Chapter I is the gather → exile → grant-play pipeline with [MayPlayExpiry.UntilEndOfNextTurn]; unplayed
+ * cards stay exiled. Chapters II and III each install a turn-bounded delayed trigger (Rediscover the Way's
+ * shape) that fires on every spell you cast this turn and picks its target each time it fires.
+ */
 val ShowdownOfTheSkalds = card("Showdown of the Skalds") {
     manaCost = "{2}{R}{W}"
     colorIdentity = "RW"
     typeLine = "Enchantment — Saga"
-    oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\nI — Exile the top four cards of your library. Until the end of your next turn, you may play those cards.\nII, III — Whenever you cast a spell this turn, put a +1/+1 counter on target creature you control."
+    oracleText = "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\n" +
+        "I — Exile the top four cards of your library. Until the end of your next turn, you may play those cards.\n" +
+        "II, III — Whenever you cast a spell this turn, put a +1/+1 counter on target creature you control."
 
     sagaChapter(1) {
-        effect = Patterns.Exile.impulse(4, MayPlayExpiry.UntilEndOfNextTurn)
+        effect = Effects.Pipeline {
+            val exiled = gather(CardSource.TopOfLibrary(4))
+            exile(exiled)
+            run(Effects.GrantMayPlayFromExile(from = exiled, expiry = MayPlayExpiry.UntilEndOfNextTurn))
+        }
     }
+
     for (chapter in 2..3) {
         sagaChapter(chapter) {
-            effect = Effects.CreateDelayedTrigger(trigger = Triggers.you.casts(), fireOnce = false) {
-                val creature = target(TargetFilter.CreatureYouControl)
-                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creature)
+            effect = Effects.CreateDelayedTrigger(
+                trigger = Triggers.you.casts(GameObjectFilter.Any),
+                fireOnce = false,
+                expiry = DelayedTriggerExpiry.EndOfTurn
+            ) {
+                val creatureYouControl = target(TargetFilter.CreatureYouControl)
+                effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, creatureYouControl)
             }
         }
     }

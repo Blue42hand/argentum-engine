@@ -6,6 +6,8 @@ import com.wingedsheep.sdk.core.TurnPart
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TriggeredAbility
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.GrantHexproofFromToGroup
+import com.wingedsheep.sdk.scripting.ProtectionScope
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -31,24 +33,34 @@ data class SkipCombatPhasesEffect(
 }
 
 /**
- * Target player's creatures and lands don't untap during their next untap step.
- * Used for cards like Exhaustion.
+ * "[permanents] [target] player controls don't untap during their next untap step" — Exhaustion
+ * (creatures and lands), Mana Vapors (lands), Blinding Beam (creatures), Icebreaker Kraken
+ * (artifacts and creatures).
+ *
+ * [permanents] is matched at that untap step against what the player controls *then*, not against
+ * what they controlled when this resolved (Icebreaker Kraken ruling, 2021-02-05): a creature they
+ * gain control of in between doesn't untap either. The controller gate lives in [target]; the
+ * filter names only the kind of permanent.
  */
 @SerialName("SkipUntap")
 @Serializable
 data class SkipUntapEffect(
     val target: EffectTarget = EffectTarget.PlayerRef(Player.TargetOpponent),
-    val affectsCreatures: Boolean = true,
-    val affectsLands: Boolean = true
+    val permanents: GameObjectFilter = GameObjectFilter.Creature or GameObjectFilter.Land
 ) : Effect {
-    override val description: String = buildString {
-        val affectedTypes = listOfNotNull(
-            if (affectsCreatures) "Creatures" else null,
-            if (affectsLands) "lands" else null
-        ).joinToString(" and ")
-        append("$affectedTypes ${target.description} controls don't untap during their next untap step")
-    }
+    override val description: String =
+        "${describeSkippedPermanents(permanents).replaceFirstChar { it.uppercase() }} ${target.description} " +
+            "controls don't untap during their next untap step"
 }
+
+/**
+ * The plural noun phrase for a "don't untap" filter, read as Oracle prints it: every listed type is
+ * held back, so the alternatives join with "and" ("creatures and lands"), not the "or" a selection
+ * filter would use.
+ */
+fun describeSkippedPermanents(permanents: GameObjectFilter): String =
+    com.wingedsheep.sdk.scripting.util.pluralNounPhrase(permanents.description)
+        .replace(", or ", ", and ").replace(" or ", " and ")
 
 /**
  * Target player skips their next draw step.
@@ -81,6 +93,28 @@ data class PayAnyAmountOfLifeAsEntersEffect(
 ) : Effect {
     override val description: String =
         "pay any amount of life, no more than ${maxAmount.description}"
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect = this
+}
+
+/**
+ * Record [amount] on the entering permanent as the value it entered with — the non-choice sibling
+ * of [PayAnyAmountOfLifeAsEntersEffect], read back the same way through
+ * [com.wingedsheep.sdk.scripting.values.EntityNumericProperty.ValueChosenAsEntered].
+ *
+ * For an "as this enters, <do something>" whose *outcome* a characteristic-defining ability reads
+ * for the rest of the permanent's life: Wood Elemental's "As Wood Elemental enters, sacrifice any
+ * number of untapped Forests. Wood Elemental's power and toughness are each equal to the number of
+ * Forests sacrificed this way" is
+ * `OnEnterRun(SacrificeAnyNumber(<untapped Forest>) then RecordValueAsEntered(permanentsSacrificedThisWay()))`.
+ * [amount] is evaluated once, when this step runs, and never re-read.
+ */
+@SerialName("RecordValueAsEntered")
+@Serializable
+data class RecordValueAsEnteredEffect(
+    val amount: DynamicAmount
+) : Effect {
+    override val description: String = "record ${amount.description} as the value it entered with"
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect = this
 }
@@ -152,16 +186,25 @@ data class SkipStepOrPhaseEffect(
 
 /**
  * You may play additional lands this turn.
- * Used for Summer Bloom: "You may play up to three additional lands this turn."
+ * Used for Summer Bloom: "You may play up to three additional lands this turn." A [DynamicAmount]
+ * count is read once as the effect resolves — Nahiri's Lithoforming's "You may play X additional
+ * lands this turn" is `DynamicAmount.XValue`.
  *
  * @param count The number of additional lands you may play
  */
 @SerialName("PlayAdditionalLands")
 @Serializable
 data class PlayAdditionalLandsEffect(
-    val count: Int
+    val count: DynamicAmount
 ) : Effect {
-    override val description: String = "You may play up to $count additional land${if (count != 1) "s" else ""} this turn"
+    /** Convenience constructor for fixed amounts */
+    constructor(count: Int) : this(DynamicAmount.Fixed(count))
+
+    override val description: String = when (val c = count) {
+        is DynamicAmount.Fixed ->
+            "You may play up to ${c.amount} additional land${if (c.amount != 1) "s" else ""} this turn"
+        else -> "You may play ${c.description} additional lands this turn"
+    }
 }
 
 /**
@@ -174,8 +217,9 @@ data class PlayAdditionalLandsEffect(
  * (see `Effects.AddCombatPhase` / `Effects.AddMainPhase`), so cards express exactly what they print
  * instead of always getting the bundled combat+main pair.
  *
- * Per CR 500.8 extra phases are added after the specified phase; the engine inserts the queued
- * phase(s) after the postcombat main phase.
+ * Per CR 500.8 extra phases are added after the specified phase: the engine inserts the queued
+ * phase directly after the phase in progress when the effect resolved (precombat main, combat or
+ * postcombat main), then resumes the natural turn.
  *
  * [attackerRestriction] optionally constrains *which creatures may be declared as attackers during
  * that inserted combat phase* (CR 508.1c — the active player checks each creature for attacking
@@ -185,22 +229,40 @@ data class PlayAdditionalLandsEffect(
  * `GameObjectFilter.Creature and GameObjectFilter.Land`). The restriction is scoped to the added
  * phase alone — the natural combat phase and any other added phase are unaffected. `null` (the
  * default, and every prior caller) means the ordinary "any creature can attack" phase.
+ *
+ * [atBeginningOfThatCombat] is the "At the beginning of that combat, [effect]" rider (Moraug, Fury
+ * of Akoum: "…there's an additional combat phase after this phase. At the beginning of that combat,
+ * untap all creatures you control"). It is a delayed triggered ability (CR 603.7) created by this
+ * effect and linked to *this* inserted combat phase alone: it triggers as that phase's beginning of
+ * combat step begins — never at the natural combat phase or at another added one — so two
+ * resolutions queue two combats that each untap at their own start. If the added phase never
+ * happens (skipped, the turn ended) the rider never triggers. Its effect is baked like any delayed
+ * trigger's (context targets resolved at creation; "you" is this effect's controller). The nearest
+ * neighbour, `CreateDelayedTriggerEffect(step = BEGIN_COMBAT)`, fires at the *next* beginning of
+ * combat of any kind and cannot name one particular phase. `null` (the default) adds no rider.
  */
 @SerialName("AddCombatPhase")
 @Serializable
 data class AddCombatPhaseEffect(
-    val attackerRestriction: GameObjectFilter? = null
+    val attackerRestriction: GameObjectFilter? = null,
+    val atBeginningOfThatCombat: Effect? = null
 ) : Effect {
     override val description: String = buildString {
         append("After this phase, there is an additional combat phase")
         if (attackerRestriction != null) {
             append(". Only ${attackerRestriction.description} can attack during that combat phase")
         }
+        if (atBeginningOfThatCombat != null) {
+            append(". At the beginning of that combat, ${atBeginningOfThatCombat.description.replaceFirstChar { it.lowercase() }}")
+        }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val replaced = attackerRestriction?.applyTextReplacement(replacer)
-        return if (replaced !== attackerRestriction) copy(attackerRestriction = replaced) else this
+        val replacedRider = atBeginningOfThatCombat?.applyTextReplacement(replacer)
+        return if (replaced !== attackerRestriction || replacedRider !== atBeginningOfThatCombat) {
+            copy(attackerRestriction = replaced, atBeginningOfThatCombat = replacedRider)
+        } else this
     }
 }
 
@@ -210,8 +272,8 @@ data class AddCombatPhaseEffect(
  * additional main phase" (Aggravated Assault, All-Out Assault). A standalone extra main phase
  * (CR 505.1a — every main phase after the first is a postcombat main phase) is also expressible.
  *
- * Per CR 500.8 the phase is added after the specified phase; the engine inserts it after the
- * postcombat main phase, in the order the queueing effects resolved.
+ * Per CR 500.8 the phase is added after the specified phase: the engine inserts it directly after
+ * the phase in progress when the effect resolved.
  */
 @SerialName("AddMainPhase")
 @Serializable
@@ -377,6 +439,37 @@ data class RestartGameEffect(
 }
 
 /**
+ * Players play a Magic subgame (CR 729) — a completely separate game, using their libraries as
+ * their decks. Every player still in the game takes part. Each one's main-game library becomes
+ * their subgame library (CR 729.2); nothing else crosses over, so the subgame starts from fresh
+ * zones, starting life totals, seven-card hands and mulligans, with a randomly chosen starting
+ * player. The main game is discontinued meanwhile: no effect or trigger of either game reaches the
+ * other (CR 729.1b).
+ *
+ * When the subgame ends, each player's cards in it — whichever zone, exile included — go into their
+ * main-game library, which is then shuffled (CR 729.5). The players who did not win it (a draw
+ * means nobody won) are recorded in the pipeline collection [nonWinners], and [afterSubgame], the
+ * rest of the spell's text, then runs in the main game before the spell finishes resolving. It runs
+ * with the effect's controller as its controller and the [nonWinners] collection readable.
+ *
+ * Like [RestartGameEffect], the engine starts the subgame once the effect has run, so this must be
+ * the last instruction of its ability — anything after it belongs in [afterSubgame].
+ * Shahrazad: "Players play a Magic subgame, using their libraries as their decks. Each player who
+ * doesn't win the subgame loses half their life, rounded up."
+ */
+@SerialName("PlaySubgame")
+@Serializable
+data class PlaySubgameEffect(
+    val nonWinners: String? = null,
+    val afterSubgame: Effect? = null
+) : Effect {
+    override val description: String = buildString {
+        append("Players play a Magic subgame, using their libraries as their decks")
+        if (afterSubgame != null) append(". Then ${afterSubgame.description.replaceFirstChar { it.lowercase() }}")
+    }
+}
+
+/**
  * "It becomes day" / "It becomes night" (CR 731.1) — set the game's day/night designation to
  * [designation].
  *
@@ -510,22 +603,72 @@ data class HijackNextTurnEffect(
 }
 
 /**
+ * A combat declaration a [ControlCombatDeclarationsThisTurnEffect] can hand to another player:
+ * the active player's attack declaration (CR 508.1) or a defending player's block declaration
+ * (CR 509.1).
+ */
+@Serializable
+enum class CombatDeclaration {
+    ATTACKERS,
+    BLOCKERS
+}
+
+/**
  * "You choose which creatures attack this turn. You choose which creatures block this turn and how
- * those creatures block." (Master Warcraft.)
+ * those creatures block." (Master Warcraft, the default) — or, narrowed by [declarations] and
+ * [declaringPlayers], "you choose how [creatures your opponents control] block" (Brutal Hordechief:
+ * `declarations = {BLOCKERS}`, `declaringPlayers = Player.EachOpponent`).
  *
- * For the rest of the turn the ability's controller makes every attack declaration and every block
- * declaration, for every player, in every combat phase. Only the *declarations* move — unlike
+ * For the rest of the turn the ability's controller makes each of [declarations] owed by one of
+ * [declaringPlayers], in every combat phase. Only the *declarations* move — unlike
  * [HijackNextTurnEffect] (Mindslaver), no other decision, no priority and no hidden information
  * changes hands. The chosen attackers and blockers must still be legal under the normal rules for
- * the players who control them (ruling), and they stay those players' creatures.
+ * the players who control them (ruling), and they stay those players' creatures — including
+ * creatures that weren't on the battlefield when the effect began (Brutal Hordechief ruling).
  *
- * If two such effects apply in one turn, the one created last wins.
+ * [declaringPlayers] is resolved to concrete players when the effect resolves. If several such
+ * effects cover the same player's declaration in one turn, the one created last wins (Brutal
+ * Hordechief ruling: the last ability to resolve decides for the players it covers).
+ *
+ * @property declarations Which declarations the controller takes over.
+ * @property declaringPlayers Whose declarations: [Player.Each], [Player.EachOpponent],
+ *   [Player.EachOtherPlayer] or [Player.You].
  */
 @SerialName("ControlCombatDeclarationsThisTurn")
 @Serializable
-data object ControlCombatDeclarationsThisTurnEffect : Effect {
-    override val description: String =
-        "You choose which creatures attack this turn. You choose which creatures block this turn and how those creatures block"
+data class ControlCombatDeclarationsThisTurnEffect(
+    val declarations: Set<CombatDeclaration> = setOf(CombatDeclaration.ATTACKERS, CombatDeclaration.BLOCKERS),
+    val declaringPlayers: Player = Player.Each
+) : Effect {
+    init {
+        require(declarations.isNotEmpty()) { "ControlCombatDeclarationsThisTurnEffect needs a declaration" }
+        require(declaringPlayers in SUPPORTED_PLAYERS) {
+            "ControlCombatDeclarationsThisTurnEffect can't take over the declarations of $declaringPlayers"
+        }
+    }
+
+    override val description: String = when {
+        declaringPlayers == Player.Each && declarations.size == 2 ->
+            "You choose which creatures attack this turn. You choose which creatures block this turn and how those creatures block"
+        else -> {
+            val whose = when (declaringPlayers) {
+                Player.EachOpponent -> "creatures your opponents control"
+                Player.EachOtherPlayer -> "creatures other players control"
+                Player.You -> "creatures you control"
+                else -> "creatures"
+            }
+            declarations.sorted().joinToString(". ") {
+                when (it) {
+                    CombatDeclaration.ATTACKERS -> "You choose which $whose attack this turn"
+                    CombatDeclaration.BLOCKERS -> "You choose how $whose block this turn"
+                }
+            }
+        }
+    }
+
+    private companion object {
+        val SUPPORTED_PLAYERS = setOf(Player.Each, Player.EachOpponent, Player.EachOtherPlayer, Player.You)
+    }
 }
 
 /**
@@ -549,7 +692,8 @@ enum class HijackScope {
  * Used for cards like Xantid Swarm: "Whenever this creature attacks, defending player can't cast spells this turn."
  *
  * @param target The player(s) who can't cast matching spells
- * @param duration EndOfTurn (default) or Permanent
+ * @param duration EndOfTurn (default), EndOfYourNextTurn (the effect controller's next turn —
+ *   Single Combat), or Permanent
  * @param spellFilter Which announced spells are prohibited; Any preserves the blanket ban.
  */
 @SerialName("CantCastSpells")
@@ -593,20 +737,28 @@ data class CantSearchLibrariesEffect(
 }
 
 /**
- * Target player can't play cards from their hand for the specified [duration].
+ * Cards in a hand can't be played for the specified [duration] — the [target] is either a
+ * **player** (none of the cards in their hand) or a single **card in a hand** (just that card).
  *
- * Restricts both casting spells and playing lands, but only from the **hand** zone —
- * the player may still play cards from other zones (exile via a may-play permission,
- * graveyard via Muldrotha, etc.). This is the "they can't play cards from their hand"
- * clause of Memory Vessel, which pairs the restriction with an impulse-style grant so a
- * player swaps their hand for the top cards of their library for a turn.
+ * Restricts both casting spells and playing lands, but only from the **hand** zone.
+ *
+ *  - **Player target** — "they can't play cards from their hand" (Memory Vessel, which pairs the
+ *    restriction with an impulse-style grant so a player swaps their hand for the top cards of
+ *    their library for a turn). The player may still play cards from other zones (exile via a
+ *    may-play permission, graveyard via Muldrotha, etc.).
+ *  - **Card target** — "that player … can't play it" (Firestorm Phoenix). The restriction belongs
+ *    to that object in that hand: once the card leaves the hand it is a new object (CR 400.7) and
+ *    the restriction is gone, even if it comes straight back. Pair with
+ *    [RevealCardInHandEffect] for "plays with that card revealed in their hand".
  *
  * Distinct from [CantCastSpellsEffect], which forbids casting from *every* zone but
  * leaves land plays untouched. This effect is hand-scoped and covers lands too.
  *
- * @param target The player who can't play cards from their hand (default: controller).
+ * @param target The player whose hand is locked (default: controller), or one card in a hand.
  * @param duration How long the restriction lasts (default: until your next turn, matching
- *   the impulse window it usually accompanies).
+ *   the impulse window it usually accompanies). A card target also takes
+ *   [Duration.UntilAffectedOwnersNextTurn] ("until that player's next turn"), [Duration.EndOfTurn]
+ *   and [Duration.Permanent].
  */
 @SerialName("CantPlayCardsFromHand")
 @Serializable
@@ -615,8 +767,21 @@ data class CantPlayCardsFromHandEffect(
     val duration: Duration = Duration.UntilYourNextTurn
 ) : Effect {
     override val description: String =
-        "${target.description.replaceFirstChar { it.uppercase() }} can't play cards from their hand ${duration.description}"
+        if (target.isPlayerReference()) {
+            "${target.description.replaceFirstChar { it.uppercase() }} can't play cards from their hand ${duration.description}"
+        } else {
+            "${target.description.replaceFirstChar { it.uppercase() }} can't be played ${duration.description}"
+        }
 }
+
+/**
+ * Whether this target reads as a player for [CantPlayCardsFromHandEffect]'s text. Only the
+ * description depends on it — the executor branches on what the target resolves to. Chosen targets
+ * and bound variables may be either, and keep the player wording.
+ */
+private fun EffectTarget.isPlayerReference(): Boolean =
+    this !is EffectTarget.SingleEntity || this is EffectTarget.ContextTarget ||
+        this is EffectTarget.BoundVariable || this is EffectTarget.SpecificEntity
 
 /**
  * Target player can't cast spells from anywhere other than their **hand** for the specified
@@ -677,7 +842,7 @@ data class CantActivateLoyaltyAbilitiesEffect(
  * - [times] raises the count half. Urza Assembles the Titans III: "You may activate the loyalty
  *   abilities of planeswalkers you control twice this turn rather than only once." —
  *   `planeswalkerFilter = Planeswalker.youControl()`, `times = 2`. Like the static
- *   [com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation], allowances take the largest, never a
+ *   [com.wingedsheep.sdk.scripting.LoyaltyActivationPermission], allowances take the largest, never a
  *   sum.
  *
  * A resolution-time one-shot that records the grant on the player, so it outlives the spell or
@@ -685,7 +850,7 @@ data class CantActivateLoyaltyAbilitiesEffect(
  * state each time an ability is offered and activated, so a planeswalker that enters later in the
  * turn is covered. Narrower than the per-permanent
  * [AllowLoyaltyActivationsThisTurnEffect] (one object, lapses when it leaves) and than the static
- * `ExtraLoyaltyActivation` (lasts only while its source does).
+ * `LoyaltyActivationPermission` (lasts only while its source does).
  */
 @SerialName("GrantLoyaltyActivationPermission")
 @Serializable
@@ -811,6 +976,21 @@ data class WinGameEffect(
 }
 
 /**
+ * "The game is a draw." (CR 104.4c) — the game ends at once with no winner and no loser
+ * (Divine Intervention).
+ *
+ * Neither [WinGameEffect] nor [LoseGameEffect] can take it: both name a player and work through
+ * losses, so "can't lose the game" and "can't win the game" grants interfere with them. A draw
+ * marks nobody as having lost, so neither grant stops it. The engine has no limited range of
+ * influence, so the draw ends the whole game (CR 104.4e applies only with that option).
+ */
+@SerialName("GameIsDraw")
+@Serializable
+data object GameIsDrawEffect : Effect {
+    override val description: String = "the game is a draw"
+}
+
+/**
  * Grant a protection-style evasion keyword (shroud or hexproof) to a target entity for
  * the specified duration. Works for players, creatures, and planeswalkers.
  *
@@ -824,19 +1004,38 @@ data class WinGameEffect(
  * [com.wingedsheep.sdk.dsl.Effects.GrantShroud] / [com.wingedsheep.sdk.dsl.Effects.GrantHexproof]
  * facades rather than constructing it directly.
  *
+ * [from] narrows hexproof to "hexproof from [quality]" (CR 702.11d) — Veil of Summer's "You and
+ * permanents you control gain hexproof from blue and from black". A permanent gets the same
+ * projected `HEXPROOF_FROM_*` keywords a printed hexproof-from carries; a player gets the scopes on
+ * a player component the targeting rules read against each spell's or ability's source, opponents
+ * only. Null is full hexproof (or shroud), the old behaviour.
+ *
  * @param keyword The protection keyword to grant — [Keyword.SHROUD] or [Keyword.HEXPROOF].
  * @param target The entity to grant the keyword to (player, creature, or planeswalker).
  * @param duration How long the grant lasts.
+ * @param from The quality the hexproof is from; null for full hexproof. Only with [Keyword.HEXPROOF].
  */
 @SerialName("GrantEvasionKeyword")
 @Serializable
 data class GrantEvasionKeywordEffect(
     val keyword: Keyword,
     val target: EffectTarget = EffectTarget.Controller,
-    val duration: Duration = Duration.EndOfTurn
+    val duration: Duration = Duration.EndOfTurn,
+    val from: ProtectionScope? = null
 ) : Effect {
-    override val description: String =
-        "${target.description.replaceFirstChar { it.uppercase() }} gains ${keyword.displayName.lowercase()} ${duration.description}"
+    init {
+        if (from != null) {
+            require(keyword == Keyword.HEXPROOF) { "GrantEvasionKeyword.from only narrows hexproof, not $keyword" }
+            require(GrantHexproofFromToGroup.isSupported(from)) { "GrantEvasionKeyword has no hexproof keyword for $from" }
+        }
+    }
+
+    override val description: String = buildString {
+        val verb = if (target == EffectTarget.Controller) "gain" else "gains"
+        append("${target.description.replaceFirstChar { it.uppercase() }} $verb ${keyword.displayName.lowercase()}")
+        if (from != null) append(" from ${from.protectionDescription()}")
+        append(" ${duration.description}")
+    }
 }
 
 /**
@@ -997,7 +1196,7 @@ data class GrantSpellsCantBeCounteredEffect(
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String =
-        "${spellFilter.description} spells ${target.description} cast${if (duration == Duration.Permanent) "" else " ${duration.description}"} can't be countered"
+        "${if (spellFilter == GameObjectFilter.Any) "" else "${spellFilter.description} "}spells ${target.description} cast${if (duration == Duration.Permanent) "" else " ${duration.description}"} can't be countered"
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newFilter = spellFilter.applyTextReplacement(replacer)
@@ -1030,6 +1229,15 @@ data class GrantSpellsCantBeCounteredEffect(
  * emblem hands to each permanent in [groupFilter] (Arlinn Kord's "Creatures you control have
  * '{T}: …'") — the permanent is that ability's source.
  *
+ * An emblem whose text is a replacement effect ("If you control a creature, damage that would reduce
+ * your life total to less than 1 reduces it to 1 instead." — Serra the Benevolent's −6) carries it in
+ * [ownedReplacementEffects]. The emblem is its source and its controller is "you", read by the same
+ * scans that read a permanent printing the replacement — today the life-total family
+ * (`LifeLossFloor`, `ModifyLifeLoss`, `ReplaceLifeReductionToZero`) and the other read sites that go
+ * through the engine's active-replacement enumeration (token creation, `LoyaltyDamageFloor`). Families
+ * whose scans walk only the battlefield (draw/zone-change, damage prevention, enters-tapped, life
+ * payment) don't see an emblem yet.
+ *
  * @property groupFilter Which permanents the emblem affects. Unused — and so left at its default —
  *   by an emblem that carries no group modification at all, only [ownedStaticAbilities].
  * @property powerBonus Power modification applied to each affected creature.
@@ -1039,6 +1247,7 @@ data class GrantSpellsCantBeCounteredEffect(
  * @property ownedStaticAbilities Static abilities the *emblem itself* has, as though printed on it.
  * @property ownedActivatedAbilities Activated abilities the *emblem itself* has; the emblem is their
  *   source and its controller activates them.
+ * @property ownedReplacementEffects Replacement effects the *emblem itself* has, as though printed on it.
  * @property emblemDescription Human-readable description of the emblem (without the "You get an emblem with" prefix).
  */
 @SerialName("CreatePermanentEmblem")
@@ -1051,6 +1260,7 @@ data class CreatePermanentEmblemEffect(
     val grantedActivatedAbilities: List<com.wingedsheep.sdk.scripting.ActivatedAbility> = emptyList(),
     val ownedStaticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList(),
     val ownedActivatedAbilities: List<com.wingedsheep.sdk.scripting.ActivatedAbility> = emptyList(),
+    val ownedReplacementEffects: List<com.wingedsheep.sdk.scripting.ReplacementEffect> = emptyList(),
     val emblemDescription: String
 ) : Effect {
     override val description: String = "You get an emblem with \"$emblemDescription\""
@@ -1335,12 +1545,18 @@ data class TheRingTemptsYouEffect(
 
 /**
  * "Choose a number, then [effect]." The controller is prompted for an integer in
- * [[minValue], [maxValue]]; the chosen number is stamped onto the effect context (as the
+ * [[minValue], [maxValue]] (or, with [random], the engine picks one); the chosen number is stamped onto the effect context (as the
  * X value) and [then] is executed once. Atomic effects and filters read the chosen number
  * via `manaValueEqualsX()` so the same
  * combinator works for any "choose a number, act on objects with that mana value" card (Void).
  *
  * Compose [then] with [CompositeEffect] when several effects key off the chosen number.
+ *
+ * [random] is *who* picks: `false` prompts the controller, `true` is Oracle's "choose N, M, or K
+ * at random" — the engine draws uniformly from the same bounds off the game's seeded RNG, with
+ * no prompt. A random choice is not a die roll (CR 706), so it fires no die-roll triggers and no
+ * die-roll replacement modifies it. Tibalt's Trickery: "Choose 1, 2, or 3 at random. Its
+ * controller mills that many cards…" — `ChooseNumberThen(then, 1, 3, random = true)`.
  */
 @SerialName("ChooseNumberThen")
 @Serializable
@@ -1348,9 +1564,11 @@ data class ChooseNumberThenEffect(
     val then: Effect,
     val minValue: Int = 0,
     val maxValue: DynamicAmount = DynamicAmount.Fixed(16),
-    val prompt: String = "Choose a number"
+    val prompt: String = "Choose a number",
+    val random: Boolean = false
 ) : Effect {
-    override val description: String = "Choose a number. ${then.description}"
+    override val description: String =
+        if (random) "Choose a number at random. ${then.description}" else "Choose a number. ${then.description}"
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newThen = then.applyTextReplacement(replacer)
@@ -1401,6 +1619,40 @@ data class ChooseNumberForSourceEffect(
     val prompt: String = "Choose a number"
 ) : Effect {
     override val description: String = "choose a number between $minValue and $maxValue"
+}
+
+/**
+ * "Note <a number>" for the source permanent — evaluate [amount] once and write it **durably on
+ * the source permanent** in its cast-choices bag under [slot], replacing any prior value; read it
+ * back later (as "the last noted <number> for this permanent") through
+ * [com.wingedsheep.sdk.scripting.values.DynamicAmount.CastChoice].
+ *
+ * Sigarda's Splendor: "As this enchantment enters, note your life total. At the beginning of your
+ * upkeep, draw a card if your life total is greater than or equal to the last noted life total
+ * for this enchantment. Then note your life total." — `OnEnterRun(NoteNumberForSource(life))`
+ * plus an upkeep trigger that compares against `CastChoice(NOTED_NUMBER)` and then notes again.
+ *
+ * The two closest types don't take this axis: [ChooseNumberForSourceEffect] writes the same bag
+ * but from a *player's choice* in a bounded range, and [StoreNumberEffect] evaluates a
+ * [DynamicAmount] but stores it only in the resolving pipeline, which is gone once the ability
+ * finishes. The note lives on the permanent, so it dies with it (a new object has no note).
+ * With no current source (it left before the note) the effect is a no-op.
+ *
+ * @property amount The number to note, evaluated once at resolution.
+ * @property slot Which durable cast-choices slot to write (default
+ *   [com.wingedsheep.sdk.scripting.ChoiceSlot.NOTED_NUMBER]).
+ */
+@SerialName("NoteNumberForSource")
+@Serializable
+data class NoteNumberForSourceEffect(
+    val amount: DynamicAmount,
+    val slot: com.wingedsheep.sdk.scripting.ChoiceSlot = com.wingedsheep.sdk.scripting.ChoiceSlot.NOTED_NUMBER
+) : Effect {
+    override val description: String = "note ${amount.description}"
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newAmount = amount.applyTextReplacement(replacer)
+        return if (newAmount !== amount) copy(amount = newAmount) else this
+    }
 }
 
 /**

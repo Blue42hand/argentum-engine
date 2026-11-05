@@ -312,7 +312,7 @@ export function attachmentStackLayout(input: {
 export function hasMultipleCastingOptions(cardLegalActions: LegalActionInfo[]): boolean {
   // Count distinct casting method types
   const hasNormalCast = cardLegalActions.some(
-    (a) => a.action.type === 'CastSpell' && a.actionType !== 'CastFaceDown' && a.actionType !== 'CastWithKicker' && a.actionType !== 'CastWithFlashback' && a.actionType !== 'CastWithEscape' && a.actionType !== 'CastWithWarp' && a.actionType !== 'CastWithDash' && a.actionType !== 'CastWithDisturb'
+    (a) => a.action.type === 'CastSpell' && a.actionType !== 'CastFaceDown' && a.actionType !== 'CastWithKicker' && a.actionType !== 'CastWithFlashback' && a.actionType !== 'CastWithEscape' && a.actionType !== 'CastWithWarp' && a.actionType !== 'CastWithDash' && a.actionType !== 'CastWithBlitz' && a.actionType !== 'CastWithDisturb'
   )
   const hasMorphCast = cardLegalActions.some((a) => a.actionType === 'CastFaceDown')
   const hasKickerCast = cardLegalActions.some((a) => a.actionType === 'CastWithKicker')
@@ -320,11 +320,13 @@ export function hasMultipleCastingOptions(cardLegalActions: LegalActionInfo[]): 
   const escapeCastCount = cardLegalActions.filter((a) => a.actionType === 'CastWithEscape').length
   const hasWarpCast = cardLegalActions.some((a) => a.actionType === 'CastWithWarp')
   const hasDashCast = cardLegalActions.some((a) => a.actionType === 'CastWithDash')
+  const hasBlitzCast = cardLegalActions.some((a) => a.actionType === 'CastWithBlitz')
   // Disturb (CR 702.146) casts the card's back face from the graveyard, so it is a distinct
   // casting option from any normal cast of the same card.
   const hasDisturbCast = cardLegalActions.some((a) => a.actionType === 'CastWithDisturb')
   const hasCycling = cardLegalActions.some((a) => a.action.type === 'CycleCard')
   const hasPlot = cardLegalActions.some((a) => a.action.type === 'PlotCard')
+  const hasForetell = cardLegalActions.some((a) => a.action.type === 'ForetellCard')
   const hasSuspend = cardLegalActions.some((a) => a.action.type === 'SuspendCardFromHand')
   // Counted rather than flagged: a modal double-faced land offers one PlayLand per land face
   // (CR 712.12), and two faces are two options even though there is no cast among them.
@@ -338,9 +340,11 @@ export function hasMultipleCastingOptions(cardLegalActions: LegalActionInfo[]): 
   options += escapeCastCount
   if (hasWarpCast) options++
   if (hasDashCast) options++
+  if (hasBlitzCast) options++
   if (hasDisturbCast) options++
   if (hasCycling) options++
   if (hasPlot) options++
+  if (hasForetell) options++
   if (hasSuspend) options++
   options += playLandCount
 
@@ -380,7 +384,7 @@ export function shouldShowCastModal(
   // More than one legal action, or multiple casting variants (morph + normal cast, etc.).
   if (cardLegalActions.length > 1) return true
   if (hasMultipleCastingOptions(cardLegalActions)) return true
-  // Impending / evoke: the printed cost and the keyword cost are both real prices for this card,
+  // Impending / evoke / bestow / mutate: the printed cost and the keyword cost are both real prices for this card,
   // so any cast of it is a choice between two buttons — whichever one the server could afford.
   if (
     cardInfo &&
@@ -399,6 +403,7 @@ export function shouldShowCastModal(
       a.action.type === 'CycleCard' ||
       a.action.type === 'TypecycleCard' ||
       a.action.type === 'PlotCard' ||
+      a.action.type === 'ForetellCard' ||
       a.action.type === 'SuspendCardFromHand'
   )
 }
@@ -793,6 +798,8 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   CounterType.POINT,
   CounterType.WISH,
   CounterType.REVIVAL,
+  CounterType.FUSE,
+  CounterType.LUCK,
   CounterType.INGENUITY,
   CounterType.FILM,
   CounterType.ICE,
@@ -829,6 +836,7 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   CounterType.PLUS_ZERO_PLUS_TWO,
   CounterType.MINUS_ONE_MINUS_ZERO,
   CounterType.MINUS_ZERO_MINUS_ONE,
+  CounterType.MINUS_ZERO_MINUS_TWO,
   // Fallen Empires. Tide is the one that most needs a badge: Homarid's whole clock is the exact
   // count, switching at one and at three and shedding all at four, so a player who can't read it
   // off the board can't play the card.
@@ -861,10 +869,40 @@ export const PASSIVE_COUNTER_TYPES: readonly CounterType[] = [
   CounterType.BRICK,
   // Living Artifact's vitality store is spent one at a time to gain life.
   CounterType.VITALITY,
+  // Sphere of Annihilation's void tally caps the mana value it exiles each upkeep.
+  CounterType.VOID,
+  // Instrument of the Bards' harmony tally sets the mana value its search finds.
+  CounterType.HARMONY,
+  // The Book of Exalted Deeds' enlightened marker on the Angel it made unbeatable.
+  CounterType.ENLIGHTENED,
   // Weatherlight Compleated's phyresis tally: a Phyrexian creature at four, card draw at seven.
   CounterType.PHYRESIS,
   // Assemble the Legion's muster tally sets how many Soldiers it makes each upkeep.
   CounterType.MUSTER,
+  // Divine Intervention's countdown: the game is a draw when the last one comes off.
+  CounterType.INTERVENTION,
+  // Tolarian Contempt's mark: its end-step trigger may only target creatures carrying one.
+  CounterType.REJECTION,
+  // Intrepid Adversary's anthem: creatures you control get +1/+1 for each one on it.
+  CounterType.VALOR,
+  // Heirloom Mirror's countdown: at three it removes them and transforms.
+  CounterType.RITUAL,
+  // Embodiment of Flame's fuel: each one pays for an impulse draw.
+  CounterType.FLAME,
+  // Smoldering Egg's countdown: at seven it removes them and transforms.
+  CounterType.EMBER,
+  // Spell Satchel's store: one pays for {C}, three for a card.
+  CounterType.BOOK,
+  // Kianne / Imbraham's mark on exiled cards.
+  CounterType.STUDY,
+  // Uvilda's countdown on an exiled instant or sorcery.
+  CounterType.REFINE,
+  // Cosima's tally of lands entered while she voyages in exile.
+  CounterType.VOYAGE,
+  // Kaya's reminder that the creature returns to hand when it dies or is exiled.
+  CounterType.GHOSTFORM,
+  // Replicating Ring's upkeep countdown to eight Replicated Rings.
+  CounterType.NIGHT,
   CounterType.PLUS_ONE_PLUS_TWO,
   CounterType.PLUS_TWO_PLUS_TWO,
   CounterType.MINUS_TWO_MINUS_TWO,

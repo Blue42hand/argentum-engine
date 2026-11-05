@@ -2,7 +2,8 @@
  * Handlers for connection and reconnection messages.
  */
 import type { MessageHandlers } from '@/network/messageHandlers.ts'
-import { entityId, createJoinLobbyMessage, createSpectateGameMessage } from '@/types'
+import { entityId, createJoinLobbyMessage, createSpectateGameMessage, createSetTriggerOrderingMessage } from '@/types'
+import { getPreferences } from '@/store/preferencesStore'
 import { useTableTalkStore } from '@/store/tableTalkStore'
 import { useFriendsStore } from '@/store/friendsStore'
 import { useMessagesStore } from '@/store/messagesStore'
@@ -89,6 +90,11 @@ export function createConnectionHandlers(set: SetState, get: GetState): Pick<Mes
       }
       set(updates)
       if (msg.context === 'game' && msg.players?.length) get().setSeatAvatars(msg.players)
+      // Back in a game: the preference may have changed while away (another device, the
+      // preferences page), so bring the server's copy in line. Setting the same value is a no-op.
+      if (msg.context === 'game' && msg.contextId) {
+        getWebSocket()?.send(createSetTriggerOrderingMessage(!getPreferences().gameplay.autoOrderTriggers))
+      }
 
       if (!msg.context && !msg.contextId) {
         const savedLobbyId = loadLobbyId()

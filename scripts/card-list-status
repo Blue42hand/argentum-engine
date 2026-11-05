@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""
+Which cards of a card list (a decklist export, or one name per line) the engine doesn't implement yet.
+
+Accepts the common decklist shapes — "Sol Ring", "1 Sol Ring", "1x Sol Ring",
+"1 Sol Ring (C21) 263", "1 Sol Ring *F*", MTGA/Moxfield section headers ("Commander", "Deck",
+"Sideboard:"), and "#" / "//" comments — and compares the names against every `card("Name")` and
+`Printing` row under `mtg-sets/` (the same check scripts/commander-staples uses).
+
+Usage:
+  scripts/card-list-status my-deck.txt              # summary + the missing cards
+  scripts/card-list-status my-deck.txt --missing    # only the missing names, one per line
+  scripts/card-list-status my-deck.txt --out q.md   # write the summary to a file
+"""
+
+from __future__ import annotations
+
+import argparse
+import importlib.machinery
+import importlib.util
+import re
+import sys
+from pathlib import Path
+
+SCRIPTS = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPTS))
+
+
+def _load_staples():
+    loader = importlib.machinery.SourceFileLoader("commander_staples", str(SCRIPTS / "commander-staples"))
+    spec = importlib.util.spec_from_loader("commander_staples", loader)
+    module = importlib.util.module_from_spec(spec)
+    loader.exec_module(module)
+    return module
+
+
+SECTION_RE = re.compile(r"^(about|name .*|commander|commanders|companion|deck|mainboard|main|sideboard|maybeboard"
+                        r"|considering|tokens?)\s*:?\s*(\(\d+\))?$", re.IGNORECASE)
+COUNT_RE = re.compile(r"^(\d+)\s*x?\s+", re.IGNORECASE)
+# " (SET) 123", " (SET) 123a", " [SET]", " *F*", " *CMDR*", " #tag" trailers from Moxfield/Archidekt/MTGA.
+TRAILER_RE = re.compile(r"(\s+\(\w+\)(\s+[\w-]+)?|\s+\[\w+\]|\s+\*[^*]+\*|\s+#.*)+$")
+
+
+def parse_list(text: str) -> list[str]:
+    names, seen = [], set()
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith(("#", "//")) or SECTION_RE.match(line):
+            continue
+        line = COUNT_RE.sub("", line)
+        line = TRAILER_RE.sub("", line).strip()
+        # Split cards are sometimes exported with a single slash.
+        line = re.sub(r"\s+/\s+", " // ", line)
+        if line and line.lower() not in seen:
+            seen.add(line.lower())
+            names.append(line)
+    return names
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("list", type=Path, help="card list file (decklist export or one name per line)")
+    ap.add_argument("--missing", action="store_true", help="print only the missing card names")
+    ap.add_argument("--out", type=Path, help="write the report to this file instead of stdout")
+    args = ap.parse_args()
+    if not args.list.is_file():
+        print(f"card-list-status: no such file: {args.list}", file=sys.stderr)
+        return 2
+
+    staples = _load_staples()
+    names = parse_list(args.list.read_text(encoding="utf-8"))
+    implemented = staples.implemented_names()
+    missing = [n for n in names if not staples.is_implemented(n, implemented)]
+
+    if args.missing:
+        report = "".join(f"{n}\n" for n in missing)
+    else:
+        lines = [f"# {args.list.name}: {len(names) - len(missing)}/{len(names)} cards implemented", ""]
+        lines += [f"## Missing ({len(missing)})", ""] + [f"- {n}" for n in missing]
+        report = "\n".join(lines) + "\n"
+    if args.out:
+        args.out.write_text(report, encoding="utf-8")
+    else:
+        sys.stdout.write(report)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

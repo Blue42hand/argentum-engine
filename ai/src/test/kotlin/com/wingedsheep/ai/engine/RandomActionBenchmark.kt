@@ -244,6 +244,13 @@ internal fun randomDecisionResponse(decision: PendingDecision, rng: Random): Dec
 
         is YesNoDecision -> YesNoResponse(decision.id, rng.nextBoolean())
 
+        is FlipOntoBattlefieldDecision -> FlipThrowResponse(
+            decision.id,
+            rng.nextDouble() * decision.table.width,
+            rng.nextDouble() * decision.table.height,
+            rng.nextDouble(),
+        )
+
         is BatchYesNoDecision -> BatchYesNoResponse(decision.id, choice = rng.nextBoolean(), applyToAll = true)
 
         is ChooseReplacementDecision -> {
@@ -286,6 +293,9 @@ internal fun randomDecisionResponse(decision: PendingDecision, rng: Random): Dec
 
         is OrderObjectsDecision ->
             OrderedResponse(decision.id, decision.objects.shuffled(rng))
+
+        is OrderTriggersDecision ->
+            TriggerOrderResponse(decision.id, decision.triggers.indices.shuffled(rng))
 
         is SplitPilesDecision -> {
             val shuffled = decision.cards.shuffled(rng)

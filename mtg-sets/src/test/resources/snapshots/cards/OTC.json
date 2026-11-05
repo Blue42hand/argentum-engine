@@ -45,7 +45,8 @@
                         "Stack",
                         "Exile",
                         "Command",
-                        "Sideboard"
+                        "Sideboard",
+                        "Ante"
                     ]
                 },
                 "modification": {

@@ -59,8 +59,16 @@ object CopyExceptionApplier {
      * the whole type line (CR 205.1a), so it replaces the copied types *and* supersedes an addition
      * on the same axis — an "in addition to its other types" clause (CR 205.1b) and a replacing one
      * can't both be printed on the same characteristic.
+     *
+     * [CopyExceptions.conditional] clauses are then folded in, each tested against the type line
+     * built so far ("if it's a creature" asks about the copy, not the copied object).
      */
-    fun typeLine(base: TypeLine, exceptions: CopyExceptions): TypeLine = base.copy(
+    fun typeLine(base: TypeLine, exceptions: CopyExceptions): TypeLine =
+        exceptions.conditional.fold(flatTypeLine(base, exceptions)) { line, clause ->
+            if (clause.cardType in line.cardTypes) flatTypeLine(line, clause.exceptions) else line
+        }
+
+    private fun flatTypeLine(base: TypeLine, exceptions: CopyExceptions): TypeLine = base.copy(
         supertypes = base.supertypes + exceptions.addedSupertypes - exceptions.removedSupertypes,
         cardTypes = exceptions.overrideCardTypes ?: (base.cardTypes + exceptions.addedCardTypes),
         subtypes = exceptions.overrideSubtypes ?: (base.subtypes + exceptions.addedSubtypes),
@@ -73,6 +81,9 @@ object CopyExceptionApplier {
      * marker, revert markers).
      *
      * A no-op fast path when the exceptions are empty, so a plain copy allocates nothing.
+     *
+     * [CopyExceptions.conditional] clauses apply afterwards, in order, each only when the copy built
+     * so far has the clause's card type — a flip side is tested on its own type line.
      */
     fun apply(
         base: CardComponent,
@@ -82,9 +93,14 @@ object CopyExceptionApplier {
         copierStats: CreatureStats? = null,
     ): CardComponent {
         if (exceptions.isEmpty) return base
+        if (exceptions.conditional.isNotEmpty()) {
+            val flat = apply(base, exceptions.copy(conditional = emptyList()), resolvingTrigger, copierColors, copierStats)
+            return exceptions.conditional.fold(flat) { copy, clause -> applyIf(copy, clause, copierColors, copierStats) }
+        }
         val addedTriggers = exceptions.addedTriggeredAbilities +
             if (exceptions.retainResolvingTriggeredAbility && resolvingTrigger != null) listOf(resolvingTrigger)
             else emptyList()
+        val typeLine = typeLine(base.typeLine, exceptions)
         return base.copy(
             flipSide = base.flipSide?.let { apply(it, exceptions, resolvingTrigger, copierColors, copierStats) },
             copyNumericKeywords = base.copyNumericKeywords + exceptions.addedNumericKeywords,
@@ -101,11 +117,11 @@ object CopyExceptionApplier {
                     "copy_act:${base.copyActivatedAbilities.size + index}:${ability.id.value}"
                 ))
             },
-            typeLine = typeLine(base.typeLine, exceptions),
+            typeLine = typeLine,
             // "Its power and toughness are equal to this creature's" keeps the copier's own base
             // P/T — a prototyped copier's included (CR 718.3b). No copier (a minted token): unchanged.
             baseStats = if (exceptions.retainPowerToughness && copierStats != null) copierStats
-                else baseStats(base.baseStats, exceptions),
+                else baseStats(base.baseStats, typeLine, exceptions),
             // Color is already derived from the indicator/CDA in the stored characteristics.
             // A color exception also omits the copied color-defining keyword (CR 707.9d).
             baseKeywords = (if (exceptions.retainColors || exceptions.overrideColors != null ||
@@ -116,7 +132,20 @@ object CopyExceptionApplier {
             // "…and it has no mana cost" (Embalm / Eternalize, CR 702.128a) — mana value 0, and
             // that 0 is itself a copiable value.
             manaCost = if (exceptions.noManaCost) ManaCost.ZERO else base.manaCost,
+            startingLoyaltyOverride = exceptions.startingLoyalty ?: base.startingLoyaltyOverride,
         )
+    }
+
+    private fun applyIf(
+        copy: CardComponent,
+        clause: CopyExceptions.IfCardType,
+        copierColors: Set<com.wingedsheep.sdk.core.Color>,
+        copierStats: CreatureStats?,
+    ): CardComponent {
+        val face = if (clause.cardType in copy.typeLine.cardTypes)
+            apply(copy.copy(flipSide = null), clause.exceptions, copierColors = copierColors, copierStats = copierStats)
+        else copy.copy(flipSide = null)
+        return face.copy(flipSide = copy.flipSide?.let { applyIf(it, clause, copierColors, copierStats) })
     }
 
     /**
@@ -150,11 +179,18 @@ object CopyExceptionApplier {
      * stats when the copied object had none: Absorbing Man copying a land becomes "a legendary 4/4
      * Human Villain creature in addition to its other types", so the 4/4 has to come from nowhere.
      * A half-specified override keeps the copied value on the other half.
+     *
+     * It creates them only when the copy's [typeLine] (other exceptions applied) is a creature:
+     * a copy effect can't give a P/T to a permanent whose copiable values have neither a creature
+     * type nor a printed P/T (CR 208.3). Mindlink Mech copying a crewing animated land ("except
+     * it's 4/3, it's a Vehicle artifact") is a noncreature with no P/T, so the crew effect that
+     * makes it a creature leaves it 0/0 — the card's own ruling.
      */
-    private fun baseStats(base: CreatureStats?, exceptions: CopyExceptions): CreatureStats? {
+    private fun baseStats(base: CreatureStats?, typeLine: TypeLine, exceptions: CopyExceptions): CreatureStats? {
         val power = exceptions.powerOverride
         val toughness = exceptions.toughnessOverride
         if (power == null && toughness == null) return base
+        if (base == null && !typeLine.isCreature) return null
         return CreatureStats(
             power = power?.let { CharacteristicValue.Fixed(it) }
                 ?: base?.power

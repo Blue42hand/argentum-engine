@@ -6,6 +6,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Targets
@@ -14,6 +15,9 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.GrantActivatedAbility
+import com.wingedsheep.sdk.scripting.ActivatedAbility
+import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.values.ManaColorSet
 import com.wingedsheep.sdk.model.CardDefinition.Companion.doubleFacedPermanent
 import com.wingedsheep.sdk.scripting.CanOnlyBlockCreaturesWith
@@ -23,10 +27,14 @@ import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.effects.TransformEffect
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.GrantDynamicStats
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.GrantWard
 import com.wingedsheep.sdk.scripting.ModifyStats
+import com.wingedsheep.sdk.scripting.ModifySpellCost
+import com.wingedsheep.sdk.scripting.SpellCostTarget
+import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.MustAttack
 import com.wingedsheep.sdk.scripting.SetBasePowerToughnessStatic
 import com.wingedsheep.sdk.scripting.effects.WardCost
@@ -108,6 +116,27 @@ object PredefinedTokens {
             )
             manaAbility = true
             timing = TimingRule.ManaAbility
+        }
+    }
+
+    /**
+     * Gold token — an artifact with "Sacrifice this token: Add one mana of any color." Unlike a
+     * Treasure it needs no tap, so a Gold token that entered this turn can still be sacrificed.
+     * Created by `Effects.CreateGold()` (Curse of Opulence).
+     */
+    val Gold = card("Gold") {
+        typeLine = "Artifact — Gold"
+        oracleText = "Sacrifice this token: Add one mana of any color."
+
+        activatedAbility {
+            cost = Costs.SacrificeSelf
+            effect = Effects.AddAnyColorMana(1)
+            manaAbility = true
+            description = "Sacrifice this token: Add one mana of any color."
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/9/b/9b180a33-65ef-43b3-b969-f603b1fc23fb.jpg?1783935826"
         }
     }
 
@@ -350,6 +379,34 @@ object PredefinedTokens {
     }
 
     /**
+     * Icingdeath, Frost Tongue — a legendary white Equipment artifact token with
+     * "Equipped creature gets +2/+0," "Whenever equipped creature attacks, tap target creature
+     * defending player controls," and equip {2}. Created by Icingdeath, Frost Tyrant.
+     * White from its color indicator (CR 204), like [Frog].
+     */
+    val IcingdeathFrostTongue = card("Icingdeath, Frost Tongue") {
+        typeLine = "Legendary Artifact — Equipment"
+        colorIdentity = "W"
+        colorIndicator = "W"
+
+        staticAbility {
+            ability = ModifyStats(+2, +0, Filters.EquippedCreature)
+        }
+
+        triggeredAbility {
+            trigger = Triggers.attached.attacks()
+            val creature = target(TargetFilter.Creature.defendingPlayerControls())
+            effect = Effects.Tap(creature)
+        }
+
+        equipAbility("{2}")
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/a/9/a9c981c9-3376-4f6e-b30d-859e5fc7347e.jpg?1783926347"
+        }
+    }
+
+    /**
      * Mutavault — a Land token with:
      * "{T}: Add {C}."
      * "{1}: This token becomes a 2/2 creature with all creature types until end of turn.
@@ -542,6 +599,36 @@ object PredefinedTokens {
     }
 
     /**
+     * Settlement — the green Aura enchantment token Preston Garvey, Minuteman creates (Fallout):
+     * enchant land and "Enchanted land has '{T}: Add one mana of any color.'" Not a Role.
+     */
+    val Settlement = card("Settlement") {
+        typeLine = "Enchantment — Aura"
+        colorIdentity = "G"
+        colorIndicator = "G"
+        oracleText = "Enchant land\nEnchanted land has \"{T}: Add one mana of any color.\""
+
+        auraTarget = TargetObject(filter = TargetFilter.Land)
+
+        staticAbility {
+            ability = GrantActivatedAbility(
+                ability = ActivatedAbility(
+                    id = AbilityId.next(),
+                    cost = Costs.Tap,
+                    effect = Effects.AddAnyColorMana(1),
+                    isManaAbility = true,
+                    timing = TimingRule.ManaAbility
+                )
+            )
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/0/2/02789d01-f939-4515-a6e4-db6aff36f893.jpg?1783912044"
+            artist = "Mathias Kollros"
+        }
+    }
+
+    /**
      * Phyrexian — back face of the Incubator token.
      * Colorless 0/0 Phyrexian artifact creature.
      *
@@ -711,13 +798,13 @@ object PredefinedTokens {
      * Frog token — a vanilla 1/1 green creature (Quina, Qu Gourmet).
      *
      * Its green color comes from a color indicator (CR 204), stored here via the
-     * `colorIdentity` DSL setter → `colorIdentityOverride`. Tokens have no mana cost,
-     * so the token-creation executors read the override for the printed color (a plain
-     * `CardDefinition.colors` would be empty/colorless without a mana cost).
+     * `colorIndicator` DSL property. Tokens have no mana cost; their actual colors are
+     * independent of the color identity used for deck construction.
      */
     val Frog = card("Frog") {
         typeLine = "Creature — Frog"
         colorIdentity = "G"
+        colorIndicator = "G"
         power = 1
         toughness = 1
 
@@ -734,6 +821,7 @@ object PredefinedTokens {
     val Squirrel = card("Squirrel") {
         typeLine = "Creature — Squirrel"
         colorIdentity = "G"
+        colorIndicator = "G"
         power = 1
         toughness = 1
 
@@ -751,6 +839,7 @@ object PredefinedTokens {
     val Soldier = card("Soldier") {
         typeLine = "Creature — Soldier"
         colorIdentity = "W"
+        colorIndicator = "W"
         power = 1
         toughness = 1
 
@@ -812,11 +901,12 @@ object PredefinedTokens {
      * flying, indestructible, and "The Void attacks each combat if able." The last is the ordinary
      * [MustAttack] static over `GroupFilter.source()` — the same wiring printed cards like Zurgo
      * Helmsmasher use — so the combat legality checker enforces it for free. Its black color comes
-     * from a color indicator (CR 204), stored via `colorIdentity`, since tokens have no mana cost.
+     * from a color indicator (CR 204), stored via `colorIndicator`, since tokens have no mana cost.
      */
     val TheVoid = card("The Void") {
         typeLine = "Legendary Creature — Horror Villain"
         colorIdentity = "B"
+        colorIndicator = "B"
         power = 5
         toughness = 5
         oracleText = "Flying, indestructible\nThe Void attacks each combat if able."
@@ -844,6 +934,7 @@ object PredefinedTokens {
     val Redwing = card("Redwing") {
         typeLine = "Legendary Creature — Bird Scout"
         colorIdentity = "U"
+        colorIndicator = "U"
         power = 1
         toughness = 1
         oracleText = "Flying\nWhenever Redwing attacks, surveil 1."
@@ -885,11 +976,12 @@ object PredefinedTokens {
      * Named token carrying its own landfall trigger, so it needs a registered definition: the
      * trigger detector resolves a token's abilities through the CardRegistry by its
      * `cardDefinitionId`, which the predefined-token executor sets to the token's name. Green
-     * comes from a color indicator (CR 204) via `colorIdentity`, since tokens have no mana cost.
+     * comes from a color indicator (CR 204) via `colorIndicator`, since tokens have no mana cost.
      */
     val Zabu = card("Zabu") {
         typeLine = "Legendary Creature — Cat"
         colorIdentity = "G"
+        colorIndicator = "G"
         power = 2
         toughness = 2
         oracleText = "Landfall — Whenever a land you control enters, put a +1/+1 counter on Zabu."
@@ -916,6 +1008,7 @@ object PredefinedTokens {
     val Moloid = card("Moloid") {
         typeLine = "Creature — Minion"
         colorIdentity = "G"
+        colorIndicator = "G"
         power = 1
         toughness = 1
         oracleText = "Whenever this token attacks, you may mill a card."
@@ -937,11 +1030,12 @@ object PredefinedTokens {
      * The Coming of Galactus (Marvel Super Heroes).
      *
      * Named token with flying, trample, and its own attack trigger, so it needs a registered
-     * definition. Black comes from a color indicator (CR 204) via `colorIdentity`.
+     * definition. Black comes from a color indicator (CR 204) via `colorIndicator`.
      */
     val Galactus = card("Galactus") {
         typeLine = "Legendary Creature — Elder Alien"
         colorIdentity = "B"
+        colorIndicator = "B"
         power = 16
         toughness = 16
         oracleText = "Flying, trample\nWhenever Galactus attacks, destroy target land."
@@ -1006,6 +1100,32 @@ object PredefinedTokens {
     }
 
     /**
+     * Wasteland Survival Guide — the colorless Book Equipment artifact token created by Moira
+     * Brown, Guide Author (Fallout): "Equipped creature gets +1/+1 for each quest counter among
+     * permanents you control" and equip {1}.
+     *
+     * The bonus is a continuously recomputed Layer 7c amount ([GrantDynamicStats]) over every
+     * quest counter on permanents the token's controller controls — the same count Overseer of
+     * Vault 76 reads. The Book subtype comes from Moira's Oracle text.
+     */
+    val WastelandSurvivalGuide = card("Wasteland Survival Guide") {
+        typeLine = "Artifact — Book Equipment"
+        oracleText = "Equipped creature gets +1/+1 for each quest counter among permanents you control.\nEquip {1}"
+
+        staticAbility {
+            val quests = DynamicAmounts.battlefield(Player.You).totalCounters(CounterType.QUEST)
+            ability = GrantDynamicStats(Filters.EquippedCreature, quests, quests)
+        }
+
+        equipAbility("{1}")
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/a/d/ad073c87-42f2-45f0-9613-2cdbd0abf719.jpg?1783912040"
+            artist = "Sergio Cosmai"
+        }
+    }
+
+    /**
      * Pest token — the 1/1 black **and** green Pest with "When this creature dies, you gain 1
      * life." that Strixhaven's Witherbloom cards hand out (Hunt for Specimens, Pest Summoning,
      * Sedgemoor Witch, …).
@@ -1014,13 +1134,13 @@ object PredefinedTokens {
      * triggered ability, and because a dozen-odd STX cards mint the identical body — the registry
      * is what keeps them from each re-declaring the dies trigger.
      *
-     * Its two colors come from a color indicator (CR 204), stored via the `colorIdentity` DSL
-     * setter → `colorIdentityOverride`: a token has no mana cost, so a bare `colors` would read
-     * colorless.
+     * Its two colors come from `colorIndicator` (CR 204). This token has no mana cost,
+     * so its mana cost alone would make it colorless.
      */
     val Pest = card("Pest") {
         typeLine = "Creature — Pest"
         colorIdentity = "BG"
+        colorIndicator = "BG"
         power = 1
         toughness = 1
 
@@ -1077,6 +1197,7 @@ object PredefinedTokens {
     val Jace = card("Jace") {
         typeLine = "Planeswalker — Jace"
         colorIdentity = "U"
+        colorIndicator = "U"
         startingLoyalty = 0
         oracleText = "−1: Surveil 1.\n−3: Draw a card."
 
@@ -1097,11 +1218,12 @@ object PredefinedTokens {
     /**
      * Heartwood — the red and green artifact token of Reality Fracture:
      * "{T}: Add {R} or {G}." Its colors come from its color indicator (CR 204), carried as
-     * [colorIdentity], the same way the blue [Jace] token's are.
+     * `colorIndicator`, the same way the blue [Jace] token's are.
      */
     val Heartwood = card("Heartwood") {
         typeLine = "Artifact — Heartwood"
         colorIdentity = "RG"
+        colorIndicator = "RG"
         oracleText = "{T}: Add {R} or {G}."
 
         activatedAbility {
@@ -1153,6 +1275,7 @@ object PredefinedTokens {
     val ForestTentacle = card("Forest Tentacle") {
         typeLine = "Land Creature — Forest Tentacle"
         colorIdentity = "G"
+        colorIndicator = "G"
         power = 3
         toughness = 3
         oracleText = "{T}: Add {G}."
@@ -1169,6 +1292,7 @@ object PredefinedTokens {
     val ForestDryad = card("Forest Dryad") {
         typeLine = "Land Creature — Forest Dryad"
         colorIdentity = "G"
+        colorIndicator = "G"
         power = 1
         toughness = 1
         oracleText = "{T}: Add {G}."
@@ -1207,6 +1331,70 @@ object PredefinedTokens {
     }
 
     /**
+     * Icy Manalith — the colorless snow artifact token with "{T}: Add one mana of any color."
+     * Created by Svella, Ice Shaper. Being snow, the mana it makes is snow mana.
+     */
+    val IcyManalith = card("Icy Manalith") {
+        typeLine = "Snow Artifact"
+        oracleText = "{T}: Add one mana of any color."
+
+        activatedAbility {
+            cost = Costs.Tap
+            effect = Effects.AddAnyColorMana(1)
+            manaAbility = true
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/3/d/3db39e3b-fad4-4c9b-911f-69883ac7e0e1.jpg?1783928078"
+        }
+    }
+
+    /**
+     * Replicated Ring — the colorless snow artifact token with "{T}: Add one mana of any color."
+     * Created eight at a time by Replicating Ring. Being snow, the mana it makes is snow mana.
+     */
+    val ReplicatedRing = card("Replicated Ring") {
+        typeLine = "Snow Artifact"
+        oracleText = "{T}: Add one mana of any color."
+
+        activatedAbility {
+            cost = Costs.Tap
+            effect = Effects.AddAnyColorMana(1)
+            manaAbility = true
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/b/3/b3ce1236-ec2f-4cd1-9701-ba6ead74c220.jpg?1783928077"
+        }
+    }
+
+    /**
+     * Tamiyo's Notebook — a legendary colorless Book artifact token with
+     * "Spells you cast cost {2} less to cast" and "{T}: Draw a card."
+     * Created by Tamiyo, Compleated Sage's −7.
+     */
+    val TamiyosNotebook = card("Tamiyo's Notebook") {
+        typeLine = "Legendary Artifact — Book"
+        oracleText = "Spells you cast cost {2} less to cast.\n{T}: Draw a card."
+
+        staticAbility {
+            ability = ModifySpellCost(
+                target = SpellCostTarget.YouCast(GameObjectFilter.Any),
+                modification = CostModification.ReduceGeneric(2),
+            )
+        }
+
+        activatedAbility {
+            cost = Costs.Tap
+            effect = Effects.DrawCards(1)
+        }
+
+        metadata {
+            imageUri = "https://cards.scryfall.io/normal/front/9/9/992cb1e0-e846-4710-b49e-a748e4ebffa5.jpg?1783923709"
+        }
+    }
+
+    /**
      * All predefined token definitions.
      * Register these in the CardRegistry so token abilities are resolved.
      */
@@ -1240,6 +1428,7 @@ object PredefinedTokens {
         Map,
         Sword,
         Cragflame,
+        IcingdeathFrostTongue,
         Mutavault,
         SorcererRole,
         MonsterRole,
@@ -1247,6 +1436,7 @@ object PredefinedTokens {
         CursedRole,
         WickedRole,
         YoungHeroRole,
+        Settlement,
         Incubator,
         Drone,
         Everywhere,
@@ -1267,11 +1457,16 @@ object PredefinedTokens {
         Galactus,
         SturdyShield,
         Axe,
+        WastelandSurvivalGuide,
         Jace,
         Heartwood,
         Lotus,
         ForestTentacle,
         ForestDryad,
-        Powerstone
+        Powerstone,
+        IcyManalith,
+        ReplicatedRing,
+        TamiyosNotebook,
+        Gold
     )
 }

@@ -8,14 +8,22 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 
+/**
+ * Skull Prophet
+ * {B}{G}
+ * Creature — Human Druid
+ * 3/1
+ * {T}: Add {B} or {G}.
+ * {T}: Mill two cards. (Put the top two cards of your library into your graveyard.)
+ */
 val SkullProphet = card("Skull Prophet") {
     manaCost = "{B}{G}"
     colorIdentity = "BG"
     typeLine = "Creature — Human Druid"
-    oracleText = "{T}: Add {B} or {G}.\n" +
-        "{T}: Mill two cards. (Put the top two cards of your library into your graveyard.)"
     power = 3
     toughness = 1
+    oracleText = "{T}: Add {B} or {G}.\n" +
+        "{T}: Mill two cards. (Put the top two cards of your library into your graveyard.)"
 
     activatedAbility {
         cost = Costs.Tap
@@ -23,12 +31,14 @@ val SkullProphet = card("Skull Prophet") {
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
+
     activatedAbility {
         cost = Costs.Tap
         effect = Effects.AddMana(Color.GREEN)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
+
     activatedAbility {
         cost = Costs.Tap
         effect = Patterns.Library.mill(2)

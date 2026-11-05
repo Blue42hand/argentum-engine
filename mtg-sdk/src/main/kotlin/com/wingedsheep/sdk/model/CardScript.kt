@@ -8,6 +8,7 @@ import com.wingedsheep.sdk.scripting.*
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.targets.TargetRequirement
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.Serializable
 
 // Type alias for clarity - replacement effects are in the scripting package
@@ -389,21 +390,34 @@ data class CardScript(
     val xManaRestriction: Set<Color> = emptySet(),
 
     /**
-     * Leyline mechanic. "If this card is in your opening hand, you may begin the game
-     * with it on the battlefield." After all mulligans and bottoming resolve, the engine
-     * walks each player in turn order (starting with the active player) and presents a
-     * yes/no choice per Leyline card still in that player's opening hand. A "yes" puts the
-     * card onto the battlefield under its owner's control through the standard zone-change
-     * pipeline before the first turn begins; a "no" leaves it in hand.
+     * "X can't be greater than <amount>." — the largest X this spell may be cast with, read as
+     * X is announced (CR 601.2b) and never again: Open the Way's ruling — "the number of players
+     * in the game is checked only as you choose the value for X". The cast enumerator caps the
+     * offered X slider at it and the cast validator rejects a larger announced X. Null (the
+     * default) means only the mana the caster can pay bounds X.
+     *
+     * A spell copied on the stack isn't cast, so it keeps its copied X uncapped. Declared with
+     * `spell { xMaximum = ... }`.
+     */
+    val xMaximum: DynamicAmount? = null,
+
+    /**
+     * "If this card is in your opening hand, you may begin the game with it on the battlefield"
+     * (CR 103.6a), with any condition, entry counters and "if you do" rider it prints. After all
+     * mulligans and bottoming resolve, the engine walks each player in turn order (starting with
+     * the active player) and presents a yes/no choice per such card still in that player's opening
+     * hand whose [BeginOnBattlefield.onlyIf] holds. A "yes" puts the card onto the battlefield under
+     * its owner's control through the standard zone-change pipeline before the first turn begins,
+     * then runs [BeginOnBattlefield.then]; a "no" leaves it in hand. `null` for every other card.
      *
      * Wired via the `mayBeginGameOnBattlefield()` DSL helper on [com.wingedsheep.sdk.dsl.CardBuilder].
      */
-    val mayStartOnBattlefield: Boolean = false,
+    val beginOnBattlefield: BeginOnBattlefield? = null,
 
     /**
      * "You may reveal this card from your opening hand. If you do, …" (CR 103.6b). When non-null
      * the card carries that opening-hand action: in the same post-mulligan walk as
-     * [mayStartOnBattlefield], its owner is asked whether to reveal it, and a "yes" reveals the card
+     * [beginOnBattlefield], its owner is asked whether to reveal it, and a "yes" reveals the card
      * and runs this effect with the card as source and its owner as controller. The payoff is
      * almost always a delayed trigger (CR 603.7a — created "as a result of a static ability that
      * allows a player to take an action"), e.g. Devourer of Destiny's
@@ -416,15 +430,16 @@ data class CardScript(
     val openingHandReveal: Effect? = null,
 
     /**
-     * "As you cast this spell" condition captures (CR 601.2i). Each is a named condition the engine
-     * evaluates the moment this spell finishes being cast; the names whose condition was true are
-     * frozen onto the spell on the stack and read back at resolution via
-     * [com.wingedsheep.sdk.scripting.conditions.CastTimeFlagSet]. Lets a spell branch on the
-     * cast-time board state rather than the (possibly changed) resolution-time board — e.g. Steer
-     * Clear "deals 4 damage instead if you controlled a Mount as you cast this spell".
+     * "As you cast this spell" captures (CR 601.2i). Each is a named amount the engine evaluates
+     * the moment this spell finishes being cast; the numbers are frozen onto the spell on the stack
+     * and read back at resolution via [com.wingedsheep.sdk.scripting.values.DynamicAmount.CapturedAtCast]
+     * (or, for a 1/0 condition capture, the `Conditions.CapturedAtCast(flag)` facade).
+     * Lets a spell read the cast-time board state rather than the (possibly changed) resolution-time
+     * board — e.g. Steer Clear "deals 4 damage instead if you controlled a Mount as you cast this
+     * spell", Lethal Exploit "for each modified creature you controlled as you cast this spell".
      *
-     * Declared with the `captureAtCast(flag, condition)` DSL on a spell. Empty for the vast
-     * majority of spells.
+     * Declared with the `captureAtCast(name, amount)` / `captureAtCast(flag, condition)` DSL on a
+     * spell. Empty for the vast majority of spells.
      */
     val castTimeCaptures: List<CastTimeCapture> = emptyList()
 ) {

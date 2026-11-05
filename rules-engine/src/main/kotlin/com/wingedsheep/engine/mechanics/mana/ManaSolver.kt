@@ -19,6 +19,7 @@ import com.wingedsheep.engine.legalactions.utils.donorGrantReaches
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.activeManaSpendingScope
+import com.wingedsheep.sdk.scripting.filters.unified.Scope
 import com.wingedsheep.engine.state.manaAbilitySourceAllowed
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AbilityActivatedThisTurnComponent
@@ -37,11 +38,9 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.engine.mechanics.SummoningSicknessRules
 import com.wingedsheep.engine.mechanics.cost.CostPaymentService
-import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.costs.manaCostOrNull
-import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEffect
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
@@ -61,6 +60,7 @@ import com.wingedsheep.sdk.scripting.TappedForManaType
 import com.wingedsheep.sdk.scripting.AdditionalManaOnTap
 import com.wingedsheep.sdk.scripting.DampLandManaProduction
 import com.wingedsheep.sdk.scripting.GrantActivatedAbility
+import com.wingedsheep.sdk.scripting.TimingRule
 import com.wingedsheep.sdk.scripting.MultiplyManaOnSourceTap
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
@@ -68,6 +68,7 @@ import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.engine.state.components.identity.faceUpCardDefinition
 
 /**
  * Represents the mana production capability of a source.
@@ -122,6 +123,12 @@ data class ManaSource(
      * as the fallback color for any bonus left unspent.
      */
     val bonusManaIsAnyColor: Boolean = false,
+    /**
+     * How many of [bonusManaPerTap] come from a snow aura. The aura is that mana's source
+     * (CR 106.3), so it is snow mana and pays `{S}` whether or not this source is snow
+     * (Glittering Frost).
+     */
+    val bonusManaSnowPerTap: Int = 0,
     /**
      * Extra *colorless* {C} mana produced per tap by an [AdditionalManaOnSourceTap] whose bonus is
      * colorless (Ultima's "tap a land for {C}, add an additional {C}"). Kept separate from
@@ -299,8 +306,24 @@ data class ManaSolution(
      * (which only tracks the printed mana of tapped sources), so the cast/ability payment path must
      * add it to the per-color mana-spent tally that backs `Conditions.ManaSpentToCastIncludes`.
      */
-    val bonusManaSpentByColor: Map<Color, Int> = emptyMap()
+    val bonusManaSpentByColor: Map<Color, Int> = emptyMap(),
+    /**
+     * Of that consumed aura bonus mana, how much was snow mana ([BonusManaEntry.snow]) and its
+     * colors — the "{S} spent" share [manaProduced]'s snow flag can't see.
+     */
+    val bonusSnowManaSpent: Int = 0,
+    val bonusSnowColorsSpent: Set<Color> = emptySet(),
+    /**
+     * Aura bonus mana a reserved snow source's tap paid `{S}` pips with ([ManaSolver] `solveWithSnow`):
+     * spent, and — like all bonus mana — not in [manaProduced], which holds only what each source's
+     * own ability made. Payment paths that route every unit through the pool add these first.
+     */
+    val reservedSnowBonus: List<BonusManaEntry> = emptyList(),
 )
+
+/** [solution]'s [ManaSolution.reservedSnowBonus], added to this pool as snow mana. */
+fun ManaPool.withReservedSnowBonus(solution: ManaSolution): ManaPool =
+    solution.reservedSnowBonus.fold(this) { pool, entry -> pool.add(entry.color, entry.amount).markSnow(entry.color, entry.amount) }
 
 /**
  * A unit of bonus mana that wasn't consumed by the current solve. Carries the source's
@@ -338,6 +361,8 @@ data class BonusManaEntry(
      * must not fund its own {1}).
      */
     val sourceId: EntityId? = null,
+    /** Mana from a snow source (CR 107.4h): it is marked snow when it floats, and counts as `{S}` spent. */
+    val snow: Boolean = false,
 )
 
 /**
@@ -352,6 +377,9 @@ data class ManaProduction(
 ) {
     /** The colors of this mana — empty for colorless. "The mana that land produced" (C.A.M.P.). */
     val producedColors: Set<Color> get() = setOfNotNull(color)
+
+    /** How much mana this is — [amount] of [color], or [colorless] when it has no color. */
+    val total: Int get() = if (color != null) amount else colorless
 }
 
 /**
@@ -501,6 +529,8 @@ class ManaSolver private constructor(
         // actually spent on the cost. Reported via [ManaSolution.bonusManaSpentByColor] so callers
         // fold it into the mana-spent-to-cast tally — see [BonusManaEntry.countsTowardSpent].
         val bonusManaSpentByColor = mutableMapOf<Color, Int>()
+        var bonusSnowSpent = 0
+        val bonusSnowColors = mutableSetOf<Color>()
 
         // The extra fixed colors of a composite tap (Timeless Lotus's {U}{B}{R}{G} beside its {W}),
         // one entry per color. Genuinely-extra mana, not in `manaProduced` — count it when spent.
@@ -508,6 +538,13 @@ class ManaSolver private constructor(
             for ((color, amount) in source.compositeBonusMana) {
                 bonusManaPool.add(BonusManaEntry(color, amount, restriction = null, countsTowardSpent = true, sourceId = source.entityId))
             }
+        }
+
+        // The aura tap-bonus of [source] as bonus-pool entries, split into its snow and non-snow
+        // shares. Genuinely-extra mana, not in `manaProduced` — count it when spent.
+        fun floatAuraBonus(source: ManaSource) {
+            if (source.bonusManaPerTap <= 0 || (source.bonusManaColor == null && !source.bonusManaIsAnyColor)) return
+            bonusManaPool.addAll(auraBonusEntries(source, source.bonusManaPerTap))
         }
 
         // Helper to update available counts when a source is used
@@ -527,33 +564,19 @@ class ManaSolver private constructor(
             if (producedAmount > 1) {
                 if (colorUsed != null) {
                     val restrictionForExcess = source.colorRestrictions[colorUsed] ?: source.restriction
-                    bonusManaPool.add(BonusManaEntry(colorUsed, producedAmount - 1, restrictionForExcess, sourceId = source.entityId))
+                    bonusManaPool.add(BonusManaEntry(colorUsed, producedAmount - 1, restrictionForExcess, sourceId = source.entityId, snow = source.isSnow))
                 } else if (source.producesColorless) {
                     // Colorless excess (e.g. the second {C} of Sol Ring's "{T}: Add {C}{C}").
                     // Float it as colorless so a later generic/{C} pip can consume it, or it
                     // lands in the pool — instead of being silently dropped.
                     bonusManaPool.add(
-                        BonusManaEntry(Color.WHITE, producedAmount - 1, source.restriction, colorless = true, sourceId = source.entityId)
+                        BonusManaEntry(Color.WHITE, producedAmount - 1, source.restriction, colorless = true, sourceId = source.entityId, snow = source.isSnow)
                     )
                 }
             }
             // Collect bonus mana from auras attached to this source (no restriction —
             // the aura grants extra mana on top of the source's printed ability).
-            if (source.bonusManaPerTap > 0 && (source.bonusManaColor != null || source.bonusManaIsAnyColor)) {
-                bonusManaPool.add(
-                    BonusManaEntry(
-                        // Fertile Ground's any-color bonus has no fixed color; default to white as
-                        // the fallback for any portion left unspent (anyColor lets it pay any cost).
-                        color = source.bonusManaColor ?: Color.WHITE,
-                        amount = source.bonusManaPerTap,
-                        restriction = null,
-                        anyColor = source.bonusManaIsAnyColor,
-                        // Genuinely-extra mana, not in `manaProduced` — count it when spent.
-                        countsTowardSpent = true,
-                        sourceId = source.entityId,
-                    )
-                )
-            }
+            floatAuraBonus(source)
             floatCompositeBonus(source)
             // Colorless tap-bonus (Ultima's "tap a land for {C}, add an additional {C}"). Floated as
             // a colorless entry so it can pay {C}/generic pips or float to the pool.
@@ -592,6 +615,7 @@ class ManaSolver private constructor(
             // an any-color entry produces the demanded color).
             if (entry.countsTowardSpent) {
                 bonusManaSpentByColor[color] = (bonusManaSpentByColor[color] ?: 0) + 1
+                if (entry.snow) { bonusSnowSpent++; bonusSnowColors += color }
             }
             return true
         }
@@ -608,6 +632,10 @@ class ManaSolver private constructor(
             // An any-color bonus has no color committed at solve time, so it stays uncounted here.
             if (entry.countsTowardSpent && !entry.anyColor && !entry.colorless) {
                 bonusManaSpentByColor[entry.color] = (bonusManaSpentByColor[entry.color] ?: 0) + 1
+            }
+            if (entry.countsTowardSpent && entry.snow) {
+                bonusSnowSpent++
+                if (!entry.anyColor && !entry.colorless) bonusSnowColors += entry.color
             }
             return true
         }
@@ -647,41 +675,46 @@ class ManaSolver private constructor(
             val primaryColor = source.availableColorsFor(spellContext).firstOrNull()
             if (primaryColor != null) {
                 manaProduced[source.entityId] = ManaProduction(color = primaryColor, amount = source.amountFor(primaryColor))
-                bonusManaPool.add(BonusManaEntry(primaryColor, source.amountFor(primaryColor), source.restriction, sourceId = source.entityId))
+                bonusManaPool.add(BonusManaEntry(primaryColor, source.amountFor(primaryColor), source.restriction, sourceId = source.entityId, snow = source.isSnow))
             } else {
                 manaProduced[source.entityId] = ManaProduction(colorless = source.amountFor(null))
             }
             // Aura bonus → bonus pool (any-color or fixed), then spend one toward this pip.
-            if (source.bonusManaPerTap > 0) {
-                bonusManaPool.add(
-                    BonusManaEntry(
-                        color = source.bonusManaColor ?: Color.WHITE,
-                        amount = source.bonusManaPerTap,
-                        restriction = null,
-                        anyColor = source.bonusManaIsAnyColor,
-                        // Genuinely-extra mana, not in `manaProduced` — count it when spent.
-                        countsTowardSpent = true,
-                        sourceId = source.entityId,
-                    )
-                )
-            }
+            if (source.bonusManaPerTap > 0) bonusManaPool.addAll(auraBonusEntries(source, source.bonusManaPerTap))
             floatCompositeBonus(source)
             return spendBonusMana(color)
         }
 
         val spendingColors = ManaSpendingRules.colors(state, playerId)
-        // "Spend colorless mana as though it were mana of any color" for this spell (CR 609.4b):
-        // every colored pip may fall back to a colorless source once its own colors run out.
-        val colorlessAsAnyColor = spellContext?.colorlessAsAnyColor == true
-        val substitutes = spendingColors.isNotEmpty() || colorlessAsAnyColor
+        // "Spend colorless mana / mana from snow sources as though it were mana of any color" for
+        // this spell (CR 609.4b): every colored pip may fall back to a colorless (or any snow)
+        // source once its own colors run out.
+        val colorlessAsAnyColor = spellContext?.spendAsAnyColor == com.wingedsheep.sdk.scripting.effects.ManaSpentAsAnyColor.COLORLESS
+        val snowAsAnyColor = spellContext?.spendAsAnyColor == com.wingedsheep.sdk.scripting.effects.ManaSpentAsAnyColor.SNOW
+        val substitutes = spendingColors.isNotEmpty() || colorlessAsAnyColor || snowAsAnyColor
+        // The mana a snow source taps for when it stands in for a colored pip: its first color,
+        // or colorless. Null when the rider is off or the source isn't snow.
+        fun snowStandIn(source: ManaSource): PlannedSnowMana? {
+            if (!snowAsAnyColor || !source.isSnow) return null
+            val color = source.availableColorsFor(spellContext).firstOrNull()
+            return when {
+                color != null -> PlannedSnowMana(color)
+                source.producesColorless -> PlannedSnowMana(null)
+                else -> null
+            }
+        }
         fun payableColors(colors: List<Color>): List<Color> = colors.flatMap { color ->
-            listOf(color) + spendingColors[color].orEmpty().filter { it != color }
+            listOf(color) + spendingColors[color].orEmpty().filterNotNull().filter { it != color }
         }.distinct()
+        // Colorless may stand in for a colored pip under the spell's own rider or a player-wide
+        // "spend mana as though it were mana of any color" permission (Mycosynth Lattice).
+        fun colorlessPays(required: List<Color>): Boolean = required.isNotEmpty() &&
+            (colorlessAsAnyColor || required.any { null in spendingColors[it].orEmpty() })
         fun payWithAllowedColors(required: List<Color>): Boolean {
             val colors = payableColors(required)
             if (colors.any { spendBonusMana(it) }) return true
             // Already-floating colorless costs no tap, so it beats tapping a new colored source.
-            if (colorlessAsAnyColor && spendColorlessBonusMana()) return true
+            if (colorlessPays(required) && spendColorlessBonusMana()) return true
             val best = colors.mapNotNull { color ->
                 findBestSourceForColor(remainingSources, color, handRequirements, availableSourcesByColor, spellContext)
                     ?.let { it to color }
@@ -697,13 +730,24 @@ class ManaSolver private constructor(
                 useSource(source, color)
                 return true
             }
-            if (colorlessAsAnyColor) {
+            if (colorlessPays(required)) {
                 val colorlessSource = remainingSources.filter { it.producesColorless }.minByOrNull {
                     calculateTapPriority(it, handRequirements, availableSourcesByColor) + painPenalty(it, it.colorlessPainCost)
                 }
                 if (colorlessSource != null) {
                     manaProduced[colorlessSource.entityId] = ManaProduction(colorless = colorlessSource.amountFor(null))
                     useSource(colorlessSource, null)
+                    return true
+                }
+            }
+            if (required.isNotEmpty()) {
+                val snowSource = remainingSources.mapNotNull { source -> snowStandIn(source)?.let { source to it } }
+                    .minByOrNull { (source, _) -> calculateTapPriority(source, handRequirements, availableSourcesByColor) }
+                if (snowSource != null) {
+                    val (source, mana) = snowSource
+                    manaProduced[source.entityId] = if (mana.color == null) ManaProduction(colorless = source.amountFor(null))
+                        else ManaProduction(color = mana.color, amount = source.amountFor(mana.color))
+                    useSource(source, mana.color)
                     return true
                 }
             }
@@ -733,11 +777,11 @@ class ManaSolver private constructor(
             }
         }.toSet()
         val needsColorless = paymentSymbols.any { it is ManaSymbol.Colorless } ||
-            (colorlessAsAnyColor && strictColors.isNotEmpty())
+            (strictColors.isNotEmpty() && (colorlessAsAnyColor || spendingColors.values.any { null in it }))
         val matchingSources = if (!substitutes) emptyList() else availableSources.filter { source ->
             val relevant = source.availableColorsFor(spellContext).any { it in strictColors } ||
                 (needsColorless && source.producesColorless)
-            relevant && source.bonusManaPerTap == 0 && source.bonusManaColorlessPerTap == 0 &&
+            (relevant || (strictColors.isNotEmpty() && snowStandIn(source) != null)) && source.bonusManaPerTap == 0 && source.bonusManaColorlessPerTap == 0 &&
                 source.compositeBonusMana.isEmpty() &&
                 source.colorActivationManaCost.values.all { it == 0 } &&
                 source.producesColors.all { source.amountFor(it) == 1 } &&
@@ -758,9 +802,11 @@ class ManaSolver private constructor(
                         if (source.producesColorless) listOf(PlannedPip(source, null)) else emptyList()
                     } else source.availableColorsFor(spellContext).filter { it in allowed }
                         .map { PlannedPip(source, it) } +
-                        if (colorlessAsAnyColor && required.isNotEmpty() && source.producesColorless)
-                            listOf(PlannedPip(source, null)) else emptyList()
-                }.sortedWith(compareBy<PlannedPip>(
+                        (if (colorlessPays(required) && source.producesColorless)
+                            listOf(PlannedPip(source, null)) else emptyList()) +
+                        (snowStandIn(source)?.takeIf { required.isNotEmpty() && it.color !in allowed }
+                            ?.let { listOf(PlannedPip(source, it.color)) } ?: emptyList())
+                }.distinct().sortedWith(compareBy<PlannedPip>(
                     // Native color first, then a substitute color, then colorless standing in.
                     { when { it.color in required -> 0; it.color != null || required.isEmpty() -> 1; else -> 2 } },
                     { calculateTapPriority(it.source, handRequirements, availableSourcesByColor) +
@@ -1115,7 +1161,9 @@ class ManaSolver private constructor(
             bonusManaPool.filter { it.amount > 0 },
             consumedRiders,
             xRestrictedManaSpent = xRestrictedSpent,
-            bonusManaSpentByColor = bonusManaSpentByColor
+            bonusManaSpentByColor = bonusManaSpentByColor,
+            bonusSnowManaSpent = bonusSnowSpent,
+            bonusSnowColorsSpent = bonusSnowColors,
         )
     }
 
@@ -1162,57 +1210,115 @@ class ManaSolver private constructor(
             { if (it.hasNonManaAbilities) 1 else 0 },
             { it.entityId.value },
         ))
-        if (candidates.size < pips) return null
+        // How many {S} pips one tap of [source] can pay: all of its own mana is snow, plus an
+        // any-color snow aura bonus (Glittering Frost), which takes the tapped kind's color. A
+        // fixed-color bonus keeps its own color, so it floats instead.
+        fun snowBonusFor(source: ManaSource, kind: Color?): Int =
+            if (kind != null && source.bonusManaIsAnyColor && source.bonusManaColor == null) source.bonusManaSnowPerTap else 0
+        val coverage = candidates.associate { source ->
+            val kind = kindFor(source)
+            source.entityId to source.amountFor(kind) + snowBonusFor(source, kind)
+        }
+        if (candidates.sumOf { coverage.getValue(it.entityId) } < pips) return null
         // Reserving sources only removes options, so a base the whole board can't pay fails every
         // combination — check once before trying up to MAX_SNOW_RESERVATIONS of them.
-        if (candidates.size > pips && !(base.isEmpty() && xValue == 0) &&
+        if (candidates.size > 1 && !(base.isEmpty() && xValue == 0) &&
             solve(state, playerId, base, xValue, excludeSources, spellContext, precomputedSources, xManaRestriction) == null
         ) return null
 
-        // Lexicographic combinations, cheapest first; bounded so a board of snow lands can't blow up.
+        // Lexicographic combinations, fewest sources first and cheapest first within a size;
+        // bounded so a board of snow lands can't blow up. Only combinations that cover every pip
+        // count toward the bound.
         var tried = 0
-        val chosen = IntArray(pips) { it }
-        while (tried++ < MAX_SNOW_RESERVATIONS) {
-            val reserved = chosen.map { candidates[it] }
-            val rest = if (base.isEmpty() && xValue == 0) ManaSolution(emptyList(), emptyMap())
-                else solve(state, playerId, base, xValue, excludeSources + reserved.map { it.entityId },
-                    spellContext, precomputedSources, xManaRestriction)
-            if (rest != null) {
-                val produced = rest.manaProduced.toMutableMap()
-                val leftovers = rest.remainingBonusMana.toMutableList()
-                val riders = rest.consumedRiders.toMutableList()
-                for (source in reserved) {
-                    val kind = kindFor(source)
-                    val amount = source.amountFor(kind)
-                    produced[source.entityId] = if (kind == null) ManaProduction(colorless = amount, snow = true)
-                        else ManaProduction(color = kind, amount = amount, snow = true)
-                    // One unit pays the {S}; anything more the tap makes floats.
-                    if (amount > 1) {
-                        leftovers += BonusManaEntry(kind ?: Color.WHITE, amount - 1, colorless = kind == null, sourceId = source.entityId)
-                    }
-                    if (source.bonusManaPerTap > 0 && source.bonusManaColor != null) {
-                        leftovers += BonusManaEntry(source.bonusManaColor, source.bonusManaPerTap, sourceId = source.entityId)
-                    }
-                    for ((color, extra) in source.compositeBonusMana) {
-                        leftovers += BonusManaEntry(color, extra, sourceId = source.entityId)
-                    }
-                    riders += (if (kind == null) source.colorlessRiders else source.colorRiders[kind].orEmpty())
+        for (size in 1..minOf(pips, candidates.size)) {
+            val chosen = IntArray(size) { it }
+            while (true) {
+                val reserved = chosen.map { candidates[it] }
+                if (reserved.sumOf { coverage.getValue(it.entityId) } >= pips) {
+                    if (tried++ >= MAX_SNOW_RESERVATIONS) return null
+                    reserveForSnow(state, playerId, base, xValue, excludeSources, spellContext, precomputedSources,
+                        xManaRestriction, reserved, pips, ::kindFor, ::snowBonusFor)?.let { return it }
                 }
-                return rest.copy(
-                    sources = rest.sources + reserved,
-                    manaProduced = produced,
-                    remainingBonusMana = leftovers,
-                    consumedRiders = riders,
-                )
+                // Advance to the next combination of `size` indices out of candidates.size.
+                var i = size - 1
+                while (i >= 0 && chosen[i] == candidates.size - size + i) i--
+                if (i < 0) break
+                chosen[i]++
+                for (j in i + 1 until size) chosen[j] = chosen[j - 1] + 1
             }
-            // Advance to the next combination of `pips` indices out of candidates.size.
-            var i = pips - 1
-            while (i >= 0 && chosen[i] == candidates.size - pips + i) i--
-            if (i < 0) return null
-            chosen[i]++
-            for (j in i + 1 until pips) chosen[j] = chosen[j - 1] + 1
         }
         return null
+    }
+
+    /**
+     * Pay [pips] `{S}` with the [reserved] snow sources, in order — each its own mana first, then
+     * its snow aura bonus — and solve the rest of the cost without them. Null when the rest
+     * doesn't solve.
+     */
+    private fun reserveForSnow(
+        state: GameState,
+        playerId: EntityId,
+        base: ManaCost,
+        xValue: Int,
+        excludeSources: Set<EntityId>,
+        spellContext: SpellPaymentContext?,
+        precomputedSources: List<ManaSource>?,
+        xManaRestriction: Set<Color>,
+        reserved: List<ManaSource>,
+        pips: Int,
+        kindFor: (ManaSource) -> Color?,
+        snowBonusFor: (ManaSource, Color?) -> Int,
+    ): ManaSolution? {
+        val rest = if (base.isEmpty() && xValue == 0) ManaSolution(emptyList(), emptyMap())
+            else solve(state, playerId, base, xValue, excludeSources + reserved.map { it.entityId },
+                spellContext, precomputedSources, xManaRestriction) ?: return null
+        val produced = rest.manaProduced.toMutableMap()
+        val leftovers = rest.remainingBonusMana.toMutableList()
+        val riders = rest.consumedRiders.toMutableList()
+        val reservedBonus = rest.reservedSnowBonus.toMutableList()
+        val bonusSpent = rest.bonusManaSpentByColor.toMutableMap()
+        var bonusSnowSpent = rest.bonusSnowManaSpent
+        val bonusSnowColors = rest.bonusSnowColorsSpent.toMutableSet()
+        var unpaid = pips
+        for (source in reserved) {
+            val kind = kindFor(source)
+            val amount = source.amountFor(kind)
+            val fromOwn = minOf(unpaid, amount)
+            val fromBonus = minOf(unpaid - fromOwn, snowBonusFor(source, kind))
+            unpaid -= fromOwn + fromBonus
+            produced[source.entityId] = if (kind == null) ManaProduction(colorless = amount, snow = true)
+                else ManaProduction(color = kind, amount = amount, snow = true)
+            // The aura's bonus units that pay a pip take the tapped kind's color; they are spent aura
+            // mana (CR 106.3), not the source's own production.
+            if (kind != null && fromBonus > 0) {
+                reservedBonus += BonusManaEntry(kind, fromBonus, countsTowardSpent = true, sourceId = source.entityId, snow = true)
+                bonusSpent[kind] = (bonusSpent[kind] ?: 0) + fromBonus
+                bonusSnowSpent += fromBonus
+                bonusSnowColors += kind
+            }
+            // What the tap makes beyond the pips it pays floats.
+            if (amount > fromOwn) {
+                leftovers += BonusManaEntry(kind ?: Color.WHITE, amount - fromOwn, colorless = kind == null,
+                    sourceId = source.entityId, snow = true)
+            }
+            if (source.bonusManaPerTap > fromBonus && (source.bonusManaColor != null || source.bonusManaIsAnyColor)) {
+                leftovers += auraBonusEntries(source, source.bonusManaPerTap - fromBonus)
+            }
+            for ((color, extra) in source.compositeBonusMana) {
+                leftovers += BonusManaEntry(color, extra, sourceId = source.entityId)
+            }
+            riders += (if (kind == null) source.colorlessRiders else source.colorRiders[kind].orEmpty())
+        }
+        return rest.copy(
+            sources = rest.sources + reserved,
+            manaProduced = produced,
+            remainingBonusMana = leftovers,
+            consumedRiders = riders,
+            bonusManaSpentByColor = bonusSpent,
+            bonusSnowManaSpent = bonusSnowSpent,
+            bonusSnowColorsSpent = bonusSnowColors,
+            reservedSnowBonus = reservedBonus,
+        )
     }
 
     /**
@@ -1349,7 +1455,7 @@ class ManaSolver private constructor(
         // Building eagerly would charge a battlefield walk to exactly the calls that used to do no
         // scanning whatsoever — measurably the wrong trade in a benchmark full of tapped-out
         // windows. NONE is safe because a solve never leaves the calling thread.
-        val manaStatics by lazy(LazyThreadSafetyMode.NONE) { ManaStaticsIndex.build(state, cardRegistry) }
+        val manaStatics by lazy(LazyThreadSafetyMode.NONE) { ManaStaticsIndex.build(state, cardRegistry, conditionEvaluator) }
         // Mana abilities handed to a permanent by a resolved effect (GrantActivatedAbilityEffect:
         // Glorious Sunrise, Hydro-Man, Emrakul, the Exigent Doom's "{T}: Add {C}{C}"), indexed once.
         val runtimeGrants = runtimeGrantedManaAbilities(state)
@@ -1435,7 +1541,10 @@ class ManaSolver private constructor(
             // to seed the combined-ability loop below so the granted ability's colors (and any
             // restrictions/riders/activation costs) fold in correctly.
             var landSubtypeSeedColors: Set<Color>? = null
-            if (card.typeLine.isLand) {
+            var landSubtypeSeedColorless = false
+            // A land that is also a creature can't use its intrinsic {T} ability while summoning
+            // sick (Dryad Arbor, a creature made a Forest by Ashaya) — same gate as the loop below.
+            if (projected.hasType(entityId, "LAND") && !(isCreature && tapBlockedBySickness)) {
                 val projectedSubtypes = projected.getSubtypes(entityId)
                 val subtypeColors = mutableSetOf<Color>()
                 if (projectedSubtypes.contains("Plains")) subtypeColors.add(Color.WHITE)
@@ -1446,21 +1555,20 @@ class ManaSolver private constructor(
 
                 if (subtypeColors.isNotEmpty()) {
                     // An attached aura may override the produced mana color
-                    // (e.g., Shimmerwilds Growth on a Mountain with Blue chosen → produces {U}).
-                    // A filter-based replacement (Pulse of Llanowar) makes a matched land produce
-                    // one mana of a color of its controller's choice — i.e. any of the five.
+                    // (e.g., Shimmerwilds Growth on a Mountain with Blue chosen → produces {U}),
+                    // and filter-based replacements then rewrite that output in turn, exactly as
+                    // the manual-tap path does for these basic-land-type abilities: Pulse of Llanowar makes it any of the five colours,
+                    // Deep Water makes it {U}, Quarum Trench Gnomes makes a Plains' white colorless.
                     val overrideColor = manaStatics.landColorOverrideByTarget[entityId]
-                    val effectiveColors = when {
-                        landMatchesManaColorReplacement(state, entityId, manaStatics) -> Color.entries.toSet()
-                        overrideColor != null -> setOf(overrideColor)
-                        else -> subtypeColors
-                    }
+                    val (effectiveColors, effectiveColorless) = replacedLandMana(
+                        state, entityId, overrideColor?.let { setOf(it) } ?: subtypeColors, manaStatics
+                    )
                     if (staticGrantedManaAbilities.isEmpty()) {
                         return@mapNotNull ManaSource(
                             entityId = entityId,
                             name = card.name,
                             producesColors = effectiveColors,
-                            producesColorless = false,
+                            producesColorless = effectiveColorless,
                             isBasicLand = isBasicLand,
                             isLand = true,
                             isCreature = isCreature,
@@ -1471,6 +1579,7 @@ class ManaSolver private constructor(
                             exactIndependentTap = !tapBlockedBySickness
                         )
                     }
+                    landSubtypeSeedColorless = effectiveColorless
                     landSubtypeSeedColors = effectiveColors
                 }
             }
@@ -1554,7 +1663,8 @@ class ManaSolver private constructor(
             // unrestricted, free, sacrifice-free and rider-free; the granted abilities then add
             // their own colors/restrictions on top in the loop below.
             landSubtypeSeedColors?.let { seed ->
-                recordAmount(seed, colorless = false, amount = 1)
+                recordAmount(seed, colorless = landSubtypeSeedColorless, amount = 1)
+                if (landSubtypeSeedColorless) producesColorless = true
                 combinedColors.addAll(seed)
                 sacrificeFreeColors.addAll(seed)
                 for (color in seed) {
@@ -1567,7 +1677,7 @@ class ManaSolver private constructor(
             for (ability in manaAbilities) {
                 // Skip abilities whose activation restrictions aren't satisfied
                 // (e.g., Lys Alana Dignitary's "only if there is an Elf card in your graveyard").
-                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) {
+                if (!usableDuringPayment(state, playerId, entityId, ability)) {
                     continue
                 }
 
@@ -1653,6 +1763,9 @@ class ManaSolver private constructor(
                 }
 
                 if (!abilityCanBeUsed) continue
+                // A sacrifice-self mana ability whose source no cost may sacrifice (Angel of
+                // Jubilation on a creature) can't be activated at all, so it is no mana source.
+                if (abilityRequiresSacrifice && !com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.canSacrificeForCost(state, entityId)) continue
 
                 // A mana ability whose life cost (printed "Pay N life" plus any Thran Portal tax)
                 // its controller can't pay can't be activated (CR 119.4), so auto-pay mustn't pick it.
@@ -1747,7 +1860,7 @@ class ManaSolver private constructor(
                         }
                     }
                 }
-                val effectRestriction: ManaRestriction? = when (val effect = manaEffect) {
+                val effectRestriction: ManaRestriction? = ChosenTypeManaRestriction.bind(when (val effect = manaEffect) {
                     is AddManaEffect -> {
                         combinedColors.add(effect.color)
                         effectColors.add(effect.color)
@@ -1777,31 +1890,31 @@ class ManaSolver private constructor(
                             cardRegistry = cardRegistry,
                             predicateEvaluator = predicateEvaluator
                         )
-                        combinedColors.addAll(resolved)
-                        effectColors.addAll(resolved)
-                        if (resolved.isNotEmpty()) {
+                        // An amount sized by the color picked ("devotion to that color" — Nykthos)
+                        // yields per color; a color that would add nothing isn't producible.
+                        val perColor = if (readsChosenColor(effect.amount)) {
+                            resolved.associateWith { evaluateManaAmount(effect.amount, state, entityId, playerId, it) }
+                                .filterValues { it > 0 }
+                        } else null
+                        val producible = perColor?.keys ?: resolved
+                        combinedColors.addAll(producible)
+                        effectColors.addAll(producible)
+                        if (perColor != null) {
+                            for ((color, manaAmount) in perColor) {
+                                maxManaAmount = maxOf(maxManaAmount, manaAmount)
+                                recordAmount(listOf(color), colorless = false, amount = manaAmount)
+                            }
+                        } else if (resolved.isNotEmpty()) {
                             val manaAmount = evaluateManaAmount(effect.amount, state, entityId, playerId)
                             maxManaAmount = maxOf(maxManaAmount, manaAmount)
                             recordAmount(resolved, colorless = false, amount = manaAmount)
-                        }
-                        effect.restriction
-                    }
-                    is AddAnyColorManaSpendOnChosenTypeEffect -> {
-                        val chosenType = state.getEntity(entityId)
-                            ?.chosenCreatureType()
-                        if (chosenType != null) {
-                            combinedColors.addAll(Color.entries)
-                            effectColors.addAll(Color.entries)
-                            val manaAmount = evaluateManaAmount(effect.amount, state, entityId, playerId)
-                            maxManaAmount = maxOf(maxManaAmount, manaAmount)
-                            recordAmount(Color.entries, colorless = false, amount = manaAmount)
                             if (effect.riders.isNotEmpty()) {
-                                for (color in Color.entries) {
+                                for (color in resolved) {
                                     perColorRiders.getOrPut(color) { mutableSetOf() }.addAll(effect.riders)
                                 }
                             }
-                            ManaRestriction.SubtypeSpellsOrAbilitiesOnly(chosenType, effect.creatureOnly)
-                        } else null
+                        }
+                        effect.restriction
                     }
                     is AddDynamicManaEffect -> {
                         combinedColors.addAll(effect.allowedColors)
@@ -1812,7 +1925,7 @@ class ManaSolver private constructor(
                         effect.restriction
                     }
                     else -> null
-                }
+                }, state, entityId)
 
                 // Record the cheapest activation mana cost per color this ability produces.
                 for (color in effectColors) {
@@ -1932,7 +2045,7 @@ class ManaSolver private constructor(
                     producesColors = combinedColors,
                     producesColorless = producesColorless,
                     isBasicLand = isBasicLand,
-                    isLand = card.typeLine.isLand,
+                    isLand = projected.hasType(entityId, "LAND"),
                     isCreature = isCreature,
                     hasNonManaAbilities = hasNonManaAbilities,
                     hasPainCost = hasPainCost,
@@ -1979,12 +2092,14 @@ class ManaSolver private constructor(
             // Skip lands that have non-mana activated abilities but no mana abilities
             // (e.g., fetch lands like Windswept Heath)
             if (!card.typeLine.isLand) return@mapNotNull null
+            // A summoning-sick creature-land can't pay {T} at all, so it has no fallback mana either.
+            if (isCreature && tapBlockedBySickness) return@mapNotNull null
             if (allAbilities.isNotEmpty() && manaAbilities.isEmpty()) return@mapNotNull null
             // A land whose mana ability is dry right now (Gaea's Cradle with no creatures) must not
             // fall through to the colorless default — that would invent a {C} the land cannot
             // produce, which is the same phantom mana this fix exists to remove. Lands whose
             // abilities the loop rejected for *other* reasons (an unsatisfied activation
-            // restriction, a cost shape auto-tap doesn't model, a summoning-sick creature-land)
+            // restriction, a cost shape auto-tap doesn't model)
             // still reach the fallback exactly as before; whether they should is a separate
             // question from this one, and not one to settle silently here.
             if (hadDryManaAbility || hadUnpayableLifeAbility) return@mapNotNull null
@@ -2059,7 +2174,6 @@ class ManaSolver private constructor(
             it is AddManaEffect ||
                 it is AddColorlessManaEffect ||
                 it is AddManaOfChoiceEffect ||
-                it is AddAnyColorManaSpendOnChosenTypeEffect ||
                 it is AddDynamicManaEffect
         } ?: effect
         is GatedEffect -> when (val gate = effect.gate) {
@@ -2101,15 +2215,14 @@ class ManaSolver private constructor(
         sourceId: EntityId,
         playerId: EntityId,
     ): ManaRestriction? {
-        return when (val manaEffect = manaProducingEffect(effect, state, sourceId, playerId)) {
+        val restriction = when (val manaEffect = manaProducingEffect(effect, state, sourceId, playerId)) {
             is AddManaEffect -> manaEffect.restriction
             is AddColorlessManaEffect -> manaEffect.restriction
             is AddManaOfChoiceEffect -> manaEffect.restriction
             is AddDynamicManaEffect -> manaEffect.restriction
-            // AddAnyColorManaSpendOnChosenTypeEffect derives its restriction at resolution
-            // time from the source's CastChoicesComponent, so we don't pre-filter it.
             else -> null
         }
+        return ChosenTypeManaRestriction.bind(restriction, state, sourceId)
     }
 
     /** A successful result contains actual production; the caller still pays the exact floating allocation. */
@@ -2168,12 +2281,22 @@ class ManaSolver private constructor(
     ): Int? = when (effect) {
         is AddManaEffect -> evaluateManaAmount(effect.amount, state, sourceId, playerId)
         is AddColorlessManaEffect -> evaluateManaAmount(effect.amount, state, sourceId, playerId)
-        is AddManaOfChoiceEffect -> evaluateManaAmount(effect.amount, state, sourceId, playerId)
-        is AddAnyColorManaSpendOnChosenTypeEffect ->
+        is AddManaOfChoiceEffect -> if (readsChosenColor(effect.amount)) {
+            Color.entries.maxOf { evaluateManaAmount(effect.amount, state, sourceId, playerId, it) }
+        } else {
             evaluateManaAmount(effect.amount, state, sourceId, playerId)
+        }
         is AddDynamicManaEffect -> evaluateManaAmount(effect.amountSource, state, sourceId, playerId)
         else -> null
     }
+
+    /**
+     * True when [amount] depends on the color the mana ability picks — `AddManaOfChoiceEffect`
+     * evaluates its amount with that color bound (Nykthos, Shrine to Nyx's "devotion to that
+     * color"), so the solver must size such an ability per color rather than once.
+     */
+    private fun readsChosenColor(amount: DynamicAmount): Boolean =
+        amount is DynamicAmount.DevotionTo && amount.ofChosenColor
 
     /**
      * True when activating this mana ability would add no mana whatsoever at this moment.
@@ -2210,48 +2333,64 @@ class ManaSolver private constructor(
         amount: DynamicAmount,
         state: GameState,
         sourceId: EntityId,
-        playerId: EntityId
+        playerId: EntityId,
+        chosenColor: Color? = null,
     ): Int {
         if (amount is DynamicAmount.Fixed) return amount.amount
         val context = EffectContext(
             sourceId = sourceId,
             controllerId = playerId,
             targets = emptyList(),
-            xValue = null
+            xValue = null,
+            chosenColor = chosenColor,
         )
         return maxOf(0, dynamicAmountEvaluator.evaluate(state, amount, context))
     }
 
     /**
-     * True if [landId] is subject to a [com.wingedsheep.sdk.scripting.ReplaceLandManaColor] static
-     * (Pulse of Llanowar) — its produced mana becomes one mana of a color of its controller's
-     * choice, so for solving it is treated as a five-color source. Mirrors
-     * `ActivateAbilityHandler.landMatchesManaColorReplacement`.
+     * What a land whose intrinsic mana is [colors] produces after every
+     * [com.wingedsheep.sdk.scripting.ReplaceLandManaColor] static it is subject to, folded in
+     * battlefield order like `ActivatedManaAbilityResolver.replaceProducedMana`: the colours it
+     * can make, and whether it makes colorless. A free-choice replacement (Pulse of Llanowar)
+     * widens the replaced mana to all five colours; a fixed one (Deep Water) pins it; a colorless
+     * one (Quarum Trench Gnomes) turns it colorless. One that names a colour to replace leaves
+     * every other kind alone.
      *
      * The statics come from [manaStatics] rather than a battlefield walk, so a board with no
-     * Pulse of Llanowar answers in zero work instead of one scan per candidate source.
+     * replacement answers in zero work instead of one scan per candidate source.
      */
-    private fun landMatchesManaColorReplacement(
+    private fun replacedLandMana(
         state: GameState,
         landId: EntityId,
+        colors: Set<Color>,
         manaStatics: ManaStaticsIndex
-    ): Boolean {
-        for (replacement in manaStatics.landColorReplacements) {
+    ): Pair<Set<Color>, Boolean> {
+        var producedColors = colors
+        var producedColorless = false
+        // Free-choice replacements last, as ActivatedManaAbilityResolver folds them.
+        val ordered = manaStatics.landColorReplacements
+        for (replacement in if (ordered.size > 1) ordered.sortedBy { it.static.produces == null } else ordered) {
             val filterContext = PredicateContext(
                 controllerId = replacement.sourceControllerId,
                 sourceId = replacement.sourceId
             )
-            if (predicateEvaluator.matches(
+            if (!predicateEvaluator.matches(
                     state, state.projectedState, landId, replacement.static.filter, filterContext
                 )
-            ) {
-                // A fixed-colour replacement (Deep Water) does *not* make the land a five-colour
-                // source — it makes it a source of exactly that colour, which the land's own
-                // production already covers or doesn't. Only the free-choice form widens it.
-                if (replacement.static.color == null) return true
+            ) continue
+            val replaces = replacement.static.replaces
+            val replacedColors = if (replaces == null) producedColors else producedColors.filterTo(mutableSetOf()) { it == replaces }
+            val replacedColorless = producedColorless && replaces == null
+            if (replacedColors.isEmpty() && !replacedColorless) continue
+            producedColors = producedColors - replacedColors
+            if (replacedColorless) producedColorless = false
+            when (val produces = replacement.static.produces) {
+                null -> producedColors = Color.entries.toSet()
+                is ManaSymbol.Colored -> producedColors = producedColors + produces.color
+                else -> producedColorless = true
             }
         }
-        return false
+        return producedColors to producedColorless
     }
 
     /**
@@ -2267,6 +2406,7 @@ class ManaSolver private constructor(
         val attachedBonuses = manaStatics.auraBonusManaByTarget[source.entityId] ?: return source
 
         var totalBonus = 0
+        var snowBonus = 0
         var bonusColor: Color? = null
         var anyColorBonus = false
 
@@ -2285,6 +2425,9 @@ class ManaSolver private constructor(
 
             val amount = dynamicAmountEvaluator.evaluate(state, additionalMana.amount, context)
             if (amount > 0) {
+                // The aura is this mana's source (CR 106.3): a snow aura's bonus is snow mana.
+                if (state.projectedState.isSnow(bonus.auraId) &&
+                    (additionalMana.anyColor || additionalMana.color != null || bonus.chosenColor != null)) snowBonus += amount
                 if (additionalMana.anyColor) {
                     // Fertile Ground: one mana of any color — treat as flexible for the solve.
                     totalBonus += amount
@@ -2302,7 +2445,7 @@ class ManaSolver private constructor(
         }
 
         return if (totalBonus > 0) {
-            source.copy(bonusManaPerTap = totalBonus, bonusManaColor = bonusColor, bonusManaIsAnyColor = anyColorBonus)
+            source.copy(bonusManaPerTap = totalBonus, bonusManaColor = bonusColor, bonusManaIsAnyColor = anyColorBonus, bonusManaSnowPerTap = snowBonus)
         } else {
             source
         }
@@ -2457,7 +2600,7 @@ class ManaSolver private constructor(
         if (manaAbilities.any { abilityCostHasTap(it.cost) }) return true
         // No printed mana ability: a land with a basic subtype still has the intrinsic tap ability.
         return manaAbilities.isEmpty() &&
-            card.typeLine.isLand &&
+            state.projectedState.hasType(entityId, "LAND") &&
             state.projectedState.getSubtypes(entityId).any { it in basicLandSubtypeNames }
     }
 
@@ -2494,6 +2637,13 @@ class ManaSolver private constructor(
         }
         for (grantor in manaStatics.manaAbilityGrantors) {
             val grant = grantor.grant
+            when (grant.filter.scope) {
+                // "Enchanted land has …" (Nature's Embrace) / "this permanent has …": the
+                // recipient is fixed, so there is no filter to match.
+                Scope.AttachedTo -> { if (grantor.attachedToId == entityId) result.add(grant.ability); continue }
+                Scope.Self -> { if (grantor.granterId == entityId) result.add(grant.ability); continue }
+                else -> {}
+            }
             if (grant.filter.excludeSelf && grantor.granterId == entityId) continue
             val matches = predicateEvaluator.matches(
                 state,
@@ -2539,8 +2689,7 @@ class ManaSolver private constructor(
     private fun hasDampLandManaProduction(state: GameState): Boolean {
         for (playerId in state.turnOrder) {
             for (entityId in state.getBattlefield(playerId)) {
-                val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
-                val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+                val cardDef = state.getEntity(entityId)?.faceUpCardDefinition(cardRegistry) ?: continue
                 if (cardDef.script.staticAbilities.any { it is DampLandManaProduction }) {
                     return true
                 }
@@ -2730,7 +2879,9 @@ class ManaSolver private constructor(
         /** False to ask whether mana alone pays [cost], every Phyrexian pip included. */
         allowPhyrexianLife: Boolean = true,
         /** False to check only sources the auto-payment solver can tap without a player choice. */
-        includeManualMana: Boolean = true
+        includeManualMana: Boolean = true,
+        /** Internal recursion tally for coloured pips relaxed by [offBattlefieldColorFixers]. */
+        colorFixersCommitted: Int = 0
     ): Boolean {
         // A Phyrexian pip may be paid with 2 life instead of its color. Try each distinct pip
         // choice before the mana-only solver below; recursive calls see a strictly smaller cost.
@@ -2749,7 +2900,8 @@ class ManaSolver private constructor(
                 if (canPay(
                         state, playerId, reduced, xValue, excludeSources, spellContext,
                         precomputedSources, xManaRestriction, phyrexianLifePipsCommitted + 1,
-                        allowPhyrexianLife, includeManualMana
+                        allowPhyrexianLife = allowPhyrexianLife, includeManualMana = includeManualMana,
+                        colorFixersCommitted = colorFixersCommitted
                     )) return true
             }
         }
@@ -2823,6 +2975,23 @@ class ManaSolver private constructor(
         if (solve(state, playerId, remainingCost, xRemainingToPay, excludeSources, spellContext, precomputedSources, xManaRestriction) != null) return true
 
         if (!includeManualMana) return false
+        // A mana ability that functions from the hand or graveyard and turns {N} into N mana of any
+        // color (Jack-o'-Lantern) adds no mana, so the bonus tally below skips it — what it adds is
+        // fixing: each of its N mana lets one colored pip be paid by any mana. Try relaxing each
+        // distinct colored pip in turn; recursive calls see one more fixer committed.
+        val coloredPips = remainingCost.symbols.filterIsInstance<ManaSymbol.Colored>().map { it.color }.distinct()
+        if (coloredPips.isNotEmpty() && colorFixersCommitted < offBattlefieldColorFixers(state, playerId)) {
+            for (color in coloredPips) {
+                val index = cost.symbols.indexOfFirst { it == ManaSymbol.Colored(color) }
+                if (index < 0) continue
+                val relaxed = ManaCost(cost.symbols.toMutableList().also { it[index] = ManaSymbol.Generic(1) })
+                if (canPay(
+                        state, playerId, relaxed, xValue, excludeSources, spellContext, precomputedSources,
+                        xManaRestriction, phyrexianLifePipsCommitted, allowPhyrexianLife,
+                        includeManualMana = includeManualMana, colorFixersCommitted = colorFixersCommitted + 1
+                    )) return true
+            }
+        }
 
         // Fallback: check if "extras" — mana abilities the auto-tap solver doesn't pick — can
         // cover the remaining cost. Two flavors:
@@ -2990,6 +3159,9 @@ class ManaSolver private constructor(
         val life = (state.lifeTotal(playerId) - committedLife - reservedLife).coerceAtLeast(0)
         for (permission in state.playerActionPermissions) {
             if (permission.playerId != playerId || permission.action.timing != com.wingedsheep.sdk.scripting.effects.PlayerActionTiming.ManaAbility) continue
+            // A payment scoped to certain sources' mana (ManaAbilitySourcesContinuation) only
+            // admits this mana when what grants the action is such a source.
+            if (!state.manaAbilitySourceAllowed(playerId, permission.context.sourceId ?: playerId, predicateEvaluator)) continue
             val cost = (permission.action.cost as? com.wingedsheep.sdk.scripting.costs.PayCost.Atom)?.atom as? CostAtom.PayLife ?: continue
             val effect = permission.action.effect as? AddColorlessManaEffect ?: continue
             if (effect.restriction != null || effect.riders.isNotEmpty()) continue
@@ -3084,10 +3256,6 @@ class ManaSolver private constructor(
                         val amount = (effect.amount as? DynamicAmount.Fixed)?.amount ?: 1
                         anyColorTotal += activationCount * amount
                     }
-                    is AddAnyColorManaSpendOnChosenTypeEffect -> {
-                        val amount = (effect.amount as? DynamicAmount.Fixed)?.amount ?: 1
-                        anyColorTotal += activationCount * amount
-                    }
                     is AddManaEffect -> {
                         val amount = (effect.amount as? DynamicAmount.Fixed)?.amount ?: 1
                         specificColorTotal[effect.color] =
@@ -3104,6 +3272,16 @@ class ManaSolver private constructor(
 
         return TapPermanentsBonusMana(anyColorTotal, specificColorTotal, colorlessTotal)
     }
+
+    /**
+     * Whether [ability] of [entityId] can be activated while a cost is being paid. Its own
+     * activation restrictions must hold, and it must not be limited to sorcery timing: mana is paid
+     * with the spell or ability already on the stack (CR 601.2a, 601.2g; CR 602.2b for abilities),
+     * so "Activate only as a sorcery" (CR 602.5d — Grinning Ignus) can never be met mid-payment.
+     * Such a mana ability is activated at priority beforehand, through `ManaAbilityEnumerator`.
+     */
+    private fun usableDuringPayment(state: GameState, playerId: EntityId, entityId: EntityId, ability: ActivatedAbility): Boolean =
+        ability.timing != TimingRule.SorcerySpeed && legality.activationRestrictionsMet(state, playerId, entityId, ability)
 
     /**
      * Calculates extra mana available from mana abilities that can only be produced by activating
@@ -3132,7 +3310,7 @@ class ManaSolver private constructor(
         playerId: EntityId
     ): TapPermanentsBonusMana {
         val projected = state.projectedState
-        val manaStatics = ManaStaticsIndex.build(state, cardRegistry)
+        val manaStatics = ManaStaticsIndex.build(state, cardRegistry, conditionEvaluator)
         val runtimeGrants = runtimeGrantedManaAbilities(state)
         var total = TapPermanentsBonusMana()
 
@@ -3155,24 +3333,25 @@ class ManaSolver private constructor(
                 // A mana sub-cost would recurse straight back into canPay, and its net production
                 // is ambiguous anyway — the same call the tap+SacrificeSelf helper makes.
                 if (costHasManaSubCost(cost)) continue
-                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
+                if (!usableDuringPayment(state, playerId, entityId, ability)) continue
                 if (!nonManaAbilityCostIsPayable(state, playerId, entityId, cost)) continue
 
                 total += manaProducedByEffect(ability.effect)
             }
         }
 
-        // Mana abilities that function from the hand (CR 605.1a — Simian Spirit Guide's "Exile this
-        // card from your hand: Add {R}"). Never auto-paid: the cost spends a card, so the player
-        // activates it themselves, at priority or inside the payment window.
-        for (entityId in state.getZone(ZoneKey(playerId, Zone.HAND))) {
+        // Mana abilities that function from the hand or graveyard (CR 113.6m; still mana abilities,
+        // CR 605.1a — Simian Spirit Guide's "Exile this card from your hand: Add {R}"). Never
+        // auto-paid: the cost spends a card, so the player activates it themselves, at priority or
+        // inside the payment window.
+        for (zone in ManaPaymentWindow.OFF_BATTLEFIELD_MANA_ZONES) for (entityId in state.getZone(ZoneKey(playerId, zone))) {
             val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
             val abilities = cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities ?: continue
             for (ability in abilities) {
-                if (!ability.isManaAbility || ability.activateFromZone != Zone.HAND) continue
+                if (!ability.isManaAbility || ability.activateFromZone != zone) continue
                 val cost = ability.cost
                 if (costHasManaSubCost(cost)) continue
-                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
+                if (!usableDuringPayment(state, playerId, entityId, ability)) continue
                 if (!nonManaAbilityCostIsPayable(state, playerId, entityId, cost)) continue
                 total += manaProducedByEffect(ability.effect)
             }
@@ -3213,6 +3392,34 @@ class ManaSolver private constructor(
         else -> false
     }
 
+    /**
+     * How many colored pips [playerId]'s hand and graveyard mana abilities can fix: each ability
+     * whose cost is a generic `{N}` plus non-mana parts payable now, and whose effect adds exactly N
+     * mana of any color (Jack-o'-Lantern's "{1}, Exile this card from your graveyard: Add one mana of
+     * any color."), contributes N. Never auto-paid — the player activates it in the payment window.
+     */
+    private fun offBattlefieldColorFixers(state: GameState, playerId: EntityId): Int {
+        var fixers = 0
+        for (zone in ManaPaymentWindow.OFF_BATTLEFIELD_MANA_ZONES) for (entityId in state.getZone(ZoneKey(playerId, zone))) {
+            val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
+            val abilities = cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities ?: continue
+            for (ability in abilities) {
+                if (!ability.isManaAbility || ability.activateFromZone != zone) continue
+                val parts = (ability.cost as? AbilityCost.Composite)?.costs ?: continue
+                val manaParts = parts.mapNotNull { ((it as? AbilityCost.Atom)?.atom as? CostAtom.Mana)?.cost }
+                val generic = manaParts.singleOrNull()?.takeIf { it.symbols.all { s -> s is ManaSymbol.Generic } }
+                    ?.genericAmount ?: continue
+                val produced = manaProducedByEffect(ability.effect)
+                if (generic == 0 || produced.anyColorMana != generic || produced.totalMana != generic) continue
+                if (!usableDuringPayment(state, playerId, entityId, ability)) continue
+                val nonMana = parts.filterNot { (it as? AbilityCost.Atom)?.atom is CostAtom.Mana }
+                if (!nonMana.all { nonManaAbilityCostIsPayable(state, playerId, entityId, it) }) continue
+                fixers += generic
+            }
+        }
+        return fixers
+    }
+
     /** Whether any part of [cost] is a mana payment. */
     private fun costHasManaSubCost(cost: AbilityCost): Boolean = when (cost) {
         is AbilityCost.Atom -> cost.atom is CostAtom.Mana
@@ -3233,14 +3440,16 @@ class ManaSolver private constructor(
     ): Boolean = when (cost) {
         is AbilityCost.Free -> true
         is AbilityCost.Tap -> canTapForCost(state, sourceId)
-        // The source itself pays these, and it is on the battlefield by construction.
-        is AbilityCost.SacrificeSelf, is AbilityCost.ExileSelf,
+        // The source itself pays these, and it is on the battlefield by construction — a sacrifice
+        // only while no cost-scoped prohibition protects it.
+        is AbilityCost.SacrificeSelf -> com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.canSacrificeForCost(state, sourceId)
+        is AbilityCost.ExileSelf,
         is AbilityCost.ReturnSelfToHand, is AbilityCost.DiscardSelf -> true
         // Discarding an empty hand is a legal payment of "discard your hand".
         is AbilityCost.DiscardHand -> true
         is AbilityCost.SacrificeChosenCreatureType -> {
             val chosenType = state.getEntity(sourceId)?.chosenCreatureType()
-            chosenType != null && controlsMatching(
+            chosenType != null && controlsSacrificeable(
                 state, playerId, GameObjectFilter.Creature.withSubtype(chosenType), null, 1
             )
         }
@@ -3248,10 +3457,9 @@ class ManaSolver private constructor(
             val attachedTo = state.getEntity(sourceId)?.get<AttachedToComponent>()?.targetId
             attachedTo != null && canTapForCost(state, attachedTo)
         }
-        // CR 701.59a — forage: exile three cards from your graveyard, or sacrifice a Food.
-        is AbilityCost.Forage -> state.getZone(ZoneKey(playerId, Zone.GRAVEYARD)).size >= 3 ||
-            state.projectedState.getBattlefieldControlledBy(playerId)
-                .any { state.projectedState.hasSubtype(it, Subtype.FOOD.value) }
+        // CR 701.59a — forage: exile three cards from your graveyard, or sacrifice a Food. The one
+        // forage resolver also drops a Food no cost may sacrifice.
+        is AbilityCost.Forage -> com.wingedsheep.engine.handlers.costs.ForageCostResolver.canPay(state, playerId)
         is AbilityCost.Atom -> CostPaymentService.canAfford(
             state = state,
             payerId = playerId,
@@ -3261,7 +3469,7 @@ class ManaSolver private constructor(
             // (CR 601.2h); canAfford reads that flag itself.
             manaSolver = this,
             predicateEvaluator = predicateEvaluator,
-            lifePurpose = LifePaymentPurpose.ACTIVATE_MANA_ABILITY
+            purpose = LifePaymentPurpose.ACTIVATE_MANA_ABILITY
         )
         is AbilityCost.Composite -> cost.costs.all {
             nonManaAbilityCostIsPayable(state, playerId, sourceId, it)
@@ -3283,8 +3491,8 @@ class ManaSolver private constructor(
         return true
     }
 
-    /** Whether [playerId] controls at least [count] permanents matching [filter]. */
-    private fun controlsMatching(
+    /** Whether [playerId] controls at least [count] permanents matching [filter] that a cost may sacrifice. */
+    private fun controlsSacrificeable(
         state: GameState,
         playerId: EntityId,
         filter: GameObjectFilter,
@@ -3294,7 +3502,8 @@ class ManaSolver private constructor(
         val projected = state.projectedState
         val context = PredicateContext(controllerId = playerId)
         return projected.getBattlefieldControlledBy(playerId).count { id ->
-            id != excludeId && predicateEvaluator.matches(state, projected, id, filter, context)
+            id != excludeId && com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.canSacrificeForCost(state, id) &&
+                predicateEvaluator.matches(state, projected, id, filter, context)
         } >= count
     }
 
@@ -3349,6 +3558,7 @@ class ManaSolver private constructor(
                 val hasTap = composite.costs.any { it is AbilityCost.Tap }
                 val hasSacSelf = composite.costs.any { it is AbilityCost.SacrificeSelf }
                 if (!hasTap || !hasSacSelf) continue
+                if (!com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.canSacrificeForCost(state, entityId)) continue
 
                 // Skip abilities that bundle a mana sub-cost — the player can still afford them
                 // when the pool has mana, but counting their net production here would
@@ -3357,7 +3567,7 @@ class ManaSolver private constructor(
                 if (composite.costs.any { it.manaCostOrNull != null }) continue
 
                 // Honor activation restrictions (e.g. "only during your turn").
-                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
+                if (!usableDuringPayment(state, playerId, entityId, ability)) continue
 
                 // Recurse into the effect so multi-mana sacrifice abilities expressed as a
                 // CompositeEffect (e.g. Irrigation Ditch's "{T}, Sacrifice: Add {G}{U}",
@@ -3473,7 +3683,7 @@ class ManaSolver private constructor(
                 // double-count or complicate color resolution here.
                 if (composite.costs.any { it is AbilityCost.SacrificeSelf || it.manaCostOrNull != null }) continue
 
-                if (!legality.activationRestrictionsMet(state, playerId, entityId, ability)) continue
+                if (!usableDuringPayment(state, playerId, entityId, ability)) continue
 
                 val context = PredicateContext(controllerId = playerId)
                 val matchingTapTargets = battlefieldCards.filter { targetId ->
@@ -3560,3 +3770,26 @@ class ManaSolver private constructor(
         return result
     }
 }
+
+/**
+ * [amount] units of [source]'s tap bonus as bonus-pool entries, the snow share
+ * ([ManaSource.bonusManaSnowPerTap]) first and flagged [BonusManaEntry.snow]. Fertile Ground's
+ * any-color bonus has no fixed color; white is only the fallback for a portion left unspent.
+ */
+private fun auraBonusEntries(source: ManaSource, amount: Int): List<BonusManaEntry> {
+    val snow = minOf(amount, source.bonusManaSnowPerTap)
+    fun entry(units: Int, isSnow: Boolean) = BonusManaEntry(
+        color = source.bonusManaColor ?: Color.WHITE,
+        amount = units,
+        restriction = null,
+        anyColor = source.bonusManaIsAnyColor,
+        // Genuinely-extra mana, not in `manaProduced` — count it when spent.
+        countsTowardSpent = true,
+        sourceId = source.entityId,
+        snow = isSnow,
+    )
+    return listOfNotNull(entry(snow, true).takeIf { snow > 0 }, entry(amount - snow, false).takeIf { amount > snow })
+}
+
+/** The mana a snow source taps for when it pays a colored pip "as though it were mana of any color". */
+private data class PlannedSnowMana(val color: Color?)

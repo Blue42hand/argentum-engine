@@ -1394,6 +1394,140 @@
     ]
 }
 
+// Field of Ruin
+{
+    "name": "Field of Ruin",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{2}, {T}, Sacrifice this land: Destroy target nonbasic land an opponent controls. Each player searches their library for a basic land card, puts it onto the battlefield, then shuffles.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Field of Ruin:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Field of Ruin:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Graveyard",
+                            "byDestruction": true
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Players",
+                                "players": "Each"
+                            },
+                            "body": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Library",
+                                            "filter": "basicland"
+                                        },
+                                        "storeAs": "searchable",
+                                        "search": true
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "searchable",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "found",
+                                        "prompt": "Search your library for a basic land card to put onto the battlefield",
+                                        "selectedLabel": "Put onto the battlefield"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "found",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield"
+                                        }
+                                    },
+                                    "ShuffleLibrary",
+                                    "EmitLibrarySearchedEvent"
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsLand",
+                                    {
+                                        "type": "Not",
+                                        "predicate": "IsBasicLand"
+                                    }
+                                ],
+                                "controllerPredicate": "ControlledByOpponent"
+                            }
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{2}, {T}, Sacrifice this land: Destroy target nonbasic land an opponent controls. Each player searches their library for a basic land card, puts it onto the battlefield, then shuffles."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "254",
+        "rarity": "UNCOMMON",
+        "artist": "Dimitar Marinski",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d72afb21-7bb0-4fd8-a529-ada92a654f61.jpg?1783935697",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "If the target land is an illegal target by the time Field of Ruin's ability tries to resolve, the ability doesn't resolve. No players search for a basic land card or shuffles. If the target is legal but not destroyed (most likely because it has indestructible), each player does search and shuffle."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Fiery Cannonade
 {
     "name": "Fiery Cannonade",
@@ -2515,6 +2649,71 @@
     ]
 }
 
+// Mavren Fein, Dusk Apostle
+{
+    "name": "Mavren Fein, Dusk Apostle",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Vampire Cleric",
+    "oracleText": "Whenever one or more nontoken Vampires you control attack, create a 1/1 white Vampire creature token with lifelink.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Mavren Fein, Dusk Apostle:1",
+                "trigger": {
+                    "type": "YouAttackEvent",
+                    "attackerFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Vampire"
+                            },
+                            "IsNontoken"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Vampire"
+                    ],
+                    "keywords": [
+                        "LIFELINK"
+                    ]
+                },
+                "descriptionOverride": "Whenever one or more nontoken Vampires you control attack, create a 1/1 white Vampire creature token with lifelink."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "rarity": "RARE",
+        "artist": "Daarken",
+        "flavorText": "In the rapture of his Blood Fast, he destroyed the navigator's tools and steered the ship to shore by faith alone.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/7/f7294e40-11b3-4d5c-82d0-c8ec6bd3a6c9.jpg?1783935796",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "Once you attack with one or more nontoken Vampires, Mavren Fein's ability will create a Vampire token even if some or all of those Vampires leave the battlefield or are removed from combat."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Nest Robber
 {
     "name": "Nest Robber",
@@ -3355,6 +3554,81 @@
     ]
 }
 
+// Revel in Riches
+{
+    "name": "Revel in Riches",
+    "manaCost": "{4}{B}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a creature an opponent controls dies, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nAt the beginning of your upkeep, if you control ten or more Treasures, you win the game.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Revel in Riches:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:opponent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                }
+            },
+            {
+                "id": "Revel in Riches:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "WinGame",
+                    "message": "Revel in Riches: ten or more Treasures."
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "artifact Treasure"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 10
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, if you control ten or more Treasures, you win the game."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "117",
+        "rarity": "RARE",
+        "artist": "Eric Deschamps",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/9/79b0e035-8716-469d-99ae-a530cd96ef09.jpg?1783935756",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "If you don't control ten Treasures as your upkeep begins, the second ability of Revel in Riches won't trigger. You can't take any actions during your turn before your upkeep begins."
+            },
+            {
+                "date": "2017-09-29",
+                "text": "If you don't control ten Treasures as the second ability of Revel in Riches resolves, you won't win the game."
+            },
+            {
+                "date": "2017-09-29",
+                "text": "If an opponent's creature dies at the same time that Revel in Riches is destroyed, you'll get a Treasure."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Rigging Runner
 {
     "name": "Rigging Runner",
@@ -3574,6 +3848,69 @@
     ]
 }
 
+// Sanctum Seeker
+{
+    "name": "Sanctum Seeker",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Creature — Vampire Knight",
+    "oracleText": "Whenever a Vampire you control attacks, each opponent loses 1 life and you gain 1 life.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sanctum Seeker:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "creature Vampire ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "120",
+        "rarity": "RARE",
+        "artist": "Volkan Baǵa",
+        "flavorText": "The Sanctum Seekers were the first of the knightly orders to cross the sea and are still the most zealous.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/72150779-0bb6-4d20-a898-cda93a66e7cd.jpg?1783935756",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "In a Two-Headed Giant game, Sanctum Seeker's ability causes the opposing team to lose 2 life and you to gain 1 life."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Settle the Wreckage
 {
     "name": "Settle the Wreckage",
@@ -3631,7 +3968,9 @@
                                         "player": "TargetPlayer",
                                         "filter": "basicland"
                                     },
-                                    "storeAs": "gathered3"
+                                    "storeAs": "gathered3",
+                                    "search": true,
+                                    "searcher": "TargetPlayer"
                                 },
                                 {
                                     "type": "SelectFromCollection",
@@ -3665,7 +4004,8 @@
                                         "type": "PlayerRef",
                                         "player": "TargetPlayer"
                                     }
-                                }
+                                },
+                                "EmitLibrarySearchedEvent"
                             ]
                         },
                         "decisionMaker": {
@@ -3865,6 +4205,124 @@
         "artist": "YW Tang",
         "flavorText": "Over their long life spans, the larger trilobites accumulate vast treasure troves in their guts.",
         "imageUri": "https://cards.scryfall.io/normal/front/1/3/135d1145-8640-44e1-8079-45832fa2556d.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Siren Stormtamer
+{
+    "name": "Siren Stormtamer",
+    "manaCost": "{U}",
+    "typeLine": "Creature — Siren Pirate Wizard",
+    "oracleText": "Flying\n{U}, Sacrifice this creature: Counter target spell or ability that targets you or a creature you control.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Siren Stormtamer:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{U}"
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Counter",
+                    "target": "CounterTarget.SpellOrAbility"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "anyOf": [
+                                    {
+                                        "cardPredicates": [
+                                            {
+                                                "type": "Or",
+                                                "predicates": [
+                                                    {
+                                                        "type": "TargetsPlayer",
+                                                        "player": "You"
+                                                    },
+                                                    {
+                                                        "type": "TargetsMatching",
+                                                        "subfilter": {
+                                                            "cardPredicates": [
+                                                                "IsCreature"
+                                                            ],
+                                                            "controllerPredicate": "ControlledByYou"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "cardPredicates": [
+                                            "IsActivatedOrTriggeredAbility",
+                                            {
+                                                "type": "Or",
+                                                "predicates": [
+                                                    {
+                                                        "type": "TargetsPlayer",
+                                                        "player": "You"
+                                                    },
+                                                    {
+                                                        "type": "TargetsMatching",
+                                                        "subfilter": {
+                                                            "cardPredicates": [
+                                                                "IsCreature"
+                                                            ],
+                                                            "controllerPredicate": "ControlledByYou"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            "zone": "Stack"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{U}, Sacrifice this creature: Counter target spell or ability that targets you or a creature you control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "UNCOMMON",
+        "artist": "Josu Hernaiz",
+        "flavorText": "He's the calm that hides the coming storm.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/72f7375c-2d9b-4738-b539-00e1949980e7.jpg?1783935772",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Siren Stormtamer's activated ability can target a spell or ability that has multiple targets, as long as at least one of those targets is you or a creature you control."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If the creature you control targeted by the target spell or ability leaves the battlefield, that spell or ability is no longer a legal target for Siren Stormtamer's ability. On the other hand, if that targeted creature becomes an illegal target for the target spell but remains on the battlefield under your control, the target spell or ability is still a legal target for Siren Stormtamer's ability."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLUE"
@@ -4913,6 +5371,63 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Unclaimed Territory
+{
+    "name": "Unclaimed Territory",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "As this land enters, choose a creature type.\n{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast a creature spell of the chosen type.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Unclaimed Territory:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Unclaimed Territory:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "restriction": {
+                        "type": "OfChosenType",
+                        "creatureOnly": true
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "CREATURE_TYPE"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "258",
+        "rarity": "UNCOMMON",
+        "artist": "Dimitar Marinski",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/f/ff765732-6fe3-4594-bff5-6ce47a79f45a.jpg?1783935697",
+        "rulings": [
+            {
+                "date": "2018-01-19",
+                "text": "To choose a creature type, you must choose an existing creature type, such as Vampire or Knight. You can't choose multiple creature types, such as \"Vampire Knight.\" Card types such as artifact can't be chosen, nor can subtypes that aren't creature types, such as Jace, Vehicle, or Treasure."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Unfriendly Fire

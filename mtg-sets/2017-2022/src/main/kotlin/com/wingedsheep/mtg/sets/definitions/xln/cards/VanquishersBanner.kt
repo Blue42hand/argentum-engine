@@ -1,28 +1,26 @@
 package com.wingedsheep.mtg.sets.definitions.xln.cards
 
-import com.wingedsheep.sdk.dsl.Triggers
-
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceType
 import com.wingedsheep.sdk.scripting.EntersWithChoice
-import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
-import com.wingedsheep.sdk.scripting.references.Player
 
 /**
- * Vanquisher's Banner
- * {5}
- * Artifact
+ * Vanquisher's Banner — Ixalan #251
+ * {5} · Artifact
  *
  * As this artifact enters, choose a creature type.
  * Creatures you control of the chosen type get +1/+1.
  * Whenever you cast a creature spell of the chosen type, draw a card.
+ *
+ * The Chronicle of Victory shape, narrowed to creature spells: the anthem reads the chosen type
+ * through `chosenSubtypeKey`, the cast trigger through `withChosenSubtype()` on a creature filter.
+ * The draw trigger resolves before the spell, even if the spell is countered.
  */
 val VanquishersBanner = card("Vanquisher's Banner") {
     manaCost = "{5}"
@@ -38,10 +36,7 @@ val VanquishersBanner = card("Vanquisher's Banner") {
         ability = ModifyStats(
             powerBonus = 1,
             toughnessBonus = 1,
-            filter = GroupFilter(
-                GameObjectFilter.Creature.youControl(),
-                chosenSubtypeKey = "chosenCreatureType",
-            ),
+            filter = GroupFilter.ChosenSubtypeCreatures().youControl()
         )
     }
 

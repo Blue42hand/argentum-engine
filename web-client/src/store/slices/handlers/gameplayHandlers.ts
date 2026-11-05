@@ -4,7 +4,8 @@
 import type { MessageHandlers } from '@/network/messageHandlers.ts'
 import { ErrorCode, ZoneType } from '@/types'
 import type { EntityId } from '@/types'
-import type { ClientGameState, ClientEvent, LegalActionInfo, PendingDecision, OpponentDecisionStatus, PriorityModeValue, PriorityYieldMode, Step } from '@/types'
+import type { ClientGameState, ClientEvent, DecisionResponse, LegalActionInfo, PendingDecision, OpponentDecisionStatus, PriorityModeValue, PriorityYieldMode, Step, CardFlippedOntoBattlefieldEvent } from '@/types'
+import type { FlipShow } from '../types'
 import { trackEvent, setInGame } from '@/utils/analytics.ts'
 import { applyStateDelta } from '@/network/deltaApplicator.ts'
 import { getWebSocket, clearLobbyId, requestReauth } from '../shared'
@@ -13,7 +14,8 @@ import { CLEARED_PIPELINE_SELECTIONS, isActionStillOffered } from '../ui/pipelin
 import type { SetState, GetState } from './types'
 import { useTableTalkStore } from '@/store/tableTalkStore'
 import { getPreferences } from '@/store/preferencesStore'
-import { createSetPriorityModeMessage, createSetStopOverridesMessage } from '@/types'
+import { autoAnswerFor, scheduleAutoAnswer } from './autoAnswer'
+import { createSetPriorityModeMessage, createSetStopOverridesMessage, createSetTriggerOrderingMessage } from '@/types'
 import type {
   LogEntry,
   DrawAnimation,
@@ -22,12 +24,13 @@ import type {
   CoinFlipAnimation,
   TargetReselectedAnimation,
   GameStore,
+  SubgameTransition,
 } from '../types'
 
 /**
  * Extract the relevant player ID from an event for log coloring.
  */
-function getEventPlayerId(event: { type: string; playerId?: string; casterId?: string; controllerId?: string; attackingPlayerId?: string; viewingPlayerId?: string; revealingPlayerId?: string; activePlayerId?: string; newControllerId?: string; startingPlayerId?: string; newHolderId?: string }): EntityId | null {
+function getEventPlayerId(event: { type: string; playerId?: string; casterId?: string; controllerId?: string; attackingPlayerId?: string; viewingPlayerId?: string; revealingPlayerId?: string; activePlayerId?: string; newControllerId?: string; startingPlayerId?: string; newHolderId?: string; newOwnerId?: string }): EntityId | null {
   switch (event.type) {
     case 'lifeChanged': return event.playerId as EntityId
     case 'cardDrawn': return event.playerId as EntityId
@@ -41,11 +44,13 @@ function getEventPlayerId(event: { type: string; playerId?: string; casterId?: s
     case 'handRevealed': return event.revealingPlayerId as EntityId
     case 'cardsRevealed': return event.revealingPlayerId as EntityId
     case 'turnedFaceUp': return event.controllerId as EntityId
+    case 'mutated': return event.controllerId as EntityId
     case 'transformed': return event.controllerId as EntityId
     case 'dieRolled':
     case 'coinFlipped': return event.playerId as EntityId
     case 'turnChanged': return event.activePlayerId as EntityId
     case 'gameRestarted': return event.startingPlayerId as EntityId
+    case 'subgameStarted': return event.startingPlayerId as EntityId
     case 'permanentsSacrificed': return event.playerId as EntityId
     case 'cardCycled': return event.playerId as EntityId
     case 'libraryShuffled': return event.playerId as EntityId
@@ -53,6 +58,7 @@ function getEventPlayerId(event: { type: string; playerId?: string; casterId?: s
     case 'venturedIntoDungeon': return event.playerId as EntityId
     case 'dungeonCompleted': return event.playerId as EntityId
     case 'controlChanged': return event.newControllerId as EntityId
+    case 'ownershipChanged': return event.newOwnerId as EntityId
     case 'decisionMade': return event.playerId as EntityId
     default: return null
   }
@@ -103,7 +109,9 @@ function appendGameLogTail(
 function getEventLogType(eventType: string): 'action' | 'turn' | 'combat' | 'system' {
   switch (eventType) {
     case 'turnChanged':
-    case 'gameRestarted': return 'turn'
+    case 'gameRestarted':
+    case 'subgameStarted':
+    case 'subgameEnded': return 'turn'
     case 'creatureAttacked':
     case 'creatureBlocked': return 'combat'
     case 'abilityFizzled':
@@ -214,6 +222,8 @@ interface StateUpdateEnvelope {
   readonly undoAvailable?: boolean
   readonly priorityMode?: PriorityModeValue | null
   readonly priorityYield?: PriorityYieldMode | null
+  readonly autoAnswer?: DecisionResponse | null
+  readonly autoAnswerPublic?: boolean
 }
 
 /** A replaced timeline invalidates every partially built action in the same store update. */
@@ -240,7 +250,6 @@ const CLEARED_ACTION_SELECTIONS = {
   combatState: null,
   draggingBlockerId: null,
   draggingAttackerId: null,
-  draggingAttackerHasBanding: null,
   draggingCardId: null,
   opponentAttackerTargets: null,
   opponentBlockerAssignments: null,
@@ -276,6 +285,7 @@ const CLEARED_ANIMATIONS = {
   damageAnimations: [],
   revealAnimations: [],
   coinFlipAnimations: [],
+  flipShow: null,
   targetReselectedAnimations: [],
 } as const
 
@@ -312,6 +322,45 @@ export function syncSeatTeams(state: ClientGameState, get: GetState): void {
   store.setSeatTeams(next, sharedLife, sharedTurns)
 }
 
+/**
+ * The interstitial for a subgame that began or ended in [events] (CR 729), if any — the last such
+ * event wins, so a subgame that ended in the same update it began announces its end. The spell's
+ * art comes from whichever state still describes the subgame: the new one as it starts, the
+ * previous one as it ends.
+ */
+function subgameTransitionFor(
+  events: readonly ClientEvent[],
+  next: ClientGameState,
+  previous: ClientGameState | null,
+): SubgameTransition | null {
+  const event = [...events].reverse().find((e) => e.type === 'subgameStarted' || e.type === 'subgameEnded')
+  if (!event) return null
+  const nameOf = (id: EntityId) =>
+    id === next.viewingPlayerId ? 'You' : next.players.find((p) => p.playerId === id)?.name ?? 'Opponent'
+  if (event.type === 'subgameStarted') {
+    const creator = next.subgame?.waitingGames[next.subgame.waitingGames.length - 1]
+    return {
+      kind: 'start',
+      depth: event.depth,
+      sourceName: event.sourceName ?? null,
+      sourceImageUri: creator?.sourceImageUri ?? null,
+      firstPlayerName: nameOf(event.startingPlayerId),
+      youGoFirst: event.startingPlayerId === next.viewingPlayerId,
+    }
+  }
+  if (event.type !== 'subgameEnded') return null
+  const creator = previous?.subgame?.waitingGames[previous.subgame.waitingGames.length - 1]
+  return {
+    kind: 'end',
+    depth: event.depth,
+    sourceName: event.sourceName ?? null,
+    sourceImageUri: creator?.sourceImageUri ?? null,
+    winnerNames: event.winnerIds.map(nameOf),
+    youWon: event.youWon === true,
+    nonWinnerNames: event.nonWinnerIds.map(nameOf),
+  }
+}
+
 function processStateUpdate(
   resolvedState: ClientGameState,
   msg: StateUpdateEnvelope,
@@ -330,6 +379,20 @@ function processStateUpdate(
   // never receives it and would render a team game as a free-for-all. Doing it here covers every
   // entry path with one write, and it's a no-op (reference-stable) once the map already matches.
   syncSeatTeams(resolvedState, get)
+
+  // A Magic subgame beginning or ending (CR 729) turns the table into a different game; announce it.
+  const subgameTransition = subgameTransitionFor(msg.events, resolvedState, get().gameState)
+  if (subgameTransition) {
+    // The hovered or selected card belongs to the game being left. Its hand may have unmounted
+    // under the cursor (the subgame opens on its mulligan), so no mouse-leave ever cleared it, and
+    // the card would pop up again as a stray preview the moment that game came back.
+    set({
+      hoveredCardId: null,
+      hoverPosition: null,
+      selectedCardId: null,
+      ...(suppressAnimations ? {} : { subgameTransition }),
+    })
+  }
 
   // Animations spawned by this update are collected here and committed with the state itself,
   // in one store write. Each separate write re-runs every subscriber's selector across the
@@ -597,6 +660,36 @@ function processStateUpdate(
     })
   })
 
+  // A dexterity flip (Chaos Orb): join the thrower's own in-flight show, or start the replay on
+  // every other client. The event carries the table as it lay, since the board it changed is gone.
+  const flipEvent = msg.events.find((e) => e.type === 'cardFlippedOntoBattlefield') as
+    | CardFlippedOntoBattlefieldEvent
+    | undefined
+  let newFlipShow: FlipShow | null = null
+  if (flipEvent && !suppressAnimations) {
+    const result = {
+      landing: flipEvent.landing,
+      turnedOver: flipEvent.turnedOver,
+      touched: flipEvent.touched,
+      affected: flipEvent.affected,
+    }
+    const inFlight = get().flipShow
+    newFlipShow =
+      inFlight && inFlight.isYours && inFlight.result === null && inFlight.flipperId === flipEvent.playerId
+        ? { ...inFlight, table: flipEvent.table, result }
+        : {
+            id: `flip-${flipEvent.playerId}-${Date.now()}`,
+            table: flipEvent.table,
+            sourceName: flipEvent.sourceName,
+            sourceImageUri: flipEvent.sourceImageUri,
+            flipperId: flipEvent.playerId,
+            isYours: flipEvent.playerId === playerId,
+            aim: null,
+            result,
+            startedAt: Date.now(),
+          }
+  }
+
   // Process target reselection events for animations
   const targetReselectedEvents = msg.events.filter((e) => e.type === 'targetReselected') as {
     type: 'targetReselected'
@@ -640,13 +733,23 @@ function processStateUpdate(
     })
   }
 
+  // A question with one legal answer, which the server answered for us: never put it in front of
+  // the player — not even for a frame — and send that answer after a short delay instead.
+  const autoAnswer = autoAnswerFor(
+    msg.pendingDecision,
+    msg.autoAnswer,
+    getPreferences().gameplay.forcedChoices,
+    msg.autoAnswerPublic === true
+  )
+
   set((state) => ({
     gameState: resolvedState,
     priorityYield: resolvedState.isGameOver || state.gameOverState ? null : msg.priorityYield ?? null,
     interactionEpoch: msg.interactionEpoch ?? null,
     stateVersion: msg.stateVersion ?? null,
     legalActions: msg.legalActions.map((action) => ({ ...action, interactionEpoch: msg.interactionEpoch ?? null })),
-    pendingDecision: msg.pendingDecision ?? null,
+    pendingDecision: autoAnswer ? null : msg.pendingDecision ?? null,
+    autoAnswerPending: autoAnswer != null,
     opponentDecisionStatus: msg.opponentDecisionStatus ?? null,
     nextStopPoint: msg.nextStopPoint ?? null,
     undoAvailable: msg.undoAvailable ?? false,
@@ -661,6 +764,7 @@ function processStateUpdate(
     ...(newDamageAnimations.length > 0 && !suppressAnimations ? { damageAnimations: [...state.damageAnimations, ...newDamageAnimations] } : {}),
     ...(newRevealAnimations.length > 0 && !suppressAnimations ? { revealAnimations: [...state.revealAnimations, ...newRevealAnimations] } : {}),
     ...(newCoinFlipAnimations.length > 0 && !suppressAnimations ? { coinFlipAnimations: [...state.coinFlipAnimations, ...newCoinFlipAnimations] } : {}),
+    ...(newFlipShow ? { flipShow: newFlipShow } : {}),
     ...(newTargetReselectedAnimations.length > 0 && !suppressAnimations
       ? { targetReselectedAnimations: [...state.targetReselectedAnimations, ...newTargetReselectedAnimations] }
       : {}),
@@ -713,7 +817,9 @@ function processStateUpdate(
     opponentBlockerAssignments: keepBlockerPreview(
       resolvedState.currentStep,
       resolvedState.combat != null,
-      (resolvedState.combat?.blockers?.length ?? 0) > 0,
+      // A blocked attacker whose blockers all left combat still counts (CR 509.1h).
+      (resolvedState.combat?.blockers?.length ?? 0) > 0 ||
+        (resolvedState.combat?.attackers?.some((a) => a.isBlocked === true) ?? false),
     )
       ? state.opponentBlockerAssignments
       : null,
@@ -722,8 +828,10 @@ function processStateUpdate(
       : isPipelineOutpaced(state, msg.legalActions) ? CLEARED_PIPELINE_SELECTIONS : {}),
   }))
 
+  scheduleAutoAnswer(autoAnswer, set, get)
+
   // Auto-initialize inline distribute state for DistributeDecision
-  const decision = msg.pendingDecision
+  const decision = autoAnswer ? undefined : msg.pendingDecision
   if (decision?.type === 'DistributeDecision') {
     const initial: Record<string, number> = {}
     for (const targetId of decision.targets) {
@@ -752,22 +860,23 @@ type GameplayHandlerKeys =
   | 'onGameOver' | 'onPlayerEliminated' | 'onError'
 
 /**
- * Send the player's standing stops and starting priority mode to the server for a new game, and
- * mirror them in the store so the step strip and mode button read right before the first update.
- * The server keeps both per game, so this runs once per game start.
+ * Send the player's standing stops, starting priority mode and trigger ordering to the server for a
+ * new game, and mirror them in the store so the step strip and mode button read right before the
+ * first update. The server keeps them per game, so this runs once per game start.
  */
 function applyGameplayPreferences(set: SetState) {
-  const { priorityMode, myTurnStops, opponentTurnStops } = getPreferences().gameplay
+  const { priorityMode, myTurnStops, opponentTurnStops, ownStackStops, autoOrderTriggers } = getPreferences().gameplay
   set({
     stopOverrides: { myTurnStops, opponentTurnStops },
     priorityMode,
     fullControl: priorityMode === 'fullControl',
   })
   const ws = getWebSocket()
-  if (myTurnStops.length || opponentTurnStops.length) {
-    ws?.send(createSetStopOverridesMessage(myTurnStops, opponentTurnStops))
+  if (myTurnStops.length || opponentTurnStops.length || ownStackStops.length) {
+    ws?.send(createSetStopOverridesMessage(myTurnStops, opponentTurnStops, ownStackStops))
   }
-  if (priorityMode !== 'auto') ws?.send(createSetPriorityModeMessage(priorityMode))
+  ws?.send(createSetPriorityModeMessage(priorityMode))
+  if (!autoOrderTriggers) ws?.send(createSetTriggerOrderingMessage(true))
 }
 
 export function createGameplayHandlers(set: SetState, get: GetState): Pick<MessageHandlers, GameplayHandlerKeys> {
@@ -934,7 +1043,28 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
     },
 
     onGameOver: (msg) => {
-      const { playerId, sessionId } = get()
+      const { playerId, sessionId, spectatingState } = get()
+      // A spectator watching the game that just ended: keep the final board up and show who won.
+      // Leaving stays the spectator's call (or the banner's auto-return) via stopSpectating.
+      if (!sessionId && spectatingState && !spectatingState.isReplay && msg.gameId === spectatingState.gameSessionId) {
+        set({
+          spectatingState: {
+            ...spectatingState,
+            decisionStatus: null,
+            gameOver: {
+              winnerIds: msg.winnerIds && msg.winnerIds.length > 0 ? msg.winnerIds : msg.winnerId ? [msg.winnerId] : [],
+              reason: msg.reason,
+              message: msg.message ?? null,
+              ...(msg.ante ? { ante: msg.ante } : {}),
+            },
+          },
+          // The fight is over; drop the declaration previews. Animations are left to play out:
+          // the lethal hit is what the spectator came to see.
+          opponentAttackerTargets: null,
+          opponentBlockerAssignments: null,
+        })
+        return
+      }
       // Ignore a game-over for a game we already left — e.g. an eliminated FFA player who
       // returned to the lobby still holds a seat server-side and receives the final GameOver.
       if (msg.gameId && sessionId !== msg.gameId) return
@@ -956,6 +1086,7 @@ export function createGameplayHandlers(set: SetState, get: GetState): Pick<Messa
           result,
           message: msg.message,
           gameId: msg.gameId,
+          ...(msg.ante ? { ante: msg.ante } : {}),
         },
         ...CLEARED_ANIMATIONS,
       })

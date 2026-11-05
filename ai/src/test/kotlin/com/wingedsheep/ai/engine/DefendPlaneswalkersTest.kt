@@ -36,8 +36,13 @@ class DefendPlaneswalkersTest : ScenarioTestBase() {
     private companion object {
         const val RNG_SEED = 20261014L
 
-        /** Everything live players face, minus this change. */
-        val WITHOUT = AiProfile.LIVE.copy(id = "live-without-walkerdefence", defendPlaneswalkers = false)
+        /**
+         * Everything live players face, minus this change — and minus [AiProfile.spendFuelWalkers],
+         * which prices a minus-only walker's activations on its own terms and would hide it.
+         */
+        val WITHOUT = AiProfile.LIVE.copy(
+            id = "live-without-walkerdefence", defendPlaneswalkers = false, spendFuelWalkers = false,
+        )
     }
 
     private fun TestGame.withLoyalty(cardName: String, loyalty: Int) {
@@ -154,10 +159,12 @@ class DefendPlaneswalkersTest : ScenarioTestBase() {
         }
 
         test("a Jace a blocker keeps safe is not cashed in") {
-            // The Bears stand in front of the Hortimancer: nothing reaches Jace, so −3 would throw
-            // away a walker that has turns left in it.
+            // The Bears stand in front of the Hortimancer: nothing reaches Jace, so the attack gives
+            // no reason to −3. (LIVE's `spendFuelWalkers` draws with it anyway — a minus-only
+            // walker's loyalty has nothing else to be saved for — so this pins the walker pricing
+            // without it; `LoyaltyActivationAiTest` pins that.)
             val game = jaceBoard(3, theirs = listOf("Unflinching Hortimancer" to false), ours = listOf("Grizzly Bears"))
-            val (action, options) = choose(game, AiProfile.LIVE)
+            val (action, options) = choose(game, AiProfile.LIVE.copy(spendFuelWalkers = false))
             withClue("chose $action\n${options.joinToString("\n")}") {
                 game.jaceCost(action) shouldNotBe -3
             }

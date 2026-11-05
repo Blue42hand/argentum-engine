@@ -386,11 +386,11 @@ class CardBuilder(private val name: String) {
     var layout: CardLayout = CardLayout.NORMAL
 
     /**
-     * Leyline marker. When true, the card carries the "If this card is in your opening
-     * hand, you may begin the game with it on the battlefield" ability. Set via the
-     * [leyline] DSL helper rather than by hand.
+     * The "If this card is in your opening hand, you may begin the game with it on the
+     * battlefield" action (CR 103.6a). Set via the [mayBeginGameOnBattlefield] DSL helper rather
+     * than by hand.
      */
-    var mayStartOnBattlefield: Boolean = false
+    var beginOnBattlefield: BeginOnBattlefield? = null
 
     /**
      * Opening-hand reveal payoff ("You may reveal this card from your opening hand. If you do, …").
@@ -482,31 +482,13 @@ class CardBuilder(private val name: String) {
     }
 
     /**
-     * Add Rampage N (CR 702.23) — keyword ability + triggered ability.
-     *
-     * "Whenever this creature becomes blocked, it gets +N/+N until end of turn for each
-     * creature blocking it beyond the first." The keyword ability is display-only (the
-     * engine has no separate Rampage handler); the behavior lives entirely in the
-     * triggered ability wired here. The unfiltered "becomes blocked" trigger fires once,
-     * with the source as the triggering entity, so [DynamicAmounts.numberOfBlockers]
-     * counts the creatures blocking this creature.
+     * Add Rampage N (CR 702.23) — "Whenever this creature becomes blocked, it gets +N/+N until end
+     * of turn for each creature blocking it beyond the first." Only the keyword is stored: the
+     * engine derives the trigger from the projected keyword, printed and granted alike — see
+     * [com.wingedsheep.sdk.scripting.Rampage].
      */
     fun rampage(n: Int) {
         keywordAbilityList.add(KeywordAbility.rampage(n))
-        val perBlockerBeyondFirst = DynamicAmount.Multiply(
-            DynamicAmount.Subtract(DynamicAmounts.numberOfBlockers(), DynamicAmount.Fixed(1)),
-            n
-        )
-        triggeredAbilities.add(
-            TriggeredAbility.create(
-                trigger = Triggers.self.becomesBlocked(),
-                effect = ModifyStatsEffect(
-                    powerModifier = perBlockerBeyondFirst,
-                    toughnessModifier = perBlockerBeyondFirst,
-                    target = EffectTarget.TriggeringEntity
-                )
-            )
-        )
     }
 
     // The set-mechanic helpers mobilize / firebending / sneak / decayed / vivid* / impending /
@@ -598,7 +580,7 @@ class CardBuilder(private val name: String) {
     fun staticAbility(init: StaticAbilityBuilder.() -> Unit) {
         val builder = StaticAbilityBuilder()
         builder.init()
-        staticAbilities.add(builder.build())
+        staticAbilities.addAll(builder.build())
     }
 
     // =========================================================================
@@ -708,6 +690,17 @@ class CardBuilder(private val name: String) {
      */
     fun fortifyAbility(cost: String) {
         activatedAbilities.add(ActivatedAbility.fortify(cost = ManaCost.parse(cost)))
+    }
+
+    /**
+     * "Reconfigure [cost]" (CR 702.151) — declares the [Keyword.RECONFIGURE] keyword and adds its two
+     * activated abilities ([ActivatedAbility.reconfigure]): attach to another target creature you
+     * control, and unattach, both for [cost] at sorcery speed. The engine makes the permanent stop
+     * being a creature while it is attached to a creature (CR 702.151b) — nothing to author.
+     */
+    fun reconfigure(cost: String) {
+        keywordSet.add(Keyword.RECONFIGURE)
+        activatedAbilities.addAll(ActivatedAbility.reconfigure(cost = ManaCost.parse(cost)))
     }
 
     // =========================================================================
@@ -999,7 +992,8 @@ class CardBuilder(private val name: String) {
             returnTransformedFromGraveyardOnResolve = spellBuilder?.returnTransformedFromGraveyardMarker,
             selfAlternativeCost = selfAlternativeCost,
             xManaRestriction = spellBuilder?.xManaRestriction ?: emptySet(),
-            mayStartOnBattlefield = mayStartOnBattlefield,
+            xMaximum = spellBuilder?.xMaximum,
+            beginOnBattlefield = beginOnBattlefield,
             openingHandReveal = openingHandReveal,
             castTimeCaptures = spellBuilder?.castTimeCaptures ?: emptyList()
         )
@@ -1095,6 +1089,8 @@ class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : Tar
     var condition: Condition? = null
     /** Colors that may be spent on the `{X}` portion of this spell's cost (empty = any). */
     var xManaRestriction: Set<Color> = emptySet()
+    /** "X can't be greater than [xMaximum]" — checked once, as X is announced (null = no cap). */
+    var xMaximum: DynamicAmount? = null
     private var selfExileOnResolve: Boolean = false
 
     /**
@@ -1288,19 +1284,36 @@ class SpellBuilder(private val declaredTargets: TargetList = TargetList()) : Tar
     internal val restrictions: List<CastRestriction>
         get() = castRestrictions.toList()
 
-    // Cast-time condition captures ("as you cast this spell")
+    // Cast-time captures ("as you cast this spell")
     private val castTimeCaptureList: MutableList<CastTimeCapture> = mutableListOf()
 
     /**
      * Capture, *as this spell is cast* (CR 601.2i), whether [condition] holds, storing the answer
      * under [flag]. The spell's effect reads it back at resolution via
-     * `Conditions.CapturedAtCast(flag)` ([com.wingedsheep.sdk.scripting.conditions.CastTimeFlagSet]),
+     * `Conditions.CapturedAtCast(flag)` (a `Compare` over [DynamicAmount.CapturedAtCast]),
      * so the branch reflects the cast-time board even if it has since changed.
      *
      * Used for "if you controlled a Mount as you cast this spell" (Steer Clear).
      */
     fun captureAtCast(flag: String, condition: Condition) {
-        castTimeCaptureList.add(CastTimeCapture(flag, condition))
+        castTimeCaptureList.add(
+            CastTimeCapture(
+                flag,
+                DynamicAmount.Conditional(condition, DynamicAmount.Fixed(1), DynamicAmount.Fixed(0))
+            )
+        )
+    }
+
+    /**
+     * Capture, *as this spell is cast* (CR 601.2i), the value of [amount], storing it under [name].
+     * The spell's effect reads it back at resolution via `DynamicAmounts.capturedAtCast(name)`
+     * ([DynamicAmount.CapturedAtCast]), so the number reflects the cast-time board even if it has
+     * since changed.
+     *
+     * Used for "for each modified creature you controlled as you cast this spell" (Lethal Exploit).
+     */
+    fun captureAtCast(name: String, amount: DynamicAmount) {
+        castTimeCaptureList.add(CastTimeCapture(name, amount))
     }
 
     internal val castTimeCaptures: List<CastTimeCapture>
@@ -1758,6 +1771,11 @@ class ActivatedAbilityBuilder(private val declaredTargets: TargetList = TargetLi
      * `ExpiringGrantWindow` branches on `timing == InstantSpeed`, so which half a card fell in
      * changed behaviour. Found by Argentum Assay's differential, which derives both from the printed
      * line and reported every card that carried only one.
+     *
+     * The one exception is an explicit `timing = TimingRule.SorcerySpeed`: "Activate only as a
+     * sorcery" on a mana ability (Grinning Ignus, CR 602.5d) is kept. It is still a mana ability —
+     * no stack, can't be responded to — but it is offered only when its controller could cast a
+     * sorcery, and never mid-payment (the spell or ability being paid for is already on the stack).
      */
     var manaAbility: Boolean = false
     /**
@@ -1875,8 +1893,9 @@ class ActivatedAbilityBuilder(private val declaredTargets: TargetList = TargetLi
             targetRequirements = targetRequirements,
             isManaAbility = manaAbility,
             isEquipAbility = isEquipAbility,
-            // A mana ability's timing is not a separate authoring choice — see [manaAbility].
-            timing = if (manaAbility) TimingRule.ManaAbility else timing,
+            // A mana ability's timing is not a separate authoring choice — see [manaAbility] —
+            // except "Activate only as a sorcery", which a mana ability can still carry.
+            timing = if (manaAbility && timing != TimingRule.SorcerySpeed) TimingRule.ManaAbility else timing,
             restrictions = effectiveRestrictions,
             activateFromZone = activateFromZone,
             trackActivations = trackActivations,
@@ -1923,10 +1942,20 @@ class StaticAbilityBuilder {
      * permanent's ordinary static. "As long as this card is in your graveyard, …" (Anger, Wonder)
      * is `setOf(Zone.GRAVEYARD)`, which wraps the ability in a [ZoneScopedStaticAbility]: on in
      * the graveyard, off on the battlefield. The twin of [TriggeredAbility.activeZones].
+     *
+     * A set naming the battlefield *and* other zones — eminence, "as long as The Ur-Dragon is in
+     * the command zone or on the battlefield" is `setOf(Zone.BATTLEFIELD, Zone.COMMAND)` — builds
+     * two abilities: the bare one, read by every battlefield scanner, and a
+     * [ZoneScopedStaticAbility] over the remaining zones. A card is in one zone at a time, so the
+     * two never function together.
      */
     var activeZones: Set<Zone> = setOf(Zone.BATTLEFIELD)
 
-    fun build(): StaticAbility {
+    /**
+     * The static abilities this block defines — one, or two when [activeZones] names the
+     * battlefield and another zone (see [activeZones]).
+     */
+    fun build(): List<StaticAbility> {
         val baseAbility = requireNotNull(ability) {
             "staticAbility { } requires `ability = <StaticAbility>`"
         }
@@ -1937,8 +1966,12 @@ class StaticAbilityBuilder {
         } else {
             baseAbility
         }
-        return if (activeZones == setOf(Zone.BATTLEFIELD)) gated
-        else ZoneScopedStaticAbility(gated, activeZones)
+        require(activeZones.isNotEmpty()) { "staticAbility { } activeZones must name at least one zone" }
+        val elsewhere = activeZones - Zone.BATTLEFIELD
+        return buildList {
+            if (Zone.BATTLEFIELD in activeZones) add(gated)
+            if (elsewhere.isNotEmpty()) add(ZoneScopedStaticAbility(gated, elsewhere))
+        }
     }
 }
 
@@ -2053,7 +2086,7 @@ class ClassLevelBuilder(private val level: Int, private val costString: String) 
     fun staticAbility(init: StaticAbilityBuilder.() -> Unit) {
         val builder = StaticAbilityBuilder()
         builder.init()
-        staticAbilities.add(builder.build())
+        staticAbilities.addAll(builder.build())
     }
 
     /**
@@ -2222,7 +2255,7 @@ class CardFaceBuilder(private val name: String) {
     fun staticAbility(init: StaticAbilityBuilder.() -> Unit) {
         val builder = StaticAbilityBuilder()
         builder.init()
-        staticAbilities.add(builder.build())
+        staticAbilities.addAll(builder.build())
     }
 
     /**

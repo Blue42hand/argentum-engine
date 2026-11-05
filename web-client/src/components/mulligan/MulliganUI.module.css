@@ -99,6 +99,39 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* A Magic subgame's own mulligan (Shahrazad, CR 729) — the same gilt as the in-game badge. */
+.subgameBanner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(233, 207, 148, 0.4);
+  background: linear-gradient(150deg, rgba(58, 40, 18, 0.82) 0%, rgba(26, 17, 8, 0.86) 100%);
+  box-shadow: 0 0 14px rgba(233, 207, 148, 0.16);
+  text-align: center;
+}
+
+.subgameEyebrow {
+  margin: 0;
+  color: #e9cf94;
+  font-size: var(--font-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.subgameText {
+  margin: 0;
+  color: #d9cfbb;
+  font-size: var(--font-sm);
+}
+
+@media (max-width: 640px) {
+  .subgameBanner { border-radius: 12px; }
+}
+
 /* =========================================================================
  * Title
  * ========================================================================= */

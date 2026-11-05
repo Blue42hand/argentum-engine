@@ -28,6 +28,7 @@ import type { Step, PriorityModeValue, PriorityYieldMode, YieldKind } from '@/ty
 import { trackEvent } from '@/utils/analytics.ts'
 import { getWebSocket } from './shared'
 import { getPreferences, usePreferences } from '@/store/preferencesStore'
+import type { AutoAnswerNotice } from './handlers/autoAnswer'
 
 /** How long an error toast stays up before auto-dismissing. */
 const ERROR_AUTO_DISMISS_MS = 5000
@@ -59,6 +60,13 @@ export interface GameplaySliceState {
   spectatorCount: number
   /** Names of currently-active spectators (for hover display on the badge). */
   spectatorNames: readonly string[]
+  /** The last forced question this client answered for the player, shown as a brief notice. */
+  autoAnswerNotice: AutoAnswerNotice | null
+  /**
+   * A forced question is waiting to be answered for the player. It is off screen, so nothing else
+   * may look actionable meanwhile — the Pass button above all.
+   */
+  autoAnswerPending: boolean
 }
 
 export interface GameplaySliceActions {
@@ -70,12 +78,14 @@ export interface GameplaySliceActions {
   submitDecision: (decisionId: string, selectedCards: readonly EntityId[]) => void
   submitTargetsDecision: (decisionId: string, selectedTargets: Record<number, readonly EntityId[]>) => void
   submitOrderedDecision: (decisionId: string, orderedObjects: readonly EntityId[]) => void
+  submitTriggerOrder: (decisionId: string, resolutionOrder: readonly number[]) => void
   submitYesNoDecision: (decisionId: string, choice: boolean) => void
   submitBatchYesNoDecision: (decisionId: string, choice: boolean, applyToAll: boolean) => void
   submitNumberDecision: (decisionId: string, number: number) => void
   submitOptionDecision: (decisionId: string, optionIndex: number) => void
   submitReplacementDecision: (decisionId: string, fromIndex: number, toIndex: number) => void
   submitBudgetModalDecision: (decisionId: string, selectedModeIndices: readonly number[]) => void
+  submitFlipThrow: (decisionId: string, aimX: number, aimY: number, strength: number, sway: number) => void
   submitDistributeDecision: (decisionId: string, distribution: Record<EntityId, number>) => void
   submitDamageAssignmentDecision: (decisionId: string, assignments: Record<EntityId, number>) => void
   submitCombatResolutionDecision: (decisionId: string, edges: ReadonlyArray<{ edgeId: string; amount: number }>) => void
@@ -112,6 +122,7 @@ export interface GameplaySliceActions {
    */
   setError: (error: ErrorState) => void
   clearError: () => void
+  dismissAutoAnswerNotice: () => void
 }
 
 export type GameplaySlice = GameplaySliceState & GameplaySliceActions
@@ -140,6 +151,8 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
   autoTapEnabled: getPreferences().gameplay.autoTap,
   spectatorCount: 0,
   spectatorNames: [],
+  autoAnswerNotice: null,
+  autoAnswerPending: false,
 
   // Actions
   createGame: (deckList, setCode) => {
@@ -240,6 +253,22 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
         type: 'OrderedResponse' as const,
         decisionId,
         orderedObjects: [...orderedObjects],
+      },
+    }
+    get().submitAction(action, decisionInteractionEpoch(action.response.decisionId))
+  },
+
+  submitTriggerOrder: (decisionId, resolutionOrder) => {
+    const { pendingDecision, playerId } = get()
+    if (!pendingDecision || pendingDecision.id !== decisionId || !playerId) return
+
+    const action = {
+      type: 'SubmitDecision' as const,
+      playerId: pendingDecision.playerId,
+      response: {
+        type: 'TriggerOrderResponse' as const,
+        decisionId,
+        resolutionOrder: [...resolutionOrder],
       },
     }
     get().submitAction(action, decisionInteractionEpoch(action.response.decisionId))
@@ -356,6 +385,37 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
         type: 'BudgetModalResponse' as const,
         decisionId,
         selectedModeIndices,
+      },
+    }
+    get().submitAction(action, decisionInteractionEpoch(action.response.decisionId))
+  },
+
+  submitFlipThrow: (decisionId, aimX, aimY, strength, sway) => {
+    const { pendingDecision } = get()
+    if (!pendingDecision || pendingDecision.id !== decisionId || pendingDecision.type !== 'FlipOntoBattlefieldDecision') return
+
+    // The flight starts now; the server's landing joins it mid-air (see FlipShow).
+    get().setFlipShow({
+      id: `flip-${decisionId}`,
+      table: pendingDecision.table,
+      sourceName: pendingDecision.context.sourceName ?? 'Card',
+      sourceImageUri: pendingDecision.flippedImageUri,
+      flipperId: pendingDecision.playerId,
+      isYours: true,
+      aim: { x: aimX, y: aimY, strength },
+      result: null,
+      startedAt: Date.now(),
+    })
+    const action = {
+      type: 'SubmitDecision' as const,
+      playerId: pendingDecision.playerId,
+      response: {
+        type: 'FlipThrowResponse' as const,
+        decisionId,
+        aimX,
+        aimY,
+        strength,
+        sway,
       },
     }
     get().submitAction(action, decisionInteractionEpoch(action.response.decisionId))
@@ -521,9 +581,9 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
     })
   },
 
-  concede: () => {
-    trackEvent('player_conceded')
-    getWebSocket()?.send(createConcedeMessage())
+  concede: (subgameOnly = false) => {
+    trackEvent(subgameOnly ? 'player_conceded_subgame' : 'player_conceded')
+    getWebSocket()?.send(createConcedeMessage(subgameOnly))
   },
 
   requestUndo: () => {
@@ -580,7 +640,11 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
       : [...current, step]
     const newOverrides = { ...stopOverrides, [key]: newStops }
     set({ stopOverrides: newOverrides })
-    getWebSocket()?.send(createSetStopOverridesMessage(newOverrides.myTurnStops, newOverrides.opponentTurnStops))
+    getWebSocket()?.send(createSetStopOverridesMessage(
+      newOverrides.myTurnStops,
+      newOverrides.opponentTurnStops,
+      getPreferences().gameplay.ownStackStops,
+    ))
     // Remember them: the next game starts with the same stops (see onGameStarted).
     usePreferences.getState().update('gameplay', {
       myTurnStops: newOverrides.myTurnStops,
@@ -672,4 +736,6 @@ export const createGameplaySlice: SliceCreator<GameplaySlice> = (set, get) => ({
     }
     set({ lastError: null })
   },
+
+  dismissAutoAnswerNotice: () => set({ autoAnswerNotice: null }),
 })

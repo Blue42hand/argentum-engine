@@ -39,6 +39,17 @@ data class EffectResult(
      * iterating "each permanent exiled this way" reads them as they last existed (CR 608.2h).
      */
     val updatedDepartedPermanents: List<EntitySnapshot> = emptyList(),
+    /**
+     * Named string lists the step stored. Only an effect program fills it: its scopes and its
+     * finish carry out the lists a creature-type choice wrote into the program's frame
+     * (`CreatureTypeChoiceContinuationResumer`), the one producer of string lists.
+     */
+    val updatedStringLists: Map<String, List<String>> = emptyMap(),
+    /**
+     * Object moves the step authorised that its [events] may not show — a program finishing after a
+     * pause reports the moves made before it. Merged with any the caller authorises from [events].
+     */
+    val updatedPermittedMoves: List<com.wingedsheep.engine.handlers.PermittedObjectMove> = emptyList(),
 ) {
     /** The rejection's message, or null when the effect was not rejected. */
     val error: String? get() = (outcome as? Outcome.Rejected)?.reason?.message

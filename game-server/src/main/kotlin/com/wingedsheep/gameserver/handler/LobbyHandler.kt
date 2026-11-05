@@ -301,6 +301,7 @@ class LobbyHandler(
                     cardPool = playerState.cardPool.map { ConnectionHandler.cardToSealedCardInfo(it) },
                     basicLands = basicLandInfos,
                     poolPlay = lobby.isCubePoolPlay,
+                    maxCopiesPerCard = lobby.limitedCopyCap,
                 ))
             }
         }
@@ -886,6 +887,8 @@ class LobbyHandler(
                 ?.let { runCatching { com.wingedsheep.sdk.core.AttackMode.valueOf(it.uppercase()) }.getOrNull() },
             // Ranked only applies to a TOURNAMENT-mode bracket (its matches are 1v1).
             ranked = message.ranked && gameMode == LobbyGameMode.TOURNAMENT,
+            // Ranked games are never played for ante (CR 407); ranked wins the conflict.
+            playingForAnte = message.playingForAnte && !(message.ranked && gameMode == LobbyGameMode.TOURNAMENT),
         )
         lobby.addPlayer(identity)
         lobbyRepository.saveLobby(lobby)
@@ -1013,6 +1016,7 @@ class LobbyHandler(
                     cardPool = poolInfos,
                     basicLands = basicLandInfos,
                     poolPlay = lobby.isCubePoolPlay,
+                    maxCopiesPerCard = lobby.limitedCopyCap,
                 ))
                 ctx.broadcastLobbyUpdate(lobby)
 
@@ -1068,6 +1072,7 @@ class LobbyHandler(
             cardPool = poolInfos,
             basicLands = basicLandInfos,
             poolPlay = lobby.isCubePoolPlay,
+            maxCopiesPerCard = lobby.limitedCopyCap,
         ))
         sender.send(session, lobby.buildLobbyUpdate(identity.playerId, aiGameManager::isAiPlayer))
 
@@ -1093,6 +1098,7 @@ class LobbyHandler(
             cardPool = poolInfos,
             basicLands = basicLandInfos,
             poolPlay = lobby.isCubePoolPlay,
+            maxCopiesPerCard = lobby.limitedCopyCap,
         ))
         sender.send(session, lobby.buildLobbyUpdate(identity.playerId, aiGameManager::isAiPlayer))
 
@@ -1471,6 +1477,7 @@ class LobbyHandler(
                             cardPool = poolInfos,
                             basicLands = basicLandInfos,
                             poolPlay = lobby.isCubePoolPlay,
+                            maxCopiesPerCard = lobby.limitedCopyCap,
                         ))
                     }
                 }
@@ -2062,7 +2069,7 @@ class LobbyHandler(
         aiProperties: com.wingedsheep.gameserver.config.AiProperties
     ): Map<String, Int>? {
         val nonLands = pool.filter { !it.typeLine.isLand }
-        val poolLands = pool.filter { it.typeLine.isLand && !it.typeLine.isBasicLand }
+        val poolLands = pool.filter { it.typeLine.isLand && (!it.typeLine.isBasicLand || it.typeLine.isSnow) }
 
         val prompt = buildString {
             appendLine("You are building a 40-card sealed deck from this card pool.")
@@ -2839,11 +2846,24 @@ class LobbyHandler(
         }
 
         message.aiAssistEnabled?.let { lobby.aiAssistEnabled = it }
+        message.limitedCopyLimit?.let { lobby.limitedCopyLimit = it }
 
         message.ranked?.let { lobby.ranked = it }
         // Ranked only applies to a TOURNAMENT-mode bracket (1v1 matches); a mode switch in this same
         // update — or one that landed earlier — forces it back off.
         if (!lobby.rankedEligible) lobby.ranked = false
+
+        // Ante (CR 407). Ranked games are never played for ante: turning ranked on clears it, and
+        // asking for ante while ranked is refused. Turning it off un-submits any deck that holds an
+        // ante card (CR 407.3) — only premade decks can be in yet, settings being pre-start only.
+        val anteBefore = lobby.playingForAnte
+        if (message.playingForAnte == true && lobby.ranked) {
+            sender.sendError(session, ErrorCode.INVALID_ACTION, "Ranked games can't be played for ante")
+        } else {
+            message.playingForAnte?.let { lobby.playingForAnte = it }
+        }
+        if (lobby.ranked) lobby.playingForAnte = false
+        if (anteBefore && !lobby.playingForAnte) unsubmitAnteDecks(lobby)
 
         // Re-roll only when an axis that determines the AI deck changed. Under Commander rules,
         // ensureAiPremadeDeck deliberately leaves Auto unsubmitted until the host picks a deck.
@@ -2856,6 +2876,34 @@ class LobbyHandler(
 
         ctx.broadcastLobbyUpdate(lobby)
         lobbyRepository.saveLobby(lobby)
+    }
+
+    /**
+     * Un-submit every deck in [lobby] that holds an ante card ([com.wingedsheep.sdk.model.CardDefinition.requiresAnte])
+     * now that the lobby no longer plays for ante (CR 407.3), telling each affected human why.
+     * The caller broadcasts the lobby update.
+     */
+    private fun unsubmitAnteDecks(lobby: TournamentLobby) {
+        for ((playerId, playerState) in lobby.players.toMap()) {
+            // A Limited sideboard is the derived unused pool, where an ante card may sit harmlessly
+            // (see TournamentLobby.validateDeck); only a constructed sideboard was chosen.
+            val sideboard = if (lobby.format == TournamentFormat.PREMADE_DECKS) playerState.submittedSideboard.keys else emptySet()
+            val cards = playerState.submittedDeck?.keys.orEmpty() + sideboard
+            val anteCard = cards.firstOrNull { cardRegistry.getCard(it)?.requiresAnte == true } ?: continue
+            lobby.discardSubmittedDeck(playerId)
+            if (aiGameManager.isAiPlayer(playerId)) {
+                // An AI seat has nobody to tell; it re-rolls a deck for the lobby as it now stands.
+                ensureAiPremadeDeck(lobby, playerId)
+                continue
+            }
+            playerState.identity.webSocketSession?.takeIf { it.isOpen }?.let {
+                sender.sendError(
+                    it,
+                    ErrorCode.INVALID_DECK,
+                    "The lobby no longer plays for ante — $anteCard can only be played in a game played for ante. Please resubmit your deck.",
+                )
+            }
+        }
     }
 
     // =========================================================================
@@ -2934,20 +2982,23 @@ class LobbyHandler(
                     effectiveSecondCommander, effectiveSecondCommanderPrinting,
                     sideboard = sideboard, companion = effectiveCompanion,
                 )
-                deckValidator.validate(deck, lobby.deckFormat)
-            } else if (effectiveCompanion != null) {
-                // The structured path is the one that reads a companion and its sideboard.
+                deckValidator.validate(deck, lobby.deckFormat, playingForAnte = lobby.playingForAnte)
+            } else if (effectiveCompanion != null || sideboard.isNotEmpty()) {
+                // The structured path is the one that reads a companion and its sideboard (the
+                // sideboard is checked for ante cards, CR 407.3).
                 deckValidator.validate(
                     com.wingedsheep.gameserver.protocol.DeckRequestConverter.toDeck(
                         deckList, cardEntries, sideboard = sideboard, companion = effectiveCompanion,
                     ),
                     lobby.deckFormat,
+                    playingForAnte = lobby.playingForAnte,
                 )
             } else {
                 deckValidator.validate(
                     deckList = deckList,
                     format = lobby.deckFormat,
                     cardEntries = cardEntries,
+                    playingForAnte = lobby.playingForAnte,
                 )
             }
             if (!validation.valid) {

@@ -4,9 +4,13 @@ import com.wingedsheep.engine.core.EffectResult
 import com.wingedsheep.engine.event.GrantedReplacementEffect
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
+import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.identity.captureCopiableSnapshot
+import com.wingedsheep.sdk.scripting.EntersAsCopy
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.effects.GrantReplacementEffectEffect
 import kotlin.reflect.KClass
 
@@ -19,8 +23,15 @@ import kotlin.reflect.KClass
  * ([com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.checkZoneChangeRedirect]) consults
  * granted [com.wingedsheep.sdk.scripting.RedirectZoneChange] entries alongside permanents'
  * printed replacement effects. Mirrors [GrantStaticAbilityExecutor].
+ *
+ * A granted [EntersAsCopy] whose [EntersAsCopy.copyOf] names this resolution's object (Mystic
+ * Reflection's "the chosen creature") is bound here: the reference becomes the
+ * [EffectTarget.SpecificEntity] it resolved to, and that object's copiable values are captured on the
+ * grant as its last-known information (see [GrantedReplacementEffect.referenceSnapshot]).
  */
-class GrantReplacementEffectExecutor : EffectExecutor<GrantReplacementEffectEffect> {
+class GrantReplacementEffectExecutor(
+    private val cardRegistry: CardRegistry,
+) : EffectExecutor<GrantReplacementEffectEffect> {
 
     override val effectType: KClass<GrantReplacementEffectEffect> =
         GrantReplacementEffectEffect::class
@@ -43,8 +54,9 @@ class GrantReplacementEffectExecutor : EffectExecutor<GrantReplacementEffectEffe
         // battlefield permanent) may grant a *floating, controller-scoped* global replacement —
         // Malicious Eclipse's "if a creature an opponent controls would die this turn, exile it
         // instead". The zone-change redirect read path uses only the grant's controllerId + the
-        // replacement's filter (never its entityId), so anchoring to the caster is sufficient and the
-        // grant persists after the spell leaves. A grant aimed at a permanent that has left the
+        // replacement's filter for such a floating rider (only a `selfOnly` grant reads its
+        // entityId), so anchoring to the caster is sufficient and the grant persists after the
+        // spell leaves. A grant aimed at a permanent that has left the
         // battlefield is still meaningless, so only the source-spell case is allowed off-battlefield.
         if (!onBattlefield && targetId != context.sourceId) {
             return EffectResult.error(state, "Target is not on the battlefield")
@@ -57,11 +69,22 @@ class GrantReplacementEffectExecutor : EffectExecutor<GrantReplacementEffectEffe
             context.controllerId
         }
 
+        var replacement = effect.replacement
+        var referenceSnapshot: com.wingedsheep.engine.state.components.stack.EntitySnapshot? = null
+        val copyOf = (replacement as? EntersAsCopy)?.copyOf
+        if (copyOf != null && copyOf !is EffectTarget.SpecificEntity) {
+            val referenceId = context.resolveTarget(copyOf)
+                ?: return EffectResult.error(state, "No object for the granted copy effect to copy")
+            replacement = (replacement as EntersAsCopy).copy(copyOf = EffectTarget.SpecificEntity(referenceId))
+            referenceSnapshot = captureCopiableSnapshot(state, referenceId, cardRegistry)
+        }
+
         val grant = GrantedReplacementEffect(
             entityId = targetId,
             controllerId = controllerId,
-            replacement = effect.replacement,
-            duration = effect.duration
+            replacement = replacement,
+            duration = effect.duration,
+            referenceSnapshot = referenceSnapshot,
         )
 
         val newState = state.copy(

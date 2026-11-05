@@ -8,14 +8,14 @@
  * set-page sections (see `ExtraGroup`). See `game-server` SetCoverageService /
  * `GET /api/sets/coverage` and `GET /api/sets/{code}/coverage`.
  *
- * Cards we've decided never to implement (ante, subgames, physical dexterity) come back
+ * Cards we've decided never to implement (ante, physical dexterity) come back
  * flagged `notPlanned` and are already excluded from every total, so `implemented / total`
  * measures what we intend to build.
  */
 
 /** Why a card will never be implemented. Present only on not-planned cards, and never without a reason. */
 export interface NotPlanned {
-  /** Short reason key — `ante`, `subgame`, `dexterity`. */
+  /** Short reason key — `ante`, `dexterity`. */
   readonly kind: string
   /** Player-facing sentence explaining the decision. */
   readonly why: string

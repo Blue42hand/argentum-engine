@@ -1548,6 +1548,98 @@
     ]
 }
 
+// Chaos Orb
+{
+    "name": "Chaos Orb",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{1}, {T}: If this artifact is on the battlefield, flip it onto the battlefield from a height of at least one foot. If this artifact turns over completely at least once during the flip, destroy all nontoken permanents it touches. Then destroy this artifact.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Chaos Orb:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "SourceInZone",
+                                    "zones": [
+                                        "Battlefield"
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "FlipOntoBattlefield",
+                                        "storeTouchedAs": "touched0",
+                                        "filter": "permanent nontoken"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "touched0",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Destroy"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "MoveToZone",
+                            "target": "Self",
+                            "destination": "Graveyard",
+                            "byDestruction": true
+                        }
+                    ]
+                },
+                "descriptionOverride": "{1}, {T}: If this artifact is on the battlefield, flip it onto the battlefield from a height of at least one foot. If this artifact turns over completely at least once during the flip, destroy all nontoken permanents it touches. Then destroy this artifact."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "235",
+        "rarity": "RARE",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/92274971-7c4a-4326-b0fe-75e2d124f718.jpg?1783948669",
+        "rulings": [
+            {
+                "date": "2004-10-04",
+                "text": "Chaos Orb can only affect permanents. Cards that are in the game but not on the battlefield, such as those in the Library and Graveyard, can't be affected."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "It must flip 360 degrees (that's what \"flip\" means). And this flip must be in the air and not in your hand."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "This is a not a targeted ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Chaoslace
 {
     "name": "Chaoslace",
@@ -2116,6 +2208,78 @@
         "imageUri": "https://cards.scryfall.io/normal/front/c/7/c7824e2a-4eff-4f72-9216-0db30a4f4252.jpg"
     },
     "colorIdentityOverride": []
+}
+
+// Contract from Below
+{
+    "name": "Contract from Below",
+    "manaCost": "{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Remove this card from your deck before playing if you're not playing for ante.\nDiscard your hand, ante the top card of your library, then draw seven cards.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Hand"
+                    },
+                    "storeAs": "discardedHand"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "discardedHand",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Discard"
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "anted_top"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "anted_top",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Ante"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "96",
+        "rarity": "RARE",
+        "artist": "Douglas Shuler",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/8/9853b0ce-4763-4877-9741-f9145a3659c6.jpg?1783948698"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
 }
 
 // Control Magic
@@ -2741,6 +2905,75 @@
     ]
 }
 
+// Darkpact
+{
+    "name": "Darkpact",
+    "manaCost": "{B}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Remove this card from your deck before playing if you're not playing for ante.\nYou own target card in the ante. Exchange that card with the top card of your library.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeAs": "gathered0"
+                },
+                {
+                    "type": "ChangeOwnership",
+                    "card": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Library",
+                    "placement": "Top"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "gathered0",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Ante"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Ante"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "99",
+        "rarity": "RARE",
+        "artist": "Quinton Hoover",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/7/e78db688-93a2-47f5-9aa5-9158a72cd973.jpg?1783948697"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Death Ward
 {
     "name": "Death Ward",
@@ -2847,6 +3080,56 @@
         "rarity": "RARE",
         "artist": "Sandra Everingham",
         "imageUri": "https://cards.scryfall.io/normal/front/6/f/6ff1cefc-62cb-4525-b0c5-2b09603b4314.jpg?1783948696"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Demonic Attorney
+{
+    "name": "Demonic Attorney",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Remove this card from your deck before playing if you're not playing for ante.\nEach player antes the top card of their library.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Players",
+                "players": "ActivePlayerFirst"
+            },
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "GatherCards",
+                        "source": {
+                            "type": "TopOfLibrary",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        "storeAs": "anted_top"
+                    },
+                    {
+                        "type": "MoveCollection",
+                        "from": "anted_top",
+                        "destination": {
+                            "type": "ToZone",
+                            "zone": "Ante"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "102",
+        "rarity": "RARE",
+        "artist": "Daniel Gelon",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/d/fd891fc6-d9d6-494e-ae65-8bea8f44b575.jpg?1783948696"
     },
     "colorIdentityOverride": [
         "BLACK"
@@ -4241,7 +4524,10 @@
                 "target": "SelfCast",
                 "modification": {
                     "type": "IncreaseGenericBy",
-                    "source": "ChosenTargetsBeyondTheFirst"
+                    "source": {
+                        "type": "ChosenTargets",
+                        "beyond": 1
+                    }
                 }
             }
         ]
@@ -8324,7 +8610,7 @@
                     "type": "Composite",
                     "effects": [
                         {
-                            "type": "MarkMustAttackThisTurn",
+                            "type": "MarkMustAttack",
                             "target": {
                                 "type": "BoundVariable",
                                 "name": "t0"
@@ -8377,7 +8663,10 @@
                                     }
                                 ],
                                 "statePredicates": [
-                                    "ControlledSinceTurnBegan"
+                                    {
+                                        "type": "ControlledContinuouslySince",
+                                        "since": "TURN_BEGAN"
+                                    }
                                 ],
                                 "controllerPredicate": "ControlledByActivePlayer"
                             }
@@ -8392,7 +8681,10 @@
                             "type": "All",
                             "conditions": [
                                 "IsOpponentsTurn",
-                                "BeforeAttackersDeclaredThisTurn"
+                                {
+                                    "type": "BeforeFirstCombatStepThisTurn",
+                                    "step": "DECLARE_ATTACKERS"
+                                }
                             ]
                         }
                     }
@@ -10948,7 +11240,7 @@
                         }
                     },
                     "body": {
-                        "type": "MarkMustAttackThisTurn",
+                        "type": "MarkMustAttack",
                         "target": "IterationEntity"
                     }
                 },
@@ -10975,7 +11267,10 @@
                                                 "type": "StateNot",
                                                 "predicate": "AttackedThisTurn"
                                             },
-                                            "ControlledSinceTurnBegan"
+                                            {
+                                                "type": "ControlledContinuouslySince",
+                                                "since": "TURN_BEGAN"
+                                            }
                                         ],
                                         "controllerPredicate": "ControlledByActivePlayer"
                                     }
@@ -11003,7 +11298,10 @@
                     "type": "All",
                     "conditions": [
                         "IsOpponentsTurn",
-                        "BeforeAttackersDeclaredThisTurn"
+                        {
+                            "type": "BeforeFirstCombatStepThisTurn",
+                            "step": "DECLARE_ATTACKERS"
+                        }
                     ]
                 }
             }

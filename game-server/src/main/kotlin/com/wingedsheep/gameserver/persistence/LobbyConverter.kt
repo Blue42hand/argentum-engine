@@ -82,6 +82,7 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
         completedAt = completedAt,
         isPublic = isPublic,
         aiAssistEnabled = aiAssistEnabled,
+        limitedCopyLimit = limitedCopyLimit,
         gameMode = gameMode.name,
         attackMode = chosenAttackMode?.name,
         randomTeams = randomTeams,
@@ -90,7 +91,8 @@ fun TournamentLobby.toPersistent(): PersistentTournamentLobby {
         ffaGamesPlayed = ffaGamesPlayed,
         ffaLastResult = ffaLastResult?.let {
             PersistentFfaTerminalResult(it.gameSessionId, it.winnerId, it.finalTurnNumber, it.nativeGameOver)
-        }
+        },
+        playingForAnte = playingForAnte,
     )
 }
 
@@ -126,11 +128,13 @@ fun restoreTournamentLobby(
         gamesPerMatch = persistent.gamesPerMatch,
         isPublic = persistent.isPublic,
         aiAssistEnabled = persistent.aiAssistEnabled,
+        limitedCopyLimit = persistent.limitedCopyLimit,
         gameMode = runCatching { LobbyGameMode.valueOf(persistent.gameMode) }
             .getOrDefault(LobbyGameMode.TOURNAMENT),
         chosenAttackMode = persistent.attackMode
             ?.let { runCatching { com.wingedsheep.sdk.core.AttackMode.valueOf(it) }.getOrNull() },
-        randomTeams = persistent.randomTeams
+        randomTeams = persistent.randomTeams,
+        playingForAnte = persistent.playingForAnte,
     )
     lobby.bannedCardNames = persistent.bannedCardNames
     lobby.includedSetProducts = persistent.includedSetProducts

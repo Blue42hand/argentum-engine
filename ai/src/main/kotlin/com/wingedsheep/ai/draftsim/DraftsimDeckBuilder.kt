@@ -1,6 +1,6 @@
 package com.wingedsheep.ai.draftsim
 
-import kotlin.math.floor
+import com.wingedsheep.ai.engine.PipDemand
 import kotlin.math.max
 
 /** A physical pool card: [card] + a stable [instanceId] (the identity used in all dedup sets). */
@@ -358,6 +358,8 @@ class DraftsimDeckBuilder(
 
     /** §1.7 splash pass: add one off-color bomb the pool can fix, or swap it for the weakest card. */
     private fun splashPass(st: BuildState, scored: List<Scored>, poolLands: List<DraftsimPoolCard>, archColors: List<String>): String? {
+        // Two colors plus a light splash is the cap: a three-color shell gets no fourth.
+        if (archColors.size >= 3) return null
         val d = archColors.toSet()
         var splashColor: String? = null
         fun poolFixes(color: String) = poolLands.any { land ->
@@ -370,6 +372,8 @@ class DraftsimDeckBuilder(
             it.pc.instanceId !in st.chosen && ops.ratingOrDefault(card) >= BOMB && !castable(card, archColors) &&
                 !ops.isLand(card) && ops.archRecord(card.name)?.splashable == true &&
                 ops.colorsOf(card).count { c -> c !in d } == 1 &&
+                // Only a single off-color pip splashes: a {2}{B}{B} card off three Swamps is a dead draw.
+                DraftsimMana.offPips(card.manaCost, archColors) == 1 &&
                 poolFixes(ops.colorsOf(card).first { c -> c !in d })
         }.sortedByDescending { ops.ratingOrDefault(it.pc.card) }
 
@@ -402,9 +406,15 @@ class DraftsimDeckBuilder(
             for (pc in deckCards) DraftsimMana.pipCounts(pc.card.manaCost).forEach { (c, v) -> pips[c] = (pips[c] ?: 0.0) + v }
             pips.keys.ifEmpty { deckCards.flatMap { ops.colorsOf(it.card) }.toSet() }.toSet()
         }
-        // §3.2 pip demand + emergent colors.
+        // §3.2 pip demand + emergent colors. Which colors emerge reads the raw pip count; the basic
+        // split reads [PipDemand.weight] — double and triple pips and early drops weigh more than
+        // their count, so a {1}{G}{G}{G} four-drop isn't left on three Forests.
         val demand = HashMap<String, Double>()
-        for (pc in deckCards) DraftsimMana.pipCounts(pc.card.manaCost, a).forEach { (c, v) -> demand[c] = (demand[c] ?: 0.0) + v }
+        val weighted = HashMap<String, Double>()
+        for (pc in deckCards) DraftsimMana.pipCounts(pc.card.manaCost, a).forEach { (c, v) ->
+            demand[c] = (demand[c] ?: 0.0) + v
+            weighted[c] = (weighted[c] ?: 0.0) + PipDemand.weight(v, pc.card.cmc)
+        }
         val deckColorSet = HashSet(a)
         if (forcedColors.isEmpty()) demand.filterValues { it >= 2 }.keys.forEach { deckColorSet += it }
         // §3.3 useful pool lands (cap 17).
@@ -422,8 +432,17 @@ class DraftsimDeckBuilder(
         // manabase whose colors no longer match the build's reported [forcedColors].
         val basicDemand = demand.filterKeys { it in deckColorSet }.ifEmpty { demand }
 
-        // §3.4 allocate basics proportional to pip demand.
-        val basics = allocateBasics(basicDemand, basicsCount)
+        // §3.4 allocate basics by weighted pip demand, raised to each color's source floor (what its
+        // most demanding card needs, [PipDemand.sourcesNeeded]) where another color has room.
+        val floors = basicDemand.keys.associateWith { color ->
+            deckCards.maxOfOrNull { pc ->
+                val pips = DraftsimMana.castRequirement(pc.card.manaCost).plainPips[color] ?: 0
+                PipDemand.sourcesNeeded(pips.toDouble(), lands)
+            } ?: 0
+        }
+        val basics = PipDemand.allocate(
+            basicDemand.keys.associateWith { weighted[it] ?: 0.0 }, basicsCount, floors,
+        ) { color -> usefulLands.count { land -> color in landFixing(land) } }
         // §3.5 splash floor for demanded colors beyond the top 2.
         splashFloor(basics, basicDemand, deckCards, usefulLands)
         // §3.6 trim to 17 total.
@@ -432,27 +451,10 @@ class DraftsimDeckBuilder(
         return Manabase(usefulLands, basics.filterValues { it > 0 })
     }
 
-    private fun allocateBasics(demand: Map<String, Double>, count: Int): MutableMap<String, Int> {
-        val out = HashMap<String, Int>()
-        val entries = demand.filterValues { it > 0 }.entries.sortedByDescending { it.value }
-        if (entries.isEmpty() || count <= 0) return out
-        if (entries.size == 1) { out[entries[0].key] = count; return out }
-        val total = entries.sumOf { it.value }
-        var assigned = 0
-        val fractional = mutableListOf<Pair<String, Double>>()
-        for ((color, d) in entries) {
-            val exact = d / total * count
-            val whole = floor(exact).toInt()
-            out[color] = whole; assigned += whole
-            fractional += color to (exact - whole)
-        }
-        var remainder = count - assigned
-        for ((color, _) in fractional.sortedByDescending { it.second }) {
-            if (remainder <= 0) break
-            out[color] = (out[color] ?: 0) + 1; remainder--
-        }
-        return out
-    }
+    /** The colors a pool land fixes: its archetype-table fixing, else its colors or identity. */
+    private fun landFixing(land: DraftsimPoolCard): List<String> =
+        ops.archRecord(land.card.name)?.fixing?.takeIf { it.isNotEmpty() }
+            ?: ops.colorsOf(land.card).ifEmpty { land.card.colorIdentity }
 
     private fun splashFloor(basics: MutableMap<String, Int>, demand: Map<String, Double>, deckCards: List<DraftsimPoolCard>, usefulLands: List<DraftsimPoolCard>) {
         val demanded = demand.filterValues { it > 0 }.entries.sortedByDescending { it.value }.map { it.key }

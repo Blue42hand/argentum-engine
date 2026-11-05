@@ -1585,65 +1585,42 @@
     "oracleText": "As an additional cost to cast this spell, discard a card or pay 3 life.\nDestroy target creature or planeswalker.",
     "script": {
         "spellEffect": {
-            "type": "Modal",
-            "modes": [
-                {
-                    "effect": {
-                        "type": "MoveToZone",
-                        "target": {
-                            "type": "BoundVariable",
-                            "name": "t0"
-                        },
-                        "destination": "Graveyard",
-                        "byDestruction": true
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetCreatureOrPlaneswalker",
+                "id": "t0"
+            }
+        ],
+        "additionalCosts": [
+            {
+                "type": "ChoiceCost",
+                "options": [
+                    {
+                        "type": "AdditionalAtom",
+                        "atom": "AtomDiscard"
                     },
-                    "targetRequirements": [
-                        {
-                            "type": "TargetCreatureOrPlaneswalker",
-                            "id": "t0"
-                        }
-                    ],
-                    "description": "Discard a card — destroy target creature or planeswalker",
-                    "additionalCosts": [
-                        {
-                            "type": "AdditionalAtom",
-                            "atom": "AtomDiscard"
-                        }
-                    ]
-                },
-                {
-                    "effect": {
-                        "type": "MoveToZone",
-                        "target": {
-                            "type": "BoundVariable",
-                            "name": "t1"
-                        },
-                        "destination": "Graveyard",
-                        "byDestruction": true
-                    },
-                    "targetRequirements": [
-                        {
-                            "type": "TargetCreatureOrPlaneswalker",
-                            "id": "t1"
-                        }
-                    ],
-                    "description": "Pay 3 life — destroy target creature or planeswalker",
-                    "additionalCosts": [
-                        {
-                            "type": "AdditionalAtom",
-                            "atom": {
-                                "type": "AtomPayLife",
-                                "amount": {
-                                    "type": "Fixed",
-                                    "amount": 3
-                                }
+                    {
+                        "type": "AdditionalAtom",
+                        "atom": {
+                            "type": "AtomPayLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 3
                             }
                         }
-                    ]
-                }
-            ],
-            "countsAsModalSpell": false
-        }
+                    }
+                ],
+                "choiceSlot": "ADDITIONAL_COST_BRANCH"
+            }
+        ]
     },
     "metadata": {
         "collectorNumber": "91",
@@ -3465,45 +3442,6 @@
     "colorIdentityOverride": [
         "RED"
     ]
-}
-
-// Chimil, the Inner Sun
-{
-    "name": "Chimil, the Inner Sun",
-    "manaCost": "{6}",
-    "typeLine": "Legendary Artifact",
-    "oracleText": "Spells you control can't be countered.\nAt the beginning of your end step, discover 5.",
-    "script": {
-        "triggeredAbilities": [
-            {
-                "id": "Chimil, the Inner Sun:1",
-                "trigger": {
-                    "type": "StepEvent",
-                    "step": "END"
-                },
-                "binding": "ANY",
-                "effect": {
-                    "type": "Discover",
-                    "amount": {
-                        "type": "Fixed",
-                        "amount": 5
-                    }
-                }
-            }
-        ],
-        "staticAbilities": [
-            {
-                "type": "GrantCantBeCountered",
-                "filter": "ctrl:you"
-            }
-        ]
-    },
-    "metadata": {
-        "collectorNumber": "249",
-        "rarity": "MYTHIC",
-        "artist": "Adam Paquette",
-        "imageUri": "https://cards.scryfall.io/normal/front/2/7/27a1bfb5-ddfc-49cf-baa3-5d1958d2067a.jpg?1782694413"
-    }
 }
 
 // Chupacabra Echo
@@ -13888,8 +13826,12 @@
                     "imageUri": "https://cards.scryfall.io/normal/front/0/4/0484390e-1167-4407-84de-7ddc726e8926.jpg?1783913608"
                 },
                 "triggerRestriction": {
-                    "type": "PlayerHasMostLife",
-                    "player": "DefendingPlayer"
+                    "type": "PlayerHasMost",
+                    "player": "DefendingPlayer",
+                    "amount": {
+                        "type": "LifeTotal",
+                        "player": "You"
+                    }
                 }
             },
             {
@@ -13916,8 +13858,12 @@
                     ]
                 },
                 "triggerRestriction": {
-                    "type": "PlayerHasMostLife",
-                    "player": "You"
+                    "type": "PlayerHasMost",
+                    "player": "You",
+                    "amount": {
+                        "type": "LifeTotal",
+                        "player": "You"
+                    }
                 }
             }
         ]
@@ -21107,8 +21053,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 1
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
                                 }
                             },
                             "then": {
@@ -21124,8 +21079,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 2
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
                                 }
                             },
                             "then": {
@@ -21145,8 +21109,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 3
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
                                 }
                             },
                             "then": {

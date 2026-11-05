@@ -83,12 +83,24 @@ class FacadeBoundaryTest : FunSpec({
             "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
         "dmu/cards/JayaFieryNegotiator.kt" to
             "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "mat/cards/NahirisResolve.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "neo/cards/GreasefangOkibaBoss.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "stx/cards/MilaCraftyCompanion.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "leg/cards/InfiniteAuthority.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "ice/cards/Necropotence.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
         "mh3/cards/WheelOfPotential.kt" to
             "the per-player May runs its own pipeline, so its tracked move names the slot the enclosing " +
                 "forEachPlayerCollecting aggregates — a handle minted inside the May lambda can't be returned out of it",
         "dsk/cards/MonstrousEmergence.kt" to
             "the cost's ChooseEntity storeAs is read by the spell effect — a cost is not inside any pipeline",
         "eoe/cards/CloseEncounter.kt" to
+            "the cost's ChooseEntity storeAs is read by the spell effect — a cost is not inside any pipeline",
+        "afr/cards/DragonsFire.kt" to
             "the cost's ChooseEntity storeAs is read by the spell effect — a cost is not inside any pipeline",
     )
 

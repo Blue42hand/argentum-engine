@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.protocol
 
+import com.wingedsheep.engine.legalactions.OwnStackStop
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.model.PrintingRef
@@ -88,11 +89,12 @@ sealed interface ClientMessage {
     ) : ClientMessage
 
     /**
-     * Concede the current game.
+     * Concede the current game. During a Magic subgame (CR 729), [subgameOnly] concedes just the
+     * subgame and the main game resumes; otherwise the player concedes the main game too.
      */
     @Serializable
     @SerialName("concede")
-    data object Concede : ClientMessage
+    data class Concede(val subgameOnly: Boolean = false) : ClientMessage
 
     /**
      * Cancel a game that hasn't started yet (waiting for opponent).
@@ -216,6 +218,11 @@ sealed interface ClientMessage {
          * defaults to Commander rules.
          */
         val rules: String? = null,
+        /**
+         * Play the lobby's games for ante (CR 407). Ignored (forced off) when the lobby is ranked —
+         * ranked games are never played for ante.
+         */
+        val playingForAnte: Boolean = false,
     ) : ClientMessage
 
     /**
@@ -345,6 +352,8 @@ sealed interface ClientMessage {
         val deckSizeMin: Int? = null,
         /** Commander Draft/Sealed only — singleton toggle (default true = duplicates allowed). */
         val allowDuplicates: Boolean? = null,
+        /** Limited pools only — cap decks at 4 copies of any non-basic card (default false). */
+        val limitedCopyLimit: Boolean? = null,
         /** Commander Draft/Sealed only — "BRAWL" or "COMMANDER". */
         val commanderPreset: String? = null,
         /** Toggle Chaos boosters: each pack pulls from the union of selected sets. */
@@ -392,8 +401,10 @@ sealed interface ClientMessage {
          * sent each time (not a delta). Null leaves the current assignment unchanged.
          */
         val teamAssignments: Map<String, Int>? = null,
-        /** Toggle ranked play (TOURNAMENT mode only). Null = unchanged. */
+        /** Toggle ranked play (TOURNAMENT mode only). Null = unchanged. Turning it on clears [playingForAnte]. */
         val ranked: Boolean? = null,
+        /** Play for ante (CR 407). Null = unchanged. Rejected while the lobby is ranked. */
+        val playingForAnte: Boolean? = null,
     ) : ClientMessage
 
     /**
@@ -509,12 +520,15 @@ sealed interface ClientMessage {
     /**
      * Set per-step stop overrides for the current game.
      * When a stop is set for a step, auto-pass will not skip that step (even if it normally would).
+     * [ownStackStops] keeps priority over the player's own triggers / abilities / spells when they
+     * can respond, instead of auto-passing them (absent from older clients: none).
      */
     @Serializable
     @SerialName("setStopOverrides")
     data class SetStopOverrides(
         val myTurnStops: Set<Step>,
-        val opponentTurnStops: Set<Step>
+        val opponentTurnStops: Set<Step>,
+        val ownStackStops: Set<OwnStackStop> = emptySet()
     ) : ClientMessage
 
     /**
@@ -537,6 +551,15 @@ sealed interface ClientMessage {
         val cardDefinitionId: String,
         val abilityId: String
     ) : ClientMessage
+
+    /**
+     * Whether the player orders their own simultaneous triggered abilities (CR 603.3b). The client
+     * sends its "order my triggers automatically" preference at game start and whenever it changes;
+     * until then the engine orders them automatically.
+     */
+    @Serializable
+    @SerialName("setTriggerOrdering")
+    data class SetTriggerOrdering(val manual: Boolean) : ClientMessage
 
     /** Clear all of the player's yields (the "Clear yields" control; MTGO `5`). */
     @Serializable
@@ -616,6 +639,8 @@ sealed interface ClientMessage {
          * Only meaningful when [vsAi] is true.
          */
         val aiControllerSpec: com.wingedsheep.gameserver.ai.AiControllerSpec? = null,
+        /** Play for ante (CR 407). Forced off when the lobby ends up [ranked]. */
+        val playingForAnte: Boolean = false,
     ) : ClientMessage
 
     /**
@@ -728,6 +753,14 @@ sealed interface ClientMessage {
     @Serializable
     @SerialName("setQuickGameLobbyRanked")
     data class SetQuickGameLobbyRanked(val ranked: Boolean) : ClientMessage
+
+    /**
+     * Toggle playing for ante (CR 407) in the quick-game lobby (host-only). Rejected while the
+     * lobby is ranked. Turning it off un-readies anyone whose submitted deck holds an ante card.
+     */
+    @Serializable
+    @SerialName("setQuickGameLobbyAnte")
+    data class SetQuickGameLobbyAnte(val playingForAnte: Boolean) : ClientMessage
 
     /**
      * Set the deck-format restriction for the lobby (host-only). Null = no restriction.

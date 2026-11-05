@@ -44,7 +44,7 @@ data class PersistentSeatNames(
 )
 
 @Serializable
-data class PersistentSighting(val zone: Zone, val zoneOpen: Boolean)
+data class PersistentSighting(val zone: Zone, val zoneOpen: Boolean, val seen: Boolean = true)
 
 /**
  * Persistent player info - contains only the data needed to restore a player's session.

@@ -108,7 +108,7 @@ internal class ActivationValidator(
 
         // Apply text-changing effects to cost and target filters
         val textReplacement = com.wingedsheep.engine.state.components.identity.TextChanges.of(state, action.sourceId)
-        val effectiveCost = costTotaller.totalForValidation(state, action, ability, textReplacement)
+        val effectiveCost = costTotaller.total(state, action, ability, textReplacement)
         modalChoices.validate(state, action, ability.effect)?.let { return it }
         val modal = (ability.effect as? com.wingedsheep.sdk.scripting.effects.ModalEffect)
         val allRequirements = ability.targetRequirements + action.chosenModes.orEmpty().flatMap {
@@ -608,8 +608,8 @@ internal class ActivationValidator(
         // target validation sees the right cap; when the cost is paid via the two-step pause flow
         // the chosen set already rides on the action's costPayment.
         val variablePermanentsCost = effectiveCost.extractVariablePermanentsCost()
-        val chosenForCost = action.costPayment?.variableCostPermanents ?: emptyList()
-        val effectiveXValue = if (variablePermanentsCost != null && chosenForCost.isNotEmpty()) {
+        val chosenForCost = action.costPayment?.variableCostPermanents
+        val effectiveXValue = if (variablePermanentsCost != null && chosenForCost != null) {
             VariablePermanentsCost.measure(state, variablePermanentsCost.xMeasure, chosenForCost)
         } else {
             action.xValue
@@ -656,7 +656,7 @@ internal class ActivationValidator(
      */
     private fun checkDamageDistribution(state: GameState, action: ActivateAbility, ability: ActivatedAbility): String? {
         val distribution = action.damageDistribution ?: return null
-        val division = AnnouncedDivision.of(ability.effect)
+        val division = AnnouncedDivision.ofActivation(ability.effect)
             ?: return "This ability does not divide anything among its targets"
         val chosenTargetIds = action.targets.map { it.toEntityId() }.toSet()
         if (distribution.keys != chosenTargetIds) {
@@ -743,7 +743,7 @@ internal class ActivationValidator(
                     val subMana = subCost.manaCostOrNull
                     if (subMana != null) manaSolver.canPay(state, playerId, subMana, excludeSources = excludeSources, spellContext = abilityContext)
                     else costHandler.canPayAbilityCost(state, subCost, sourceId, playerId, manaPool, abilityContext, granterId, lifePurpose)
-                }
+                } && costHandler.canPaySacrificeAtomsJointly(state, cost, sourceId, playerId)
             }
             else -> costHandler.canPayAbilityCost(state, cost, sourceId, playerId, manaPool, abilityContext, granterId, lifePurpose)
         }

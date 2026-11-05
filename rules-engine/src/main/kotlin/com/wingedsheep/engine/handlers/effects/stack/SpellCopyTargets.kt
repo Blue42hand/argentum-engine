@@ -29,8 +29,8 @@ internal object SpellCopyTargets {
     data class Selection(val targets: List<ChosenTarget>, val retained: Set<Int>)
 
     fun originals(state: GameState, sourceId: EntityId, ordinal: Int? = null): List<ChosenTarget> =
-        if (ordinal == null) state.getEntity(sourceId)?.get<TargetsComponent>()?.targets.orEmpty()
-        else state.getEntity(sourceId)?.get<SpellOnStackComponent>()?.modeTargetsOrdered?.getOrNull(ordinal).orEmpty()
+        if (ordinal == null) state.spellOrLastKnown(sourceId)?.get<TargetsComponent>()?.targets.orEmpty()
+        else state.spellOrLastKnown(sourceId)?.get<SpellOnStackComponent>()?.modeTargetsOrdered?.getOrNull(ordinal).orEmpty()
 
     fun selection(state: GameState, sourceId: EntityId, response: TargetsResponse, ordinal: Int? = null): Selection {
         val originals = originals(state, sourceId, ordinal)
@@ -51,7 +51,7 @@ internal object SpellCopyTargets {
         } else null
         val byRequirement = if (tables == null) legalTargets(state, finder, sourceId, controllerId, requirements, exceptions)
             else tables.mapIndexed { index, table -> index to table.values.flatten().distinct() }.toMap()
-        val distribution = state.getEntity(sourceId)?.get<SpellOnStackComponent>()?.damageDistribution.orEmpty()
+        val distribution = state.spellOrLastKnown(sourceId)?.get<SpellOnStackComponent>()?.damageDistribution.orEmpty()
         val infos = mutableListOf<TargetRequirementInfo>()
         val legal = mutableMapOf<Int, List<EntityId>>()
         var slot = 0
@@ -107,6 +107,8 @@ internal object SpellCopyTargets {
     private class Preview(val state: GameState, val copyId: EntityId, val card: CardComponent,
                           val controllerId: EntityId, val xValue: Int?) {
         val subtypes: Set<String> = card.typeLine.subtypes.mapTo(mutableSetOf()) { it.value }
+        /** The copy's actual colors — an off-battlefield SetColors (Mycosynth Lattice) reaches it too. */
+        val colors by lazy { state.projectedState.colorSetOf(copyId) }
 
         fun legal(finder: TargetFinder, requirement: TargetRequirement, prefix: List<ChosenTarget> = emptyList(),
                   named: Map<String, ChosenTarget> = emptyMap()): List<EntityId> =
@@ -119,7 +121,7 @@ internal object SpellCopyTargets {
                     target = entityIdToChosenTarget(state, candidate),
                     requirement = requirement,
                     casterId = controllerId,
-                    sourceColors = card.colors,
+                    sourceColors = colors,
                     sourceSubtypes = subtypes,
                     sourceId = copyId,
                     xValue = xValue,
@@ -131,7 +133,7 @@ internal object SpellCopyTargets {
     }
 
     private fun preview(state: GameState, sourceId: EntityId, controllerId: EntityId, exceptions: CopyExceptions): Preview? {
-        val source = state.getEntity(sourceId) ?: return null
+        val source = state.spellOrLastKnown(sourceId) ?: return null
         val card = source.get<CardComponent>() ?: return null
         val spell = source.get<SpellOnStackComponent>() ?: return null
         val (copyId, scratch) = state.newEntity()
@@ -163,7 +165,7 @@ internal object SpellCopyTargets {
         val preview = preview(state, sourceId, controller, exceptions) ?: return "Source spell missing"
         val aligned = alignedRequirements(requirements, selection.targets.size)
         return finder.validator.validateTargets(preview.state, selection.targets, aligned, controller,
-            preview.card.colors, preview.subtypes, preview.copyId, preview.xValue,
+            preview.colors, preview.subtypes, preview.copyId, preview.xValue,
             TargetingSourceType.SPELL, retainedTargetIndices = selection.retained)
             ?: unseatedKeptTarget(preview, finder, aligned, originals(state, sourceId, ordinal), selection)
     }
@@ -188,7 +190,7 @@ internal object SpellCopyTargets {
         val original = originals.getOrNull(slot) ?: return false
         fun legal(among: List<ChosenTarget>) = finder.validator.validateSingleTarget(
             state = preview.state, target = original, requirement = requirement,
-            casterId = preview.controllerId, sourceColors = preview.card.colors, sourceSubtypes = preview.subtypes,
+            casterId = preview.controllerId, sourceColors = preview.colors, sourceSubtypes = preview.subtypes,
             sourceId = preview.copyId, xValue = preview.xValue, allTargets = among,
             targetingSourceType = TargetingSourceType.SPELL,
             namedTargets = EffectContext.buildNamedTargets(aligned, among),

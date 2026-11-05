@@ -18,7 +18,12 @@ import com.wingedsheep.mtg.sets.definitions.inv.cards.Prohibit
 import com.wingedsheep.mtg.sets.definitions.inv.cards.TolarianEmissary
 import com.wingedsheep.mtg.sets.definitions.inv.cards.TravelersCloak
 import com.wingedsheep.mtg.sets.definitions.inv.cards.TreefolkHealer
+import com.wingedsheep.mtg.sets.definitions.avr.cards.AbundantGrowth
+import com.wingedsheep.mtg.sets.definitions.lea.cards.BlackWard
+import com.wingedsheep.mtg.sets.definitions.lea.cards.ControlMagic
 import com.wingedsheep.mtg.sets.definitions.lea.cards.GiantGrowth
+import com.wingedsheep.mtg.sets.definitions.lrw.cards.Lignify
+import com.wingedsheep.mtg.sets.definitions.sth.cards.Overgrowth
 import com.wingedsheep.mtg.sets.definitions.lea.cards.Unsummon
 import com.wingedsheep.mtg.sets.definitions.mir.cards.Pacifism
 import com.wingedsheep.mtg.sets.definitions.ons.cards.BlatantThievery
@@ -62,7 +67,7 @@ class TargetPolarityAiTest : FunSpec({
         GiantGrowth, Unsummon, Pacifism, BlatantThievery, DaruHealer, GustcloakHarrier, Sandskin,
         GloriousAnthem, MischievousCatgeist, EmberethVeteran, StrandsOfUndeath, DiminisherWitch,
         PredefinedTokens.YoungHeroRole, PredefinedTokens.CursedRole,
-        ProudPackRhino, RestorationMagic,
+        ProudPackRhino, RestorationMagic, Overgrowth,
     )
     val registry = CardRegistry().apply { register(cards) }
 
@@ -131,6 +136,16 @@ class TargetPolarityAiTest : FunSpec({
         }
         test("an Aura whose own ability regenerates the enchanted creature is a gift") {
             TargetPolarityAnalyzer.forSpell(StrandsOfUndeath) shouldBe listOf(TargetPolarity.BENEFICIAL)
+        }
+        test("a land Aura that adds mana when its land is tapped is ramp for that land's controller") {
+            TargetPolarityAnalyzer.forSpell(Overgrowth) shouldBe listOf(TargetPolarity.BENEFICIAL)
+            // A granted mana ability is the same gift, put another way.
+            TargetPolarityAnalyzer.forSpell(AbundantGrowth) shouldBe listOf(TargetPolarity.BENEFICIAL)
+        }
+        test("stealing, protecting and stripping Auras read off their statics") {
+            TargetPolarityAnalyzer.forSpell(ControlMagic) shouldBe listOf(TargetPolarity.HARMFUL)
+            TargetPolarityAnalyzer.forSpell(BlackWard) shouldBe listOf(TargetPolarity.BENEFICIAL)
+            TargetPolarityAnalyzer.forSpell(Lignify) shouldBe listOf(TargetPolarity.HARMFUL)
         }
         test("either-way effects stay unknown") {
             // Bouncing our own creature in response to removal is a real play.
@@ -267,6 +282,36 @@ class TargetPolarityAiTest : FunSpec({
 
         aimedAt(polarity = false) shouldBe theirs
         aimedAt(polarity = true) shouldBe ours
+    }
+
+    // Production game 2878b4bb turn 16: a Plains/Forest deck enchanted the opponent's Swamp with
+    // Overgrowth, and the {G}{G} a turn ramped them into Reaper from the Abyss.
+    test("Overgrowth enchants our own land, not the opponent's") {
+        val d = driver()
+        lands(d, d.player1, "Forest" to 3)
+        lands(d, d.player2, "Swamp" to 2)
+        val overgrowth = d.putCardInHand(d.player1, "Overgrowth")
+        val cast = d.legalActions(d.player1).single { (it.action as? CastSpell)?.cardId == overgrowth }
+        val intents = IntentCatalog.of(registry)
+
+        fun aimedAt(polarity: Boolean): EntityId {
+            val filled = TargetSelection.fillHeuristically(
+                d.state, cast, d.player1, fillPartialRequirements = true,
+                intents = intents, polarityFromEffect = polarity,
+            ) as CastSpell
+            return (filled.targets.single() as ChosenTarget.Permanent).entityId
+        }
+
+        d.state.projectedState.getController(aimedAt(polarity = false)) shouldBe d.player2
+        d.state.projectedState.getController(aimedAt(polarity = true)) shouldBe d.player1
+
+        val choices = d.legalActions(d.player1).filter {
+            (it.action as? CastSpell)?.cardId == overgrowth || it.action is PassPriority
+        }
+        val chosen = AIPlayer.create(registry, d.player1, AiProfile.LIVE).chooseFrom(d.state, choices).action
+        chosen.shouldBeInstanceOf<CastSpell>()
+        d.state.projectedState.getController((chosen.targets.single() as ChosenTarget.Permanent).entityId) shouldBe
+            d.player1
     }
 
     // 4p log turn 14: Strands of Undeath went on the opponent's Goblin Rock Sled.

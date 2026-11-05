@@ -52,6 +52,15 @@ data class ActionParams(
     val blockers: Map<EntityId, List<EntityId>> = emptyMap(),
     val targets: List<EntityId> = emptyList(),
     val xValue: Int? = null,
+    val targetGroups: List<List<EntityId>> = emptyList(),
+    val sacrifice: List<EntityId> = emptyList(),
+    val discard: List<EntityId> = emptyList(),
+    val exile: List<EntityId> = emptyList(),
+    val tap: List<EntityId> = emptyList(),
+    val bounce: List<EntityId> = emptyList(),
+    val variablePermanents: List<EntityId> = emptyList(),
+    val crew: List<EntityId> = emptyList(),
+    val saddle: List<EntityId> = emptyList(),
     val declaredCostTimes: Int? = null,
     val tappedPermanents: List<EntityId> = emptyList(),
     val sacrificedPermanents: List<EntityId> = emptyList(),
@@ -70,6 +79,16 @@ data class ActionParams(
             if (blockers.isNotEmpty()) add("blockers")
             if (targets.isNotEmpty()) add("targets")
             if (xValue != null) add("xValue")
+            if (targetGroups.isNotEmpty()) add("targetGroups")
+            if (sacrifice.isNotEmpty()) add("sacrifice")
+            if (discard.isNotEmpty()) add("discard")
+            if (exile.isNotEmpty()) add("exile")
+            if (tap.isNotEmpty()) add("tap")
+            if (bounce.isNotEmpty()) add("bounce")
+            if (variablePermanents.isNotEmpty()) add("variablePermanents")
+            if (crew.isNotEmpty()) add("crew")
+            if (saddle.isNotEmpty()) add("saddle")
+
             if (declaredCostTimes != null) add("declaredCostTimes")
             if (tappedPermanents.isNotEmpty()) add("tappedPermanents")
             if (sacrificedPermanents.isNotEmpty()) add("sacrificedPermanents")
@@ -110,6 +129,7 @@ enum class ActionParameterFieldKind {
     ENTITY_ID_MAP,
     ENTITY_ID_ARRAY_MAP,
     ENTITY_ID_ARRAY,
+    ENTITY_ID_ARRAY_ARRAY,
     INTEGER,
 }
 
@@ -128,12 +148,13 @@ object ActionParameterizer {
     fun spec(legalAction: LegalAction): ActionParameterSpec {
         val fields = spec(legalAction.action).allowedFields.toMutableMap()
         if (legalAction.action is CastSpell || legalAction.action is ActivateAbility) {
-            val cost = legalAction.additionalCostInfo
-            if (cost?.validTapTargets.isNullOrEmpty()) fields.remove("tappedPermanents")
-            if (cost?.validSacrificeTargets.isNullOrEmpty()) fields.remove("sacrificedPermanents")
-            if (cost?.validDiscardTargets.isNullOrEmpty()) fields.remove("discardedCards")
-            if (cost?.validExileTargets.isNullOrEmpty()) fields.remove("exiledCards")
-            if (cost == null || cost.bounceCount <= 0 || cost.validBounceTargets.isEmpty()) {
+            val costs = legalAction.additionalCostInfo?.let { listOf(it) + it.alsoRequired }.orEmpty()
+            if (costs.none { it.validTapTargets.isNotEmpty() }) fields.remove("tappedPermanents")
+            if (costs.none { it.validSacrificeTargets.isNotEmpty() }) fields.remove("sacrificedPermanents")
+            if (costs.none { it.validDiscardTargets.isNotEmpty() }) fields.remove("discardedCards")
+            if (costs.none { it.validExileTargets.isNotEmpty() || it.validCraftMaterials.isNotEmpty() }) fields.remove("exiledCards")
+            if (costs.none { it.costType == "SacrificeVariable" || it.tapForPowerCreatures.isNotEmpty() }) fields.remove("variablePermanents")
+            if (costs.none { it.bounceCount > 0 && it.validBounceTargets.isNotEmpty() }) {
                 fields.remove("bouncedPermanents")
             }
         }
@@ -141,32 +162,55 @@ object ActionParameterizer {
             (!legalAction.hasDelve || legalAction.hasXCost || legalAction.delveCards.isNullOrEmpty())
         ) fields.remove("delvedCards")
         if (legalAction.maxOptionalCostTimes == null) fields.remove("declaredCostTimes")
+        COST_ALIASES.forEach { (alias, canonical) -> fields[canonical]?.let { fields[alias] = it } }
         return ActionParameterSpec(fields)
     }
 
-    fun apply(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction {
+    fun apply(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction =
+        applyOffered(legalAction, params.normalized(), state)
+
+    private fun applyOffered(legalAction: LegalAction, params: ActionParams, state: GameState): GameAction {
         params.allowOnly(legalAction.action, spec(legalAction))
         params.requireOptionalCostTimes(legalAction.maxOptionalCostTimes)
         params.requireBlockTargets(legalAction.validBlockTargets)
         legalAction.additionalCostInfo?.let { cost ->
-            params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
-                cost.validDiscardTargets, cost.validExileTargets)
-            params.requireBouncePayment(legalAction.action, cost.validBounceTargets, cost.bounceCount)
+            val costs = listOf(cost) + cost.alsoRequired
+            params.requireCostCandidates(costs.flatMap { it.validTapTargets }, costs.flatMap { it.validSacrificeTargets },
+                costs.flatMap { it.validDiscardTargets }, costs.flatMap { it.validExileTargets + it.validCraftMaterials })
+            params.requireBouncePayment(legalAction.action, costs.flatMap { it.validBounceTargets }, costs.sumOf { it.bounceCount })
+            val variableCandidates = costs.flatMap { entry ->
+                (if (entry.costType == "SacrificeVariable") entry.validSacrificeTargets else emptyList()) +
+                    entry.tapForPowerCreatures.map { it.entityId }
+            }
+            params.requireCandidates("variablePermanents", params.variablePermanents, variableCandidates)
         }
+        params.requireCandidates("crew", params.crew, legalAction.tapForPowerCreatures.orEmpty().map { it.entityId })
+        params.requireCandidates("saddle", params.saddle, legalAction.tapForPowerCreatures.orEmpty().map { it.entityId })
         params.requireDelveCandidates(legalAction.delveCards?.map { it.entityId }.orEmpty())
         return apply(legalAction.action, params, state)
     }
 
     /** Complete a server controller's enriched offered action with the same cost checks as Gym. */
-    fun apply(info: LegalActionInfo, params: ActionParams, state: GameState): GameAction {
+    fun apply(info: LegalActionInfo, params: ActionParams, state: GameState): GameAction =
+        applyPresented(info, params.normalized(), state)
+
+    private fun applyPresented(info: LegalActionInfo, params: ActionParams, state: GameState): GameAction {
         params.allowOnly(info.action, info.parameterSpec)
         params.requireOptionalCostTimes(info.maxOptionalCostTimes)
         params.requireBlockTargets(info.validBlockTargets)
         info.additionalCostInfo?.let { cost ->
-            params.requireCostCandidates(cost.validTapTargets, cost.validSacrificeTargets,
-                cost.validDiscardTargets, cost.validExileTargets)
-            params.requireBouncePayment(info.action, cost.validBounceTargets, cost.bounceCount)
+            val costs = listOf(cost) + cost.alsoRequired
+            params.requireCostCandidates(costs.flatMap { it.validTapTargets }, costs.flatMap { it.validSacrificeTargets },
+                costs.flatMap { it.validDiscardTargets }, costs.flatMap { it.validExileTargets + it.validCraftMaterials })
+            params.requireBouncePayment(info.action, costs.flatMap { it.validBounceTargets }, costs.sumOf { it.bounceCount })
+            val variableCandidates = costs.flatMap { entry ->
+                (if (entry.costType == "SacrificeVariable") entry.validSacrificeTargets else emptyList()) +
+                    entry.tapForPowerCreatures.map { it.entityId }
+            }
+            params.requireCandidates("variablePermanents", params.variablePermanents, variableCandidates)
         }
+        params.requireCandidates("crew", params.crew, info.tapForPowerCreatures.orEmpty().map { it.entityId })
+        params.requireCandidates("saddle", params.saddle, info.tapForPowerCreatures.orEmpty().map { it.entityId })
         params.requireDelveCandidates(info.validDelveCards?.map { it.entityId }.orEmpty())
         return apply(info.action, params, state)
     }
@@ -239,6 +283,8 @@ object ActionParameterizer {
         is CastSpell -> ActionParameterSpec(
             mapOf(
                 "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "targetGroups" to ActionParameterFieldKind.ENTITY_ID_ARRAY_ARRAY,
+                "variablePermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "xValue" to ActionParameterFieldKind.INTEGER,
                 "declaredCostTimes" to ActionParameterFieldKind.INTEGER,
                 "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
@@ -252,6 +298,8 @@ object ActionParameterizer {
         is ActivateAbility -> ActionParameterSpec(
             mapOf(
                 "targets" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "targetGroups" to ActionParameterFieldKind.ENTITY_ID_ARRAY_ARRAY,
+                "variablePermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "xValue" to ActionParameterFieldKind.INTEGER,
                 "tappedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "sacrificedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
@@ -260,10 +308,15 @@ object ActionParameterizer {
                 "bouncedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             )
         )
+        is CrewVehicle -> ActionParameterSpec(mapOf("crew" to ActionParameterFieldKind.ENTITY_ID_ARRAY))
+        is SaddleMount -> ActionParameterSpec(mapOf("saddle" to ActionParameterFieldKind.ENTITY_ID_ARRAY))
         else -> ActionParameterSpec.EMPTY
     }
 
-    fun apply(action: GameAction, params: ActionParams, state: GameState): GameAction {
+    fun apply(action: GameAction, params: ActionParams, state: GameState): GameAction =
+        applyTemplate(action, params.normalized(), state)
+
+    private fun applyTemplate(action: GameAction, params: ActionParams, state: GameState): GameAction {
         if (params.isEmpty) return action
 
         return when (action) {
@@ -279,9 +332,10 @@ object ActionParameterizer {
 
             is CastSpell -> {
                 params.allowOnly(action, spec(action))
+                val (targets, groupCounts) = params.chosenTargets(state)
                 action.copy(
-                    targets = params.targets.map { resolveTarget(it, state) }
-                        .ifEmpty { action.targets },
+                    targets = targets ?: action.targets,
+                    targetGroupCounts = groupCounts ?: action.targetGroupCounts,
                     xValue = params.xValue ?: action.xValue,
                     declaredCostTimes = params.declaredCostTimes ?: action.declaredCostTimes,
                     additionalCostPayment = params.withCostChoices(action.additionalCostPayment),
@@ -291,14 +345,23 @@ object ActionParameterizer {
 
             is ActivateAbility -> {
                 params.allowOnly(action, spec(action))
+                val (targets, groupCounts) = params.chosenTargets(state)
                 action.copy(
-                    targets = params.targets.map { resolveTarget(it, state) }
-                        .ifEmpty { action.targets },
+                    targets = targets ?: action.targets,
+                    targetGroupCounts = groupCounts ?: action.targetGroupCounts,
                     xValue = params.xValue ?: action.xValue,
                     costPayment = params.withCostChoices(action.costPayment)
                 )
             }
 
+            is CrewVehicle -> {
+                params.allowOnly(action, spec(action))
+                action.copy(crewCreatures = params.crew)
+            }
+            is SaddleMount -> {
+                params.allowOnly(action, spec(action))
+                action.copy(saddleCreatures = params.saddle)
+            }
             else -> throw IllegalArgumentException(
                 "Action ${action::class.simpleName} takes no step params; got $params"
             )
@@ -308,7 +371,7 @@ object ActionParameterizer {
     /** Keep template payment fields that this native step did not replace. */
     private fun ActionParams.withCostChoices(existing: AdditionalCostPayment?): AdditionalCostPayment? {
         if (tappedPermanents.isEmpty() && sacrificedPermanents.isEmpty() &&
-            discardedCards.isEmpty() && exiledCards.isEmpty() && bouncedPermanents.isEmpty()
+            discardedCards.isEmpty() && exiledCards.isEmpty() && bouncedPermanents.isEmpty() && variablePermanents.isEmpty()
         ) return existing
         val base = existing ?: AdditionalCostPayment.NONE
         return base.copy(
@@ -317,6 +380,7 @@ object ActionParameterizer {
             discardedCards = discardedCards.ifEmpty { base.discardedCards },
             exiledCards = exiledCards.ifEmpty { base.exiledCards },
             bouncedPermanents = bouncedPermanents.ifEmpty { base.bouncedPermanents },
+            variableCostPermanents = variablePermanents.ifEmpty { null } ?: base.variableCostPermanents,
         )
     }
 
@@ -343,6 +407,45 @@ object ActionParameterizer {
             val key = state.zones.entries.firstOrNull { (_, ids) -> id in ids }?.key
                 ?: throw IllegalArgumentException("Target $id is in no zone of the current state")
             ChosenTarget.Card(cardId = id, ownerId = key.ownerId, zone = key.zoneType)
+        }
+    }
+
+    /** Resolved targets and, for [ActionParams.targetGroups], the per-requirement counts; nulls keep the template's. */
+    private fun ActionParams.chosenTargets(state: GameState): Pair<List<ChosenTarget>?, List<Int>?> {
+        require(targets.isEmpty() || targetGroups.isEmpty()) {
+            "Send either 'targets' or 'targetGroups', not both"
+        }
+        return when {
+            targetGroups.isNotEmpty() ->
+                targetGroups.flatten().map { resolveTarget(it, state) } to targetGroups.map { it.size }
+            targets.isNotEmpty() -> targets.map { resolveTarget(it, state) } to null
+            else -> null to null
+        }
+    }
+
+    // Both public vocabularies are accepted; a request may choose only one spelling per field.
+    private val COST_ALIASES = mapOf(
+        "tap" to "tappedPermanents", "sacrifice" to "sacrificedPermanents",
+        "discard" to "discardedCards", "exile" to "exiledCards", "bounce" to "bouncedPermanents",
+    )
+
+    private fun ActionParams.normalized(): ActionParams {
+        fun pick(alias: String, short: List<EntityId>, canonical: List<EntityId>): List<EntityId> {
+            require(short.isEmpty() || canonical.isEmpty()) { "Send either '$alias' or '${COST_ALIASES.getValue(alias)}', not both" }
+            return short.ifEmpty { canonical }
+        }
+        return copy(
+            tappedPermanents = pick("tap", tap, tappedPermanents), tap = emptyList(),
+            sacrificedPermanents = pick("sacrifice", sacrifice, sacrificedPermanents), sacrifice = emptyList(),
+            discardedCards = pick("discard", discard, discardedCards), discard = emptyList(),
+            exiledCards = pick("exile", exile, exiledCards), exile = emptyList(),
+            bouncedPermanents = pick("bounce", bounce, bouncedPermanents), bounce = emptyList(),
+        )
+    }
+
+    private fun ActionParams.requireCandidates(field: String, selected: List<EntityId>, candidates: List<EntityId>) {
+        require(selected.distinct().size == selected.size && selected.all { it in candidates }) {
+            "$field contains duplicate entities or an entity not offered for this action"
         }
     }
 

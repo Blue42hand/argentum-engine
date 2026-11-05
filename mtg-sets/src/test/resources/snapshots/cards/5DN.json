@@ -164,6 +164,65 @@
     ]
 }
 
+// Beacon of Immortality
+{
+    "name": "Beacon of Immortality",
+    "manaCost": "{5}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Double target player's life total. Shuffle Beacon of Immortality into its owner's library.",
+    "script": {
+        "spellEffect": {
+            "type": "SetLifeTotal",
+            "amount": {
+                "type": "Multiply",
+                "amount": {
+                    "type": "LifeTotal",
+                    "player": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "multiplier": 2
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "t0"
+            }
+        ],
+        "selfShuffleIntoLibraryOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "RARE",
+        "artist": "Rob Alexander",
+        "flavorText": "The cave floods with light. A thousand rays shine forth and meld into one.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/0/601bb6d1-77f4-4ffe-94d0-bed74c33013b.jpg?1783944411",
+        "rulings": [
+            {
+                "date": "2007-07-15",
+                "text": "Beacon of Immortality's effect counts as life gain (or life loss, if the life total was negative) for effects that trigger on or replace life gain (or life loss)."
+            },
+            {
+                "date": "2007-07-15",
+                "text": "If a Beacon is countered or doesn't resolve, it's put into its owner's graveyard, not shuffled into the library."
+            },
+            {
+                "date": "2007-02-01",
+                "text": "If you double a negative life total, you do the real math. A life total of -10 becomes -20."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Blasting Station
 {
     "name": "Blasting Station",
@@ -588,6 +647,37 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Crucible of Worlds
+{
+    "name": "Crucible of Worlds",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "You may play lands from your graveyard.",
+    "script": {
+        "staticAbilities": [
+            "MayPlayLandsFromGraveyard"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "114",
+        "rarity": "RARE",
+        "artist": "Ron Spencer",
+        "flavorText": "Amidst the darkest ashes grow the strongest seeds.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/312a6058-de08-487d-95bd-b3c56807fdd6.jpg?1783944383",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "Crucible of Worlds doesn't change the times when you can play those land cards. You can still play only one land per turn, and only during your main phase when you have priority and the stack is empty."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "Crucible of Worlds doesn't allow you to activate abilities (such as cycling) of land cards in your graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Desecration Elemental
@@ -2262,6 +2352,41 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Vedalken Orrery
+{
+    "name": "Vedalken Orrery",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "You may cast spells as though they had flash.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantFlashToSpellType",
+                "filter": {},
+                "controllerOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "163",
+        "rarity": "RARE",
+        "artist": "John Avon",
+        "flavorText": "The model incorporated the fifth sun effortlessly, as if it had always known.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/4/94b546fa-af65-4afa-bb16-69b33674d3d1.jpg?1783944371",
+        "rulings": [
+            {
+                "date": "2010-06-15",
+                "text": "This applies only to casting spells. It does not, for example, change when you may activate abilities that can only be activated \"any time you could cast a sorcery\"."
+            },
+            {
+                "date": "2004-12-01",
+                "text": "The controller of Vedalken Orrery can cast nonland artifact, creature, enchantment, and sorcery cards any time they could cast an instant. This includes on other players' turns and during the upkeep step, draw step, combat phase, and end step."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Viridian Scout

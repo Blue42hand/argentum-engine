@@ -3,8 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.msc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Scavenger Grounds reprint in MSC; canonical definition is in HOU. */
-
 val ScavengerGroundsReprint = Printing(
     oracleId = "5ece7d03-9ee7-4953-a06e-9d8e41874903",
     name = "Scavenger Grounds",

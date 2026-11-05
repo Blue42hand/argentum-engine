@@ -135,7 +135,8 @@ internal class CardFacesProjector(
         // Loyalty abilities granted by another permanent ("Planeswalkers you control have
         // '[−4]: …'" — Way of the Wildspeaker) or by a resolved effect are activated through the
         // same legal actions as printed ones, so the menu lists them too. Their text isn't on
-        // this card's oracle, so they skip the oracle lookup and use the ability's own description.
+        // this card's oracle: one copied off another planeswalker (Nicol Bolas, Dragon-God) shows the
+        // donor's oracle line, an authored grant the ability's own description.
         val granted = (
             state.grantedActivatedAbilities.filter { it.entityId == entityId }.map { it.ability } +
                 grantedAbilityUtils.getStaticGrantedAbilitiesWithGranter(entityId, state).map { it.ability }
@@ -151,11 +152,11 @@ internal class CardFacesProjector(
             val loyaltyX = ability.cost == AbilityCost.LoyaltyX
             val loyalty = (ability.cost as? AbilityCost.Loyalty)?.change
                 ?: if (loyaltyX) 0 else return@mapNotNull null
-            val description = (if (ability.id in grantedIds) null else if (loyaltyX) cardDef.oracleText.lines()
+            val description = (if (ability.id in grantedIds) donorOracleLine(state, ability, cardDef) else if (loyaltyX) cardDef.oracleText.lines()
                 .firstOrNull { it.startsWith("−X:") || it.startsWith("-X:") }
                 ?.substringAfter(":")?.trim() else oracleDescriptions[loyalty]?.removeFirstOrNull())
                 ?: ability.descriptionOverride
-                ?: stackText.effectDisplayText(ability.effect, "this planeswalker")
+                ?: StackTextRenderer.effectDisplayText(ability.effect, "this planeswalker")
             ClientPlaneswalkerAbility(
                 abilityId = ability.id.value,
                 loyaltyChange = loyalty,
@@ -163,6 +164,33 @@ internal class CardFacesProjector(
                 description = description
             )
         }
+    }
+
+    /**
+     * The printed text of a loyalty ability copied off another planeswalker ("has all loyalty
+     * abilities of all other planeswalkers" — Nicol Bolas, Dragon-God): the donor's own oracle line,
+     * found by the ability's id among the printed loyalty abilities of the planeswalkers on the
+     * battlefield. Null for an authored grant (Way of the Wildspeaker), which no card prints.
+     * The donor's name in that line reads as the gainer's — "if Ral Zarek is on the battlefield,
+     * Nicol Bolas deals the damage" (Nicol Bolas, Dragon-God ruling, 2024-01-12).
+     */
+    private fun donorOracleLine(
+        state: GameState,
+        ability: com.wingedsheep.sdk.scripting.ActivatedAbility,
+        gainer: CardDefinition,
+    ): String? {
+        val loyalty = (ability.cost as? AbilityCost.Loyalty)?.change ?: return null
+        for (id in state.getBattlefield()) {
+            val donor = state.getEntity(id)?.get<CardComponent>()?.cardDefinitionId?.let(cardRegistry::getCard) ?: continue
+            val sameCost = donor.script.activatedAbilities.filter { it.cost == ability.cost }
+            val index = sameCost.indexOfFirst { it.id == ability.id }
+            if (index < 0) continue
+            val line = parseOracleLoyaltyLines(donor.oracleText)[loyalty]?.getOrNull(index) ?: return null
+            return line
+                .replace(donor.name, gainer.name)
+                .replace(donor.name.substringBefore(","), gainer.name.substringBefore(","))
+        }
+        return null
     }
 
     /**

@@ -5,8 +5,16 @@ import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.MtgSet
 import com.wingedsheep.sdk.model.Printing
 
-/** Wilds of Eldraine Commander (WOC), intentionally incomplete. */
+/**
+ * Wilds of Eldraine Commander (2023)
+ *
+ * Commander preconstructed decks released alongside Wilds of Eldraine.
+ *
+ * Set Code: WOC
+ * Release Date: September 8, 2023
+ */
 object WildsOfEldraineCommanderSet : MtgSet {
+
     override val code = "WOC"
     override val displayName = "Wilds of Eldraine Commander"
     override val releaseDate = "2023-09-08"

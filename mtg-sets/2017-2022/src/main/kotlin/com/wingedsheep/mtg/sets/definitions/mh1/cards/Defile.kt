@@ -1,16 +1,24 @@
 package com.wingedsheep.mtg.sets.definitions.mh1.cards
 
+import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
-import com.wingedsheep.sdk.dsl.times
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.unaryMinus
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
-/** Defile — Modern Horizons #86. The Swamp count is locked when the spell resolves. */
+/**
+ * Defile — Modern Horizons #86
+ * {B} · Instant
+ *
+ * Target creature gets -1/-1 until end of turn for each Swamp you control.
+ *
+ * The Irradiate shape: a resolution-time [Effects.ModifyStats] over the count of Swamps you
+ * control (projected subtype, so nonbasic Swamps count), locked in as Defile resolves.
+ */
 val Defile = card("Defile") {
     manaCost = "{B}"
     colorIdentity = "B"
@@ -18,9 +26,12 @@ val Defile = card("Defile") {
     oracleText = "Target creature gets -1/-1 until end of turn for each Swamp you control."
 
     spell {
-        val creature = target(TargetFilter.Creature)
-        val minusSwamps = DynamicAmounts.battlefield(Player.You, GameObjectFilter.Land.withSubtype("Swamp")).count() * -1
-        effect = Effects.ModifyStats(minusSwamps, minusSwamps, creature)
+        val t = target(TargetFilter.Creature)
+        val negSwamps = -DynamicAmounts.battlefield(
+            Player.You,
+            GameObjectFilter.Land.withSubtype(Subtype.SWAMP)
+        ).count()
+        effect = Effects.ModifyStats(negSwamps, negSwamps, t)
     }
 
     metadata {

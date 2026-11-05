@@ -14,6 +14,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentHostLeftComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -99,7 +100,7 @@ class UnattachedAurasCheck(
             // CR 704.5p: creatures, battles, and permanents without an attachment type come off.
             // This also clears the leave-trigger link retained when a host leaving ended bestow.
             if (projected.isBattle(entityId) || !remainsAttachment ||
-                (projected.isCreature(entityId) && !projected.hasKeyword(entityId, "RECONFIGURE"))) {
+                (projected.isCreature(entityId) && !projected.hasKeyword(entityId, Keyword.RECONFIGURE))) {
                 if (container.has<AttachedToComponent>()) {
                     val (detached, unattachEvents) = unattachEmittingEvent(newState, entityId)
                     newState = detached.updateEntity(entityId) { it.without<AttachmentHostLeftComponent>() }
@@ -108,7 +109,9 @@ class UnattachedAurasCheck(
                 continue
             }
 
-            val isAura = cardComponent.typeLine.isAura
+            // An Aura by its projected type line, not its printed one: a card returned "as an Aura
+            // enchantment" (Harold and Bob, First Numens) is held to its enchant ability too.
+            val isAura = projected.hasType(entityId, "ENCHANTMENT") && projected.hasSubtype(entityId, "Aura")
             val isEquipment = cardComponent.typeLine.isEquipment
             val isFortification = cardComponent.typeLine.isFortification
 
@@ -167,6 +170,9 @@ class UnattachedAurasCheck(
 
             val attachedTo = container.get<AttachedToComponent>()
             if (attachedTo == null) {
+                // Transformed into an attach-to-a-player Aura face whose player isn't chosen yet
+                // (CR 712.20) — TransformAttachCheck attaches it; it isn't an unattached Aura.
+                if (container.has<com.wingedsheep.engine.state.components.battlefield.PendingTransformAttachComponent>()) continue
                 if (isAura) {
                     // Aura not attached to anything - goes to graveyard
                     val result = SbaZoneMovementHelper.putPermanentInGraveyard(
@@ -218,7 +224,7 @@ class UnattachedAurasCheck(
                         // CR 301.5c / 704.5n: the Equipment itself became a creature, so it
                         // can't equip a creature unless it has reconfigure.
                         (projected.isCreature(entityId) &&
-                            !projected.hasKeyword(entityId, "RECONFIGURE")) ||
+                            !projected.hasKeyword(entityId, Keyword.RECONFIGURE)) ||
                         // The host no longer matches the Equipment's own attach restriction.
                         !AttachmentMover.equipRestrictionAllows(
                             state, predicateEvaluator, cardRegistry, entityId, attachedTo.targetId

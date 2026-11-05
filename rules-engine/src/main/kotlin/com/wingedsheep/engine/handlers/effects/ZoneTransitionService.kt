@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects
 
+import com.wingedsheep.engine.state.components.identity.revertTextBoxExchange
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureChoice
 import com.wingedsheep.engine.state.components.identity.copiableDoubleFacedComponent
 import com.wingedsheep.engine.state.components.identity.copiableNumericKeywords
@@ -48,10 +49,11 @@ import com.wingedsheep.engine.state.components.player.CardsDiscardedThisTurnComp
 import com.wingedsheep.engine.state.components.player.CardsLeftGraveyardThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PermanentsPutIntoHandFromBattlefieldThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CardsPutIntoExileThisTurnComponent
-import com.wingedsheep.engine.state.components.player.CreatureSubtypesDiedThisTurnComponent
+import com.wingedsheep.engine.state.components.player.CreatureDeathsThisTurnComponent
 import com.wingedsheep.engine.state.components.player.ArtifactsDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PermanentsPutIntoGraveyardFromBattlefieldThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PermanentsWithCountersPutIntoGraveyardThisTurnComponent
+import com.wingedsheep.engine.state.components.player.CardTypesPutIntoGraveyardFromBattlefieldThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.NonTokenCreaturesDiedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.OpponentCreaturesExiledThisTurnComponent
@@ -60,7 +62,7 @@ import com.wingedsheep.engine.state.components.player.PermanentLeftBattlefieldTh
 import com.wingedsheep.engine.state.components.player.CreatureLeftBattlefieldThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PermanentsSacrificedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CreatureCardsPutIntoGraveyardThisTurnComponent
-import com.wingedsheep.engine.state.components.player.CardsPutIntoGraveyardFromLibraryThisTurnComponent
+import com.wingedsheep.engine.state.components.player.CardsPutIntoGraveyardByOriginThisTurnComponent
 import com.wingedsheep.engine.state.components.player.CardsPutIntoGraveyardThisTurnComponent
 import com.wingedsheep.engine.state.components.player.PlayerDescendedThisTurnComponent
 import com.wingedsheep.engine.state.components.player.SacrificedArtifactThisTurnComponent
@@ -79,6 +81,17 @@ import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComp
 
 
 /**
+ * An effect-supplied entry counter ([com.wingedsheep.sdk.scripting.effects.EntryCounter]) with its
+ * count already evaluated — the mover evaluates it before the card leaves its old zone, so the
+ * transition only adds numbers.
+ */
+data class SuppliedEntryCounter(
+    val counterType: com.wingedsheep.sdk.core.CounterType,
+    val onlyIf: com.wingedsheep.sdk.scripting.GameObjectFilter? = null,
+    val count: Int = 1,
+)
+
+/**
  * Options controlling how an entity enters a destination zone.
  */
 data class ZoneEntryOptions(
@@ -87,21 +100,35 @@ data class ZoneEntryOptions(
     /** "As this enters, choose …" answers made before the move ([EffectEntryChoices]). */
     val entryChoices: Map<com.wingedsheep.sdk.scripting.ChoiceSlot, com.wingedsheep.engine.state.components.battlefield.ChoiceValue> = emptyMap(),
     /**
+     * The entrant's [com.wingedsheep.sdk.scripting.EntersOnlyIfPaid] cost was paid before the move
+     * ([EntryPayment]). Without it such a card goes to its owner's graveyard instead of entering.
+     */
+    val paidToEnter: Boolean = false,
+    /**
      * The counter-or-haste answers for each instance of Riot a battlefield lord *grants* the entrant
      * ([EffectEntryChoices], CR 702.136b), applied as it arrives — a granted permanent has none of
      * the printed riot replacement/static abilities that would read a recorded `MODE` choice.
      */
     val grantedRiotModes: List<String> = emptyList(),
-    /** Effect-supplied counters are part of entry, including counter replacements and prevention. */
-    val entryCounterType: com.wingedsheep.sdk.core.CounterType? = null,
+    /**
+     * Effect-supplied counters are part of entry, including counter replacements and prevention.
+     * Each one's `onlyIf` is read off the entrant's prospective characteristics.
+     */
+    val entryCounters: List<SuppliedEntryCounter> = emptyList(),
     /** Original board for one simultaneous entry event; excludes other entrants' global replacements. */
     val entryCounterReplacementState: GameState? = null,
     /** Opaque game-local token shared only by cards entering in this instruction. */
     val simultaneousEntryGroup: String? = null,
-    val entryCounterFilter: com.wingedsheep.sdk.scripting.GameObjectFilter? = null,
     val entryCounterSourceId: EntityId? = null,
     val entryCounterEffectControllerId: EntityId? = null,
     val controllerId: EntityId? = null,
+    /**
+     * For a move into exile: the player who controlled the spell or ability doing the exiling,
+     * stamped onto the card's [com.wingedsheep.engine.state.components.identity.ExiledFromZoneComponent]
+     * for "if it was exiled by an ability you controlled" (Evelyn, the Covetous). Null when the
+     * move has no controlling effect behind it.
+     */
+    val exiledBy: EntityId? = null,
     val libraryPlacement: LibraryPlacement = LibraryPlacement.Top,
     val tapped: Boolean = false,
     val tappedAndAttacking: Boolean = false,
@@ -149,8 +176,22 @@ data class ZoneEntryOptions(
      * the partly-moved state. Null for a lone move: the pre-move state already is the look-back.
      */
     val lookBackGrants: LookBackGrants? = null,
-    /** Internal card-arrival half of a meld departure; replacements already chose both cards' destination. */
-    val meldedPermanent: com.wingedsheep.engine.state.ObjectRef? = null
+    /**
+     * Internal card-arrival half of a melded or merged permanent's departure (CR 712.21, 730.3);
+     * replacements already chose every component's destination.
+     */
+    val meldedPermanent: com.wingedsheep.engine.state.ObjectRef? = null,
+    /**
+     * Enter as an Aura the card isn't printed as (`PutOntoBattlefieldAsAuraEffect`): applied as the
+     * object arrives, before [auraHostId] attaches it or the entry is recorded, so "a creature
+     * entered" observers never see it as a creature.
+     */
+    val asAura: com.wingedsheep.engine.handlers.effects.zones.AuraEntry? = null,
+    /**
+     * Enter an Aura card as a non-Aura enchantment (`PutOntoBattlefieldAsNonAuraEffect`): applied
+     * as the object arrives, like [asAura], so it is never an unattached Aura.
+     */
+    val asNonAura: com.wingedsheep.engine.handlers.effects.zones.NonAuraEntry? = null
 )
 
 /**
@@ -375,6 +416,24 @@ class ZoneTransitionService(
             return ZoneTransitionResult(state, emptyList(), redirectResult, actualDestination = fromZone)
         }
 
+        // "If this would enter, you may [pay] instead. If you don't, put it into its owner's
+        // graveyard" (EntersOnlyIfPaid). Every mover that can meet it asks before the move and
+        // passes the answer (EntryPayment); a card arriving here unpaid was declined or couldn't
+        // pay, so it never enters and goes to the graveyard — through this same service, so a
+        // graveyard replacement (Rest in Peace) still applies. A card already in the graveyard
+        // stays put: it never left, so no replacement can exile it. Read off the card as it would
+        // enter (CR 614.12), copy included. A face-down entry has no abilities (CR 708.2) and a
+        // battlefield-to-battlefield move is not an entry.
+        if (actualDestZone == Zone.BATTLEFIELD && fromZone != Zone.BATTLEFIELD &&
+            !options.paidToEnter && !options.faceDown &&
+            EntryPayment.enteringCost(state, entityId, options.entryCopy, cardRegistry, predicateEvaluator) != null
+        ) {
+            if (fromZone == Zone.GRAVEYARD) {
+                return ZoneTransitionResult(state, emptyList(), redirectResult, actualDestination = Zone.GRAVEYARD)
+            }
+            return moveToZone(state, entityId, Zone.GRAVEYARD, ZoneEntryOptions(), currentZoneKey)
+        }
+
         // A card-intrinsic redirect into the library shuffles the card in rather than placing it on
         // top (Darksteel Colossus, Progenitus). This holds even when the caller skipped the redirect
         // check and passed the result in via the destination zone — such callers set libraryPlacement
@@ -490,6 +549,7 @@ class ZoneTransitionService(
                 toughness = lastKnownToughness,
                 basePower = state.projectedState.getBasePower(entityId),
                 baseToughness = state.projectedState.getBaseToughness(entityId),
+                colors = state.projectedState.getColors(entityId),
                 // Mirror the projected type line's subtypes into the snapshot's own `subtypes`
                 // field so it carries the same meaning here as on the `fromProjection` path.
                 // Read by `TriggeringEntityWas` ("if it wasn't a Demon" — Infernal Vessel),
@@ -502,6 +562,8 @@ class ZoneTransitionService(
                 lostAllAbilities = lastKnownLostAllAbilities,
                 typeLine = lastKnownTypeLine,
                 cardDefinitionId = cardComponent.cardDefinitionId,
+                numberChoices = com.wingedsheep.engine.state.components.stack.numberChoicesOf(state, entityId),
+                textChoices = com.wingedsheep.engine.state.components.stack.textChoicesOf(state, entityId),
                 copiableCard = container.copiableCardComponent(),
                 copiableNumericKeywords = container.copiableNumericKeywords(cardRegistry),
                 copiableDoubleFaced = container.copiableDoubleFacedComponent { it },
@@ -511,15 +573,22 @@ class ZoneTransitionService(
                 attachmentIds = lastKnownAttachmentIds,
                 wasEnchanted = lastKnownWasEnchanted,
                 wasModified = lastKnownWasModified,
+                wasCast = container.has<com.wingedsheep.engine.state.components.battlefield.WasCastComponent>(),
+                castFromZone = com.wingedsheep.engine.state.components.stack.castFromZoneOf(container),
                 blockingOrBlockedByIds = lastKnownBlockingOrBlockedByIds,
                 wasAttacking = lastKnownWasAttacking,
                 wasBlocking = lastKnownWasBlocking,
+                wasTapped = container.has<com.wingedsheep.engine.state.components.battlefield.TappedComponent>(),
                 attackedDefenderId = lastKnownAttackedDefenderId,
                 wasToken = lastKnownWasToken,
                 createdBy = lastKnownCreatedBy,
                 damageDealtByPlayers = lastKnownDamageDealtByPlayers,
                 damageSources = lastKnownDamageSources,
                 wasFaceDown = lastKnownWasFaceDown,
+                wasBlitzed = container.has<com.wingedsheep.engine.state.components.battlefield.BlitzedComponent>(),
+                enteredOnTurn = state.turnNumber.takeIf {
+                    container.has<com.wingedsheep.engine.state.components.battlefield.EnteredThisTurnComponent>()
+                },
                 chosenCreature = container.chosenCreatureChoice(),
                 copyTriggeredAbilities = com.wingedsheep.engine.state.components.stack.captureCopyTriggeredAbilities(state, entityId),
                 lookBackGrants = (options.lookBackGrants
@@ -674,6 +743,17 @@ class ZoneTransitionService(
                     c.without<com.wingedsheep.engine.state.components.battlefield.ParadigmComponent>()
                 }
             }
+            // A foretold card that leaves exile by any non-cast path is no longer foretold
+            // (CR 702.143c, CR 400.7): drop the marker and the foretell cost it published, so a later
+            // exile-and-cast of the new object neither reads "was foretold" nor pays the foretell cost.
+            if (entityContainer != null &&
+                entityContainer.has<com.wingedsheep.engine.state.components.identity.ForetoldComponent>()
+            ) {
+                newState = newState.updateEntity(entityId) { c ->
+                    c.without<com.wingedsheep.engine.state.components.identity.ForetoldComponent>()
+                        .without<PlayWithFixedAlternativeManaCostComponent>()
+                }
+            }
             // A madness card leaving exile — cast, put into the graveyard by its own trigger, or
             // moved by anything else — is done with madness (CR 702.35a offers the cast once). Drop
             // the marker *and* the fixed madness cost it published: a lingering fixed alternative
@@ -730,6 +810,15 @@ class ZoneTransitionService(
         // separately because they bypass this service.
         if (fromZone == Zone.EXILE) {
             newState = ZoneMovementUtils.unlinkFromAllLinkedExiles(newState, entityId)
+            // The abilities an exiled card gained there (Uvilda, Dean of Perfection's refine
+            // countdown) belong to that object and end as it leaves (CR 400.7). The cast path drops
+            // them in SpellCaster, which bypasses this service.
+            newState = newState.withoutObjectGrants(entityId)
+        }
+        // A card arriving in exile is a new object too: drop any exile grant a path that bypassed
+        // this service left behind, so a re-exiled card never wakes up with its old countdown.
+        if (actualDestZone == Zone.EXILE && fromZone != Zone.BATTLEFIELD) {
+            newState = newState.withoutObjectGrants(entityId)
         }
 
         // A static ability granted to a card *while it sat in the graveyard* — Case of the Uneaten
@@ -750,6 +839,11 @@ class ZoneTransitionService(
         val melded = if (leavingBattlefield) {
             newState.getEntity(entityId)?.get<com.wingedsheep.engine.state.components.identity.MeldedComponent>()
         } else null
+        // CR 730.3: a merged (mutated) permanent likewise leaves as one permanent, and each of its
+        // components is put into the new zone.
+        val merged = if (leavingBattlefield) {
+            newState.getEntity(entityId)?.get<com.wingedsheep.engine.mechanics.MergedComponent>()
+        } else null
 
         // Strip battlefield components and remove floating effects AFTER removal
         if (leavingBattlefield) {
@@ -761,7 +855,7 @@ class ZoneTransitionService(
                 ?.get<com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent>()
             val departedTimestamp = lastKnownSnapshot?.battlefieldEntryTimestamp
             if (lastKnownSnapshot != null) {
-                newState = newState.copy(pendingTriggers = newState.pendingTriggers.map { pending ->
+                val withDeparture = { pending: com.wingedsheep.engine.event.PendingTrigger ->
                     if (lastKnownSnapshot.objectRef != null && pending.objectReferences.triggering == lastKnownSnapshot.objectRef) {
                         pending.copy(triggerContext = pending.triggerContext.copy(
                             triggeringLastKnownSnapshot = lastKnownSnapshot,
@@ -769,7 +863,11 @@ class ZoneTransitionService(
                             lastKnownToughness = lastKnownSnapshot.toughness,
                         ))
                     } else pending
-                })
+                }
+                newState = newState.copy(
+                    pendingTriggers = newState.pendingTriggers.map(withDeparture),
+                    triggersBeingPlaced = newState.triggersBeingPlaced.map(withDeparture),
+                )
                 for (stackId in newState.stack) {
                     val stackEntity = newState.getEntity(stackId) ?: continue
                     val activated = stackEntity.get<ActivatedAbilityOnStackComponent>()
@@ -819,7 +917,16 @@ class ZoneTransitionService(
             // "target player dealt damage by this creature this turn", The Fallen's upkeep trigger.
             val preStripDamageMemory = newState.getEntity(entityId)
                 ?.get<com.wingedsheep.engine.state.components.battlefield.DealtDamageToThisGameComponent>()
+            // Likewise whom it attacked this turn — Angel of Destiny's end-step trigger still makes
+            // the players it attacked lose if the Angel is removed in response.
+            val preStripAttackRecord = newState.getEntity(entityId)
+                ?.get<com.wingedsheep.engine.state.components.combat.TimesAttackedThisTurnComponent>()
 
+            // An exchanged text box ends with the object (CR 400.7). Before the copy revert, which
+            // would otherwise carry the exchanged text onto the restored identity.
+            newState = newState.updateEntity(entityId) { c ->
+                c.revertTextBoxExchange(cardRegistry)
+            }
             // Revert permanent-level copy effects (Clone / Mockingbird / "becomes a copy of").
             // Per CR 400.7, a card that changes zones becomes a new object — its copy effect
             // ends and the card returns to its printed characteristics.
@@ -834,6 +941,9 @@ class ZoneTransitionService(
             if (melded != null) {
                 newState = com.wingedsheep.engine.handlers.effects.permanent.types
                     .separateMeldedHost(newState, cardRegistry, entityId, melded)
+            }
+            if (merged != null) {
+                newState = com.wingedsheep.engine.mechanics.MutateCasts.separate(newState, cardRegistry, entityId, merged)
             }
 
             newState = newState.updateEntity(entityId) { c -> stripBattlefieldComponents(c) }
@@ -878,13 +988,21 @@ class ZoneTransitionService(
             if (preStripDamageMemory != null && actualDestZone != Zone.BATTLEFIELD) {
                 newState = newState.updateEntity(entityId) { c -> c.with(preStripDamageMemory) }
             }
+            if (preStripAttackRecord != null && actualDestZone != Zone.BATTLEFIELD) {
+                newState = newState.updateEntity(entityId) { c -> c.with(preStripAttackRecord) }
+            }
         } else {
             // Any further zone change makes a new object (CR 400.7): information about the old
             // battlefield incarnation must not survive it. No-op when the component is absent.
             // The damage memory goes too — also the memory a spell recorded while on the stack.
+            // So do counters: a card leaving exile with a silver/study/time counter arrives without
+            // it (counters aren't retained across a zone change). Entry counters for a battlefield
+            // destination are placed later, during entry setup.
             newState = newState.updateEntity(entityId) { c ->
                 c.without<LastKnownPermanentComponent>()
                     .without<com.wingedsheep.engine.state.components.battlefield.DealtDamageToThisGameComponent>()
+                    .without<com.wingedsheep.engine.state.components.combat.TimesAttackedThisTurnComponent>()
+                    .without<CountersComponent>()
             }
         }
 
@@ -899,8 +1017,24 @@ class ZoneTransitionService(
                 // event. By the time we reach this point those triggers are already queued on
                 // the stack with their own captured ability data, so it is safe to wipe.
                 newState = newState.withoutObjectGrants(entityId)
+                // A granted "enters as a copy of the chosen creature" (Mystic Reflection) is the
+                // last copy effect applied, so it wins over the entrant's own as-enters choice;
+                // among several, the one the controller chose to apply last (asked by replay).
+                // A face-down entrant is modified too: it copies under its face-down status (CR 708.10).
+                val grantedCopy = com.wingedsheep.engine.handlers.effects.copy
+                    .GrantedEntryCopy.find(newState, entityId, predicateEvaluator)
+                var grantedChoice: com.wingedsheep.engine.handlers.effects.copy.EntryCopyChoice? = null
+                if (grantedCopy != null) {
+                    val (choice, decided) = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy
+                        .decide(newState, grantedCopy, entityId, cardComponent.name, destControllerId, options.entryCopy)
+                    grantedChoice = choice
+                    newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.spend(decided, grantedCopy)
+                    if (options.faceDown) newState = com.wingedsheep.engine.handlers.effects.copy.EffectCopyEntry
+                        .apply(newState, entityId, choice)
+                }
+                val entryCopyChoice = grantedChoice ?: options.entryCopy
                 if (!options.faceDown) {
-                    options.entryCopy?.let { choice ->
+                    entryCopyChoice?.let { choice ->
                         // Face tracking belongs to the physical entrant, not the copied definition.
                         newState = stampDoubleFacedFrontFace(newState, cardRegistry, entityId)
                         newState = com.wingedsheep.engine.handlers.effects.copy.EffectCopyEntry.apply(newState, entityId, choice)
@@ -909,10 +1043,12 @@ class ZoneTransitionService(
                 newState = newState.addToZone(destZoneKey, entityId)
                 newState = applyBattlefieldEntry(
                     newState, entityId, cardComponent, destControllerId,
-                    options.copy(tapped = options.tapped ||
-                        (options.entryCopy?.copiedCard != null && options.entryCopy.replacement.tappedIfCopied)), fromZone,
+                    options.copy(entryCopy = entryCopyChoice, tapped = options.tapped ||
+                        (entryCopyChoice?.copiedCard != null && entryCopyChoice.replacement.tappedIfCopied)), fromZone,
                     replacementSourceState
                 )
+                if (!options.faceDown) options.asAura?.let { newState = it.apply(newState, entityId, destControllerId) }
+                if (!options.faceDown) options.asNonAura?.let { newState = it.apply(newState, entityId, destControllerId) }
                 if (!options.faceDown && options.entryChoices.isNotEmpty()) {
                     newState = newState.updateEntity(entityId) { c ->
                         val recorded = options.entryChoices.entries.fold(c) { acc, (slot, value) -> acc.withCastChoice(slot, value) }
@@ -923,7 +1059,7 @@ class ZoneTransitionService(
                             .bake(recorded, modeId, cardRegistry)
                     }
                 }
-                val entryCounterTotals = options.entryCounterType?.let {
+                val entryCounterTotals = options.entryCounters.takeIf { it.isNotEmpty() }?.let {
                     mutableMapOf<com.wingedsheep.sdk.core.CounterType, Int>()
                 }
                 if (!options.faceDown) {
@@ -952,9 +1088,13 @@ class ZoneTransitionService(
                 // This pipeline records via PermanentEntryTracker.record directly rather than
                 // BattlefieldEntry.place because the read must happen *after* applyBattlefieldEntry
                 // wires the controller — only then does projection see the right controller.
-                newState = PermanentEntryTracker.record(newState, destControllerId, entityId)
+                newState = PermanentEntryTracker.record(newState, destControllerId, entityId, options.simultaneousEntryGroup)
+                if (!options.faceDown && options.entryChoices.isNotEmpty()) {
+                    newState = EntryRiderReplacements.queueOwnChoiceRiders(newState, entityId, destControllerId,
+                        newState.getEntity(entityId)?.get<CardComponent>()?.let { cardRegistry.getCard(it.cardDefinitionId) })
+                }
                 // Handle Saga entering the battlefield (Rule 714.3a)
-                val (sagaState, sagaEvents) = ZoneMovementUtils.applySagaEntryIfNeeded(newState, entityId, entryCounterTotals)
+                val (sagaState, sagaEvents) = ZoneMovementUtils.applySagaEntryIfNeeded(newState, entityId, predicateEvaluator, entryCounterTotals)
                 newState = sagaState
                 events.addAll(sagaEvents)
                 // Handle the intrinsic entry counters of a planeswalker (loyalty, CR 306.5b) or a
@@ -970,29 +1110,33 @@ class ZoneTransitionService(
                 // Counter placement replaces the complete entry event once per counter kind.
                 // Collect supplied and intrinsic/printed counters before applying modifiers, using
                 // replacement sources from before this event and prospective entrant characteristics.
-                options.entryCounterType?.let { kind ->
-                    val matches = options.entryCounterFilter?.let { filter ->
-                        val prospective = EntersWithReplacements.prospectiveEntryView(
+                if (options.entryCounters.isNotEmpty()) {
+                    val prospective by lazy {
+                        EntersWithReplacements.prospectiveEntryView(
                             newState, entityId, options.entryCounterReplacementState ?: state)
-                        predicateEvaluator.matches(prospective, prospective.projectedState, entityId, filter,
-                            com.wingedsheep.engine.handlers.PredicateContext(
-                                sourceId = options.entryCounterSourceId,
-                                controllerId = options.entryCounterEffectControllerId ?: destControllerId))
-                    } ?: true
-                    if (matches) entryCounterTotals!![kind] = (entryCounterTotals[kind] ?: 0) + 1
+                    }
+                    for (entry in options.entryCounters) {
+                        val matches = entry.onlyIf?.let { filter ->
+                            predicateEvaluator.matches(prospective, prospective.projectedState, entityId, filter,
+                                com.wingedsheep.engine.handlers.PredicateContext(
+                                    sourceId = options.entryCounterSourceId,
+                                    controllerId = options.entryCounterEffectControllerId ?: destControllerId))
+                        } ?: true
+                        if (matches) entryCounterTotals!![entry.counterType] = (entryCounterTotals[entry.counterType] ?: 0) + entry.count
+                    }
                 }
-                val entryCopy = options.entryCopy?.takeIf { it.copiedCard != null && !options.faceDown }
-                entryCopy?.replacement?.additionalCounters?.let { amount ->
-                    val views = entryEvaluationViews(newState, entityId, destControllerId, replacementSourceState, currentZoneKey)
-                    val count = predicateEvaluator.amounts.evaluate(views.worldBeforeEvent, amount,
-                        com.wingedsheep.engine.handlers.EffectContext(entityId, destControllerId), entryViews = views)
-
+                val entryCopy = entryCopyChoice?.takeIf { it.copiedCard != null && !options.faceDown }
+                entryCopy?.replacement?.entersWithCounters?.let { rider ->
+                    val count = EntersWithReplacements.copyEntryCounterCount(
+                        newState, rider, entityId, entryCopy.copiedEntity, destControllerId, xValue = null,
+                        predicateEvaluator = predicateEvaluator,
+                        entryViews = entryEvaluationViews(newState, entityId, destControllerId, replacementSourceState, currentZoneKey))
                     if (entryCounterTotals != null) {
-                        val kind = com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE
+                        val kind = rider.counterType
                         entryCounterTotals[kind] = (entryCounterTotals[kind] ?: 0) + count
                     } else {
                         val (afterCounters, counterEvents) = EntersWithReplacements.placeEntryCounters(
-                            newState, entityId, com.wingedsheep.sdk.core.CounterType.PLUS_ONE_PLUS_ONE,
+                            newState, entityId, rider.counterType,
                             count, destControllerId, newState.getEntity(entityId)?.get<CardComponent>()?.name ?: "",
                             predicateEvaluator = predicateEvaluator, replacementSourceState = replacementSourceState)
                         newState = afterCounters
@@ -1016,6 +1160,17 @@ class ZoneTransitionService(
                             newState = hasteState
                             events.addAll(hasteEvents)
                         }
+                    }
+                }
+                // "This creature enters prepared" (CR 722.3a) holds however it enters — reanimated,
+                // blinked, or put onto the battlefield from hand or library — not only when cast.
+                // Read the definition after any entry copy so a clone sees what it copied.
+                if (!options.faceDown) {
+                    val enteringDef = newState.getEntity(entityId)?.get<CardComponent>()
+                        ?.let { cardRegistry.getCard(it.cardDefinitionId) }
+                    if (enteringDef != null) {
+                        newState = com.wingedsheep.engine.mechanics.stack.PreparationLogic
+                            .enterPreparedIfKeyworded(newState, entityId, enteringDef, destControllerId)
                     }
                 }
                 if (entryCopy?.replacement?.exileCopiedCard == true && entryCopy.copiedEntity != null) {
@@ -1065,7 +1220,13 @@ class ZoneTransitionService(
                 newState = newState.updateEntity(entityId) { c ->
                     c.with(
                         com.wingedsheep.engine.state.components.identity
-                            .ExiledFromZoneComponent(fromZone)
+                            .ExiledFromZoneComponent(
+                                fromZone,
+                                // A move redirected into exile (Rest in Peace) was exiled by the
+                                // replacement's controller, not by whoever was moving it elsewhere.
+                                exiledBy = if (destinationZone == Zone.EXILE) options.exiledBy
+                                else redirectResult.effectControllerId
+                            )
                     )
                 }
                 if (options.faceDownExile) {
@@ -1164,9 +1325,10 @@ class ZoneTransitionService(
             )
         )
 
-        if (melded != null) {
+        val partnerIds = listOfNotNull(melded?.partnerId) + merged?.partnerIds(entityId).orEmpty()
+        for (partnerId in partnerIds) {
             val partner = moveToZone(
-                newState, melded.partnerId, actualDestZone,
+                newState, partnerId, actualDestZone,
                 options.copy(skipZoneChangeRedirect = true, meldedPermanent = oldObject,
                     libraryPlacement = effectiveLibraryPlacement),
                 fromZoneKey = currentZoneKey
@@ -1178,7 +1340,7 @@ class ZoneTransitionService(
             })
             transitions.addAll(partner.transitions.map { it.copy(requestedDestination = destinationZone) })
             if (actualDestZone == Zone.EXILE) redirectResult.linkSourceId?.let { source ->
-                newState = ZoneMovementUtils.linkExiledToSource(newState, melded.partnerId, source)
+                newState = ZoneMovementUtils.linkExiledToSource(newState, partnerId, source)
             }
         }
 
@@ -1228,17 +1390,33 @@ class ZoneTransitionService(
                     playerContainer.with(NonTokenCreaturesDiedThisTurnComponent(existing.count + 1))
                 }
             }
-            // Record the dying creature's last-known subtypes (CR 603.10 / last-known information)
-            // so subtype-filtered death conditions can match it (e.g. "a non-Zombie creature died
-            // this turn"). Falls back to the base type line if no projected snapshot was captured.
-            val diedSubtypes = (lastKnownTypeLine ?: cardComponent.typeLine)
-                .subtypes.map { it.value }.toSet()
-            newState = newState.updateEntity(controllerId) { playerContainer ->
-                val existing = playerContainer.get<CreatureSubtypesDiedThisTurnComponent>()
-                    ?: CreatureSubtypesDiedThisTurnComponent()
-                playerContainer.with(
-                    CreatureSubtypesDiedThisTurnComponent(existing.diedSubtypeSets + listOf(diedSubtypes))
+            // Record the dying creature as it last existed (CR 603.10 / last-known information) so
+            // filtered death conditions can match it ("a non-Zombie creature died this turn", "a
+            // creature not named Ebondeath, Dracolich died this turn"). Only the characteristics a
+            // filter reads are kept — not the copy/trigger payload the departure snapshot carries —
+            // and a face-down creature has no name (CR 708.2a).
+            lastKnownSnapshot?.let { lki ->
+                val death = com.wingedsheep.engine.state.components.stack.EntitySnapshot(
+                    entityId = lki.entityId,
+                    power = lki.power,
+                    toughness = lki.toughness,
+                    subtypes = lki.subtypes,
+                    controllerId = lki.controllerId,
+                    ownerId = lki.ownerId,
+                    counters = lki.counters,
+                    keywords = lki.keywords,
+                    colors = lki.colors,
+                    typeLine = lki.typeLine,
+                    cardDefinitionId = lki.cardDefinitionId,
+                    name = lki.name.takeUnless { lki.wasFaceDown },
+                    wasToken = lki.wasToken,
+                    wasFaceDown = lki.wasFaceDown,
                 )
+                newState = newState.updateEntity(controllerId) { playerContainer ->
+                    val existing = playerContainer.get<CreatureDeathsThisTurnComponent>()
+                        ?: CreatureDeathsThisTurnComponent()
+                    playerContainer.with(CreatureDeathsThisTurnComponent(existing.deaths + death))
+                }
             }
         }
 
@@ -1276,6 +1454,20 @@ class ZoneTransitionService(
                 val existing = playerContainer.get<PermanentsWithCountersPutIntoGraveyardThisTurnComponent>()
                     ?: PermanentsWithCountersPutIntoGraveyardThisTurnComponent()
                 playerContainer.with(existing.with(lastKnownCounters.keys))
+            }
+        }
+
+        // 8b1c. Track the card types of permanents put into their *owner's* graveyard from the
+        // battlefield ("if an enchantment was put into your graveyard from the battlefield this
+        // turn" — Kami of Transience). Last-known projected type line, like 8b1; tokens count.
+        if (leavingBattlefield && actualDestZone == Zone.GRAVEYARD) {
+            val leftTypes = (lastKnownTypeLine ?: cardComponent.typeLine).cardTypes
+            if (leftTypes.isNotEmpty()) {
+                newState = newState.updateEntity(ownerId) { playerContainer ->
+                    val existing = playerContainer.get<CardTypesPutIntoGraveyardFromBattlefieldThisTurnComponent>()
+                        ?: CardTypesPutIntoGraveyardFromBattlefieldThisTurnComponent()
+                    playerContainer.with(existing.with(leftTypes))
+                }
             }
         }
 
@@ -1524,7 +1716,8 @@ class ZoneTransitionService(
         val priorDiscards = discardsThisTurn(newState, playerId)
         newState = trackDiscard(newState, playerId, cardIds)
         val discardEvent = CardsDiscardedEvent(
-            playerId, cardIds, cardNames, asCyclingCost = asCyclingCost, priorDiscardsThisTurn = priorDiscards
+            playerId, cardIds, cardNames, asCyclingCost = asCyclingCost, priorDiscardsThisTurn = priorDiscards,
+            causeControllerId = causedByControllerId
         )
         return ZoneTransitionResult(newState, listOf(discardEvent) + moveEvents, transitions = transitions)
     }
@@ -1562,6 +1755,13 @@ class ZoneTransitionService(
             // attack trigger can resolve after its Vehicle left); the object entering now is a
             // new one that nothing has crewed yet.
             updated = updated.without<CrewSaddleContributorsComponent>()
+
+            // A permanent entering any way other than resolving as a spell (blink, reanimation,
+            // "put onto the battlefield") wasn't cast, so no mana was spent to cast it. The cast
+            // record deliberately survives leaving the battlefield (mana-spent triggers may still
+            // be on the stack), so drop it on this entry instead; spell resolution stamps a fresh
+            // one through PermanentEntry, which doesn't come through here.
+            updated = updated.without<com.wingedsheep.engine.state.components.battlefield.CastRecordComponent>()
 
             // Track that this permanent entered the battlefield this turn
             updated = updated.with(EnteredThisTurnComponent)
@@ -1776,7 +1976,7 @@ class ZoneTransitionService(
         state: GameState,
         entityId: EntityId
     ): Pair<GameState, List<EngineGameEvent>> {
-        return ZoneMovementUtils.applySagaEntryIfNeeded(state, entityId)
+        return ZoneMovementUtils.applySagaEntryIfNeeded(state, entityId, predicateEvaluator)
     }
 
     /**
@@ -1852,6 +2052,18 @@ class ZoneTransitionService(
          * Pass null — or skip the call — for discards with no spell/ability cause: the CR 514.1
          * hand-size discard, and discards made to pay a cost.
          */
+        /**
+         * `ZoneChangeCause.DiscardedByOpponentEffect`'s one test, shared by the replacement
+         * (Wilt-Leaf Liege) and trigger (Psychic Purge) readers: a spell or ability caused the
+         * discard and its controller is an opponent of the discarding player — never a teammate.
+         */
+        fun isDiscardCausedByOpponent(
+            state: GameState,
+            causeControllerId: EntityId?,
+            discardingPlayerId: EntityId?
+        ): Boolean = causeControllerId != null && discardingPlayerId != null &&
+            state.isOpponentOf(causeControllerId, discardingPlayerId)
+
         fun markDiscardCause(
             state: GameState,
             cardIds: List<EntityId>,
@@ -1903,8 +2115,8 @@ class ZoneTransitionService(
          *  - creature cards, [CreatureCardsPutIntoGraveyardThisTurnComponent] (Macabre Reconstruction).
          *  - every card, by id, [CardsPutIntoGraveyardThisTurnComponent] (Crawling Sensation's
          *    first-time gate; its size is "cards put into their graveyard from anywhere", Fraying Sanity).
-         *  - library → graveyard moves, [CardsPutIntoGraveyardFromLibraryThisTurnComponent]
-         *    (Cruel Calculations).
+         *  - the count per origin zone, [CardsPutIntoGraveyardByOriginThisTurnComponent] (Cruel
+         *    Calculations reads library, Welcome the Dead hand + library).
          *
          * All keyed on the owner — "your graveyard" is the owner's — and turn history: the card need
          * not still be there.
@@ -1942,11 +2154,10 @@ class ZoneTransitionService(
                     )
                 )
             }
-            if (fromZone == Zone.LIBRARY) bump { p ->
+            bump { p ->
                 p.with(
-                    CardsPutIntoGraveyardFromLibraryThisTurnComponent(
-                        (p.get<CardsPutIntoGraveyardFromLibraryThisTurnComponent>()?.count ?: 0) + 1
-                    )
+                    (p.get<CardsPutIntoGraveyardByOriginThisTurnComponent>()
+                        ?: CardsPutIntoGraveyardByOriginThisTurnComponent()).plus(fromZone)
                 )
             }
             return newState
@@ -2037,7 +2248,8 @@ class ZoneTransitionService(
          *    number of permanents sacrificed (feeds [CostReductionSource.PermanentsSacrificedThisTurn]
          *    on The Balrog, Durin's Bane). Not controller-scoped: it counts every sacrifice this turn.
          *  - Increments the controller's per-player [PermanentsSacrificedThisTurnComponent] by the
-         *    same count (controller-scoped, backs `TurnTracker.PERMANENTS_SACRIFICED` —
+         *    same count, and its nontoken slice by the nontoken ones (controller-scoped, backs
+         *    `TurnTracker.PERMANENTS_SACRIFICED` / `NONTOKEN_PERMANENTS_SACRIFICED` —
          *    Sawblade Skinripper).
          *  - Marks the controller with [SacrificedFoodThisTurnComponent] if any sacrificed permanent
          *    was a Food (Food-sacrifice triggers, e.g. Ygra).
@@ -2057,9 +2269,15 @@ class ZoneTransitionService(
                 // on each ZoneChangeEvent (CR 701.21 — read by Urza's Miter et al.).
                 pendingSacrificeIds = state.pendingSacrificeIds + permanentIds,
             )
+            val nontoken = permanentIds.count { newState.getEntity(it)?.has<TokenComponent>() == false }
             newState = newState.updateEntity(controllerId) { container ->
-                val prior = container.get<PermanentsSacrificedThisTurnComponent>()?.count ?: 0
-                container.with(PermanentsSacrificedThisTurnComponent(prior + permanentIds.size))
+                val prior = container.get<PermanentsSacrificedThisTurnComponent>() ?: PermanentsSacrificedThisTurnComponent()
+                container.with(
+                    PermanentsSacrificedThisTurnComponent(
+                        count = prior.count + permanentIds.size,
+                        nontokenCount = prior.nontokenCount + nontoken,
+                    )
+                )
             }
             val projected = state.projectedState
             val sacrificedCards = permanentIds.filter { newState.getEntity(it)?.has<CardComponent>() == true }

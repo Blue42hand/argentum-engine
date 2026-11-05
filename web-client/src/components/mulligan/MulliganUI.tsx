@@ -97,6 +97,9 @@ function MulliganDecision({ state, responsive }: { state: MulliganState; respons
   const mulligan = useGameStore((s) => s.mulligan)
   const tournamentState = useGameStore((s) => s.tournamentState)
   const playerId = useGameStore((s) => s.playerId)
+  // A Magic subgame (Shahrazad, CR 729) opens with a mulligan of its own — say which game this is.
+  const subgame = useGameStore((s) => s.gameState?.subgame ?? null)
+  const subgameSource = subgame?.waitingGames[subgame.waitingGames.length - 1]?.sourceName ?? null
 
   // Calculate card size that fits all 7 cards
   const gap = responsive.isMobile ? 4 : responsive.isTablet ? 6 : 10
@@ -120,7 +123,19 @@ function MulliganDecision({ state, responsive }: { state: MulliganState; respons
 
   return (
     <>
-      {tournamentInfo && (
+      {subgame && (
+        <div className={styles.subgameBanner} data-testid="mulligan-subgame-banner">
+          <p className={styles.subgameEyebrow}>
+            {subgame.depth > 1 ? `Subgame · ${subgame.depth} deep` : 'Subgame'}
+            {subgameSource ? ` · ${subgameSource}` : ''}
+          </p>
+          <p className={styles.subgameText}>
+            A separate game: your library is your deck, and the main game waits until it's over.
+          </p>
+        </div>
+      )}
+
+      {tournamentInfo && !subgame && (
         <div className={styles.tournamentBanner}>
           <p className={styles.tournamentRound}>Round {tournamentInfo.round}</p>
           <p className={styles.tournamentMatchup}>

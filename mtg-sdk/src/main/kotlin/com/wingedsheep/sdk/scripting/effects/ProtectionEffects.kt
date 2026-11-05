@@ -169,6 +169,11 @@ data class GrantPlayerProtectionEffect(
     val scope: ProtectionScope = ProtectionScope.Everything,
     val duration: Duration = Duration.UntilYourNextTurn
 ) : Effect {
+    init {
+        // A one-shot grant has no permanent whose entry choice it could read.
+        require(scope !is ProtectionScope.ChosenCardType) { "GrantPlayerProtection can't take a chosen card type" }
+    }
+
     override val description: String = buildString {
         append("${target.description} gains protection from ")
         append(scope.protectionDescription())
@@ -184,6 +189,7 @@ fun ProtectionScope.protectionDescription(): String = when (this) {
     ProtectionScope.Multicolored -> "multicolored"
     ProtectionScope.Monocolored -> "monocolored"
     is ProtectionScope.CardType -> cardType.lowercase() + "s"
+    is ProtectionScope.ChosenCardType -> "the chosen card type"
     is ProtectionScope.Subtype -> subtype + "s"
     is ProtectionScope.Supertype -> supertype.lowercase() + " permanents"
     ProtectionScope.Everything -> "everything"

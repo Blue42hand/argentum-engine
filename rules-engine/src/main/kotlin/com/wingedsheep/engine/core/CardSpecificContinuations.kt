@@ -236,6 +236,20 @@ data class PayCountersContinuation(
 ) : AnswerContinuation
 
 /**
+ * Resume after the controller picks one of a player's spells cast this turn for
+ * `ChooseSpellCastThisTurnEffect` (Backdraft). [damageByOption] is aligned with the decision's
+ * options; the picked spell's damage is stored in the next frame's pipeline under [storeAs].
+ */
+@Serializable
+data class ChooseSpellCastThisTurnContinuation(
+    val playerId: EntityId,
+    val storeAs: String,
+    val damageByOption: List<Int>,
+    val sourceId: EntityId?,
+    val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+) : AnswerContinuation
+
+/**
  * Resume after the controller picks how many counters of one kind to move from a
  * [sourceId] permanent onto a [destinationId] permanent. The executor for
  * `MoveChosenCountersToTargetEffect` issues one decision per counter kind on the source;
@@ -288,6 +302,9 @@ data class MoveChosenCountersToTargetContinuation(
  * @property sourceId The proliferating source, for the next decision's context
  * @property proliferatesRemaining Proliferates still owed after this one — non-zero only under a
  *   "proliferate twice instead" replacement (Tekuthal, Inquiry Dominus)
+ * @property storeAs The effect's `storeAs` — the pipeline collection the permanents given a counter
+ *   are published to once the last proliferate completes; null when the effect doesn't store them
+ * @property countered Permanents given a counter by earlier proliferates of the same run
  */
 @Serializable
 data class ProliferateContinuation(
@@ -295,7 +312,9 @@ data class ProliferateContinuation(
     val eligibleEntities: List<EntityId>,
     val sourceName: String = "Proliferate",
     val sourceId: EntityId? = null,
-    val proliferatesRemaining: Int = 0
+    val proliferatesRemaining: Int = 0,
+    val storeAs: String? = null,
+    val countered: List<EntityId> = emptyList()
 ) : AnswerContinuation
 
 /**
@@ -580,6 +599,37 @@ data class BattleProtectorChoiceContinuation(
 ) : AnswerContinuation
 
 /**
+ * Resume after a permanent's controller chooses the player its
+ * [com.wingedsheep.sdk.scripting.AttachToPlayerAsTransforms] face is attached to as it transforms
+ * (Curse of Leeches). Raised at the end of the untap step or by the state-based action pass; the
+ * resumer attaches the Aura, then settles any other pending transform attachment before carrying on.
+ *
+ * @property auraId The transformed permanent awaiting its player.
+ * @property candidateIds The players it could enchant, positionally aligned with the decision's
+ *   options, captured at prompt time.
+ */
+@Serializable
+data class TransformAttachToPlayerContinuation(
+    val auraId: EntityId,
+    val candidateIds: List<EntityId>
+) : AnswerContinuation
+
+/**
+ * Resume after a permanent's controller chooses the card its
+ * [com.wingedsheep.sdk.scripting.BecomesCopyAsTransforms] face becomes a copy of as it transforms
+ * (Olag, Ludevic's Hubris). Raised by the state-based action pass; the resumer makes the copy, then
+ * settles any other pending transform copy before carrying on.
+ *
+ * @property permanentId The transformed permanent awaiting its copy.
+ * @property candidateIds The cards it could copy, captured at prompt time.
+ */
+@Serializable
+data class TransformCopyContinuation(
+    val permanentId: EntityId,
+    val candidateIds: List<EntityId>
+) : AnswerContinuation
+
+/**
  * Resume after a player picks X for an activated ability with an X-variable cost
  * (currently [com.wingedsheep.sdk.scripting.AbilityCost.TapXPermanents]).
  *
@@ -758,8 +808,14 @@ data class ActivateAbilityOpponentChooserContinuation(
  * resumed replay) or when candidate count ≤ required count (no real choice — CostHandler
  * auto-picks). Sage of Lat-Nam ({T}, Sacrifice an artifact: Draw a card) is the canonical case.
  *
- * @property action The original [ActivateAbility] (`costPayment.sacrificedPermanents` still empty),
- *   so the resumer can re-enter the handler with the chosen sacrifice victims filled in.
+ * A joint cost with several sacrifice atoms ("Sacrifice a Swamp and a Forest" — Jarad, Golgari Lich
+ * Lord) raises one of these per atom that is a real choice; the resumer *appends* each answer, so
+ * the list fills as ordered per-atom segments
+ * ([com.wingedsheep.engine.mechanics.cost.SacrificeCostAssignment]).
+ *
+ * @property action The original [ActivateAbility] (`costPayment.sacrificedPermanents` empty, or
+ *   holding the earlier atoms' segments for a joint cost), so the resumer can re-enter the handler
+ *   with the chosen sacrifice victims appended.
  * @property sacrificeCandidates The matching battlefield permanents offered to the player as
  *   options; used to validate the response is a subset of the originally legal candidates.
  * @property sacrificeCount Exact number of permanents the player must pick (`count` from the cost).
@@ -803,12 +859,14 @@ data class ActivateAbilitySacrificeContinuation(
  * @property action The original [ActivateAbility] (`costPayment.variableCostPermanents` still empty).
  * @property candidates The eligible permanents offered as options (used to validate the pick).
  * @property minCount Minimum number of permanents that must be chosen (the cost's floor).
+ * @property maxCount Maximum number that may be chosen (the cost's cap), or `null` for no cap.
  */
 @Serializable
 data class ActivateAbilityVariablePermanentsContinuation(
     val action: ActivateAbility,
     val candidates: List<EntityId>,
-    val minCount: Int
+    val minCount: Int,
+    val maxCount: Int? = null
 ) : AnswerContinuation
 
 /**

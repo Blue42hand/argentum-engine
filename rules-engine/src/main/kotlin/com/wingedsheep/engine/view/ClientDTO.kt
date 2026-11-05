@@ -90,6 +90,13 @@ data class ClientGameState(
     val attackMode: com.wingedsheep.sdk.core.AttackMode? = null,
 
     /**
+     * True when this game is played for ante (CR 407). Fixed for the whole game and public, like
+     * [attackMode], so never masked and never carried in a delta. Tells the board to show each
+     * player's ante; the ante cards themselves arrive as ordinary public `Ante` zones.
+     */
+    val playingForAnte: Boolean = false,
+
+    /**
      * If non-null, the affected player whose choices the viewing player is currently
      * driving during turn, combat or stack-resolution control. Drives UI cues such as the controller banner
      * and promoting the affected player's hand to face-up.
@@ -125,7 +132,52 @@ data class ClientGameState(
      * own 60 without learning anything about an opponent's. Library *order* is never exposed —
      * entries are aggregated counts, not positions. See [ClientDeckCard].
      */
-    val deck: List<ClientDeckCard> = emptyList()
+    val deck: List<ClientDeckCard> = emptyList(),
+
+    /**
+     * Set while this state is a Magic subgame (CR 729) — the board, zones and life totals above are
+     * the subgame's. Describes the games waiting on it, so the players can see what's at stake.
+     * Null in an ordinary game.
+     */
+    val subgame: ClientSubgame? = null,
+)
+
+/**
+ * A Magic subgame in progress (CR 729).
+ *
+ * @property depth 1 for a subgame of the main game, 2 for a subgame within that one (CR 729.6)
+ * @property waitingGames the games discontinued while it's played, outermost first; the last is the
+ *   game the subgame was created in, whose spell finishes resolving when it's over
+ */
+@Serializable
+data class ClientSubgame(
+    val depth: Int,
+    val waitingGames: List<ClientWaitingGame>,
+)
+
+/**
+ * A game discontinued while a subgame it created is played. All public: life totals and the spell
+ * still on its stack.
+ *
+ * @property sourceName the spell that created the subgame this game waits on (Shahrazad)
+ * @property sourceImageUri that spell's art, for its card preview
+ * @property sourceOracleText that spell's rules text — what happens when the subgame is over
+ * @property players each player's standing in this game
+ */
+@Serializable
+data class ClientWaitingGame(
+    val sourceName: String? = null,
+    val sourceImageUri: String? = null,
+    val sourceOracleText: String? = null,
+    val players: List<ClientWaitingPlayer>,
+)
+
+/** A player's life total in a waiting game, and whether they have already left it. */
+@Serializable
+data class ClientWaitingPlayer(
+    val playerId: EntityId,
+    val life: Int,
+    val hasLost: Boolean = false,
 )
 
 /**
@@ -262,6 +314,22 @@ data class ClientCard(
 
     /** Hexproof from multicolored (CR 105.2b) — shows an uncolored hexproof shield chip */
     val hexproofFromMulticolored: Boolean = false,
+
+    /**
+     * This permanent's "bands with other [quality]" abilities (CR 702.22b), as their projected
+     * keyword strings (`BANDS_WITH_OTHER_SUPERTYPE_LEGENDARY`, …). [keywords] can't carry them —
+     * they have no [Keyword] constant. Empty off the battlefield and for nearly every permanent.
+     */
+    val bandsWithOther: List<String> = emptyList(),
+
+    /**
+     * Which of the "bands with other" abilities on the battlefield this creature has the quality
+     * for — the subset of every permanent's [bandsWithOther] it would satisfy as a bandmate. With
+     * [bandsWithOther] this is everything the declare-attackers UI needs to mirror the server's
+     * CR 702.22c band check without reading types or names itself: a band is legal through
+     * "bands with other" when some member's ability is in every member's [bandQualities].
+     */
+    val bandQualities: List<String> = emptyList(),
 
     /** Counters on the card */
     val counters: Map<CounterType, Int>,
@@ -416,6 +484,11 @@ data class ClientCard(
      * later recast). Battlefield only. */
     val isDashed: Boolean = false,
 
+    /** Whether this permanent's blitz cost was paid (CR 702.152, Streets of New Capenna): it has
+     * haste and "when this dies, draw a card", and is sacrificed at the beginning of the next end
+     * step. Drives a "blitzed" cue on the battlefield. Battlefield only. */
+    val isBlitzed: Boolean = false,
+
     /** Morph cost for face-down creatures (only visible to controller) */
     val morphCost: String? = null,
 
@@ -495,7 +568,7 @@ data class ClientCard(
     /** Total number of copies for storm/copy effects on the stack */
     val copyTotal: Int? = null,
 
-    /** Chosen creature type for "as enters, choose a creature type" permanents (e.g., Doom Cannon) */
+    /** Chosen creature type (Doom Cannon) or planeswalker type (Deification) for "as enters, choose a … type" permanents */
     val chosenCreatureType: String? = null,
 
     /** Chosen color for "as enters, choose a color" permanents (e.g., Riptide Replicator) */
@@ -601,8 +674,14 @@ data class ClientCard(
      */
     val grantedCardTypes: Set<String> = emptySet(),
 
-    /** Damage distribution for DividedDamageEffect spells on the stack (target entity ID -> damage amount) */
+    /**
+     * The division a spell or ability on the stack announced (target entity ID -> share): damage for
+     * a divided-damage effect, counters for a counter distribution (see [damageDistributionUnit]).
+     */
     val damageDistribution: Map<EntityId, Int>? = null,
+
+    /** What [damageDistribution] divides when it isn't damage — "+1/+1 counter". Null means damage. */
+    val damageDistributionUnit: String? = null,
 
     /** For Sagas: the total number of chapters (e.g., 3). Null for non-Sagas. */
     val sagaTotalChapters: Int? = null,
@@ -730,13 +809,19 @@ data class ClientCard(
      * the evoke cast option alongside the normal cast — graying out whichever the player can't
      * currently pay for. Null for cards without evoke.
      *
-     * A bare cost string rather than a DTO of its own: evoke carries no second value the way
-     * [ClientImpending] carries its time-counter count.
+     * Carries the non-mana half of the evoke cost too ("Exile a green card from your hand",
+     * Endurance), the way [ClientBestow] does, so a purely non-mana evoke never reads as "{0}".
      */
-    val evoke: String? = null,
+    val evoke: ClientEvoke? = null,
 
     /** Bestow price, including any nonmana payment, shown alongside the ordinary creature cast. */
-    val bestow: ClientBestow? = null
+    val bestow: ClientBestow? = null,
+
+    /**
+     * Mutate cost (CR 702.140), shown alongside the ordinary creature cast like [evoke] — so a card
+     * the player can only afford to mutate never mutates itself the moment it's dragged out.
+     */
+    val mutate: String? = null
 )
 
 /**
@@ -1134,6 +1219,12 @@ data class ClientAttacker(
     val creatureName: String,
     val attackingTarget: ClientCombatTarget,
     val blockedBy: List<EntityId>,
+    /**
+     * Whether this attacker is blocked. Usually the same as `blockedBy` being non-empty, but a
+     * blocked creature stays blocked after every creature blocking it leaves combat (CR 509.1h),
+     * so an attacker can be blocked with an empty `blockedBy`.
+     */
+    val isBlocked: Boolean = false,
     /** True if all creatures that can block this creature must do so (Alluring Scent) */
     val mustBeBlockedByAll: Boolean = false,
     /**
@@ -1220,6 +1311,13 @@ sealed interface ClientChosenTarget {
     @kotlinx.serialization.SerialName("Card")
     data class Card(val cardId: EntityId) : ClientChosenTarget
 }
+
+/** Printed evoke price; legal actions determine whether it can currently be paid. */
+@Serializable
+data class ClientEvoke(
+    val cost: String,
+    val additionalCostDescription: String? = null
+)
 
 /** Printed bestow price; legal actions determine whether it can currently be paid. */
 @Serializable

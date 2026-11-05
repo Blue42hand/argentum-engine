@@ -59,7 +59,8 @@ import kotlinx.serialization.Serializable
  * ```
  */
 /**
- * Extra qualifier on *why* a card is changing zones, for replacement effects that only apply to a
+ * Extra qualifier on *why* a card is changing zones, for replacement effects (`RedirectZoneChange
+ * .requiredCause`) and discard triggers (`EventPattern.DiscardEvent.cause`) that only apply to a
  * particular cause rather than to every move into the destination.
  *
  * The zone-change event itself carries the from/to zones; the cause is the piece the zones can't
@@ -68,7 +69,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 enum class ZoneChangeCause {
-    /** No extra requirement — the replacement applies however the card got there. */
+    /** No extra requirement — it applies however the card got there. */
     Any,
 
     /**
@@ -285,22 +286,32 @@ enum class AdditionalTokenScale {
  * "If one or more [filtered] tokens would be created under your control, that many [token] are
  * created instead." Substitutes a *different* token for every token of the creation event the
  * [appliesTo] filter matches — the count carries over ("that many"), the characteristics come from
- * [token] alone. Unlike [CreateAdditionalToken] nothing of the original batch survives, and unlike
- * [ReplaceTokenCreationWithAttachedCopy] the substitute is a fixed token spec rather than a copy.
+ * the substitute alone. Unlike [CreateAdditionalToken] nothing of the original batch survives, and
+ * unlike [ReplaceTokenCreationWithAttachedCopy] the substitute is a fixed token spec rather than a
+ * copy.
  *
- * Draconic Visitor: `ReplaceTokenCreationWithToken(token = Effects.CreateToken(5, 5, setOf(RED),
- * setOf("Dragon"), setOf(FLYING)), appliesTo = TokenCreationEvent(You, GameObjectFilter.Artifact))`
- * — a Treasure, a Clue, an artifact creature token or a token copy of an artifact all become 5/5
- * Dragons.
+ * Draconic Visitor: `ReplaceTokenCreationWithToken(tokens = listOf(Effects.CreateToken(5, 5,
+ * setOf(RED), setOf("Dragon"), setOf(FLYING))), appliesTo = TokenCreationEvent(You,
+ * GameObjectFilter.Artifact))` — a Treasure, a Clue, an artifact creature token or a token copy of
+ * an artifact all become 5/5 Dragons.
  *
- * [token] must be a `CreateTokenEffect` (build it with `Effects.CreateToken`); its `count`,
- * `controller`, `tapped` and `attacking` are ignored — "that many" comes from the replaced event,
- * the tokens enter under the player the original tokens were being created for, and the original
- * effect's riders ("tapped", "sacrifice it at end of turn") belonged to the tokens it no longer
- * creates. The substitute tokens are created without a second count-replacement pass (a doubler
- * already scaled "that many"). They are checked against this family again (CR 616.2), skipping
- * every substitution already applied to the event (CR 614.5): Fisher's Talent chains Fish → Shark
- * → Octopus, and a substitute that would itself match its own filter can't loop.
+ * [tokens] lists the substitutes. With one and [optional] false the substitution is mandatory and
+ * asks nothing. With several, the replacement's controller picks one of them for the event ("you
+ * may instead create that many 2/2 green Cat creature tokens with haste or that many 3/1 green Dog
+ * creature tokens with vigilance" — Jinnie Fay, Jetmir's Second); with [optional] they may also
+ * keep the original tokens. One answer covers the whole event, so a batch of a Treasure and a Clue
+ * becomes two Cats or two Dogs, never one of each.
+ *
+ * Each substitute must be a `CreateTokenEffect` (build it with `Effects.CreateToken`); only its
+ * characteristics are read. "That many" comes from the replaced event and the tokens enter under
+ * the player the original tokens were being created for. Everything else the creating effect
+ * specified — tapped, attacking, "sacrifice/exile it at the beginning of the next end step", and
+ * any follow-up instruction that reads the created tokens — still applies to the substitutes (the
+ * rulings on all of these cards). The substitute tokens are created without a second
+ * count-replacement pass (a doubler already scaled "that many"). They are checked against this
+ * family again (CR 616.2), skipping every substitution already applied to the event (CR 614.5):
+ * Fisher's Talent chains Fish → Shark → Octopus, and a substitute that would itself match its own
+ * filter can't loop.
  *
  * Read engine-side by `TokenCreationReplacementHelper.findTokenSubstitution` at the token-creation
  * executors that read the other token replacements (creature tokens, predefined tokens, token
@@ -309,30 +320,41 @@ enum class AdditionalTokenScale {
 @SerialName("ReplaceTokenCreationWithToken")
 @Serializable
 data class ReplaceTokenCreationWithToken(
-    val token: Effect,
-    override val appliesTo: EventPattern = EventPattern.TokenCreationEvent()
+    val tokens: List<Effect>,
+    override val appliesTo: EventPattern = EventPattern.TokenCreationEvent(),
+    /** "You may instead …": the replacement's controller may decline and keep the original tokens. */
+    override val optional: Boolean = false
 ) : ReplacementEffect {
     init {
-        require(token is com.wingedsheep.sdk.scripting.effects.CreateTokenEffect) {
-            "ReplaceTokenCreationWithToken.token must be a CreateTokenEffect (Effects.CreateToken), was ${token::class.simpleName}"
+        require(tokens.isNotEmpty()) { "ReplaceTokenCreationWithToken needs at least one substitute token" }
+        tokens.forEach { token ->
+            require(token is com.wingedsheep.sdk.scripting.effects.CreateTokenEffect) {
+                "ReplaceTokenCreationWithToken.tokens must be CreateTokenEffects (Effects.CreateToken), was ${token::class.simpleName}"
+            }
         }
     }
 
+    /** Whether applying this asks its controller anything (a "may", or a pick among substitutes). */
+    val asksForChoice: Boolean get() = optional || tokens.size > 1
+
     override val description: String = buildString {
-        append("If ${appliesTo.description}, that many ")
-        append(tokenNounPhrase(token as com.wingedsheep.sdk.scripting.effects.CreateTokenEffect))
-        append(" are created instead")
+        append("If ${appliesTo.description}, ")
+        if (optional) append("you may instead create ")
+        append(tokens.joinToString(" or ") {
+            "that many " + tokenNounPhrase(it as com.wingedsheep.sdk.scripting.effects.CreateTokenEffect)
+        })
+        if (!optional) append(" are created instead")
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
-        val newToken = token.applyTextReplacement(replacer)
-        return if (newAppliesTo !== appliesTo || newToken !== token) {
-            copy(token = newToken, appliesTo = newAppliesTo)
+        val newTokens = tokens.map { it.applyTextReplacement(replacer) }
+        return if (newAppliesTo !== appliesTo || newTokens.indices.any { newTokens[it] !== tokens[it] }) {
+            copy(tokens = newTokens, appliesTo = newAppliesTo)
         } else this
     }
 
-    private companion object {
+    companion object {
         /** "5/5 red Dragon creature tokens with flying" — the plural noun phrase of [effect]. */
         fun tokenNounPhrase(effect: com.wingedsheep.sdk.scripting.effects.CreateTokenEffect): String = buildString {
             append("${effect.power}/${effect.toughness} ")
@@ -356,27 +378,53 @@ data class ReplaceTokenCreationWithToken(
 // =============================================================================
 
 /**
- * Double the number of counters placed.
- * Example: Doubling Season (counters), Corpsejack Menace, Innkeeper's Talent Level 3
+ * Scale the number of counters placed — "twice that many" ([CounterPlacementScale.DOUBLE]) or
+ * "half that many … rounded down" ([CounterPlacementScale.HALF_ROUNDED_DOWN]).
+ * Example: Doubling Season (counters), Corpsejack Menace, Innkeeper's Talent Level 3 (double);
+ * Vorinclex, Monstrous Raider (double for you, halve for an opponent).
  *
- * @param placedByYou When true, only applies when the controller of this effect is the
- *                    player putting the counters (e.g., Innkeeper's Talent: "If YOU would
- *                    put one or more counters..."). When false, applies regardless of who
- *                    is placing the counters — the recipient filter on [appliesTo] is the
- *                    sole "you control" gate (e.g., Doubling Season: "on a permanent you
- *                    control").
+ * @param scale       How the placement's count is scaled. Doubling and halving are one axis: both
+ *                    multiply the count, and the affected player orders them among the other
+ *                    placement replacements (CR 616.1) — see `ReplacementEffectUtils`.
+ * @param placer      Who must be putting the counters, relative to this effect's controller:
+ *                    [Player.Any] (the default) for "if counters **would be put** on …" (Doubling
+ *                    Season: the recipient filter on [appliesTo] is the sole "you control" gate),
+ *                    [Player.You] for "if **you** would put …" (Innkeeper's Talent), and
+ *                    [Player.EachOpponent] for "if **an opponent** would put …" (Vorinclex).
+ * @param effectsOnly When true, only placements made by an *effect* are scaled — "If **an effect**
+ *                    would put one or more counters…" (Doubling Season). Counters put on as a
+ *                    cost (a [+1] loyalty cost, blight, "put a counter on this: …") and by a
+ *                    turn-based action (a Saga's precombat-main lore counter) are not effects, so
+ *                    they pass through unchanged. When false (the default), every placement counts
+ *                    — "If one or more counters **would be put**" (Corpsejack Menace) and "If **you**
+ *                    would put" (Innkeeper's Talent) both see costs too.
  */
-@SerialName("DoubleCounterPlacement")
+@SerialName("ScaleCounterPlacement")
 @Serializable
-data class DoubleCounterPlacement(
-    val placedByYou: Boolean = false,
+data class ScaleCounterPlacement(
+    val scale: CounterPlacementScale = CounterPlacementScale.DOUBLE,
+    val placer: Player = Player.Any,
     override val appliesTo: EventPattern = EventPattern.CounterPlacementEvent(
         counterType = CounterType.PLUS_ONE_PLUS_ONE,
         recipient = Recipient.CreatureYouControl
-    )
+    ),
+    val effectsOnly: Boolean = false
 ) : ReplacementEffect {
-    override val description: String =
-        "If ${appliesTo.description}, place twice that many counters instead"
+    init {
+        require(placer == Player.Any || placer == Player.You || placer == Player.EachOpponent) {
+            "ScaleCounterPlacement.placer is a relation to this source's controller: Any, You or EachOpponent"
+        }
+    }
+
+    override val description: String = buildString {
+        append("If ${appliesTo.description}${placerClause(placer)}, ")
+        append(
+            when (scale) {
+                CounterPlacementScale.DOUBLE -> "place twice that many counters instead"
+                CounterPlacementScale.HALF_ROUNDED_DOWN -> "place half that many counters instead, rounded down"
+            }
+        )
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
@@ -384,17 +432,33 @@ data class DoubleCounterPlacement(
     }
 }
 
+/** The placer qualifier a counter-placement replacement's description appends. */
+private fun placerClause(placer: Player): String = when (placer) {
+    Player.You -> " and you are putting them"
+    Player.EachOpponent -> " and an opponent is putting them"
+    else -> ""
+}
+
+/** How a [ScaleCounterPlacement] scales a placement's count. */
+@Serializable
+enum class CounterPlacementScale {
+    /** "twice that many" (Doubling Season). */
+    DOUBLE,
+
+    /** "half that many …, rounded down" (Vorinclex, Monstrous Raider) — one counter becomes none. */
+    HALF_ROUNDED_DOWN
+}
+
 /**
  * Add additional counters when counters are placed.
  * Example: Hardened Scales (+1), Winding Constrictor (+1), Branching Evolution (double)
  *
- * @param placedByYou When true, only applies when the controller of this effect is the player
- *                    putting the counters — "**If you** would put one or more counters on a
- *                    permanent you control" (Doc Samson, Super-Psychiatrist). When false (the
- *                    default), applies regardless of who is placing them, so the recipient filter
- *                    on [appliesTo] is the sole "you control" gate — the Hardened Scales /
- *                    Winding Constrictor reading, where an opponent's proliferate also feeds it.
- *                    Same axis as [DoubleCounterPlacement.placedByYou].
+ * @param placer Who must be putting the counters, relative to this effect's controller —
+ *               [Player.You] for "**If you** would put one or more counters on a permanent you
+ *               control" (Doc Samson, Super-Psychiatrist); [Player.Any] (the default) applies
+ *               regardless of who is placing them, so the recipient filter on [appliesTo] is the
+ *               sole "you control" gate — the Hardened Scales / Winding Constrictor reading, where
+ *               an opponent's proliferate also feeds it. Same axis as [ScaleCounterPlacement.placer].
  */
 @SerialName("ModifyCounterPlacement")
 @Serializable
@@ -404,10 +468,16 @@ data class ModifyCounterPlacement(
         counterType = CounterType.PLUS_ONE_PLUS_ONE,
         recipient = Recipient.CreatureYouControl
     ),
-    val placedByYou: Boolean = false
+    val placer: Player = Player.Any
 ) : ReplacementEffect {
+    init {
+        require(placer == Player.Any || placer == Player.You || placer == Player.EachOpponent) {
+            "ModifyCounterPlacement.placer is a relation to this source's controller: Any, You or EachOpponent"
+        }
+    }
+
     override val description: String = buildString {
-        append("If ${appliesTo.description}, ")
+        append("If ${appliesTo.description}${placerClause(placer)}, ")
         if (modifier > 0) {
             append("$modifier additional counter")
             if (modifier > 1) append("s")
@@ -480,6 +550,11 @@ data class CapCounterPlacementThisTurn(
  * countered on the stack is redirected too. It stops applying only while the source is on the
  * battlefield and has lost all abilities.
  *
+ * Granted with `GrantReplacementEffect`, [selfOnly] means the ability the *target* gained ("it
+ * gains 'If this creature would leave the battlefield, exile it instead …'" — Elemental
+ * Expressionist): it redirects only the grant's holder, and ends when the holder becomes a new
+ * object.
+ *
  * [shuffleIntoLibrary] pairs with `newDestination = Zone.LIBRARY` for the Darksteel Colossus /
  * Progenitus family ("reveal ~ and shuffle it into its owner's library instead") — the card is
  * shuffled in rather than placed on top. [reveal] shows the card as it is shuffled away.
@@ -540,7 +615,7 @@ data class RedirectZoneChange(
  *
  * Use this to compose ETB-time choices out of existing atoms — e.g. SOI shadow
  * lands wrap [com.wingedsheep.sdk.scripting.effects.MayRevealCardFromHandEffect]
- * with `otherwise = Effects.Tap(EffectTarget.Self)`; a future "as ~ enters,
+ * with `otherwise = Effects.EnterTapped()`; a future "as ~ enters,
  * sacrifice another creature" land could wrap `Effects.Sacrifice(filter)`.
  *
  * Distinct from a "when ~ enters" [com.wingedsheep.sdk.scripting.trigger.Trigger]:
@@ -565,6 +640,142 @@ data class OnEnterRun(
         return if (newEffect !== effect || newAppliesTo !== appliesTo)
             copy(effect = newEffect, appliesTo = newAppliesTo)
         else this
+    }
+}
+
+/**
+ * Pay-or-graveyard self-replacement on this card's own entry (Mox Diamond).
+ *
+ * Printed as "If this would enter, you may [cost] instead. If you do, put it onto the battlefield.
+ * If you don't, put it into its owner's graveyard." Unpaid, the card **never enters**: it goes from
+ * wherever it was (the stack, a hand, exile, a library) to its owner's graveyard — or stays in the
+ * graveyard it was being returned from — so no enters or leaves trigger and no as-enters choice
+ * happens. Paid, the cost is paid first and the card then enters normally. With nothing to pay
+ * with, nothing is asked and it goes to the graveyard. The payment is always optional ("you may").
+ *
+ * Read off the card as it would exist on the battlefield (CR 614.12), so a permanent entering as a
+ * copy of Mox Diamond is asked too. Asked on every entry path that can meet it — a resolving spell,
+ * an effect putting it onto the battlefield, a duration return ("until this leaves the
+ * battlefield") — except a land being *played*, an open gap no printed card with this replacement
+ * reaches today.
+ *
+ * Not [OnEnterRun]: that runs *after* the permanent is already on the battlefield, so "if you
+ * don't" could only make it leave again — firing enters and leaves triggers that never happen.
+ * Not [EntersTapped] with `payLifeCost`: that pays to change *how* it enters (untapped), never
+ * *whether*, and only in life.
+ *
+ * @param cost what the controller may pay instead of the plain entry, from the shared [PayCost]
+ *   vocabulary (`Costs.pay.Discard(GameObjectFilter.Land)`).
+ */
+@SerialName("EntersOnlyIfPaid")
+@Serializable
+data class EntersOnlyIfPaid(
+    val cost: com.wingedsheep.sdk.scripting.costs.PayCost,
+    override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
+        filter = GameObjectFilter.Any,
+        to = Zone.BATTLEFIELD
+    )
+) : ReplacementEffect {
+    override val description: String =
+        "If this permanent would enter, you may ${cost.description} instead. If you do, put it onto " +
+            "the battlefield. If you don't, put it into its owner's graveyard"
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newCost = cost.applyTextReplacement(replacer)
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        return if (newCost !== cost || newAppliesTo !== appliesTo)
+            copy(cost = newCost, appliesTo = newAppliesTo)
+        else this
+    }
+}
+
+/**
+ * "As this permanent transforms into [this face], attach it to a player." — the as-transforms
+ * replacement of a transforming card's **Aura** face that enchants a player (Curse of Leeches).
+ * CR 712.20: an "As [this permanent] transforms …" ability of the face it transforms into is applied
+ * *while* it transforms, not afterward — so the Aura is never an unattached Aura that the CR 704.5m
+ * state-based action would put into the graveyard.
+ *
+ * The permanent's controller chooses any player the Aura could enchant. Attaching doesn't target
+ * (a player with hexproof can be chosen), but player protection from the Aura still rules a player
+ * out (CR 702.16c); with no player to choose the Aura stays unattached and 704.5m applies.
+ * Read off the face's own definition at the moment of the transform and never consulted for other
+ * permanents; entering the battlefield face up is not a transform (the card's own ruling), so it
+ * doesn't apply then.
+ *
+ * [appliesTo] is nominal: the engine reads the ability off the face as `flipDfcInPlace` turns it over
+ * and never matches it against events.
+ *
+ * Not [OnEnterRun]: that runs an effect *as the permanent enters*, through the resolving effect
+ * pipeline, and a daybound transform happens in the untap step's turn-based day/night change, where
+ * no effect is resolving. Not [com.wingedsheep.sdk.scripting.effects.AttachToChosenHostEffect]:
+ * that one-shot moves an attachment onto a chosen *permanent* at resolution and has no player hosts.
+ */
+@SerialName("AttachToPlayerAsTransforms")
+@Serializable
+data class AttachToPlayerAsTransforms(
+    override val appliesTo: EventPattern = EventPattern.TransformEvent()
+) : ReplacementEffect {
+    override val description: String = "As this permanent transforms into this face, attach it to a player"
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        return if (newAppliesTo !== appliesTo) copy(appliesTo = newAppliesTo) else this
+    }
+}
+
+/**
+ * "As this creature transforms into [this face], it becomes a copy of a [copyFilter] card …, except
+ * …. Put a number of [counterType] counters on it equal to [counterCount]." — the as-transforms copy
+ * of Olag, Ludevic's Hubris, the back face of Ludevic, Necrogenius.
+ *
+ * CR 712.20: an "As [this permanent] transforms …" ability of the face it transforms into is applied
+ * *while* it transforms — the permanent never exists as its plain printed face first. Its controller
+ * chooses one card in [copyFromZone] matching [copyFilter], read with the transforming permanent as
+ * the source (so `GameObjectFilter.Creature.exiledWithSource()` is "a creature card exiled with
+ * it", CR 607.2a), and the permanent becomes a copy of it (CR 707.2) for as long as it remains on
+ * the battlefield — even after the copied card leaves exile, and across a later transform, which
+ * turns the card over without changing the characteristics the copy effect sets. [exceptions] is the
+ * shared CR 707.9b "except …" vocabulary. With no card to choose it isn't a copy of anything and keeps
+ * its printed face. [counterCount] (when non-null) is then evaluated with the permanent as the source
+ * and that many [counterType] counters are put on it, copy or not.
+ *
+ * Read off the face's own definition at the moment of the transform and never consulted otherwise;
+ * entering the battlefield transformed is not a transform, so it doesn't apply then. [appliesTo] is
+ * nominal, as on [AttachToPlayerAsTransforms].
+ *
+ * Not [EntersAsCopy]: that is an entry replacement, read on every path a permanent enters by, and a
+ * transform is not an entry. Not [AttachToPlayerAsTransforms]: that one's choice is a player to
+ * attach to, not a card to copy. Both are settled at the first moment the engine can ask after the
+ * flip — the state-based action pass (`TransformCopy` and `TransformAttachToPlayer` in the engine).
+ */
+@SerialName("BecomesCopyAsTransforms")
+@Serializable
+data class BecomesCopyAsTransforms(
+    val copyFilter: GameObjectFilter = GameObjectFilter.Creature,
+    val copyFromZone: Zone = Zone.EXILE,
+    val exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions =
+        com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
+    val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
+    val counterCount: DynamicAmount? = null,
+    override val appliesTo: EventPattern = EventPattern.TransformEvent()
+) : ReplacementEffect {
+    override val description: String = buildString {
+        append("As this creature transforms, it becomes a copy of a ${copyFilter.description}")
+        if (copyFromZone != Zone.EXILE) append(" in a ${copyFromZone.name.lowercase()}")
+        val clauses = exceptions.clauses()
+        if (clauses.isNotEmpty()) append(", except ${clauses.joinToString(" and ")}")
+        counterCount?.let {
+            val plusOne = counterType == CounterType.PLUS_ONE_PLUS_ONE
+            append(". Put ${it.description} ${if (plusOne) "+1/+1" else counterType.printed} counters on it")
+        }
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newFilter = copyFilter.applyTextReplacement(replacer)
+        val newExceptions = exceptions.applyTextReplacement(replacer)
+        return if (newFilter !== copyFilter || newExceptions !== exceptions)
+            copy(copyFilter = newFilter, exceptions = newExceptions) else this
     }
 }
 
@@ -662,6 +873,76 @@ data class PermanentsEnterTapped(
         val newCondition = condition?.applyTextReplacement(replacer)
         return if (newAppliesTo !== appliesTo || newCondition !== condition)
             copy(appliesTo = newAppliesTo, condition = newCondition) else this
+    }
+}
+
+/**
+ * "If [putter] would put a permanent matching [appliesTo] onto the battlefield, that player instead
+ * puts it onto the battlefield, then [effect]" — an entry replacement whose rest *does* something
+ * once the permanent is there (CR 614.1a). Land Equilibrium: "If an opponent who controls at least
+ * as many lands as you do would put a land onto the battlefield, that player instead puts that land
+ * onto the battlefield then sacrifices a land of their choice."
+ *
+ * The permanent still enters — its enter triggers see it, and the player may pick it for the rider
+ * — but the rider runs as part of the same replacement, before anyone gets priority or can tap the
+ * new permanent: the engine queues it as a pending replacement rider that drains at the end of the
+ * putting effect (or at the settle boundary for a land play), ahead of state-based actions and
+ * trigger detection. Applies however the permanent would enter — played, put by a spell or
+ * ability, or created as a token (CR 701.7a: to create a token is to put it onto the battlefield).
+ *
+ * Closest existing types, and why neither takes the axis: [OnEnterRun] runs an effect *as its own
+ * source* enters (a self-replacement read off the entering card's definition, never consulted for
+ * other permanents); [PermanentsEnterTapped] is consulted from the battlefield for other entering
+ * permanents but only ever taps them — it has no effect to run and no player who put it.
+ *
+ * @property effect the rest of the replacement. In it "that player" is
+ *   [com.wingedsheep.sdk.scripting.references.Player.TriggeringPlayer] — the player who put the
+ *   permanent onto the battlefield (not necessarily its controller: the Land Equilibrium ruling) —
+ *   and "you" is this source's controller.
+ * @property putter which player's entries this replaces, relative to this source's controller
+ *   ([Player.EachOpponent], [Player.You], [Player.Each]). The player who puts the permanent is the
+ *   one playing it, or the controller of the spell or ability putting it there.
+ * @property condition optional gate, evaluated as the permanent *would* enter — against the board
+ *   without it — with [Player.TriggeringPlayer] bound to the putting player.
+ */
+@SerialName("PutOntoBattlefieldThen")
+@Serializable
+data class PutOntoBattlefieldThen(
+    val effect: Effect,
+    val putter: Player = Player.Each,
+    val condition: Condition? = null,
+    override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
+        filter = GameObjectFilter.Any,
+        to = Zone.BATTLEFIELD
+    )
+) : ReplacementEffect {
+    init {
+        require(putter == Player.You || putter == Player.EachOpponent || putter == Player.Each || putter == Player.Any) {
+            "PutOntoBattlefieldThen.putter is a relation to this source's controller: You, EachOpponent, Each or Any"
+        }
+    }
+
+    override val description: String = buildString {
+        append("If ")
+        append(
+            when (putter) {
+                Player.EachOpponent -> "an opponent"
+                Player.You -> "you"
+                else -> "a player"
+            }
+        )
+        condition?.let { append(" (${it.description})") }
+        append(" would put ${(appliesTo as? EventPattern.ZoneChangeEvent)?.filter?.description ?: "a permanent"} onto the battlefield, ")
+        append("that player instead puts it onto the battlefield, then ${effect.description.replaceFirstChar { it.lowercase() }}")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newEffect = effect.applyTextReplacement(replacer)
+        val newCondition = condition?.applyTextReplacement(replacer)
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        return if (newEffect !== effect || newCondition !== condition || newAppliesTo !== appliesTo)
+            copy(effect = newEffect, condition = newCondition, appliesTo = newAppliesTo)
+        else this
     }
 }
 
@@ -805,6 +1086,11 @@ data class EntersWithKeywords(
  * permanent, "you" its controller, and [com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity]
  * the permanent the damage would have been dealt to. Damage that can't be prevented is dealt, and
  * then nothing was prevented, so the rider doesn't run.
+ *
+ * [half] prevents **half** of the damage that reaches this prevention instead of a fixed [amount],
+ * rounded up by default ([roundUp]) — Gisela, Blade of Goldnight's "If a source would deal damage to
+ * you or a permanent you control, prevent half that damage, rounded up." It is a prevention effect,
+ * so damage that can't be prevented passes through in full. [amount] must be null with it.
  */
 @SerialName("PreventDamage")
 @Serializable
@@ -812,8 +1098,14 @@ data class PreventDamage(
     val amount: Int? = null,  // null = prevent all
     override val restrictions: List<Condition> = emptyList(),
     override val appliesTo: EventPattern,
-    val onPrevented: Effect? = null
+    val onPrevented: Effect? = null,
+    val half: Boolean = false,
+    val roundUp: Boolean = true
 ) : ReplacementEffect {
+    init {
+        require(!half || amount == null) { "PreventDamage: half prevents a fraction, not a fixed amount" }
+    }
+
     override val description: String = buildString {
         val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
         if (restrictionDesc.isNotEmpty()) {
@@ -824,7 +1116,9 @@ data class PreventDamage(
         }
         append(appliesTo.description)
         append(", prevent ")
-        if (amount == null) {
+        if (half) {
+            append("half that damage, rounded ${if (roundUp) "up" else "down"}")
+        } else if (amount == null) {
             append("that damage")
         } else {
             append("$amount of that damage")
@@ -912,12 +1206,22 @@ data class PreventDamageByRemovingCounter(
     val requiresCounter: Boolean = false,
     override val appliesTo: EventPattern = EventPattern.DamageEvent(
         recipient = Recipient.Self
-    )
+    ),
+    /**
+     * The rest of the replacement after the removal — Bloatfly Swarm's "…, then give each player
+     * a rad counter for each +1/+1 counter removed this way". Part of the same replacement, so it
+     * is a replacement rider (no stack, no priority), run once per application that removed at
+     * least one counter, with the number removed readable as
+     * `DynamicAmounts.triggerCountersRemoved()`. It runs even when the damage can't be prevented,
+     * because the counters are still removed (the Bloatfly ruling).
+     */
+    val onRemoved: Effect? = null
 ) : ReplacementEffect {
     override val description: String = buildString {
         append("If ${appliesTo.description}")
         if (requiresCounter) append(" while it has a ${counterType.printed} counter on it")
-        append(", prevent that damage and remove ")
+        append(", prevent that damage")
+        append(if (onRemoved != null) ", remove " else " and remove ")
         append(
             when (removalAmount) {
                 CounterRemovalAmount.One -> "a ${counterType.printed} counter"
@@ -925,11 +1229,14 @@ data class PreventDamageByRemovingCounter(
             }
         )
         append(" from it")
+        onRemoved?.let { append(", then ${it.description}") }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
-        return if (newAppliesTo !== appliesTo) copy(appliesTo = newAppliesTo) else this
+        val newOnRemoved = onRemoved?.applyTextReplacement(replacer)
+        return if (newAppliesTo !== appliesTo || newOnRemoved !== onRemoved)
+            copy(appliesTo = newAppliesTo, onRemoved = newOnRemoved) else this
     }
 }
 
@@ -1326,11 +1633,13 @@ data class ModifyDrawAmount(
 }
 
 /**
- * Modify how many cards a player mills, scries or surveils — "mill that many cards plus four
- * instead", "scry that many cards plus one instead", "look at an additional two cards each time you
- * surveil". Additive: a [modifier] of `+N` turns the announced count C into `C + N`; negative values
- * reduce it (clamped to ≥ 0 by the caller). One type across these keyword actions rather than one
- * per action, like [ModifyKeywordAction]: [appliesTo] says which action and whose —
+ * Modify how many cards a player mills, scries or surveils, or how many times they copy a spell —
+ * "mill that many cards plus four instead", "they mill twice that many cards instead", "scry that
+ * many cards plus one instead", "look at an additional two cards each time you surveil", "copy it
+ * that many times plus an additional time". Affine, like [ModifyDrawAmount]: the announced count C
+ * becomes `C * multiplier + modifier`; a negative [modifier] reduces it (clamped to ≥ 0 by the
+ * caller). One type across these keyword actions rather than one per action, like
+ * [ModifyKeywordAction]: [appliesTo] says which action and whose —
  *
  *  - [EventPattern.MillEvent] — mill (CR 701.17). Applied at the mill announcement: the mill
  *    pipeline's gather and the mill cost atom.
@@ -1339,27 +1648,52 @@ data class ModifyDrawAmount(
  *  - [EventPattern.SurveilEvent] — surveil (CR 701.25). Applied at the surveil pipeline's gather,
  *    so the extra cards are part of what is surveiled (CR 701.25b): each may go to the graveyard or
  *    back on top, and the `SurveiledEvent` count includes them.
+ *  - [EventPattern.SpellCopiedEvent] — copying a spell (CR 707.10). Applied once per copy
+ *    instruction, at every spell-copy site (copy target spell, storm / conspire / casualty and
+ *    "copy the next spell" riders, copy-each-target, copy-for-each-other-target, chain copies),
+ *    before any copy is put on the stack; its `spellFilter` is matched against the spell being
+ *    copied and `player` against the copier. Each added copy may be given new targets. A card
+ *    that is copied and then cast (CR 707.12) is not a spell copy and is not resized.
  *
  * Each pattern's `player` gates whose action is affected relative to the source's controller
  * (`Player.You` / `Player.EachOpponent` / `Player.Each`). Applied once per instruction, so a
  * paused-and-resumed pipeline never double-modifies; a count of 0 is no event (CR 701.22b /
- * 701.25c) and is never modified; multiple instances sum. [restrictions] are additional
+ * 701.25c) and is never modified. Multiple instances each apply once (CR 616.1): instances that
+ * commute (two "+N"s, two doublers) apply without a question; when the order changes the result (a
+ * doubler next to a "+4": 2 → 12 or 8) the acting player chooses it. [restrictions] are additional
  * [Condition]s evaluated against the acting player as controller; ALL must hold.
  *
  * Why not [ModifyDrawAmount]: a draw is not a keyword action and has its own announcement site
  * (`DrawReplacementDispatcher`), with "N or more" draw gating these actions don't have.
  *
  * Examples — The Water Crystal: `ModifyKeywordActionAmount(MillEvent(Player.EachOpponent), 4)`;
+ * Bruvac the Grandiloquent: `ModifyKeywordActionAmount(MillEvent(Player.EachOpponent), multiplier = 2)`;
  * Kenessos, Priest of Thassa: `ModifyKeywordActionAmount(ScryEvent(), 1)`; Enhanced Surveillance:
- * `ModifyKeywordActionAmount(SurveilEvent(), 2)`.
+ * `ModifyKeywordActionAmount(SurveilEvent(), 2)`; Twinning Staff:
+ * `ModifyKeywordActionAmount(SpellCopiedEvent(), 1)`.
+ *
+ * @param modifier Flat amount added after multiplying.
+ * @param multiplier Factor the announced count is multiplied by — `2` is "twice that many"; the
+ *        default `1` leaves it alone. At least 1, and exactly 1 for [EventPattern.SpellCopiedEvent]
+ *        (the spell-copy sites never pause to ask for a replacement order, so copy replacements stay
+ *        additive and always commute).
  */
 @SerialName("ModifyKeywordActionAmount")
 @Serializable
 data class ModifyKeywordActionAmount(
     override val appliesTo: EventPattern.KeywordActionCountEvent,
-    val modifier: Int,
+    val modifier: Int = 0,
+    val multiplier: Int = 1,
     override val restrictions: List<Condition> = emptyList()
 ) : ReplacementEffect {
+    init {
+        require(multiplier >= 1) { "ModifyKeywordActionAmount multiplier must be at least 1, was $multiplier" }
+        // Spell-copy sites can't stop to ask for a replacement order; additive copy replacements
+        // always commute, so keeping copies additive means there is never an order to choose.
+        require(multiplier == 1 || appliesTo !is EventPattern.SpellCopiedEvent) {
+            "ModifyKeywordActionAmount on SpellCopiedEvent is additive only (multiplier must be 1)"
+        }
+    }
 
     override val description: String = buildString {
         val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
@@ -1369,9 +1703,21 @@ data class ModifyKeywordActionAmount(
         } else {
             append("If ")
         }
+        if (appliesTo is EventPattern.SpellCopiedEvent) {
+            val filterDesc = appliesTo.spellFilter.description
+            val spell = if (filterDesc == "card" || filterDesc.isBlank()) "a spell" else "a $filterDesc spell"
+            append("${appliesTo.player.description} would copy $spell one or more times, instead copy it that many times plus ")
+            append(if (modifier == 1) "an additional time" else "$modifier additional times")
+            return@buildString
+        }
         append(
             when (appliesTo) {
-                is EventPattern.MillEvent -> "${appliesTo.player.description} would mill one or more cards"
+                // Printed as "If an opponent would mill…" (Bruvac, The Water Crystal), not "each opponent".
+                is EventPattern.MillEvent -> when (appliesTo.player) {
+                    Player.EachOpponent -> "an opponent"
+                    Player.Each -> "a player"
+                    else -> appliesTo.player.description
+                } + " would mill one or more cards"
                 else -> appliesTo.description
             }
         )
@@ -1379,15 +1725,26 @@ data class ModifyKeywordActionAmount(
             is EventPattern.MillEvent -> "mill"
             is EventPattern.ScryEvent -> "scry"
             is EventPattern.SurveilEvent -> "surveil"
+            is EventPattern.SpellCopiedEvent -> "copy"
         }
-        append(", they $verb that many cards plus $modifier instead")
+        // Pick the natural English for each shape rather than spelling out the formula.
+        append(
+            when {
+                multiplier == 1 -> ", they $verb that many cards plus $modifier instead"
+                modifier != 0 -> ", they $verb that many cards times $multiplier plus $modifier instead"
+                multiplier == 2 -> ", they $verb twice that many cards instead"
+                else -> ", they $verb that many cards times $multiplier instead"
+            }
+        )
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
-        // A keyword-action pattern carries only a Player — no replaceable text.
+        // Only the spell-copy pattern's filter carries replaceable text; the others are a Player.
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer) as? EventPattern.KeywordActionCountEvent ?: appliesTo
         val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
-        val anyChanged = newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
-        return if (anyChanged) copy(restrictions = newRestrictions) else this
+        val anyChanged = newAppliesTo !== appliesTo ||
+            newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
+        return if (anyChanged) copy(appliesTo = newAppliesTo, restrictions = newRestrictions) else this
     }
 }
 
@@ -1484,6 +1841,60 @@ data class ModifyKeywordAction(
 }
 
 /**
+ * Shrink a library search to the top [topCount] cards of the library (CR 701.23f) — "If an opponent
+ * would search a library, that player searches the top four cards of that library instead."
+ *
+ *  - Aven Mindcensor — `LimitLibrarySearch(EventPattern.SearchLibraryEvent(Player.EachOpponent), topCount = 4)`
+ *
+ * [appliesTo]'s `player` is the *searcher*, matched relative to the source's (projected) controller
+ * (`Player.You` / `Player.EachOpponent` / `Player.Each`), and the limit applies to every library that
+ * player searches — their own or another player's (Cranial Extraction cast by an opponent). Only the
+ * library portion of the search shrinks: "search your graveyard, hand, and library" still sees the
+ * whole graveyard and hand. The search is still a search (CR 701.23f): its "then shuffle" shuffles
+ * the whole library and "whenever a player searches their library" triggers fire. The top N are
+ * fixed once, when the search starts — finding one card doesn't bring the next card into it. A
+ * "look at the top N" is not a search and is never limited. Several instances don't stack: the
+ * smallest [topCount] wins.
+ *
+ * Why not [ModifyKeywordActionAmount]: it resizes a count the action announces, and a search
+ * announces none — it looks through the whole zone. Why not [ReplaceKeywordAction]: that replaces
+ * the action outright with another effect, while the search still happens here, over less of the
+ * library.
+ */
+@SerialName("LimitLibrarySearch")
+@Serializable
+data class LimitLibrarySearch(
+    override val appliesTo: EventPattern.SearchLibraryEvent,
+    val topCount: Int,
+    override val restrictions: List<Condition> = emptyList()
+) : ReplacementEffect {
+    init {
+        require(topCount >= 0) { "LimitLibrarySearch.topCount must be non-negative, was $topCount" }
+    }
+
+    override val description: String = buildString {
+        val who = when (appliesTo.player) {
+            Player.EachOpponent -> "an opponent"
+            Player.You -> "you"
+            else -> "a player"
+        }
+        val verb = if (who == "you") "search" else "searches"
+        val subject = if (who == "you") "you" else "that player"
+        append("If $who would search a library, $subject $verb the top ${numberWord(topCount)} cards of that library instead")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
+        return if (newRestrictions.zip(restrictions).any { (n, o) -> n !== o }) copy(restrictions = newRestrictions) else this
+    }
+
+    private fun numberWord(n: Int): String = when (n) {
+        1 -> "one"; 2 -> "two"; 3 -> "three"; 4 -> "four"; 5 -> "five"; 6 -> "six"; 7 -> "seven"
+        else -> n.toString()
+    }
+}
+
+/**
  * Perform a keyword action (CR 701) [times] times instead of once (CR 614.1a) — "If you would
  * proliferate, proliferate twice instead." The sibling of [ModifyKeywordAction]: that one puts an
  * extra effect in front of the action, this one repeats the action itself.
@@ -1529,6 +1940,56 @@ data class RepeatKeywordAction(
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
         return if (newAppliesTo !== appliesTo) copy(appliesTo = newAppliesTo) else this
+    }
+}
+
+/**
+ * Perform [replacementEffect] instead of a keyword action (CR 614.1a) — "If you would learn, you
+ * may instead return this card to the battlefield." The third member of the keyword-action family:
+ * [ModifyKeywordAction] puts an effect *in front of* the action, [RepeatKeywordAction] repeats it,
+ * and this one replaces it outright, so the action doesn't happen at all.
+ *
+ *  - Retriever Phoenix — `ReplaceKeywordAction(Effects.PutOntoBattlefieldFromGraveyard(EffectTarget.Self),
+ *    EventPattern.LearnEvent(), optional = true, activeZones = setOf(Zone.GRAVEYARD))`
+ *
+ * Why not [ReplaceDrawWith]: a draw has its own per-card replacement pipeline (announcement,
+ * remaining draws, the draw step's first card); a keyword action is one instruction, consulted by
+ * its own executor at action time like the other two members of the family.
+ *
+ * Supported [appliesTo] patterns: [EventPattern.LearnEvent] (CR 701.48), whose `player` is matched
+ * with the replacement source's controller as "you" (its owner, for a card in a graveyard). Any
+ * other pattern never matches.
+ *
+ * [replacementEffect] runs with the replacement's *source* as its source and that source's
+ * controller as its controller — so `EffectTarget.Self` is the card that printed the replacement,
+ * not the spell or ability that said "learn". When several apply, they are offered one at a time
+ * (mandatory ones first); the first one applied replaces the action, and the rest no longer have
+ * an action to replace. Declining every optional one performs the action as printed.
+ *
+ * @property optional Printed "you may instead" — the source's controller answers yes or no.
+ * @property activeZones Where the source must be for the replacement to function (CR 113.6) —
+ *   `{GRAVEYARD}` for "As long as this card is in your graveyard, …".
+ */
+@SerialName("ReplaceKeywordAction")
+@Serializable
+data class ReplaceKeywordAction(
+    val replacementEffect: Effect,
+    override val appliesTo: EventPattern,
+    override val optional: Boolean = false,
+    override val activeZones: Set<Zone> = setOf(Zone.BATTLEFIELD)
+) : ReplacementEffect {
+    override val description: String = buildString {
+        append("If ${appliesTo.description}, ")
+        if (optional) append("you may ")
+        append("instead ${replacementEffect.description.replaceFirstChar { it.lowercase() }}")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        val newEffect = replacementEffect.applyTextReplacement(replacer)
+        return if (newAppliesTo !== appliesTo || newEffect !== replacementEffect)
+            copy(appliesTo = newAppliesTo, replacementEffect = newEffect)
+        else this
     }
 }
 
@@ -1579,13 +2040,21 @@ data class ReplaceLifeGainWith(
 }
 
 /**
- * Prevent life gain.
- * Example: Erebos, Sulfuric Vortex
+ * Prevent life gain — "players can't gain life" (Erebos, Gríma Wormtongue) or "if a player would gain
+ * life, that player gains no life instead" (Sulfuric Vortex).
+ *
+ * Both stop every gain alike. They differ only where a player *chooses* to gain life: a player who
+ * can't gain life can't be named to gain it to pay a cost (CR 119.7), while one whose gain is merely
+ * replaced still can (Invigorate ruling, 2020-08-07).
+ *
+ * @property replacesOnly True for the "gains no life instead" replacement wording (Sulfuric Vortex);
+ *           false (the default) for a "can't gain life" prohibition
  */
 @SerialName("PreventLifeGain")
 @Serializable
 data class PreventLifeGain(
-    override val appliesTo: EventPattern = EventPattern.LifeGainEvent()
+    override val appliesTo: EventPattern = EventPattern.LifeGainEvent(),
+    val replacesOnly: Boolean = false
 ) : ReplacementEffect {
     override val description: String =
         "If ${appliesTo.description}, that player gains no life instead"
@@ -1781,7 +2250,7 @@ data class ModifyLifeLoss(
  *     `LifeLossFloor(floor = 1, appliesTo = LifeLossEvent(Player.You))`
  * - Worship ("If you control a creature, damage that would reduce your life total
  *   to less than 1 reduces it to 1 instead"):
- *     `LifeLossFloor(floor = 1, restrictions = listOf(YouControlACreature),
+ *     `LifeLossFloor(floor = 1, restrictions = listOf(Conditions.YouControl(GameObjectFilter.Creature)),
  *                    appliesTo = LifeLossEvent(Player.You))`
  *
  * @param floor Minimum resulting life total (default 1).
@@ -1811,6 +2280,151 @@ data class LifeLossFloor(
             else -> append("a player's")
         }
         append(" life total to less than $floor reduces it to $floor instead")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
+        val anyChanged = newAppliesTo !== appliesTo ||
+            newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
+        return if (anyChanged) copy(appliesTo = newAppliesTo, restrictions = newRestrictions) else this
+    }
+}
+
+/**
+ * "If your life total would be reduced to 0 or less, instead …" — the replaced reduction runs [instead] (Enduring Angel).
+ *
+ * Replaces **every** reduction of a matching player's life total that would leave it at 0 or less:
+ * damage (combat and noncombat, CR 120.3a), "loses N life" effects, life payments, and effects that
+ * set or exchange a life total (CR 119.5 — setting a life total lower is a loss of life). The whole
+ * reduction is replaced: the life total doesn't change, and [instead] runs in its place as part of
+ * the same replacement — no stack, no priority, before state-based actions — with this permanent as
+ * its source and its controller as "you". The damage itself is still dealt, so lifelink and
+ * damage-dealt triggers see it in full. Simultaneous reductions (several attackers' combat damage)
+ * are one event: once it has applied, the rest of that event's reductions of the same player are
+ * absorbed too, and [instead] runs once.
+ *
+ * Enduring Angel: `ReplaceLifeReductionToZero(instead = IfYouDo(Transform(Self), SetLifeTotal(3),
+ * otherwise = SetLifeTotal(3) then LoseGame, successCriterion = Transformed))`.
+ *
+ * Why not an existing type: [LifeLossFloor] caps only damage-caused loss and writes a number — it
+ * can't run an effect or see payments and set-life effects; [ModifyLifeLoss] scales an amount that
+ * still happens. Neither has a threshold on the *resulting* life total.
+ *
+ * @param instead What happens in place of the reduction.
+ * @param restrictions Additional [Condition]s gating when this applies, evaluated against the
+ *        source's controller; ALL must hold.
+ * @param appliesTo Life-loss event filter (whose life total is protected; default "your").
+ */
+@SerialName("ReplaceLifeReductionToZero")
+@Serializable
+data class ReplaceLifeReductionToZero(
+    val instead: Effect,
+    override val restrictions: List<Condition> = emptyList(),
+    override val appliesTo: EventPattern = EventPattern.LifeLossEvent(Player.You)
+) : ReplacementEffect {
+    override val description: String = buildString {
+        append("If ")
+        when ((appliesTo as? EventPattern.LifeLossEvent)?.player) {
+            Player.You -> append("your")
+            Player.EachOpponent -> append("an opponent's")
+            else -> append("a player's")
+        }
+        append(" life total would be reduced to 0 or less, instead ")
+        append(instead.description.replaceFirstChar { it.lowercase() })
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newInstead = instead.applyTextReplacement(replacer)
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer)
+        val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
+        val anyChanged = newInstead !== instead || newAppliesTo !== appliesTo ||
+            newRestrictions.zip(restrictions).any { (n, o) -> n !== o }
+        return if (anyChanged) copy(instead = newInstead, appliesTo = newAppliesTo, restrictions = newRestrictions) else this
+    }
+}
+
+/**
+ * Floor the loyalty a planeswalker keeps when damage would remove its loyalty counters (CR 120.3c,
+ * CR 306.8): if damage matching [appliesTo] would leave the planeswalker with fewer than [floor]
+ * loyalty counters, only enough counters are removed to leave [floor] (none, if it already has
+ * [floor] or fewer). The planeswalker counterpart of [LifeLossFloor].
+ *
+ * Like [LifeLossFloor], this replaces only the *result* of the damage: the damage itself is still
+ * dealt in full, so lifelink, "deals damage" triggers and excess damage (CR 120.4a) still see the
+ * whole amount — Deification's ruling: "all damage is still dealt to the affected planeswalkers,
+ * and any additional effects of that damage will still happen."
+ *
+ * Why not an existing type: [LifeLossFloor] floors a *player's life total* and keys off a
+ * [EventPattern.LifeLossEvent], which never sees a planeswalker; [PreventDamagePerCounter] spends
+ * counters to *prevent* damage, which this must not do.
+ *
+ * [restrictions] are evaluated against this effect's source and its controller ("As long as you
+ * control a creature"). Multiple instances pick the strictest floor.
+ *
+ * Example — Deification ("As long as you control a creature, if damage dealt to a planeswalker you
+ * control of the chosen type would result in all loyalty counters on it being removed, instead all
+ * but one of those counters are removed"):
+ *   `LoyaltyDamageFloor(floor = 1, restrictions = listOf(Conditions.YouControl(GameObjectFilter.Creature)),
+ *      appliesTo = DamageEvent(recipient = Recipient.Object(planeswalker you control of the chosen type)))`
+ */
+@SerialName("LoyaltyDamageFloor")
+@Serializable
+data class LoyaltyDamageFloor(
+    val floor: Int = 1,
+    override val restrictions: List<Condition> = emptyList(),
+    override val appliesTo: EventPattern.DamageEvent
+) : ReplacementEffect {
+    override val description: String = buildString {
+        val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
+        if (restrictionDesc.isNotEmpty()) append("As long as $restrictionDesc, if ") else append("If ")
+        val counters = if (floor == 1) "loyalty counter" else "loyalty counters"
+        append("damage dealt to ${appliesTo.recipient.description} would leave it with fewer than $floor $counters, ")
+        append("instead only enough counters are removed to leave $floor")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer) as EventPattern.DamageEvent
+        val newRestrictions = restrictions.map { it.applyTextReplacement(replacer) }
+        val anyChanged = newAppliesTo !== appliesTo ||
+            newRestrictions.zip(restrictions).any { (a, b) -> a !== b }
+        return if (anyChanged) copy(appliesTo = newAppliesTo, restrictions = newRestrictions) else this
+    }
+}
+
+/**
+ * Life loss of one [origin] becomes life gain: "You gain life rather than lose life from radiation"
+ * (Strong, the Brutish Thespian). The [appliesTo]-matching player gains that much life instead of
+ * losing it; the gain is an ordinary life-gain event, so life-gain modifiers, "can't gain life" and
+ * "whenever you gain life" triggers all see it. Anything else the losing effect does still happens
+ * (radiation still removes its rad counters).
+ *
+ * When `ModifyLifeLoss` replacements also apply, the affected player orders them (CR 616.1) and
+ * the engine takes the order that gains the most life: every increase applies before the
+ * conversion, and every reduction is left with no loss to modify.
+ *
+ * Scope: non-damage life loss from a `LoseLife` effect of the given [origin]
+ * (`LifeLossOrigin.RADIATION` is the inherent radiation trigger's). Damage-caused loss and life
+ * payments are never converted.
+ */
+@SerialName("GainLifeInsteadOfLosingLife")
+@Serializable
+data class GainLifeInsteadOfLosingLife(
+    val origin: com.wingedsheep.sdk.scripting.effects.LifeLossOrigin,
+    override val restrictions: List<Condition> = emptyList(),
+    override val appliesTo: EventPattern = EventPattern.LifeLossEvent(Player.You)
+) : ReplacementEffect {
+    override val description: String = buildString {
+        val restrictionDesc = restrictions.joinToString(" and ") { it.description.removePrefix("if ") }
+        if (restrictionDesc.isNotEmpty()) append(restrictionDesc.replaceFirstChar { it.uppercase() }).append(", ")
+        val who = when ((appliesTo as? EventPattern.LifeLossEvent)?.player) {
+            Player.You -> "you gain"
+            Player.EachOpponent -> "each opponent gains"
+            else -> "each player gains"
+        }
+        append(if (restrictionDesc.isEmpty()) who.replaceFirstChar { it.uppercase() } else who)
+        append(" life rather than lose life")
+        if (origin == com.wingedsheep.sdk.scripting.effects.LifeLossOrigin.RADIATION) append(" from radiation")
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
@@ -1899,21 +2513,37 @@ data class ReplaceLifePaymentWithLibraryExile(
  *                   copy — the "enter tapped as a copy" rider on the land-copy cycle (Vesuva,
  *                   Thespian's Stage, Echoing Deeps). If the copy is declined (or no candidate
  *                   exists) the permanent enters untapped as its printed self.
- * @param additionalCounters When non-null, the permanent enters with this many **additional +1/+1
- *                   counters** if (and only if) it enters as a copy — the "except it enters with N
- *                   additional +1/+1 counters on it" rider (Altered Ego with
- *                   [com.wingedsheep.sdk.scripting.values.DynamicAmount.XValue], Spark Double with
- *                   `Fixed(1)`). It belongs to the *copy* effect, not to a separate
- *                   [EntersWithCounters]: copying replaces the permanent's own copiable text, so a
- *                   self-targeted enters-with-counters replacement would be gone by the time the
- *                   copy applies. Declining the copy therefore also declines the counters, which is
- *                   the printed ruling ("You can choose not to copy anything. … It won't have +1/+1
- *                   counters placed on it by its ability.").
+ * @param entersWithCounters When non-null, the permanent enters with these counters if (and only if)
+ *                   it enters as a copy — the "except it enters with N additional +1/+1 counters on
+ *                   it" rider (Altered Ego with [com.wingedsheep.sdk.scripting.values.DynamicAmount.XValue])
+ *                   and "except it enters with a shield counter on it if you control that creature"
+ *                   (Undercover Operative). See [CopyEntryCounters]. It belongs to the *copy*
+ *                   effect, not to a separate [EntersWithCounters]: copying replaces the permanent's
+ *                   own copiable text, so a self-targeted enters-with-counters replacement would be
+ *                   gone by the time the copy applies. Declining the copy therefore also declines
+ *                   the counters, which is the printed ruling ("You can choose not to copy anything.
+ *                   … It won't have +1/+1 counters placed on it by its ability.").
  * @param duration How long the copy lasts. [Duration.Permanent] (default) is every Clone;
  *                   [Duration.EndOfTurn] is "you may have it become a copy of any creature on the
  *                   battlefield until end of turn" (Cursed Mirror) — at cleanup the permanent reverts
  *                   to its printed self, riders (the granted haste) included. No other duration is
  *                   supported.
+ * @param copyOf When non-null, the entrant copies **this one object** instead of a candidate its
+ *                   controller chooses as it enters — "the next time one or more creatures or
+ *                   planeswalkers enter this turn, they enter as copies of the chosen creature"
+ *                   (Mystic Reflection). Such a replacement applies to *other* objects entering, so it
+ *                   is never a permanent's own printed self-copy: it is granted with
+ *                   [com.wingedsheep.sdk.scripting.effects.GrantReplacementEffectEffect] (usually with
+ *                   [Duration.NextUse]), which binds the reference to the resolving ability's object
+ *                   — a target reference ([EffectTarget.BoundVariable] / [EffectTarget.ContextTarget])
+ *                   becomes the [EffectTarget.SpecificEntity] it named. It is read only when granted;
+ *                   a printed one (Essence of the Wild's "creatures you control enter as a copy of
+ *                   this") isn't wired. [appliesTo] then says which entrants it modifies; there is no
+ *                   as-enters choice, so `optional` must be false and [copyFilter] is unused
+ *                   ([copyFromZone] / [filterByTotalManaSpent] / [exileCopiedCard] are rejected). The copied values
+ *                   are the object's as the entrant enters, or as it last existed on the battlefield
+ *                   if it has left. Null (default) is the classic Clone: the entrant's own as-enters
+ *                   choice.
  */
 @SerialName("EntersAsCopy")
 @Serializable
@@ -1930,10 +2560,11 @@ data class EntersAsCopy(
     val toughnessOverride: Int? = null,
     val exileCopiedCard: Boolean = false,
     val tappedIfCopied: Boolean = false,
-    val additionalCounters: DynamicAmount? = null,
+    val entersWithCounters: CopyEntryCounters? = null,
     val exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions =
         com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
     val duration: Duration = Duration.Permanent,
+    val copyOf: EffectTarget? = null,
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Any,
         to = Zone.BATTLEFIELD
@@ -1942,6 +2573,11 @@ data class EntersAsCopy(
     init {
         require(duration == Duration.Permanent || duration == Duration.EndOfTurn) {
             "EntersAsCopy supports only Permanent or EndOfTurn durations, got $duration"
+        }
+        require(copyOf == null || (!optional && copyFromZone == Zone.BATTLEFIELD &&
+            !filterByTotalManaSpent && !exileCopiedCard)) {
+            "EntersAsCopy(copyOf = …) copies one bound object: it has no as-enters choice, so it can't be " +
+                "optional or set copyFromZone / filterByTotalManaSpent / exileCopiedCard"
         }
     }
 
@@ -1953,7 +2589,11 @@ data class EntersAsCopy(
         val where = if (copyFromZone == Zone.GRAVEYARD) "$filterDesc card in a graveyard" else "$filterDesc on the battlefield"
         val subject = if (copyFilter == GameObjectFilter.Land) "this land" else "this creature"
         val tappedWord = if (tappedIfCopied) "tapped " else ""
-        val lead = if (duration == Duration.EndOfTurn) {
+        val entrants = (appliesTo as? EventPattern.ZoneChangeEvent)?.filter?.description
+        val lead = if (copyOf != null) {
+            val copied = if (copyOf is EffectTarget.SpecificEntity) "the chosen object" else copyOf.description
+            "each ${entrants ?: "permanent"} entering enters ${tappedWord}as a copy of $copied"
+        } else if (duration == Duration.EndOfTurn) {
             val who = if (optional) "you may have it" else "it"
             // "Becomes a copy … until end of turn" is printed on non-creatures (Cursed Mirror).
             "As this permanent enters, $who become${if (optional) "" else "s"} a copy of any $where until end of turn"
@@ -1979,9 +2619,7 @@ data class EntersAsCopy(
                 if (additionalKeywords.isNotEmpty()) {
                     add("it has ${additionalKeywords.joinToString(", ") { it.name.lowercase() }}")
                 }
-                if (additionalCounters != null) {
-                    add("it enters with ${additionalCounters.description} additional +1/+1 counters on it")
-                }
+                entersWithCounters?.let { add(it.description) }
             }
             val allExceptions = exceptions + this@EntersAsCopy.exceptions.clauses()
             if (allExceptions.isNotEmpty()) append(", except ${allExceptions.joinToString(" and ")}")
@@ -1995,6 +2633,54 @@ data class EntersAsCopy(
         return if (newAppliesTo !== appliesTo || newExceptions !== exceptions)
             copy(appliesTo = newAppliesTo, exceptions = newExceptions) else this
     }
+}
+
+/**
+ * The counters an [EntersAsCopy] permanent enters with when — and only when — it actually enters as
+ * a copy ("except it enters with …").
+ *
+ * @property count How many counters: `Fixed(1)`, or `DynamicAmount.XValue` for Altered Ego's X.
+ * @property counterType Which counter. Defaults to +1/+1, the "additional +1/+1 counters" rider;
+ *   [CounterType.SHIELD] is Undercover Operative's.
+ * @property ifCopiedMatches When non-null, the counters are placed only if the copied object matches
+ *   this filter as the permanent enters, read against the entrant's controller — "if you control that
+ *   creature" is `GameObjectFilter.Any.youControl()`. A copied object that has left the battlefield
+ *   by then no longer matches a battlefield filter, so no counters.
+ * @property ifEntrantMatches When non-null, the counters are placed only if the entering copy itself
+ *   matches this filter as it enters — "if it's a creature, it enters with two additional +1/+1
+ *   counters" (Moritte of the Frost). Unlike [ifCopiedMatches] this reads the entrant's own
+ *   characteristics, which are the copiable values (plus the copy's exceptions) rather than the
+ *   copied object's: a land animated by a non-copy effect is copied as a noncreature, so no counters.
+ */
+@Serializable
+data class CopyEntryCounters(
+    val count: DynamicAmount,
+    val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
+    val ifCopiedMatches: GameObjectFilter? = null,
+    val ifEntrantMatches: GameObjectFilter? = null,
+) {
+    val description: String
+        get() = buildString {
+            val plusOne = counterType == CounterType.PLUS_ONE_PLUS_ONE
+            val countText = count.description
+            if (plusOne) {
+                append("it enters with $countText additional +1/+1 counters on it")
+            } else {
+                val article = if (countText == "1") "a" else countText
+                val plural = if (countText == "1") "" else "s"
+                append("it enters with $article ${counterType.printed} counter$plural on it")
+            }
+            when (ifCopiedMatches) {
+                null -> {}
+                GameObjectFilter.Any.youControl() -> append(" if you control that creature")
+                else -> append(" if the copied object matches: ${ifCopiedMatches.description}")
+            }
+            ifEntrantMatches?.let { filter ->
+                val desc = filter.description
+                if (filter == GameObjectFilter.Creature) append(" if it's a creature")
+                else append(" if it's ${if (desc.first().lowercaseChar() in "aeiou") "an" else "a"} $desc")
+            }
+        }
 }
 
 // =============================================================================
@@ -2012,7 +2698,18 @@ enum class ChoiceType {
     CREATURE_TYPE,
     /** Choose a card type (artifact, creature, enchantment, instant, land, etc.) */
     CARD_TYPE,
-    /** Choose another creature you control (e.g., Dauntless Bodyguard) */
+    /**
+     * Choose a planeswalker type (CR 205.3j), e.g. Deification: "As this enchantment enters, choose
+     * a planeswalker type." Stored under [com.wingedsheep.sdk.scripting.ChoiceSlot.PLANESWALKER_TYPE]
+     * and matched by [com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasChosenSubtype], the
+     * same reader as a chosen creature type.
+     */
+    PLANESWALKER_TYPE,
+    /**
+     * Choose a permanent on the battlefield — by default another creature you control (Dauntless
+     * Bodyguard); [EntersWithChoice.permanentFilter] widens it (Scheming Fence's "a nonland
+     * permanent"). Stored in [ChoiceSlot.CREATURE] whatever its type.
+     */
     CREATURE_ON_BATTLEFIELD,
     /**
      * Choose one of a card-defined set of named [ModeOption]s. Used for cards
@@ -2200,12 +2897,51 @@ data class EntersWithChoice(
      * every other choice type.
      */
     val excludedColors: Set<Color> = emptySet(),
+    /**
+     * When [choiceType] is [ChoiceType.CREATURE_ON_BATTLEFIELD], which permanents on the battlefield
+     * may be chosen, matched from the entering permanent's controller's point of view (so
+     * `youControl()` means "you control"). The entering object itself is never a candidate. `null`
+     * is the default "another creature you control" (Dauntless Bodyguard); Scheming Fence's "a
+     * nonland permanent" is [GameObjectFilter.NonlandPermanent]. Whatever the filter, the pick is
+     * stored in [ChoiceSlot.CREATURE] and read back through
+     * [com.wingedsheep.sdk.scripting.predicates.CardPredicate.ChosenBySource] /
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.ChosenCreature]. Ignored for every other
+     * choice type.
+     */
+    val permanentFilter: GameObjectFilter? = null,
+    /**
+     * When true, the chooser may decline — "you may choose …" (Scheming Fence) — and the permanent
+     * enters with no choice recorded. Only [ChoiceType.CREATURE_ON_BATTLEFIELD] honours it. Not
+     * [ReplacementEffect.optional]: that one asks whether to apply the replacement at all, while
+     * the permanent enters either way and only the pick may be empty.
+     */
+    val mayChooseNothing: Boolean = false,
+    /**
+     * What the permanent then does with the chosen permanent as it enters — the rest of the same
+     * replacement. It runs once the permanent is on the battlefield, before state-based actions,
+     * trigger detection and priority, so the entry's "when this enters" abilities see its result
+     * (CR 614.12). It runs with the entering permanent as source and its controller as "you", the
+     * pick read back through [com.wingedsheep.sdk.scripting.targets.EffectTarget.ChosenCreature];
+     * skipped when nothing was chosen (a declined [mayChooseNothing] pick, or no candidate). Only
+     * [ChoiceType.CREATURE_ON_BATTLEFIELD] honours it. Deadpool, Trading Card: `then =
+     * Effects.ExchangeTextBoxes(EffectTarget.Self, EffectTarget.ChosenCreature)`. Null — the
+     * default — just records the pick for other abilities to read.
+     */
+    val then: Effect? = null,
     override val appliesTo: EventPattern = EventPattern.ZoneChangeEvent(
         filter = GameObjectFilter.Any,
         to = Zone.BATTLEFIELD
     )
 ) : ReplacementEffect {
-    override val description: String = when (choiceType) {
+    init {
+        require(choiceType == ChoiceType.CREATURE_ON_BATTLEFIELD || (permanentFilter == null && !mayChooseNothing && then == null)) {
+            "permanentFilter, mayChooseNothing and then apply only to ChoiceType.CREATURE_ON_BATTLEFIELD"
+        }
+    }
+
+    override val description: String = choiceDescription() + (then?.let { ". ${it.description}" } ?: "")
+
+    private fun choiceDescription(): String = when (choiceType) {
         ChoiceType.COLOR -> {
             val otherThan = if (excludedColors.isEmpty()) "" else
                 " other than " + excludedColors.sortedBy { it.ordinal }.joinToString(" or ") { it.displayName.lowercase() }
@@ -2225,7 +2961,19 @@ data class EntersWithChoice(
         } else {
             "As this permanent enters, choose a card type"
         }
-        ChoiceType.CREATURE_ON_BATTLEFIELD -> "As this creature enters, choose another creature you control"
+        ChoiceType.PLANESWALKER_TYPE -> if (chooser == Player.AnOpponent) {
+            "As this permanent enters, an opponent chooses a planeswalker type"
+        } else {
+            "As this permanent enters, choose a planeswalker type"
+        }
+        ChoiceType.CREATURE_ON_BATTLEFIELD -> if (permanentFilter == null && !mayChooseNothing) {
+            "As this creature enters, choose another creature you control"
+        } else {
+            val verb = if (mayChooseNothing) "you may choose" else "choose"
+            val what = permanentFilter?.let { "${it.indefiniteArticle} ${it.description}" }
+                ?: "another creature you control"
+            "As this permanent enters, $verb $what"
+        }
         ChoiceType.MODE -> {
             val labels = modeOptions.joinToString(" or ") { it.label }
             if (chooser == Player.AnOpponent) {
@@ -2259,7 +3007,10 @@ data class EntersWithChoice(
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
-        return if (newAppliesTo !== appliesTo) copy(appliesTo = newAppliesTo) else this
+        val newFilter = permanentFilter?.applyTextReplacement(replacer)
+        val newThen = then?.applyTextReplacement(replacer)
+        return if (newAppliesTo !== appliesTo || newFilter !== permanentFilter || newThen !== then)
+            copy(appliesTo = newAppliesTo, permanentFilter = newFilter, then = newThen) else this
     }
 }
 
@@ -2500,31 +3251,52 @@ data class ReplaceDamageWithCounters(
 }
 
 /**
- * Prevent matched damage and, instead, each opponent of this permanent's controller mills that
- * many cards.
+ * Prevent matched damage and mill [multiplier] times that many cards — [miller] does the milling.
  *
  * Models The Mindskinner (DSK): "If a source you control would deal damage to an opponent, prevent
- * that damage and each opponent mills that many cards." The [appliesTo] pattern scopes which damage
- * is replaced — typically `DamageEvent(recipient = Opponent, source = Matching(<you control>))`.
+ * that damage and each opponent mills that many cards" (the defaults), and Angel of Suffering (SNC):
+ * "If damage would be dealt to you, prevent that damage and mill twice that many cards"
+ * (`recipient = You`, `miller = Player.You`, `multiplier = 2`). The [appliesTo] pattern scopes which
+ * damage is replaced.
  *
- * Like [ReplaceDamageWithCounters], the damage is neither dealt nor prevented in the
- * "prevention shield" sense — it is *replaced* (CR 615): the mill happens instead. The mill goes to
- * every opponent of the controller, not just the damaged one, matching the printed "each opponent"
- * wording (identical to a single opponent in a two-player game).
+ * [miller] is read relative to this permanent's controller: [Player.EachOpponent] (every opponent,
+ * not just the damaged one — the printed "each opponent") or [Player.You]. ("The damaged player
+ * mills" is [ReplaceDamageWithCounters.damagedPlayerMills].)
+ *
+ * The mill is part of the same prevention effect, not a trigger. Per both cards' rulings, damage
+ * that **can't be prevented** is still dealt in full, and the mill still happens; damage that can be
+ * prevented is prevented even when the library is too small to mill the full count.
  */
 @SerialName("ReplaceDamageWithMill")
 @Serializable
 data class ReplaceDamageWithMill(
     override val appliesTo: EventPattern = EventPattern.DamageEvent(
         recipient = Recipient.Opponent
-    )
+    ),
+    val miller: Player = Player.EachOpponent,
+    val multiplier: Int = 1
 ) : ReplacementEffect {
-    override val description: String =
-        "If ${appliesTo.description}, prevent that damage and each opponent mills that many cards instead"
+    init {
+        require(miller in SUPPORTED_MILLERS) { "ReplaceDamageWithMill.miller must be one of $SUPPORTED_MILLERS, was $miller" }
+        require(multiplier >= 1) { "ReplaceDamageWithMill.multiplier must be at least 1, was $multiplier" }
+    }
+
+    override val description: String = buildString {
+        append("If ${appliesTo.description}, prevent that damage and ")
+        append(
+            if (miller == Player.You) "you mill" else "each opponent mills"
+        )
+        append(if (multiplier == 2) " twice that many cards" else if (multiplier > 2) " $multiplier times that many cards" else " that many cards")
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
         val newAppliesTo = appliesTo.applyTextReplacement(replacer)
         return if (newAppliesTo !== appliesTo) copy(appliesTo = newAppliesTo) else this
+    }
+
+    companion object {
+        private val SUPPORTED_MILLERS: Set<Player> =
+            setOf(Player.EachOpponent, Player.You)
     }
 }
 
@@ -2643,6 +3415,75 @@ data class RedirectZoneChangeWith(
         return if (newAppliesTo !== appliesTo || newAdditionalEffect !== additionalEffect)
             copy(appliesTo = newAppliesTo, additionalEffect = newAdditionalEffect)
         else this
+    }
+}
+
+/**
+ * "If <permanent> would be destroyed, instead <effect>" — the destruction doesn't happen and
+ * [replacementEffect] runs in its place (CR 614.1a). Crackling Emergence / Harmonious Emergence:
+ * "If enchanted land would be destroyed, instead sacrifice this Aura and that land gains
+ * indestructible until end of turn."
+ *
+ * Applies to every destruction — a destroy effect, a board wipe, or the lethal-damage / deathtouch
+ * state-based actions — but not to a sacrifice or any other way of dying (the Emergence rulings).
+ * [replacementEffect] is the rest of the replacement: it uses no stack and runs before anything
+ * else happens — at the end of the destroying instruction, or inside the same state-based-action
+ * pass. Its source is this permanent ("this Aura"); the permanent that would have been destroyed is
+ * [com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity] ("that land").
+ *
+ * Not [RedirectZoneChangeWith]: that one still moves the permanent somewhere, and matches a zone
+ * change, which a sacrifice also is. Not the umbra armor keyword ([com.wingedsheep.sdk.core.Keyword.UMBRA_ARMOR]):
+ * a keyword's replacement is fixed by the rules (CR 702.89a), this one is whatever the card prints.
+ *
+ * @param replacementEffect what happens instead
+ * @param appliesTo which permanents' destruction this replaces, relative to this permanent
+ */
+@SerialName("ReplaceDestructionWith")
+@Serializable
+data class ReplaceDestructionWith(
+    val replacementEffect: Effect,
+    override val appliesTo: EventPattern.DestroyEvent
+) : ReplacementEffect {
+    override val description: String =
+        "If ${appliesTo.description}, instead ${replacementEffect.description.replaceFirstChar { it.lowercase() }}"
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer) as EventPattern.DestroyEvent
+        val newEffect = replacementEffect.applyTextReplacement(replacer)
+        return if (newAppliesTo !== appliesTo || newEffect !== replacementEffect)
+            copy(appliesTo = newAppliesTo, replacementEffect = newEffect)
+        else this
+    }
+}
+
+/**
+ * "If <permanent> would be destroyed, regenerate it" — static regeneration (CR 701.19b). Each time a
+ * matching permanent would be destroyed, instead remove all damage marked on it, its controller taps
+ * it, and it's removed from combat. Mossbridge Troll, Clergy of the Holy Nimbus.
+ *
+ * Unlike a regeneration shield ([com.wingedsheep.sdk.scripting.effects.RegenerateEffect]) nothing is
+ * spent: it applies to every destruction for as long as the ability exists. It *is* regeneration, so
+ * "can't be regenerated" (a CantBeRegenerated effect, or a Wrath-style "they can't be regenerated")
+ * switches it off, and it reaches every destruction a shield does — destroy effects, board wipes and
+ * the lethal-damage / deathtouch state-based actions.
+ *
+ * Not [ReplaceDestructionWith]: that one's "instead" is whatever the card prints and runs as a rider
+ * after the destroying instruction, which "can't be regenerated" doesn't touch; regeneration is fixed
+ * by the rules and gated by it. Not RegenerateEffect: a shield is one-shot and lasts until end of turn.
+ *
+ * @param appliesTo which permanents regenerate, relative to this permanent (default: itself)
+ */
+@SerialName("RegenerateInsteadOfDestruction")
+@Serializable
+data class RegenerateInsteadOfDestruction(
+    override val appliesTo: EventPattern.DestroyEvent =
+        EventPattern.DestroyEvent(GameObjectFilter.Any.sourceItself())
+) : ReplacementEffect {
+    override val description: String = "If ${appliesTo.description}, regenerate it"
+
+    override fun applyTextReplacement(replacer: TextReplacer): ReplacementEffect {
+        val newAppliesTo = appliesTo.applyTextReplacement(replacer) as EventPattern.DestroyEvent
+        return if (newAppliesTo !== appliesTo) copy(appliesTo = newAppliesTo) else this
     }
 }
 

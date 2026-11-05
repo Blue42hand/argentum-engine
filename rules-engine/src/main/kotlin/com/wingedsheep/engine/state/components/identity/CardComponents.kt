@@ -65,6 +65,11 @@ data class CardComponent(
      */
     val hasCycling: Boolean = false,
     /**
+     * Precomputed from the card definition: does this card have a kicker ability (kicker or
+     * multikicker)? Read by `CardPredicate.HasKicker` (Murasa Sproutling). Printed abilities only.
+     */
+    val hasKicker: Boolean = false,
+    /**
      * The set this card was *originally printed* in (the canonical [CardDefinition.setCode], not the
      * specific printing the player owns). Read by `CardPredicate.OriginallyPrintedInSet` to model
      * "permanent with a name originally printed in [set]" (Golgothian Sylex, ARN City in a Bottle).
@@ -128,6 +133,12 @@ data class CardComponent(
     val copyWardCosts: List<com.wingedsheep.sdk.scripting.effects.WardCost> = emptyList(),
     /** Copiable spending-rule abilities, baked from the active printed statics on entry/unlock. */
     val manaSpendingGrants: List<ManaSpendingGrant> = emptyList(),
+    /**
+     * A copy exception's "its starting loyalty is N" (Jace, Mirror Mage). Copiable, so it rides
+     * along when this component is copied; read in place of the definition's printed loyalty when
+     * the permanent enters (`ZoneMovementUtils.applyIntrinsicEntryCountersIfNeeded`).
+     */
+    val startingLoyaltyOverride: Int? = null,
 ) : Component {
     // Convenience accessors
     val isCreature: Boolean get() = typeLine.isCreature
@@ -256,6 +267,19 @@ data object CantBeCounteredComponent : Component
  */
 @Serializable
 data object CantBeCopiedComponent : Component
+
+/**
+ * Marker: this card was drawn (CR 121.1) during the current turn, pinned to the object it became
+ * in its owner's hand — [generation] is the hand entry's `ObjectIdentity` generation. Backs
+ * `StatePredicate.DrawnThisTurn` (Sylvan Library).
+ *
+ * Stamped by `DrawLoop` on every drawn card. A card that later leaves the hand gets a new
+ * generation on its next zone entry (CR 400.7 — it is a new object), so the stamp stops matching
+ * without any strip on the way out; `TurnManager.startTurn` wipes the stamps at every turn start
+ * so the "this turn" window follows MTG turn boundaries.
+ */
+@Serializable
+data class DrawnThisTurnComponent(val generation: Long) : Component
 
 /**
  * Marker: this card entered a graveyard during the current turn, recording whether it came

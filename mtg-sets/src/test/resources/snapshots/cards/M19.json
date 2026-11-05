@@ -702,6 +702,81 @@
     ]
 }
 
+// Cleansing Nova
+{
+    "name": "Cleansing Nova",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one —\n• Destroy all creatures.\n• Destroy all artifacts and enchantments.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": "creature"
+                                },
+                                "storeAs": "destroyAll_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "destroyAll_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
+                            }
+                        ]
+                    },
+                    "description": "Destroy all creatures"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": "artifact|enchantment"
+                                },
+                                "storeAs": "destroyAll_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "destroyAll_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
+                            }
+                        ]
+                    },
+                    "description": "Destroy all artifacts and enchantments"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "9",
+        "rarity": "RARE",
+        "artist": "Noah Bradley",
+        "flavorText": "In their final moments, the demons gazed upon grace in its purest form.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/b/5be8eed7-c033-42cc-bd21-4512db7af66c.jpg?1783934610"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Colossal Majesty
 {
     "name": "Colossal Majesty",
@@ -3065,6 +3140,91 @@
     ]
 }
 
+// One with the Machine
+{
+    "name": "One with the Machine",
+    "manaCost": "{3}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Draw cards equal to the greatest mana value among artifacts you control.",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": {
+                "type": "AggregateBattlefield",
+                "player": "You",
+                "filter": "artifact",
+                "aggregation": "MAX",
+                "property": "MANA_VALUE"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "rarity": "RARE",
+        "artist": "Chase Stone",
+        "flavorText": "\"When I grafted the Planar Bridge into myself I felt my Planeswalker spark flare beyond my body. The Multiverse was my plaything. It felt . . . incredible.\"\n—Tezzeret",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/7/17f2aaf5-6c1f-4663-865f-6cdd5640485a.jpg?1783934583",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If a permanent has {X} in its mana cost, X is considered to be 0."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Open the Graves
+{
+    "name": "Open the Graves",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a nontoken creature you control dies, create a 2/2 black Zombie creature token.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Open the Graves:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature nontoken ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Zombie"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "112",
+        "rarity": "RARE",
+        "artist": "Vincent Proce",
+        "flavorText": "It was a night like any other. It would soon become a night no one would ever forget.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/c/9ced1022-abd9-4e22-a4f2-fef738295224.jpg?1783934563",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If another creature you control dies at the same time that Open the Graves leaves the battlefield, you'll get a Zombie token."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Poison-Tip Archer
 {
     "name": "Poison-Tip Archer",
@@ -3399,6 +3559,44 @@
                 "text": "You create only one Angel token, no matter how many times you gained 5 or more life."
             }
         ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Revitalize
+{
+    "name": "Revitalize",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "You gain 3 life.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "artist": "Matt Stewart",
+        "flavorText": "\"A potion is no substitute for a skilled surgeon, but it will hold your bits in.\"\n—Torricks, battlefield medic",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/f/dfbdd90c-1ae3-45e5-b1e5-5b8615a1511f.jpg?1783934597"
     },
     "colorIdentityOverride": [
         "WHITE"

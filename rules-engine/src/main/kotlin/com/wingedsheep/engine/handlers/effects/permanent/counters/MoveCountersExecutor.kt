@@ -71,7 +71,7 @@ class MoveCountersExecutor(
         // Adding to the destination honors counter-placement replacement effects (Hardened Scales).
         val placedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
             afterRemoval, destinationId, counterType, moveCount, placerId = context.controllerId,
-            predicateEvaluator = amountEvaluator.predicates
+            predicateEvaluator = amountEvaluator.predicates, byEffect = true
         )
         val destCounters = afterRemoval.getEntity(destinationId)?.get<CountersComponent>() ?: CountersComponent()
         val firstThisTurn = DamageUtils.isFirstCounterThisTurn(afterRemoval, destinationId)
@@ -84,7 +84,7 @@ class MoveCountersExecutor(
         return EffectResult.success(
             newState,
             listOf(
-                CountersRemovedEvent(sourceId, effect.counterType, moveCount, sourceName),
+                CountersRemovedEvent(sourceId, effect.counterType, moveCount, sourceName, removedBy = context.controllerId),
                 CountersAddedEvent(destinationId, effect.counterType, placedCount, destName, firstThisTurn, firstOfTypeThisTurn = firstOfTypeThisTurn, placedBy = context.controllerId)
             )
         )

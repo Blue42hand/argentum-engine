@@ -478,6 +478,10 @@ explore/    the browser UI — a loopback HTTP server over the live grammar and 
 cli/        assay parse | explain | compile | gate | report | differential | explore | corpus
 ```
 
+`syntax/`, `grammar/`, `normalize/` and `compile/` (plus `mtg-sdk` and the card validator) are also
+compiled to Kotlin/Wasm by the standalone browser checker in [`browser/`](browser/README.md). Keep
+them free of JVM-only APIs; the `assay-wasm` CI job fails when one slips in.
+
 ## The three things that make this different
 
 **The grammar runs backwards.** A rule registers `build` (text→model) and `match` (model→text)
@@ -1109,7 +1113,7 @@ control** this turn" (Denethor, Faramir, Sméagol, Barrensteppe Siege). Each pri
 whole condition with a facade of its own, so the band is two `constant` rows beside the life-state
 conditions, and every position that slots `Conditions` read them at once: intervening-ifs, "Activate
 only if", "… instead if", and "This spell costs {3} less to cast if". The subtype-filtered spellings
-("if a Zombie died this turn") build `CreatureWithSubtypeDiedThisTurn` and stay out of this band.
+("if a Zombie died this turn") build `CreatureDiedThisTurnMatching` and stay out of this band.
 
 ### What the differential found
 
@@ -3193,7 +3197,8 @@ token with decayed" is a keyword on the token per CR 702.147, so the grammar rea
 attack-sacrifice trigger only off `CounterType.DECAYED`, so the keyword alone is inert and the card
 writes `initialCounters = {decayed: 1}`. The card's spelling is the one that *works* and the
 grammar's is the one the text states; neither is right to change on its own, so the gap is reported.
-Same shape as the display-only keywords the report's bottom table already ranks.
+Same shape as the display-only keywords the report's bottom table already ranks. *(Closed since: the engine now
+realizes Decayed off the projected keyword, and the card writes `keywords = [DECAYED]`.)*
 
 ## The fronted duration
 
@@ -4053,7 +4058,7 @@ The riders are rows with a genuinely **empty** surface, which is the whole point
 as required template text is precisely the shape that put 19 bare "…to the battlefield." lines in
 [the final period](#the-final-period). The counter rider is the corpus's spelling and not the SDK's
 shorter one — eight cards write `Composite(move, AddCounters(…, Self))` and none writes
-`MoveToZoneEffect.addCounterType`, which holds one counter where the sentence can print several.
+`MoveToZoneEffect.entryCounters` for this sentence.
 
 And a row **declares which riders it takes**. "To your hand" is never printed tapped and never lands
 with counters, so it is offered neither; the library row fixes its own `ZonePlacement.Top` instead.
@@ -5070,9 +5075,9 @@ the corpus's 205 restriction sentences**. What blocks the rest is mostly not thi
 - **contexts with no SDK atom** — "on costs that contain {X}" (4 lines, and Rosheen Meanderer is a
   card people play), "a multicolored spell" (4 cards), "a colorless spell", "spells from your
   graveyard", "your commander";
-- **the chosen type** (5 lines) — a different *effect*, `AddAnyColorManaSpendOnChosenTypeEffect`, which
-  mints its restriction at resolution from the source's `CastChoicesComponent`, so the whole two-sentence
-  span is one rule rather than a restriction slot;
+- **the chosen type** (5 lines) — now a restriction atom, `ManaRestriction.OfChosenType(creatureOnly)`,
+  that the engine binds to the source's chosen type when the mana is made, so it can fill the ordinary
+  restriction slot (and an `AnyOf`) — no grammar rule reads it yet;
 - **`creatureOnly` on a printed subtype** — "cast Dragon creature spells", "an Elf creature spell". The
   field exists on `SubtypeSpellsOrAbilitiesOnly`, but every hand-written user of it is a chosen-type
   card whose printed wording is "a creature spell of the chosen type", so reading a *named* subtype onto
@@ -5633,7 +5638,7 @@ Tail keys "you draw a …" and "opponent draws a …". The grammar read the ordi
 the every-draw one it is the sibling of: `Triggers.<player>.draws()` is `DrawEvent`, the drawer is a
 row for the reason it is one in the ordinal rule, and the payoff is the same source cascade because a
 draw names no object (CR 121.2). Orcish Bowmasters' "except the first one they draw in each of their
-draw steps" is the event's `exceptFirstInDrawStep` flag and its own row, since only the opponent's
+draw steps" is the event's `firstInDrawStep = EXCLUDED` scope and its own row, since only the opponent's
 surface prints it. One row joins the life vocabulary — "that player loses {n} life", the drawer as
 `Player.TriggeringPlayer`, as the hand-written cards spell it.
 
@@ -6049,7 +6054,7 @@ of them was added after the gate was caught claiming a check nobody had performe
 | The text is the **same text** | A golden carries the wording it was authored from; if that is not what Scryfall serves, Assay is reading one card and diffing another. Compared normalized, so inconsistently-included reminder text is not a difference. |
 | The definition uses only **modelled slots** | A keyword the SDK lowers to a triggered ability at authoring time leaves content the grammar cannot produce. Confirming it would claim a check nobody performed. |
 | The lines **fold into one card** | A `CardScript` has one `spellEffect`; a card printing two effect paragraphs means a sequence the grammar has no rule for. Neither keeping the first nor concatenating them is honest, so it is counted. |
-| The card has no **unread abilities** | A keyword the SDK lowers at authoring time puts an ability in the script that no text line prints — prowess, provoke, rampage, training and mobilize become triggers; cycling, equip, morph and level up become activated abilities. A card carrying more of either than Assay read is carrying content nobody printed. One-directional: *Assay* having more would mean the grammar invented an ability, and that must diverge loudly. |
+| The card has no **unread abilities** | A keyword the SDK lowers at authoring time puts an ability in the script that no text line prints — prowess, provoke, training and mobilize become triggers; cycling, equip, morph and level up become activated abilities. A card carrying more of either than Assay read is carrying content nobody printed. One-directional: *Assay* having more would mean the grammar invented an ability, and that must diverge loudly. |
 
 A divergence never fails the build — it is a finding to classify as **parser bug**, **card bug**, or
 **fold**. Only an undecodable golden exits non-zero. The fold list lives in `gate/Differential.kt`

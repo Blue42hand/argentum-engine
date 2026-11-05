@@ -3,6 +3,7 @@ package com.wingedsheep.engine.handlers.continuations
 import com.wingedsheep.engine.handlers.costs.CostAtomAmounts
 import com.wingedsheep.engine.state.LifePaymentPurpose
 
+import com.wingedsheep.engine.mechanics.cost.CostPaymentService
 import com.wingedsheep.engine.mechanics.cost.SharedCreatureTypeTapCost
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.*
@@ -48,6 +49,7 @@ class SacrificeAndPayContinuationResumer(
         resumer(ExileMultiZoneContinuation::class, ::resumeExileMultiZone),
         resumer(PayOrSufferContinuation::class, ::resumePayOrSuffer),
         resumer(PayOrSufferManaSelectionContinuation::class, ::resumePayOrSufferManaSelection),
+        resumer(PayOrSufferMillOrderContinuation::class, ::resumePayOrSufferMillOrder),
         resumer(PayOrSufferChoiceContinuation::class, ::resumePayOrSufferChoice),
         resumer(AnyPlayerMayPayContinuation::class, ::resumeAnyPlayerMayPay),
         resumer(UntapChoiceContinuation::class, ::resumeUntapChoice),
@@ -137,7 +139,8 @@ class SacrificeAndPayContinuationResumer(
     }
 
     /**
-     * Publish [snapshots] of just-sacrificed permanents onto the enclosing [EffectContinuation]s so
+     * Publish [snapshots] of just-sacrificed permanents onto the enclosing [EffectProgram]s
+     * (and reflexive / gated-action frames) so
      * a sibling effect resolving after this paused sacrifice can read
      * `context.sacrificedPermanents` (Rise of the Witch-king's "if you sacrificed a creature this
      * way…" rider). Mirrors `CreatureTypeChoiceContinuationResumer`'s "walk the stack and patch the
@@ -148,15 +151,19 @@ class SacrificeAndPayContinuationResumer(
         snapshots: List<com.wingedsheep.engine.state.components.stack.EntitySnapshot>
     ): GameState {
         if (snapshots.isEmpty()) return state
+        fun com.wingedsheep.engine.handlers.EffectContext.withSnapshots() = copy(
+            sacrificedPermanents = sacrificedPermanents + snapshots.filterNot { it in sacrificedPermanents }
+        )
         return state.copy(continuationStack = state.continuationStack.map { frame ->
-            if (frame is EffectContinuation) {
-                frame.copy(
-                    effectContext = frame.effectContext.copy(
-                        sacrificedPermanents = frame.effectContext.sacrificedPermanents + snapshots
-                    )
-                )
-            } else {
-                frame
+            when (frame) {
+                is EffectProgram -> frame.copy(effectContext = frame.effectContext.withSnapshots())
+                // "When you sacrifice an Aura this way" (Three Dog) reads what a paused sacrifice
+                // chose, as does a Gate.DoAction's payoff — both wait beneath the sacrifice.
+                is com.wingedsheep.engine.core.ReflexiveTriggerTargetContinuation ->
+                    frame.copy(effectContext = frame.effectContext.withSnapshots())
+                is com.wingedsheep.engine.core.GatedActionContinuation ->
+                    frame.copy(effectContext = frame.effectContext.withSnapshots())
+                else -> frame
             }
         })
     }
@@ -495,10 +502,11 @@ class SacrificeAndPayContinuationResumer(
         val counterType = continuation.counterType
             ?: return ExecutionResult.error(state, "Put-counters payment has no counter type")
 
-        // Counters put on to pay a cost are an ordinary counter placement (CR 121.6), so this runs
+        // Counters put on to pay a cost are an ordinary counter placement (CR 122.6), so this runs
         // the same four-step chokepoint as CostHandler's PutCountersOnSelf and AddCountersExecutor:
         // the "can't have counters put on it" gate (Solemnity), the placement replacements
-        // (Hardened Scales, Doubling Season), the first-placement-this-turn marker, and a
+        // (Hardened Scales — a cost isn't an effect, so not Doubling Season's "if an effect would
+        // put", CR 118.12), the first-placement-this-turn marker, and a
         // CountersAddedEvent that names its placer. Skipping any of them is silent — a placer-less
         // event makes every placer-restricted trigger decline, and nothing fails.
         val placerId = continuation.playerId
@@ -510,7 +518,7 @@ class SacrificeAndPayContinuationResumer(
             val counters = container.get<CountersComponent>() ?: CountersComponent()
             val modifiedCount = ReplacementEffectUtils.applyCounterPlacementModifiers(
                 newState, permanentId, counterType, continuation.requiredCounters, placerId = placerId,
-                predicateEvaluator = services.predicateEvaluator
+                predicateEvaluator = services.predicateEvaluator, byEffect = false
             )
             val firstThisTurn = DamageUtils.isFirstCounterThisTurn(newState, permanentId)
             val firstOfTypeThisTurn = DamageUtils.isFirstCounterOfTypeThisTurn(newState, permanentId, counterType)
@@ -582,7 +590,42 @@ class SacrificeAndPayContinuationResumer(
         }
 
         val playerId = continuation.playerId
-        val count = KeywordActionAmountModifier.mill(state, playerId, continuation.requiredCount, predicateEvaluator = services.predicateEvaluator)
+        val outcomes = KeywordActionAmountModifier.millOutcomes(state, playerId, continuation.requiredCount, services.predicateEvaluator)
+        // When the order of the payer's mill replacements changes the count, they pick it (CR 616.1).
+        if (outcomes.size > 1) {
+            val action = KeywordActionAmountModifier.Action.MILL
+            return state.suspendForDecision(
+                question = { decisionId -> ChooseOptionDecision(
+                    id = decisionId,
+                    playerId = playerId,
+                    prompt = KeywordActionAmountModifier.prompt(action),
+                    context = DecisionContext(
+                        sourceId = continuation.sourceId,
+                        sourceName = continuation.sourceName,
+                        phase = DecisionPhase.RESOLUTION
+                    ),
+                    options = KeywordActionAmountModifier.optionLabels(action, outcomes),
+                ) },
+                answer = PayOrSufferMillOrderContinuation(continuation, outcomes.map { it.count }),
+            )
+        }
+        return payOrSufferMill(state, playerId, outcomes.single().count, checkForMore)
+    }
+
+    /** Pays the pay-or-suffer mill with the count the payer picked for their replacements' order. */
+    private fun resumePayOrSufferMillOrder(
+        state: GameState,
+        continuation: PayOrSufferMillOrderContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is OptionChosenResponse || response.optionIndex !in continuation.counts.indices) {
+            return ExecutionResult.error(state, "Expected a mill replacement-order choice")
+        }
+        return payOrSufferMill(state, continuation.inner.playerId, continuation.counts[response.optionIndex], checkForMore)
+    }
+
+    private fun payOrSufferMill(state: GameState, playerId: EntityId, count: Int, checkForMore: CheckForMore): ExecutionResult {
         val milled = state.getZone(ZoneKey(playerId, Zone.LIBRARY)).take(count)
         val result = services.zones.moveToZoneBatch(state, milled, Zone.GRAVEYARD)
         val (millState, milledEvent) = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
@@ -786,6 +829,7 @@ class SacrificeAndPayContinuationResumer(
         // (ability-controller) context, so this keeps both paths consistent. Falls back to the payer
         // for the common case where the payer is the controller.
         val context = EffectContext(
+            programOrigin = continuation.programOrigin ?: com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(com.wingedsheep.sdk.scripting.effects.PayOrSufferEffect::class),
             resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             sourceId = sourceId,
             objectReferences = continuation.objectReferences,
@@ -814,8 +858,8 @@ class SacrificeAndPayContinuationResumer(
     /**
      * Resume after a player decides whether to pay for "any player may [cost]" effects.
      *
-     * Dispatches on the cost type: [PayCost.Sacrifice] expects a card selection, [PayCost.PayLife]
-     * a yes/no. If the current player pays, [AnyPlayerMayPayContinuation.consequence] runs. If they
+     * Dispatches on the cost type: [CostAtom.Sacrifice] and [CostAtom.TapPermanents] expect a card
+     * selection, [CostAtom.PayLife] a yes/no. If the current player pays, [AnyPlayerMayPayContinuation.consequence] runs. If they
      * decline, the next eligible player is asked; once none remain,
      * [AnyPlayerMayPayContinuation.consequenceIfNonePaid] runs.
      */
@@ -827,7 +871,7 @@ class SacrificeAndPayContinuationResumer(
     ): ExecutionResult {
         val playerId = continuation.currentPlayerId
 
-        when ((continuation.cost as? PayCost.Atom)?.atom) {
+        when (val atom = (continuation.cost as? PayCost.Atom)?.atom) {
             is CostAtom.Sacrifice -> {
                 if (response !is CardsSelectedResponse) {
                     return ExecutionResult.error(state, "Expected card selection response for any player may pay")
@@ -850,6 +894,25 @@ class SacrificeAndPayContinuationResumer(
                     events.addAll(transitionResult.events)
                 }
                 return runAnyPlayerMayPayConsequence(newState, continuation, continuation.consequence, events, checkForMore)
+            }
+
+            is CostAtom.TapPermanents -> {
+                if (response !is CardsSelectedResponse) {
+                    return ExecutionResult.error(state, "Expected card selection response for any player may pay")
+                }
+                // Too few picks, or picks that don't share the creature type the cost demands, are
+                // a decline — the same rule every other tap-cost payment path applies.
+                if (response.selectedCards.size < continuation.requiredCount ||
+                    !SharedCreatureTypeTapCost.satisfiedBy(state, atom, response.selectedCards)
+                ) {
+                    return askNextPlayerForAnyPlayerMayPay(state, continuation, checkForMore)
+                }
+                val payment = services.costPaymentService.performPayment(
+                    state, playerId, continuation.cost, continuation.sourceId,
+                    response.selectedCards.associateWith { 1 }
+                )
+                if (!payment.success) return askNextPlayerForAnyPlayerMayPay(state, continuation, checkForMore)
+                return runAnyPlayerMayPayConsequence(payment.state, continuation, continuation.consequence, payment.events, checkForMore)
             }
 
             is CostAtom.PayLife -> {
@@ -887,6 +950,7 @@ class SacrificeAndPayContinuationResumer(
     ): ExecutionResult {
         if (consequence == null) return checkForMore(state, priorEvents)
         val context = EffectContext(
+            programOrigin = continuation.programOrigin ?: com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect::class),
             resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
             sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences.authorize(priorEvents),
@@ -941,12 +1005,17 @@ class SacrificeAndPayContinuationResumer(
         for ((index, nextPlayerId) in continuation.remainingPlayers.withIndex()) {
             val remainingAfter = continuation.remainingPlayers.drop(index + 1)
             when (val atom = (cost as? PayCost.Atom)?.atom) {
-                is CostAtom.Sacrifice -> {
-                    val validPermanents = anyPlayerSacrificeCandidates(
-                        state, nextPlayerId, atom, continuation.sourceId
-                    )
-                    if (validPermanents.size >= atom.count) {
-                        val prompt = AnyPlayerMayPayPrompt.sacrifice(
+                is CostAtom.Sacrifice, is CostAtom.TapPermanents -> {
+                    val validPermanents = if (atom is CostAtom.Sacrifice) {
+                        anyPlayerSacrificeCandidates(state, nextPlayerId, atom, continuation.sourceId)
+                    } else {
+                        CostPaymentService.selectionCandidates(
+                            state, nextPlayerId, cost, continuation.sourceId, services.predicateEvaluator
+                        ).orEmpty()
+                    }
+                    val count = atom.selectionCount
+                    if (validPermanents.size >= count) {
+                        val prompt = AnyPlayerMayPayPrompt.selection(
                             atom, continuation.sourceName,
                             continuation.consequence, continuation.consequenceIfNonePaid
                         )
@@ -963,7 +1032,7 @@ class SacrificeAndPayContinuationResumer(
                             prompt = prompt,
                             options = validPermanents,
                             minSelections = 0,
-                            maxSelections = atom.count,
+                            maxSelections = count,
                             ordered = false,
                             phase = DecisionPhase.RESOLUTION,
                             useTargetingUI = true,
@@ -1094,6 +1163,14 @@ class SacrificeAndPayContinuationResumer(
                 it.without<com.wingedsheep.engine.state.components.battlefield.SummoningSicknessComponent>()
             }
         }
+
+        // CR 712.20 — an "attach it to a player" Aura face the untap step's day/night change
+        // transformed into gets its player before the step ends (TransformAttachToPlayer).
+        com.wingedsheep.engine.handlers.effects.permanent.attachments.TransformAttachToPlayer
+            .settle(newState, services.cardRegistry, services.zones.predicateEvaluator)?.let { settled ->
+                if (settled.outcome !is Outcome.Done) return settled.copy(events = events + settled.events)
+                return checkForMore(settled.state, events + settled.events)
+            }
 
         // The rest of the turn (TurnManager parks it beneath this choice) carries on from here.
         return checkForMore(newState, events)

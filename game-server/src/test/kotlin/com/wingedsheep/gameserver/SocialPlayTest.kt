@@ -59,7 +59,7 @@ class SocialPlayTest : GameServerTestBase() {
     init {
         test("after a game both players can ask for a rematch, which starts at once with the same setup") {
             val (alice, bob) = startQuickGame("Alice Rematch", "Bob Rematch")
-            alice.send(ClientMessage.Concede)
+            alice.send(ClientMessage.Concede())
 
             val offer = eventually(5.seconds) { alice.postGame().shouldNotBeNull() }
             offer.opponentName shouldBe "Bob Rematch"
@@ -79,7 +79,7 @@ class SocialPlayTest : GameServerTestBase() {
 
         test("leaving the result screen takes the rematch off the table for the other player") {
             val (carol, dave) = startQuickGame("Carol Leave", "Dave Leave")
-            dave.send(ClientMessage.Concede)
+            dave.send(ClientMessage.Concede())
             val offer = eventually(5.seconds) { carol.postGame().shouldNotBeNull() }
 
             dave.send(ClientMessage.PostGameLeave(offer.gameId))
@@ -102,7 +102,7 @@ class SocialPlayTest : GameServerTestBase() {
             frank.emotes() shouldHaveSize 1
 
             // Frank blocks Erin after the game; their next game's emotes don't reach him.
-            frank.send(ClientMessage.Concede)
+            frank.send(ClientMessage.Concede())
             val offer = eventually(5.seconds) { frank.postGame().shouldNotBeNull() }
             frank.send(ClientMessage.PostGameBlock(offer.gameId))
             eventually(5.seconds) {
@@ -114,7 +114,7 @@ class SocialPlayTest : GameServerTestBase() {
 
         test("a blocked pair is never matched") {
             val (gina, hal) = startQuickGame("Gina Block", "Hal Block")
-            gina.send(ClientMessage.Concede)
+            gina.send(ClientMessage.Concede())
             val offer = eventually(5.seconds) { gina.postGame().shouldNotBeNull() }
             gina.send(ClientMessage.PostGameBlock(offer.gameId))
             eventually(5.seconds) { gina.postGame()?.blocked shouldBe true }

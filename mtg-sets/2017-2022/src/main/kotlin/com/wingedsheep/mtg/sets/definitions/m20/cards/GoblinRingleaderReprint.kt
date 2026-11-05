@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.m20.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Goblin Ringleader reprint in M20. Canonical CardDefinition lives in Apocalypse (APC). */
 val GoblinRingleaderReprint = Printing(
     oracleId = "4100e486-0d27-436c-8429-76bc2c1a26ab",
     name = "Goblin Ringleader",

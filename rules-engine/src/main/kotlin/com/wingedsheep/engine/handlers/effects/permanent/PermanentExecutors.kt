@@ -68,6 +68,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.phasing.PhaseInLinkedTo
 import com.wingedsheep.engine.handlers.effects.permanent.tapping.TapUntapCollectionExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.room.LockDoorExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.room.UnlockDoorExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.tapping.EnterTappedExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.tapping.TapUntapExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.AddCardTypeExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.AddColorExecutor
@@ -81,6 +82,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.types.BecomeCreatureTyp
 import com.wingedsheep.engine.handlers.effects.permanent.types.BecomePreparedExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.UnprepareExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.BecomeSaddledExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.types.BecomeCrewedExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.BecomeMonstrousExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.BecomeRenownedExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.BecomeSolvedExecutor
@@ -93,6 +95,7 @@ import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeColorExecut
 import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeColorToChosenExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.ChangeGroupColorExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.BecomeCopyOfLinkedExileExecutor
+import com.wingedsheep.engine.handlers.effects.permanent.types.ExchangeTextBoxesExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.EachPermanentBecomesCopyOfTargetExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.SetCreatureSubtypesExecutor
 import com.wingedsheep.engine.handlers.effects.permanent.types.SetGroupCreatureSubtypesExecutor
@@ -149,6 +152,7 @@ class PermanentExecutors(
         AddDynamicCountersExecutor(amountEvaluator = amountEvaluator),
         com.wingedsheep.engine.handlers.effects.permanent.counters.AddCountersUpToExecutor(amountEvaluator = amountEvaluator),
         com.wingedsheep.engine.handlers.effects.permanent.counters.AddCountersOfChosenKindExecutor(predicateEvaluator = zones.predicateEvaluator),
+        com.wingedsheep.engine.handlers.effects.permanent.counters.RemoveCountersOfIteratedKindExecutor(amountEvaluator = amountEvaluator),
         MoveAllLastKnownCountersExecutor(predicateEvaluator = zones.predicateEvaluator),
         AddCountersToCollectionExecutor(amountEvaluator = amountEvaluator),
         DoubleCountersExecutor(predicateEvaluator = zones.predicateEvaluator),
@@ -166,7 +170,7 @@ class PermanentExecutors(
         RemoveAllCountersOfTypeExecutor(),
         DistributeCountersFromSelfExecutor(),
         DistributeCountersAmongTargetsExecutor(amountEvaluator = amountEvaluator),
-        DistributeCountersAmongFilteredExecutor(predicateEvaluator = zones.predicateEvaluator),
+        DistributeCountersAmongFilteredExecutor(amountEvaluator = amountEvaluator),
         ProliferateExecutor(predicateEvaluator = zones.predicateEvaluator),
         com.wingedsheep.engine.handlers.effects.permanent.counters.EmitKeywordCounterEventExecutor(predicateEvaluator = zones.predicateEvaluator),
         // control
@@ -186,6 +190,7 @@ class PermanentExecutors(
         BecomeChosenManaColorExecutor(),
         BecomeCreatureExecutor(amountEvaluator = amountEvaluator),
         BecomeSaddledExecutor(),
+        BecomeCrewedExecutor(),
         BecomeRenownedExecutor(),
         BecomeMonstrousExecutor(),
         BecomeSolvedExecutor(),
@@ -200,6 +205,7 @@ class PermanentExecutors(
         ChangeGroupColorExecutor(predicateEvaluator = zones.predicateEvaluator),
         EachPermanentBecomesCopyOfTargetExecutor(predicateEvaluator = zones.predicateEvaluator, cardRegistry = cardRegistry),
         BecomeCopyOfLinkedExileExecutor(cardRegistry),
+        ExchangeTextBoxesExecutor(cardRegistry),
         LoseAllCreatureTypesExecutor(),
         MassAnimateExecutor(predicateEvaluator = zones.predicateEvaluator),
         SetCreatureSubtypesExecutor(),
@@ -235,7 +241,7 @@ class PermanentExecutors(
         GrantHarmonizeExecutor(),
         GrantKeywordExecutor(),
         GrantStaticAbilityExecutor(),
-        GrantReplacementEffectExecutor(),
+        GrantReplacementEffectExecutor(cardRegistry),
         RemoveKeywordExecutor(),
         CantHaveKeywordsExecutor(),
         GrantToEnchantedCreatureTypeGroupExecutor(),
@@ -253,6 +259,7 @@ class PermanentExecutors(
         EmitConnivedEventExecutor(),
         // tapping
         TapUntapExecutor(),
+        EnterTappedExecutor(predicateEvaluator = zones.predicateEvaluator),
         TapUntapCollectionExecutor(),
         // rooms / doors
         UnlockDoorExecutor(staticAbilityHandler),

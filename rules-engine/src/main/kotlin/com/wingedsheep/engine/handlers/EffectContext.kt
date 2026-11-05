@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers
 
 import com.wingedsheep.engine.state.components.battlefield.chosenOpponent
+import com.wingedsheep.engine.state.components.battlefield.chosenPlayer
 
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils
 import com.wingedsheep.engine.state.GameState
@@ -231,6 +232,15 @@ data class EffectContext(
      * printed characteristics are the right answer.
      */
     val exiledAsCostSnapshots: List<EntitySnapshot> = emptyList(),
+    /**
+     * The players, planeswalkers or battles the attacking creatures returned to hand to pay this
+     * activation's cost were attacking, in payment order — ninjutsu's "enters attacking the same
+     * player, planeswalker, or battle as the creature that was returned" (CR 702.49c), read by a
+     * `MoveToZoneEffect` with `EnteringAttackDefender.RETURNED_ATTACKER`. Captured before the
+     * return, since the creature in hand is a new object with no combat state. Empty when the cost
+     * returned no attacker.
+     */
+    val returnedAttackerDefenders: List<EntityId> = emptyList(),
     /** LKI snapshots for [tappedPermanents] (Rule 113.7a). See [EntitySnapshot]. */
     val tappedEntitySnapshots: List<EntitySnapshot> = emptyList(),
     /**
@@ -274,9 +284,11 @@ data class EffectContext(
     val chosenEntitySnapshots: List<EntitySnapshot> = emptyList(),
     /**
      * LKI snapshots (CR 608.2h) of the permanents an earlier instruction of *this* resolution
-     * moved off the battlefield — a `MoveCollectionEffect` exile, destroy, bounce or sacrifice —
-     * each the same capture its [com.wingedsheep.engine.core.ZoneChangeEvent.lastKnown] carries.
-     * Read by [EffectTarget.IterationEntity] (see
+     * moved off the battlefield — a `MoveCollectionEffect` or single-target `MoveToZoneEffect`
+     * exile, destroy, bounce or sacrifice — each the same capture its
+     * [com.wingedsheep.engine.core.ZoneChangeEvent.lastKnown] carries. Read by
+     * [EffectTarget.IterationEntity] and by a chosen target ([EffectTarget.ContextTarget] /
+     * [EffectTarget.BoundVariable] — "become copies of that creature" after bouncing it) (see
      * [com.wingedsheep.engine.handlers.effects.LkiPolicy.LIVE_THEN_OWN_MOVE_LKI]) so "for each
      * permanent exiled this way, … a card that shares a card type with it" compares against the
      * permanent as it last existed on the battlefield: a token's types, an animated land's
@@ -324,6 +336,13 @@ data class EffectContext(
     /** Color chosen for "add one mana of any color" abilities */
     val manaColorChoice: Color? = null,
     /**
+     * How many mana each unit of an "add X mana in any combination of …" split becomes, set by the
+     * mana-ability resolver when a `MultiplyManaOnSourceTap` (Nyxbloom Ancient) applies. The player
+     * splits the printed X first and each chosen unit is then multiplied, so two {R}/{G} under a
+     * tripler give six of one colour or three of each — never five and one. 1 everywhere else.
+     */
+    val manaUnitMultiplier: Int = 1,
+    /**
      * Color chosen during a [com.wingedsheep.sdk.scripting.effects.ChooseColorThenEffect]
      * resolution. Set by the resumer before dispatching the inner effect; read by atomic
      * "...FromChosenColor" executors.
@@ -335,6 +354,13 @@ data class EffectContext(
      * [chosenColor] is the whole answer; when non-empty it contains [chosenColor].
      */
     val chosenColors: Set<Color> = emptySet(),
+    /**
+     * The kind of counter an enclosing
+     * [com.wingedsheep.sdk.scripting.effects.IterationSpace.CounterKindsAmong] or `CounterKindsOn` loop is visiting.
+     * Read by `AddCountersOfChosenKind(kindFrom = ITERATION)` / `RemoveCountersOfIteratedKind` and by
+     * the `{counter}` placeholder in a body `SelectFromCollection` prompt or `ChooseAction` label. Null outside such a loop.
+     */
+    val chosenCounterType: com.wingedsheep.sdk.core.CounterType? = null,
     /** Creature type chosen during casting (e.g., Aphetto Dredging) */
     val chosenCreatureType: String? = null,
     /**
@@ -395,6 +421,15 @@ data class EffectContext(
     /** Answers belong to this one discard instruction, including explicit declines. */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val discardDestinations: Map<EntityId, com.wingedsheep.sdk.scripting.effects.CardDestination.ToZone?> = emptyMap(),
+    /**
+     * The mill / scry / surveil count each acting player chose for this one top-of-library gather,
+     * when the order of their [com.wingedsheep.sdk.scripting.ModifyKeywordActionAmount] replacements
+     * changed the result (CR 616.1). Filled one player at a time by
+     * [com.wingedsheep.engine.core.KeywordActionOrderContinuation], which re-runs only that gather —
+     * the frames beneath keep their own contexts, so a later mill in the same pipeline asks afresh.
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val keywordActionCounts: Map<EntityId, Int> = emptyMap(),
     /** Top-to-bottom library order chosen before any card in the discard batch moves. */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val discardLibraryOrder: List<EntityId>? = null,
@@ -409,6 +444,16 @@ data class EffectContext(
     val deferGraveyardOrdering: Boolean = false,
     /** This instruction's token event was replaced before materialization. Child instructions reset it. */
     val tokenCreationReplacementsHandled: Boolean = false,
+    /**
+     * Where the effect tree now running came from — the label an
+     * [com.wingedsheep.engine.core.EffectProgram] started under this context records as its
+     * `origin`. A stack resolver sets [com.wingedsheep.engine.core.ProgramOrigin.Resolving] for
+     * the resolving object's own effect; the interpreter hands each leaf it runs a
+     * [com.wingedsheep.engine.core.ProgramOrigin.BuiltBy] naming that leaf, so a program the leaf
+     * starts is labelled with the step that built it. A label only: nothing reads it to resolve.
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val programOrigin: com.wingedsheep.engine.core.ProgramOrigin? = null,
 ) {
     val activatedAbilityId: com.wingedsheep.sdk.scripting.AbilityId?
         get() = activatedAbility?.id
@@ -468,7 +513,11 @@ data class EffectContext(
     }
 
     /** Recheck on every instruction/resume; an unrelated move while paused cannot be followed. */
-    fun withCurrentObjectReferences(state: GameState): EffectContext = copy(
+    fun withCurrentObjectReferences(
+        state: GameState,
+        programOrigin: com.wingedsheep.engine.core.ProgramOrigin? = this.programOrigin,
+    ): EffectContext = copy(
+        programOrigin = programOrigin,
         sourceReferenceLost = if (objectReferences.captured) {
             !objectReferences.isCurrent(objectReferences.source, state)
         } else sourceReferenceLost,
@@ -485,6 +534,11 @@ data class EffectContext(
         pipeline.storedCollections[RESOLUTION_CHOSEN_OPPONENT]?.firstOrNull()
             ?: sourceId?.takeIf { objectReferences.isCurrent(objectReferences.source, state) }
                 ?.let { state.getEntity(it)?.chosenOpponent() }
+
+    /** The player recorded on the source as it entered ([com.wingedsheep.sdk.scripting.ChoiceSlot.PLAYER]). */
+    fun chosenPlayer(state: GameState): EntityId? =
+        sourceId?.takeIf { objectReferences.isCurrent(objectReferences.source, state) }
+            ?.let { state.getEntity(it)?.chosenPlayer() }
 
 
     /**
@@ -613,6 +667,8 @@ data class EffectContext(
             sourceBattlefieldTimestamp = ability.sourceBattlefieldTimestamp,
             objectReferences = ability.objectReferences,
             lastKnownSourceSnapshot = ability.lastKnownSourceSnapshot,
+            // A reflexive ability reads what the ability that fired it sacrificed (CR 603.12).
+            sacrificedPermanents = ability.triggerContext?.sacrificedPermanents.orEmpty(),
             targets = targets,
             triggerContext = ability.triggerContext,
             triggeringEntityId = ability.triggerContext?.triggeringEntityId,
@@ -632,9 +688,9 @@ data class EffectContext(
                 // PermanentsEnteredEvent batch) so a ForEachInCollectionEffect payoff can iterate
                 // them — "for each of them, create a tapped copy of it" (Kambal). The copy executor
                 // reads each entity at resolution, so any that left the battlefield meanwhile no-op.
-                storedCollections = (ability.triggerContext?.capturedEntityIds?.takeIf { it.isNotEmpty() }
-                    ?.let { mapOf(PipelineState.TRIGGER_CAPTURED_COLLECTION to it) }
-                    ?: emptyMap()) + (ability.carriedPipeline?.storedCollections ?: emptyMap()),
+                storedCollections = com.wingedsheep.engine.event.triggerStoredCollections(
+                    ability.triggerContext, ability.carriedPipeline
+                ),
                 // A `ReflexiveTriggerEffect`'s action half (e.g. `Amass`, a discard) may have stashed
                 // subtype groups or scalar values the reflexive effect reads (CR 603.12) — carried
                 // across the stack round-trip since this ability builds a fresh context on resolve.

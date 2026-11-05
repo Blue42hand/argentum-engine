@@ -1,25 +1,56 @@
 package com.wingedsheep.mtg.sets.definitions.war.cards
 
-import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.*
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.*
-import com.wingedsheep.sdk.scripting.effects.*
-import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.filters.unified.*
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.*
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.targets.TargetObject
 
+/**
+ * Kaya's Ghostform — War of the Spark #94 (canonical printing)
+ * {B} · Enchantment — Aura
+ *
+ * Enchant creature or planeswalker you control
+ * When enchanted permanent dies or is put into exile, return that card to the battlefield under
+ * your control.
+ *
+ * "Dies or is put into exile" is two attached-binding triggers, one per destination (the Kaya the
+ * Inexorable split), each returning the card *from that zone*: the `fromZone` guard leaves a card
+ * that has already moved on (or a token, which ceased to exist) where it is, per the rulings. The
+ * attached binding looks back at the Aura's last attachment, so the trigger still fires when the
+ * Aura goes to the graveyard alongside the permanent.
+ */
 val KayasGhostform = card("Kaya's Ghostform") {
     manaCost = "{B}"
     colorIdentity = "B"
     typeLine = "Enchantment — Aura"
-    oracleText = "Enchant creature or planeswalker you control\nWhen enchanted permanent dies or is put into exile, return that card to the battlefield under your control."
+    oracleText = "Enchant creature or planeswalker you control\n" +
+        "When enchanted permanent dies or is put into exile, return that card to the battlefield under your control."
 
-    auraTarget = TargetObject(filter = TargetFilter((GameObjectFilter.Creature or GameObjectFilter.Planeswalker).youControl()))
+    auraTarget = TargetObject(filter = TargetFilter(GameObjectFilter.CreatureOrPlaneswalker.youControl()))
+
+    val returnText = "When enchanted permanent dies or is put into exile, return that card to the " +
+        "battlefield under your control."
+
     triggeredAbility {
-        trigger = Triggers.or(Triggers.attached.dies(), Triggers.attached.leaves(to = Zone.EXILE))
-        effect = Effects.PutOntoBattlefieldUnderYourControl(EffectTarget.TriggeringEntity)
+        trigger = Triggers.attached.dies()
+        effect = Effects.PutOntoBattlefieldFromGraveyard(EffectTarget.TriggeringEntity, underYourControl = true)
+        description = returnText
+    }
+
+    triggeredAbility {
+        trigger = Triggers.attached.leaves(to = Zone.EXILE)
+        effect = Effects.Move(
+            EffectTarget.TriggeringEntity,
+            Zone.BATTLEFIELD,
+            controllerOverride = EffectTarget.Controller,
+            fromZone = Zone.EXILE,
+        )
+        description = returnText
     }
 
     metadata {

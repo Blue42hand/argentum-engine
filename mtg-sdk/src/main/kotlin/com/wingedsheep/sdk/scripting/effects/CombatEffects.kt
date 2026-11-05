@@ -3,6 +3,8 @@ package com.wingedsheep.sdk.scripting.effects
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.MustAttackDefender
+import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
@@ -79,6 +81,18 @@ sealed interface PreventionSourceFilter {
      */
     @SerialName("PreventFromThisSource") @Serializable
     data object ThisSource : PreventionSourceFilter
+
+    /**
+     * Only damage that a spell or ability targeting the recipient would cause a source to deal —
+     * "If a spell or ability that targets that creature would cause a source to deal damage to
+     * that creature this turn, prevent that damage" (Silhouette). The test is on the *cause*, not
+     * the source: the resolving spell or ability must have the recipient among its targets, while
+     * the damage may come from another object (a creature told to deal damage by an ability).
+     * Combat damage and damage from untargeted spells ("each creature") are never covered.
+     * Needs a single recipient, all damage, no amount.
+     */
+    @SerialName("PreventFromTargetingRecipient") @Serializable
+    data object TargetingRecipient : PreventionSourceFilter
 }
 
 /**
@@ -242,6 +256,7 @@ data class PreventDamageEffect(
             is PreventionSourceFilter.Matching ->
                 append(" by ${sourceFilter.filter.description.replaceFirstChar { it.lowercase() }}")
             PreventionSourceFilter.ThisSource -> append(" by this source")
+            PreventionSourceFilter.TargetingRecipient -> append(" by spells or abilities that target it")
         }
         append(" this turn")
         onPrevented?.let { append(". When damage is prevented this way, ${it.description}") }
@@ -270,7 +285,8 @@ data class PreventDamageEffect(
                 val newObjFilter = sourceFilter.eligible.applyTextReplacement(replacer)
                 if (newObjFilter !== sourceFilter.eligible) PreventionSourceFilter.Chosen(newObjFilter) else sourceFilter
             }
-            PreventionSourceFilter.AnySource, PreventionSourceFilter.ThisSource -> sourceFilter
+            PreventionSourceFilter.AnySource, PreventionSourceFilter.ThisSource,
+            PreventionSourceFilter.TargetingRecipient -> sourceFilter
         }
         val newOnPrevented = onPrevented?.applyTextReplacement(replacer)
         val newRecipientGroup = recipientGroup?.applyTextReplacement(replacer)
@@ -438,6 +454,45 @@ data class ForceBlockEffect(
 }
 
 /**
+ * "[filter] attack each combat if able" for [duration] — Kardur, Doomscourge's "until your next
+ * turn, creatures your opponents control attack each combat if able and attack a player other than
+ * you if able" ([MustAttackDefender.PlayerOtherThanYou]).
+ *
+ * The durational, group-wide counterpart of the printed [com.wingedsheep.sdk.scripting.MustAttack]
+ * static. A rule-modifying effect, so — like [CantAttackGroupEffect] — it reaches every creature
+ * matching [filter] when attackers are declared, including ones that arrived after it resolved
+ * (CR 611.2c). [MarkMustAttackEffect] is the per-object sibling: it marks the creatures it names
+ * and never reaches a later one. "You" in the filter and in [defender] is the effect's controller,
+ * fixed when it resolves.
+ *
+ * [MustAttackDefender.EnchantedCreatureController] names a player through an attached source, which
+ * a resolved effect doesn't have, so it isn't accepted here.
+ */
+@SerialName("MustAttackGroup")
+@Serializable
+data class MustAttackGroupEffect(
+    val filter: GroupFilter,
+    val defender: MustAttackDefender = MustAttackDefender.Any,
+    val duration: Duration = Duration.EndOfTurn
+) : Effect {
+    init {
+        require(defender != MustAttackDefender.EnchantedCreatureController) {
+            "MustAttackGroupEffect can't name enchanted creature's controller"
+        }
+    }
+
+    override val description: String = defender.describe(filter.description).let { requirement ->
+        if (duration.description.isEmpty()) requirement
+        else "${duration.description.replaceFirstChar { it.uppercase() }}, ${requirement.replaceFirstChar { it.lowercase() }}"
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
  * All creatures matching a filter can't attack this turn.
  * Used for Meekstone, Silent Arbiter, Propaganda-style effects.
  *
@@ -462,6 +517,42 @@ data class CantAttackGroupEffect(
 }
 
 /**
+ * "Attacking doesn't cause [filter] creatures to tap" for [duration] — Johan's "attacking doesn't
+ * cause creatures you control to tap this combat if Johan is untapped".
+ *
+ * Not vigilance: the affected creatures gain no ability (CR 702.20a makes vigilance a static ability a
+ * "loses all abilities" effect removes, and a "creatures with vigilance" count must not see these).
+ * It is a rule-modifying effect, so — like [CantAttackGroupEffect] — it applies to every creature
+ * matching [filter] when attackers are declared, including ones that arrived after it resolved
+ * (CR 611.2c). It is read at the one place declaring attackers taps them, next to the vigilance check.
+ *
+ * @property filter Which creatures don't tap to attack (e.g. creatures you control)
+ * @property duration How long it lasts — Johan's is [Duration.EndOfCombat]
+ * @property condition When non-null, the effect only applies while it holds, re-asked when
+ *   attackers are declared — Johan's "if Johan is untapped" is `Conditions.SourceMatches(GameObjectFilter.Any.untapped().onBattlefield())`,
+ *   whose source is the permanent that created the effect.
+ */
+@SerialName("AttacksWithoutTappingGroup")
+@Serializable
+data class AttacksWithoutTappingGroupEffect(
+    val filter: GroupFilter,
+    val duration: Duration = Duration.EndOfCombat,
+    val condition: Condition? = null
+) : Effect {
+    override val description: String = buildString {
+        append("attacking doesn't cause ${filter.description} to tap")
+        if (duration.description.isNotEmpty()) append(" ${duration.description}")
+        // Condition descriptions usually carry their own "if" ("if this is untapped").
+        condition?.description?.let { append(if (it.startsWith("if ")) " $it" else " if $it") }
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
  * All creatures matching a filter can't block this turn.
  * Used for Barrage of Boulders: "creatures can't block this turn."
  *
@@ -478,6 +569,44 @@ data class CantBlockGroupEffect(
     val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String = "${filter.description} can't block this turn"
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
+ * All creatures matching a filter block this turn if able — Brutal Hordechief's "creatures your
+ * opponents control block this turn if able".
+ *
+ * The durational, group-wide counterpart of the printed [com.wingedsheep.sdk.scripting.MustBlock]
+ * static (Grand Melee), and the group sibling of [MarkMustBlockThisTurnEffect], which marks one
+ * creature and never reaches a later one. A rule-modifying effect, so — like [CantBlockGroupEffect]
+ * — it binds every creature matching [filter] when blockers are declared, including ones that
+ * arrived after it resolved (Rule 611.2c). "You" in [filter] is the effect's controller, fixed when
+ * it resolves.
+ *
+ * @property filter Which creatures must block (e.g., GroupFilter.AllCreaturesOpponentsControl)
+ * @property duration How long the requirement lasts
+ */
+@SerialName("MustBlockGroup")
+@Serializable
+data class MustBlockGroupEffect(
+    val filter: GroupFilter,
+    val duration: Duration = Duration.EndOfTurn
+) : Effect {
+    // GroupFilter's generic description ("all an opponent controls creatures") reads badly as a
+    // sentence subject, and this text becomes the ability's button label — name the common groups.
+    override val description: String = when (filter) {
+        GroupFilter.AllCreatures -> "creatures"
+        GroupFilter.AllCreaturesYouControl -> "creatures you control"
+        GroupFilter.AllCreaturesOpponentsControl -> "creatures your opponents control"
+        else -> filter.description
+    }.let { group ->
+        if (duration == Duration.EndOfTurn || duration.description.isEmpty()) "${group.replaceFirstChar { it.uppercase() }} block this turn if able"
+        else "${duration.description.replaceFirstChar { it.uppercase() }}, $group block each combat if able"
+    }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
         val newFilter = filter.applyTextReplacement(replacer)
@@ -612,25 +741,65 @@ data class RemoveFromCombatEffect(
 }
 
 /**
- * Mark a creature as "must attack this turn if able."
- * Adds MustAttackThisTurnComponent to the target entity.
+ * Mark a creature as required to attack if able, for the [window] named — "target creature
+ * attacks this turn if able" or "that creature attacks during its controller's next combat phase
+ * if able" (Sizzling Soloist). It marks only the objects it names; a group requirement that must
+ * also reach creatures arriving later ("creatures your opponents control attack … if able",
+ * CR 611.2c) is [MustAttackGroupEffect].
  *
- * Used within ForEachInGroupEffect pipelines to mark groups of creatures.
+ * The requirement is on the creature, not on any effect source: it survives the source leaving
+ * the battlefield. With no [defender] it doesn't care which defender the creature attacks.
+ *
+ * [defender] names the **player** the creature must attack — "a token that's a copy of this card
+ * that attacks that opponent this turn if able" (encore, CR 702.141a). The creature is then bound
+ * only while it could attack that player at no cost (CR 508.1d): attacking that player's
+ * planeswalker or battle, or another player, breaks the requirement; if it can't attack that
+ * player at all (that player has left the game, or a "can't attack you" effect protects them), it
+ * is under no requirement and may attack anyone or not attack. Only [MustAttackWindow.ThisTurn]
+ * takes a defender.
  *
  * @property target The creature to mark (typically EffectTarget.IterationEntity within ForEachInGroup)
+ * @property window How long the requirement binds — see [MustAttackWindow].
+ * @property defender The player it must attack, resolved when the effect resolves; null for any defender.
  */
-@SerialName("MarkMustAttackThisTurn")
+@SerialName("MarkMustAttack")
 @Serializable
-data class MarkMustAttackThisTurnEffect(
-    val target: EffectTarget = EffectTarget.Self
+data class MarkMustAttackEffect(
+    val target: EffectTarget = EffectTarget.Self,
+    val window: MustAttackWindow = MustAttackWindow.ThisTurn,
+    val defender: EffectTarget? = null
 ) : Effect {
-    override val description: String = "${target.description} attacks this turn if able"
+    init {
+        require(defender == null || window == MustAttackWindow.ThisTurn) {
+            "MarkMustAttackEffect names a defender only for MustAttackWindow.ThisTurn"
+        }
+    }
+
+    override val description: String = buildString {
+        append("${target.description} attacks ")
+        if (defender != null) append("${defender.description} ")
+        append("${window.phrase} if able")
+    }
+}
+
+/** When a [MarkMustAttackEffect] requirement binds. */
+@Serializable
+enum class MustAttackWindow(val phrase: String) {
+    /** Every combat of the current turn; gone in the cleanup step. */
+    ThisTurn("this turn"),
+
+    /**
+     * The next combat phase of the creature's controller — the one in progress counts only if
+     * attackers haven't been declared in it yet. The requirement ends with that combat phase
+     * whether or not the creature could attack, and lasts across turns until it comes.
+     */
+    ControllersNextCombat("during its controller's next combat phase")
 }
 
 /**
  * Mark a creature as "blocks this turn if able" (Culvert Ambusher).
  *
- * The blocking mirror of [MarkMustAttackThisTurnEffect], and the *unrestricted* sibling of
+ * The blocking mirror of [MarkMustAttackEffect], and the *unrestricted* sibling of
  * [ForceBlockEffect]: this requires the creature to block **some** attacker, not a named one, and
  * the ability's source need not be attacking (or even be a creature). It is the one-shot,
  * turn-scoped form of the static [com.wingedsheep.sdk.scripting.MustBlock] (Grand Melee) — both
@@ -745,15 +914,29 @@ data object SwapBlockingAssignmentsEffect : Effect {
 }
 
 /**
- * Redirect damage that would be dealt to the protected targets this turn.
+ * Redirect damage that would be dealt to the protected targets (or a filtered class) for a duration.
  * "The next time damage would be dealt to [protected targets] this turn,
- *  that damage is dealt to [redirectTo] instead."
- * Used for Glarecaster and similar redirection effects.
+ *  that damage is dealt to [redirectTo] instead" (Glarecaster); "until your next turn, all damage that
+ *  would be dealt to creatures you control is dealt to that creature instead" (Ascent of the Worthy).
  *
  * @property protectedTargets The entities protected by this redirection shield (e.g., Self + Controller)
  * @property redirectTo The target that will receive the redirected damage (chosen at activation)
  * @property amount If set, only redirect up to this many damage (e.g., "the next 1 damage"). Null = redirect all.
  * @property scope When the shield is used up (only meaningful when [amount] is null). See [RedirectScope].
+ * @property protectedFilter Protect every permanent matching this filter instead of a fixed
+ *   [protectedTargets] list — Blood of the Martyr's "any creature" ([GameObjectFilter.Creature]),
+ *   Ascent of the Worthy's "creatures you control" (`Creature.youControl()`, "you" being the
+ *   shield's controller). Matched against projected state at damage time, so permanents that
+ *   arrive later are covered, a player never is, and damage already headed for [redirectTo]
+ *   stays there. Null = protect [protectedTargets].
+ * @property duration How long the shield lasts — "this turn" ([Duration.EndOfTurn], the default)
+ *   or "until your next turn" ([Duration.UntilYourNextTurn], Ascent of the Worthy).
+ * @property fromSource Redirect only damage dealt by this one object — "all damage that would be
+ *   dealt to you this turn by target attacking creature" (Shimian Night Stalker). Resolved to that
+ *   *object* at resolution (CR 400.7: the same card returning later is a different source). With
+ *   [fromSource] set, an empty [protectedTargets] means **any recipient** — "all damage that would
+ *   be dealt this turn by target sorcery spell is dealt to that spell's controller instead"
+ *   (Reverberation). Null = damage from every source.
  */
 @SerialName("RedirectNextDamage")
 @Serializable
@@ -762,12 +945,7 @@ data class RedirectNextDamageEffect(
     val redirectTo: EffectTarget,
     val amount: Int? = null,
     val scope: RedirectScope = RedirectScope.NEXT_INSTANCE,
-    /**
-     * Protect **every creature** instead of a fixed [protectedTargets] list — Blood of the Martyr's
-     * "if damage would be dealt to any creature". Evaluated against projected state at damage time,
-     * so creatures that arrive later are covered and players never are.
-     */
-    val creaturesOnly: Boolean = false,
+    val protectedFilter: GameObjectFilter? = null,
     /**
      * Make the redirection a **"you may"** (Blood of the Martyr) instead of a mandatory replacement.
      * The shield's controller is asked once per damage instance the shield could catch, before any
@@ -778,17 +956,22 @@ data class RedirectNextDamageEffect(
      * **declined** rather than redirecting silently; see
      * `com.wingedsheep.engine.handlers.effects.damage.OptionalDamageRedirect`.
      */
-    val optional: Boolean = false
+    val optional: Boolean = false,
+    val fromSource: EffectTarget? = null,
+    val duration: Duration = Duration.EndOfTurn
 ) : Effect {
     override val description: String = buildString {
         append(if (scope == RedirectScope.CONTINUOUS) "All " else "The next ")
         if (amount != null) append("$amount ")
-        val recipients = if (creaturesOnly) {
-            "any creature"
-        } else {
-            protectedTargets.joinToString(" and/or ") { it.description }
+        val recipients = when {
+            protectedFilter != null -> protectedFilter.pluralPermanentDescription
+            protectedTargets.isEmpty() -> null
+            else -> protectedTargets.joinToString(" and/or ") { it.description }
         }
-        append("damage that would be dealt to $recipients this turn")
+        append("damage that would be dealt")
+        if (recipients != null) append(" to $recipients")
+        append(if (duration == Duration.EndOfTurn) " this turn" else " ${duration.description}")
+        if (fromSource != null) append(" by ${fromSource.description}")
         if (optional) {
             append(" may be dealt to ${redirectTo.description} instead")
         } else {

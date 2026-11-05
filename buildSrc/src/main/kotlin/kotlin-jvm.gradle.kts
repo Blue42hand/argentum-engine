@@ -64,6 +64,8 @@ tasks.withType<Test>().configureEach {
         "arenaGames", "arenaSeed", "arenaSet", "arenaMaxTurns", "arenaThreads", "arenaGameTimeoutSec",
         "arenaReport",
         "gameLog", "gameLogGames", "gameLogSeed", "gameLogAgent", "gameLogSeats", "gameLogAttackMode", "gameLogDir",
+        // game-server's ReplayLogExport (`just ai-replay-logs`): server replays → AI-review logs.
+        "replayLog", "replayLogDir",
     )) {
         System.getProperty(prop)?.let { systemProperty(prop, it) }
     }

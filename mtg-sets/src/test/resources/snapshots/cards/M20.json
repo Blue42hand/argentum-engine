@@ -262,6 +262,56 @@
     ]
 }
 
+// Audacious Thief
+{
+    "name": "Audacious Thief",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "Whenever this creature attacks, you draw a card and you lose 1 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Audacious Thief:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever this creature attacks, you draw a card and you lose 1 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "84",
+        "artist": "Dmitry Burmak",
+        "flavorText": "\"Skill, imagination, smarts: none of it matters unless you have the nerve to use it.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/1/e1ff5e66-4718-43c3-8a58-1a0a8e788f83.jpg?1783933000"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Bag of Holding
 {
     "name": "Bag of Holding",
@@ -417,6 +467,83 @@
         ]
     },
     "colorIdentityOverride": []
+}
+
+// Bishop of Wings
+{
+    "name": "Bishop of Wings",
+    "manaCost": "{W}{W}",
+    "typeLine": "Creature — Human Cleric",
+    "oracleText": "Whenever an Angel you control enters, you gain 4 life.\nWhenever an Angel you control dies, create a 1/1 white Spirit creature token with flying.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Bishop of Wings:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Angel ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                }
+            },
+            {
+                "id": "Bishop of Wings:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Angel ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Spirit"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/9/79b17be6-2ee7-4f3b-88df-f298bb058f46.jpg?1783932857"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "rarity": "RARE",
+        "artist": "Matt Stewart",
+        "flavorText": "\"Within every angel is a spirit of light that will fight as long as there is darkness.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/ca42da05-330d-4050-a580-dc00f6faff24.jpg?1783933032",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "If Bishop of Wings dies at the same time as one or more Angels you control, its last ability triggers for each of those Angels."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If an effect (such as that of Arcane Adaptation) causes Bishop of Wings to be an Angel, its first ability triggers as it enters the battlefield and its last ability triggers as it dies."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
 }
 
 // Bloodthirsty Aerialist
@@ -1831,6 +1958,374 @@
     ]
 }
 
+// Kaalia, Zenith Seeker
+{
+    "name": "Kaalia, Zenith Seeker",
+    "manaCost": "{R}{W}{B}",
+    "typeLine": "Legendary Creature — Human Cleric",
+    "oracleText": "Flying, vigilance\nWhen Kaalia enters, look at the top six cards of your library. You may reveal an Angel card, a Demon card, and/or a Dragon card from among them and put them into your hand. Put the rest on the bottom of your library in a random order.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING",
+        "VIGILANCE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kaalia, Zenith Seeker:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 6
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "Angel",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
+                            "prompt": "You may reveal an Angel card to put into your hand",
+                            "selectedLabel": "Put in hand",
+                            "remainderLabel": "Leave",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "remainder1",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "Demon",
+                            "storeSelected": "selected2",
+                            "storeRemainder": "remainder2",
+                            "prompt": "You may reveal a Demon card to put into your hand",
+                            "selectedLabel": "Put in hand",
+                            "remainderLabel": "Leave",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "remainder2",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "Dragon",
+                            "storeSelected": "selected3",
+                            "storeRemainder": "remainder3",
+                            "prompt": "You may reveal a Dragon card to put into your hand",
+                            "selectedLabel": "Put in hand",
+                            "remainderLabel": "Put on bottom",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected2",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected3",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "remainder3",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        }
+                    ]
+                },
+                "descriptionOverride": "When Kaalia enters, look at the top six cards of your library. You may reveal an Angel card, a Demon card, and/or a Dragon card from among them and put them into your hand. Put the rest on the bottom of your library in a random order."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "210",
+        "rarity": "MYTHIC",
+        "artist": "Yongjae Choi",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/f/1f400655-f495-4b21-ab9e-57fe4d845d45.jpg?1783932951",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "You can put up to three cards into your hand this way: one Angel card, one Demon card, and/or one Dragon card. If a card has more than one of these types, you choose which type it counts as."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE",
+        "BLACK"
+    ]
+}
+
+// Kethis, the Hidden Hand
+{
+    "name": "Kethis, the Hidden Hand",
+    "manaCost": "{W}{B}{G}",
+    "typeLine": "Legendary Creature — Elf Advisor",
+    "oracleText": "Legendary spells you cast cost {1} less to cast.\nExile two legendary cards from your graveyard: Until end of turn, each legendary card in your graveyard gains \"You may play this card from your graveyard.\"",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Kethis, the Hidden Hand:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomExileFrom",
+                        "zone": "Graveyard",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsLegendary"
+                            ]
+                        },
+                        "count": 2
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Graveyard",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsLegendary"
+                                    ]
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "gathered0"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Until end of turn, each legendary card in your graveyard gains \"You may play this card from your graveyard.\""
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsLegendary"
+                        ]
+                    }
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "211",
+        "rarity": "MYTHIC",
+        "artist": "Yongjae Choi",
+        "flavorText": "\"The pen is mightier than the crown.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/e/fe28de73-76f3-4a9e-a020-dbe5921b9be5.jpg?1783932951",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "Kethis's last ability affects only legendary cards that are in your graveyard at the time it resolves. Legendary cards put into your graveyard later in the turn won't gain the ability. If you play a legendary card and it returns to your graveyard, it won't have the ability anymore."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "Kethis's last ability doesn't change when you can play the legendary cards. For example, if you have a legendary creature card in your graveyard, you can cast it only during your main phase when the stack is empty. If you have a legendary land card in your graveyard, you can play it only during your main phase and only if you have an available land play remaining."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "You'll still pay all costs for a legendary spell you cast this way, including additional costs. You may also pay alternative costs."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK",
+        "GREEN"
+    ]
+}
+
+// Knight of the Ebon Legion
+{
+    "name": "Knight of the Ebon Legion",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Vampire Knight",
+    "oracleText": "{2}{B}: This creature gets +3/+3 and gains deathtouch until end of turn.\nAt the beginning of your end step, if a player lost 4 or more life this turn, put a +1/+1 counter on this creature. (Damage causes loss of life.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Knight of the Ebon Legion:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "CountPlayersWith",
+                        "scope": "Each",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "TurnTracking",
+                                "player": "You",
+                                "tracker": "LIFE_LOST_AMOUNT"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 4
+                            }
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "At the beginning of your end step, if a player lost 4 or more life this turn, put a +1/+1 counter on this creature."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Knight of the Ebon Legion:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{B}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 3
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 3
+                            },
+                            "target": "Self"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "DEATHTOUCH",
+                            "target": "Self"
+                        }
+                    ]
+                },
+                "descriptionOverride": "This creature gets +3/+3 and gains deathtouch until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "105",
+        "rarity": "RARE",
+        "artist": "Alex Konstad",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29425426-7bf2-4872-aa35-c12c22801edd.jpg?1783932992",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "Knight of the Ebon Legion looks at your entire turn to determine whether a player lost 4 or more life. It doesn't matter how many players lost 4 or more life, only whether anyone did. It also doesn't matter whether Knight of the Ebon Legion was on the battlefield when they lost life."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "It doesn't matter whether a player has 4 or less life than they started the turn with. If a player lost 4 life but also gained 6 life, that player still lost 4 life."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "A player doesn't need to have lost 4 life all at once. If a player loses 2 life twice during a turn, that player lost 4 life during that turn, and Knight of the Ebon Legion receives a +1/+1 counter."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "A player loses life if they pay life."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Kykar, Wind's Fury
 {
     "name": "Kykar, Wind's Fury",
@@ -1968,6 +2463,95 @@
     ]
 }
 
+// Mystic Forge
+{
+    "name": "Mystic Forge",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "You may look at the top card of your library any time.\nYou may cast artifact spells and colorless spells from the top of your library.\n{T}, Pay 1 life: Exile the top card of your library.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Mystic Forge:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "staticAbilities": [
+            "LookAtTopOfLibrary",
+            {
+                "type": "CastSpellTypesFromTopOfLibrary",
+                "filter": {
+                    "cardPredicates": [
+                        {
+                            "type": "Or",
+                            "predicates": [
+                                "IsArtifact",
+                                "IsColorless"
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "233",
+        "rarity": "RARE",
+        "artist": "Titus Lunter",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/2/924a24e7-91b8-4ceb-a136-7a765d98c994.jpg?1783932941",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "Because you never \"cast\" a land card, Mystic Forge doesn't allow you to play an artifact land from the top of your library."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "You still pay all costs for a spell you cast from your library, including additional costs. You may also pay alternative costs."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Nightpack Ambusher
 {
     "name": "Nightpack Ambusher",
@@ -2087,6 +2671,127 @@
     ]
 }
 
+// Omnath, Locus of the Roil
+{
+    "name": "Omnath, Locus of the Roil",
+    "manaCost": "{1}{G}{U}{R}",
+    "typeLine": "Legendary Creature — Elemental",
+    "oracleText": "When Omnath enters, it deals damage to any target equal to the number of Elementals you control.\nLandfall — Whenever a land you control enters, put a +1/+1 counter on target Elemental you control. If you control eight or more lands, draw a card.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Omnath, Locus of the Roil:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "permanent Elemental"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            },
+            {
+                "id": "Omnath, Locus of the Roil:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "AggregateBattlefield",
+                                        "player": "You",
+                                        "filter": "land"
+                                    },
+                                    "operator": "GTE",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 8
+                                    }
+                                }
+                            },
+                            "then": {
+                                "type": "DrawCards",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "permanent Elemental ctrl:you"
+                    },
+                    "id": "t1"
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, put a +1/+1 counter on target Elemental you control. If you control eight or more lands, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "216",
+        "rarity": "MYTHIC",
+        "artist": "Lius Lasahido",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/b/cb53a29d-2de2-4874-a6f3-0fecbfa14cf2.jpg?1783932948",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "You may choose Omnath as the target of its own second ability."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "The number of Elementals you control is counted as Omnath's first ability resolves. If Omnath is still on the battlefield, it will count itself."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If the target Elemental is an illegal target by the time Omnath's second ability tries to resolve, the ability doesn't resolve. You don't draw a card if you control eight or more lands. If the target is legal but can't have a +1/+1 counter put on it (most likely because an opponent controls Blightbeetle), you do draw a card if you control eight or more lands."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Pyroclastic Elemental
 {
     "name": "Pyroclastic Elemental",
@@ -2179,6 +2884,111 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Risen Reef
+{
+    "name": "Risen Reef",
+    "manaCost": "{1}{G}{U}",
+    "typeLine": "Creature — Elemental",
+    "oracleText": "Whenever this creature or another Elemental you control enters, look at the top card of your library. If it's a land card, you may put it onto the battlefield tapped. If you don't put the card onto the battlefield, put it into your hand.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Risen Reef:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Elemental ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "gathered0",
+                            "filter": "land",
+                            "storeMatching": "matching1",
+                            "storeNonMatching": "rest1"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "matching1",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected2",
+                            "storeRemainder": "remainder2",
+                            "selectedLabel": "Put onto the battlefield tapped",
+                            "remainderLabel": "Put into your hand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected2",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "remainder2",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "rest1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "217",
+        "rarity": "UNCOMMON",
+        "artist": "Johan Grenier",
+        "flavorText": "\"No, not 'washed' ashore. It walked ashore.\"\n—Shafring Hulm, beachcomber",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/82389aaa-9f32-4169-a71c-1aea5af9e935.jpg?1783932948",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "If you put the card into your hand, you don't have to reveal it. You also don't have to tell your opponent whether it's a nonland card or a land card you decided not to put onto the battlefield tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE"
     ]
 }
 
@@ -2326,6 +3136,65 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Skyknight Vanguard
+{
+    "name": "Skyknight Vanguard",
+    "manaCost": "{R}{W}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "Flying\nWhenever this creature attacks, create a 1/1 white Soldier creature token that's tapped and attacking.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Skyknight Vanguard:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Soldier"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/4/a491d9da-a58d-4423-b565-c5a99ef63132.jpg?1783932857",
+                    "tapped": true,
+                    "attacking": true,
+                    "attackDefender": "CONTROLLER_CHOOSES"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "218",
+        "rarity": "UNCOMMON",
+        "artist": "Bayard Wu",
+        "flavorText": "\"Jump! NOW!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/4/549634d8-1c33-401b-841d-a79ef4374dd1.jpg?1783932947",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "You choose which player or planeswalker the token is attacking. It doesn't have to be attacking the same player or planeswalker that Skyknight Vanguard is attacking."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "Although the token is an attacking creature, it was never declared as an attacking creature. This means that abilities that trigger whenever a creature attacks won't trigger when the token enters the battlefield attacking."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
     ]
 }
 
@@ -2726,6 +3595,236 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Vampire of the Dire Moon
+{
+    "name": "Vampire of the Dire Moon",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Vampire",
+    "oracleText": "Deathtouch (Any amount of damage this deals to a creature is enough to destroy it.)\nLifelink (Damage dealt by this creature also causes you to gain that much life.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "DEATHTOUCH",
+        "LIFELINK"
+    ],
+    "metadata": {
+        "collectorNumber": "120",
+        "rarity": "UNCOMMON",
+        "artist": "Anna Podedworna",
+        "flavorText": "\"This place suits me: craven authorities and plentiful prey.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/3/b3c185b9-5d97-4a5a-af0b-8b9c44dcd235.jpg?1783932986"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Veil of Summer
+{
+    "name": "Veil of Summer",
+    "manaCost": "{G}",
+    "typeLine": "Instant",
+    "oracleText": "Draw a card if an opponent has cast a blue or black spell this turn. Spells you control can't be countered this turn. You and permanents you control gain hexproof from blue and from black until end of turn. (You and they can't be the targets of blue or black spells or abilities your opponents control.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "SpellsCastThisTurn",
+                                "player": "EachOpponent",
+                                "filter": "blue|black"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                {
+                    "type": "GrantSpellsCantBeCountered",
+                    "spellFilter": {}
+                },
+                {
+                    "type": "GrantEvasionKeyword",
+                    "keyword": "HEXPROOF",
+                    "from": {
+                        "type": "ProtectionScope.Colors",
+                        "colors": [
+                            "BLUE",
+                            "BLACK"
+                        ]
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "permanent ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "GrantEvasionKeyword",
+                        "keyword": "HEXPROOF",
+                        "target": "IterationEntity",
+                        "from": {
+                            "type": "ProtectionScope.Colors",
+                            "colors": [
+                                "BLUE",
+                                "BLACK"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "198",
+        "rarity": "UNCOMMON",
+        "artist": "Lake Hurwitz",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/a/aa686c34-1c11-469f-93c2-f9891aea521f.jpg?1783932955",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "If your opponents have cast more than one blue or black spell, you still draw only one card as Veil of Summer resolves."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "Veil of Summer has no effect until it resolves. It can be countered."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "A spell or ability that counters spells can still target your spells after Veil of Summer resolves. When that spell or ability resolves, your spell won't be countered, but any additional effects of the countering spell or ability will still happen."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Vilis, Broker of Blood
+{
+    "name": "Vilis, Broker of Blood",
+    "manaCost": "{5}{B}{B}{B}",
+    "typeLine": "Legendary Creature — Demon",
+    "oracleText": "Flying\n{B}, Pay 2 life: Target creature gets -1/-1 until end of turn.\nWhenever you lose life, draw that many cards. (Damage causes loss of life.)",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 8
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Vilis, Broker of Blood:2",
+                "trigger": "LifeLossEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "ContextProperty",
+                        "key": "TRIGGER_LIFE_LOST"
+                    }
+                },
+                "descriptionOverride": "Whenever you lose life, draw that many cards."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Vilis, Broker of Blood:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": -1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": -1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{B}, Pay 2 life: Target creature gets -1/-1 until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "RARE",
+        "artist": "Tyler Jacobson",
+        "flavorText": "\"You can sign, or you can spend your life imagining what might have been yours.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/c/ecdf2bd9-87b9-470a-ad2e-0ebf98560f87.jpg?1783932985",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "A player loses life if they pay life."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "If you pay life to cast a spell or activate an ability, you don't draw cards until after you've finished casting that spell or activating that ability. You draw those cards before that spell or ability resolves, but after targets are chosen for it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 

@@ -1,6 +1,7 @@
 package com.wingedsheep.gym.contract
 
 import com.wingedsheep.engine.core.DecisionResponseSpec
+import com.wingedsheep.engine.core.SearchCardInfo
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Phase
 import com.wingedsheep.sdk.core.Step
@@ -28,6 +29,8 @@ val TRAINING_OBSERVATION_ZONE_ORDER: List<Zone> = listOf(
     Zone.BATTLEFIELD,
     Zone.COMMAND,
     Zone.SIDEBOARD,
+    // Appended, not inserted: the order is model-facing. Empty unless the game is played for ante.
+    Zone.ANTE,
 )
 
 /**
@@ -353,7 +356,21 @@ data class LegalActionView(
      */
     val mandatoryBlockerAssignments: Map<EntityId, List<EntityId>> = emptyMap(),
     /** True when this entry was generated from [PendingDecisionView], not a GameAction. */
-    val isDecisionOption: Boolean = false
+    val isDecisionOption: Boolean = false,
+    /**
+     * One entry per target requirement, populated only for actions with more than one ("target
+     * creature you control … target creature an opponent controls"); a single-requirement action
+     * leaves it empty and describes its one requirement through [targetEntityIds], [minTargets] and
+     * [maxTargets]. A multi-requirement choice goes in `ActionParams.targetGroups`, one list per
+     * entry in this order.
+     */
+    val targetRequirements: List<TargetRequirementView> = emptyList(),
+    /**
+     * Choices the cost needs before the action can be taken — what to sacrifice, tap, discard, exile
+     * or bounce, or which creatures crew or saddle. Each entry names the `ActionParams` field that
+     * carries it.
+     */
+    val costChoiceOptions: List<CostChoiceView> = emptyList()
 )
 
 @Serializable
@@ -388,8 +405,9 @@ data class NativeCostChoiceView(
  * For complex decisions (multi-target ChooseTargets, DistributeDecision,
  * OrderObjectsDecision, SplitPilesDecision, ReorderLibraryDecision) the folded
  * action-ID space is not expressive enough; [legalActions] will be empty and
- * the trainer must submit a structured `DecisionResponse` (exposed via a
- * separate endpoint in Phase 3).
+ * the trainer must submit a structured `DecisionResponse` via `POST /envs/{id}/decision`.
+ * The deciding seat gets the legal choices in [PendingDecisionView.targetRequirements],
+ * [PendingDecisionView.candidateIds] and [PendingDecisionView.modes].
  */
 @Serializable
 data class PendingDecisionView(
@@ -410,7 +428,61 @@ data class PendingDecisionView(
     /** Native payment feasibility; null for decisions without an AutoPay check. */
     val canAutoPayNow: Boolean? = null,
     /** Extra hints about the decision shape (min/max selections, numeric range, etc.). */
-    val shape: DecisionShape = DecisionShape()
+    val shape: DecisionShape = DecisionShape(),
+    /**
+     * The entities a structured response may name: selectable cards, library-search hits,
+     * distribute/damage recipients, objects to order or split. Empty for decisions without
+     * an entity choice, and for any seat other than the decider (see [withoutChoices]).
+     */
+    val candidateIds: List<EntityId> = emptyList(),
+    /**
+     * Identity of candidates the perspective could not otherwise see — library cards during a
+     * search or reorder, for example. Keyed by entity id; absent ids are visible in [TrainingObservation.zones].
+     */
+    val candidateInfo: Map<EntityId, SearchCardInfo> = emptyMap(),
+    /** Per-requirement legal targets for `CHOOSE_TARGETS`; the key of `TargetsResponse.selectedTargets` is [TargetRequirementView.index]. */
+    val targetRequirements: List<TargetRequirementView> = emptyList(),
+    /** Every mode of a multi-mode `CHOOSE_MODE`, including unavailable ones. */
+    val modes: List<DecisionModeView> = emptyList()
+) {
+    /** The same summary with every per-option field removed, for seats that must not see the choices. */
+    fun withoutChoices(): PendingDecisionView =
+        copy(candidateIds = emptyList(), candidateInfo = emptyMap(), targetRequirements = emptyList(), modes = emptyList())
+}
+
+/** One target requirement of a pending `CHOOSE_TARGETS` decision. */
+@Serializable
+data class TargetRequirementView(
+    val index: Int,
+    val description: String,
+    val minTargets: Int,
+    val maxTargets: Int,
+    val legalTargets: List<EntityId>
+)
+
+/**
+ * One choice an action's cost needs. Send the chosen ids as the `ActionParams` field named by [param]
+ * (`sacrifice`, `tap`, `discard`, `exile`, `bounce`, `variablePermanents`, `crew` or `saddle`), between
+ * [min] and [max] of them. When [contribution] is non-empty (crew, saddle, Teamwork, collect evidence)
+ * it gives what each candidate counts for, and the chosen ones must add up to at least [minTotal].
+ */
+@Serializable
+data class CostChoiceView(
+    val param: String,
+    val description: String,
+    val candidates: List<EntityId>,
+    val min: Int,
+    val max: Int,
+    val contribution: Map<EntityId, Int> = emptyMap(),
+    val minTotal: Int = 0
+)
+
+/** One mode of a pending multi-mode `CHOOSE_MODE` decision. */
+@Serializable
+data class DecisionModeView(
+    val index: Int,
+    val text: String,
+    val available: Boolean
 )
 
 @Serializable
@@ -432,7 +504,9 @@ enum class PendingDecisionKind {
     ASSIGN_DAMAGE,
     COMBAT_RESOLUTION,
     SELECT_MANA_SOURCES,
-    BUDGET_MODAL
+    BUDGET_MODAL,
+    FLIP_ONTO_BATTLEFIELD,
+    ORDER_TRIGGERS
 }
 
 @Serializable

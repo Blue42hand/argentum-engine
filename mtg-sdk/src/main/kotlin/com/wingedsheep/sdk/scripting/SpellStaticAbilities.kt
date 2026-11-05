@@ -528,10 +528,10 @@ data class GrantEmergeToOwnSpells(
  * Models oracle text like "Each instant and sorcery card in your hand has miracle {2}."
  * (Lorehold, the Historian).
  *
- * Read by the draw flow the same way printed [KeywordAbility.Miracle] is read: when a matching card
- * is the first card its owner draws in a turn, the engine opens a one-turn miracle window on it and
- * the cast-from-hand enumerator surfaces a "Cast (Miracle)" alternative cost at [cost]. Hand-only by
- * design (CR 702.94a — the miracle ability functions only while the card is in hand).
+ * Read the same way printed [KeywordAbility.Miracle] is read: when a matching card is the first
+ * card its owner draws in a turn, they may reveal it, and the miracle trigger ([Miracle]) lets them
+ * cast it for [cost] as it resolves. Hand-only by design (CR 702.94a — the miracle ability
+ * functions only while the card is in hand).
  *
  * @property filter Which cards in the controller's hand gain miracle (e.g. instant or sorcery).
  * @property cost The miracle mana cost the granted ability uses.
@@ -544,6 +544,33 @@ data class GrantMiracleToCardsInHand(
 ) : StaticAbility {
     override val description: String =
         "${filter.description.replaceFirstChar { it.uppercase() }} in your hand have miracle $cost"
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
+ * Grants cycling (CR 702.29) to cards in the granter's controller's hand that match [filter].
+ * Models oracle text like "Each creature card in your hand has cycling {1}{U}." (Rhet-Tomb Mystic).
+ *
+ * Read wherever printed plain [KeywordAbility.Cycling] is read — the cycling enumerator and
+ * `CycleCardHandler` both go through `CyclingGrants`, so a granted cycling is paid, discarded,
+ * counted and triggers exactly like a printed one. A card that already has cycling keeps it and
+ * gains this one beside it — two separate activated abilities — so the player picks
+ * which cost to pay. Hand-only by construction: cycling functions only from hand (CR 702.29a).
+ *
+ * @property filter Which cards in the controller's hand gain cycling (e.g. creature cards).
+ * @property cost The cycling cost the granted ability uses.
+ */
+@SerialName("GrantCyclingToCardsInHand")
+@Serializable
+data class GrantCyclingToCardsInHand(
+    val filter: GameObjectFilter,
+    val cost: ManaCost
+) : StaticAbility {
+    override val description: String =
+        "Each ${filter.description} in your hand has cycling $cost"
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
@@ -645,18 +672,26 @@ data class GraveyardCardsHaveDredge(
  * no unlimited grant could have authorized the same cast. Pair with [duringYourTurnOnly] for
  * "once during each of your turns".
  *
- * [exileInsteadOfGraveyard] is the third member of the cast-this-way rider family, but it applies to
- * the *instant and sorcery* half rather than the permanent half: an instant or sorcery cast from the
- * graveyard under this grant is exiled instead of being put into its owner's graveyard (Bilbo, Thief
- * in the Night — "If an instant or sorcery spell cast this way would be put into your graveyard,
- * exile it instead"). Unlike the "exile it as it resolves" triggers (Lilah, Goliath Daydreamer), this
- * is a true replacement on the *would be put into your graveyard* event, so it also catches a spell
- * that is countered or fizzles — per Bilbo's Adventure ruling.
+ * [exileCastThisWay] is the third member of the cast-this-way rider family, but it applies to
+ * the *instant and sorcery* half rather than the permanent half — see [CastThisWayExile]:
+ *  - [CastThisWayExile.INSTEAD_OF_GRAVEYARD]: an instant or sorcery cast from the graveyard under
+ *    this grant is exiled instead of being put into its owner's graveyard (Bilbo, Thief in the
+ *    Night — "If an instant or sorcery spell cast this way would be put into your graveyard, exile
+ *    it instead"). Unlike the "exile it as it resolves" triggers (Lilah, Goliath Daydreamer), this
+ *    is a true replacement on the *would be put into your graveyard* event, so it also catches a
+ *    spell that is countered or fizzles — per Bilbo's Adventure ruling.
+ *  - [CastThisWayExile.ON_ANY_STACK_EXIT]: exiled instead of going *anywhere* else whenever it
+ *    would leave the stack — bounced to hand or put into a library too. With
+ *    `additionalCost = Costs.additional.DiscardCards(1)` this is a granted jump-start (CR 702.133a:
+ *    "cast this card from your graveyard … by discarding a card as an additional cost" and "exile
+ *    this card instead of putting it anywhere else any time it would leave the stack") — Niv-Mizzet,
+ *    Supreme's "Each instant and sorcery card in your graveyard that's exactly two colors has
+ *    jump-start".
  *
  * [fromAnyGraveyard] widens *which graveyards* the permission reaches: by default only the holder's
  * own graveyard, and with it every player's (The Great Work, chapter III — "Until end of turn, you
  * may cast instant and sorcery spells from any graveyard"). A card cast from another player's
- * graveyard is still owned by that player, so it returns to (or, under [exileInsteadOfGraveyard], is
+ * graveyard is still owned by that player, so it returns to (or, under [exileCastThisWay], is
  * exiled instead of going to) *its owner's* graveyard. Narrow it to opponents' graveyards through
  * [filter]'s ownership predicate rather than with another flag.
  *
@@ -694,8 +729,9 @@ data class GraveyardCardsHaveDredge(
  * @property entersWithCounter If set, a permanent cast this way enters with one such counter
  * @property addedSubtypeOnEntry If set, a permanent cast this way gains this subtype on entry
  * @property oncePerTurn If true, this grant authorizes at most one graveyard cast per turn
- * @property exileInsteadOfGraveyard If true, an instant or sorcery cast this way is exiled rather
- *   than put into its owner's graveyard — whether it resolves, is countered, or fizzles
+ * @property exileCastThisWay Whether an instant or sorcery cast this way is exiled instead of going
+ *   to its owner's graveyard (whether it resolves, is countered, or fizzles), or instead of going
+ *   anywhere else as it leaves the stack
  * @property fromAnyGraveyard If true, the permission covers every player's graveyard, not just yours
  * @property additionalCost If set, a non-mana cost a cast under this grant owes on top of its other costs
  * @property playsLands If true, land cards matching [filter] may also be played from the graveyard
@@ -710,7 +746,7 @@ data class MayCastFromGraveyard(
     val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null,
     val addedSubtypeOnEntry: String? = null,
     val oncePerTurn: Boolean = false,
-    val exileInsteadOfGraveyard: Boolean = false,
+    val exileCastThisWay: CastThisWayExile = CastThisWayExile.NONE,
     val fromAnyGraveyard: Boolean = false,
     val additionalCost: AdditionalCost? = null,
     val playsLands: Boolean = false,
@@ -743,10 +779,15 @@ data class MayCastFromGraveyard(
         if (grantedAbilityOnEntry != null) {
             append(". If you do, it gains \"${grantedAbilityOnEntry.description}\"")
         }
-        if (exileInsteadOfGraveyard) {
-            append(". If an instant or sorcery spell cast this way would be put into ")
-            append(if (fromAnyGraveyard) "a graveyard" else "your graveyard")
-            append(", exile it instead")
+        when (exileCastThisWay) {
+            CastThisWayExile.NONE -> {}
+            CastThisWayExile.INSTEAD_OF_GRAVEYARD -> {
+                append(". If an instant or sorcery spell cast this way would be put into ")
+                append(if (fromAnyGraveyard) "a graveyard" else "your graveyard")
+                append(", exile it instead")
+            }
+            CastThisWayExile.ON_ANY_STACK_EXIT ->
+                append(". If a spell cast this way would leave the stack, exile it instead of putting it anywhere else")
         }
     }
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
@@ -757,81 +798,115 @@ data class MayCastFromGraveyard(
 }
 
 /**
- * A continuous grant of flashback (CR 702.34) to *every* card in the controller's graveyard that
- * matches [filter] — a whole-graveyard group grant, not a single-card grant like
- * [com.wingedsheep.sdk.scripting.effects.GrantFlashbackEffect] (Archmage's Newt). While the
- * granting permanent is on the battlefield (and, if [duringYourTurnOnly], during its controller's
- * turn), each matching graveyard card may be cast for its flashback cost and is exiled on
- * resolution, exactly as if it had printed flashback.
- *
- * The flashback cost is [cost] when set, otherwise the card's own mana cost (`null` = "equal to
- * that card's mana cost").
- *
- * Used for Iroh, Grand Lotus:
- *  - `GraveyardCardsHaveFlashback(InstantOrSorcery.notSubtype(Lesson), duringYourTurnOnly = true)`
- *    — "During your turn, each non-Lesson instant and sorcery card in your graveyard has flashback.
- *    The flashback cost is equal to that card's mana cost."
- *  - `GraveyardCardsHaveFlashback(InstantOrSorcery.withSubtype(Lesson), cost = {1}, duringYourTurnOnly = true)`
- *    — "During your turn, each Lesson card in your graveyard has flashback {1}."
- *
- * Read by [com.wingedsheep.engine.mechanics.FlashbackGrants], the single source of truth every
- * flashback read site routes through (enumeration, cast cost, permission, and exile-on-resolution),
- * so a group-granted flashback behaves identically to a printed one.
- *
- * @property filter Which graveyard cards gain flashback (matched against the card's characteristics).
- * @property cost The granted flashback cost, or null for "equal to that card's mana cost".
- * @property duringYourTurnOnly If true, the grant is active only during the controller's turn.
+ * Where an instant or sorcery cast through a [MayCastFromGraveyard] grant (or a card's own
+ * [MayCastSelfFromZones] permission) goes instead of where it
+ * would otherwise go as it leaves the stack.
  */
-@SerialName("GraveyardCardsHaveFlashback")
 @Serializable
-data class GraveyardCardsHaveFlashback(
-    val filter: GameObjectFilter,
-    val cost: ManaCost? = null,
-    val duringYourTurnOnly: Boolean = false
-) : StaticAbility {
-    override val description: String = buildString {
-        if (duringYourTurnOnly) append("During your turn, e") else append("E")
-        append("ach ${filter.description} card in your graveyard has flashback")
-        if (cost != null) append(" $cost")
+enum class CastThisWayExile {
+    /** No rider — the spell goes wherever it normally would. */
+    NONE,
+
+    /** "If it would be put into your graveyard, exile it instead" — resolve, counter or fizzle (Bilbo). */
+    INSTEAD_OF_GRAVEYARD,
+
+    /**
+     * "Exile it instead of putting it anywhere else any time it would leave the stack" — the
+     * graveyard-cast clause of flashback (CR 702.34a), aftermath (CR 702.127a) and jump-start
+     * (CR 702.133a), so a bounce to hand or a put-into-library is exiled too.
+     */
+    ON_ANY_STACK_EXIT
+}
+
+/**
+ * The graveyard-casting keyword a [GraveyardCardsHaveCastKeyword] grants. Each variant carries only
+ * the data its own keyword reads, so a field never means something for one keyword and nothing for
+ * another.
+ */
+@Serializable
+sealed interface GraveyardCastKeyword {
+    val keyword: Keyword
+
+    fun applyTextReplacement(replacer: TextReplacer): GraveyardCastKeyword = this
+
+    /** Flashback (CR 702.34), read through `FlashbackGrants`; the spell is exiled as it leaves the stack. */
+    @SerialName("Flashback")
+    @Serializable
+    data object Flashback : GraveyardCastKeyword {
+        override val keyword: Keyword get() = Keyword.FLASHBACK
     }
-    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
-        val newFilter = filter.applyTextReplacement(replacer)
-        return if (newFilter !== filter) copy(filter = newFilter) else this
+
+    /** Mayhem (CR 702.187), read through `MayhemGrants` alongside its discarded-this-turn gate. */
+    @SerialName("Mayhem")
+    @Serializable
+    data object Mayhem : GraveyardCastKeyword {
+        override val keyword: Keyword get() = Keyword.MAYHEM
+    }
+
+    /**
+     * Beam me up (TRK), read through `BeamMeUp.options`. [returnFilter] narrows which creature may be
+     * returned to pay a cost *this grant* offers, matched with the granter as the source — Scotty's
+     * "Scotty can't be beamed up to cast a spell this way" is `Creature.notSourceItself()`, which
+     * still lets Scotty be returned for a printed beam me up.
+     */
+    @SerialName("BeamMeUp")
+    @Serializable
+    data class BeamMeUp(val returnFilter: GameObjectFilter = GameObjectFilter.Creature) : GraveyardCastKeyword {
+        override val keyword: Keyword get() = Keyword.BEAM_ME_UP
+
+        override fun applyTextReplacement(replacer: TextReplacer): GraveyardCastKeyword {
+            val newFilter = returnFilter.applyTextReplacement(replacer)
+            return if (newFilter !== returnFilter) copy(returnFilter = newFilter) else this
+        }
     }
 }
 
 /**
- * "Each [filter] card in your graveyard has mayhem [cost]." The Mayhem analogue of
- * [GraveyardCardsHaveFlashback] — a whole-graveyard group grant of the Mayhem keyword ability
- * (CR 702.187), read through `MayhemGrants.effectiveMayhem` alongside the discarded-this-turn gate.
- * Green Goblin's "Goblin Formula — Each nonland card in your graveyard has mayhem. The mayhem cost
- * is equal to its mana cost."
+ * "Each [filter] card in your graveyard has [keyword] [cost]." A whole-graveyard group grant of a
+ * graveyard-casting keyword, not a single-card grant like
+ * [com.wingedsheep.sdk.scripting.effects.GrantFlashbackEffect] (Archmage's Newt): while the granter
+ * is on the battlefield, each matching card may be cast exactly as if it had the keyword printed.
+ * A null [cost] means "equal to that card's mana cost".
  *
- * @property filter Which graveyard cards gain mayhem (matched against the card's characteristics).
- * @property cost The granted mayhem cost, or null for "equal to that card's mana cost".
+ * Gate the grant with `staticAbility { condition = … }` (Scotty's "during your main phase"); every
+ * read site resolves the wrapper against the granter. [duringYourTurnOnly] is the shared shorthand
+ * the escape and may-cast-from-graveyard grants also carry.
+ *
+ * - Lier, Disciple of the Drowned: `GraveyardCardsHaveCastKeyword(Flashback, InstantOrSorcery)`
+ * - Iroh, Grand Lotus: `GraveyardCardsHaveCastKeyword(Flashback, …withSubtype(LESSON), cost = {1}, duringYourTurnOnly = true)`
+ * - Green Goblin: `GraveyardCardsHaveCastKeyword(Mayhem, Nonland)`
+ * - Scotty, Miracle Worker: `GraveyardCardsHaveCastKeyword(BeamMeUp(Creature.notSourceItself()), Any)`
+ *
+ * @property keyword Which keyword the matching cards have, with that keyword's own data.
+ * @property filter Which graveyard cards gain it (matched against the card's characteristics).
+ * @property cost The granted cost, or null for "equal to that card's mana cost".
  * @property duringYourTurnOnly If true, the grant is active only during the controller's turn.
  */
-@SerialName("GraveyardCardsHaveMayhem")
+@SerialName("GraveyardCardsHaveCastKeyword")
 @Serializable
-data class GraveyardCardsHaveMayhem(
+data class GraveyardCardsHaveCastKeyword(
+    val keyword: GraveyardCastKeyword,
     val filter: GameObjectFilter,
     val cost: ManaCost? = null,
-    val duringYourTurnOnly: Boolean = false
+    val duringYourTurnOnly: Boolean = false,
 ) : StaticAbility {
     override val description: String = buildString {
         if (duringYourTurnOnly) append("During your turn, e") else append("E")
-        append("ach ${filter.description} card in your graveyard has mayhem")
+        val cards = filter.description.let { if (it.endsWith("card")) it else "$it card" }
+        append("ach $cards in your graveyard has ${keyword.keyword.displayName.lowercase()}")
         if (cost != null) append(" $cost")
     }
+
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newKeyword = keyword.applyTextReplacement(replacer)
         val newFilter = filter.applyTextReplacement(replacer)
-        return if (newFilter !== filter) copy(filter = newFilter) else this
+        return if (newKeyword !== keyword || newFilter !== filter) copy(keyword = newKeyword, filter = newFilter) else this
     }
 }
 
 /**
  * "Each [filter] card in your graveyard has escape." The Escape (CR 702.138) analogue of
- * [GraveyardCardsHaveFlashback] — a whole-graveyard group grant of [KeywordAbility.Escape], read
+ * [GraveyardCardsHaveCastKeyword] — a whole-graveyard group grant of [KeywordAbility.Escape], read
  * through `EscapeCasts.effectiveEscape` (enumerator, zone permission, cost totaller, additional-cost
  * collector) so a granted escape behaves exactly like a printed one: the escaped spell is not
  * exiled on resolution, and a permanent spell enters the battlefield as usual.
@@ -840,7 +915,7 @@ data class GraveyardCardsHaveMayhem(
  * the card's mana cost plus exile three other cards from your graveyard" —
  * `GraveyardCardsHaveEscape(Nonland, additionalCost = Costs.additional.ExileOtherCards(3))`.
  *
- * A separate type rather than a keyword axis on [GraveyardCardsHaveFlashback]: escape carries a
+ * A separate type rather than a keyword axis on [GraveyardCardsHaveCastKeyword]: escape carries a
  * non-mana half ([additionalCost]) and neither exiles on resolution (flashback does) nor is gated on
  * a discard this turn (mayhem is), so one shared type would fork its meaning on every engine read.
  *
@@ -873,6 +948,54 @@ data class GraveyardCardsHaveEscape(
         val newFilter = filter.applyTextReplacement(replacer)
         return if (newFilter !== filter) copy(filter = newFilter) else this
     }
+}
+
+/**
+ * "Each [filter] card in your hand without foretell has foretell. Its foretell cost is equal to its
+ * mana cost reduced by {[costReduction]}." The hand analogue of [GraveyardCardsHaveEscape] — a
+ * whole-hand group grant of [KeywordAbility.Foretell] (CR 702.143) to every card in the
+ * controller's hand matching [filter], read through `ForetellGrants.effectiveForetellCost` by the
+ * foretell enumerator and handler. Dream Devourer:
+ * `GrantForetellToCardsInHand(GameObjectFilter.Nonland, costReduction = 2)`.
+ *
+ * A card with a printed foretell keeps its own ("without foretell"). The granted cost is the card's
+ * mana cost with [costReduction] taken off its **generic** part only — {1}{G}{G} becomes {G}{G}
+ * (Dream Devourer ruling) — fixed at the moment the card is foretold: the foretold card no longer
+ * has the ability once it leaves the hand, but can still be cast later for that cost even if the
+ * granting permanent is gone (Dream Devourer rulings).
+ *
+ * @property filter Which hand cards gain foretell (matched against the card's characteristics).
+ * @property costReduction Generic mana taken off the card's mana cost to form its foretell cost.
+ */
+@SerialName("GrantForetellToCardsInHand")
+@Serializable
+data class GrantForetellToCardsInHand(
+    val filter: GameObjectFilter,
+    val costReduction: Int = 0,
+) : StaticAbility {
+    override val description: String = buildString {
+        append("Each ${filter.description} card in your hand without foretell has foretell. ")
+        append("Its foretell cost is equal to its mana cost")
+        if (costReduction > 0) append(" reduced by {$costReduction}")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        return if (newFilter !== filter) copy(filter = newFilter) else this
+    }
+}
+
+/**
+ * "Foretelling cards from your hand … can be done on any player's turn." (Cosmos Charger.) Lifts
+ * the "during their turn" clause of the foretell special action (CR 116.2h, 702.143a) for the
+ * source's controller: while they control this, they may foretell any time they have priority.
+ * Only the timing — the cost half of Cosmos Charger's sentence is a
+ * [ModifySpecialActionCost] on [SpecialActionKind.FORETELL].
+ */
+@SerialName("MayForetellOnAnyTurn")
+@Serializable
+data object MayForetellOnAnyTurn : StaticAbility {
+    override val description: String = "Foretelling cards from your hand can be done on any player's turn"
 }
 
 /**
@@ -1234,6 +1357,67 @@ data class PlayersCantPlayLands(
 }
 
 /**
+ * Which library searches a [PlayersCantSearchLibraries] forbids its affected players to make.
+ */
+@Serializable
+enum class LibrarySearchProhibition {
+    /** Every search of every library — "Your opponents can't search libraries." (Stranglehold). */
+    ANY_LIBRARY,
+
+    /**
+     * Only a search of the player's *own* library that a spell or ability *they* control causes —
+     * "Spells and abilities your opponents control can't cause their controller to search their
+     * library." (Ashiok, Dream Render). Their spells may still make them search another player's
+     * library, and another player's spells may still make them search their own.
+     */
+    OWN_LIBRARY_BY_OWN_EFFECTS,
+}
+
+/**
+ * A continuous prohibition on searching libraries (CR 701.23) for the [affected] players, relative
+ * to the source's controller, scoped by [scope].
+ *
+ *  - Stranglehold: `PlayersCantSearchLibraries(Player.EachOpponent)`.
+ *  - Ashiok, Dream Render: `PlayersCantSearchLibraries(Player.EachOpponent,
+ *    LibrarySearchProhibition.OWN_LIBRARY_BY_OWN_EFFECTS)`.
+ *
+ * A forbidden search finds nothing in that library and is no search at all, so "whenever a player
+ * searches their library" doesn't trigger. The rest of the instruction still happens: a mandatory
+ * "search …, then shuffle" still shuffles, while a "you may search …" can't be chosen, so nothing
+ * happens — not even its shuffle (Ashiok's rulings). Searching the graveyard or hand half of a
+ * "search your graveyard and/or library" is untouched, and looking at or revealing the top of a
+ * library is not a search.
+ *
+ * The static twin of the one-shot `CantSearchLibrariesEffect` (Shadow of Doubt, "Players can't
+ * search libraries this turn"), which stamps the player for a duration and can't follow its
+ * source off the battlefield. Not a [LimitLibrarySearch]: that replacement still lets the search
+ * happen, over the top N cards, and still counts as a search.
+ */
+@SerialName("PlayersCantSearchLibraries")
+@Serializable
+data class PlayersCantSearchLibraries(
+    val affected: Player = Player.Each,
+    val scope: LibrarySearchProhibition = LibrarySearchProhibition.ANY_LIBRARY,
+) : StaticAbility {
+    override val description: String = when (scope) {
+        LibrarySearchProhibition.ANY_LIBRARY -> when (affected) {
+            is Player.You -> "You can't search libraries"
+            is Player.EachOpponent -> "Your opponents can't search libraries"
+            is Player.Each -> "Players can't search libraries"
+            else -> "${affected.description.replaceFirstChar { it.uppercase() }} can't search libraries"
+        }
+        LibrarySearchProhibition.OWN_LIBRARY_BY_OWN_EFFECTS -> when (affected) {
+            is Player.You -> "Spells and abilities you control can't cause you to search your library"
+            is Player.EachOpponent ->
+                "Spells and abilities your opponents control can't cause their controller to search their library"
+            is Player.Each ->
+                "Spells and abilities can't cause their controller to search their library"
+            else -> "Spells and abilities ${affected.description} controls can't cause them to search their library"
+        }
+    }
+}
+
+/**
  * A per-turn cap on how many cards a player can draw (CR 121.2b): "Each opponent can't draw more
  * than one card each turn." (Narset, Parter of Veils; Leovold, Emissary of Trest), "Each player
  * can't draw more than one card each turn." (Spirit of the Labyrinth). `maxPerTurn = 0` is the
@@ -1275,6 +1459,53 @@ data class RestrictCardsDrawnPerTurn(
         } else {
             val cards = if (maxPerTurn == 1) "one card" else "$maxPerTurn cards"
             append("$who can't draw more than $cards each turn")
+        }
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility = this
+}
+
+/**
+ * A per-turn cap on how many times a player can venture into the dungeon (CR 701.49): "Each
+ * opponent can't venture into the dungeon more than once each turn." (Keen-Eared Sentry).
+ *
+ *  - **who** — [affected], relative to this permanent's controller, as on [RestrictCardsDrawnPerTurn].
+ *  - **how many** — [maxPerTurn], compared against the player's ventures-this-turn tally, so a
+ *    venture made earlier in the turn counts even if it happened before this permanent entered.
+ *    When several caps apply, the smallest wins.
+ *
+ * Every venture counts — "venture into the dungeon", "venture into Undercity" (CR 701.49d), and the
+ * ventures the initiative makes (CR 726.2) — and a venture the cap forbids simply doesn't happen:
+ * the marker doesn't move, no dungeon is completed or entered, no room ability triggers. Enforced
+ * where every venture resolves.
+ *
+ * Separate from [RestrictCardsDrawnPerTurn] and [RestrictSpellsCastPerTurn] because it caps a
+ * different event — a venture, not a draw or a cast — counted off its own tally and read where a
+ * venture resolves rather than in the draw loop or at cast legality.
+ *
+ * @property affected Which players are capped, relative to the source's controller.
+ * @property maxPerTurn The most times an affected player may venture each turn.
+ */
+@SerialName("RestrictVenturesPerTurn")
+@Serializable
+data class RestrictVenturesPerTurn(
+    val affected: Player = Player.EachOpponent,
+    val maxPerTurn: Int = 1
+) : StaticAbility {
+    override val description: String = buildString {
+        append(
+            when (affected) {
+                is Player.You -> "You"
+                is Player.EachOpponent -> "Each opponent"
+                is Player.Each -> "Each player"
+                else -> affected.description.replaceFirstChar { it.uppercase() }
+            }
+        )
+        if (maxPerTurn == 0) {
+            append(" can't venture into the dungeon")
+        } else {
+            val times = when (maxPerTurn) { 1 -> "once"; 2 -> "twice"; else -> "$maxPerTurn times" }
+            append(" can't venture into the dungeon more than $times each turn")
         }
     }
 
@@ -1433,6 +1664,9 @@ enum class OnceOnlyAbilityKind {
         POWER_UP -> "power-up"
         BOAST -> "boast"
     }
+
+    /** The indefinite article before [displayName] — "an exhaust ability", "a boast ability". */
+    val article: String get() = if (this == EXHAUST) "an" else "a"
 }
 
 /**

@@ -80,7 +80,32 @@ data class DecisionContext(
      * [com.wingedsheep.sdk.scripting.AbilityIdentity]). Null for decisions not tied to a single
      * card ability.
      */
-    val abilityIdentity: com.wingedsheep.sdk.scripting.AbilityIdentity? = null
+    val abilityIdentity: com.wingedsheep.sdk.scripting.AbilityIdentity? = null,
+
+    /**
+     * The source is a card in a hidden zone that asking this question does not reveal — a leyline
+     * in its owner's opening hand (CR 103.6). Anyone who may not see that card is told nothing of
+     * it: no name, art or id in the decision, its status, or the logged answer. Unset, a source
+     * in a hand is treated as announced (a spell being cast from it), and only a face-down source
+     * is masked.
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val sourceIsPrivate: Boolean = false,
+
+    /**
+     * Every zone the question's candidates could have come from, when the producer knows its
+     * choice space exactly — the zones a target requirement looks in, say. Players are always
+     * public and are not a zone: a "target player" question declares the empty set. Null, the
+     * default, means *unknown*.
+     *
+     * Consumers use it to tell whether a question's shape is public (#3340): when every object in
+     * these zones is visible to everyone, an observer can work out the legal answers as well as
+     * the decider can. Declare it only where the candidate pool is exactly "the objects in these
+     * zones that pass a filter on visible characteristics". A pool picked out of a hidden zone, or
+     * one that depends on a hidden card, stays null; an unknown is read as "not public".
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val candidateZones: Set<com.wingedsheep.sdk.core.Zone>? = null,
 )
 
 /**
@@ -147,6 +172,13 @@ data class TargetRequirementInfo(
     /** Server-computed disjoint groups; at most one target may be picked from each. */
     val exclusiveGroups: List<List<EntityId>>? = null,
     /**
+     * "Up to one target … of each card type / color" ([TargetObject.onePerCardType],
+     * [TargetObject.onePerColor]): each legal candidate mapped to the categories it may claim. A
+     * selection is legal when every pick can be paired with a *different* category from its list
+     * (a matching, so a multicoloured card fills one colour slot). Set by `withTargetConstraints`.
+     */
+    val distinctCategories: Map<EntityId, List<String>>? = null,
+    /**
      * When non-null, the combined mana value of the chosen card targets for this requirement may
      * not exceed this cap — "any number of target creature cards with total mana value X or less"
      * (Fire Lord Sozin). Already resolved to a concrete integer at decision-build time (so a
@@ -168,12 +200,6 @@ data class TargetRequirementInfo(
      * [DecisionValidators.validateTargets].
      */
     val differentControllers: Boolean = false,
-    /**
-     * When true, the chosen targets must be at most one of each card type — each paired with a
-     * different card type it has ("up to one target nonland card of each card type", Uldaros
-     * Theorix). Enforced in [DecisionValidators.validateTargets].
-     */
-    val onePerCardType: Boolean = false,
     /**
      * When true, a target for this requirement must differ from every target chosen for an
      * earlier requirement of the same decision — "another target" wording (`TargetOther`).
@@ -219,9 +245,10 @@ fun ChooseTargetsDecision.legalTargetsFor(index: Int, chosen: Map<Int, List<Enti
 fun ChooseTargetsDecision.minimalSelection(): Map<Int, List<EntityId>> =
     targetRequirements.fold(emptyMap()) { chosen, req ->
         val pool = legalTargetsFor(req.index, chosen)
-        val compatible = req.exclusiveGroups?.let { exclusive ->
-            constrainedTargetSelection(pool, req.minTargets, req.minTargets, req.selectionGroups, exclusive)
-        } ?: req.selectionGroups?.firstOrNull { group -> group.count { it in pool } >= req.minTargets }
+        val compatible = if (req.exclusiveGroups != null || req.distinctCategories != null) {
+            constrainedTargetSelection(pool, req.minTargets, req.minTargets, req.selectionGroups, req.exclusiveGroups,
+                distinctCategories = req.distinctCategories)
+        } else req.selectionGroups?.firstOrNull { group -> group.count { it in pool } >= req.minTargets }
             ?.filter { it in pool } ?: if (req.selectionGroups == null) pool else emptyList()
         chosen + (req.index to compatible.take(req.minTargets))
     }
@@ -384,7 +411,15 @@ data class YesNoDecision(
     /** Optional second line under [yesText] when [peerOptions] is set ("on this creature"). */
     val yesDetail: String? = null,
     /** Optional second line under [noText] when [peerOptions] is set. */
-    val noDetail: String? = null
+    val noDetail: String? = null,
+    /**
+     * False when "yes" is impossible, so "no" is the only legal answer (CR 608.2d): "you may
+     * discard a creature card" with none in hand. The question is still asked, because whether
+     * it is asked may depend only on what every player knows (#3340). The hidden cards decide
+     * only which answers it offers. A decision with this false is forced, so the AI and the human
+     * auto-answer both say "no" without a prompt.
+     */
+    val yesAvailable: Boolean = true
 ) : PendingDecision
 
 /**
@@ -522,6 +557,57 @@ data class OrderObjectsDecision(
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val lastLabel: String? = null
 ) : PendingDecision
+
+/**
+ * Player puts their own simultaneous triggered abilities on the stack in an order they choose
+ * (CR 603.3b), before any of them chooses targets (CR 603.3d).
+ *
+ * Triggered abilities aren't objects until they're on the stack, so unlike [OrderObjectsDecision]
+ * the options are descriptions, answered by position with a [TriggerOrderResponse]. Raised only for
+ * a player who turned automatic ordering off; see [com.wingedsheep.engine.mechanics.TriggerOrdering].
+ *
+ * @property triggers The abilities in the order they resolve if the player keeps the default: the
+ *   first resolves first, so it goes on the stack last.
+ */
+@Serializable
+@SerialName("OrderTriggersDecision")
+data class OrderTriggersDecision(
+    override val id: String,
+    override val playerId: EntityId,
+    override val prompt: String,
+    override val context: DecisionContext,
+    val triggers: List<TriggerToOrder>
+) : PendingDecision
+
+/**
+ * One triggered ability waiting to go on the stack, as an [OrderTriggersDecision] shows it.
+ *
+ * Only ids travel for the cards involved: the client looks [sourceId] and [triggeringEntityId] up in
+ * its already-masked state, so a face-down source can't leak through the prompt.
+ */
+@Serializable
+data class TriggerToOrder(
+    /** The object whose ability triggered. */
+    val sourceId: EntityId,
+    /** The source's name as every player may see it. */
+    val sourceName: String,
+    /** What the ability does, as the stack will show it. */
+    val text: String,
+    /** The source's art, or null for a face-down source. */
+    val imageUri: String? = null,
+    /** What the ability triggered on, when that's a different object (the creature that entered). */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val triggeringEntityId: EntityId? = null,
+    /** True when the ability's targets are chosen as it goes on the stack, after this question. */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val choosesTargets: Boolean = false,
+    /**
+     * True when the ability checks this turn's history as it resolves ("if you gained life this
+     * turn"), so resolving it after the others can change what it does.
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val checksOnResolution: Boolean = false
+)
 
 /**
  * Player must split cards into piles (e.g., Fact or Fiction).
@@ -815,11 +901,13 @@ sealed interface DecisionResponse {
         is NumberChosenResponse -> copy(decisionId = newId)
         is DistributionResponse -> copy(decisionId = newId)
         is OrderedResponse -> copy(decisionId = newId)
+        is TriggerOrderResponse -> copy(decisionId = newId)
         is PilesSplitResponse -> copy(decisionId = newId)
         is PlayCardResponse -> copy(decisionId = newId)
         is OptionChosenResponse -> copy(decisionId = newId)
         is ReplacementChosenResponse -> copy(decisionId = newId)
         is BudgetModalResponse -> copy(decisionId = newId)
+        is FlipThrowResponse -> copy(decisionId = newId)
         is DamageAssignmentResponse -> copy(decisionId = newId)
         is ManaSourcesSelectedResponse -> copy(decisionId = newId)
         is CombatResolutionResponse -> copy(decisionId = newId)
@@ -933,6 +1021,17 @@ data class OrderedResponse(
 ) : DecisionResponse
 
 /**
+ * Response to [OrderTriggersDecision]: every index of its `triggers`, once each, in the order the
+ * abilities should resolve — the first resolves first.
+ */
+@Serializable
+@SerialName("TriggerOrderResponse")
+data class TriggerOrderResponse(
+    override val decisionId: String,
+    val resolutionOrder: List<Int>
+) : DecisionResponse
+
+/**
  * Response to SplitPilesDecision.
  */
 @Serializable
@@ -979,6 +1078,42 @@ data class BudgetModalDecision(
     val budget: Int,
     val modes: List<BudgetModeOption>
 ) : PendingDecision
+
+/**
+ * Player must physically flip a card onto the battlefield (Chaos Orb). The engine lays the
+ * battlefield out as [table]; the player answers with a [FlipThrowResponse] — where they aim and
+ * how hard they let go — and the engine rolls where it lands. [release] is the strength meter the
+ * engine scores the release against, so the client can draw its zones.
+ */
+@Serializable
+@SerialName("FlipOntoBattlefieldDecision")
+data class FlipOntoBattlefieldDecision(
+    override val id: String,
+    override val playerId: EntityId,
+    override val prompt: String,
+    override val context: DecisionContext,
+    val table: com.wingedsheep.engine.mechanics.dexterity.FlipTable,
+    val release: com.wingedsheep.engine.mechanics.dexterity.FlipReleaseProfile =
+        com.wingedsheep.engine.mechanics.dexterity.FlipReleaseProfile(),
+    /** Image of the card being flipped, for the client to put in the player's hand. */
+    val flippedImageUri: String? = null,
+) : PendingDecision
+
+/**
+ * Response to [FlipOntoBattlefieldDecision]: the aim point in table millimetres, the release
+ * strength (0..1) and where the throwing hand's sideways sway was at release (-1 full left ..
+ * 1 full right, from the thrower's seat; 0 is straight). Out-of-range values are clamped by the
+ * engine, never trusted.
+ */
+@Serializable
+@SerialName("FlipThrowResponse")
+data class FlipThrowResponse(
+    override val decisionId: String,
+    val aimX: Double,
+    val aimY: Double,
+    val strength: Double,
+    val sway: Double = 0.0,
+) : DecisionResponse
 
 /**
  * A single mode option in a budget modal decision (cost + description, no effect data).

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.stack
 
+import com.wingedsheep.engine.mechanics.targeting.TypeQualityProtection
 import com.wingedsheep.engine.handlers.effects.TargetResolutionUtils.toEntityId
 
 import com.wingedsheep.engine.mechanics.targeting.HexproofFromRules
@@ -14,6 +15,7 @@ import com.wingedsheep.engine.mechanics.ControllerGrants
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.targeting.HexproofSuppression
 import com.wingedsheep.engine.mechanics.targeting.SourceKindProtection
+import com.wingedsheep.engine.mechanics.targeting.UntargetableByRules
 import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ObjectRef
@@ -79,6 +81,8 @@ internal class ResolutionTargetValidator(
             ObjectReferenceEnvironment(),
         lastKnownSourceSnapshot: EntitySnapshot? = null,
         resolution: EffectContext? = null,
+        /** [TargetsComponent.targetingAttachmentHost] — the source's host when these targets were chosen. */
+        targetingAttachmentHost: EntityId? = null,
     ): List<ChosenTarget> {
         // Always project state for shroud/hexproof checks (Rule 702.18, 702.11)
         val projected = state.projectedState
@@ -100,6 +104,7 @@ internal class ResolutionTargetValidator(
             targets = targets,
             namedTargets = (resolution?.pipeline?.namedTargets ?: emptyMap()) +
                 EffectContext.buildNamedTargets(targetRequirements, targets),
+            targetingAttachmentHost = targetingAttachmentHost,
         )
 
         val individuallyLegal = targets.indices.filter { index ->
@@ -114,12 +119,9 @@ internal class ResolutionTargetValidator(
                         controllerId, sourceId, targetingSourceType, targetEntryStamps, predicateContext
                     )
 
-                    is ChosenTarget.Card -> {
-                        // Returning to the expected zone does not restore the original target.
-                        val zoneKey = ZoneKey(target.ownerId, target.zone)
-                        targetObjectRefs[target.cardId]?.let(state::isCurrentObject) != false &&
-                            target.cardId in state.getZone(zoneKey)
-                    }
+                    is ChosenTarget.Card -> targetObjectRefs[target.cardId]?.let(state::isCurrentObject) != false && isCardTargetLegal(
+                        state, projected, index, target, targets, targetRequirements, predicateContext
+                    )
 
                     is ChosenTarget.Spell -> {
                         // Spell is valid if still on stack
@@ -128,8 +130,11 @@ internal class ResolutionTargetValidator(
                 }
         }.toSet()
         val sharingController = targetsSharingAController(projected, state, targets, individuallyLegal, targetRequirements)
+        val sharingValue = targetsSharingADifferentValue(state, targets, individuallyLegal, targetRequirements)
         if (targetRequirements.none { (it as? TargetObject)?.sameNumericProperty != null }) {
-            return targets.filterIndexed { index, _ -> index in individuallyLegal && index !in sharingController }
+            return targets.filterIndexed { index, _ ->
+                index in individuallyLegal && index !in sharingController && index !in sharingValue
+            }
         }
         val unequal = (individuallyLegal - sharingController).groupBy { index ->
             var offset = 0
@@ -146,9 +151,28 @@ internal class ResolutionTargetValidator(
                     )) indices else emptyList()
             }.toSet()
         return targets.filterIndexed { index, _ ->
-            index in individuallyLegal && index !in sharingController && index !in unequal
+            index in individuallyLegal && index !in sharingController && index !in unequal && index !in sharingValue
         }
     }
+
+    /**
+     * "… with different mana values" (Long Rest) restricts the *set* of targets, so it is re-checked
+     * at resolution like [targetsSharingAController]: still-legal targets of a
+     * `differentNumericProperty` requirement that now share a value are all illegal.
+     */
+    private fun targetsSharingADifferentValue(
+        state: GameState,
+        targets: List<ChosenTarget>,
+        legalIndices: Set<Int>,
+        targetRequirements: List<TargetRequirement>,
+    ): Set<Int> = legalIndices
+        .groupBy { index -> (getRequirementForTargetIndex(index, targetRequirements) as? TargetObject)?.differentNumericProperty }
+        .flatMap { (property, indices) ->
+            if (property == null) return@flatMap emptyList()
+            indices.groupBy { index ->
+                com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.value(state, targets[index].toEntityId(), property)
+            }.values.filter { it.size > 1 }.flatten()
+        }.toSet()
 
     /**
      * "Two target creatures controlled by different players" (Run Away Together) is a restriction on
@@ -228,7 +252,7 @@ internal class ResolutionTargetValidator(
                 state, target.playerId, predicateEvaluator = predicateEvaluator)) return false
         if (target.playerId != controllerId && com.wingedsheep.engine.mechanics.targeting.ControllerHexproof.appliesTo(
                 state, target.playerId, predicateEvaluator = predicateEvaluator)) return false
-        if (com.wingedsheep.engine.mechanics.targeting.PlayerProtectionRules.isProtectedFromSource(
+        if (com.wingedsheep.engine.mechanics.targeting.PlayerProtectionRules.blocksTargeting(
                 state, target.playerId, sourceId, controllerId, predicateEvaluator = predicateEvaluator)) return false
         // ...and (CR 608.2b) the player-target restriction still holds. A player who
         // gained life above the threshold, or whose "lost life this turn" never
@@ -275,7 +299,8 @@ internal class ResolutionTargetValidator(
         val entityController = projected.getController(target.entityId)
             ?: state.getEntity(target.entityId)?.get<ControllerComponent>()?.playerId
         return passesTargetingRestrictions(
-            state, projected, target, entityController, controllerId, sourceId, sourceColors, targetingSourceType
+            state, projected, target, entityController, controllerId, sourceId, sourceColors, targetingSourceType,
+            getRequirementForTargetIndex(index, targetRequirements), sourceSubtypes
         ) &&
             passesProtection(state, projected, target, entityController, controllerId, sourceId, sourceColors, sourceSubtypes) &&
             stillMatchesRequirementFilter(state, projected, index, target, targetRequirements, predicateContext)
@@ -290,7 +315,9 @@ internal class ResolutionTargetValidator(
         controllerId: EntityId,
         sourceId: EntityId?,
         sourceColors: Set<Color>,
-        targetingSourceType: TargetingSourceType
+        targetingSourceType: TargetingSourceType,
+        requirement: TargetRequirement?,
+        sourceSubtypes: Set<String>
     ): Boolean {
         // Check shroud — can't be targeted by anyone (Rule 702.18)
         if (projected.hasKeyword(target.entityId, "SHROUD")) return false
@@ -301,6 +328,14 @@ internal class ResolutionTargetValidator(
         // permanent that gained the restriction after being targeted is dropped here.
         if (targetingSourceType == TargetingSourceType.SPELL &&
             projected.hasKeyword(target.entityId, AbilityFlag.CANT_BE_TARGETED_BY_SPELLS)
+        ) {
+            return false
+        }
+
+        // CantBeTargetedBy (Tetsuo Umezawa) — read against the face on the stack.
+        if (UntargetableByRules.targetingError(
+                state, target.entityId, sourceId, targetingSourceType, requirement, sourceSubtypes.ifEmpty { null }
+            ) != null
         ) {
             return false
         }
@@ -373,11 +408,6 @@ internal class ResolutionTargetValidator(
         ) {
             return false
         }
-        for (subtype in sourceSubtypes) {
-            if (projected.hasKeyword(target.entityId, "PROTECTION_FROM_SUBTYPE_${subtype.uppercase()}")) {
-                return false
-            }
-        }
         // Check protection from the source's card type, e.g. "protection from creatures"
         // (Rule 702.16). Prefer projected types (permanent sources); fall back to the
         // card's printed card types for spell/ability sources not in the projection.
@@ -394,7 +424,18 @@ internal class ResolutionTargetValidator(
                     return false
                 }
             }
-        }
+            // Protection from a subtype or supertype, optionally narrowed to a card type
+            // ("protection from God creatures").
+            val sourceSupertypes = if (projectedTypes.isNotEmpty()) projected.getSupertypes(sourceId)
+                else state.getEntity(sourceId)?.get<CardComponent>()?.typeLine?.supertypes?.map { it.name }.orEmpty()
+            if (TypeQualityProtection.matchedQuality(
+                    projected, target.entityId, sourceSubtypes, sourceSupertypes, sourceCardTypes
+                ) != null
+            ) return false
+        } else if (TypeQualityProtection.matchedQuality(
+                projected, target.entityId, sourceSubtypes, emptySet(), emptySet()
+            ) != null
+        ) return false
 
         // Check protection from each opponent (Rule 702.16e)
         if (projected.hasKeyword(target.entityId, "PROTECTION_FROM_EACH_OPPONENT") &&
@@ -402,6 +443,36 @@ internal class ResolutionTargetValidator(
             return false
         }
         return true
+    }
+
+    /**
+     * A card target outside the battlefield (graveyard, exile, …) is legal if it is still in the
+     * zone it was chosen from *and* still matches the requirement's filter (CR 608.2b). The filter
+     * re-check matters for dynamic caps read off the game — Unforgiving One's "creature card with
+     * mana value X or less, where X is the number of modified creatures you control" no longer
+     * resolves once X drops below the card's mana value. The context mirrors the cast-time one in
+     * `TargetValidator`: the card's owner, and the separately-chosen player for "target player's
+     * graveyard" relations.
+     */
+    private fun isCardTargetLegal(
+        state: GameState,
+        projected: ProjectedState,
+        index: Int,
+        target: ChosenTarget.Card,
+        targets: List<ChosenTarget>,
+        targetRequirements: List<TargetRequirement>,
+        predicateContext: PredicateContext
+    ): Boolean {
+        if (target.cardId !in state.getZone(ZoneKey(target.ownerId, target.zone))) return false
+        // CardsInZonesCantBeTargeted (Ground Seal) entering after the target was chosen (CR 608.2b).
+        if (UntargetableByRules.zoneLockError(state, target.cardId, predicateEvaluator) != null) return false
+        val filter = extractTargetFilter(getRequirementForTargetIndex(index, targetRequirements)) ?: return true
+        val cardContext = predicateContext.copy(
+            ownerId = target.ownerId,
+            targetPlayerId = predicateContext.targetPlayerId
+                ?: targets.firstNotNullOfOrNull { (it as? ChosenTarget.Player)?.playerId },
+        )
+        return predicateEvaluator.matches(state, projected, target.cardId, filter.baseFilter, cardContext)
     }
 
     private fun stillMatchesRequirementFilter(

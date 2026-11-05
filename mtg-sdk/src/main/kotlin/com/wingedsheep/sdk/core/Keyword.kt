@@ -27,6 +27,7 @@ enum class Keyword(val displayName: String) {
     PLAINSWALK("Plainswalk"),
     DESERTWALK("Desertwalk"),
     NONBASIC_LANDWALK("Nonbasic landwalk"),
+    LEGENDARY_LANDWALK("Legendary landwalk"),
 
     // ── Combat ───────────────────────────────────────────────
     FIRST_STRIKE("First strike"),
@@ -216,6 +217,9 @@ enum class Keyword(val displayName: String) {
     STORM("Storm"),
     FLASHBACK("Flashback"),
 
+    /** Graveyard alternative cost: mana and returning a creature; exile on every stack exit. */
+    BEAM_ME_UP("Beam me up"),
+
     /**
      * Split second (CR 702.61, Time Spiral). "As long as this spell is on the stack, players can't
      * cast other spells or activate abilities that aren't mana abilities."
@@ -313,6 +317,14 @@ enum class Keyword(val displayName: String) {
     DISTURB("Disturb"),
     EVOKE("Evoke"),
     BESTOW("Bestow"),
+    /**
+     * Blitz [cost] (CR 702.152) — see [com.wingedsheep.sdk.scripting.KeywordAbility.Blitz]. Named
+     * here so "cast this card from your graveyard using its blitz ability" can restrict a
+     * `MayCastSelfFromZones` permission to it (`castUsing = Keyword.BLITZ`).
+     */
+    BLITZ("Blitz"),
+    /** Mutate (CR 702.140) — see [com.wingedsheep.sdk.scripting.KeywordAbility.Mutate]. */
+    MUTATE("Mutate"),
     /** Prototype (CR 702.160) — see [com.wingedsheep.sdk.scripting.KeywordAbility.Prototype]. */
     PROTOTYPE("Prototype"),
 
@@ -332,15 +344,12 @@ enum class Keyword(val displayName: String) {
     /**
      * Ninjutsu [cost] (CR 702.49).
      * "[cost], Return an unblocked attacker you control to hand: Put this card onto the
-     * battlefield from your hand tapped and attacking." Activated only during the declare
-     * blockers step (or any later combat step) once blocked/unblocked status is assigned.
+     * battlefield from your hand tapped and attacking."
      *
-     * Mechanically identical to [SNEAK] — both are modelled by the same declare-blockers
-     * alternative-cost pipeline (return an unblocked attacker, enter tapped and attacking the
-     * same defender, CR 506.3a). Ninjutsu is the canonical rules keyword; Sneak is its reflavor
-     * in the custom Teenage Mutant Ninja Turtles set. Wired by the `ninjutsu(cost)` DSL helper
-     * on [com.wingedsheep.sdk.dsl.CardBuilder]; the shared behavior keys off
-     * [KeywordAbility.ninjutsuStyleCost].
+     * An activated ability of the card in hand (CR 702.49a) — not a cast, unlike [SNEAK], which is
+     * an alternative cost. The `ninjutsu(cost)` DSL helper on [com.wingedsheep.sdk.dsl.CardBuilder]
+     * adds this display marker plus the hand-zone [com.wingedsheep.sdk.scripting.ActivatedAbility]
+     * (`ninjutsuAbility(cost)`) that carries the behaviour, tagged `keyword = NINJUTSU`.
      */
     NINJUTSU("Ninjutsu"),
 
@@ -436,13 +445,11 @@ enum class Keyword(val displayName: String) {
     BARGAIN("Bargain"),
 
     /**
-     * Miracle {cost} (CR 702.94). "You may cast this card for its miracle cost when you draw it if
-     * it's the first card you drew this turn." Modeled as a hand-only alternative cost gated by a
-     * one-turn window: when a card with miracle (printed via
+     * Miracle {cost} (CR 702.94a). When a card with miracle (printed via
      * [com.wingedsheep.sdk.scripting.KeywordAbility.Miracle] or granted via
      * [com.wingedsheep.sdk.scripting.GrantMiracleToCardsInHand]) is the first card a player draws in
-     * a turn, the engine stamps it with a miracle window for that turn; the cast-from-hand
-     * enumerator then surfaces a "Cast (Miracle)" alternative cost at the miracle mana cost.
+     * a turn, they may reveal it; the [com.wingedsheep.sdk.scripting.Miracle] trigger then lets them
+     * cast it for the miracle cost as it resolves.
      */
     MIRACLE("Miracle"),
 
@@ -631,6 +638,19 @@ enum class Keyword(val displayName: String) {
     UNEARTH("Unearth"),
 
     /**
+     * Encore [cost] (CR 702.141, Commander Legends). "[Cost], Exile this card from your graveyard:
+     * For each opponent, create a token that's a copy of this card that attacks that opponent this
+     * turn if able. The tokens gain haste. Sacrifice them at the beginning of the next end step.
+     * Activate only as a sorcery."
+     *
+     * Like [EMBALM], a graveyard-activated ability composed of existing primitives — a per-opponent
+     * token copy, a permanent haste grant, a player-directed must-attack mark and a delayed
+     * sacrifice. Wired in one call via the `encore(cost)` helper on
+     * [com.wingedsheep.sdk.dsl.CardBuilder]; the keyword itself is display-only.
+     */
+    ENCORE("Encore"),
+
+    /**
      * Ascend (Ixalan, CR 702.131). On a permanent spell, means "When this permanent
      * enters, if you control ten or more permanents, you get the city's blessing
      * for the rest of the game." Engine wires the trigger explicitly per card; the
@@ -683,11 +703,10 @@ enum class Keyword(val displayName: String) {
      * triggered ability: "This creature can't block" and "When this creature
      * attacks, sacrifice it at end of combat."
      *
-     * The keyword itself is display-only; the behavior is composed by the
-     * `decayed()` DSL helper on [com.wingedsheep.sdk.dsl.CardBuilder] — a
-     * [com.wingedsheep.sdk.scripting.CantBlock] static ability plus an
-     * attack-triggered [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect]
-     * that sacrifices the source at the end-of-combat step.
+     * The engine realizes both halves off the projected keyword, whatever granted it
+     * (printed via `decayed()`, a token created "with decayed", a decayed counter, a
+     * gained-keyword effect): projection sets "can't block", and the trigger detector
+     * schedules the end-of-combat self-sacrifice when the creature attacks.
      */
     DECAYED("Decayed"),
 
@@ -785,8 +804,30 @@ enum class Keyword(val displayName: String) {
      */
     RAVENOUS("Ravenous"),
 
+    /**
+     * Reconfigure [cost] (CR 702.151, Kamigawa: Neon Dynasty). Two activated abilities: "[Cost]:
+     * Attach this permanent to another target creature you control. Activate only as a sorcery" and
+     * "[Cost]: Unattach this permanent. Activate only if this permanent is attached to a creature
+     * and only as a sorcery" (CR 702.151a).
+     *
+     * The keyword is what the engine's attachment rules read: an Equipment that's also a creature
+     * can equip a creature only if it has reconfigure (CR 301.5c), and attaching an Equipment that
+     * has reconfigure to a creature — by its own ability or any other effect — makes it stop being
+     * a creature until it becomes unattached from that creature (CR 702.151b). The `reconfigure(cost)`
+     * DSL helper on [com.wingedsheep.sdk.dsl.CardBuilder] declares the keyword and adds both
+     * abilities ([com.wingedsheep.sdk.scripting.ActivatedAbility.reconfigure]).
+     */
+    RECONFIGURE("Reconfigure"),
+
     // ── Damage modification ──────────────────────────────
     WITHER("Wither"),
+    /**
+     * Infect (CR 702.90): damage this source deals to a player gives that player that many poison
+     * counters instead of causing life loss (CR 120.3b); damage to a creature is dealt as -1/-1
+     * counters, exactly as with [WITHER] (CR 120.3d). Works from any zone (a spell with infect),
+     * and multiple instances are redundant.
+     */
+    INFECT("Infect"),
     TOXIC("Toxic"),
 
     // ── Numeric (parameterized by N) ──────────────────────
@@ -806,6 +847,12 @@ enum class Keyword(val displayName: String) {
      * composes the upkeep trigger (age counter, then pay the cost per age counter or sacrifice).
      */
     CUMULATIVE_UPKEEP("Cumulative upkeep"),
+
+    /**
+     * Echo [cost] (CR 702.30). Display-only; the `echo(cost)` DSL helper composes the upkeep trigger
+     * (if it came under your control since your last upkeep, sacrifice it unless you pay the cost).
+     */
+    ECHO("Echo"),
 
     /**
      * Soulshift N (CR 702.46). Display-only; the `soulshift(n)` DSL helper composes the optional
@@ -976,6 +1023,16 @@ enum class Keyword(val displayName: String) {
     REBOUND("Rebound"),
 
     /**
+     * Cipher (CR 702.99). A spell ability plus a static ability: as the spell resolves, just after
+     * its other effects, its controller may exile the card encoded on a creature they control; for
+     * as long as it stays encoded, that creature has "Whenever this creature deals combat damage to
+     * a player, you may copy the encoded card and you may cast the copy without paying its mana
+     * cost." Read by the spell-resolution path (`NonPermanentSpellResolver`), which appends
+     * [com.wingedsheep.sdk.scripting.Cipher.encodeStep] to a resolving cipher card's effect.
+     */
+    CIPHER("Cipher"),
+
+    /**
      * Teamwork N (CR 702.194, Marvel Super Heroes). A static ability that functions while the
      * spell is on the stack: "As an additional cost to cast this spell, you may tap any number of
      * creatures you control with total power N or more" (CR 702.194a). A spell whose controller
@@ -997,6 +1054,13 @@ enum class Keyword(val displayName: String) {
     TEAMWORK("Teamwork");
 
     companion object {
+        /** The landwalk family (CR 702.14): every keyword that makes a creature unblockable
+         *  while the defending player controls a land of the named kind. */
+        val LANDWALK: Set<Keyword> = setOf(
+            SWAMPWALK, FORESTWALK, ISLANDWALK, MOUNTAINWALK, PLAINSWALK, DESERTWALK, NONBASIC_LANDWALK,
+            LEGENDARY_LANDWALK
+        )
+
         fun fromString(value: String): Keyword? =
             entries.find { it.displayName.equals(value, ignoreCase = true) }
 

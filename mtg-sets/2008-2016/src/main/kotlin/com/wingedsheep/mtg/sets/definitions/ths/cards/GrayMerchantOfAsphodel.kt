@@ -12,12 +12,12 @@ import com.wingedsheep.sdk.model.Rarity
  * {3}{B}{B}
  * Creature — Zombie
  * 2/4
- *
  * When this creature enters, each opponent loses X life, where X is your devotion to black. You
  * gain life equal to the life lost this way.
  *
- * [Effects.DrainLife] records the life actually lost by every opponent and produces one aggregate
- * life-gain event, which is the multiplayer behavior the printed wording requires.
+ * `DrainLife` is exactly this shape: each opponent loses the amount, then you gain the *total* life
+ * actually lost (the ruling: not simply X). Devotion is evaluated as the trigger resolves, counting
+ * the Merchant itself if it's still on the battlefield.
  */
 val GrayMerchantOfAsphodel = card("Gray Merchant of Asphodel") {
     manaCost = "{3}{B}{B}"
@@ -25,13 +25,15 @@ val GrayMerchantOfAsphodel = card("Gray Merchant of Asphodel") {
     typeLine = "Creature — Zombie"
     power = 2
     toughness = 4
-    oracleText = "When this creature enters, each opponent loses X life, where X is your devotion to black. " +
-        "You gain life equal to the life lost this way. (Each {B} in the mana costs of permanents you " +
-        "control counts toward your devotion to black.)"
+    oracleText = "When this creature enters, each opponent loses X life, where X is your devotion to " +
+        "black. You gain life equal to the life lost this way. (Each {B} in the mana costs of " +
+        "permanents you control counts toward your devotion to black.)"
 
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Effects.DrainLife(DynamicAmounts.devotionTo(Color.BLACK))
+        description = "When this creature enters, each opponent loses X life, where X is your devotion " +
+            "to black. You gain life equal to the life lost this way."
     }
 
     metadata {

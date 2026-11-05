@@ -30,6 +30,122 @@ export interface Announcement {
 
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
+    id: 'set-znr',
+    date: '2026-10-28',
+    kind: 'set',
+    setCode: 'ZNR',
+    title: 'Zendikar Rising is complete',
+    body:
+      "Return to Zendikar's adventure world: gather a party of Clerics, Rogues, Warriors and Wizards to power party payoffs, kick spells for bigger effects, and trigger landfall with every land drop. Every pack opens a modal double-faced card that is a spell or a land as you need it, so decks rarely flood or screw while they race, mill or ramp.",
+    tryIf: 'landfall, kicker and building a party of adventurers',
+  },
+  {
+    id: 'set-khm',
+    date: '2026-10-27',
+    kind: 'set',
+    setCode: 'KHM',
+    title: 'Kaldheim is complete',
+    body:
+      'Raid the Norse-inspired realms of Kaldheim: foretell spells into exile to cast them cheaply later, boast with creatures that attacked, and play snow lands to power snow payoffs. Double-faced Gods pair a creature with a spell or artifact, Sagas unfold chapter by chapter, and tribes of Elves, Giants, Berserkers and Zombies give each colour pair its own clan.',
+    tryIf: 'tribal clans, snow mana and planning turns ahead with foretell',
+  },
+  {
+    id: 'set-afr',
+    date: '2026-10-25',
+    kind: 'set',
+    setCode: 'AFR',
+    title: 'Adventures in the Forgotten Realms is complete',
+    body:
+      "Grab your party and head into Dungeons & Dragons: venture into dungeons room by room, roll a d20 for spells with tiered results, and gain levels in Classes that grow stronger as the game goes on. Pack tactics rewards big attacks, Treasure fuels splashy spells, and Equipment and life gain decks give every colour pair its own adventure.",
+    tryIf: 'dice rolling, dungeon crawling and Dungeons & Dragons flavour',
+  },
+  {
+    id: 'set-stx',
+    date: '2026-10-25',
+    kind: 'set',
+    setCode: 'STX',
+    title: 'Strixhaven: School of Mages is complete',
+    body:
+      "Enrol at Strixhaven, where five colleges each pair two colours: Silverquill's inkling wordsmiths, Prismari's elemental artists, Witherbloom's Pest-draining alchemists, Lorehold's spirited historians and Quandrix's fractal mathematicians. Magecraft rewards every instant and sorcery you cast or copy, learn fetches Lessons from outside the game, and ward, Masteries and the five Elder Dragon founders round out a set built for spell-heavy decks.",
+    tryIf: 'instants and sorceries, two-colour college decks and value from every spell you cast',
+  },
+  {
+    id: 'set-mid',
+    date: '2026-10-23',
+    kind: 'set',
+    setCode: 'MID',
+    title: 'Innistrad: Midnight Hunt is complete',
+    body:
+      "Survive the longest night on Innistrad: day and night flip Werewolves between human and beast, flashback and disturb bring spells and Spirits back from the graveyard, and coven rewards Humans for banding together against decayed Zombie hordes and Vampires out for blood. Every pack opens two double-faced cards, and decks reward planning around the graveyard and the time of day.",
+    tryIf: 'graveyard value, flashback spells and Werewolves that transform with the time of day',
+  },
+  {
+    id: 'set-mat',
+    date: '2026-10-21',
+    kind: 'set',
+    setCode: 'MAT',
+    title: 'March of the Machine: The Aftermath is complete',
+    body:
+      "The epilogue to the Phyrexian invasion: 50 cards built around legends of the multiverse picking up the pieces, most of them multicolour, from Nahiri and Sarkhan to a five-colour Niv-Mizzet. Its 5-card Epilogue Boosters mix into March of the Machine or any other set, adding a rare-heavy layer of legends, recursion and death-and-counters payoffs to a draft.",
+    tryIf: 'multicolour legends and a rare-rich bonus pack mixed into another set',
+  },
+  {
+    id: 'set-leg',
+    date: '2026-10-21',
+    kind: 'set',
+    setCode: 'LEG',
+    title: 'Legends is complete',
+    body:
+      "Magic's first big expansion of all-new cards brought the original legendary creatures: gold heroes and villains like Nicol Bolas and the Elder Dragons, alongside rampaging beasts, banding armies and world enchantments that rewrite the rules for every player. Decks lean on two or three colours and one game-changing legend at the top of the curve.",
+    tryIf: 'old-school Magic, multicolour legends and rules-bending enchantments',
+  },
+  {
+    id: 'set-neo',
+    date: '2026-10-20',
+    kind: 'set',
+    setCode: 'NEO',
+    title: 'Kamigawa: Neon Dynasty is complete',
+    body:
+      'Return to a Kamigawa of neon cities and ancient kami: Ninjas slip in with ninjutsu, Samurai and Warriors strike alone, pilots crew mechs, and modified creatures grow with counters, Equipment and Auras. Flipping Sagas, channel lands and artifacts-meet-enchantments decks round out a draft full of tempo and tricks.',
+    tryIf: 'tempo tricks, Vehicles and Equipment, and decks that mix artifacts with enchantments',
+  },
+  {
+    id: 'feature-order-your-triggers',
+    date: '2026-10-19',
+    kind: 'feature',
+    title: 'Order your own triggers',
+    body:
+      'When several of your abilities trigger at once you can now choose the order they go on the stack — scry before the draw, make the token before the anthem trigger counts. Turn off Order my triggers automatically in Preferences → Gameplay, and the game asks whenever the order can matter, with a list you drag into place.',
+  },
+  {
+    id: 'set-snc',
+    date: '2026-10-17',
+    kind: 'set',
+    setCode: 'SNC',
+    title: 'Streets of New Capenna is complete',
+    body:
+      'Pick a crime family and run the streets of an art-deco city of demons and angels: the Brokers guard their creatures with shield counters, the Obscura connive, the Maestros cast spells with casualty, the Riveteers blitz in hasty bruisers, and the Cabaretti throw Citizen parties. Three-colour decks are the norm, held together by tri-lands and Treasure.',
+    tryIf: 'three-colour decks, sacrifice-for-value and go-wide token swarms',
+  },
+  {
+    id: 'feature-playing-for-ante',
+    date: '2026-10-17',
+    kind: 'feature',
+    title: 'Play for ante',
+    body:
+      'Raise the stakes the old-fashioned way. Turn on Play for ante in a lobby and each player antes a random card from their deck before the opening draw — the winner takes the pile. In a sealed or draft tournament the cards you win join your pool for the rest of the event; anywhere else they go up as trophies in the new Spoils panel on your profile. It also unlocks the ante cards: Contract from Below, Darkpact, Demonic Attorney, Jeweled Bird and Bronze Tablet. Ranked games never play for ante.',
+  },
+  {
+    id: 'set-pip',
+    date: '2026-10-17',
+    kind: 'set',
+    setCode: 'PIP',
+    title: 'Fallout is complete',
+    body:
+      'All four Fallout Commander decks are playable in the Wasteland: rad counters mill players and drain their life, Junk tokens dig for one more card, energy fuels Science! decks, and Vault locations and V.A.T.S. spells reward you for the long game. Dogmeat suits up Auras and Equipment, Caesar marches out a legion of tokens, and the Wise Mothman feeds mutants off the rads.',
+    tryIf: 'Commander precons, rad-counter mill and Aura-and-Equipment voltron',
+  },
+  {
     id: 'feature-card-browser',
     date: '2026-10-14',
     kind: 'feature',

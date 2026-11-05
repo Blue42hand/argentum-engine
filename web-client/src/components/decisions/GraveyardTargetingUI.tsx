@@ -105,7 +105,7 @@ export function GraveyardTargetingUI({
   // The list is homogenous-zone by construction (the caller's filter routes mixed-zone
   // sets elsewhere), so we read the first card's zone to pick wording for everything.
   const pileZoneType = graveyardCards[0]?.zone?.zoneType ?? ZoneType.GRAVEYARD
-  const pileNoun = pileZoneType === ZoneType.EXILE ? 'Exile' : 'Graveyard'
+  const pileNoun = pileZoneType === ZoneType.EXILE ? 'Exile' : pileZoneType === ZoneType.ANTE ? 'Ante' : 'Graveyard'
 
   // Get player names for tabs
   const getPlayerLabel = (ownerId: EntityId): string => {
@@ -127,7 +127,11 @@ export function GraveyardTargetingUI({
   const isOptionalTarget = minTargets === 0
   const isMultiTarget = maxTargets > 1
   const sourceName = decision.context.sourceName ?? 'this ability'
-  const baseTitle = isOptionalTarget ? `Resolve ${sourceName}` : `Choose from ${pileNoun}`
+  // Targets chosen while casting belong to a spell, not a resolving trigger: "Cast X" / "Choose
+  // None", where an optional trigger target reads "Resolve X" / "Decline Trigger".
+  const isCasting = decision.context.phase === 'CASTING'
+  const declineLabel = isCasting ? 'Choose None' : 'Decline Trigger'
+  const baseTitle = isOptionalTarget ? `${isCasting ? 'Cast' : 'Resolve'} ${sourceName}` : `Choose from ${pileNoun}`
   const title = totalRequirements > 1
     ? `${baseTitle} (${requirementIndex + 1}/${totalRequirements})`
     : baseTitle
@@ -191,11 +195,12 @@ export function GraveyardTargetingUI({
         initialSelection={initialSelection}
         selectionGroups={targetReq?.selectionGroups ?? null}
         exclusiveGroups={targetReq?.exclusiveGroups ?? null}
+        distinctCategories={targetReq?.distinctCategories ?? null}
         responsive={responsive}
         onConfirm={handleConfirm}
         confirmText={isOptionalTarget ? optionalConfirmText : 'Confirm Target'}
         showFailToFind={isOptionalTarget || !!targetReq?.emptyChoiceLabel}
-        failToFindText={targetReq?.emptyChoiceLabel ?? 'Decline Trigger'}
+        failToFindText={targetReq?.emptyChoiceLabel ?? declineLabel}
         confirmRequiresSelection={isOptionalTarget || !!targetReq?.emptyChoiceLabel}
         sortByType={true}
         useGlobalHover={true}
@@ -283,12 +288,13 @@ export function GraveyardTargetingUI({
         totalManaValueAtMost={targetReq?.totalManaValueAtMost ?? null}
         selectionGroups={targetReq?.selectionGroups ?? null}
         exclusiveGroups={targetReq?.exclusiveGroups ?? null}
+        distinctCategories={targetReq?.distinctCategories ?? null}
         responsive={responsive}
         onConfirm={handleConfirm}
         onMinimize={() => setMinimized(true)}
         {...(onViewBattlefield ? { onViewBattlefield } : {})}
         confirmText={isOptionalTarget ? optionalConfirmText : 'Confirm Target'}
-        declineText={targetReq?.emptyChoiceLabel ?? (isOptionalTarget ? 'Decline Trigger' : undefined)}
+        declineText={targetReq?.emptyChoiceLabel ?? (isOptionalTarget ? declineLabel : undefined)}
         confirmRequiresSelection={isOptionalTarget || !!targetReq?.emptyChoiceLabel}
         {...(onBack ? { onBack } : {})}
       />
@@ -303,6 +309,7 @@ export function GraveyardTargetingUI({
 function GraveyardCardSelection({
   selectionGroups,
   exclusiveGroups,
+  distinctCategories,
   cards,
   selectedCards,
   onSelectedCardsChange,
@@ -326,6 +333,8 @@ function GraveyardCardSelection({
   totalManaValueAtMost?: number | null
   selectionGroups?: readonly (readonly EntityId[])[] | null
   exclusiveGroups?: readonly (readonly EntityId[])[] | null
+  /** Each candidate's claimable categories; picks must each claim a different one ("of each color"). */
+  distinctCategories?: Readonly<Record<EntityId, readonly string[]>> | null
   responsive: ResponsiveSizes
   onConfirm: (selectedCards: EntityId[]) => void
   onMinimize: () => void
@@ -382,7 +391,7 @@ function GraveyardCardSelection({
       onSelectedCardsChange(selectedCards.filter((id) => id !== cardId))
       return
     }
-    if (maxSelections > 1 && !compatibleSelectionPool(cards.map((c) => c.id), selectionGroups, selectedCards, exclusiveGroups).includes(cardId)) return
+    if ((maxSelections > 1 || distinctCategories) && !compatibleSelectionPool(cards.map((c) => c.id), selectionGroups, maxSelections > 1 ? selectedCards : [], exclusiveGroups, distinctCategories).includes(cardId)) return
     if (selectedCards.length >= maxSelections) {
       // Single-select slot at its cap: clicking a different card replaces the pick, the same rule
       // the board path uses (toggleDecisionSelection). It also unblocks a mixed

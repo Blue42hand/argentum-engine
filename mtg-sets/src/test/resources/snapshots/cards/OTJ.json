@@ -4888,8 +4888,8 @@
                 }
             },
             {
-                "type": "ModifyPlotCost",
-                "target": "YouPlotFromHand",
+                "type": "ModifySpecialActionCost",
+                "action": "PLOT",
                 "modification": {
                     "type": "ReduceGeneric",
                     "amount": 2
@@ -4950,7 +4950,8 @@
                 "binding": "ANY",
                 "effect": {
                     "type": "CopyTargetSpell",
-                    "target": "TriggeringEntity"
+                    "target": "TriggeringEntity",
+                    "mayChooseNewTargets": false
                 },
                 "descriptionOverride": "Whenever you cast an outlaw spell, copy that spell."
             }
@@ -6430,7 +6431,10 @@
                             },
                             {
                                 "type": "GatherCards",
-                                "source": "Self",
+                                "source": {
+                                    "type": "Entity",
+                                    "entity": "Self"
+                                },
                                 "storeAs": "gathered2"
                             },
                             {
@@ -18023,8 +18027,16 @@
             "gate": {
                 "type": "Gate.WhenCondition",
                 "condition": {
-                    "type": "CastTimeFlagSet",
-                    "flag": "controlledMount"
+                    "type": "Compare",
+                    "left": {
+                        "type": "CapturedAtCast",
+                        "captureName": "controlledMount"
+                    },
+                    "operator": "GT",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 0
+                    }
                 }
             },
             "then": {
@@ -18074,12 +18086,23 @@
         ],
         "castTimeCaptures": [
             {
-                "flag": "controlledMount",
-                "condition": {
-                    "type": "Exists",
-                    "player": "You",
-                    "zone": "Battlefield",
-                    "filter": "creature Mount"
+                "captureName": "controlledMount",
+                "value": {
+                    "type": "Conditional",
+                    "condition": {
+                        "type": "Exists",
+                        "player": "You",
+                        "zone": "Battlefield",
+                        "filter": "creature Mount"
+                    },
+                    "ifTrue": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "ifFalse": {
+                        "type": "Fixed",
+                        "amount": 0
+                    }
                 }
             }
         ]

@@ -1,9 +1,8 @@
 package com.wingedsheep.engine.handlers.effects.player
 
+import com.wingedsheep.engine.handlers.effects.SourceReferenceText
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.effects.Effect
-import com.wingedsheep.sdk.scripting.effects.SelfReferentialDescription
-import com.wingedsheep.sdk.scripting.targets.resolveSelfNoun
 
 /**
  * The prompt text for an "any player may [cost]" offer ([com.wingedsheep.sdk.scripting.effects.AnyPlayerMayPayEffect]),
@@ -15,11 +14,12 @@ import com.wingedsheep.sdk.scripting.targets.resolveSelfNoun
  *
  * - Innocent Traveler: "You may sacrifice a creature. If no one does, transform Innocent Traveler."
  * - Prowling Pangolin: "You may sacrifice two creatures. If you do, sacrifice Prowling Pangolin."
+ * - Reservoir Kraken: "You may tap an untapped creature you control. If you do, tap Reservoir Kraken and …"
  */
 object AnyPlayerMayPayPrompt {
 
-    fun sacrifice(
-        cost: CostAtom.Sacrifice,
+    fun selection(
+        cost: CostAtom,
         sourceName: String,
         consequence: Effect?,
         consequenceIfNonePaid: Effect?
@@ -29,23 +29,7 @@ object AnyPlayerMayPayPrompt {
         if (consequenceIfNonePaid != null) append(" If no one does, ${consequenceText(consequenceIfNonePaid, sourceName)}.")
     }
 
-    /**
-     * [effect]'s description with every reference to the source permanent ("this creature",
-     * "this permanent", the self-noun placeholder) replaced by [sourceName], first letter lowered
-     * so it reads as a clause, trailing period dropped.
-     */
-    private fun consequenceText(effect: Effect, sourceName: String): String {
-        val raw = (effect as? SelfReferentialDescription)
-            ?.let { resolveSelfNoun(it.descriptionTemplate, sourceName) }
-            ?: effect.description
-        return SELF_NOUNS.fold(raw) { text, noun -> text.replace(noun, sourceName) }
-            .trim()
-            .removeSuffix(".")
-            .replaceFirstChar { it.lowercaseChar() }
-    }
-
-    private val SELF_NOUNS = listOf(
-        "this creature", "this permanent", "this land", "this artifact",
-        "this enchantment", "this planeswalker", "this battle"
-    )
+    /** [effect]'s text as a clause, the source permanent named — see [SourceReferenceText.clause]. */
+    private fun consequenceText(effect: Effect, sourceName: String): String =
+        SourceReferenceText.clause(effect, sourceName)
 }

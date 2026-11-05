@@ -145,7 +145,9 @@ class DiscoverExecutor(
                     sourceId = context.sourceId,
             objectReferences = context.objectReferences,
                     controllerId = controllerId,
-                    pipeline = PipelineState.EMPTY.copy(storedCollections = discoveredCollections)
+                    pipeline = PipelineState.EMPTY.copy(storedCollections = discoveredCollections),
+                    // The follow-up is a program this discover built: the label handed to this call.
+                    programOrigin = context.programOrigin,
                 )
             )
             return if (thenResult.outcome is Outcome.Paused) {
@@ -165,6 +167,7 @@ class DiscoverExecutor(
             exiledCards = exiledCards.toList(),
             discoveredCardId = discoveredCard,
             storeDiscoveredAs = effect.storeDiscoveredAs,
+            programOrigin = context.programOrigin,
             // The card's own follow-up (if any) runs first, then the DiscoveredEvent tail fires so
             // "whenever you discover" watchers see a completed discover (CR 701.57b). The resumer
             // runs this at every completion path — including after a free cast — because it is now

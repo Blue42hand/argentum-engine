@@ -1,11 +1,12 @@
 package com.wingedsheep.ai.engine
 
+import com.wingedsheep.ai.engine.knowledge.CardIntentAnalyzer
+import com.wingedsheep.ai.engine.knowledge.IntentTag
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.CardDefinition
-import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEffect
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
@@ -22,10 +23,12 @@ import kotlin.math.pow
  * Algorithm:
  * 1. Rate every card in the pool
  * 2. Score each color by the total rating of its cards (weighted toward creatures)
- * 3. Pick the best 2 colors
- * 4. Select the top 23 on-color spells by rating, with mana curve awareness — each copy valued at
- *    its marginal worth, so a legend's duplicates rank below its first copy ([rankByMarginalValue])
- * 5. Fill to 40 cards with basic lands split proportionally by mana symbols
+ * 3. Pick the best 2 colors (no splash)
+ * 4. Select the top 23 on-color spells by rating — each copy valued at its marginal worth, so a
+ *    legend's duplicates rank below its first copy ([rankByMarginalValue]) — then refine: drop
+ *    spells that do nothing in this deck ([DeckDependencies]), reach [CREATURES_PER_40] creatures
+ *    when the pool allows, and cut cards whose pips the mana base can't support ([PipDemand])
+ * 5. Fill to 40 cards with basic lands split by weighted pip demand, with per-color source floors
  *
  * When [locked] is non-empty the builder switches to **completion mode**: the locked cards are
  * treated as already-chosen (always kept, counted toward the 4-of limit) and only the remaining
@@ -52,12 +55,21 @@ fun buildHeuristicSealedDeck(
     return buildFreshSealedDeck(pool, targetSize)
 }
 
+/** Creatures a 40-card limited deck wants; scaled to the deck size. */
+internal const val CREATURES_PER_40 = 14
+
+/** Creatures at mana value 3 or less a 40-card limited deck wants. */
+private const val CHEAP_CREATURES_PER_40 = 5
+
+/** Rounds of the mana-support repair before the builder settles for what it has. */
+private const val MANA_REPAIR_ROUNDS = 10
+
 private fun buildFreshSealedDeck(pool: List<CardDefinition>, targetSize: Int): Map<String, Int> {
     val deck = mutableMapOf<String, Int>()
     val ratings = pool.associateWith { LimitedCardRater.rate(it) }
 
     val nonLands = pool.filter { !it.typeLine.isLand }
-    val poolLands = pool.filter { it.typeLine.isLand && !it.typeLine.isBasicLand }
+    val poolLands = pool.filter { it.typeLine.isLand && (!it.typeLine.isBasicLand || it.typeLine.isSnow) }
 
     // Score each color by the total limited rating of its cards
     val colorScores = mutableMapOf<Color, Double>()
@@ -68,88 +80,229 @@ private fun buildFreshSealedDeck(pool: List<CardDefinition>, targetSize: Int): M
         }
     }
 
-    // Pick top 2 colors
+    // Pick top 2 colors — the builder never splashes, so this is also the color cap.
     val bestColors = colorScores.entries.sortedByDescending { it.value }.take(2).map { it.key }.toSet()
 
-    // Select cards castable off the chosen colors, best first — by each copy's *marginal* value, so
-    // a second copy of a legend ranks below the first (see [rankByMarginalValue]).
-    val candidates = rankByMarginalValue(nonLands.filter { castableWithColors(it, bestColors) }) { ratings[it] ?: 0.0 }
-    val copyValue = candidates.associate { it.slot to it.value }
-    fun value(slot: PoolSlot) = copyValue[slot] ?: 0.0
+    // Cards castable off the chosen colors, best first — by each copy's *marginal* value, so a
+    // second copy of a legend ranks below the first (see [rankByMarginalValue]).
+    val ranked = rankByMarginalValue(nonLands.filter { castableWithColors(it, bestColors) }) { ratings[it] ?: 0.0 }
 
-    // Pick top 23, but ensure a reasonable mana curve:
-    // At least 5 creatures at CMC <= 3, and at least 13 creatures total
-    val selected = mutableListOf<PoolSlot>()
-    val remaining = candidates.map { it.slot }.toMutableList()
+    // On-color non-basic lands (capped at 4 per name) are fixed first: the mana-support check
+    // below needs to know which colors they already make.
+    val nonbasics = mutableMapOf<String, Int>()
+    for (land in poolLands) {
+        if (!landFitsColors(land, bestColors)) continue
+        val current = nonbasics[land.name] ?: 0
+        if (current >= 4) continue
+        nonbasics[land.name] = current + 1
+    }
+    val landDefs = poolLands.associateBy { it.name }
+    val fixedSources: (Color) -> Int = { color ->
+        nonbasics.entries.sumOf { (name, n) -> if (color in producedColors(landDefs.getValue(name))) n else 0 }
+    }
 
     // Spell slots scale with deck size (23 nonland cards in a 40-card limited deck).
     val spellTarget = (targetSize * 23) / 40
+    val selection = SpellSelection(ranked, spellTarget)
+    selection.fill()
+    selection.dropInertCards()
+    selection.meetCreatureMinimum(
+        minCreatures = targetSize * CREATURES_PER_40 / 40,
+        minCheap = targetSize * CHEAP_CREATURES_PER_40 / 40,
+    )
+    selection.supportPips(bestColors, nonbasicCount = nonbasics.values.sum(), targetSize = targetSize, fixedSources = fixedSources)
 
-    // First pass: grab the best cards by value, capped at 4 copies per name (sealed rule)
-    val picksByName = mutableMapOf<String, Int>()
-    val topPicks = mutableListOf<PoolSlot>()
-    val iter = remaining.iterator()
-    while (iter.hasNext() && topPicks.size < spellTarget) {
-        val slot = iter.next()
-        val current = picksByName[slot.card.name] ?: 0
-        if (current >= 4) continue
-        picksByName[slot.card.name] = current + 1
-        topPicks.add(slot)
-        iter.remove()
-    }
-    selected.addAll(topPicks)
-
-    // Check curve: if too few cheap creatures, swap in some
-    val cheapCreatures = selected.count { it.card.typeLine.isCreature && it.card.cmc <= 3 }
-    val totalCreatures = selected.count { it.card.typeLine.isCreature }
-
-    if (cheapCreatures < 5 || totalCreatures < 13) {
-        // Find cheap creatures we didn't pick (already in value order)
-        val cheapReplacements = remaining.filter { it.card.typeLine.isCreature && it.card.cmc <= 3 }
-        // Find expensive non-creatures or weak cards to cut
-        val cuttable = selected.sortedBy { value(it) }
-
-        var neededCheap = (5 - cheapCreatures).coerceAtLeast(0)
-        var neededCreatures = (13 - totalCreatures).coerceAtLeast(0)
-        val swapCount = neededCheap.coerceAtLeast(neededCreatures).coerceAtMost(cheapReplacements.size)
-
-        var cutIdx = 0
-        var replaceIdx = 0
-        var swapsDone = 0
-        while (swapsDone < swapCount && cutIdx < cuttable.size && replaceIdx < cheapReplacements.size) {
-            val replacement = cheapReplacements[replaceIdx]
-            val current = picksByName[replacement.card.name] ?: 0
-            if (current >= 4) { replaceIdx++; continue }
-            val cut = cuttable[cutIdx]
-            if (selected.remove(cut)) {
-                picksByName[cut.card.name] = ((picksByName[cut.card.name] ?: 0) - 1).coerceAtLeast(0)
-                selected.add(replacement)
-                picksByName[replacement.card.name] = current + 1
-                swapsDone++
-            }
-            cutIdx++
-            replaceIdx++
-        }
-    }
-
-    for (slot in selected) {
+    for (slot in selection.selected) {
         deck[slot.card.name] = (deck[slot.card.name] ?: 0) + 1
     }
+    for ((name, n) in nonbasics) deck[name] = (deck[name] ?: 0) + n
 
-    // Add on-color non-basic lands (capped at 4 per name)
-    for (land in poolLands) {
-        if (!landFitsColors(land, bestColors)) continue
-        val current = deck[land.name] ?: 0
-        if (current >= 4) continue
-        deck[land.name] = current + 1
-    }
-
-    // Fill to target size with basic lands split by color
+    // Fill to target size with basic lands split by weighted pip demand.
     val landsNeeded = (targetSize - deck.values.sum()).coerceAtLeast(0)
-    addBasicLands(deck, bestColors, landsNeeded) { color -> selected.sumOf { it.card.manaCost.colorCount[color] ?: 0 } }
+    addBasicLands(
+        deck, bestColors, landsNeeded,
+        spells = selection.selected.map { it.card to 1 },
+        fixedSources = fixedSources,
+        landCount = landsNeeded + nonbasics.values.sum(),
+    )
 
     return deck
 }
+
+/**
+ * The fresh build's spell picks, refined in passes over the value-ordered [ranked] candidates:
+ * take the best, drop cards that do nothing in this deck, reach the creature minimum, and cut
+ * cards whose colored pips the mana base can't support. Each pass swaps one card for the best
+ * remaining candidate that fixes the problem, so the deck stays as strong as the fix allows.
+ */
+private class SpellSelection(private val ranked: List<RankedCopy>, private val spellTarget: Int) {
+    private val value = ranked.associate { it.slot to it.value }
+    val selected = mutableListOf<PoolSlot>()
+    private val excluded = mutableSetOf<String>()
+    private val copies = mutableMapOf<String, Int>()
+
+    private fun cards() = selected.map { it.card }
+    private fun creatures() = selected.count { it.card.typeLine.isCreature }
+
+    private fun canTake(slot: PoolSlot) =
+        slot !in selected && slot.card.name !in excluded && (copies[slot.card.name] ?: 0) < 4
+
+    private fun take(slot: PoolSlot) {
+        selected += slot
+        copies[slot.card.name] = (copies[slot.card.name] ?: 0) + 1
+    }
+
+    private fun drop(slot: PoolSlot) {
+        if (selected.remove(slot)) copies[slot.card.name] = ((copies[slot.card.name] ?: 0) - 1).coerceAtLeast(0)
+    }
+
+    private fun best(predicate: (PoolSlot) -> Boolean): PoolSlot? =
+        ranked.firstOrNull { canTake(it.slot) && predicate(it.slot) }?.slot
+
+    /** First pass: the best cards by value, capped at 4 copies per name (sealed rule). */
+    fun fill(accept: (PoolSlot) -> Boolean = { true }) {
+        while (selected.size < spellTarget) take(best(accept) ?: return)
+    }
+
+    /**
+     * Drop every spell that would do nothing in this deck ([DeckDependencies.inert]) — a
+     * planeswalker tutor with no planeswalkers — and refill with cards that do something. Repeats
+     * because a drop can strand another card that relied on it.
+     */
+    fun dropInertCards() {
+        repeat(5) {
+            val dead = selected.filter { DeckDependencies.inert(it.card, cards()) }
+            if (dead.isEmpty()) return
+            dead.forEach { excluded += it.card.name; drop(it) }
+            fill { !DeckDependencies.inert(it.card, cards()) }
+        }
+    }
+
+    /**
+     * Reach [minCreatures] (and [minCheap] cheap ones) when the pool allows, cutting the weakest
+     * noncreature spells — with combat tricks and creature Auras discounted as the creature count
+     * drops, since they need bodies to do anything. When the pool runs out of creatures, the
+     * tricks still left lose their slots to any better-valued noncreature spell.
+     */
+    fun meetCreatureMinimum(minCreatures: Int, minCheap: Int) {
+        fun adjusted(slot: PoolSlot): Double {
+            val base = value[slot] ?: 0.0
+            val creatures = creatures()
+            if (creatures >= minCreatures || !needsCreatures(slot.card)) return base
+            return base * creatures.toDouble() / minCreatures
+        }
+        fun live(slot: PoolSlot) = !DeckDependencies.inert(slot.card, cards())
+
+        while (creatures() < minCreatures) {
+            val add = best { it.card.typeLine.isCreature } ?: break
+            val victim = selected.filter { !it.card.typeLine.isCreature }.minByOrNull(::adjusted) ?: break
+            drop(victim)
+            take(add)
+        }
+        fun cheap(slot: PoolSlot) = slot.card.typeLine.isCreature && slot.card.cmc <= 3
+        while (selected.count(::cheap) < minCheap) {
+            val add = best(::cheap) ?: break
+            val victim = selected.filter { !cheap(it) }.minByOrNull(::adjusted) ?: break
+            drop(victim)
+            take(add)
+        }
+        if (creatures() >= minCreatures) return
+        repeat(selected.size) {
+            val trick = selected.filter { needsCreatures(it.card) }.minByOrNull(::adjusted) ?: return
+            val add = best { !it.card.typeLine.isCreature && !needsCreatures(it.card) && live(it) } ?: return
+            if ((value[add] ?: 0.0) <= adjusted(trick)) return
+            drop(trick)
+            take(add)
+        }
+    }
+
+    /**
+     * Cut the cards whose colored pips the mana base can't support. The most demanding card of
+     * each color sets that color's source floor ([PipDemand.sourcesNeeded]); when the two floors
+     * don't fit in the deck's lands, the heaviest card of the *less* demanded color goes, replaced
+     * by the best candidate that asks less of that color.
+     */
+    fun supportPips(colors: Set<Color>, nonbasicCount: Int, targetSize: Int, fixedSources: (Color) -> Int) {
+        if (colors.size < 2) return
+        repeat(MANA_REPAIR_ROUNDS) {
+            val landCount = targetSize - selected.size
+            val basics = (landCount - nonbasicCount).coerceAtLeast(0)
+            val spells = selected.map { it.card to 1 }
+            val demand = pipDemand(spells, colors)
+            val floors = sourceFloors(spells, colors, landCount)
+            val allocation = PipDemand.allocate(demand, basics, floors, fixedSources)
+            if (PipDemand.shortfall(allocation, floors, fixedSources) == 0) return
+
+            val minor = colors.minByOrNull { demand[it] ?: 0.0 } ?: return
+            val heaviest = selected.maxOfOrNull { strictPips(it.card, minor) } ?: return
+            if (heaviest == 0) return
+            val victim = selected.filter { strictPips(it.card, minor) == heaviest }
+                .minByOrNull { value[it] ?: 0.0 } ?: return
+            excluded += victim.card.name
+            selected.filter { it.card.name == victim.card.name }.forEach(::drop)
+            fill { strictPips(it.card, minor) < heaviest && !DeckDependencies.inert(it.card, cards()) }
+        }
+    }
+}
+
+/**
+ * Whether [card] is a spell that only does something with a creature of ours to put it on — a
+ * pump, a combat trick, an Aura that isn't a Pacifism-style answer.
+ */
+private fun needsCreatures(card: CardDefinition): Boolean {
+    if (card.typeLine.isCreature) return false
+    val tags = CardIntentAnalyzer.analyze(card).tags
+    if (tags.any { it in ANSWER_TAGS }) return false
+    return IntentTag.PUMP in tags || IntentTag.COMBAT_TRICK in tags || card.typeLine.hasSubtype(Subtype.AURA)
+}
+
+private val ANSWER_TAGS = setOf(
+    IntentTag.REMOVAL, IntentTag.EXILE_REMOVAL, IntentTag.SWEEPER, IntentTag.NEUTRALIZE, IntentTag.FIGHT,
+)
+
+/** Plain colored pips of [color] in [card]'s cost — the pips no other color or generic can pay. */
+private fun strictPips(card: CardDefinition, color: Color): Int = card.manaCost.colorCount[color] ?: 0
+
+/**
+ * [card]'s pips per deck color for the basic split: plain pips count 1; a hybrid pip counts 1 for
+ * its only on-color side or ½ for each when both are; Phyrexian and `{2/C}` pips count ½, since
+ * they can be paid another way.
+ */
+private fun pipsFor(card: CardDefinition, colors: Set<Color>): Map<Color, Double> {
+    val out = mutableMapOf<Color, Double>()
+    fun add(color: Color, amount: Double) { if (color in colors) out[color] = (out[color] ?: 0.0) + amount }
+    for (symbol in card.manaCost.symbols) {
+        when (symbol) {
+            is ManaSymbol.Colored -> add(symbol.color, 1.0)
+            is ManaSymbol.Phyrexian -> add(symbol.color, 0.5)
+            is ManaSymbol.MonocolorHybrid -> add(symbol.color, 0.5)
+            is ManaSymbol.HybridPair -> {
+                val sides = listOf(symbol.color1, symbol.color2).filter { it in colors }
+                val share = if (symbol is ManaSymbol.HybridPhyrexian) 0.5 else 1.0
+                sides.forEach { add(it, share / sides.size) }
+            }
+            else -> Unit
+        }
+    }
+    return out
+}
+
+/** Weighted basic-land demand per color ([PipDemand.weight]) over [spells] (card → copies). */
+private fun pipDemand(spells: List<Pair<CardDefinition, Int>>, colors: Set<Color>): Map<Color, Double> {
+    val demand = mutableMapOf<Color, Double>()
+    for ((card, count) in spells) {
+        for ((color, pips) in pipsFor(card, colors)) {
+            demand[color] = (demand[color] ?: 0.0) + PipDemand.weight(pips, card.cmc.toDouble()) * count
+        }
+    }
+    return demand
+}
+
+/** Each color's source floor: what its most demanding card in [spells] needs ([PipDemand.sourcesNeeded]). */
+private fun sourceFloors(spells: List<Pair<CardDefinition, Int>>, colors: Set<Color>, landCount: Int): Map<Color, Int> =
+    colors.associateWith { color ->
+        spells.maxOfOrNull { (card, _) -> PipDemand.sourcesNeeded(strictPips(card, color).toDouble(), landCount) } ?: 0
+    }
 
 /**
  * Completion mode: keep every locked card, then fill the remaining slots with the best on-color
@@ -203,7 +356,7 @@ private fun completeSealedDeck(
     }
 
     // On-color non-basic lands from the pool.
-    for (land in pool.filter { it.typeLine.isLand && !it.typeLine.isBasicLand && landFitsColors(it, bestColors) }) {
+    for (land in pool.filter { it.typeLine.isLand && (!it.typeLine.isBasicLand || it.typeLine.isSnow) && landFitsColors(it, bestColors) }) {
         if (total() >= targetSize) break
         val have = deck[land.name] ?: 0
         val available = poolCounts[land.name] ?: 0
@@ -211,14 +364,15 @@ private fun completeSealedDeck(
         deck[land.name] = have + 1
     }
 
-    // Basic-land mana base for the rest, split by the deck's actual colored mana symbols.
+    // Basic-land mana base for the rest, split by the deck's weighted colored-pip demand.
     val landsNeeded = (targetSize - total()).coerceAtLeast(0)
-    addBasicLands(deck, bestColors, landsNeeded) { color ->
-        deck.entries.sumOf { (n, c) ->
-            val def = defOf(n) ?: return@sumOf 0
-            if (def.typeLine.isLand) 0 else (def.manaCost.colorCount[color] ?: 0) * c
-        }
-    }
+    val deckLands = deck.mapNotNull { (n, c) -> defOf(n)?.takeIf { it.typeLine.isLand }?.let { it to c } }
+    addBasicLands(
+        deck, bestColors, landsNeeded,
+        spells = deck.mapNotNull { (n, c) -> defOf(n)?.takeIf { !it.typeLine.isLand }?.let { it to c } },
+        fixedSources = { color -> deckLands.sumOf { (land, c) -> if (color in producedColors(land)) c else 0 } },
+        landCount = landsNeeded + deckLands.sumOf { it.second },
+    )
 
     return deck
 }
@@ -229,33 +383,30 @@ private val COLOR_TO_LAND = mapOf(
 )
 
 /**
- * Add [landsNeeded] basic lands to [deck], split between [bestColors] proportionally to each color's
- * mana-symbol weight (from [symbolCount]). Mono-color dumps all into one type; colorless falls back
- * to Forest. No-op when no lands are needed.
+ * Add [landsNeeded] basic lands to [deck], split between [bestColors] by the weighted pip demand of
+ * [spells] (card → copies; [PipDemand.weight]) and raised to each color's source floor
+ * ([PipDemand.sourcesNeeded], counting the [fixedSources] non-basic lands already make) where the
+ * other color has room. Mono-color dumps all into one type; colorless falls back to Forest.
  */
 private fun addBasicLands(
     deck: MutableMap<String, Int>,
     bestColors: Set<Color>,
     landsNeeded: Int,
-    symbolCount: (Color) -> Int,
+    spells: List<Pair<CardDefinition, Int>>,
+    fixedSources: (Color) -> Int,
+    landCount: Int,
 ) {
     if (landsNeeded <= 0) return
-    when {
-        bestColors.size >= 2 -> {
-            val c1 = bestColors.first()
-            val c2 = bestColors.last()
-            val c1count = symbolCount(c1)
-            val c2count = symbolCount(c2)
-            val total = (c1count + c2count).coerceAtLeast(1)
-            val l1 = (landsNeeded * c1count / total).coerceIn(1, landsNeeded)
-            deck[COLOR_TO_LAND[c1]!!] = (deck[COLOR_TO_LAND[c1]!!] ?: 0) + l1
-            deck[COLOR_TO_LAND[c2]!!] = (deck[COLOR_TO_LAND[c2]!!] ?: 0) + (landsNeeded - l1)
-        }
-        bestColors.size == 1 -> {
-            val land = COLOR_TO_LAND[bestColors.first()]!!
-            deck[land] = (deck[land] ?: 0) + landsNeeded
-        }
-        else -> deck["Forest"] = (deck["Forest"] ?: 0) + landsNeeded
+    if (bestColors.isEmpty()) {
+        deck["Forest"] = (deck["Forest"] ?: 0) + landsNeeded
+        return
+    }
+    val demand = pipDemand(spells, bestColors).ifEmpty { bestColors.associateWith { 1.0 } }
+    val floors = sourceFloors(spells, bestColors, landCount)
+    for ((color, n) in PipDemand.allocate(demand, landsNeeded, floors, fixedSources)) {
+        if (n <= 0) continue
+        val land = COLOR_TO_LAND.getValue(color)
+        deck[land] = (deck[land] ?: 0) + n
     }
 }
 
@@ -310,7 +461,8 @@ internal fun spellColors(card: CardDefinition): Set<Color> =
 /**
  * Whether a deck whose mana comes from [deckColors] basics can pay [card]'s mana cost. Every pip
  * must be payable: a colored pip needs its color, a hybrid either half, a Phyrexian pip can always
- * be paid with 2 life (CR 107.4f) and a monocolored hybrid `{2/W}` with two generic (CR 107.4e).
+ * be paid with 2 life (CR 107.4f) and a monocolored hybrid `{2/W}` with two generic (CR 107.4e) —
+ * but at most [MAX_OFF_COLOR_TWOBRID_PIPS] of those off-color, or the card costs far above its slot.
  * A `{C}` pip needs a colorless *source*, which a basic-land mana base doesn't have. A card with no
  * mana cost at all (cast only by suspend or the like) falls back to its color indicator.
  */
@@ -320,13 +472,21 @@ internal fun castableWithColors(card: CardDefinition, deckColors: Set<Color>): B
 }
 
 internal fun manaCostPayableWith(cost: ManaCost, deckColors: Set<Color>): Boolean =
-    cost.symbols.all { symbol ->
-        when (symbol) {
-            is ManaSymbol.Phyrexian, is ManaSymbol.HybridPhyrexian, is ManaSymbol.MonocolorHybrid -> true
-            is ManaSymbol.Colorless -> false
-            else -> symbol.colors.isEmpty() || symbol.colors.any { it in deckColors }
+    cost.symbols.count { it is ManaSymbol.MonocolorHybrid && it.color !in deckColors } <= MAX_OFF_COLOR_TWOBRID_PIPS &&
+        cost.symbols.all { symbol ->
+            when (symbol) {
+                is ManaSymbol.Phyrexian, is ManaSymbol.HybridPhyrexian, is ManaSymbol.MonocolorHybrid -> true
+                is ManaSymbol.Colorless -> false
+                else -> symbol.colors.isEmpty() || symbol.colors.any { it in deckColors }
+            }
         }
-    }
+
+/**
+ * Off-color `{2/C}` pips a castable card may hold. Each one costs two generic instead of one
+ * colored, so a single one is a small tax but Karn, Gilded Guardian
+ * (`{2/W}{2/U}{2/B}{2/R}{2/G}`) in a W/B deck is an eight-mana 5/5 (2026-10-15 game ca15647d).
+ */
+internal const val MAX_OFF_COLOR_TWOBRID_PIPS = 1
 
 private val BASIC_TYPE_COLORS = mapOf(
     Subtype.PLAINS to Color.WHITE, Subtype.ISLAND to Color.BLUE, Subtype.SWAMP to Color.BLACK,
@@ -344,18 +504,29 @@ private val BASIC_TYPE_COLORS = mapOf(
  *    — the cost of its other abilities — is a deck color.
  */
 internal fun landFitsColors(land: CardDefinition, deckColors: Set<Color>): Boolean {
-    val produced = mutableSetOf<Color>()
-    land.typeLine.subtypes.forEach { BASIC_TYPE_COLORS[it]?.let(produced::add) }
-    land.script.activatedAbilities.forEach { collectProducedColors(it.effect, produced) }
+    val produced = tappedColors(land)
     if (produced.isNotEmpty()) return produced.any { it in deckColors }
 
-    val fetched = BASIC_TYPE_COLORS.filterKeys { type ->
-        Regex("""\b${type.value}\b""").containsMatchIn(land.oracleText)
-    }.values.toSet()
+    val fetched = fetchedColors(land)
     if (fetched.isNotEmpty()) return fetched.any { it in deckColors }
 
     return land.colorIdentity.all { it in deckColors }
 }
+
+/** The colors a non-basic [land] can put toward a spell: what it taps for, else what it fetches. */
+internal fun producedColors(land: CardDefinition): Set<Color> = tappedColors(land).ifEmpty { fetchedColors(land) }
+
+private fun tappedColors(land: CardDefinition): Set<Color> {
+    val produced = mutableSetOf<Color>()
+    land.typeLine.subtypes.forEach { BASIC_TYPE_COLORS[it]?.let(produced::add) }
+    land.script.activatedAbilities.forEach { collectProducedColors(it.effect, produced) }
+    return produced
+}
+
+private fun fetchedColors(land: CardDefinition): Set<Color> =
+    BASIC_TYPE_COLORS.filterKeys { type ->
+        Regex("""\b${type.value}\b""").containsMatchIn(land.oracleText)
+    }.values.toSet()
 
 private fun collectProducedColors(effect: Effect, out: MutableSet<Color>) {
     when (effect) {
@@ -363,7 +534,7 @@ private fun collectProducedColors(effect: Effect, out: MutableSet<Color>) {
         is AddColorlessManaEffect -> Unit
         is AddManaOfChoiceEffect -> collectChoiceColors(effect.colorSet, out)
         is AddDynamicManaEffect -> out.addAll(effect.allowedColors)
-        is AddAnyColorManaSpendOnChosenTypeEffect, is AddOneManaOfEachColorAmongEffect -> out.addAll(Color.entries)
+        is AddOneManaOfEachColorAmongEffect -> out.addAll(Color.entries)
         is CompositeEffect -> effect.effects.forEach { collectProducedColors(it, out) }
         else -> Unit
     }
@@ -374,6 +545,7 @@ private fun collectChoiceColors(colorSet: ManaColorSet, out: MutableSet<Color>) 
     when (colorSet) {
         is ManaColorSet.Specific -> out.addAll(colorSet.colors)
         is ManaColorSet.Union -> colorSet.members.forEach { collectChoiceColors(it, out) }
+        is ManaColorSet.ExceptChosenColor -> collectChoiceColors(colorSet.base, out)
         else -> out.addAll(Color.entries)
     }
 }

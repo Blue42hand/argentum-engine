@@ -16,9 +16,12 @@ import com.wingedsheep.engine.state.components.battlefield.CrewSaddleContributor
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
+import com.wingedsheep.sdk.core.AbilityFlag
 import com.wingedsheep.sdk.scripting.CrewSaddleCost
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.effects.AddCardTypeEffect
+import com.wingedsheep.sdk.scripting.effects.BecomeCrewedEffect
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import kotlin.reflect.KClass
 
@@ -111,6 +114,11 @@ class CrewVehicleHandler(
                 return "Creature is already tapped: $creatureId"
             }
 
+            // "Can't crew Vehicles" (Revoke Privileges) — a projected restriction flag.
+            if (projected.hasKeyword(creatureId, AbilityFlag.CANT_CREW)) {
+                return "That creature can't crew Vehicles: $creatureId"
+            }
+
             // Summoning sickness does NOT prevent crewing (CR 702.122c)
             totalPower += CrewSaddleContributionEvaluator.evaluate(
                 state = state,
@@ -179,21 +187,37 @@ class CrewVehicleHandler(
             // Crew and saddle are activated abilities too — "was activated this turn".
             val activated = c.get<AbilityActivatedThisTurnComponent>() ?: AbilityActivatedThisTurnComponent()
             c.with(activated.withAnyActivated()).with(
-                CrewSaddleContributorsComponent(
-                    creatureIds = (existing?.creatureIds ?: emptySet()) + action.crewCreatures,
-                    crewActivations = (existing?.crewActivations ?: 0) + 1
-                )
+                (existing ?: CrewSaddleContributorsComponent(creatureIds = emptySet())).let {
+                    it.copy(
+                        creatureIds = it.creatureIds + action.crewCreatures,
+                        crewActivations = it.crewActivations + 1
+                    )
+                }
             )
         }
+
+        // ...and on the activator's per-turn memory of permanents whose abilities they activated
+        // (crewing a Vehicle is an artifact's activated ability to Tezzeret, Betrayer of Flesh).
+        currentState = com.wingedsheep.engine.core.recordPermanentActivation(
+            currentState, action.playerId, com.wingedsheep.engine.core.activationSourceSnapshot(state, action.vehicleId)
+        )
 
         // Create the crew ability effect: "this Vehicle becomes an artifact creature until end of
         // turn" (CR 702.122a). Only the CREATURE type is added (the Vehicle is already an artifact);
         // crew does NOT set power and toughness — the Vehicle keeps its printed P/T, so an earlier
         // P/T-setting effect such as Kudo, King Among Bears's base 2/2 still applies to it.
-        val crewEffect = AddCardTypeEffect(
-            cardType = "CREATURE",
-            target = EffectTarget.Self,
-            duration = Duration.EndOfTurn
+        // Resolving it is also what makes the Vehicle "become crewed" (CR 702.122e), so the
+        // BecomeCrewed step follows the type change.
+        val crewEffect = CompositeEffect(
+            listOf(
+                AddCardTypeEffect(
+                    cardType = "CREATURE",
+                    target = EffectTarget.Self,
+                    duration = Duration.EndOfTurn
+                ),
+                BecomeCrewedEffect(EffectTarget.Self)
+            ),
+            descriptionOverride = "This Vehicle becomes an artifact creature until end of turn."
         )
 
         // Put the crew ability on the stack

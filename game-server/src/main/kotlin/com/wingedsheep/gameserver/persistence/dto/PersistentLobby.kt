@@ -62,6 +62,8 @@ data class PersistentTournamentLobby(
     val isPublic: Boolean = false,
     /** Master switch for in-app AI assistance (Suggest Pick / Auto-build). */
     val aiAssistEnabled: Boolean = true,
+    /** Limited 4-of cap toggle; false = every copy in the pool is playable. */
+    val limitedCopyLimit: Boolean = false,
     /** Lobby mode axis: LobbyGameMode enum name ("TOURNAMENT" / "FREE_FOR_ALL"). */
     val gameMode: String = "TOURNAMENT",
     /** FFA attack rule the host picked: AttackMode enum name ("MULTIPLE" / "LEFT" / "RIGHT"); null = the rules' default. */
@@ -74,7 +76,9 @@ data class PersistentTournamentLobby(
     val ffaGameSessionId: String? = null,
     /** FFA mode: completed games in this lobby's play-again loop. */
     val ffaGamesPlayed: Int = 0,
-    val ffaLastResult: PersistentFfaTerminalResult? = null
+    val ffaLastResult: PersistentFfaTerminalResult? = null,
+    /** Whether the lobby's games are played for ante (CR 407). Absent (false) in older rows. */
+    val playingForAnte: Boolean = false,
 )
 
 @Serializable

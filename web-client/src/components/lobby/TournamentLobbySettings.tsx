@@ -36,7 +36,7 @@ import styles from '../ui/GameUI.module.css'
  * | group | rows |
  * |---|---|
  * | Cards | cube · card pool · sets · booster mix · ban list · packs · pick timer · cards per pick |
- * | Rules | preset · min deck size · singleton |
+ * | Rules | preset · min deck size · singleton · copy limit |
  * | Table | teams · attack |
  * | Event | games per matchup |
  * | This lobby | AI assistance |
@@ -483,6 +483,38 @@ export function TournamentLobbySettings({
             </div>
           </div>
         </>
+      )}
+
+      {/* Limited copy cap — a deck built from opened/drafted packs. Pool Play always caps at 4 (its
+          pool has no copy count), brought decks are constructed, and singleton already caps at 1. */}
+      {group === 'RULES' && !isPremade && !s.jumpstartActive && !isPoolPlay &&
+        !(isPoolBuiltCommander && !s.allowDuplicates) && (
+        <div className={styles.settingsRow}>
+          <SettingsLabel topicId="limited-deckbuilding">Copy limit</SettingsLabel>
+          <div className={styles.variantGroup}>
+            <div className={styles.settingsButtons}>
+              <button
+                onClick={() => updateLobbySettings({ limitedCopyLimit: false })}
+                className={`${styles.settingsButton} ${!s.limitedCopyLimit ? styles.settingsButtonActive : ''}`}
+                title="Play every copy you opened or drafted"
+              >
+                None
+              </button>
+              <button
+                onClick={() => updateLobbySettings({ limitedCopyLimit: true })}
+                className={`${styles.settingsButton} ${s.limitedCopyLimit ? styles.settingsButtonActive : ''}`}
+                title="At most 4 copies of any card other than basic lands"
+              >
+                Max 4
+              </button>
+            </div>
+            <div className={styles.variantCaption}>
+              {s.limitedCopyLimit
+                ? 'At most 4 copies of any card other than basic lands, like constructed.'
+                : 'Play as many copies of a card as you opened or drafted.'}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* No Seats row: the lobby holds as many as its shape allows and people join until it is full.

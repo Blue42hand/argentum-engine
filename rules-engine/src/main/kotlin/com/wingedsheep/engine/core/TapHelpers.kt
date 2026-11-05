@@ -4,9 +4,11 @@ import com.wingedsheep.engine.mechanics.FaceUpInstead
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.nameVisibleToAll
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.components.battlefield.AbilityActivatedThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.HasBecomeTappedComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.battlefield.EntryTapStateComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
@@ -124,7 +126,8 @@ fun tap(
     // Read the "first time this turn" answer *before* counting this tap onto the marker.
     val priorTapsThisTurn = becameTappedTimesThisTurn(state, entityId)
     val newState = state.updateEntity(entityId) {
-        it.with(TappedComponent)
+        it.withEntryTapState(enteredTapped = false)
+            .with(TappedComponent)
             .with(HasBecomeTappedComponent(state.turnNumber, priorTapsThisTurn + 1))
     }
     return TapOutcome(newState, TappedEvent(entityId, cardName, tapper, reason, priorTapsThisTurn == 0), turnedFaceUp)
@@ -150,7 +153,8 @@ class TapOutcome(
 /**
  * Tap [sourceId] as the cost of its mana ability — the [tap] atom plus, when the source is a land,
  * the [LandTappedForManaEvent] that "whenever you tap a land for mana" triggers watch (Forbidden
- * Orchard). Every path that taps a source to pay mana routes through here — the manual activation
+ * Orchard), and the [ManaAbilityResolvedEvent] for the mana ability it resolved ([producedAmount]
+ * mana). Every path that taps a source to pay mana routes through here — the manual activation
  * pipeline, the solver's auto-pay, explicit source lists and the source-selection prompt — so the
  * trigger fires the same way however the player paid. Land-ness is read off projected state.
  *
@@ -160,17 +164,29 @@ fun tapForMana(
     state: GameState,
     sourceId: EntityId,
     tapperId: EntityId,
-    producedColors: Set<Color> = emptySet(),
+    producedColors: Set<Color>,
+    producedAmount: Int,
 ): Pair<GameState, List<GameEvent>> {
     val outcome = tap(state, sourceId)
     val tapEvent = outcome.tapped ?: return state to emptyList()
     val tapped = outcome.state
     // Tapping for mana activates the source's mana ability, so auto-pay marks it "activated this
     // turn" exactly as the manual activation pipeline does.
-    val stamped = tapped.updateEntity(sourceId) { c ->
-        c.with((c.get<AbilityActivatedThisTurnComponent>() ?: AbilityActivatedThisTurnComponent()).withAnyActivated())
-    }
-    return stamped to listOfNotNull(outcome.turnedFaceUp, tapEvent, landTappedForManaEvent(state, sourceId, tapperId, producedColors))
+    // ...and records it on the tapper's per-turn activation memory (Tezzeret, Betrayer of Flesh
+    // counts a mana ability as an artifact's first activated ability), snapshotted before the tap.
+    val stamped = recordPermanentActivation(
+        tapped.updateEntity(sourceId) { c ->
+            c.with((c.get<AbilityActivatedThisTurnComponent>() ?: AbilityActivatedThisTurnComponent()).withAnyActivated())
+        },
+        tapperId,
+        activationSourceSnapshot(state, sourceId),
+    )
+    return stamped to listOfNotNull(
+        outcome.turnedFaceUp, tapEvent, landTappedForManaEvent(state, sourceId, tapperId, producedColors),
+        // The auto-payer resolved the source's mana ability ("whenever a mana ability of this
+        // creature resolves" — Tyvar the Bellicose), crediting [producedAmount] mana.
+        ManaAbilityResolvedEvent(playerId = tapperId, sourceId = sourceId, amount = producedAmount),
+    )
 }
 
 /**
@@ -285,7 +301,9 @@ fun untapOrConsumeStun(
         }
         val newState = state.updateEntity(entityId) { c ->
             val counters = c.get<CountersComponent>() ?: CountersComponent()
-            c.with(counters.withRemoved(CounterType.PLUS_ONE_PLUS_ONE, 1)).without<TappedComponent>()
+            c.with(counters.withRemoved(CounterType.PLUS_ONE_PLUS_ONE, 1))
+                .withEntryTapState(enteredTapped = true)
+                .without<TappedComponent>()
         }
         return newState to listOf(
             CountersRemovedEvent(entityId, CounterType.PLUS_ONE_PLUS_ONE, 1, cardName),
@@ -293,9 +311,23 @@ fun untapOrConsumeStun(
         )
     }
 
-    val newState = state.updateEntity(entityId) { it.without<TappedComponent>() }
+    val newState = state.updateEntity(entityId) {
+        it.withEntryTapState(enteredTapped = true).without<TappedComponent>()
+    }
     return newState to listOf(UntappedEvent(entityId, cardName))
 }
+
+/**
+ * Whether the permanent in [container] entered the battlefield tapped (CR 110.5b: a permanent's
+ * status as it enters). The answer frozen by the first tap/untap transition of this visit
+ * ([EntryTapStateComponent]); before any, its current tap state is still its entry state.
+ */
+fun enteredBattlefieldTapped(container: ComponentContainer): Boolean =
+    container.get<EntryTapStateComponent>()?.enteredTapped ?: container.has<TappedComponent>()
+
+/** Freeze [enteredTapped] as the entry tap state, unless an earlier transition already did. */
+private fun ComponentContainer.withEntryTapState(enteredTapped: Boolean): ComponentContainer =
+    if (has<EntryTapStateComponent>()) this else with(EntryTapStateComponent(enteredTapped))
 
 /** Marker for the events [untapOrConsumeStun] may emit ([UntappedEvent], [CountersRemovedEvent]). */
 typealias UntappedOrConsumeEvent = GameEvent

@@ -41,6 +41,10 @@ interface MatchResultRepository : CrudRepository<MatchResultRow, Long> {
     fun countWinsForUser(@Param("userId") userId: UUID): Long
 }
 
+interface AnteSpoilRepository : CrudRepository<AnteSpoilRow, Long> {
+    fun findTop200ByUserIdOrderByCreatedAtDesc(userId: UUID): List<AnteSpoilRow>
+}
+
 interface TournamentRepository : CrudRepository<TournamentRow, Long> {
     /** The most recent row recorded for a lobby, if any — the upsert key for the lifecycle sink. */
     fun findFirstByLobbyIdOrderByIdDesc(lobbyId: String): TournamentRow?

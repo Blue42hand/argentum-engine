@@ -45,12 +45,55 @@ import com.wingedsheep.sdk.scripting.effects.CopyExceptions
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
 
+/** What [TokenCreationReplacementHelper.findTokenSubstitution] found for a token-creation event. */
+sealed interface TokenSubstitutionLookup
+
 /**
  * A [ReplaceTokenCreationWithToken] that applies to a token-creation event: the replacement in
  * force ([applied], kept so a chained re-check can skip it — CR 614.5) and the [token] it creates
  * instead.
  */
-data class TokenSubstitution(val applied: ActiveReplacement, val token: CreateTokenEffect)
+data class TokenSubstitution(val applied: ActiveReplacement, val token: CreateTokenEffect) : TokenSubstitutionLookup
+
+/**
+ * A [ReplaceTokenCreationWithToken] that applies but [asks its controller][ReplaceTokenCreationWithToken.asksForChoice]
+ * which substitute to use (or, when optional, whether to use one) and hasn't been answered for
+ * this event yet. The answer is recorded in the effect context's chosen values under [key]; the
+ * creating effect then runs again from the top and reads it.
+ */
+data class TokenSubstitutionChoice(
+    val applied: ActiveReplacement,
+    val effect: ReplaceTokenCreationWithToken,
+    val key: String
+) : TokenSubstitutionLookup
+
+/**
+ * The parts of a token-creating instruction that aren't the tokens' characteristics — "tapped",
+ * "attacking", "exile/sacrifice them at the beginning of the next end step". A token substitution
+ * replaces the characteristics only; these still apply to the substitutes (the rulings on
+ * Draconic Visitor, Fisher's Talent and Jinnie Fay, Jetmir's Second).
+ */
+data class TokenRiders(
+    val tapped: Boolean = false,
+    val attacking: Boolean = false,
+    val attackDefender: com.wingedsheep.sdk.scripting.effects.EnteringAttackDefender =
+        com.wingedsheep.sdk.scripting.effects.EnteringAttackDefender.JOIN_SOURCE,
+    /** "Attacking that player" — see [CreateTokenEffect.attackedPlayer]. */
+    val attackedPlayer: com.wingedsheep.sdk.scripting.targets.EffectTarget? = null,
+    val exileAtStep: com.wingedsheep.sdk.core.Step? = null,
+    val sacrificeAtStep: com.wingedsheep.sdk.core.Step? = null,
+    /** "Tokens created with this creature" provenance (Tetravus). */
+    val stampCreator: Boolean = false,
+    /** "Create a token with a +1/+1 counter on it." */
+    val initialCounters: Map<com.wingedsheep.sdk.core.CounterType, Int> = emptyMap()
+) {
+    companion object {
+        fun of(effect: CreateTokenEffect) = TokenRiders(
+            effect.tapped, effect.attacking, effect.attackDefender, effect.attackedPlayer, effect.exileAtStep,
+            effect.sacrificeAtStep, effect.stampCreator, effect.initialCounters
+        )
+    }
+}
 
 /**
  * Checks for token creation replacement effects (e.g., Mirrormind Crown)
@@ -291,8 +334,8 @@ object TokenCreationReplacementHelper {
                         baseKeywords = cardDef.keywords,
                         // The definition's mana cost is the token's (CR 202.1b — none unless defined);
                         // a colored token without one has its color in its color indicator (CR 204),
-                        // stored as colorIdentityOverride.
-                        colors = cardDef.colorIdentityOverride ?: cardDef.colors,
+                        // stored as colorIndicator.
+                        colors = cardDef.colors,
                         ownerId = tokenControllerId,
                         imageUri = cardDef.metadata.imageUri
                     )
@@ -311,6 +354,7 @@ object TokenCreationReplacementHelper {
                     }
 
                     newState = newState.withEntity(tokenId, tokenContainer)
+                    if (cardRegistry != null) newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.applyBeforeEntry(newState, tokenId, cardRegistry, predicateEvaluator)
                     newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
                         .place(newState, tokenControllerId, tokenId, tokenCreatorId = tokenCreatorId)
                     // Honor global "[filter] enter tapped" replacements on the added token too.
@@ -369,8 +413,9 @@ object TokenCreationReplacementHelper {
         conditionEvaluator: ConditionEvaluator = predicateEvaluator.conditions,
         alreadyApplied: Set<ActiveReplacement> = emptySet(),
         eligibleSources: Set<EntityId>? = null,
+        choices: Map<String, String> = emptyMap(),
         handled: Boolean = false
-    ): TokenSubstitution? {
+    ): TokenSubstitutionLookup? {
         if (handled) return null
         val candidates = ActiveReplacements.all(state)
             .filter { it.effect is ReplaceTokenCreationWithToken && it !in alreadyApplied && (eligibleSources == null || it.sourceId in eligibleSources) }
@@ -400,10 +445,78 @@ object TokenCreationReplacementHelper {
                 val restrictionContext = EffectContext(sourceId = active.sourceId, controllerId = tokenControllerId)
                 if (!effect.restrictions.all { conditionEvaluator.evaluate(state, it, restrictionContext) }) continue
             }
-            val token = effect.token as? CreateTokenEffect ?: continue
+            if (!effect.asksForChoice) {
+                val token = effect.tokens.single() as? CreateTokenEffect ?: continue
+                return TokenSubstitution(active, token)
+            }
+            val key = substitutionChoiceKey(state, active, tokenControllerId)
+            val answer = choices[key] ?: return TokenSubstitutionChoice(active, effect, key)
+            val token = answer.toIntOrNull()?.let { effect.tokens.getOrNull(it) } as? CreateTokenEffect
+                ?: continue // declined: this replacement doesn't apply to the event
             return TokenSubstitution(active, token)
         }
         return null
+    }
+
+    /**
+     * Names one [ReplaceTokenCreationWithToken]'s answer for one token controller's creation event
+     * in the effect context's chosen values. Built from the source and the replacement's position
+     * among that source's replacements, so it survives a paused game being serialized (an effect's
+     * hash would not).
+     */
+    private fun substitutionChoiceKey(state: GameState, active: ActiveReplacement, tokenControllerId: EntityId): String {
+        val position = ActiveReplacements.all(state)
+            .filter { it.sourceId == active.sourceId && it.granted == active.granted }
+            .indexOf(active)
+        return "$SUBSTITUTION_CHOICE_PREFIX${active.sourceId.value}:${if (active.granted) "g" else "p"}$position:${tokenControllerId.value}"
+    }
+
+    private const val SUBSTITUTION_CHOICE_PREFIX = "__tokenSubstitution:"
+
+    /** The answer recorded for a declined optional substitution. */
+    const val SUBSTITUTION_DECLINED = "declined"
+
+    /**
+     * Pause [originalEffect] to ask the controller of [choice]'s replacement which substitute
+     * tokens to create instead of [tokenCount] tokens (and, when it's optional, whether to). On the
+     * answer, [originalEffect] runs again from the top with the answer in its context — nothing has
+     * been created yet, so the re-run sees the same event and applies the chosen substitute.
+     */
+    fun askForSubstitution(
+        state: GameState,
+        choice: TokenSubstitutionChoice,
+        originalEffect: Effect,
+        context: EffectContext,
+        tokenCount: Int
+    ): EffectResult {
+        val sourceName = state.getEntity(choice.applied.sourceId)?.get<CardComponent>()?.name ?: "Replacement"
+        val substitutes = choice.effect.tokens.map { it as CreateTokenEffect }
+        val options = substitutes.map { token ->
+            "Create $tokenCount ${ReplaceTokenCreationWithToken.tokenNounPhrase(token).let {
+                if (tokenCount == 1) it.replace(" creature tokens", " creature token") else it
+            }}"
+        } + if (choice.effect.optional) listOf("Create the original tokens") else emptyList()
+        val decision = { decisionId: String ->
+            com.wingedsheep.engine.core.ChooseOptionDecision(
+                id = decisionId,
+                playerId = choice.applied.controllerId,
+                prompt = if (choice.effect.optional) "Use $sourceName to replace the tokens?"
+                else "$sourceName: choose the tokens to create instead",
+                context = DecisionContext(
+                    sourceId = choice.applied.sourceId,
+                    sourceName = sourceName,
+                    phase = DecisionPhase.RESOLUTION
+                ),
+                options = options
+            )
+        }
+        val continuation = com.wingedsheep.engine.core.TokenSubstitutionChoiceContinuation(
+            originalEffect = originalEffect,
+            effectContext = context,
+            choiceKey = choice.key,
+            substituteCount = substitutes.size
+        )
+        return EffectResult.from(state.suspendForDecision(decision, continuation, emptyList()))
     }
 
     /**
@@ -550,6 +663,7 @@ object TokenCreationReplacementHelper {
                 container = staticAbilityHandler.addReplacementEffectComponent(container)
             }
             newState = newState.withEntity(tokenId, container)
+            if (cardRegistry != null) newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.applyBeforeEntry(newState, tokenId, cardRegistry, predicateEvaluator)
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
                 .place(newState, controllerId, tokenId, tokenCreatorId = controllerId)
             // Honor global "[filter] enter tapped" replacements on the copy too.

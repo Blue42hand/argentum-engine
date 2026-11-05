@@ -328,10 +328,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "Giant",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]
@@ -523,8 +520,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 3
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
                                 }
                             },
                             "then": {
@@ -773,10 +779,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "Goblin",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]
@@ -2372,7 +2375,7 @@
     "script": {
         "staticAbilities": [
             {
-                "type": "GainKeywordsOfGraveyardCreatureCards",
+                "type": "GainKeywordsOfCards",
                 "keywords": [
                     "FLYING",
                     "FEAR",
@@ -2386,8 +2389,10 @@
                     "SHROUD",
                     "VIGILANCE"
                 ],
-                "anyLandwalk": true,
-                "anyProtection": true
+                "families": [
+                    "LANDWALK",
+                    "PROTECTION"
+                ]
             }
         ]
     },
@@ -6858,10 +6863,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "Elf",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]
@@ -9353,8 +9355,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 3
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
                                 }
                             },
                             "then": {
@@ -13259,7 +13270,11 @@
                             "type": "PlayerRef",
                             "player": "ChosenOpponent"
                         },
-                        "affectsLands": false
+                        "permanents": {
+                            "cardPredicates": [
+                                "IsCreature"
+                            ]
+                        }
                     },
                     "descriptionOverride": "Clash with an opponent. If you win, creatures the chosen player controls don't untap during their next untap step"
                 }
@@ -14306,12 +14321,13 @@
                                 }
                             }
                         },
+                        "stepScope": "AnyMainPhase",
                         "fireOnPlayer": {
                             "type": "PlayerRef",
                             "player": "You"
                         }
                     },
-                    "descriptionOverride": "Clash with an opponent. If you win, create a delayed trigger at the beginning of the next Precombat Main Phase"
+                    "descriptionOverride": "Clash with an opponent. If you win, create a delayed trigger at the beginning of the next main phase"
                 }
             ]
         },
@@ -14428,10 +14444,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "Faerie",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]
@@ -15445,8 +15458,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 3
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
                                 }
                             },
                             "then": {
@@ -18229,10 +18251,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "Merfolk",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]

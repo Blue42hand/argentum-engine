@@ -74,6 +74,7 @@ internal class CombatProjector(private val visibility: Visibility) {
                             else -> ClientCombatTarget.Planeswalker(attackingComponent.defenderId)
                         },
                         blockedBy = blockedComponent?.blockerIds ?: emptyList(),
+                        isBlocked = blockedComponent != null,
                         mustBeBlockedByAll = entityId in mustBeBlockedCreatures,
                         bandId = attackingComponent.bandId,
                         damageAssignmentOrder = damageOrderComponent?.orderedBlockers,

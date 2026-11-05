@@ -177,11 +177,12 @@ class GrantMayPlayFromExileExecutor : EffectExecutor<GrantMayPlayFromExileEffect
                     condition = effect.condition,
                     withAnyManaType = effect.withAnyManaType,
                     withAnyManaColor = effect.withAnyManaColor,
-                    colorlessAsAnyColor = effect.colorlessAsAnyColor,
+                    spendAsAnyColor = effect.spendAsAnyColor,
                     asThoughFlash = effect.asThoughFlash,
-                    landEntersTapped = effect.landEntersTapped,
+                    entersTapped = effect.entersTapped,
                     permanent = isPermanent,
                     expiresAfterTurn = expiresAfterTurn,
+                    expiresAtStep = expiresAtStepFor(effect.expiry),
                     riderLinkId = riderLinkId,
                     expiryControllerId = expiryControllerId,
                     supersededBySameSource = supersedesSameSource,
@@ -190,7 +191,8 @@ class GrantMayPlayFromExileExecutor : EffectExecutor<GrantMayPlayFromExileEffect
                     nonLandOnly = effect.nonLandOnly,
                     castFaceIndex = effect.castFaceIndex,
                     castColorRestriction = effect.castColorRestriction,
-                    singleUse = effect.singleUse,
+                    castColorCount = effect.castColorCount,
+                    playsRemaining = effect.maxPlays,
                     timestamp = state.timestamp,
                 )
             )
@@ -305,9 +307,9 @@ class GrantMayPlayFromExileExecutor : EffectExecutor<GrantMayPlayFromExileEffect
 }
 
 /**
- * Resolve the earliest turn whose cleanup may mark "the controller's next [step]", given the
- * current step and active player. The cleanup-driven removal is coarse — it runs once per turn
- * at cleanup — so we map any step in the turn to that turn's cleanup.
+ * Resolve the earliest turn on which "the controller's next [step]" can begin, given the current
+ * step and active player. The permission ends as that step begins on the first qualifying turn
+ * ([expiresAtStepFor]); a CLEANUP window ends at that turn's cleanup.
  *
  * This is a *floor*, not an exact turn: the expiry check in
  * [com.wingedsheep.engine.core.CleanupPhaseManager] also requires `isActiveTurnFor(controllerId)`, so the permission dies at the cleanup of the first turn the
@@ -329,10 +331,19 @@ internal fun resolveControllerStepTurn(
     val targetReachedThisTurn = state.step.ordinal >= expiry.step.ordinal
     val thisTurnStillCounts = onControllerTurn && expiry.includeCurrentTurn && !targetReachedThisTurn
 
-    // This turn's matching step still counts — expire at this turn's cleanup. Otherwise the
+    // This turn's matching step still counts — expire this turn. Otherwise the
     // controller's next turn is the deadline, and every later turn number qualifies as a floor.
     return if (thisTurnStillCounts) state.turnNumber else state.turnNumber + 1
 }
+
+/**
+ * The step whose beginning closes an [MayPlayExpiry.UntilControllerStep] window ("until your next
+ * end step" ends as that end step begins), or null when cleanup is the deadline — a CLEANUP window
+ * ("until the end of your next turn") and every non-step expiry. Paired with
+ * [resolveControllerStepTurn]'s floor; see `CleanupPhaseManager.expireStepKeyedPermissions`.
+ */
+internal fun expiresAtStepFor(expiry: MayPlayExpiry): Step? =
+    (expiry as? MayPlayExpiry.UntilControllerStep)?.step?.takeIf { it != Step.CLEANUP }
 
 /**
  * Executor for [MakePlottedEffect] (CR 718).
@@ -423,6 +434,7 @@ class GrantPlayWithoutPayingCostExecutor : EffectExecutor<GrantPlayWithoutPaying
             is MayPlayExpiry.UntilControllerStep -> PlayWithoutPayingCostComponent(
                 controllerId = controllerId,
                 expiresAfterTurn = resolveControllerStepTurn(state, activatingPlayer, expiry),
+                expiresAtStep = expiresAtStepFor(expiry),
                 expiryControllerId = activatingPlayer.takeIf { it != controllerId },
             )
             MayPlayExpiry.Permanent,
@@ -462,13 +474,25 @@ class GrantPlayWithCostIncreaseExecutor : EffectExecutor<GrantPlayWithCostIncrea
         val controllerId = context.controllerId
         val collection = context.pipeline.storedCollections[effect.from] ?: emptyList()
 
+        val tax = com.wingedsheep.sdk.core.ManaCost.parse("{${effect.amount}}")
         var newState = state
         for (cardId in collection) {
+            // "Costs {N} more to cast this way": tie the tax to the newest permission this source
+            // granted the controller over the card (the grant this effect is paired with), so it
+            // lapses with that permission. No such grant leaves a zone-long tax, as before.
+            val grantedPermissionId = context.sourceId?.let { sourceId ->
+                state.mayPlayPermissions
+                    .filter { it.sourceId == sourceId && it.controllerId == controllerId && cardId in it.cardIds }
+                    .maxByOrNull { it.timestamp }
+                    ?.id
+            }
             newState = newState.updateEntity(cardId) { container ->
                 container.with(
                     PlayWithCostIncreaseComponent(
                         controllerId = controllerId,
-                        amount = effect.amount
+                        cost = tax,
+                        unlessAnyTargetMatches = effect.unlessTargets,
+                        grantedPermissionId = grantedPermissionId,
                     )
                 )
             }

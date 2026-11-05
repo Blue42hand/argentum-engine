@@ -1,6 +1,7 @@
 package com.wingedsheep.ai.engine.knowledge
 
 import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
@@ -58,6 +59,13 @@ class IntentCatalog private constructor(private val registry: CardRegistry?) {
      */
     fun availableMana(state: GameState, playerId: EntityId): Int? =
         manaSolver?.getAvailableManaCount(state, playerId)
+
+    /**
+     * The definition of the card called [name], for a reader that needs the script itself rather
+     * than its [CardIntent] ([TargetlessEntry]). Null when the catalog is off or the name is not a
+     * real card — "no information", as everywhere here.
+     */
+    fun definition(name: String): CardDefinition? = registry?.getCard(name)
 
     /**
      * The intent of the card called [name], or null when the catalog is off or the name is not a
@@ -167,19 +175,51 @@ class IntentCatalog private constructor(private val registry: CardRegistry?) {
      * later turn could not also spend it on.
      *
      * Printed abilities only, like [activatedAbility]: a "+1" granted by another permanent is not
-     * seen, and false (no information) is the answer for anything the catalog cannot read.
+     * seen, and false (no information) is the answer for anything the catalog cannot read. The
+     * `(state, permanentId)` overload reads the granted ones too.
      */
     fun loyaltyIsOnlyFuel(cardName: String): Boolean {
         val definition = registry?.getCard(cardName) ?: return false
-        val loyalty = definition.script.activatedAbilities.filter { it.isPlaneswalkerAbility }
-        return loyalty.isNotEmpty() && loyalty.all { ability ->
+        return onlySpendsLoyalty(definition.script.activatedAbilities.filter { it.isPlaneswalkerAbility })
+    }
+
+    /**
+     * [loyaltyIsOnlyFuel] for the permanent [permanentId] as it stands in [state]: over every
+     * loyalty ability it has there ([loyaltyAbilities]), granted ones included. A Jace token under
+     * Way of the Pyromancer ("Planeswalkers you control have '[+1]: Add {R}.'") refuels; under Way
+     * of the Healer (a granted −2) it still only spends.
+     */
+    fun loyaltyIsOnlyFuel(state: GameState, permanentId: EntityId): Boolean =
+        onlySpendsLoyalty(loyaltyAbilities(state, permanentId))
+
+    /**
+     * Every loyalty ability [permanentId] has in [state]: the ones printed on it, plus the ones
+     * another permanent's `GrantActivatedAbility` or an emblem hands it — read through the engine's
+     * own grant lookup, so the filter ("planeswalkers you control") is matched exactly as the
+     * activation itself would be. Empty when the catalog is off or nothing can be read.
+     */
+    fun loyaltyAbilities(state: GameState, permanentId: EntityId): List<ActivatedAbility> {
+        val grants = grants ?: return emptyList()
+        val name = state.getEntity(permanentId)?.get<CardComponent>()?.name ?: return emptyList()
+        val printed = registry?.getCard(name)?.script?.activatedAbilities.orEmpty()
+        val granted = grants.getStaticGrantedActivatedAbilities(permanentId, state) +
+            grants.getEmblemGrantedActivatedAbilities(permanentId, state)
+        return (printed + granted).filter { it.isPlaneswalkerAbility }
+    }
+
+    private val grants: CastPermissionUtils? by lazy {
+        val registry = registry ?: return@lazy null
+        predicates?.let { CastPermissionUtils(registry, it, it.conditions) }
+    }
+
+    private fun onlySpendsLoyalty(loyalty: List<ActivatedAbility>): Boolean =
+        loyalty.isNotEmpty() && loyalty.all { ability ->
             when (val cost = ability.cost) {
                 is AbilityCost.Loyalty -> cost.change < 0
                 AbilityCost.LoyaltyX -> true
                 else -> false
             }
         }
-    }
 
     /**
      * [TargetPolarity] of each target slot of the card called [cardName] cast as a spell, in

@@ -51,7 +51,7 @@ class RemoveCountersExecutor(
 
         return EffectResult.success(
             newState,
-            listOf(CountersRemovedEvent(targetId, effect.counterType, removed, entityName))
+            listOf(CountersRemovedEvent(targetId, effect.counterType, removed, entityName, removedBy = context.controllerId))
         )
     }
 }

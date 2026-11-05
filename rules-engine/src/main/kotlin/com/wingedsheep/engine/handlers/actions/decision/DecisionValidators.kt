@@ -5,6 +5,8 @@ import com.wingedsheep.engine.core.BatchYesNoDecision
 import com.wingedsheep.engine.core.BatchYesNoResponse
 import com.wingedsheep.engine.core.BudgetModalDecision
 import com.wingedsheep.engine.core.BudgetModalResponse
+import com.wingedsheep.engine.core.FlipOntoBattlefieldDecision
+import com.wingedsheep.engine.core.FlipThrowResponse
 import com.wingedsheep.engine.core.CancelDecisionResponse
 import com.wingedsheep.engine.core.CardsSelectedResponse
 import com.wingedsheep.engine.core.ChooseColorDecision
@@ -29,6 +31,8 @@ import com.wingedsheep.engine.core.NumberChosenResponse
 import com.wingedsheep.engine.core.OptionChosenResponse
 import com.wingedsheep.engine.core.OrderObjectsDecision
 import com.wingedsheep.engine.core.OrderedResponse
+import com.wingedsheep.engine.core.OrderTriggersDecision
+import com.wingedsheep.engine.core.TriggerOrderResponse
 import com.wingedsheep.engine.core.PendingDecision
 import com.wingedsheep.engine.core.PilesSplitResponse
 import com.wingedsheep.engine.core.ReorderLibraryDecision
@@ -67,16 +71,18 @@ object DecisionValidators {
                 if (response is com.wingedsheep.engine.core.PlayCardResponse) null else "Play the instructed card"
             is ChooseTargetsDecision -> validateTargets(decision, response, state)
             is SelectCardsDecision -> validateSelectCards(decision, response, state)
-            is YesNoDecision -> validateYesNo(response)
+            is YesNoDecision -> validateYesNo(decision, response)
             is ChooseModeDecision -> validateModes(decision, response)
             is ChooseColorDecision -> validateColor(decision, response)
             is ChooseNumberDecision -> validateNumber(decision, response)
             is DistributeDecision -> validateDistribute(decision, response)
             is OrderObjectsDecision -> validateOrder(decision, response)
+            is OrderTriggersDecision -> validateTriggerOrder(decision, response)
             is SplitPilesDecision -> validateSplitPiles(decision, response)
             is ChooseOptionDecision -> validateOption(decision, response)
             is ChooseReplacementDecision -> validateReplacement(decision, response)
             is BudgetModalDecision -> validateBudgetModal(decision, response)
+            is FlipOntoBattlefieldDecision -> validateFlipThrow(response)
             is AssignDamageDecision -> validateDamageAssignment(decision, response)
             is CombatResolutionDecision -> validateCombatResolution(decision, response)
             is SearchLibraryDecision -> validateLibrarySearch(decision, response)
@@ -228,13 +234,13 @@ object DecisionValidators {
                     return "Targets for requirement $reqIndex must be from a single graveyard"
                 }
             }
-            // "... with total mana value N or less" — the summed mana value of the chosen card
-            // targets may not exceed the resolved cap (Fire Lord Sozin's "total mana value X or
+            // "... with total mana value N or less" — the summed mana value of the chosen card or
+            // permanent targets may not exceed the resolved cap (Fire Lord Sozin's "total mana value X or
             // less"; the cap was baked to a concrete int at decision-build time). CR 601.2c.
             val manaCap = req.totalManaValueAtMost
             if (manaCap != null && state != null) {
                 val totalManaValue = selectedIds.sumOf { id ->
-                    state.getEntity(id)?.get<CardComponent>()?.manaValue ?: 0
+                    com.wingedsheep.engine.mechanics.ManaValues.of(state, id)
                 }
                 if (totalManaValue > manaCap) {
                     return "Targets for requirement $reqIndex exceed total mana value $manaCap"
@@ -262,12 +268,15 @@ object DecisionValidators {
                     return "Targets for requirement $reqIndex must be controlled by different players"
                 }
             }
-            // "Up to one target ... of each card type" (Uldaros Theorix). TargetValidator is
-            // authoritative; this rejects it interactively too.
-            if (req.onePerCardType && selectedIds.size > 1 && state != null &&
-                !com.wingedsheep.engine.mechanics.targeting.OnePerCardType.isSatisfied(state, selectedIds)
+            // "Up to one target ... of each card type / color" (Uldaros Theorix, Rogues' Gallery).
+            // TargetValidator is authoritative; this rejects it interactively too.
+            val categories = req.distinctCategories
+            if (categories != null && selectedIds.isNotEmpty() &&
+                !com.wingedsheep.engine.mechanics.targeting.OnePerCardType.canAssignDistinct(
+                    selectedIds.map { categories[it].orEmpty().toSet() }
+                )
             ) {
-                return "Targets for requirement $reqIndex must be at most one of each card type"
+                return "Targets for requirement $reqIndex must each be of a different color or card type, as the ability says"
             }
         }
         return null
@@ -286,6 +295,13 @@ object DecisionValidators {
             if (cardId !in decision.options) {
                 return "Invalid selection: $cardId is not a valid option"
             }
+        }
+        // An ordinary selection names each card once; only an allocation (selectionLimits) may
+        // repeat one.
+        if (decision.selectionLimits == null &&
+            response.selectedCards.distinct().size != response.selectedCards.size
+        ) {
+            return "Invalid selection: a card may be selected only once"
         }
         if (decision.selectionLimits != null) {
             for ((cardId, count) in response.selectedCards.groupingBy { it }.eachCount()) {
@@ -336,9 +352,12 @@ object DecisionValidators {
         return null
     }
 
-    private fun validateYesNo(response: DecisionResponse): String? {
+    private fun validateYesNo(decision: YesNoDecision, response: DecisionResponse): String? {
         if (response !is YesNoResponse) {
             return "Expected yes/no response"
+        }
+        if (response.choice && !decision.yesAvailable) {
+            return "\"${decision.yesText}\" isn't possible here"
         }
         return null
     }
@@ -454,6 +473,16 @@ object DecisionValidators {
         return null
     }
 
+    private fun validateTriggerOrder(decision: OrderTriggersDecision, response: DecisionResponse): String? {
+        if (response !is TriggerOrderResponse) {
+            return "Expected trigger ordering response"
+        }
+        if (response.resolutionOrder.sorted() != decision.triggers.indices.toList()) {
+            return "Order each triggered ability exactly once"
+        }
+        return null
+    }
+
     /**
      * True when [submitted] holds exactly the objects in [expected] — same count, same contents.
      *
@@ -527,6 +556,17 @@ object DecisionValidators {
         val allowed = decision.allowedToByFrom.getOrNull(response.fromIndex)
         if (allowed != null && !allowed.contains(response.toIndex)) {
             return "Replacement ${decision.toOptions[response.toIndex]} not allowed for ${decision.fromOptions[response.fromIndex]}"
+        }
+        return null
+    }
+
+    /** A throw's numbers only need to be numbers; the engine clamps aim, strength and sway itself. */
+    private fun validateFlipThrow(response: DecisionResponse): String? {
+        if (response !is FlipThrowResponse) return "Expected flip throw response"
+        if (!response.aimX.isFinite() || !response.aimY.isFinite() || !response.strength.isFinite() ||
+            !response.sway.isFinite()
+        ) {
+            return "Flip throw values must be finite numbers"
         }
         return null
     }

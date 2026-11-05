@@ -30,14 +30,24 @@ enum class Zone(val displayName: String, val noun: String) {
      * but a wish effect should ever gather from it. In constructed it is an explicit list (≤15,
      * CR 100.4a); in Limited it is every card in the player's pool not in their deck (CR 100.4b).
      */
-    @SerialName("Sideboard") SIDEBOARD("a sideboard", "sideboard");
+    @SerialName("Sideboard") SIDEBOARD("a sideboard", "sideboard"),
+
+    /**
+     * The ante — the zone of cards played "for keeps" (CR 407). It exists only in a game played
+     * for ante: each player antes a random card of their deck before the opening draw (407.2),
+     * and only the handful of cards that read "Remove this card from your deck before playing if
+     * you're not playing for ante" ever move cards into or out of it (407.3). Public (400.2) and
+     * shared (400.1); like [EXILE] the engine keys it by owner, so "the cards you own in the ante"
+     * is one zone read. When the game ends, its winner becomes the owner of everything in it.
+     */
+    @SerialName("Ante") ANTE("the ante", "ante");
 
     val isPublic: Boolean
-        get() = this in listOf(BATTLEFIELD, GRAVEYARD, STACK, EXILE, COMMAND)
+        get() = this in listOf(BATTLEFIELD, GRAVEYARD, STACK, EXILE, COMMAND, ANTE)
 
     val isHidden: Boolean
         get() = this in listOf(LIBRARY, HAND, SIDEBOARD)
 
     val isShared: Boolean
-        get() = this in listOf(BATTLEFIELD, STACK, EXILE)
+        get() = this in listOf(BATTLEFIELD, STACK, EXILE, ANTE)
 }

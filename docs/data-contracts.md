@@ -352,7 +352,7 @@ contain nothing new and never appear. Sectioning only partitions the extras: it 
 in or out of `extraTotal` / `extraImplemented`. Sets with no booster at all have no extras and so no
 sections.
 
-**Cards we won't implement.** A card needing a mechanic the engine will never carry (ante, subgames,
+**Cards we won't implement.** A card needing a mechanic the engine will never carry (ante,
 physical dexterity) is listed in the repo-root `coverage/card-exclusions.json` manifest, keyed by name
 so one entry covers every set that prints it. `scripts/gen-set-totals` bakes the flag onto the card as
 `"notPlanned": { "kind": "ante", "why": "…" }` — exclusion is carried *as* its reason, so a not-planned
@@ -580,6 +580,22 @@ sealed, or premade), then one N-player game".
   than a separate lobby kind; the create message's `vsAi` remains a shortcut for initially filling
   the seat.
 
+## 3e. Playing for Ante (WebSocket / REST)
+
+An opt-in lobby setting (CR 407), never on together with ranked. Lobby fields: `LobbySettings.playingForAnte`
+(set with `updateLobbySettings { playingForAnte }`), `QuickGameLobbyState.playingForAnte` (set with
+**`setQuickGameLobbyAnte`** `{ playingForAnte }`), and `playingForAnte` on both create messages. In game,
+`ClientGameState.playingForAnte` is true and each player's anted cards arrive as an ordinary public zone,
+`{ ownerId, zoneType: "Ante" }`. Deck submission rejects ante-only cards outside such games with error code
+`REQUIRES_ANTE`.
+
+**`gameOver.ante`** — null unless the game was for ante:
+`{ scope: "EVENT" | "SPOILS", transfers: [{ cardName, imageUri, fromPlayerId, fromPlayerName, toPlayerId,
+toPlayerName, cause: "ANTE" | "OWNERSHIP", refilledWith? }] }`. `EVENT` (a 1v1 Limited tournament) means the cards
+moved between the players' pools for the rest of the event; `refilledWith` names the basic land added to keep the
+loser's deck at 40. `SPOILS` means they were recorded on signed-in players' profiles, readable with
+`GET /api/stats/me/spoils` → `{ won: Spoil[], lost: Spoil[] }`, `Spoil = { cardName, imageUri, opponentName, gameId, at }`.
+
 ## 4. Scenario Builder Payload (REST / HTTP)
 
 The Scenario Builder lets any player construct an arbitrary board state and play it. It is a
@@ -723,6 +739,32 @@ epoch through thinking and approval delays into its callback. Its adapter and ev
 use the same live acceptance operation. Missing or obsolete AI deliveries are discarded before
 fallbacks, rejection accounting, or broadcasts. Rejection accounting and any resulting concession
 also check the originating epoch atomically. Replay records only canonical engine actions.
+
+A browser update whose `pendingDecision` has exactly one legal answer also carries that answer as
+`autoAnswer` (a `DecisionResponse` already keyed to the routed decision ID). The server decides it
+from the engine's own decision with `ForcedDecisionAutoAnswer`, which applies the AI's
+`TrivialDecisions` and still asks when the question is how the player looks at cards. The client
+never derives one: unless the player set *Choices with only one answer* to *Ask me every time*
+(`gameplay.forcedChoices = 'ask'`), it keeps the question off screen and submits `autoAnswer`
+unchanged as an ordinary `SubmitDecision`: at once under *Answer instantly* (`'instant'`), and under
+*Answer for me* (`'delayed'`, the default) after a human-like delay drawn fresh per question
+(0.8–2.5 s, skewed short; see `humanAnswerDelayMs` in
+`web-client/src/store/slices/handlers/autoAnswer.ts`). The engine still always asks (#3340), and
+other seats still see the decision status while it waits. AI seats get no `autoAnswer`; they answer
+through `TrivialDecisions` directly.
+
+`autoAnswerPublic: true` travels with an `autoAnswer` whose forcedness everyone can already see, and
+the client then sends it at once in both answering modes. `ForcedDecisionAutoAnswer.isPublic`
+decides it and fails closed: only a target or card-selection question qualifies, and only when the
+engine declared where its candidates came from (`DecisionContext.candidateZones`, set today by
+triggered-ability targeting via `TargetCandidateZones`) and everything in those zones is visible to
+a spectator, per `Visibility`: no hand, library or sideboard, and no face-down object. An unknown
+source, a forced "no" (`YesNoDecision.yesAvailable = false`) and a private question are never
+public.
+
+`gameplay.forcedChoices` replaced the boolean `gameplay.autoAnswerForced`. The preferences document
+is stored verbatim, so `parsePreferences` still reads the old field from a document that has no
+valid new one: `true` → `'delayed'`, `false` → `'ask'`.
 
 #### One store
 

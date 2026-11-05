@@ -31,7 +31,10 @@ data class AttackDeclarationCheckpoint(
                 ComponentContainer(components)
             }
         }
-        return result.copy(pendingTriggers = result.pendingTriggers.filter { it.attackDeclarationId != id })
+        return result.copy(
+            pendingTriggers = result.pendingTriggers.filter { it.attackDeclarationId != id },
+            triggersBeingPlaced = result.triggersBeingPlaced.filter { it.attackDeclarationId != id },
+        )
     }
 
     companion object {

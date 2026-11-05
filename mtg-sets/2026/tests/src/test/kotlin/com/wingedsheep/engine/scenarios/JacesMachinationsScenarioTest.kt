@@ -47,6 +47,13 @@ class JacesMachinationsScenarioTest : ScenarioTestBase() {
             .withPriorityPlayer(1)
             .inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
 
+        /** Whether [sourceId]'s [abilityId] is among the legal actions offered to you right now. */
+        fun TestGame.offers(sourceId: EntityId, abilityId: com.wingedsheep.sdk.scripting.AbilityId): Boolean =
+            getLegalActions(1).any {
+                val action = it.action
+                action is ActivateAbility && action.sourceId == sourceId && action.abilityId == abilityId
+            }
+
         /** Resolve the stack, then have the active opponent pass so you hold priority again. */
         fun TestGame.resolveAndTakePriority() {
             resolveStack()
@@ -57,6 +64,7 @@ class JacesMachinationsScenarioTest : ScenarioTestBase() {
         test("without it, loyalty abilities can't be activated on an opponent's turn") {
             val game = opponentsTurn().build()
             val jace = game.findPermanent("Jace, Reality Sculptor")!!
+            game.offers(jace, sculptorPlusOne) shouldBe false
             game.execute(ActivateAbility(game.player1Id, jace, sculptorPlusOne)).error shouldNotBe null
         }
 
@@ -72,6 +80,7 @@ class JacesMachinationsScenarioTest : ScenarioTestBase() {
             game.loyaltyOf(token) shouldBe 8
 
             withClue("Jace, Reality Sculptor is a Jace planeswalker you control") {
+                game.offers(jace, sculptorPlusOne) shouldBe true
                 game.execute(ActivateAbility(game.player1Id, jace, sculptorPlusOne)).error shouldBe null
             }
             game.resolveAndTakePriority()
@@ -85,6 +94,7 @@ class JacesMachinationsScenarioTest : ScenarioTestBase() {
                     .get<com.wingedsheep.engine.state.components.identity.CardComponent>()!!
                 val tokenDraw = cardRegistry.getCard(drawThree.cardDefinitionId)!!.script.activatedAbilities
                     .single { (it.cost as? AbilityCost.Loyalty)?.change == -3 }.id
+                game.offers(token, tokenDraw) shouldBe true
                 val hand = game.handSize(1)
                 game.execute(ActivateAbility(game.player1Id, token, tokenDraw)).error shouldBe null
                 game.resolveAndTakePriority()
@@ -92,9 +102,11 @@ class JacesMachinationsScenarioTest : ScenarioTestBase() {
             }
 
             withClue("a non-Jace planeswalker is still sorcery-speed") {
+                game.offers(ajani, ajaniPlusOne) shouldBe false
                 game.execute(ActivateAbility(game.player1Id, ajani, ajaniPlusOne)).error shouldNotBe null
             }
             withClue("CR 606.3's once-per-turn limit still applies") {
+                game.offers(jace, sculptorPlusOne) shouldBe false
                 game.execute(ActivateAbility(game.player1Id, jace, sculptorPlusOne)).error shouldNotBe null
             }
         }

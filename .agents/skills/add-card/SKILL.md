@@ -30,8 +30,7 @@ Given several card names:
 - Run **Step 10's gate once**, at the end, for the whole batch. Don't gate per card.
 - **A card that turns out to need new SDK vocabulary leaves the batch** the moment Step 4 says so. Reset
   its commit, report it as dropped, and ship the rest. Do not grow the PR to cover it, and do not
-  fake it with an existing primitive that only works in the common case. A card that could only ship
-  with a "known approximation" is such a card.
+  fake it with an existing primitive that only works in the common case.
 
 Three things stay strictly per-card no matter the batch size: its own `{CardName}.kt`, its own
 `{CardName}ScenarioTest.kt` where Step 5 calls for a test (**never** a shared `{Something}BatchScenarioTest`
@@ -49,7 +48,7 @@ Model exactly what the card does under the Comprehensive Rules, not a convenient
   needs new vocabulary, build it properly (Step 4).
 - **Don't drop edge cases** — "may" declines, fizzles, the source leaving the battlefield, zero/empty
   inputs, simultaneous triggers, replacement interactions, layer/timestamp ordering. If you can't cover
-  an interaction, the card isn't ready — it needs Step 4, or it leaves the batch.
+  an interaction, say so; don't silently skip it.
 - **Don't approximate timing** — cast-time vs resolution-time choices, intervening "if" clauses,
   last-known information, turn/step boundaries. Follow the rules and Scryfall rulings, not what's easiest
   to wire up.
@@ -57,13 +56,14 @@ Model exactly what the card does under the Comprehensive Rules, not a convenient
   isn't "target".
 
 When the faithful implementation is more work than the shortcut, do the work — or stop and tell the user
-what's missing. **There is no "known approximation".** A KDoc or PR body that lists one ("slightly wider
-than the printed text", "a plain draw instead of the connive event when…") is a card shipped wrong with a
-note attached. Fix the gap or drop the card; never document it and ship. **A card that looks right but resolves wrong is worse than an unimplemented one.**
+what's missing. **A card that looks right but resolves wrong is worse than an unimplemented one.**
 
-## Step 0: read the card with Assay — fail fast
+## Step 0: read the card with Assay, then probe draftability — fail fast
 
-Assay tells you what the card *means* in our own vocabulary before you write a line.
+Two cheap signals, in this order. Assay tells you what the card *means* in our own vocabulary; the
+mtgish probe hands you a Kotlin draft to start from.
+
+### Assay first — the first-party reading
 
 ```bash
 just assay parse "<Card Name>"      # normalized lines + the SDK model each one parses to
@@ -87,9 +87,30 @@ reads the card whole — a useful second opinion on field-level questions in Ste
 fail-closed by design (one declined line declines the card) and it is **not a card loader**: its output
 feeds the Scenario Builder's dev sandbox, never the corpus. You still hand-write the `cardDef`.
 
-**Distrust any reading on the engine's known-sloppy shapes** — additional costs, cast/activation-time
-value choices (X, chosen creature type, chosen color), and inheriting a cast-time choice into later
-effects. Model those by hand and prove them with a scenario test even when Assay reads the card whole.
+### Then the mtgish draft
+
+```bash
+just coverage-fidelity --emit "<Card Name>"     # prints a generated cardDef DSL + a tier banner
+```
+
+The cheapest possible draft: it tells you in one command whether the tooling can already render this
+card, and hands you a starting `cardDef` with metadata pre-filled. Read the trailing tier line:
+
+- **`fidelity tier: AUTO`** — whole card rendered. Use it as your Step 3 draft, treating every line as a
+  claim to verify.
+- **`fidelity tier: SCAFFOLD`** (leads with `// TODO:` / `// STRUCTURE needs human wiring:`) — keep the
+  structure as a skeleton and hand-fill every marker in Step 3. Don't ship the stubs.
+- **Blocked / nothing emitted** — implement from scratch.
+
+Two things the emit deliberately cannot do, so **Step 1 always runs anyway**: its Scryfall lookup is keyed
+to wherever the card is *already* implemented (else POR), so collector number, artist, flavor, and image
+may be for the wrong printing; and it can't make the canonical-placement decision, which needs the
+printings list.
+
+**Distrust the draft on the engine's known-sloppy shapes** — additional costs, cast/activation-time value
+choices (X, chosen creature type, chosen color), and inheriting a cast-time choice into later effects.
+Model those by hand and prove them with a scenario test even on an AUTO render. A confidently-wrong
+generated card is worse than none.
 
 ## Step 1: Scryfall lookup and canonical placement
 
@@ -156,8 +177,8 @@ by release year so no single Kotlin compilation holds all of it).
 There is no registration step — `CardDiscovery` scans the `{set}/cards/` package for top-level `val`s, so
 a card in the right package with `val {CardName} = card("{Card Name}") { … }` is picked up automatically.
 
-1. Write it with DSL facades over raw constructors. If Assay read the card whole in Step 0, write to the shape
-   its `assay compile` JSON shows rather than from a blank page. [`examples.md`](examples.md) has a template for every common shape.
+1. Write it with DSL facades over raw constructors. If Step 0 produced a draft, start from it rather than
+   a blank page. [`examples.md`](examples.md) has a template for every common shape.
 
 2. **Image URI — the single most common silent error.** Use the exact `image_uris.normal` from the API
    response, query parameter (`?1562911270`) included. These are hash-based paths; a generated or
@@ -187,25 +208,14 @@ cards. It becomes its own PR — with tests for the primitive, not just for the 
 
 ## Step 5: Tests
 
-**Most cards get no test.** A card composed of primitives other cards already exercise is covered by the
-snapshot and lint nets; a test that only re-proves "deal 3 damage deals 3 damage" is cost with no signal.
-Write one only when the card earns it:
-
-- **Step 4 added new vocabulary** — test the primitive through the card.
-- **First use of an existing primitive or keyword** — no card has lowered it yet, so nothing proves the
-  engine acts on it (bushido's first card). A `Keyword.X` existing is not proof.
-- **A rules interaction the snapshot can't see** — last-known information, a replacement or layer
-  ordering, a linked exile, a cost-linked amount, a condition evaluated at an unusual moment, or a
-  composition you had to think hard about.
-
-When in doubt: if a reviewer can confirm the card by reading its script against the oracle text, skip the
-test; if being right depends on how the engine executes the script, write one.
+**Only if Step 4 added new vocabulary.** A card built purely from existing primitives is covered by the
+snapshot and lint nets.
 
 **File:** `mtg-sets/<era>/tests/src/test/kotlin/com/wingedsheep/engine/scenarios/{CardName}ScenarioTest.kt`,
 in the era module mirroring the card's own — **`just where {SET}`** prints both. (Tests that exercise the
 engine rather than a specific card stay in `rules-engine/src/test/.../scenarios/`.)
 
-**One card per file** — five tested cards get five test files, never one shared
+**One card per file** — a five-card batch unit gets five test files, never one shared
 `{Something}BatchScenarioTest`. See AGENTS.md → Hard rules.
 
 Set up a minimal board, exercise the new effect in isolation, verify the state changes, and cover the
@@ -218,13 +228,6 @@ hand/play, the relevant opposing permanents, the decision you want to trigger).
 ## Step 6: Player experience review
 
 **Always.** Walk the card from the player's side: what do they see, and what do they click?
-
-**Good UI/UX is a requirement, not a nice-to-have.** Players judge the game by how it feels to play, so
-a mechanic that works but is confusing, cluttered, ugly or clumsy to use is not done. The bar: a player
-who knows Magic but has never seen this card understands what is being asked and acts without
-hesitation — clear wording, the obvious place to click, the right board context visible, consistent with
-how similar interactions already look, and visually polished. When the existing flow falls short, fix it
-in the same change rather than shipping it and noting it for later.
 
 For each ability or mode: how is it activated (action-menu button, auto-trigger — and does the button
 text read clearly)? What decisions follow (targeting, selecting, choosing, ordering)? Which component in
@@ -249,16 +252,12 @@ UX failures to catch:
 If the existing components don't serve the card well, prefer extending one over creating a new one — but
 build what's genuinely needed.
 
-## Step 7: Verify the UI manually
+## Step 7: E2E test
 
-**Only if Step 6 introduced a new visual or UX mechanic.** Then it isn't done until you've seen it: set
-the board up (the **`generate-scenario`** skill writes a scenario for the dev scenario loader), drive the
-flow in a real browser — by hand or with Playwright as a browser driver — and check it looks clean and
-polished: layout, labels, highlighting, nothing overlapping or stale. Fix what looks off before
-moving on.
+**Only if Step 6 introduced a new visual or UX mechanic.**
 
-**Don't write E2E specs and don't run the E2E suite** (`just e2e*`) — it takes too long. Manual
-verification is the check.
+`e2e-scenarios/tests/{set}/{card-name}.spec.ts`, using the `createGame` fixture and `GamePage` helpers.
+Give both players at least one library card so nobody loses to an empty draw.
 
 ## Step 8: Trace new engine mechanics
 

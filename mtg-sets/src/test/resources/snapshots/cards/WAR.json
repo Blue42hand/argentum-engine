@@ -292,6 +292,107 @@
     ]
 }
 
+// Ashiok, Dream Render
+{
+    "name": "Ashiok, Dream Render",
+    "manaCost": "{1}{U/B}{U/B}",
+    "typeLine": "Legendary Planeswalker — Ashiok",
+    "oracleText": "Spells and abilities your opponents control can't cause their controller to search their library.\n−1: Target player mills four cards. Then exile each opponent's graveyard.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Ashiok, Dream Render:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                },
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            }
+                        },
+                        "ExileOpponentsGraveyards"
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetPlayer",
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "PlayersCantSearchLibraries",
+                "affected": "EachOpponent",
+                "scope": "OWN_LIBRARY_BY_OWN_EFFECTS"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "228",
+        "rarity": "UNCOMMON",
+        "artist": "Cynthia Sheppard",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/2/f2df3258-c053-48a8-974f-d80899b2cd93.jpg?1783933381",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "Spells and abilities your opponents control may cause other players to search their libraries, and spells and abilities you control may cause your opponents to search their libraries."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If an effect says \"You may search your library . . . If you do, shuffle your library\" or \"You may search your library . . . then shuffle your library,\" your opponents can't choose to search, so they won't shuffle."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If an effect says \"Search your library . . . then shuffle your library,\" your opponents shuffle their libraries even though they can't search."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "Effects that instruct your opponents to reveal or look at cards from the top of their libraries will still work. Only effects that use the word \"search\" are affected."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If Ashiok's last ability targets an opponent, the cards put into their graveyard will be among the cards exiled by the ability. No player may take any actions between the time the cards are put into a graveyard and the time your opponents' graveyards are all exiled."
+            }
+        ]
+    },
+    "startingLoyalty": 5,
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
 // Band Together
 {
     "name": "Band Together",
@@ -595,6 +696,86 @@
         ]
     },
     "colorIdentityOverride": []
+}
+
+// Bolas's Citadel
+{
+    "name": "Bolas's Citadel",
+    "manaCost": "{3}{B}{B}{B}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "You may look at the top card of your library any time.\nYou may play lands and cast spells from the top of your library. If you cast a spell this way, pay life equal to its mana value rather than pay its mana cost.\n{T}, Sacrifice ten nonland permanents: Each opponent loses 10 life.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Bolas's Citadel:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "nonland permanent",
+                                "count": 10
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 10
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                },
+                "descriptionOverride": "{T}, Sacrifice ten nonland permanents: Each opponent loses 10 life."
+            }
+        ],
+        "staticAbilities": [
+            "LookAtTopOfLibrary",
+            {
+                "type": "PlayFromTopWithAlternativeCost",
+                "withoutPayingManaCost": true,
+                "additionalCost": "PayLifeEqualToManaValueOfSpell"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "RARE",
+        "artist": "Jonas De Ro",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/2/d2124603-d20e-40eb-97f0-a66323397ac2.jpg?1783933451",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "You must follow the normal timing permissions and restrictions of the cards you play from your library."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "You can play a land card from the top of your library only if you have available land plays remaining."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If a spell has {X} in its mana cost, you must choose 0 as the value of X when casting it without paying its mana cost."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If you cast a spell for another cost \"rather than pay its mana cost,\" you can't choose to cast it for any alternative costs. You can, however, pay additional costs. If the card has any mandatory additional costs, such as that of Spark Harvest, those must be paid to cast the card."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "Bolas's Citadel may be one of the permanents you sacrifice to activate its last ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
 }
 
 // Bolt Bend
@@ -1966,6 +2147,166 @@
     ]
 }
 
+// Evolution Sage
+{
+    "name": "Evolution Sage",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "Landfall — Whenever a land you control enters, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Evolution Sage:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": "Proliferate"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "UNCOMMON",
+        "artist": "Simon Dominic",
+        "flavorText": "\"To care for yourself, cultivate the world. To care for the world, cultivate yourself.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/4/b4042db8-6032-49a2-bc96-ad15f55db6c3.jpg?1783933415"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Finale of Devastation
+{
+    "name": "Finale of Devastation",
+    "manaCost": "{X}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library and/or graveyard for a creature card with mana value X or less and put it onto the battlefield. If you search your library this way, shuffle. If X is 10 or more, creatures you control get +X/+X and gain haste until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromMultipleZones",
+                        "zones": [
+                            "Library",
+                            "Graveyard"
+                        ],
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "ManaValueAtMostDynamic",
+                                    "amount": "XValue"
+                                }
+                            ]
+                        }
+                    },
+                    "storeAs": "searchable",
+                    "search": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found",
+                    "prompt": "Search your library and/or graveyard for a creature card with mana value X or less to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent",
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": "XValue",
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 10
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "ModifyStats",
+                                    "powerModifier": "XValue",
+                                    "toughnessModifier": "XValue",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "HASTE",
+                                    "target": "IterationEntity"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "160",
+        "rarity": "MYTHIC",
+        "artist": "Bayard Wu",
+        "flavorText": "Some spells sing a quiet tune. Others roar.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/8/985453e7-997e-4d77-a338-cc0290791ebe.jpg?1783933415",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "If a creature card in your library or graveyard has {X} in its mana cost, X is considered to be 0."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If X is 10 or more, the creature card you just put onto the battlefield will get +X/+X and haste."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If you don't find a creature card with mana value X or less, creatures you control still get +X/+X and gain haste if X is 10 or more."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Finale of Revelation
 {
     "name": "Finale of Revelation",
@@ -2065,6 +2406,51 @@
     ]
 }
 
+// Flux Channeler
+{
+    "name": "Flux Channeler",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "Whenever you cast a noncreature spell, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Flux Channeler:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": "Proliferate"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "52",
+        "rarity": "UNCOMMON",
+        "artist": "Heonhwa",
+        "flavorText": "\"Inform our allies in the Tenth and throw the circuit. It's about to get weird.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/6/c6202e82-e159-482f-9224-292cb533171c.jpg?1783933466",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "Flux Channeler's ability resolves before the spell that caused it to trigger. It resolves even if that spell is countered."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Gideon's Company
 {
     "name": "Gideon's Company",
@@ -2130,6 +2516,65 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Gleaming Overseer
+{
+    "name": "Gleaming Overseer",
+    "manaCost": "{1}{U}{B}",
+    "typeLine": "Creature — Zombie Wizard",
+    "oracleText": "When this creature enters, amass Zombies 1. (Put a +1/+1 counter on an Army you control. It's also a Zombie. If you don't control an Army, create a 0/0 black Zombie Army creature token first.)\nZombie tokens you control have hexproof and menace.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Gleaming Overseer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Amass",
+                    "subtype": "Zombie"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "HEXPROOF",
+                "filter": {
+                    "baseFilter": "Zombie token ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "MENACE",
+                "filter": {
+                    "baseFilter": "Zombie token ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "198",
+        "rarity": "UNCOMMON",
+        "artist": "Volkan Baǵa",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/b/0b4604b4-df53-485c-a604-4d823b33d8ba.jpg?1783933397",
+        "rulings": [
+            {
+                "date": "2023-06-16",
+                "text": "Some cards that cause you to amass Zombies also provide bonuses to \"Zombie tokens.\" These affect any token that happens to be a Zombie, not just a Zombie Army you've amassed."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
     ]
 }
 
@@ -2202,6 +2647,117 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// God-Eternal Bontu
+{
+    "name": "God-Eternal Bontu",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Legendary Creature — Zombie God",
+    "oracleText": "Menace\nWhen God-Eternal Bontu enters, sacrifice any number of other permanents, then draw that many cards.\nWhen God-Eternal Bontu dies or is put into exile from the battlefield, you may put her into her owner's library third from the top.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 6
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "God-Eternal Bontu:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Sacrifice",
+                            "filter": "permanent",
+                            "any": true,
+                            "excludeSource": true
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": "PermanentsSacrificedThisWay"
+                        }
+                    ]
+                },
+                "descriptionOverride": "When God-Eternal Bontu enters, sacrifice any number of other permanents, then draw that many cards."
+            },
+            {
+                "id": "God-Eternal Bontu:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayDecide",
+                        "prompt": "Put God-Eternal Bontu into its owner's library third from the top?"
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Library",
+                        "fromZone": "Graveyard",
+                        "positionFromTop": 2
+                    }
+                },
+                "descriptionOverride": "When God-Eternal Bontu dies, you may put her into her owner's library third from the top."
+            },
+            {
+                "id": "God-Eternal Bontu:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Exile"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayDecide",
+                        "prompt": "Put God-Eternal Bontu into its owner's library third from the top?"
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Library",
+                        "fromZone": "Exile",
+                        "positionFromTop": 2
+                    }
+                },
+                "descriptionOverride": "When God-Eternal Bontu is put into exile from the battlefield, you may put her into her owner's library third from the top."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "92",
+        "rarity": "MYTHIC",
+        "artist": "Lius Lasahido",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/7/3714a135-e2b9-43a7-a2a2-fa5a2e0ac61a.jpg?1783933445",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "If any abilities trigger as you sacrifice other permanents, those abilities won't be put onto the stack until after you've drawn cards."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "As Bontu's first triggered ability resolves, you may choose to sacrifice zero other permanents."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If a second God-Eternal Bontu enters the battlefield under your control, you'll put one into your graveyard before you can sacrifice anything to the new Bontu's triggered ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -2700,7 +3256,8 @@
                     }
                 },
                 "timing": "ManaAbility",
-                "isManaAbility": true
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add {C}."
             },
             {
                 "id": "Karn's Bastion:2",
@@ -2728,7 +3285,8 @@
         "artist": "Adam Paquette",
         "flavorText": "\"I can't protect everyone here. But those I can, I will.\"\n—Karn",
         "imageUri": "https://cards.scryfall.io/normal/front/b/9/b9d895af-7e8c-419f-bc5d-5596083fbfb6.jpg?1783933368"
-    }
+    },
+    "colorIdentityOverride": []
 }
 
 // Karn, the Great Creator
@@ -3025,27 +3583,36 @@
             {
                 "id": "Kaya's Ghostform:1",
                 "trigger": {
-                    "type": "AnyOfEvents",
-                    "events": [
-                        {
-                            "type": "ZoneChangeEvent",
-                            "from": "Battlefield",
-                            "to": "Graveyard"
-                        },
-                        {
-                            "type": "ZoneChangeEvent",
-                            "from": "Battlefield",
-                            "to": "Exile"
-                        }
-                    ]
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
                 },
                 "binding": "ATTACHED",
                 "effect": {
                     "type": "MoveToZone",
                     "target": "TriggeringEntity",
                     "destination": "Battlefield",
-                    "controllerOverride": "Controller"
-                }
+                    "controllerOverride": "Controller",
+                    "fromZone": "Graveyard"
+                },
+                "descriptionOverride": "When enchanted permanent dies or is put into exile, return that card to the battlefield under your control."
+            },
+            {
+                "id": "Kaya's Ghostform:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Exile"
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "TriggeringEntity",
+                    "destination": "Battlefield",
+                    "controllerOverride": "Controller",
+                    "fromZone": "Exile"
+                },
+                "descriptionOverride": "When enchanted permanent dies or is put into exile, return that card to the battlefield under your control."
             }
         ],
         "auraTarget": {
@@ -3093,6 +3660,83 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Kiora, Behemoth Beckoner
+{
+    "name": "Kiora, Behemoth Beckoner",
+    "manaCost": "{2}{G/U}",
+    "typeLine": "Legendary Planeswalker — Kiora",
+    "oracleText": "Whenever a creature you control with power 4 or greater enters, draw a card.\n−1: Untap target permanent.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kiora, Behemoth Beckoner:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature pow>=4 ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Kiora, Behemoth Beckoner:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -1
+                },
+                "effect": {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "tap": false
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "232",
+        "rarity": "UNCOMMON",
+        "artist": "Jaime Jones",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/a/7a61b1a6-a75f-47b0-b215-de9708b6d773.jpg?1783933378",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "The entering creature must have power 4 or greater as it enters the battlefield, or Kiora's first ability won't trigger. Static abilities that raise or lower a creature's power are taken into account, as well as any +1/+1 counters the creature enters with. However, you can't have a creature with power 3 or less enter the battlefield, raise its power with a spell, an activated ability, or a triggered ability, and have Kiora's ability trigger."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If the entering creature's power changes to 3 or less after it has entered the battlefield, you'll still draw a card."
+            }
+        ]
+    },
+    "startingLoyalty": 7,
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE"
     ]
 }
 
@@ -3158,10 +3802,12 @@
                             ],
                             "creatureTypes": [
                                 "Goblin"
-                            ]
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/c/0/c0861b13-6cf8-4078-9178-e223a4041a8b.jpg?1783933350"
                         }
                     ]
-                }
+                },
+                "descriptionOverride": "Whenever Krenko attacks, put a +1/+1 counter on it, then create a number of 1/1 red Goblin creature tokens equal to Krenko's power."
             }
         ]
     },
@@ -3624,6 +4270,77 @@
     "colorIdentityOverride": []
 }
 
+// Mayhem Devil
+{
+    "name": "Mayhem Devil",
+    "manaCost": "{1}{B}{R}",
+    "typeLine": "Creature — Devil",
+    "oracleText": "Whenever a player sacrifices a permanent, this creature deals 1 damage to any target.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Mayhem Devil:1",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "permanent",
+                    "sacrificedBy": "Each",
+                    "perPermanent": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                },
+                "descriptionOverride": "Whenever a player sacrifices a permanent, this creature deals 1 damage to any target."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "204",
+        "rarity": "UNCOMMON",
+        "artist": "Dmitry Burmak",
+        "flavorText": "Despite their stake in the city's survival, Rakdos cultists are loath to pass up any opportunity to sow chaos.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/7/17416926-168b-49b3-9231-acbb8f8a1d13.jpg?1783933394",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "A legendary permanent that is put into a graveyard because of the \"legend rule\" isn't sacrificed."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "You control Mayhem Devil's triggered ability and choose the target, no matter who sacrificed the permanent."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If a permanent is sacrificed to pay a cost of a spell or ability, Mayhem Devil's ability will resolve before that spell or ability. Conversely, if a permanent is sacrificed during the resolution of a spell or ability, that spell or ability will finish resolving before Mayhem Devil's ability is put onto the stack."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If you sacrifice Mayhem Devil, its ability triggers."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Naga Eternal
 {
     "name": "Naga Eternal",
@@ -3867,6 +4584,203 @@
     ]
 }
 
+// Nicol Bolas, Dragon-God
+{
+    "name": "Nicol Bolas, Dragon-God",
+    "manaCost": "{U}{B}{B}{B}{R}",
+    "typeLine": "Legendary Planeswalker — Bolas",
+    "oracleText": "Nicol Bolas has all loyalty abilities of all other planeswalkers on the battlefield.\n+1: You draw a card. Each opponent exiles a card from their hand or a permanent they control.\n−3: Destroy target creature or planeswalker.\n−8: Each opponent who doesn't control a legendary creature or planeswalker loses the game.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Nicol Bolas, Dragon-God:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "ForEach",
+                                    "space": {
+                                        "type": "IterationSpace.Players",
+                                        "players": "EachOpponent"
+                                    },
+                                    "body": {
+                                        "type": "Composite",
+                                        "effects": [
+                                            {
+                                                "type": "GatherCards",
+                                                "source": {
+                                                    "type": "FromMultipleZones",
+                                                    "zones": [
+                                                        "Hand",
+                                                        "Battlefield"
+                                                    ]
+                                                },
+                                                "storeAs": "gathered1"
+                                            },
+                                            {
+                                                "type": "SelectFromCollection",
+                                                "from": "gathered1",
+                                                "selection": {
+                                                    "type": "ChooseExactly",
+                                                    "count": {
+                                                        "type": "Fixed",
+                                                        "amount": 1
+                                                    }
+                                                },
+                                                "storeSelected": "selected2",
+                                                "prompt": "Exile a card from your hand or a permanent you control"
+                                            }
+                                        ]
+                                    },
+                                    "collectCollections": {
+                                        "selected2": "collected3"
+                                    }
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "collected3",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Exile"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "You draw a card. Each opponent exiles a card from their hand or a permanent they control."
+            },
+            {
+                "id": "Nicol Bolas, Dragon-God:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetCreatureOrPlaneswalker",
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Nicol Bolas, Dragon-God:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -8
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "EachOpponent"
+                    },
+                    "body": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.WhenCondition",
+                            "condition": {
+                                "type": "Exists",
+                                "player": "You",
+                                "zone": "Battlefield",
+                                "filter": {
+                                    "cardPredicates": [
+                                        {
+                                            "type": "Or",
+                                            "predicates": [
+                                                "IsCreature",
+                                                "IsPlaneswalker"
+                                            ]
+                                        },
+                                        "IsLegendary"
+                                    ]
+                                },
+                                "negate": true
+                            }
+                        },
+                        "then": "LoseGame"
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Each opponent who doesn't control a legendary creature or planeswalker loses the game."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GainActivatedAbilitiesOfPermanents",
+                "grantedTo": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "sourceFilter": "planeswalker",
+                "abilities": "LOYALTY"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "207",
+        "rarity": "MYTHIC",
+        "artist": "Raymond Swanland",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/8/98b68dea-a7be-4f99-8a50-4c8cf0e0f7a9.jpg?1783933392",
+        "rulings": [
+            {
+                "date": "2024-01-12",
+                "text": "Nicol Bolas doesn't remove loyalty abilities from the other planeswalkers."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "Nicol Bolas doesn't gain any static or triggered abilities of other planeswalkers or any activated abilities they may have that aren't loyalty abilities."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "While Nicol Bolas may end up with an astonishing number of loyalty abilities, you can still activate only one loyalty ability of Nicol Bolas, Dragon-God during each of your turns."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "If a loyalty ability of a planeswalker references the card it's printed on by name, treat Nicol Bolas's instance of that ability as though it referenced Nicol Bolas, Dragon-God by name instead. For instance, if Ral Zarek is on the battlefield, Nicol Bolas deals the damage if you activate the second ability he gained from Ral."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "After you draw a card as Nicol Bolas's first loyalty ability resolves, the next opponent in turn order (or, if it's somehow an opponent's turn, that opponent) chooses a permanent they control or chooses a card in hand without revealing that card. Then each other opponent in turn order does the same, knowing the choices made before them. Finally, all of the chosen permanents and cards are exiled simultaneously."
+            }
+        ]
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Nissa, Who Shakes the World
 {
     "name": "Nissa, Who Shakes the World",
@@ -3968,7 +4882,8 @@
                                         "zone": "Library",
                                         "filter": "Forest"
                                     },
-                                    "storeAs": "gathered0"
+                                    "storeAs": "gathered0",
+                                    "search": true
                                 },
                                 {
                                     "type": "SelectFromCollection",
@@ -3986,7 +4901,8 @@
                                         "placement": "Tapped"
                                     }
                                 },
-                                "ShuffleLibrary"
+                                "ShuffleLibrary",
+                                "EmitLibrarySearchedEvent"
                             ]
                         }
                     ]
@@ -4431,6 +5347,126 @@
     ]
 }
 
+// Ral, Storm Conduit
+{
+    "name": "Ral, Storm Conduit",
+    "manaCost": "{2}{U}{R}",
+    "typeLine": "Legendary Planeswalker — Ral",
+    "oracleText": "Whenever you cast or copy an instant or sorcery spell, Ral deals 1 damage to target opponent or planeswalker.\n+2: Scry 1.\n−2: When you next cast an instant or sorcery spell this turn, copy that spell. You may choose new targets for the copy.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ral, Storm Conduit:1",
+                "trigger": {
+                    "type": "AnyOfEvents",
+                    "events": [
+                        {
+                            "type": "SpellCastEvent",
+                            "spellFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsInstant",
+                                            "IsSorcery"
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "SpellCopiedEvent",
+                            "spellFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            "IsInstant",
+                                            "IsSorcery"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponentOrPlaneswalker",
+                    "id": "t0"
+                },
+                "descriptionOverride": "Whenever you cast or copy an instant or sorcery spell, Ral deals 1 damage to target opponent or planeswalker."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Ral, Storm Conduit:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 2
+                },
+                "effect": {
+                    "type": "Scry",
+                    "count": 1
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Ral, Storm Conduit:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -2
+                },
+                "effect": "CopyNextSpellCast",
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "When you next cast an instant or sorcery spell this turn, copy that spell. You may choose new targets for the copy."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "211",
+        "rarity": "RARE",
+        "artist": "Wesley Burt",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/7/678ce3bf-152d-45ca-87ae-ad46c921328b.jpg?1783933390",
+        "rulings": [
+            {
+                "date": "2019-05-03",
+                "text": "If an effect copies a spell multiple times, as Finale of Promise may, Ral's first ability triggers that many times."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "If the spell that's copied is modal (that is, it says \"Choose one —\" or the like), the copy created by Ral's last ability will have the same mode or modes. You can't choose different ones."
+            },
+            {
+                "date": "2019-05-03",
+                "text": "The copies that Ral's last ability creates are created on the stack, so they're not \"cast.\" Abilities that trigger when a player casts a spell won't trigger."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If an effect copies a card rather than a spell (such as that of God-Eternal Kefnet), this doesn't cause Ral's first ability to trigger. That ability will trigger if you cast the copy, however."
+            }
+        ]
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Rally of Wings
 {
     "name": "Rally of Wings",
@@ -4714,6 +5750,100 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Single Combat
+{
+    "name": "Single Combat",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player chooses a creature or planeswalker they control, then sacrifices the rest. Players can't cast creature or planeswalker spells until the end of your next turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "ActivePlayerFirst"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "ControlledPermanents",
+                                    "filter": "creature|planeswalker"
+                                },
+                                "storeAs": "gathered1"
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "gathered1",
+                                "selection": {
+                                    "type": "ChooseExactly",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "selected2",
+                                "storeRemainder": "remainder2",
+                                "prompt": "Choose a creature or planeswalker to keep. The rest are sacrificed.",
+                                "selectedLabel": "Keep",
+                                "remainderLabel": "Sacrifice",
+                                "useTargetingUI": true
+                            }
+                        ]
+                    },
+                    "collectCollections": {
+                        "selected2": "collected3",
+                        "remainder2": "collected4"
+                    }
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "collected4",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Sacrifice"
+                },
+                {
+                    "type": "CantCastSpells",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    },
+                    "duration": "EndOfYourNextTurn",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    "IsCreature",
+                                    "IsPlaneswalker"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "30",
+        "rarity": "RARE",
+        "artist": "Livia Prima",
+        "flavorText": "Not even a threat to the entire Multiverse could persuade them to put aside their feud.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce0e7c6a-e628-4327-a16f-2062c5a662df.jpg?1783933474"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 

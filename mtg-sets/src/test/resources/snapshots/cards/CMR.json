@@ -1,3 +1,72 @@
+// Abomination of Llanowar
+{
+    "name": "Abomination of Llanowar",
+    "manaCost": "{1}{B}{G}",
+    "typeLine": "Legendary Creature — Elf Horror",
+    "oracleText": "Vigilance; menace (This creature can't be blocked except by two or more creatures.)\nAbomination of Llanowar's power and toughness are each equal to the number of Elves you control plus the number of Elf cards in your graveyard.",
+    "creatureStats": {
+        "power": {
+            "type": "Dynamic",
+            "source": {
+                "type": "Add",
+                "left": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "permanent Elf"
+                },
+                "right": {
+                    "type": "AggregateZone",
+                    "player": "You",
+                    "zone": "Graveyard",
+                    "filter": "Elf"
+                }
+            }
+        },
+        "toughness": {
+            "type": "Dynamic",
+            "source": {
+                "type": "Add",
+                "left": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": "permanent Elf"
+                },
+                "right": {
+                    "type": "AggregateZone",
+                    "player": "You",
+                    "zone": "Graveyard",
+                    "filter": "Elf"
+                }
+            }
+        }
+    },
+    "keywords": [
+        "VIGILANCE",
+        "MENACE"
+    ],
+    "metadata": {
+        "collectorNumber": "265",
+        "rarity": "UNCOMMON",
+        "artist": "Vincent Proce",
+        "flavorText": "\"Run!\" screamed its living mouths. \"Come!\" cried its dead ones.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/6/567dbc64-4d59-4bab-a551-08fc66c085fa.jpg?1783928779",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "The ability that defines Abomination of Llanowar's power and toughness applies in all zones, not just the battlefield."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "As long as Abomination of Llanowar is on the battlefield (and still an Elf) or in your graveyard, its ability will count itself."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Aesi, Tyrant of Gyre Strait
 {
     "name": "Aesi, Tyrant of Gyre Strait",
@@ -59,6 +128,166 @@
     "colorIdentityOverride": [
         "BLUE",
         "GREEN"
+    ]
+}
+
+// Akroma's Will
+{
+    "name": "Akroma's Will",
+    "manaCost": "{3}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one. If you control a commander as you cast this spell, you may choose both instead.\n• Creatures you control gain flying, vigilance, and double strike until end of turn.\n• Creatures you control gain lifelink, indestructible, and protection from each color until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "FLYING",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "VIGILANCE",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "DOUBLE_STRIKE",
+                                    "target": "IterationEntity"
+                                }
+                            ]
+                        }
+                    },
+                    "description": "Creatures you control gain flying, vigilance, and double strike until end of turn"
+                },
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            }
+                        },
+                        "body": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "LIFELINK",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "INDESTRUCTIBLE",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "PROTECTION_FROM_WHITE",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "PROTECTION_FROM_BLUE",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "PROTECTION_FROM_BLACK",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "PROTECTION_FROM_RED",
+                                    "target": "IterationEntity"
+                                },
+                                {
+                                    "type": "GrantKeyword",
+                                    "keyword": "PROTECTION_FROM_GREEN",
+                                    "target": "IterationEntity"
+                                }
+                            ]
+                        }
+                    },
+                    "description": "Creatures you control gain lifelink, indestructible, and protection from each color until end of turn"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1,
+            "dynamicChooseCount": {
+                "type": "Conditional",
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent"
+                        ],
+                        "statePredicates": [
+                            "IsCommander"
+                        ]
+                    }
+                },
+                "ifTrue": {
+                    "type": "Fixed",
+                    "amount": 2
+                },
+                "ifFalse": {
+                    "type": "Fixed",
+                    "amount": 1
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "3",
+        "rarity": "RARE",
+        "artist": "Antonio José Manzanedo",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/2/c281997b-1566-4469-a14c-6645f81ab023.jpg?1783928892",
+        "rulings": [
+            {
+                "date": "2025-11-17",
+                "text": "\"Protection from each color\" is shorthand for protection from white, from blue, from black, from red, and from green. Colorless is not a color."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "There's no extra bonus if you control more than one commander."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Once you've announced that you're casting a spell, players can't take any actions until you've finished doing so. Notably, opponents can't try to remove your commander to change how many modes you may choose."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Even though the card is named after a specific character, controlling any commander will satisfy its condition."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "The commander you control doesn't have to be your commander."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Once you've chosen both modes for the spell, it doesn't matter whether you continue to control a commander. This is true even if you somehow no longer control a commander as you finish casting the spell."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -275,6 +504,97 @@
     ]
 }
 
+// Court of Grace
+{
+    "name": "Court of Grace",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, you become the monarch.\nAt the beginning of your upkeep, create a 1/1 white Spirit creature token with flying. If you're the monarch, create a 4/4 white Angel creature token with flying instead.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Court of Grace:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "TakeDesignation",
+                    "designation": "MONARCH"
+                }
+            },
+            {
+                "id": "Court of Grace:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "PlayerHasDesignation",
+                            "designation": "MONARCH"
+                        }
+                    },
+                    "then": {
+                        "type": "CreateToken",
+                        "power": 4,
+                        "toughness": 4,
+                        "colors": [
+                            "WHITE"
+                        ],
+                        "creatureTypes": [
+                            "Angel"
+                        ],
+                        "keywords": [
+                            "FLYING"
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/f/7/f7c65b6a-9c63-4604-b7db-d75772799616.jpg?1783928590"
+                    },
+                    "otherwise": {
+                        "type": "CreateToken",
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [
+                            "WHITE"
+                        ],
+                        "creatureTypes": [
+                            "Spirit"
+                        ],
+                        "keywords": [
+                            "FLYING"
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/2/1/21e580cb-6092-48b7-ba3e-d64ec28860da.jpg?1783928591"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "rarity": "RARE",
+        "artist": "Denman Rooke",
+        "flavorText": "A righteous sovereign makes for a blessed realm.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/02f0be1b-554e-4b61-b495-6e2a7369cdb1.jpg?1783928885",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "The game starts with no monarch. Once an effect makes one player the monarch, the game will have exactly one monarch from that point forward. As a player becomes the monarch, the current monarch (if any) ceases being the monarch."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If the monarch leaves the game during another player's turn, that player becomes the monarch. If the monarch leaves the game during their turn, the next player in turn order becomes the monarch."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Elvish Doomsayer
 {
     "name": "Elvish Doomsayer",
@@ -349,6 +669,61 @@
     ]
 }
 
+// Esior, Wardwing Familiar
+{
+    "name": "Esior, Wardwing Familiar",
+    "manaCost": "{1}{U}",
+    "typeLine": "Legendary Creature — Bird",
+    "oracleText": "Flying\nSpells your opponents cast that target one or more commanders you control cost {3} more to cast.\nPartner (You can have two commanders if both have partner.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "keywordAbilities": [
+        "Partner"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "OpponentsCastTargeting",
+                    "targetFilter": {
+                        "baseFilter": {
+                            "statePredicates": [
+                                "IsCommander"
+                            ],
+                            "controllerPredicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "modification": {
+                    "type": "IncreaseGeneric",
+                    "amount": 3
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "67",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Ejsing",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/86958821-76eb-43a5-974b-7c945e826a66.jpg?1783928863",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Spells that target more than one commander you control cost only {3} more to cast."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Ghen, Arcanum Weaver
 {
     "name": "Ghen, Arcanum Weaver",
@@ -415,6 +790,229 @@
     "colorIdentityOverride": [
         "WHITE",
         "BLACK",
+        "RED"
+    ]
+}
+
+// Hellkite Courser
+{
+    "name": "Hellkite Courser",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhen this creature enters, you may put a commander you own from the command zone onto the battlefield. It gains haste. Return it to the command zone at the beginning of the next end step.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hellkite Courser:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Command",
+                                "filter": {
+                                    "statePredicates": [
+                                        "IsCommander"
+                                    ],
+                                    "controllerPredicate": "OwnedByYou"
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "You may put a commander you own from the command zone onto the battlefield"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            },
+                            "storeMovedAs": "moved2"
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Collection",
+                                "collection": "moved2"
+                            },
+                            "body": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GrantKeyword",
+                                        "keyword": "HASTE",
+                                        "target": "IterationEntity",
+                                        "duration": "Permanent"
+                                    },
+                                    {
+                                        "type": "CreateDelayedTrigger",
+                                        "step": "END",
+                                        "effect": {
+                                            "type": "MoveToZone",
+                                            "target": "IterationEntity",
+                                            "destination": "Command"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, you may put a commander you own from the command zone onto the battlefield. It gains haste. Return it to the command zone at the beginning of the next end step."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "183",
+        "rarity": "MYTHIC",
+        "artist": "Caio Monteiro",
+        "flavorText": "The charge was heralded not by horns, but by the dragon's echoing roar.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/b/db45122e-b5ef-487b-8ea9-59ea066d3c88.jpg?1783928813",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Putting your commander onto the battlefield this way isn't the same as casting that commander. The \"commander tax\" won't increase."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "You'll return the commander to the command zone only if it's still on the battlefield as the delayed triggered ability resolves. If it's in another zone, it will stay where it is."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Impulsive Pilferer
+{
+    "name": "Impulsive Pilferer",
+    "manaCost": "{R}",
+    "typeLine": "Creature — Goblin Pirate",
+    "oracleText": "When this creature dies, create a Treasure token. (It's an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nEncore {3}{R} ({3}{R}, Exile this card from your graveyard: For each opponent, create a token copy that attacks that opponent this turn if able. They gain haste. Sacrifice them at the beginning of the next end step. Activate only as a sorcery.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "ENCORE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Impulsive Pilferer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Treasure"
+                },
+                "descriptionOverride": "When this creature dies, create a Treasure token."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "encore_{3}{R}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{R}"
+                            }
+                        },
+                        "CostExileSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "EachOpponent"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "CreateTokenCopyOfTarget",
+                                "target": "Self",
+                                "sacrificeAtStep": "END",
+                                "controller": {
+                                    "type": "PlayerRef",
+                                    "player": "ControllerOfSource"
+                                }
+                            },
+                            {
+                                "type": "ForEach",
+                                "space": {
+                                    "type": "IterationSpace.Collection",
+                                    "collection": "createdTokens"
+                                },
+                                "body": {
+                                    "type": "Composite",
+                                    "effects": [
+                                        {
+                                            "type": "GrantKeyword",
+                                            "keyword": "HASTE",
+                                            "target": "IterationEntity",
+                                            "duration": "Permanent"
+                                        },
+                                        {
+                                            "type": "MarkMustAttack",
+                                            "target": "IterationEntity",
+                                            "defender": {
+                                                "type": "PlayerRef",
+                                                "player": "You"
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "activateFromZone": "Graveyard",
+                "descriptionOverride": "Encore {3}{R} ({3}{R}, Exile this card from your graveyard: For each opponent, create a token copy that attacks that opponent this turn if able. They gain haste. Sacrifice them at the beginning of the next end step. Activate only as a sorcery.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "185",
+        "artist": "Jakub Kasper",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/5/55ba9bea-5549-45cf-896c-501a1c81fd5a.jpg?1783928813"
+    },
+    "colorIdentityOverride": [
         "RED"
     ]
 }
@@ -594,6 +1192,78 @@
         ]
     },
     "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Juri, Master of the Revue
+{
+    "name": "Juri, Master of the Revue",
+    "manaCost": "{B}{R}",
+    "typeLine": "Legendary Creature — Human Shaman",
+    "oracleText": "Whenever you sacrifice a permanent, put a +1/+1 counter on Juri.\nWhen Juri dies, it deals damage equal to its power to any target.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Juri, Master of the Revue:1",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "permanent",
+                    "perPermanent": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            },
+            {
+                "id": "Juri, Master of the Revue:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": "Power"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "282",
+        "rarity": "UNCOMMON",
+        "artist": "Dmitry Burmak",
+        "flavorText": "\"What a show! We're going to make a killing tonight.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/e/aec6b2b7-625a-451d-bc0b-4456f5bf2719.jpg?1783928771",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "For Juri's second ability, use its power from when it was last on the battlefield to determine how much damage is dealt. If that power was 0 or less, Juri deals no damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
         "RED"
     ]
 }
@@ -909,6 +1579,82 @@
     ]
 }
 
+// Lathiel, the Bounteous Dawn
+{
+    "name": "Lathiel, the Bounteous Dawn",
+    "manaCost": "{2}{G}{W}",
+    "typeLine": "Legendary Creature — Unicorn",
+    "oracleText": "Lifelink\nAt the beginning of each end step, if you gained life this turn, distribute up to that many +1/+1 counters among any number of other target creatures.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Lathiel, the Bounteous Dawn:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DistributeCountersAmongTargets",
+                    "totalCounters": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    },
+                    "upTo": true
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature",
+                        "excludeSelf": true
+                    },
+                    "id": "other target creatures",
+                    "dynamicMaxCount": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "At the beginning of each end step, if you gained life this turn, distribute up to that many +1/+1 counters among any number of other target creatures."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "285",
+        "rarity": "RARE",
+        "artist": "Lucas Graciano",
+        "flavorText": "Weeping, the hunter cast aside her bow, struck by the majesty of the creature before her.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29d3484f-abd1-43fe-99f8-e0fa0a7b6692.jpg?1783928769"
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
 // Maelstrom Colossus
 {
     "name": "Maelstrom Colossus",
@@ -995,7 +1741,7 @@
                                 }
                             },
                             "storeSelected": "found",
-                            "prompt": "Search your library for a creature green card to put onto the battlefield",
+                            "prompt": "Search your library for a green creature card to put onto the battlefield",
                             "selectedLabel": "Put onto the battlefield"
                         },
                         {
@@ -1386,6 +2132,39 @@
     ]
 }
 
+// Rograkh, Son of Rohgahh
+{
+    "name": "Rograkh, Son of Rohgahh",
+    "manaCost": "{0}",
+    "typeLine": "Legendary Creature — Kobold Warrior",
+    "oracleText": "First strike, menace, trample\nPartner (You can have two commanders if both have partner.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 1
+    },
+    "keywords": [
+        "FIRST_STRIKE",
+        "MENACE",
+        "TRAMPLE"
+    ],
+    "keywordAbilities": [
+        "Partner"
+    ],
+    "metadata": {
+        "collectorNumber": "197",
+        "rarity": "UNCOMMON",
+        "artist": "Chris Seaman",
+        "flavorText": "Strength is relative.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/4/a4fab67f-00c2-4125-9262-d21a29411797.jpg?1783928807"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ],
+    "colorIndicator": [
+        "RED"
+    ]
+}
+
 // Slash the Ranks
 {
     "name": "Slash the Ranks",
@@ -1485,6 +2264,72 @@
     "colorIdentityOverride": [
         "RED",
         "WHITE"
+    ]
+}
+
+// Thalisse, Reverent Medium
+{
+    "name": "Thalisse, Reverent Medium",
+    "manaCost": "{3}{W}{B}",
+    "typeLine": "Legendary Creature — Human Cleric",
+    "oracleText": "At the beginning of each end step, create X 1/1 white Spirit creature tokens with flying, where X is the number of tokens you created this turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Thalisse, Reverent Medium:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "TOKENS_CREATED"
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Spirit"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/2/1/21e580cb-6092-48b7-ba3e-d64ec28860da.jpg?1783928591"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "291",
+        "rarity": "UNCOMMON",
+        "artist": "Heonhwa",
+        "flavorText": "She hears every voice from the swirling, whispering mist and swears to tell their stories.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/474d6363-ebe1-4a1a-b4e6-7bd53d878527.jpg?1783928769",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Thalisse's ability counts all tokens you created that turn prior to the ability resolving, including both noncreature tokens and creature tokens. It doesn't matter if those tokens are still on the battlefield or still under your control."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If an effect creates a copy of a permanent spell, that spell becomes a token on the battlefield under your control, but that token has not been \"created.\" It won't count for Thalisse's ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
     ]
 }
 

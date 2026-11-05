@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.text.TextReplacer
+import com.wingedsheep.sdk.scripting.references.Player
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,6 +19,11 @@ import kotlinx.serialization.Serializable
  * MUST pass `Filters.EnchantedCreature` explicitly, or it will silently grant the subtype to
  * itself and leave the enchanted creature untouched — the failure is invisible without a
  * scenario test that asserts the subtype on the *host*.
+ *
+ * With the default source filter, printed at the top of the card's own script and unconditional,
+ * this is the "[this] is also a [subtype]" characteristic-defining ability (CR 604.3 — Tajuru
+ * Paragon). It then functions in every zone: see
+ * [com.wingedsheep.sdk.model.CardDefinition.selfDefinedSubtypes].
  *
  * @property subtype The creature subtype to add (e.g., "Knight")
  * @property filter What this ability applies to; defaults to the source, NOT the enchanted creature
@@ -267,6 +273,47 @@ data class GrantColor(
 }
 
 /**
+ * "[filter] are [colors]" — a Layer 5 color-*setting* effect (CR 613.1e): the affected objects'
+ * colors become exactly [colors], replacing whatever they were; an empty set is "are colorless".
+ * Its siblings [GrantColor] / [GrantChosenColor] *add* a color ("in addition to its other
+ * colors") and can't express replacing or removing them.
+ *
+ * [filter] is the battlefield half. [offBattlefield] extends the effect past the battlefield to
+ * the spells [offBattlefield] controls and the cards they own in every other zone (hand, library,
+ * graveyard, exile, command), read relative to this permanent's controller — `null` (the default)
+ * is battlefield-only, [Player.You] is "the same is true for spells you control and cards you own
+ * that aren't on the battlefield", [Player.Each] is every player's (Mycosynth Lattice: "All cards
+ * that aren't on the battlefield, spells, and permanents are colorless"). The card predicates of
+ * [filter] (e.g. nonland) also qualify which off-battlefield objects are reached, matched against
+ * their printed characteristics. Off the battlefield the effect is an overlay the color read-sites
+ * consult (`ProjectedState.colorsOf`), since layer projection iterates only permanents.
+ */
+@SerialName("SetColors")
+@Serializable
+data class SetColors(
+    val colors: Set<Color>,
+    val filter: GroupFilter,
+    val offBattlefield: Player? = null
+) : StaticAbility {
+    init {
+        require(offBattlefield == null || offBattlefield == Player.You || offBattlefield == Player.Each || offBattlefield == Player.EachOpponent) {
+            "SetColors.offBattlefield must be null, You, Each or EachOpponent, was $offBattlefield"
+        }
+    }
+
+    override val description: String = buildString {
+        append(filter.description)
+        append(if (colors.isEmpty()) " are colorless" else " are ${colors.joinToString(" and ") { it.name.lowercase() }}")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {
+        val newFilter = filter.applyTextReplacement(replacer)
+        val newColors = colors.mapTo(linkedSetOf()) { replacer.replaceColor(it) }
+        return if (newFilter === filter && newColors == colors) this else copy(colors = newColors, filter = newFilter)
+    }
+}
+
+/**
  * Adds the chosen color (resolved from the source's `CastChoicesComponent`) to the target.
  * Used for auras like Shimmerwilds Growth: "Enchanted land is the chosen color."
  *
@@ -484,7 +531,7 @@ data class GrantAdditionalTypesToGroup(
  *
  * This lowers to two continuous effects (see `StaticAbilityHandler.convertSetLandTypesForGroup`):
  * - Layer 4 (TYPE): [com.wingedsheep.engine.mechanics.layers.Modification.SetBasicLandTypes] —
- *   removes the old basic land subtypes and adds [landTypes] (CR 305.7).
+ *   removes every old land type (CR 205.3i) and adds [landTypes] (CR 305.7).
  * - Layer 6 (ABILITY): [com.wingedsheep.engine.mechanics.layers.Modification.RemoveAllAbilities] —
  *   removes the lands' printed abilities. The new basic land type's intrinsic mana ability
  *   (e.g. "{T}: Add {R}" for Mountain) is *not* removed: it is derived from the projected
@@ -492,7 +539,12 @@ data class GrantAdditionalTypesToGroup(
  *
  * @property filter Which lands are affected (e.g. all nonbasic lands — [GroupFilter] over
  *   `GameObjectFilter.NonbasicLand`, both players' lands).
- * @property landTypes The basic land type(s) to set (e.g. {"Mountain"}), replacing all others.
+ * An empty [landTypes] is "loses all land types and abilities" — every land type is removed and
+ * none is added (Lithoform Blight, with an `AttachedTo`-scoped land filter for the
+ * enchanted land). Non-land subtypes and all card types / supertypes are kept.
+ *
+ * @property landTypes The basic land type(s) to set (e.g. {"Mountain"}), replacing every land type
+ *   the lands had (basic or not, CR 205.3i); empty to remove them all.
  */
 @SerialName("SetLandTypesForGroup")
 @Serializable
@@ -502,9 +554,13 @@ data class SetLandTypesForGroup(
 ) : StaticAbility {
     override val description: String = buildString {
         append(filter.description)
-        append(" are ")
-        append(landTypes.joinToString(" "))
-        append(" (they lose all other land types and abilities)")
+        if (landTypes.isEmpty()) {
+            append(" lose all land types and abilities")
+        } else {
+            append(" are ")
+            append(landTypes.joinToString(" "))
+            append(" (they lose all other land types and abilities)")
+        }
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): StaticAbility {

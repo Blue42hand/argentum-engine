@@ -2,10 +2,10 @@
 
 **Set Size:** 336 cards
 **Release Date:** March 8, 2024
-**Implemented:** 167 / 336
+**Implemented:** 322 / 336
 | Section    | Total | Done |
 |------------|-------|------|
-| Extras     | 336   | 158  |
+| Extras     | 336   | 185  |
 
 > Verify status anytime with `scripts/card-status --set PIP` (and `--list`). That command's count is authoritative — keep this file's `Implemented:` line in sync (`just fix-backlog`) as boxes are checked. The set's mechanics are catalogued in [`mechanics.md`](mechanics.md).
 
@@ -16,284 +16,284 @@
 > Not in boosters — starter decks, promos, bonus sheets. Counted separately by `scripts/card-status`.
 
 - [x] Abundant Growth
-- [ ] Acquired Mutation
-- [ ] Agent Frank Horrigan
-- [ ] Agility Bobblehead
-- [ ] All That Glitters
-- [ ] Almost Perfect
-- [ ] Alpha Deathclaw
+- [x] Acquired Mutation
+- [x] Agent Frank Horrigan
+- [x] Agility Bobblehead
+- [x] All That Glitters
+- [x] Almost Perfect
+- [x] Alpha Deathclaw
 - [x] Anguished Unmaking
 - [ ] Animal Friend
 - [x] Aradesh, the Founder
-- [ ] Arcade Gannon
+- [x] Arcade Gannon
 - [x] Arcane Signet
-- [ ] Armory Paladin
+- [x] Armory Paladin
 - [x] Ash Barrens
-- [ ] Assaultron Dominator
+- [x] Assaultron Dominator
 - [x] Assemble the Legion
-- [ ] Atomize
+- [x] Atomize
 - [x] Austere Command
-- [ ] Automated Assembly Line
-- [ ] Ayula, Queen Among Bears
+- [x] Automated Assembly Line
+- [x] Ayula, Queen Among Bears
 - [x] Basilisk Collar
 - [x] Bastion of Remembrance
 - [x] Battle of Hoover Dam
 - [x] Behemoth Sledge
-- [ ] Behemoth of Vault 0
-- [ ] Bighorner Rancher
-- [ ] Biomass Mutation
+- [x] Behemoth of Vault 0
+- [x] Bighorner Rancher
+- [x] Biomass Mutation
 - [x] Black Market
 - [x] Blasphemous Act
-- [ ] Bloatfly Swarm
-- [ ] Bloodforged Battle-Axe
-- [ ] Boomer Scrapper
-- [ ] Bottle-Cap Blast
+- [x] Bloatfly Swarm
+- [x] Bloodforged Battle-Axe
+- [x] Boomer Scrapper
+- [x] Bottle-Cap Blast
 - [x] Branching Evolution
 - [ ] Brass Knuckles
-- [ ] Break Down
+- [x] Break Down
 - [ ] Brotherhood Outcast
-- [ ] Brotherhood Scribe
-- [ ] Brotherhood Vertibird
+- [x] Brotherhood Scribe
+- [x] Brotherhood Vertibird
 - [x] Buried Ruin
-- [ ] Butch DeLoria, Tunnel Snake
+- [x] Butch DeLoria, Tunnel Snake
 - [x] C.A.M.P.
 - [x] Caesar, Legion's Emperor
-- [ ] Cait, Cage Brawler
+- [x] Cait, Cage Brawler
 - [x] Canopy Vista
 - [x] Canyon Slough
-- [ ] Captain of the Watch
-- [ ] Cass, Hand of Vengeance
+- [x] Captain of the Watch
+- [x] Cass, Hand of Vengeance
 - [x] Casualties of War
-- [ ] Cathedral Acolyte
-- [ ] Champion's Helm
+- [x] Cathedral Acolyte
+- [x] Champion's Helm
 - [x] Chaos Warp
-- [ ] Charisma Bobblehead
+- [x] Charisma Bobblehead
 - [x] Cinder Glade
 - [x] Clifftop Retreat
 - [ ] Codsworth, Handy Helper
 - [x] Colonel Autumn
 - [x] Command Tower
-- [ ] Commander Sofia Daguerre
-- [ ] Contagion Clasp
+- [x] Commander Sofia Daguerre
+- [x] Contagion Clasp
 - [x] Contaminated Drink
-- [ ] Corpsejack Menace
-- [ ] Craig Boone, Novac Guard
-- [ ] Crimson Caravaneer
-- [ ] Crucible of Worlds
+- [x] Corpsejack Menace
+- [x] Craig Boone, Novac Guard
+- [x] Crimson Caravaneer
+- [x] Crucible of Worlds
 - [x] Crush Contraband
 - [x] Cultivate
 - [x] Curie, Emergent Intelligence
 - [x] Darkwater Catacombs
 - [x] Deadly Dispute
 - [x] Desdemona, Freedom's Edge
-- [ ] Desolate Mire
-- [ ] Diamond City
-- [ ] Dispatch
-- [ ] Dogmeat, Ever Loyal
-- [ ] Dr. Madison Li
+- [x] Desolate Mire
+- [x] Diamond City
+- [x] Dispatch
+- [x] Dogmeat, Ever Loyal
+- [x] Dr. Madison Li
 - [x] Dragonskull Summit
 - [x] Drowned Catacomb
-- [ ] Duchess, Wayward Tavernkeep
-- [ ] ED-E, Lonesome Eyebot
-- [ ] Elder Arthur Maxson
-- [ ] Elder Owyn Lyons
-- [ ] Electrosiphon
-- [ ] Endurance Bobblehead
+- [x] Duchess, Wayward Tavernkeep
+- [x] ED-E, Lonesome Eyebot
+- [x] Elder Arthur Maxson
+- [x] Elder Owyn Lyons
+- [x] Electrosiphon
+- [x] Endurance Bobblehead
 - [x] Entrapment Maneuver
-- [ ] Everflowing Chalice
+- [x] Everflowing Chalice
 - [x] Evolving Wilds
 - [x] Exotic Orchard
 - [x] Expert-Level Safe
 - [x] Explorer's Scope
-- [ ] Farewell
+- [x] Farewell
 - [x] Farseek
-- [ ] Feral Ghoul
+- [x] Feral Ghoul
 - [x] Ferrous Lake
 - [x] Fertile Ground
 - [x] Fervent Charge
 - [x] Fetid Pools
-- [ ] Find
+- [x] Find
 - [x] Fireshrieker
 - [ ] Forest
-- [ ] Fraying Sanity
-- [ ] Gary Clone
-- [ ] Gemrazer
+- [x] Fraying Sanity
+- [x] Gary Clone
+- [x] Gemrazer
 - [x] General's Enforcer
 - [x] Glacial Fortress
-- [ ] Glimmer of Genius
-- [ ] Glowing One
+- [x] Glimmer of Genius
+- [x] Glowing One
 - [x] Grave Titan
 - [ ] Grim Reaper's Sprint
 - [x] Guardian Project
 - [ ] Gunner Conscript
-- [ ] HELIOS One
-- [ ] Hancock, Ghoulish Mayor
+- [x] HELIOS One
+- [x] Hancock, Ghoulish Mayor
 - [x] Hardened Scales
 - [x] Harmonize
-- [ ] Harold and Bob, First Numens
+- [x] Harold and Bob, First Numens
 - [x] Heroic Intervention
 - [x] Heroic Reinforcements
 - [x] Hinterland Harbor
 - [x] Hornet Queen
 - [x] Hour of Reckoning
 - [x] Hullbreaker Horror
-- [ ] Ian the Reckless
-- [ ] Idolized
+- [x] Ian the Reckless
+- [x] Idolized
 - [x] Impassioned Orator
-- [ ] Inexorable Tide
-- [ ] Infesting Radroach
+- [x] Inexorable Tide
+- [x] Infesting Radroach
 - [x] Inspiring Call
 - [x] Intangible Virtue
-- [ ] Intelligence Bobblehead
-- [ ] Inventory Management
+- [x] Intelligence Bobblehead
+- [x] Inventory Management
 - [x] Irrigated Farmland
 - [ ] Island
 - [x] Isolated Chapel
-- [ ] James, Wandering Dad
+- [x] James, Wandering Dad
 - [x] Jason Bright, Glowing Prophet
 - [x] Jungle Shrine
-- [ ] Junk Jet
-- [ ] Junktown
+- [x] Junk Jet
+- [x] Junktown
 - [x] Keeper of the Accord
-- [ ] Kellogg, Dangerous Mind
-- [ ] Legate Lanius, Caesar's Ace
+- [x] Kellogg, Dangerous Mind
+- [x] Legate Lanius, Caesar's Ace
 - [x] Lethal Scheme
-- [ ] Liberty Prime, Recharged
+- [x] Liberty Prime, Recharged
 - [x] Lightning Greaves
-- [ ] Lily Bowen, Raging Grandma
+- [x] Lily Bowen, Raging Grandma
 - [x] Lord of the Undead
-- [ ] Loyal Apprentice
+- [x] Loyal Apprentice
 - [x] Luck Bobblehead
-- [ ] Lumbering Megasloth
-- [ ] MacCready, Lamplight Mayor
+- [x] Lumbering Megasloth
+- [x] MacCready, Lamplight Mayor
 - [ ] Mantle of the Ancients
-- [ ] Marcus, Mutant Mayor
-- [ ] Mariposa Military Base
+- [x] Marcus, Mutant Mayor
+- [x] Mariposa Military Base
 - [x] Marshal's Anthem
 - [x] Martial Coup
-- [ ] Masterwork of Ingenuity
+- [x] Masterwork of Ingenuity
 - [x] Mechanized Production
-- [ ] Megaton's Fate
+- [x] Megaton's Fate
 - [x] Memorial to Glory
 - [x] Mind Stone
-- [ ] Mirelurk Queen
-- [ ] Mister Gutsy
-- [ ] Moira Brown, Guide Author
+- [x] Mirelurk Queen
+- [x] Mister Gutsy
+- [x] Moira Brown, Guide Author
 - [x] Morbid Opportunist
 - [x] Mortuary Mire
 - [x] Mossfire Valley
 - [ ] Mountain
 - [x] Mr. House, President and CEO
-- [ ] Mutational Advantage
+- [x] Mutational Advantage
 - [x] Myriad Landscape
 - [x] Mysterious Stranger
-- [ ] Mystic Forge
+- [x] Mystic Forge
 - [x] Mystic Monastery
-- [ ] Nerd Rage
+- [x] Nerd Rage
 - [x] Nesting Grounds
-- [ ] Nick Valentine, Private Eye
-- [ ] Nightkin Ambusher
+- [x] Nick Valentine, Private Eye
+- [x] Nightkin Ambusher
 - [x] Nomad Outpost
-- [ ] Nuclear Fallout
-- [ ] Nuka-Cola Vending Machine
+- [x] Nuclear Fallout
+- [x] Nuka-Cola Vending Machine
 - [x] Nuka-Nuke Launcher
-- [ ] One with the Machine
-- [ ] Open the Vaults
+- [x] One with the Machine
+- [x] Open the Vaults
 - [x] Opulent Palace
-- [ ] Overencumbered
+- [x] Overencumbered
 - [x] Overflowing Basin
 - [x] Overseer of Vault 76
-- [ ] Paladin Danse, Steel Maverick
-- [ ] Paladin Elizabeth Taggerdy
+- [x] Paladin Danse, Steel Maverick
+- [x] Paladin Elizabeth Taggerdy
 - [x] Panharmonicon
 - [x] Path of Ancestry
 - [x] Path to Exile
-- [ ] Perception Bobblehead
-- [ ] Pip-Boy 3000
-- [ ] Piper Wright, Publick Reporter
-- [ ] Pitiless Plunderer
+- [x] Perception Bobblehead
+- [x] Pip-Boy 3000
+- [x] Piper Wright, Publick Reporter
+- [x] Pitiless Plunderer
 - [ ] Plains
-- [ ] Plasma Caster
+- [x] Plasma Caster
 - [x] Powder Ganger
-- [ ] Power Fist
+- [x] Power Fist
 - [x] Prairie Stream
-- [ ] Pre-War Formalwear
+- [x] Pre-War Formalwear
 - [ ] Preston Garvey, Minuteman
-- [ ] Puresteel Paladin
+- [x] Puresteel Paladin
 - [x] Putrefy
-- [ ] Radstorm
-- [ ] Rampaging Yao Guai
+- [x] Radstorm
+- [x] Rampaging Yao Guai
 - [x] Rampant Growth
-- [ ] Rancor
-- [ ] Raul, Trouble Shooter
+- [x] Rancor
+- [x] Raul, Trouble Shooter
 - [x] Ravages of War
 - [x] Razortide Bridge
-- [ ] Recon Craft Theta
-- [ ] Red Death, Shipwrecker
-- [ ] Rex, Cyber-Hound
-- [ ] Roadside Reliquary
-- [ ] Robobrain War Mind
+- [x] Recon Craft Theta
+- [x] Red Death, Shipwrecker
+- [x] Rex, Cyber-Hound
+- [x] Roadside Reliquary
+- [x] Robobrain War Mind
 - [x] Rogue's Passage
 - [x] Rootbound Crag
 - [x] Rose, Cutthroat Raider
-- [ ] Ruinous Ultimatum
+- [x] Ruinous Ultimatum
 - [x] Rustvale Bridge
-- [ ] Ruthless Radrat
+- [x] Ruthless Radrat
 - [x] Scattered Groves
-- [ ] Scavenger Grounds
-- [ ] Screeching Scorchbeast
+- [x] Scavenger Grounds
+- [x] Screeching Scorchbeast
 - [x] Secure the Wastes
 - [x] Securitron Squadron
-- [ ] Sentinel Sarah Lyons
-- [ ] Sentry Bot
+- [x] Sentinel Sarah Lyons
+- [x] Sentry Bot
 - [x] Shadowblood Ridge
-- [ ] Shaun, Father of Synths
+- [x] Shaun, Father of Synths
 - [x] Sheltered Thicket
-- [ ] Sierra, Nuka's Biggest Fan
-- [ ] Silver Shroud Costume
+- [x] Sierra, Nuka's Biggest Fan
+- [x] Silver Shroud Costume
 - [x] Silverbluff Bridge
-- [ ] Single Combat
+- [x] Single Combat
 - [x] Skullclamp
 - [x] Skycloud Expanse
 - [x] Smoldering Marsh
 - [x] Sol Ring
 - [x] Solemn Simulacrum
-- [ ] Spire of Industry
+- [x] Spire of Industry
 - [x] Squirrel Nest
 - [x] Steel Overseer
-- [ ] Sticky Fingers
+- [x] Sticky Fingers
 - [x] Stolen Strategy
-- [ ] Strength Bobblehead
-- [ ] Strong Back
-- [ ] Strong, the Brutish Thespian
-- [ ] Struggle for Project Purity
+- [x] Strength Bobblehead
+- [x] Strong Back
+- [x] Strong, the Brutish Thespian
+- [x] Struggle for Project Purity
 - [x] Sulfur Falls
 - [x] Sungrass Prairie
 - [x] Sunken Hollow
 - [x] Sunpetal Grove
 - [x] Sunscorched Divide
-- [ ] Super Mutant Scavenger
+- [x] Super Mutant Scavenger
 - [x] Survivor's Med Kit
 - [ ] Swamp
 - [x] Swiftfoot Boots
 - [x] Swords to Plowshares
-- [ ] Synth Eradicator
-- [ ] Synth Infiltrator
-- [ ] T-45 Power Armor
+- [x] Synth Eradicator
+- [x] Synth Infiltrator
+- [x] T-45 Power Armor
 - [x] Tainted Field
-- [ ] Tainted Isle
+- [x] Tainted Isle
 - [x] Tainted Peak
 - [x] Tainted Wood
-- [ ] Talisman of Conviction
+- [x] Talisman of Conviction
 - [x] Talisman of Creativity
-- [ ] Talisman of Curiosity
+- [x] Talisman of Curiosity
 - [x] Talisman of Dominance
 - [x] Talisman of Hierarchy
 - [x] Talisman of Indulgence
 - [x] Talisman of Progress
 - [x] Talisman of Resilience
 - [x] Tarmogoyf
-- [ ] Tato Farmer
+- [x] Tato Farmer
 - [x] Temple of Abandon
 - [x] Temple of Deceit
 - [x] Temple of Enlightenment
@@ -306,48 +306,48 @@
 - [x] Temple of Triumph
 - [x] Temple of the False God
 - [x] Terramorphic Expanse
-- [ ] The Master, Transcendent
+- [x] The Master, Transcendent
 - [ ] The Motherlode, Excavator
-- [ ] The Nipton Lottery
-- [ ] The Prydwen, Steel Flagship
-- [ ] The Wise Mothman
+- [x] The Nipton Lottery
+- [x] The Prydwen, Steel Flagship
+- [x] The Wise Mothman
 - [x] Thirst for Knowledge
 - [x] Thought Vessel
-- [ ] Three Dog, Galaxy News DJ
+- [x] Three Dog, Galaxy News DJ
 - [x] Thrill-Kill Disciple
 - [x] Tireless Tracker
-- [ ] Treasure Vault
+- [x] Treasure Vault
 - [x] Unexpected Windfall
 - [x] V.A.T.S.
 - [x] Valorous Stance
 - [x] Vandalblast
-- [ ] Vault 101: Birthday Party
-- [ ] Vault 112: Sadistic Simulation
+- [x] Vault 101: Birthday Party
+- [x] Vault 112: Sadistic Simulation
 - [x] Vault 11: Voter's Dilemma
-- [ ] Vault 12: The Necropolis
-- [ ] Vault 13: Dweller's Journey
-- [ ] Vault 21: House Gambit
-- [ ] Vault 75: Middle School
-- [ ] Vault 87: Forced Evolution
-- [ ] Veronica, Dissident Scribe
-- [ ] Vexing Radgull
+- [x] Vault 12: The Necropolis
+- [x] Vault 13: Dweller's Journey
+- [x] Vault 21: House Gambit
+- [x] Vault 75: Middle School
+- [x] Vault 87: Forced Evolution
+- [x] Veronica, Dissident Scribe
+- [x] Vexing Radgull
 - [x] Vigor
 - [x] Viridescent Bog
-- [ ] Wake the Past
+- [x] Wake the Past
 - [x] Walking Ballista
 - [x] War Room
 - [x] Wasteland
 - [x] Wasteland Raider
-- [ ] Watchful Radstag
+- [x] Watchful Radstag
 - [x] Wayfarer's Bauble
 - [x] Wear
-- [ ] Well Rested
+- [x] Well Rested
 - [x] Whirler Rogue
 - [x] White Glove Gourmand
 - [x] Wild Growth
-- [ ] Wild Wasteland
+- [x] Wild Wasteland
 - [x] Windbrisk Heights
-- [ ] Winding Constrictor
+- [x] Winding Constrictor
 - [x] Woodland Cemetery
 - [x] Yes Man, Personal Securitron
-- [ ] Young Deathclaws
+- [x] Young Deathclaws

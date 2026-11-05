@@ -26,8 +26,12 @@ const BOUNDS_PAD_Y = 44
 const VIEWPORT_MARGIN = 8
 
 export interface FocusCaption {
-  /** Null for a band before blocks are known: only the band chip shows. */
-  readonly role: 'blocking' | 'blockedBy' | 'unblocked' | null
+  /**
+   * Null for a band before blocks are known: only the band chip shows. `blocked` is an attacker
+   * that stays blocked with no blockers left (CR 509.1h) — every one left combat, or an effect
+   * made it blocked.
+   */
+  readonly role: 'blocking' | 'blockedBy' | 'blocked' | 'unblocked' | null
   /** The creatures on the other side: attackers it blocks, or blockers blocking it. */
   readonly others: readonly EntityId[]
   /** Size of the hovered attacker's band, 0 when it isn't banded. */
@@ -36,8 +40,9 @@ export interface FocusCaption {
 
 /**
  * What the caption on the hovered creature says. A banded attacker with no block of its own is
- * still blocked when a band mate is, so it reports the band's blockers. Returns null when there's
- * nothing true to say yet — an attacker before blocks are known, outside a band.
+ * still blocked when a band mate is, so it reports the band's blockers. An attacker the server
+ * calls blocked but that has no blockers left is `blocked`, never `unblocked`. Returns null when
+ * there's nothing true to say yet — an attacker before blocks are known, outside a band.
  */
 export function describeFocus(
   focusId: EntityId,
@@ -45,6 +50,7 @@ export function describeFocus(
   edges: readonly BlockEdge[],
   bands: readonly (readonly EntityId[])[],
   blocksKnown: boolean,
+  blockedWithoutBlockers: ReadonlySet<EntityId> = new Set(),
 ): FocusCaption | null {
   if (clique.blockers.has(focusId)) {
     return { role: 'blocking', others: edges.filter((e) => e.blockerId === focusId).map((e) => e.attackerId), bandSize: 0 }
@@ -53,6 +59,7 @@ export function describeFocus(
   const direct = edges.filter((e) => e.attackerId === focusId).map((e) => e.blockerId)
   const blockers = direct.length > 0 ? direct : bandSize > 1 ? [...clique.blockers] : []
   if (blockers.length > 0) return { role: 'blockedBy', others: blockers, bandSize }
+  if (blockedWithoutBlockers.has(focusId)) return { role: 'blocked', others: [], bandSize }
   if (blocksKnown) return { role: 'unblocked', others: [], bandSize }
   return bandSize > 1 ? { role: null, others: [], bandSize } : null
 }
@@ -167,6 +174,7 @@ export function CliqueSpotlight({
 const ROLE_LABEL: Record<NonNullable<FocusCaption['role']>, string> = {
   blocking: 'Blocking',
   blockedBy: 'Blocked by',
+  blocked: 'Blocked',
   unblocked: 'Unblocked',
 }
 
@@ -203,7 +211,10 @@ export function CliqueCaption({
   const left = Math.min(Math.max(idealLeft, VIEWPORT_MARGIN), window.innerWidth - w - VIEWPORT_MARGIN)
   const top = below ? rect.bottom + RING_PAD + 6 : rect.top - RING_PAD - 6
 
-  const roleTone = caption.role === 'unblocked' ? UNBLOCKED_TONE : isBlocker ? BLOCKER_TONE : ATTACKER_TONE
+  const roleTone = caption.role === 'unblocked' ? UNBLOCKED_TONE
+    : isBlocker || caption.role === 'blocked' ? BLOCKER_TONE
+    : ATTACKER_TONE
+  const note = caption.role === 'blocked' ? 'No blockers left' : null
   const style: CSSProperties = {
     position: 'fixed',
     left,
@@ -217,7 +228,7 @@ export function CliqueCaption({
     gap: 8,
     maxWidth: 440,
     // Chips end flush; plain text needs breathing room before the pill's edge.
-    padding: names && caption.bandSize <= 1 ? '4px 12px 4px 4px' : 4,
+    padding: (names || note) && caption.bandSize <= 1 ? '4px 12px 4px 4px' : 4,
     borderRadius: 999,
     background: 'rgba(12, 15, 22, 0.94)',
     border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -250,6 +261,7 @@ export function CliqueCaption({
           {extra > 0 && <span style={{ color: '#94a3b8' }}> +{extra}</span>}
         </span>
       )}
+      {note && <span style={{ color: '#94a3b8' }}>{note}</span>}
       {caption.bandSize > 1 && <span style={chip(BAND_TONE)}>Band of {caption.bandSize}</span>}
     </div>
   )

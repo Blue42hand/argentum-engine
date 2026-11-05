@@ -230,7 +230,7 @@ export function LobbyScreen() {
             <h1 className={lobby.title}>{view.title}</h1>
           </div>
           <p className={lobby.subtitle}>{view.subtitle}</p>
-          <LobbyAxisSummary axes={view.axes} jumpstart={Boolean(lobbyState?.settings.jumpstartActive)} />
+          <LobbyAxisSummary axes={view.axes} jumpstart={Boolean(lobbyState?.settings.jumpstartActive)} ante={view.ante.on} />
           {view.isWaiting && view.isHost && (
             <button
               type="button"
@@ -441,6 +441,12 @@ export function LobbyScreen() {
               const rows: ReactNode[] = []
               if (id === 'CARDS') rows.push(<CardsAxisBody key="axis" view={view} commands={commands} jumpstart={Boolean(lobbyState?.settings.jumpstartActive)} />)
               if (id === 'RULES') rows.push(<RulesAxisBody key="axis" view={view} commands={commands} />)
+              // Ante is a rules variant (CR 407) — it changes what's at stake, not who sits where.
+              if (id === 'RULES' && view.ante.available) {
+                rows.push(
+                  <AnteRow key="ante" on={view.ante.on} lockedReason={view.ante.lockedReason} onChange={commands.setAnte} />,
+                )
+              }
               if (id === 'TABLE') rows.push(<TableAxisBody key="axis" view={view} />)
               if (id === 'EVENT' && eventCaption(view) !== '') {
                 rows.push(<EventAxisBody key="axis" view={view} />)
@@ -695,6 +701,56 @@ function RankedRow({ on, onChange }: { on: boolean; onChange: (ranked: boolean) 
             otherwise it just plays unranked.
           </div>
         )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Play for ante (CR 407). Ranked forces it off server-side, so while ranked is on both buttons stay
+ * on screen but disabled, with the reason — disabled-with-reason over hiding.
+ */
+function AnteRow({
+  on,
+  lockedReason,
+  onChange,
+}: {
+  on: boolean
+  lockedReason: string | null
+  onChange: (playingForAnte: boolean) => void
+}) {
+  const locked = lockedReason !== null
+  return (
+    <div className={styles.settingsRow} data-testid="ante-row">
+      <SettingsLabel topicId="playing-for-ante">Play for ante</SettingsLabel>
+      <div className={styles.variantGroup}>
+        <div className={styles.settingsButtons}>
+          <button
+            type="button"
+            onClick={() => onChange(false)}
+            disabled={locked}
+            className={`${styles.settingsButton} ${!on ? styles.settingsButtonActive : ''}`}
+            title={lockedReason ?? 'Play for fun — every card goes home with its owner'}
+          >
+            Off
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange(true)}
+            disabled={locked}
+            className={`${styles.settingsButton} ${on ? styles.settingsButtonActive : ''}`}
+            title={lockedReason ?? 'Each player antes a random card; the winner takes the ante'}
+          >
+            For ante
+          </button>
+        </div>
+        <div className={styles.variantCaption}>
+          {locked
+            ? lockedReason
+            : on
+              ? 'Each player antes a random card from their deck. The winner takes the ante — in a Limited tournament it joins their pool for the rest of the event; otherwise it’s a trophy on their profile. Enables the ante cards (Contract from Below, Darkpact, …).'
+              : 'Wager a random card from each deck on the outcome.'}
+        </div>
       </div>
     </div>
   )

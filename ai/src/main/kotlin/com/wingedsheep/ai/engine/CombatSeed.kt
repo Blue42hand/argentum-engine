@@ -1,5 +1,6 @@
 package com.wingedsheep.ai.engine
 
+import com.wingedsheep.ai.engine.knowledge.IntentCatalog
 import com.wingedsheep.ai.engine.evaluation.LifeDifferential
 import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.mechanics.combat.CombatDefenders
@@ -31,7 +32,8 @@ object CombatSeed {
      *
      * Three passes, in order:
      * 1. **Lethal alpha strike** — if damage gets through even against optimal blocking, everything
-     *    attacks and nothing else matters. Deliberately ignores [attackPenalty]: a `CardAdvisor`
+     *    attacks and nothing else matters (in a pod under [minimalLethalInPods], only the fewest
+     *    attackers that still kill — [minimalLethal]). Deliberately ignores [attackPenalty]: a `CardAdvisor`
      *    that would rather keep a wall home does not get a vote on the turn we win.
      * 2. **No-downside and clearly profitable attackers** — evasive, vigilant, indestructible,
      *    survives every blocker, profitable trades.
@@ -44,6 +46,10 @@ object CombatSeed {
      * @param aimAtPlaneswalkers send attackers that will connect at opposing planeswalkers when
      *   the loyalty damage is worth more than the life — see [aimAtPlaneswalkers]. Off, every
      *   attacker goes at the primary seat, the behaviour before `AiProfile.attackPlaneswalkers`.
+     * @param walkerEngines prices each walker as an engine, reading its abilities through this
+     *   catalog ([PlaneswalkerThreat], `AiProfile.walkersPricedAsEngines`); null is the legacy reading.
+     * @param minimalLethalInPods with more than one opponent left, shrink the lethal alpha strike to
+     *   [minimalLethal] (`AiProfile.minimalLethalInPods`). 1v1 is unaffected.
      */
     fun attackers(
         state: GameState,
@@ -53,6 +59,8 @@ object CombatSeed {
         cardRegistry: CardRegistry? = null,
         attackPenalty: (EntityId) -> Double = { 0.0 },
         aimAtPlaneswalkers: Boolean = false,
+        walkerEngines: IntentCatalog? = null,
+        minimalLethalInPods: Boolean = false,
     ): AttackSeed {
         val defendingPlayers = legalAction.validAttackTargets ?: emptyList()
         if (defendingPlayers.isEmpty()) {
@@ -85,9 +93,20 @@ object CombatSeed {
 
         // ── Lethal check: alpha-strike if damage gets through even with optimal blocking ──
         // Only creatures that can attack the primary seat count toward killing it.
-        val reachPrimary = validAttackers.filter { defenderOf[it] == opponentId }
+        // A creature that can only attack alone (Master of Cruelties) adds nothing to an alpha strike.
+        val reachPrimary = validAttackers.filter { defenderOf[it] == opponentId }.let { reach ->
+            val lone = legalAction.loneAttackers.orEmpty()
+            if (reach.size > 1) reach.filter { it !in lone }.ifEmpty { reach.take(1) } else reach
+        }
         if (CombatMath.isLethalAttack(state, projected, reachPrimary, opponentCreatures, opponentLife)) {
-            val alphaStrike = defenderOf
+            // In 1v1 the game ends, so everything attacks. In a pod the kill only needs enough to
+            // finish the dying seat; the rest stays home for the opponents still at the table.
+            val alphaStrike = if (minimalLethalInPods && state.getOpponents(playerId).size > 1) {
+                minimalLethal(state, projected, reachPrimary, opponentCreatures, opponentLife, mandatory.toSet())
+                    .associateWith { defenderOf.getValue(it) }
+            } else {
+                defenderOf
+            }
             val affordable = CombatTaxBudget.affordableAttack(
                 state, projected, playerId, cardRegistry, alphaStrike, mandatory.toSet()
             )
@@ -207,7 +226,7 @@ object CombatSeed {
         }
 
         if (aimAtPlaneswalkers) {
-            aimAtPlaneswalkers(state, projected, legalAction, cardRegistry, seedMap)
+            aimAtPlaneswalkers(state, projected, legalAction, cardRegistry, seedMap, walkerEngines)
         }
 
         // A plan whose attack tax we cannot pay is one we would be asked to pay for and could only
@@ -219,6 +238,52 @@ object CombatSeed {
             opponentId,
             lethal = false,
         )
+    }
+
+    /**
+     * The fewest attackers out of [lethal] that still kill the dying seat through optimal blocking
+     * ([CombatMath.isLethalAttack]), for a pod, where whatever attacks is not home for the next
+     * opponent's swing.
+     *
+     * Only an attacker that would actually be home to block is worth holding back: one that can
+     * block and would be tapped by attacking (no vigilance). Those are the drop candidates, the
+     * non-evasive ones first, then by toughness and power; every other attacker, and [mandatory]
+     * ones, stay in. A drop is kept only while the attack survives one piece of interaction — it
+     * is still lethal with any single attacker removed (a removal spell, a flash blocker) — so the
+     * trim never cuts the kill down to exact lethal. When the full attack does not even have that
+     * margin, the trim falls back to plain lethal, as before. Non-mandatory attackers that cannot
+     * reach the dying seat are left out — they are not part of the kill.
+     */
+    internal fun minimalLethal(
+        state: GameState,
+        projected: ProjectedState,
+        lethal: List<EntityId>,
+        blockers: List<EntityId>,
+        life: Int,
+        mandatory: Set<EntityId>,
+    ): List<EntityId> {
+        fun isLethal(attack: List<EntityId>) = CombatMath.isLethalAttack(state, projected, attack, blockers, life)
+        fun survivesOneAnswer(attack: List<EntityId>) =
+            attack.isNotEmpty() && attack.all { answered -> isLethal(attack - answered) }
+        val stillKills: (List<EntityId>) -> Boolean =
+            if (survivesOneAnswer(lethal)) ::survivesOneAnswer else ::isLethal
+
+        val keep = lethal.toMutableList()
+        val dropOrder = lethal
+            .filter {
+                it !in mandatory && !projected.cantBlock(it) &&
+                    Keyword.VIGILANCE.name !in projected.getKeywords(it)
+            }
+            .sortedWith(
+                compareBy<EntityId> { CombatMath.isEvasive(state, projected, it, blockers) }
+                    .thenByDescending { projected.getToughness(it) ?: 0 }
+                    .thenByDescending { projected.getPower(it) ?: 0 }
+            )
+        for (attacker in dropOrder) {
+            keep.remove(attacker)
+            if (!stillKills(keep)) keep.add(attacker)
+        }
+        return keep + mandatory.filter { it !in keep }
     }
 
     /**
@@ -258,6 +323,7 @@ object CombatSeed {
         legalAction: LegalAction,
         cardRegistry: CardRegistry?,
         plan: MutableMap<EntityId, EntityId>,
+        walkerEngines: IntentCatalog? = null,
     ) {
         val blockersBySeat = mutableMapOf<EntityId, List<EntityId>>()
         fun blockersOf(seat: EntityId) =
@@ -306,8 +372,8 @@ object CombatSeed {
                     // What attackers re-aimed at it earlier already took is not this one's to claim.
                     val dealt = loyalty - left
                     val gain = BOARD_PRESENCE_WEIGHT * (
-                        PlaneswalkerThreat.damageValue(state, walker, dealt + minOf(power, left), cardRegistry) -
-                            PlaneswalkerThreat.damageValue(state, walker, dealt, cardRegistry)
+                        PlaneswalkerThreat.damageValue(state, walker, dealt + minOf(power, left), cardRegistry, walkerEngines) -
+                            PlaneswalkerThreat.damageValue(state, walker, dealt, cardRegistry, walkerEngines)
                         )
                     val net = gain - faceGain
                     if (net > 0.0 && (bestMove == null || net > bestMove.third)) {
@@ -358,7 +424,9 @@ object CombatSeed {
     /**
      * Last line of defence before a plan is submitted: every attacker whose chosen defender the
      * engine doesn't list for it is moved to [defenderFor] — or dropped when it has none — so one
-     * restricted creature can never get the whole declaration rejected.
+     * restricted creature can never get the whole declaration rejected. A creature that can only
+     * attack alone (Master of Cruelties) stays home beside other attackers — unless it is the one
+     * the engine requires, when it goes alone.
      */
     fun legalize(
         state: GameState,
@@ -367,16 +435,25 @@ object CombatSeed {
         primary: EntityId?,
     ): Map<EntityId, EntityId> {
         if (legalAction.attackTargetsByAttacker.isNullOrEmpty() && plan.values.all { it in legalAction.validAttackTargets.orEmpty() }) {
-            return plan
+            return obeyLoneAttackers(legalAction, plan)
         }
         val valid = legalAction.validAttackers.orEmpty().toSet()
-        return plan.mapNotNull { (attacker, defender) ->
+        return obeyLoneAttackers(legalAction, plan.mapNotNull { (attacker, defender) ->
             when {
                 attacker !in valid -> null
                 defender in legalAction.attackTargetsFor(attacker) -> attacker to defender
                 else -> defenderFor(state, legalAction, attacker, primary)?.let { attacker to it }
             }
-        }.toMap()
+        }.toMap())
+    }
+
+    /** [plan] obeying "can only attack alone" ([LegalAction.loneAttackers], CR 506.5). */
+    fun obeyLoneAttackers(legalAction: LegalAction, plan: Map<EntityId, EntityId>): Map<EntityId, EntityId> {
+        val lone = legalAction.loneAttackers.orEmpty()
+        if (plan.size < 2 || plan.keys.none { it in lone }) return plan
+        val required = legalAction.mandatoryAttackers.orEmpty().firstOrNull { it in lone && it in plan }
+        if (required != null) return mapOf(required to plan.getValue(required))
+        return plan.filterKeys { it !in lone }.ifEmpty { plan.entries.first().let { mapOf(it.key to it.value) } }
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.effects.mana
 
+import com.wingedsheep.engine.mechanics.mana.ChosenTypeManaRestriction
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.DynamicAmountEvaluator
@@ -10,6 +11,7 @@ import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
+import com.wingedsheep.sdk.scripting.effects.ManaExpiry
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import kotlin.reflect.KClass
 
@@ -42,12 +44,14 @@ class AddDynamicManaExecutor(
             return EffectResult.success(state)
         }
 
+        val restriction = ChosenTypeManaRestriction.bind(effect.restriction, state, context.sourceId)
+        val unit = context.manaUnitMultiplier
         val colors = effect.allowedColors.toList().sorted()
 
         // Single color — just add it all
         if (colors.size <= 1) {
             val color = colors.firstOrNull() ?: return EffectResult.success(state)
-            val newState = addMana(state, context.controllerId, mapOf(color to amount), effect.restriction)
+            val newState = addMana(state, context.controllerId, mapOf(color to amount * unit), restriction, effect.expiry)
             return EffectResult.success(newState)
         }
 
@@ -64,8 +68,10 @@ class AddDynamicManaExecutor(
                 sourceName = sourceName,
                 remainingPips = amount,
                 allowedColors = effect.allowedColors,
-                restriction = effect.restriction,
-                decisionHandler = decisionHandler
+                restriction = restriction,
+                expiry = effect.expiry,
+                decisionHandler = decisionHandler,
+                unitMultiplier = unit,
             )
         }
 
@@ -81,7 +87,9 @@ class AddDynamicManaExecutor(
             totalAmount = amount,
             firstColor = firstColor,
             secondColor = secondColor,
-            restriction = effect.restriction
+            restriction = restriction,
+            expiry = effect.expiry,
+            unitMultiplier = unit,
         )
 
         val decisionResult = decisionHandler.createNumberDecision(
@@ -89,7 +97,8 @@ class AddDynamicManaExecutor(
             playerId = context.controllerId,
             sourceId = context.sourceId,
             sourceName = sourceName,
-            prompt = "Choose how much {${firstColor.symbol}} mana to add (rest will be {${secondColor.symbol}}). Total: $amount",
+            prompt = "Choose how much {${firstColor.symbol}} mana to add (rest will be {${secondColor.symbol}}). Total: $amount" +
+                multipliedSuffix(unit),
             minValue = 0,
             maxValue = amount,
             phase = DecisionPhase.RESOLUTION,
@@ -117,7 +126,9 @@ class AddDynamicManaExecutor(
             remainingPips: Int,
             allowedColors: Set<Color>,
             restriction: ManaRestriction?,
-            decisionHandler: DecisionHandler = DecisionHandler()
+            expiry: ManaExpiry = ManaExpiry.END_OF_TURN,
+            decisionHandler: DecisionHandler = DecisionHandler(),
+            unitMultiplier: Int = 1,
         ): EffectResult {
             val continuation = AddManaPipsContinuation(
                 playerId = playerId,
@@ -125,7 +136,9 @@ class AddDynamicManaExecutor(
                 sourceName = sourceName,
                 remainingPips = remainingPips,
                 allowedColors = allowedColors,
-                restriction = restriction
+                restriction = restriction,
+                expiry = expiry,
+                unitMultiplier = unitMultiplier,
             )
 
             val decisionResult = decisionHandler.createColorDecision(
@@ -133,7 +146,7 @@ class AddDynamicManaExecutor(
                 playerId = playerId,
                 sourceId = sourceId,
                 sourceName = sourceName,
-                prompt = "Choose a color of mana to add ($remainingPips remaining)",
+                prompt = "Choose a color of mana to add ($remainingPips remaining)" + multipliedSuffix(unitMultiplier),
                 phase = DecisionPhase.RESOLUTION,
                 availableColors = allowedColors,
                 answer = continuation
@@ -145,15 +158,31 @@ class AddDynamicManaExecutor(
             )
         }
 
-        fun addMana(state: GameState, playerId: com.wingedsheep.sdk.model.EntityId, amounts: Map<Color, Int>, restriction: ManaRestriction? = null): GameState {
+        /** Prompt tail telling the player each chosen unit is multiplied (Nyxbloom Ancient). */
+        fun multipliedSuffix(unitMultiplier: Int): String =
+            if (unitMultiplier > 1) " — each becomes $unitMultiplier mana of that color" else ""
+
+        /**
+         * Add [amounts] to [playerId]'s pool. Mana with a [restriction] or a non-default [expiry] is
+         * stored as restricted entries (under [ManaRestriction.AnySpend] when only the expiry is
+         * set), so the pool can keep or discard it on its own schedule — mirrors AddManaExecutor.
+         */
+        fun addMana(
+            state: GameState,
+            playerId: com.wingedsheep.sdk.model.EntityId,
+            amounts: Map<Color, Int>,
+            restriction: ManaRestriction? = null,
+            expiry: ManaExpiry = ManaExpiry.END_OF_TURN
+        ): GameState {
             return state.updateEntity(playerId) { container ->
                 var manaPool = container.get<ManaPoolComponent>() ?: ManaPoolComponent()
                 for ((color, amount) in amounts) {
                     if (amount > 0) {
-                        manaPool = if (restriction != null) {
-                            manaPool.addRestricted(color, amount, restriction)
-                        } else {
-                            manaPool.add(color, amount)
+                        manaPool = when {
+                            restriction != null -> manaPool.addRestricted(color, amount, restriction, expiry = expiry)
+                            expiry != ManaExpiry.END_OF_TURN ->
+                                manaPool.addRestricted(color, amount, ManaRestriction.AnySpend, expiry = expiry)
+                            else -> manaPool.add(color, amount)
                         }
                     }
                 }

@@ -1,19 +1,18 @@
 package com.wingedsheep.mtg.sets.definitions.gtc.cards
 
-import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Massive Raid
  * {1}{R}{R}
  * Instant
  * Massive Raid deals damage to any target equal to the number of creatures you control.
+ *
+ * The count is taken on resolution (2013-01-24 ruling).
  */
 val MassiveRaid = card("Massive Raid") {
     manaCost = "{1}{R}{R}"
@@ -23,10 +22,7 @@ val MassiveRaid = card("Massive Raid") {
 
     spell {
         val t = target(Targets.Any)
-        effect = Effects.DealDamage(
-            DynamicAmounts.battlefield(Player.You, GameObjectFilter.Creature).count(),
-            t
-        )
+        effect = Effects.DealDamage(DynamicAmounts.creaturesYouControl(), t)
     }
 
     metadata {

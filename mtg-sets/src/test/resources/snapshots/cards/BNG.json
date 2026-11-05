@@ -29,7 +29,7 @@
             {
                 "type": "EntersWithDynamicCounters",
                 "counterType": "CHARGE",
-                "count": "XValue"
+                "count": "CastX"
             }
         ]
     },
@@ -131,6 +131,51 @@
     ]
 }
 
+// Fate Unraveler
+{
+    "name": "Fate Unraveler",
+    "manaCost": "{3}{B}",
+    "typeLine": "Enchantment Creature — Hag",
+    "oracleText": "Whenever an opponent draws a card, this creature deals 1 damage to that player.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Fate Unraveler:1",
+                "trigger": {
+                    "type": "DrawEvent",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "68",
+        "rarity": "RARE",
+        "artist": "David Palumbo",
+        "flavorText": "\"Never forget that the life you've built can be undone by a single loose thread.\"\n—Perisophia the philosopher",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f15cd233-e27b-4cfd-aa4e-18040d1de22f.jpg?1783939557"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Great Hart
 {
     "name": "Great Hart",
@@ -148,6 +193,202 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Heroes' Podium
+{
+    "name": "Heroes' Podium",
+    "manaCost": "{5}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "Each legendary creature you control gets +1/+1 for each other legendary creature you control.\n{X}, {T}: Look at the top X cards of your library. You may reveal a legendary creature card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Heroes' Podium:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{X}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": "XValue"
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "looked",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    "IsLegendary"
+                                ]
+                            },
+                            "storeSelected": "kept",
+                            "storeRemainder": "rest",
+                            "prompt": "You may reveal a legendary creature card from among them and put it into your hand",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "kept",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "rest",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Look at the top X cards of your library. You may reveal a legendary creature card from among them and put it into your hand. Put the rest on the bottom of your library in a random order."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            "IsLegendary"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                },
+                "powerBonus": {
+                    "type": "Subtract",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                "IsLegendary"
+                            ]
+                        }
+                    },
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "toughnessBonus": {
+                    "type": "Subtract",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                "IsLegendary"
+                            ]
+                        }
+                    },
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "RARE",
+        "artist": "Willian Murai",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/3/a3cb14f9-343c-4672-b4ee-db7f1d1a98ff.jpg?1783939521",
+        "rulings": [
+            {
+                "date": "2014-02-01",
+                "text": "The bonus given by Heroes' Podium counts only legendary creatures. It won't count itself unless some other effect causes it to be a creature in addition to being a land (in which case it will also get the bonus)."
+            },
+            {
+                "date": "2014-02-01",
+                "text": "Heroes' Podium will give a bonus to each legendary creature you control, even if gaining control of one causes the \"legend rule\" to apply. For example, if you control Brimaz, King of Oreskos (a 3/4 legendary creature), and gain control of another one, they'll each be 4/5 when you put one into its owner's graveyard. Then the remaining one will return to being 3/4."
+            }
+        ]
+    }
+}
+
+// Kiora's Follower
+{
+    "name": "Kiora's Follower",
+    "manaCost": "{G}{U}",
+    "typeLine": "Creature — Merfolk",
+    "oracleText": "{T}: Untap another target permanent.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Kiora's Follower:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "tap": false
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent",
+                            "excludeSelf": true
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "Untap another target permanent."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "UNCOMMON",
+        "artist": "Eric Deschamps",
+        "flavorText": "\"She may call herself Kiora but I believe she is Thassa, the embodiment of the sea and empress of the depths.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/c/ec9ce307-8ec3-4db6-a4a3-49f92ebcc783.jpg?1783939523"
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE"
     ]
 }
 
@@ -181,12 +422,12 @@
                                     "amount": 4
                                 }
                             },
-                            "storeAs": "revealed",
+                            "storeAs": "looked",
                             "revealed": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "revealed",
+                            "from": "looked",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -195,16 +436,14 @@
                                 }
                             },
                             "filter": "land",
-                            "storeSelected": "land",
+                            "storeSelected": "kept",
                             "storeRemainder": "rest",
-                            "prompt": "You may put a land card into your hand",
-                            "selectedLabel": "Put in hand",
-                            "remainderLabel": "Put into graveyard",
+                            "prompt": "You may put a land card from among them into your hand",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "land",
+                            "from": "kept",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -231,6 +470,51 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Scouring Sands
+{
+    "name": "Scouring Sands",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Scouring Sands deals 1 damage to each creature your opponents control. Scry 1. (Look at the top card of your library. You may put that card on the bottom.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:opponent"
+                        }
+                    },
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "IterationEntity"
+                    }
+                },
+                {
+                    "type": "Scry",
+                    "count": 1
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "artist": "Jonas De Ro",
+        "flavorText": "When Purphoros cleans the ashes from his forge, entire cities vanish.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/273f25fc-9c9f-4b73-a28b-1461d8fcd443.jpg?1783939539"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 

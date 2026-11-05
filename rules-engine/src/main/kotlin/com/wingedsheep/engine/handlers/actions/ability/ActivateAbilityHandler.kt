@@ -170,7 +170,7 @@ class ActivateAbilityHandler(
         val activation = when (val announced = announce(state, action)) {
             is Announcement.Announced -> if (lockedCost == null) announced.activation else announced.activation.copy(effectiveCost = lockedCost, effectiveXValue = lockedX)
             is Announcement.Rejected -> return ExecutionResult.error(state, announced.reason)
-        }
+        }.let { choicePauses.withForcedSacrifices(state, it) }
 
         val modal = (activation.ability.effect as? com.wingedsheep.sdk.scripting.effects.ModalEffect)
         if (modal != null && action.chosenModes == null) {
@@ -249,13 +249,18 @@ class ActivateAbilityHandler(
                 }
             }
         }
+        // The source as it was when the activation began — before a sacrifice or tap cost moves or
+        // changes it (a Treasure is gone once paid for) — for the per-turn activation memory.
+        val sourceSnapshot = com.wingedsheep.engine.core.activationSourceSnapshot(state, action.sourceId)
         val payment = when (val paid = costPayer.pay(state, activation, paymentContext)) {
             is ActivationPaymentOutcome.Paid -> paid.payment
             is ActivationPaymentOutcome.Failed -> return ExecutionResult.error(state, paid.reason)
         }
 
         // 4. Activation is complete: record it for the activation limits.
-        val recorded = recordActivation(payment.state, activation)
+        val recorded = com.wingedsheep.engine.core.recordPermanentActivation(
+            recordActivation(payment.state, activation), action.playerId, sourceSnapshot
+        )
 
         // Apply text replacement if the source has a TextReplacementComponent
         val effect = if (modal != null && action.chosenModes?.isEmpty() == true) {
@@ -340,12 +345,12 @@ class ActivateAbilityHandler(
         // stack for 608.2b re-validation and for `DynamicAmount.XValue` reads at resolution. When
         // the cost is being paid, the chosen set already rides on the action's costPayment.
         val variablePermanentsCost = effectiveCost.extractVariablePermanentsCost()
-        val chosenForCost = action.costPayment?.variableCostPermanents ?: emptyList()
+        val chosenForCost = action.costPayment?.variableCostPermanents
         // An X the ability's own text defines (CR 107.3c) outranks both: it is not the payer's to
         // choose, and it is the value every other instance of X on this activation uses (CR 107.3i)
         // — the X-linked non-mana costs and any `DynamicAmount.XValue` read at resolution.
         val effectiveXValue: Int? = definedXValue
-            ?: if (variablePermanentsCost != null && chosenForCost.isNotEmpty())
+            ?: if (variablePermanentsCost != null && chosenForCost != null)
                 variableCostX(state, variablePermanentsCost, chosenForCost)
             else action.xValue
 
@@ -477,7 +482,7 @@ class ActivateAbilityHandler(
         val source = state.getEntity(action.sourceId)?.get<CardComponent>()
         val binding = targetValidator.bindTargetGroups(
             state, action.targets, requirements, action.playerId,
-            sourceColors = source?.colors.orEmpty(),
+            sourceColors = if (source == null) emptySet() else state.projectedState.colorSetOf(action.sourceId),
             sourceSubtypes = source?.typeLine?.subtypes?.mapTo(mutableSetOf()) { it.value }.orEmpty(),
             sourceId = action.sourceId,
             xValue = activation.effectiveXValue,
@@ -548,6 +553,12 @@ class ActivateAbilityHandler(
             // nothing, so nothing else changes.
             exiledAsCostCards = if (effectiveCost.hasExileAtom()) payment.exiledAsCost else emptyList(),
             exiledAsCostSnapshots = if (effectiveCost.hasExileAtom()) payment.exiledAsCostSnapshots else emptyList(),
+            // Ninjutsu (CR 702.49c): what each attacker returned as the cost was attacking, read
+            // off the pre-payment state — once in hand it is a new object with no combat state.
+            returnedAttackerDefenders = action.costPayment?.bouncedPermanents.orEmpty().mapNotNull {
+                stateBeforeActivation.getEntity(it)
+                    ?.get<com.wingedsheep.engine.state.components.combat.AttackingComponent>()?.defenderId
+            },
             // "The discarded card" (Hisoka, Minamo Sensei) — the activation counterpart of a
             // spell's additional discard cost, read at resolution as EffectTarget.DiscardedAsCost.
             discardedAsCostCards = payment.discardedCards,
@@ -593,7 +604,7 @@ class ActivateAbilityHandler(
             state, abilityOnStack, action.targets,
             targetRequirements = effectiveTargetReqs,
             costsTap = effectiveCost.hasTapCost(),
-            isExhaust = ability.isExhaust,
+            onceOnlyKind = ability.onceOnlyKind,
             cantBeCopied = ability.cantBeCopied,
             isLoyalty = ability.isPlaneswalkerAbility,
             loyaltyCountersRemoved = when (val cost = ability.cost) {
@@ -733,7 +744,7 @@ class ActivateAbilityHandler(
             val repeatStackResult = stackResolver.putActivatedAbility(
                 currentState, repeatAbilityOnStack, action.targets,
                 targetRequirements = effectiveTargetReqs,
-                isExhaust = ability.isExhaust,
+                onceOnlyKind = ability.onceOnlyKind,
             )
             currentState = repeatStackResult.newState
             events.addAll(repeatStackResult.events)

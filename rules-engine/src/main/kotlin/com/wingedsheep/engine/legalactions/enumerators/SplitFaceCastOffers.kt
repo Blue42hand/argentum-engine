@@ -47,12 +47,13 @@ internal object SplitFaceCastOffers {
         if (!face.typeLine.isInstant && !context.canPlaySorcerySpeed) return
 
         val cachedSources = context.availableManaSources
-        val free = useWithoutPayingManaCost || state.getEntity(cardId)?.has<com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent>() == true
-        val effectiveCost = if (free) {
-            context.costCalculator.calculateEffectiveCost(state,
-                context.costCalculator.faceCharacteristics(cardDef, face), playerId,
-                fromZone = com.wingedsheep.sdk.core.Zone.HAND, baseCost = com.wingedsheep.sdk.core.ManaCost.ZERO)
-        } else context.costCalculator.calculateFaceCastCost(state, cardDef, face, playerId)
+        val faceDef = context.costCalculator.faceCharacteristics(cardDef, face)
+        val cast = CastSpell(playerId, cardId, faceIndex = faceIndex, castFused = castFused,
+            useWithoutPayingManaCost = useWithoutPayingManaCost)
+        val actualSourceZone = state.zones.entries.firstOrNull { cardId in it.value }?.key?.zoneType
+        val pricing = context.declaredCastPricing(cast, cardDef, face.script.targetRequirements) ?: return
+        val effectiveCost = pricing.min
+        val costByTargetCount = pricing.byCountStrings()
         if (!context.manaSolver.canPay(state, playerId, effectiveCost, precomputedSources = cachedSources)) return
 
         val autoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -64,7 +65,10 @@ internal object SplitFaceCastOffers {
         val hasXCost = effectiveCost.hasX
         val maxAffordableX = if (hasXCost) {
             val available = context.manaSolver.getAvailableManaCount(state, playerId, precomputedSources = cachedSources)
-            ((available - effectiveCost.cmc) / effectiveCost.xCount.coerceAtLeast(1)).coerceAtLeast(0)
+            context.costCalculator.maxAffordableX(
+                state, faceDef, playerId, cardId, payable = available - effectiveCost.cmc, xCount = effectiveCost.xCount,
+                fromZone = actualSourceZone,
+            )
         } else null
 
 
@@ -76,6 +80,7 @@ internal object SplitFaceCastOffers {
                     description = description,
                     action = CastSpell(playerId, cardId, faceIndex = faceIndex, castFused = castFused, useWithoutPayingManaCost = useWithoutPayingManaCost),
                     manaCostString = manaCostString,
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview,
                     hasXCost = hasXCost,
                     maxAffordableX = maxAffordableX,
@@ -102,6 +107,7 @@ internal object SplitFaceCastOffers {
                     description = description,
                     action = CastSpell(playerId, cardId, faceIndex = faceIndex, targets = listOf(autoTarget), castFused = castFused, useWithoutPayingManaCost = useWithoutPayingManaCost),
                     manaCostString = manaCostString,
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview,
                     hasXCost = hasXCost,
                     maxAffordableX = maxAffordableX,
@@ -123,6 +129,7 @@ internal object SplitFaceCastOffers {
                 targetDescription = firstReq.description,
                 targetRequirements = targetInfos.surfacedRequirements(),
                 manaCostString = manaCostString,
+                manaCostByTargetCount = costByTargetCount,
                 autoTapPreview = autoTapPreview,
                 hasXCost = hasXCost,
                 maxAffordableX = maxAffordableX,

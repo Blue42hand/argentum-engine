@@ -24,7 +24,9 @@ class SetLoopTest(unittest.TestCase):
         self.stub("resolve-set", 'echo ecl')
         self.stub("git", 'echo "$TEST_ROOT/.git"')
         self.stub("gh", "exit 0")
-        self.stub("sleep", 'echo "$1" >> "$TEST_ROOT/sleeps"; touch "$TEST_ROOT/.claude/loop-runs/ecl.stop"')
+        # The session reaper ticks every LOOP_REAP_TICK seconds; those aren't the loop's waits.
+        self.stub("sleep", '[ "$1" = "$LOOP_REAP_TICK" ] && exit 0; '
+                           'echo "$1" >> "$TEST_ROOT/sleeps"; touch "$TEST_ROOT/.claude/loop-runs/ecl.stop"')
         self.stub("codex", """
 printf '%s\\n' "$@" > "$TEST_ROOT/args"
 while [ "$#" -gt 0 ]; do
@@ -52,7 +54,7 @@ echo '{"type":"result","result":"SET_COMPLETE","num_turns":1,"duration_ms":1000}
 
     def run_loop(self, *args, model="", mode="", verdict="SET_COMPLETE", set_code="ecl"):
         env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}",
-                   TEST_ROOT=str(self.root), HOME=str(self.root), MODEL=model, MODE=mode, VERDICT=verdict)
+                   TEST_ROOT=str(self.root), HOME=str(self.root), LOOP_REAP_TICK="1", MODEL=model, MODE=mode, VERDICT=verdict)
         return subprocess.run(["bash", str(self.bin / "set-loop"), set_code, *args],
                               cwd=self.root, env=env, capture_output=True, text=True, timeout=10)
 
@@ -86,6 +88,30 @@ echo '{"type":"result","result":"SET_COMPLETE","num_turns":1,"duration_ms":1000}
         self.assertIn("just loop-gate", prompt)
         self.assertIn("loop-reviewed <full sha", prompt)
         self.assertNotIn("$LOOP_PR_PROTOCOL", prompt)
+        self.assertIn("NO E2E", prompt)
+        self.assertIn("just ui-dev", prompt)
+        self.assertNotIn("e2e-loop", prompt)
+
+    def test_claude_session_runs_under_a_goal_without_mcp_servers(self):
+        result = self.run_loop("claude-opus-5-5")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        args = (self.root / "args").read_text().splitlines()
+        self.assertTrue(args[1].startswith("/goal "), args[1])
+        self.assertIn("STEP <n> DONE", args[1])
+        self.assertLessEqual(len(args[1]), 4000)
+        self.assertIn("--strict-mcp-config", args)
+        self.assertIn("PR LIFECYCLE", "\n".join(args[args.index("--append-system-prompt") + 1:]))
+
+    def test_goal_closing_empty_result_does_not_hide_the_answer(self):
+        self.stub("claude", """
+echo '{"type":"result","result":"Launched the implementers; waiting."}'
+echo '{"type":"result","result":"SET_COMPLETE"}'
+echo '{"type":"result","result":""}'
+""")
+        result = self.run_loop("claude-opus-5-5")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("set ecl complete", result.stdout)
+        self.assertFalse((self.root / "sleeps").exists())
 
     def test_picker_without_terminal_does_not_launch(self):
         result = self.run_loop("pick")

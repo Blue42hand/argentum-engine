@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.ManaSymbol
 import com.wingedsheep.sdk.scripting.effects.ManaRestriction
 import com.wingedsheep.sdk.scripting.effects.ManaSpellRider
+import com.wingedsheep.sdk.scripting.effects.ManaSpentAsAnyColor
 import com.wingedsheep.engine.state.components.player.RestrictedManaEntry
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import kotlinx.serialization.Serializable
@@ -61,6 +62,13 @@ data class SpellPaymentContext(
      * letting it pay for a colored spell.
      */
     val isColorless: Boolean = false,
+    /**
+     * How many colors the spell being cast has (CR 105.2), or `null` when the context doesn't
+     * describe a spell's characteristics — which refuses
+     * [ManaRestriction.SpellsWithExactColorCount] mana, the same fail-closed default as
+     * [isColorless].
+     */
+    val colorCount: Int? = null,
     val subtypes: Set<String> = emptySet(),
     val isFromExile: Boolean = false,
     /** True when the spell being cast is legendary (has the Legendary supertype). */
@@ -70,6 +78,8 @@ data class SpellPaymentContext(
     val isAbilityActivation: Boolean = false,
     /** Card types of the source whose ability is being activated (empty for spell-cast contexts). */
     val abilitySourceCardTypes: Set<com.wingedsheep.sdk.core.CardType> = emptySet(),
+    /** True when the source whose ability is being activated is a permanent on the battlefield. */
+    val isAbilitySourceOnBattlefield: Boolean = false,
     /**
      * True when the spell is being cast from the caster's hand. Defaults to `true` because most
      * spell casts originate from hand and the standard [CastSpellEnumerator] path is hand-only;
@@ -80,6 +90,17 @@ data class SpellPaymentContext(
      * also requires `!isAbilityActivation`.
      */
     val isFromHand: Boolean = true,
+    /**
+     * True when the spell is being cast from the caster's **own** graveyard (flashback, disturb,
+     * harmonize, a graveyard-cast permission, …). A card cast out of an opponent's graveyard
+     * leaves it false. Read by [ManaRestriction.CastFromGraveyardOnly].
+     */
+    val isFromGraveyard: Boolean = false,
+    /**
+     * True when the spell is being cast for its disturb alternative cost (CR 702.146a). Read by
+     * [ManaRestriction.DisturbCostOnly].
+     */
+    val isDisturbCast: Boolean = false,
     /**
      * True when the payment is for the turn-face-up special action (CR 707.9 / disguise's
      * turn-up). Lets restrictions like [ManaRestriction.TurnPermanentsFaceUpOnly] recognize
@@ -92,6 +113,18 @@ data class SpellPaymentContext(
      * (Creeping Peeper).
      */
     val isUnlockDoorAction: Boolean = false,
+    /**
+     * True when the payment is for the foretell special action's {2} (CR 702.143a). Lets
+     * [ManaRestriction.ForetellOnly] recognize "spend this mana only to foretell a card from your
+     * hand" (Karfell Harbinger, Niko Defies Destiny).
+     */
+    val isForetellAction: Boolean = false,
+    /**
+     * Keywords of the card being cast (its definition's keywords, including those derived from
+     * parameterized keyword abilities such as foretell). Empty for non-spell contexts and for a
+     * face-down cast (CR 708.2). Read by [ManaRestriction.SpellsWithKeywordOnly].
+     */
+    val keywords: Set<com.wingedsheep.sdk.core.Keyword> = emptySet(),
     /**
      * True when the spell being cast is being cast **face down** for its morph (CR 702.37a) or
      * disguise (CR 702.168a) cost. Lets [ManaRestriction.FaceDownSpellsOnly] recognize "spend
@@ -113,20 +146,33 @@ data class SpellPaymentContext(
      */
     val isEquipAbilityActivation: Boolean = false,
     /**
-     * True when colorless mana may be spent **as though it were mana of any color** on this
-     * payment (CR 609.4b) — a per-spell permission carried by the cast grant that authorised it
-     * ("you may spend colorless mana as though it were mana of any color to cast that spell",
-     * Abstruse Appropriation). Every colored requirement (colored, hybrid, Phyrexian,
-     * monocolored-hybrid pips) additionally accepts colorless mana; `{C}` and generic are
-     * untouched, and colored mana still can't pay `{C}`. Unlike "mana of any type" this does not
-     * rewrite the cost — it widens which mana may pay it — so it is applied in the pool's pip
-     * matching and the auto-tap solver rather than to the [com.wingedsheep.sdk.core.ManaCost].
+     * True when the payment is for a Class's **level-up** ability (CR 716.2c) — the activation
+     * whose effect is a `LevelUpClassEffect`. Like [isEquipAbilityActivation], a strictly narrower
+     * fact about an ability activation that [ManaRestriction.ClassLevelUpOnly] reads, set only by
+     * [buildAbilityPaymentContext].
      */
-    val colorlessAsAnyColor: Boolean = false,
+    val isClassLevelUpActivation: Boolean = false,
+    /**
+     * Which mana may be spent **as though it were mana of any color** on this payment
+     * (CR 609.4b) — a per-spell permission carried by the cast grant that authorised it:
+     * colorless mana ("you may spend colorless mana as though it were mana of any color to cast
+     * that spell", Abstruse Appropriation) or mana from snow sources (Draugr Necromancer). Every
+     * colored requirement (colored, hybrid, Phyrexian, monocolored-hybrid pips) additionally
+     * accepts that mana; `{C}`, `{S}` and generic are untouched. Unlike "mana of any type" this
+     * does not rewrite the cost — it widens which mana may pay it — so it is applied in the pool's
+     * pip matching and the auto-tap solver rather than to the [com.wingedsheep.sdk.core.ManaCost].
+     * Snow substitution needs to know which floating units are snow, so with floating snow mana
+     * it takes the unit-exact [allocateFloating] path — for a partial payment too, through
+     * [ManaPool.payPartialExactly].
+     */
+    val spendAsAnyColor: ManaSpentAsAnyColor? = null,
 ) {
     init {
         require(!isEquipAbilityActivation || isAbilityActivation) {
             "isEquipAbilityActivation implies isAbilityActivation"
+        }
+        require(!isClassLevelUpActivation || isAbilityActivation) {
+            "isClassLevelUpActivation implies isAbilityActivation"
         }
     }
 
@@ -143,6 +189,7 @@ data class SpellPaymentContext(
             isCreature = true,
             manaValue = 0,
             isColorless = true,
+            colorCount = 0,
             cardTypes = setOf(com.wingedsheep.sdk.core.CardType.CREATURE),
             isFromHand = isFromHand,
             isFaceDownCast = true,
@@ -175,19 +222,29 @@ fun ManaRestriction.isSatisfiedBy(context: SpellPaymentContext): Boolean = when 
             (!creatureOnly || context.isCreature) &&
             (context.manaValue >= minManaValue || (orXInCost && context.hasXInCost))
     is ManaRestriction.CreatureSpellsOnly -> !context.isAbilityActivation && context.isCreature
-    is ManaRestriction.LegendarySpellsOnly -> !context.isAbilityActivation && context.isLegendary
+    is ManaRestriction.LegendarySpellsOnly ->
+        !context.isAbilityActivation && context.isLegendary && (!creatureOnly || context.isCreature)
     is ManaRestriction.ColorlessSpellsOnly -> context.isSpellCast && context.isColorless
+    is ManaRestriction.SpellsWithExactColorCount -> context.isSpellCast && context.colorCount == count
     is ManaRestriction.CostsContainingXOnly -> (context.isSpellCast || context.isAbilityActivation) && context.hasXInCost
     is ManaRestriction.SubtypeSpellsOrAbilitiesOnly ->
         (!creatureOnly || (!context.isAbilityActivation && context.isCreature)) &&
             context.subtypes.any { it.equals(subtype, ignoreCase = true) }
+    // Bound to SubtypeSpellsOrAbilitiesOnly when the mana is made (ChosenTypeManaRestriction);
+    // still unbound means the source never chose a type, so nothing can spend it.
+    is ManaRestriction.OfChosenType -> false
     is ManaRestriction.CastFromExileOnly -> !context.isAbilityActivation && context.isFromExile
+    is ManaRestriction.CastFromGraveyardOnly -> !context.isAbilityActivation && context.isFromGraveyard
+    is ManaRestriction.DisturbCostOnly -> !context.isAbilityActivation && context.isDisturbCast
     is ManaRestriction.CastFromNonHandOnly -> !context.isAbilityActivation && !context.isFromHand
     is ManaRestriction.TurnPermanentsFaceUpOnly -> context.isTurnFaceUpAction
     is ManaRestriction.FaceDownSpellsOnly -> !context.isAbilityActivation && context.isFaceDownCast
     is ManaRestriction.UnlockDoorOnly -> context.isUnlockDoorAction
+    is ManaRestriction.ForetellOnly -> context.isForetellAction
+    is ManaRestriction.SpellsWithKeywordOnly -> context.isSpellCast && keyword in context.keywords
     is ManaRestriction.AbilityActivationOnly -> context.isAbilityActivation
     is ManaRestriction.EquipAbilityActivationOnly -> context.isEquipAbilityActivation
+    is ManaRestriction.ClassLevelUpOnly -> context.isClassLevelUpActivation
     is ManaRestriction.AnyOf -> restrictions.any { it.isSatisfiedBy(context) }
     is ManaRestriction.AllOf -> restrictions.all { it.isSatisfiedBy(context) }
     is ManaRestriction.SpellsOnly -> context.isSpellCast
@@ -195,8 +252,12 @@ fun ManaRestriction.isSatisfiedBy(context: SpellPaymentContext): Boolean = when 
         !context.isAbilityActivation &&
             subtypes.any { sub -> context.subtypes.any { it.equals(sub, ignoreCase = true) } }
     is ManaRestriction.CardTypeSpellsOrAbilitiesOnly ->
-        if (context.isAbilityActivation) allowAbilities && (cardType in context.abilitySourceCardTypes) != negated
-        else allowSpells && (cardType in context.cardTypes) != negated
+        if (context.isAbilityActivation) allowAbilities && (!permanentSourcesOnly || context.isAbilitySourceOnBattlefield) &&
+            (cardType in context.abilitySourceCardTypes) != negated
+        // Only a spell cast satisfies the spell side: a special action (foretell, turning a
+        // permanent face up, unlocking a door) has no card types, which a negated type would
+        // otherwise read as "not a creature spell".
+        else allowSpells && context.isSpellCast && (cardType in context.cardTypes) != negated
     // Negative restriction: only a spell cast can ever violate it, so every other kind of
     // payment passes untouched.
     is ManaRestriction.CannotCastSpellsOtherThan ->
@@ -229,7 +290,12 @@ data class SpentManaProvenance(
     /** Producing-source card type → mana units carrying it (Inga and Esika's "mana from creatures"). */
     val byCardType: Map<com.wingedsheep.sdk.core.CardType, Int> = emptyMap(),
     /** Units produced by a snow source — the "{S} spent" of CR 107.4h. Exact, not proportional. */
-    val snow: Int = 0
+    val snow: Int = 0,
+    /**
+     * The colors of the snow units in [snow] (colorless snow mana adds none) — Boreal Outrider's
+     * "{S} of any of that spell's colors was spent".
+     */
+    val snowColors: Set<Color> = emptySet()
 ) {
     val isEmpty: Boolean get() = bySubtype.isEmpty() && sourceIds.isEmpty() && byCardType.isEmpty() && snow == 0
 
@@ -248,7 +314,8 @@ data class SpentManaProvenance(
             bySubtype = sumCounts(bySubtype, other.bySubtype),
             sourceIds = sourceIds + other.sourceIds,
             byCardType = sumCounts(byCardType, other.byCardType),
-            snow = snow + other.snow
+            snow = snow + other.snow,
+            snowColors = snowColors + other.snowColors
         )
     }
 
@@ -281,7 +348,19 @@ data class SpentManaProvenance(
                 if (idx >= 0) { remaining.removeAt(idx); false } else true
             }
             return ofUnits(consumed.mapNotNull { it.source })
+                .copy(snowColors = consumed.mapNotNullTo(mutableSetOf()) { e -> e.color.takeIf { e.source?.isSnow == true } })
         }
+
+        /**
+         * The unrestricted snow mana a payment took from the floating pool: the drop in each
+         * color's snow units between [beforeSnow] and [afterSnow], and the total drop
+         * ([beforeTotal] - [afterTotal], colorless snow included).
+         */
+        fun ofFloatingSnow(beforeSnow: Map<Color, Int>, beforeTotal: Int, afterSnow: Map<Color, Int>, afterTotal: Int) =
+            SpentManaProvenance(
+                snow = beforeTotal - afterTotal,
+                snowColors = beforeSnow.keys.filterTo(mutableSetOf()) { (beforeSnow[it] ?: 0) > (afterSnow[it] ?: 0) }
+            )
     }
 }
 
@@ -313,18 +392,33 @@ data class ManaPool(
     /** Exact source snapshots, grouped with each unrestricted unit’s actual color. */
     val manaUnits: List<com.wingedsheep.engine.mechanics.mana.ManaUnit> = emptyList(),
     val snowColorless: Int = 0,
-    /** Ephemeral payment configuration, never stored in the player's mana component. */
-    val spendingColors: Map<Color, Set<Color>> = emptyMap(),
+    /**
+     * Ephemeral payment configuration, never stored in the player's mana component: required
+     * color -> the actual mana that may pay it (`null` = colorless), from [ManaSpendingRules].
+     */
+    val spendingColors: Map<Color, Set<Color?>> = emptyMap(),
     /** Payment-local selection memory, never stored in the player component. */
     val dischargedObligations: Set<String> = emptySet()
 ) {
     /**
      * Whether paying [cost] must go through the substitution-aware matcher: a player-wide
-     * [spendingColors] permission, or a per-payment [SpellPaymentContext.colorlessAsAnyColor]
-     * with at least one colored requirement for colorless mana to stand in for.
+     * [spendingColors] permission, or a per-payment colorless-as-any-color
+     * [SpellPaymentContext.spendAsAnyColor] with at least one colored requirement for colorless
+     * mana to stand in for.
      */
     private fun substitutes(cost: ManaCost, context: SpellPaymentContext?): Boolean =
-        spendingColors.isNotEmpty() || (context?.colorlessAsAnyColor == true && cost.symbols.any { it.isColoredRequirement() })
+        spendingColors.isNotEmpty() ||
+            (context?.spendAsAnyColor == ManaSpentAsAnyColor.COLORLESS && cost.symbols.any { it.isColoredRequirement() })
+
+    /**
+     * Whether paying [cost] must match exact floating units ([allocateFloating]): activation
+     * obligations are outstanding, or snow mana may stand in for a color — only the unit view
+     * knows which floating mana came from a snow source.
+     */
+    private fun allocatesExactly(cost: ManaCost, context: SpellPaymentContext?): Boolean =
+        restrictedMana.any { it.obligationIds.isNotEmpty() } ||
+            (context?.spendAsAnyColor == ManaSpentAsAnyColor.SNOW && cost.symbols.any { it.isColoredRequirement() } &&
+                (snowMana.values.any { it > 0 } || snowColorless > 0 || restrictedMana.any { it.source?.isSnow == true }))
 
     private fun ManaSymbol.isColoredRequirement(): Boolean =
         this is ManaSymbol.Colored || this is ManaSymbol.Phyrexian || this is ManaSymbol.HybridPair ||
@@ -561,7 +655,7 @@ data class ManaPool(
      * Eligible tagged mana is considered first; without a context only AnySpend entries qualify.
      */
     fun canPay(cost: ManaCost, spellContext: SpellPaymentContext? = null): Boolean {
-        if (restrictedMana.any { it.obligationIds.isNotEmpty() }) return allocateFloating(cost, spellContext) != null
+        if (allocatesExactly(cost, spellContext)) return allocateFloating(cost, spellContext) != null
         if (substitutes(cost, spellContext)) {
             return payPartialWithSpending(cost, spellContext, allowMonoHybridGeneric = true).remainingCost.symbols.all { it is ManaSymbol.X }
         }
@@ -644,7 +738,7 @@ data class ManaPool(
      * Eligible tagged mana is spent first; without a context only AnySpend entries qualify.
      */
     fun pay(cost: ManaCost, spellContext: SpellPaymentContext? = null): ManaPool? {
-        if (restrictedMana.any { it.obligationIds.isNotEmpty() }) return allocateFloating(cost, spellContext)?.pool
+        if (allocatesExactly(cost, spellContext)) return allocateFloating(cost, spellContext)?.pool
         if (substitutes(cost, spellContext)) {
             val partial = payPartialWithSpending(cost, spellContext, allowMonoHybridGeneric = true)
             return partial.newPool.takeIf { partial.remainingCost.symbols.all { it is ManaSymbol.X } }
@@ -731,15 +825,48 @@ data class ManaPool(
     )
 
     /**
+     * The largest part of [cost] the floating pool pays exactly, through [allocateFloating]: pips
+     * are kept one at a time, colored requirements before generic, while the kept set stays
+     * payable; the rest (and any X) is left for the lands. Used when snow mana may stand in for a
+     * color — the greedy partial path below can't see which floating units are snow, so with
+     * floating snow {G} and a Swamp it would leave {B}{B} for the Swamp alone. Null when the pool
+     * pays none of it.
+     */
+    private fun payPartialExactly(cost: ManaCost, context: SpellPaymentContext): PartialPaymentResult? {
+        val pips = cost.symbols.flatMap { symbol ->
+            when (symbol) {
+                is ManaSymbol.Generic -> List(symbol.amount) { ManaSymbol.Generic(1) }
+                is ManaSymbol.X -> emptyList()
+                else -> listOf(symbol)
+            }
+        }.sortedBy { if (it is ManaSymbol.Generic) 1 else 0 }
+        val kept = mutableListOf<ManaSymbol>()
+        val unpaid = mutableListOf<ManaSymbol>()
+        for (pip in pips) {
+            if (allocateFloating(ManaCost(kept + pip), context) != null) kept += pip else unpaid += pip
+        }
+        if (kept.isEmpty()) return null
+        val allocation = allocateFloating(ManaCost(kept), context) ?: return null
+        val unpaidGeneric = unpaid.count { it is ManaSymbol.Generic }
+        val remaining = unpaid.filter { it !is ManaSymbol.Generic } +
+            (if (unpaidGeneric > 0) listOf(ManaSymbol.Generic(unpaidGeneric)) else emptyList()) +
+            cost.symbols.filterIsInstance<ManaSymbol.X>()
+        return PartialPaymentResult(allocation.pool, ManaCost(remaining), allocation.spent)
+    }
+
+    /**
      * Pay as much of a mana cost as possible from this pool.
      * Returns the new pool, the remaining unpaid cost, and the mana that was spent.
      * This is used for AutoPay to use floating mana before tapping lands.
      * Eligible tagged mana is spent first; without a context only AnySpend entries qualify.
      */
     fun payPartial(cost: ManaCost, spellContext: SpellPaymentContext? = null): PartialPaymentResult {
-        if (restrictedMana.any { it.obligationIds.isNotEmpty() }) {
+        if (allocatesExactly(cost, spellContext)) {
             allocateFloating(cost, spellContext)?.let {
                 return PartialPaymentResult(it.pool, ManaCost(cost.symbols.filterIsInstance<ManaSymbol.X>()), it.spent)
+            }
+            if (spellContext?.spendAsAnyColor == ManaSpentAsAnyColor.SNOW) {
+                payPartialExactly(cost, spellContext)?.let { return it }
             }
         }
         if (substitutes(cost, spellContext)) {
@@ -917,14 +1044,18 @@ data class ManaPool(
     ): PartialPaymentResult {
         val symbols = cost.symbols.filter { it !is ManaSymbol.Generic && it !is ManaSymbol.X && it !is ManaSymbol.Snow }
         fun options(symbol: ManaSymbol): List<Color?> {
-            fun colors(color: Color): List<Color> = listOf(color) + spendingColors[color].orEmpty().filter { it != color }
-            // Colorless spent as though it were any color comes last: native colors first.
-            val colorless: List<Color?> = if (context?.colorlessAsAnyColor == true) listOf(null) else emptyList()
+            // Colorless spent as though it were a color comes last: native colors first.
+            val anyColorless = context?.spendAsAnyColor == ManaSpentAsAnyColor.COLORLESS
+            fun colors(vararg required: Color): List<Color?> {
+                val colored = required.flatMap { color -> listOf(color) + spendingColors[color].orEmpty().filter { it != color && it != null } }
+                val colorless = anyColorless || required.any { null in spendingColors[it].orEmpty() }
+                return colored.distinct() + if (colorless) listOf(null) else emptyList()
+            }
             return when (symbol) {
-                is ManaSymbol.Colored -> colors(symbol.color) + colorless
-                is ManaSymbol.Phyrexian -> colors(symbol.color) + colorless
-                is ManaSymbol.Hybrid, is ManaSymbol.HybridPhyrexian -> (colors(symbol.color1) + colors(symbol.color2)).distinct() + colorless
-                is ManaSymbol.MonocolorHybrid -> colors(symbol.color) + colorless
+                is ManaSymbol.Colored -> colors(symbol.color)
+                is ManaSymbol.Phyrexian -> colors(symbol.color)
+                is ManaSymbol.Hybrid, is ManaSymbol.HybridPhyrexian -> colors(symbol.color1, symbol.color2)
+                is ManaSymbol.MonocolorHybrid -> colors(symbol.color)
                 is ManaSymbol.Colorless -> listOf(null)
                 else -> emptyList()
             }

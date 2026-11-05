@@ -20,6 +20,8 @@ Usage:
     scripts/loop-gate            # run it
     scripts/loop-gate --plan     # print what would run, run nothing
     scripts/loop-gate --base origin/main   # diff base (default: merge-base with origin/main)
+    scripts/loop-gate --rebless  # also re-bless the card snapshot goldens in the same run; then
+                                 # check that only your cards moved (`git diff --stat` is printed)
 
 Exit status is the first failing command's. CI remains the full gate; this one is what a PR must
 pass before it is opened.
@@ -119,12 +121,20 @@ def plan(files: list[str]) -> tuple[list[str], bool]:
     return args, web
 
 
+def with_rebless(args: list[str]) -> list[str]:
+    """Re-bless the card snapshot goldens in the same run — only when the content suite runs anyway."""
+    return [*args, "-DupdateSnapshots=true"] if ":mtg-sets:test" in args else args
+
+
 def main(argv: list[str]) -> int:
     base = None
     if "--base" in argv:
         base = argv[argv.index("--base") + 1]
     files = changed_files(base)
     gradle_args, web = plan(files)
+    rebless = "--rebless" in argv and with_rebless(gradle_args) != gradle_args
+    if rebless:
+        gradle_args = with_rebless(gradle_args)
 
     print(f"loop-gate: {len(files)} changed file(s)", file=sys.stderr)
     if gradle_args:
@@ -140,6 +150,8 @@ def main(argv: list[str]) -> int:
         status = subprocess.call([str(REPO_ROOT / "scripts" / "gradle-locked"), *gradle_args], cwd=REPO_ROOT)
         if status:
             return status
+    if rebless:
+        subprocess.call(["git", "diff", "--stat", "--", "mtg-sets/src/test/resources/snapshots"], cwd=REPO_ROOT)
     if web:
         status = subprocess.call(["npm", "run", "typecheck"], cwd=REPO_ROOT / "web-client")
         if status:

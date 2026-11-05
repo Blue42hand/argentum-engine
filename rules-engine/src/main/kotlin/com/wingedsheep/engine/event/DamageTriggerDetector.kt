@@ -171,6 +171,9 @@ class DamageTriggerDetector(
                     controllerId = controllerId,
                     triggerContext = TriggerContext(
                         triggeringEntityId = sourceId,
+                        damageSourceId = sourceId,
+                        damageRecipientId = damagedEntityId,
+                        damageSourceControllerId = event.sourceLastKnown?.controllerId,
                         damageAmount = event.amount
                     )
                 )
@@ -210,7 +213,7 @@ class DamageTriggerDetector(
                     ability.binding == TriggerBinding.ANY &&
                     matchesDamageType(trigger.damageType, event) &&
                     matcher.matchesDamageSourceFilter(
-                        trigger.sourceFilter, event, state, entry.controllerId
+                        trigger.sourceFilter, event, state, entry.controllerId, entry.entityId
                     )) {
                     triggers.add(
                         PendingTrigger(
@@ -220,6 +223,9 @@ class DamageTriggerDetector(
                             controllerId = entry.controllerId,
                             triggerContext = TriggerContext(
                                 triggeringEntityId = damageSourceId,
+                                damageSourceId = damageSourceId,
+                                damageRecipientId = damagedPlayerId,
+                                damageSourceControllerId = event.sourceLastKnown?.controllerId,
                                 damageAmount = event.amount
                             )
                         )
@@ -338,9 +344,13 @@ class DamageTriggerDetector(
             // recipient is a player, also carry it as the triggering player so
             // "…to a player, [that player] …" payoffs (Fear of Burning Alive's
             // "target creature that player controls") resolve Player.TriggeringPlayer
-            // to the damaged player rather than the source.
+            // to the damaged player rather than the source. The recipient itself stays
+            // reachable as EffectTarget.DamageRecipient ("destroy that planeswalker", Zagras).
             TriggerContext(
                 triggeringEntityId = event.sourceId,
+                damageSourceId = event.sourceId,
+                damageRecipientId = event.targetId,
+                damageSourceControllerId = event.sourceLastKnown?.controllerId,
                 triggeringPlayerId = event.targetId.takeIf { it in state.turnOrder },
                 damageAmount = event.amount,
                 recipientToughnessAtDamage = event.targetToughnessAtDamage
@@ -447,6 +457,9 @@ class DamageTriggerDetector(
                                 controllerId = entry.controllerId,
                                 triggerContext = TriggerContext(
                                     triggeringEntityId = damagedPlayerId,
+                                    damageSourceId = damageSourceId,
+                                    damageRecipientId = damagedPlayerId,
+                                    damageSourceControllerId = event.sourceLastKnown?.controllerId,
                                     damageAmount = event.amount
                                 )
                             )

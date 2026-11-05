@@ -2,23 +2,18 @@ package com.wingedsheep.ai.arena
 
 import com.wingedsheep.ai.engine.buildSeededSealedDeck
 import com.wingedsheep.ai.engine.safeFallbackAction
+import com.wingedsheep.ai.insight.GameLogWriter
 import com.wingedsheep.engine.core.ActionProcessor
 import com.wingedsheep.engine.core.GameConfig
 import com.wingedsheep.engine.core.GameInitializer
 import com.wingedsheep.engine.core.PassPriority
 import com.wingedsheep.engine.core.PlayerConfig
 import com.wingedsheep.engine.core.SubmitDecision
-import com.wingedsheep.engine.legalactions.EnumerationMode
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.battlefield.DamageComponent
-import com.wingedsheep.engine.state.components.battlefield.TappedComponent
-import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.mtg.sets.MtgSetCatalog
 import com.wingedsheep.sdk.core.AttackMode
-import com.wingedsheep.sdk.core.Zone
-import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.model.Rarity
 import io.kotest.core.spec.style.FunSpec
 import java.io.File
@@ -134,51 +129,9 @@ private fun playLogged(
     val decklists = seatIds.mapIndexed { i, id -> id to decks[i].cards.groupingBy { it }.eachCount() }.toMap()
     val players = seatIds.map { agent.createPlayer(registry, it, decklists) }
     val seatOf = seatIds.withIndex().associate { (i, id) -> id to i }
+    val writer = GameLogWriter(seatIds, enumerator, out = log)
 
-    var state: GameState = init.state
-    val uuid = Regex("\\be\\d+\\b")
-    // Drop the default-valued fields of the action data classes so a line shows only what was chosen.
-    val noise = Regex(", \\w+=(?:null|false|\\[]|\\{}|0|1|AutoPay)(?=[,)])")
-
-    fun nameOf(s: GameState, id: EntityId): String {
-        seatOf[id]?.let { return "Seat$it" }
-        val e = s.getEntity(id) ?: return "?$id"
-        val card = e.get<CardComponent>() ?: return "obj"
-        val p = s.projectedState
-        return if (p.isCreature(id) && id in s.getBattlefield()) "${card.name}(${p.getPower(id)}/${p.getToughness(id)})" else card.name
-    }
-    fun humanize(s: GameState, text: String) =
-        uuid.replace(noise.replace(noise.replace(text, ""), "")) { m -> nameOf(s, EntityId(m.value)) }
-
-    fun perm(s: GameState, id: EntityId): String {
-        val e = s.getEntity(id)!!
-        val card = e.get<CardComponent>()!!
-        val p = s.projectedState
-        val sb = StringBuilder(card.name)
-        if (p.isCreature(id)) {
-            sb.append(" ${p.getPower(id)}/${p.getToughness(id)}")
-            val kw = p.getKeywords(id)
-            if (kw.isNotEmpty()) sb.append(" [${kw.joinToString(",") { it.lowercase() }}]")
-            e.get<DamageComponent>()?.let { sb.append(" dmg${it.amount}") }
-        }
-        if (e.has<TappedComponent>()) sb.append(" (T)")
-        return sb.toString()
-    }
-
-    fun board(s: GameState) {
-        seatIds.forEachIndexed { i, pid ->
-            val bf = s.getBattlefield(pid)
-            val lands = bf.filter { s.getEntity(it)?.get<CardComponent>()?.typeLine?.isLand == true }
-            val others = bf - lands.toSet()
-            val hand = s.getZone(pid, Zone.HAND).mapNotNull { s.getEntity(it)?.get<CardComponent>() }
-            log.appendLine("    Seat$i life=${s.lifeTotal(pid)} lib=${s.getZone(pid, Zone.LIBRARY).size} " +
-                "gy=${s.getZone(pid, Zone.GRAVEYARD).size} lands=${lands.size}(${lands.count { s.getEntity(it)!!.has<TappedComponent>() }}T)")
-            log.appendLine("      board: ${others.joinToString("; ") { perm(s, it) }}")
-            log.appendLine("      hand: ${hand.joinToString("; ") { "${it.name} ${it.manaCost}" }}")
-        }
-    }
-
-    var lastTurn = -1
+    var state: GameState = processor.beginGame(init.state, init.events).state
     var actions = 0
     var illegal = 0
     // The caps are per seat: a turn number counts every player's turn, so a pod needs proportionally
@@ -186,18 +139,12 @@ private fun playLogged(
     val maxTurns = 30 * decks.size
     val maxActions = 3000 * decks.size
     while (!state.gameOver && state.turnNumber < maxTurns && actions < maxActions) {
-        if (state.turnNumber != lastTurn) {
-            lastTurn = state.turnNumber
-            log.appendLine("\n=== TURN ${state.turnNumber} — active Seat${seatOf[state.activePlayerId]} ===")
-            board(state)
-        }
+        writer.turnIfNew(state)
         val decision = state.pendingDecision
         if (decision != null) {
             actions++
             val response = players[seatOf[decision.playerId]!!].respondToDecision(state, decision)
-            log.appendLine("  [${state.step}] Seat${seatOf[decision.playerId]} DECISION ${decision::class.simpleName}: " +
-                humanize(state, decision.toString()).take(400))
-            log.appendLine("      -> ${humanize(state, response.toString()).take(300)}")
+            writer.decision(state, decision, response)
             val r = processor.process(state, SubmitDecision(decision.playerId, response)).result
             if (r.error != null) { log.appendLine("  DECISION ERROR ${r.error}"); return "decisionError" }
             state = r.state
@@ -210,15 +157,10 @@ private fun playLogged(
             // A pass in our own main phase with an empty stack while holding playable cards is the
             // most common "did nothing" misplay — record what was on offer.
             if (pp == state.activePlayerId && state.stack.isEmpty() && state.step.name.contains("MAIN")) {
-                val offered = enumerator.enumerate(state, pp, EnumerationMode.ACTIONS_ONLY)
-                    .filter { it.affordable && it.actionType != "PassPriority" && !it.description.contains(": Add {") }
-                    .map { humanize(state, it.description) }
-                    .distinct()
-                if (offered.isNotEmpty()) log.appendLine("  [${state.step}] Seat${seatOf[pp]} passes; had: ${offered.joinToString(" | ").take(500)}")
+                writer.passWithOffers(state, pp)
             }
         } else {
-            val stackTop = state.stack.lastOrNull()?.let { " (stack top: ${nameOf(state, it)})" }.orEmpty()
-            log.appendLine("  [${state.step}] Seat${seatOf[pp]}: ${humanize(state, action.toString()).take(500)}$stackTop")
+            writer.action(state, pp, action)
         }
         val r = processor.process(state, action).result
         state = if (r.error != null) {
@@ -229,6 +171,6 @@ private fun playLogged(
     }
     val winner = state.winnerId?.let { seatOf[it] }
     log.appendLine("\n=== END turn=${state.turnNumber} winner=${winner?.let { "Seat$it" } ?: "none"} life=${seatIds.map { state.lifeTotal(it) }} illegal=$illegal ===")
-    board(state)
+    writer.board(state)
     return "winner=${winner ?: "none"} turns=${state.turnNumber} illegal=$illegal"
 }

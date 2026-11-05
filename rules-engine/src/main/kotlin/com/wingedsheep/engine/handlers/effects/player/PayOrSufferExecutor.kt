@@ -6,6 +6,7 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.DecisionHandler
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.effects.SourceReferenceText
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
@@ -183,18 +184,20 @@ class PayOrSufferExecutor(
             return handleRandomDiscard(state, effect, context, cost, sourceId, sourceName, controllerId)
         }
 
-        // Find all valid cards in hand that match the filter
-        val validCards = findValidCardsInHand(state, controllerId, cost.filter, sourceId)
-
-        // If the player doesn't have enough matching cards, automatically execute suffer effect
-        if (validCards.size < cost.count) {
+        // Suffer without asking only when every player can see the cost can't be paid: too few
+        // cards in hand. Which cards match the filter is hidden, so a hand without enough of them
+        // is still asked, with nothing to pick (#3340). That empty selection is forced, so it's
+        // answered without a prompt, and choosing nothing suffers.
+        if (state.getHand(controllerId).size < cost.count) {
             return executeSufferEffect(state, effect.suffer, context)
         }
+        val validCards = findValidCardsInHand(state, controllerId, cost.filter, sourceId)
+            .takeIf { it.size >= cost.count }.orEmpty()
 
-        // Player has at least enough valid cards - present the decision
         val prompt = buildDiscardPrompt(cost, sourceName, effect)
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -249,12 +252,12 @@ class PayOrSufferExecutor(
         sourceName: String,
         controllerId: EntityId
     ): EffectResult {
-        val validCards = findValidCardsInHand(state, controllerId, cost.filter, sourceId)
-
-        // If no valid cards, execute suffer effect automatically
-        if (validCards.size < cost.count) {
+        // As for a chosen discard, only the hand's size may skip the question (#3340). A filter
+        // the hand can't meet leaves "no" as the only answer.
+        if (state.getHand(controllerId).size < cost.count) {
             return executeSufferEffect(state, effect.suffer, context)
         }
+        val payable = findValidCardsInHand(state, controllerId, cost.filter, sourceId).size >= cost.count
 
         // Create a yes/no decision
         val prompt = "Discard ${if (cost.count == 1) "a card" else "${cost.count} cards"} at random to keep $sourceName?"
@@ -269,10 +272,12 @@ class PayOrSufferExecutor(
                 phase = DecisionPhase.RESOLUTION
             ),
             yesText = "Discard",
-            noText = "Accept consequence"
+            noText = "Accept consequence",
+            yesAvailable = payable
         ) }
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -328,6 +333,7 @@ class PayOrSufferExecutor(
         }
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -375,6 +381,7 @@ class PayOrSufferExecutor(
         val prompt = buildSacrificePrompt(cost, sourceName, effect)
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -438,6 +445,7 @@ class PayOrSufferExecutor(
 
         val consequence = effect.consequenceDescription ?: effect.suffer.description
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -512,6 +520,7 @@ class PayOrSufferExecutor(
         val prompt = buildTapPrompt(cost, sourceName, effect)
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -585,6 +594,7 @@ class PayOrSufferExecutor(
         val prompt = buildReturnToHandPrompt(cost, sourceName, effect)
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -689,7 +699,7 @@ class PayOrSufferExecutor(
         val decision = { decisionId: String -> YesNoDecision(
             id = decisionId,
             playerId = controllerId,
-            prompt = "Mill ${cost.count} $cards to avoid ${describeConsequence(effect, sourceName)}?",
+            prompt = "Mill ${cost.count} $cards or ${describeConsequence(effect, sourceName)}?",
             context = DecisionContext(
                 sourceId = sourceId,
                 sourceName = sourceName,
@@ -700,6 +710,7 @@ class PayOrSufferExecutor(
         ) }
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -742,7 +753,9 @@ class PayOrSufferExecutor(
         }
 
         // Create a yes/no decision
-        val prompt = "Pay $life life to avoid ${describeConsequence(effect, sourceName)}?"
+        // "Pay 2 life or exile PuPu UFO?" — the consequence is an imperative or a full clause
+        // ("you lose 3 life"), and only "or" reads right before both; "to avoid" wants a gerund.
+        val prompt = "Pay $life life or ${describeConsequence(effect, sourceName)}?"
 
         val decision = { decisionId: String -> YesNoDecision(
             id = decisionId,
@@ -758,6 +771,7 @@ class PayOrSufferExecutor(
         ) }
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -791,15 +805,18 @@ class PayOrSufferExecutor(
         sourceName: String,
         controllerId: EntityId
     ): EffectResult {
-        val validCards = findValidCardsInZone(state, controllerId, cost.filter, cost.zone, sourceId)
-
-        if (validCards.size < cost.count) {
+        // From a hidden zone, only its size may skip the question; which of its cards match is
+        // hidden, so too few matches leave only the empty selection (#3340).
+        if (publiclyUnpayable(state, controllerId, PayCost.Atom(cost), sourceId)) {
             return executeSufferEffect(state, effect.suffer, context)
         }
+        val validCards = findValidCardsInZone(state, controllerId, cost.filter, cost.zone, sourceId)
+            .takeIf { it.size >= cost.count }.orEmpty()
 
         val prompt = buildExilePrompt(cost, sourceName, effect)
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -874,6 +891,7 @@ class PayOrSufferExecutor(
         ) }
 
         val continuation = PayOrSufferContinuation(
+            programOrigin = context.programOrigin,
             resolvingTriggeredAbility = context.resolvingTriggeredAbility,
             playerId = controllerId,
             sourceId = sourceId,
@@ -922,8 +940,11 @@ class PayOrSufferExecutor(
 
         val optionLabels = availableOptions.map { it.second } + sufferDescription
 
-        // If no avoidance options are available, automatically suffer
-        if (availableOptions.isEmpty()) {
+        // Suffer without asking only when every player can see that no option can be paid. An
+        // option that only hidden cards rule out ("discard a creature card") still gets the
+        // question; with nothing payable its only answer is the consequence, a forced pick
+        // answered without a prompt (#3340).
+        if (cost.options.all { publiclyUnpayable(state, payingPlayerId, it, sourceId) }) {
             return executeSufferEffect(state, effect.suffer, context)
         }
 
@@ -1002,6 +1023,33 @@ class PayOrSufferExecutor(
             is PaymentResult.Declined ->
                 executeSufferEffect(state, effect.suffer, context)
         }
+    }
+
+    /**
+     * Whether every player can see that [playerId] can't pay [cost]. Only this may skip a
+     * pay-or-suffer question (#3340). A cost that picks filtered cards from a hidden zone (the
+     * hand, or the library) can be ruled out publicly only by that zone's size. Which of its cards
+     * match the filter is hidden, so a "maybe" there is asked, and [canPayCost] then decides what
+     * the question offers.
+     *
+     * Mana costs still go through [canPayCost], whose solver also counts mana abilities usable
+     * from the hand. That is #3340's group C, fixed separately.
+     */
+    private fun publiclyUnpayable(
+        state: GameState,
+        playerId: EntityId,
+        cost: PayCost,
+        sourceId: EntityId
+    ): Boolean = when (cost) {
+        is PayCost.Choice -> cost.options.all { publiclyUnpayable(state, playerId, it, sourceId) }
+        is PayCost.Atom -> when (val atom = cost.atom) {
+            is CostAtom.Discard -> state.getHand(playerId).size < atom.count
+            is CostAtom.ExileFrom ->
+                if (atom.zone.isHidden) state.getZone(ZoneKey(playerId, atom.zone)).size < atom.count
+                else !canPayCost(state, playerId, cost, sourceId)
+            else -> !canPayCost(state, playerId, cost, sourceId)
+        }
+        else -> !canPayCost(state, playerId, cost, sourceId)
     }
 
     /**
@@ -1282,12 +1330,22 @@ class PayOrSufferExecutor(
     }
 
     /**
+     * One object of [desc]: "a land", "an artifact" — or the bare phrase when it already names a
+     * determined object ("this creature", from a `sourceItself()` filter), which takes no article.
+     */
+    private fun singular(desc: String): String = when {
+        desc.startsWith("this ") || desc.startsWith("that ") -> desc
+        desc.first().lowercaseChar() in "aeiou" -> "an $desc"
+        else -> "a $desc"
+    }
+
+    /**
      * Build prompt for sacrifice cost.
      */
     private fun buildSacrificePrompt(cost: CostAtom.Sacrifice, sourceName: String, effect: PayOrSufferEffect): String {
         val desc = cost.filter.description
         val typeText = if (cost.count == 1) {
-            "${if (desc.first().lowercaseChar() in "aeiou") "an" else "a"} $desc"
+            singular(desc)
         } else {
             "${cost.count} ${desc}s"
         }
@@ -1311,7 +1369,7 @@ class PayOrSufferExecutor(
     private fun buildExilePrompt(cost: CostAtom.ExileFrom, sourceName: String, effect: PayOrSufferEffect): String {
         val desc = cost.filter.description
         val typeText = if (cost.count == 1) {
-            "${if (desc.first().lowercaseChar() in "aeiou") "an" else "a"} $desc"
+            singular(desc)
         } else {
             "${cost.count} ${desc}s"
         }
@@ -1329,8 +1387,10 @@ class PayOrSufferExecutor(
             is SacrificeSelfEffect,
             is SacrificeEffect -> "sacrifice $sourceName"
             is SacrificeTargetEffect ->
-                if (sufferEffect.target == EffectTarget.Self) "sacrifice $sourceName" else sufferEffect.description
-            else -> sufferEffect.description
+                if (sufferEffect.target == EffectTarget.Self) "sacrifice $sourceName"
+                else SourceReferenceText.clause(sufferEffect, sourceName)
+            // Spliced mid-sentence ("Pay 2 life or exile PuPu UFO?"): lower-cased, the source named.
+            else -> SourceReferenceText.clause(sufferEffect, sourceName)
         }
     }
 

@@ -38,7 +38,7 @@ class RemoveAllCountersOfTypeExecutor : EffectExecutor<RemoveAllCountersOfTypeEf
             ?: targetEntity.get<com.wingedsheep.engine.state.components.identity.PlayerComponent>()?.name.orEmpty()
         return EffectResult.success(
             newState,
-            listOf(CountersRemovedEvent(targetId, effect.counterType, amount, entityName))
+            listOf(CountersRemovedEvent(targetId, effect.counterType, amount, entityName, removedBy = context.controllerId))
         )
     }
 }

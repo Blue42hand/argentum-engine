@@ -3,6 +3,7 @@ package com.wingedsheep.engine.mechanics.stack
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.effects.EffectExecutorRegistry
+import com.wingedsheep.engine.handlers.effects.copy.withCopyIdentity
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.registry.CardRegistry
@@ -27,6 +28,7 @@ internal class PermanentSpellResolver(
     private val effects: EffectExecutorRegistry,
     private val predicateEvaluator: PredicateEvaluator,
     private val permanentEntry: PermanentEntry,
+    private val zones: com.wingedsheep.engine.handlers.effects.ZoneTransitionService,
     private val entersWithChoicePrompt: EntersWithChoicePrompt
 ) {
     private val amountEvaluator = predicateEvaluator.amounts
@@ -49,11 +51,117 @@ internal class PermanentSpellResolver(
         val ownerId = cardComponent?.ownerId ?: controllerId
 
         val cardDef = cardComponent?.cardDefinitionId?.let { cardRegistry.getCard(it) }
+        // A granted "they enter as copies of the chosen creature" (Mystic Reflection) is a copy
+        // effect too: install it and skip the spell's own copy choice — in either order the
+        // permanent would end up a copy of the bound object. Grants copying different objects are
+        // ordered by the controller (CR 616.1), which comes down to choosing the copy applied last.
+        // A face-down spell is modified too, becoming a copy under its face-down status (CR 708.10).
+        if (cardComponent != null) {
+            val granted = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.find(state, spellId, predicateEvaluator)
+            if (granted != null) {
+                if (granted.needsOrder) {
+                    return state.suspendForDecision(
+                        com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.question(
+                            state, granted.options, spellId, cardComponent.name, controllerId),
+                        GrantedEntryCopyOrderContinuation(spellId, granted.options, replay = null),
+                    )
+                }
+                return resolveWithGrantedCopy(state, spellId, granted.choice)
+            }
+        }
         if (cardDef != null && !spellComponent.castFaceDown) {
             pauseForEntersAsCopy(state, spellId, spellComponent, cardComponent, cardDef, controllerId, ownerId)
                 ?.let { return it }
         }
         return resolveRemainingEntry(state, spellId, spellComponent, cardComponent)
+    }
+
+    /**
+     * Finish resolving a permanent spell once its EntersOnlyIfPaid question is answered: [paid], the
+     * rest of its entry runs; otherwise it goes to its owner's graveyard and never enters.
+     */
+    fun resolveAfterEntryPayment(state: GameState, spellId: EntityId, paid: Boolean): ExecutionResult {
+        val container = state.getEntity(spellId)
+            ?: return ExecutionResult.error(state, "Spell entity not found: $spellId")
+        val spellComponent = container.get<SpellOnStackComponent>()
+            ?: return ExecutionResult.error(state, "Spell has no SpellOnStackComponent")
+        val cardComponent = container.get<CardComponent>()
+        if (!paid) {
+            return putIntoGraveyardInsteadOfEntering(state, spellId, cardComponent?.ownerId ?: spellComponent.casterId)
+        }
+        return resolveRemainingEntry(state, spellId, spellComponent, cardComponent, entryPaid = true)
+    }
+
+    /**
+     * The unpaid half of EntersOnlyIfPaid: the resolving card goes from the stack to its owner's
+     * graveyard instead of entering. It resolved — it was not countered — and a graveyard
+     * replacement (Rest in Peace) or a stack-exit rider (flashback) still decides where it lands.
+     */
+    private fun putIntoGraveyardInsteadOfEntering(state: GameState, spellId: EntityId, ownerId: EntityId): ExecutionResult {
+        val container = state.getEntity(spellId)
+            ?: return ExecutionResult.error(state, "Spell entity not found: $spellId")
+        val redirect = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+            .checkZoneChangeRedirect(state, spellId, Zone.STACK, Zone.GRAVEYARD, predicateEvaluator = predicateEvaluator)
+        val destZone = StackExitRider.overrideZone(container) ?: redirect.destinationZone
+        // The resolving spell has already been taken off the stack (SpellResolver does that before
+        // a permanent spell's entry), so it only needs its stack-only components stripped and a
+        // place in its new zone — what [StackExitRider.moveOffStack] does for a spell still there.
+        val offStack = if (spellId in state.stack) state.removeFromStack(spellId) else state
+        var newState = com.wingedsheep.engine.mechanics.CastCharacteristics.end(offStack, spellId)
+        // A spell that took on a copied identity as it would enter (a Clone copying Mox Diamond)
+        // is its printed card again once it goes elsewhere (CR 400.7).
+        val copyOf = container.get<com.wingedsheep.engine.state.components.identity.CopyOfComponent>()
+        copyOf?.originalCardComponent?.let { original ->
+            newState = newState.updateEntity(spellId) { c ->
+                c.withCopyIdentity(original, cardRegistry)
+                    .without<com.wingedsheep.engine.state.components.identity.CopyOfComponent>()
+            }
+        }
+        val name = newState.getEntity(spellId)?.get<CardComponent>()?.name ?: "Unknown"
+        newState = newState.updateEntity(spellId) { c ->
+            c.without<SpellOnStackComponent>()
+                .without<com.wingedsheep.engine.state.components.identity.TextReplacementComponent>()
+                .without<TargetsComponent>()
+                .without<com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent>()
+        }
+        newState = newState.addToZone(ZoneKey(ownerId, destZone), spellId)
+        val event = ZoneChangeEvent(
+            spellId, name, Zone.STACK, destZone, ownerId,
+            oldObject = state.objectRef(spellId), newObject = newState.objectRef(spellId)
+        )
+        if (destZone == Zone.GRAVEYARD) {
+            newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                .recordSpellGraveyardArrival(newState, spellId, ownerId)
+        }
+        if (destZone == Zone.EXILE && redirect.linkSourceId != null) {
+            newState = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
+                .linkExiledToSource(newState, spellId, redirect.linkSourceId)
+        }
+        val (afterRider, riderEvents) = redirect.additionalEffect
+            ?.takeIf { destZone == redirect.destinationZone }
+            ?.let { extra ->
+                com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.applyReplacementAdditionalEffect(
+                    zones, newState, extra, redirect.effectControllerId, spellId,
+                    sourceId = redirect.effectSourceId, riderTiming = redirect.riderTiming
+                )
+            } ?: (newState to emptyList())
+        return ExecutionResult.success(afterRider, listOf(event) + riderEvents)
+    }
+
+    /**
+     * Install the granted entry copy [choice] on the resolving spell, spend every grant that
+     * modifies its entry, and finish entry from the copied identity.
+     */
+    fun resolveWithGrantedCopy(
+        state: GameState,
+        spellId: EntityId,
+        choice: com.wingedsheep.engine.handlers.effects.copy.EntryCopyChoice,
+    ): ExecutionResult {
+        val granted = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.find(state, spellId, predicateEvaluator)
+            ?: return resolveAfterEntryCopy(state, spellId)
+        val copied = com.wingedsheep.engine.handlers.effects.copy.EffectCopyEntry.apply(state, spellId, granted.chosen(choice))
+        return resolveAfterEntryCopy(
+            com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.spend(copied, granted), spellId)
     }
 
     /**
@@ -79,11 +187,30 @@ internal class PermanentSpellResolver(
         state: GameState,
         spellId: EntityId,
         spellComponent: SpellOnStackComponent,
-        cardComponent: CardComponent?
+        cardComponent: CardComponent?,
+        entryPaid: Boolean = false,
     ): ExecutionResult {
         val controllerId = spellComponent.casterId
         val ownerId = cardComponent?.ownerId ?: controllerId
         val cardDef = cardComponent?.cardDefinitionId?.let { cardRegistry.getCard(it) }
+        // "If this would enter, you may [pay] instead. If you don't, put it into its owner's
+        // graveyard" (EntersOnlyIfPaid). Asked of the permanent as it would exist on the battlefield
+        // (CR 614.12) — after any entry copy, so a Clone copying Mox Diamond pays and a Mox Diamond
+        // entering as a copy of something else doesn't — and before every other as-enters question,
+        // since it decides whether the permanent enters at all. Unaffordable, it goes straight to
+        // the graveyard.
+        val entryCost = com.wingedsheep.engine.handlers.effects.EntryPayment.costOf(cardDef)
+        if (entryCost != null && !entryPaid && cardComponent != null && !spellComponent.castFaceDown) {
+            if (!com.wingedsheep.engine.handlers.effects.EntryPayment.canPay(
+                    state, controllerId, entryCost, spellId, cardRegistry, predicateEvaluator)
+            ) {
+                return putIntoGraveyardInsteadOfEntering(state, spellId, ownerId)
+            }
+            return com.wingedsheep.engine.handlers.effects.EntryPayment.ask(
+                state, controllerId, spellId, cardComponent.name, entryCost, predicateEvaluator,
+                EntersOnlyIfPaidSpellContinuation(spellId, controllerId, entryCost),
+            )
+        }
         if (cardDef != null && !spellComponent.castFaceDown) {
             pauseForFirstEntersWithChoice(state, spellId, cardComponent, cardDef, controllerId, ownerId)
                 ?.let { return it }
@@ -114,7 +241,8 @@ internal class PermanentSpellResolver(
         controllerId: EntityId,
         ownerId: EntityId
     ): ExecutionResult? {
-        val entersAsCopy = cardDef.script.replacementEffects.filterIsInstance<EntersAsCopy>().firstOrNull()
+        val entersAsCopy = cardDef.script.replacementEffects.filterIsInstance<EntersAsCopy>()
+            .firstOrNull { it.copyOf == null }
         if (entersAsCopy != null) {
             // Find candidates to copy. Battlefield copies (Clone) read permanents in play;
             // graveyard copies (Superior Spider-Man) read creature cards across every graveyard.
@@ -164,7 +292,7 @@ internal class PermanentSpellResolver(
                     powerOverride = entersAsCopy.powerOverride,
                     toughnessOverride = entersAsCopy.toughnessOverride,
                     exileCopiedCard = entersAsCopy.exileCopiedCard,
-                    additionalCounters = entersAsCopy.additionalCounters,
+                    entersWithCounters = entersAsCopy.entersWithCounters,
                     duration = entersAsCopy.duration
                 )
                 return state.suspendForDecision(
@@ -254,7 +382,12 @@ internal class PermanentSpellResolver(
                 predicateEvaluator.matches(state, state.projectedState, cardId, revealCountersEffect.filter, predicateContext)
             }
 
-            if (validCards.isNotEmpty()) {
+            // Amplify reveals from the hand: which of its cards share a type is hidden, so a
+            // non-empty hand is asked even with nothing to reveal (#3340). That empty selection is
+            // forced and is answered without a prompt. Only an empty zone skips the question.
+            val ask = validCards.isNotEmpty() ||
+                (revealCountersEffect.revealSource.isHidden && state.getZone(revealZone).isNotEmpty())
+            if (ask) {
                 val continuation = RevealCountersContinuation(
                     spellId = spellId,
                     controllerId = controllerId,
@@ -466,6 +599,7 @@ internal class PermanentSpellResolver(
                     enteredState, spellId, controllerId, cardRegistry,
                     effects::execute,
                     xValue = spellComponent.xValue,
+                    parentOrigin = enteredState.objectRef(spellId)?.let { com.wingedsheep.engine.core.ProgramOrigin.Resolving(it) },
                 )
             if (onEnterResult != null) {
                 return onEnterResult.toExecutionResult().copy(

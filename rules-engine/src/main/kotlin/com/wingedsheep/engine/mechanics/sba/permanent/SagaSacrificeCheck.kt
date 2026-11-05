@@ -48,7 +48,7 @@ class SagaSacrificeCheck(
                 val triggeredComponent = stackEntity.get<com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent>()
                 triggeredComponent?.sourceId == entityId
             }
-            val hasChapterWaiting = newState.pendingTriggers.any { it.sourceId == entityId }
+            val hasChapterWaiting = newState.waitingTriggers.any { it.sourceId == entityId }
             if (hasChapterOnStack || hasChapterWaiting) continue
 
             val result = SbaZoneMovementHelper.putPermanentInGraveyard(

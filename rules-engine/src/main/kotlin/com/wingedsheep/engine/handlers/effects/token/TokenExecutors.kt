@@ -34,7 +34,7 @@ class TokenExecutors(
             CreateTokenExecutor(amountEvaluator, staticAbilityHandler, cardRegistry, tokenArtRegistry),
             createPredefinedToken,
             InvestigateExecutor(createPredefinedToken, amountEvaluator, executeEffect),
-            CreateRoleTokenExecutor(zones, cardRegistry, staticAbilityHandler),
+            CreateAuraTokenExecutor(zones, cardRegistry, staticAbilityHandler),
             CreateTokenCopyOfSourceExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator),
             CreateTokenCopyOfEquippedCreatureExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator),
             CreateTokenCopyOfChosenPermanentExecutor(cardRegistry, staticAbilityHandler, predicateEvaluator = zones.predicateEvaluator, executeEffect = executeEffect),
@@ -55,7 +55,9 @@ class TokenExecutors(
             val existingGroup = TokenEntryGroups.group(context)
             val (group, scopedState) = if (existingGroup != null) existingGroup to state else state.newRoutingId()
             val scopedContext = TokenEntryGroups.withGroup(context, group)
-            return TokenEntryGroups.stamp(delegate.execute(scopedState, effect, scopedContext), group)
+            val result = delegate.execute(scopedState, effect, scopedContext)
+            return TokenEntryGroups.stamp(TokenBundleEntryRiders.finishEntry(
+                scopedState, result, effect, scopedContext), group)
         }
     }
 }

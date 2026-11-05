@@ -5,13 +5,18 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.ControlChangeDirection
+import com.wingedsheep.sdk.scripting.DrawStepFirstCard
 import com.wingedsheep.sdk.scripting.EventPattern
 import com.wingedsheep.sdk.scripting.EventPattern.*
 import com.wingedsheep.sdk.scripting.ExploreReveal
+import com.wingedsheep.sdk.scripting.OnceOnlyAbilityKind
+import com.wingedsheep.sdk.scripting.AbilityTriggerCause
+import com.wingedsheep.sdk.scripting.TapSymbolInCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.TapReason
 import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.TriggerSpec
+import com.wingedsheep.sdk.scripting.ZoneChangeCause
 import com.wingedsheep.sdk.scripting.events.AttackPredicate
 import com.wingedsheep.sdk.scripting.events.DamagePredicate
 import com.wingedsheep.sdk.scripting.events.DamageType
@@ -96,6 +101,13 @@ object Triggers {
     /** Any other player reference as the subject. Prefer the named subjects above. */
     fun player(player: Player): PlayerTriggerSubject = PlayerTriggerSubject(player)
 
+    /**
+     * "Whenever day becomes night or night becomes day" (CR 731.1a) — a game-level event with no
+     * subject, so it has no subject/verb spelling. Never fires for the game's first designation.
+     */
+    val dayBecomesNightOrNightBecomesDay: TriggerSpec =
+        TriggerSpec(event = DayNightChangedEvent, binding = TriggerBinding.ANY)
+
     /** Combines trigger atoms that use the same binding into one disjunctive trigger. */
     fun or(first: TriggerSpec, second: TriggerSpec, vararg others: TriggerSpec): TriggerSpec {
         val triggers = listOf(first, second) + others
@@ -147,6 +159,26 @@ class ObjectTriggerSubject internal constructor(
     /** "enters" (the battlefield). [from] restricts the zone it came from — "enters from exile". */
     fun enters(from: Zone? = null): TriggerSpec =
         spec(ZoneChangeEvent(filter = filterOrAny, from = from, to = Zone.BATTLEFIELD))
+
+    /**
+     * "enters attacking" — the subject is put onto the battlefield attacking (CR 508.4), e.g. a
+     * token created "tapped and attacking" or a card put from hand "tapped and attacking" (Arni
+     * Metalbrow). A creature that enters attacking was never declared as an attacker, so this never
+     * overlaps [attacks]; "attacks or enters attacking" is `Triggers.or(subject.attacks(),
+     * subject.entersAttacking())`.
+     */
+    fun entersAttacking(): TriggerSpec =
+        spec(ZoneChangeEvent(filter = filterOrAny.attacking(), to = Zone.BATTLEFIELD))
+
+    /**
+     * "Whenever a permanent you control **enters tapped**" (Amulet of Vigor): the enters trigger with
+     * `.tapped()` folded into the filter. Matched by how the permanent *entered* — put onto the
+     * battlefield tapped, a tapland, a token created tapped — so one that enters untapped and is
+     * tapped afterwards never matches, and one that entered tapped still does after being untapped
+     * in the same resolution.
+     */
+    fun entersTapped(): TriggerSpec =
+        spec(ZoneChangeEvent(filter = filterOrAny.tapped(), to = Zone.BATTLEFIELD))
 
     /**
      * "leaves the battlefield", to [to] (any zone when null), or anywhere but [excludeTo] ("leaves
@@ -203,7 +235,8 @@ class ObjectTriggerSubject internal constructor(
      * "attacks". [requires] is a conjunctive set of [AttackPredicate]s — "attacks alone"
      * (`AttackPredicate.Alone`), "attacks a player" (`DefenderIsPlayer`, which never fires on a
      * planeswalker or battle, CR 508.1), "attacks for the first time each turn"
-     * (`FirstTimeEachTurn`), battalion (`AttackerCountAtLeast(3)`).
+     * (`FirstTimeEachTurn`), battalion (`AttackerCountAtLeast(3)`), pack tactics
+     * (`AttackersTotalPowerAtLeast(6)`).
      */
     fun attacks(requires: Set<AttackPredicate> = emptySet()): TriggerSpec =
         spec(AttackEvent(filter = filter, requires = requires))
@@ -229,7 +262,7 @@ class ObjectTriggerSubject internal constructor(
 
     /**
      * "becomes blocked [by a creature matching [by]]". Under [Triggers.self] the bare form fires
-     * **once** however many creatures block, with the source as the triggering entity (Rampage);
+     * **once** however many creatures block, with the source as the triggering entity;
      * `by` fires once **per matching blocker**, with that blocker as the triggering entity
      * (Sylvan Basilisk, "destroy that creature"). `by` also supports [Triggers.attached]. A
      * filtered SELF/ATTACHED subject is rejected: the event's filter axis is the blocker.
@@ -361,6 +394,16 @@ class ObjectTriggerSubject internal constructor(
     }
 
     /**
+     * "a mana ability of this permanent resolves" — any mana ability, {T} or not, manual or
+     * auto-paid. `DynamicAmounts.triggerManaProduced()` is the amount of mana it produced.
+     */
+    fun manaAbilityResolves(): TriggerSpec {
+        only("manaAbilityResolves", TriggerBinding.SELF)
+        unfiltered("manaAbilityResolves")
+        return spec(EventPattern.ManaAbilityResolved)
+    }
+
+    /**
      * "is turned face up" — this, the attached, or (under an unfiltered [Triggers.a]) any permanent
      * (Aphetto Runecaster). "Whenever a [filter] you control is turned face up", matched on its
      * face-up characteristics, is [PlayerTriggerSubject.permanentTurnedFaceUp].
@@ -368,6 +411,17 @@ class ObjectTriggerSubject internal constructor(
     fun turnedFaceUp(): TriggerSpec {
         unfiltered("turnedFaceUp")
         return spec(TurnFaceUpEvent)
+    }
+
+    /**
+     * "Whenever this creature mutates" (CR 702.140d) — a mutating creature spell merged with this
+     * permanent, whether it went over or under, and whether this card is the mutating one or an
+     * existing component. Self-only: the mutated permanent is the one whose abilities trigger.
+     */
+    fun mutates(): TriggerSpec {
+        only("mutates", TriggerBinding.SELF)
+        unfiltered("mutates")
+        return spec(MutateEvent)
     }
 
     /**
@@ -390,8 +444,9 @@ class ObjectTriggerSubject internal constructor(
      * [spellsOnly] / [abilitiesOnly] drop the other half. [firstTimeEachTurn] with [byYou] is
      * valiant (the first time *you* target it); alone it is the first time anything targets it
      * (Angelic Cub). [includeSpellTargets] also fires when a matching *spell* on the stack is targeted
-     * (Surrak, Elusive Hunter); [includePlayerTargets] widens to targeted players and needs an
-     * unfiltered subject (Loki, God of Mischief). [ofBackupAbility] is "the target of a backup
+     * (Surrak, Elusive Hunter); [players] widens to the targeted players it names — `Player.Any` for
+     * "a player or permanent" (Loki, God of Mischief), `Player.You` for "you or another permanent you
+     * control" (Valkmira, Protector's Shield); the subject's filter still narrows the object half. [ofBackupAbility] is "the target of a backup
      * ability" (Mirror-Shield Hoplite). [targetsOnlyIt] is "… that targets only it" — every target
      * of the spell or ability is this object (Agrus Kos, Eternal Soldier).
      */
@@ -403,7 +458,7 @@ class ObjectTriggerSubject internal constructor(
         abilitiesOnly: Boolean = false,
         firstTimeEachTurn: Boolean = false,
         includeSpellTargets: Boolean = false,
-        includePlayerTargets: Boolean = false,
+        players: Player? = null,
         ofBackupAbility: Boolean = false,
         targetsOnlyIt: Boolean = false,
     ): TriggerSpec = spec(
@@ -414,7 +469,7 @@ class ObjectTriggerSubject internal constructor(
             firstTimeEachTurn = firstTimeEachTurn,
             includeSpellTargets = includeSpellTargets,
             spellsOnly = spellsOnly,
-            includePlayerTargets = includePlayerTargets,
+            playerTargets = players,
             abilitiesOnly = abilitiesOnly,
             sourceFilter = of,
             backupAbilitiesOnly = ofBackupAbility,
@@ -429,7 +484,9 @@ class ObjectTriggerSubject internal constructor(
      * ([Player.You]); [firstTimeEachTurn] is "for the first time this turn" (Stalwart Successor);
      * [batch] is the "on one or more <permanents>" template (CR 603.2c) — see
      * [CountersPlacedEvent.batch]; [orPlayer] widens the recipient to "a permanent **or player**"
-     * (All Will Be One) — see [CountersPlacedEvent.includePlayers].
+     * (All Will Be One) — see [CountersPlacedEvent.includePlayers]; [perCounter] is "whenever **a**
+     * [type] counter is put on" — once per counter (Flourishing Defenses), see
+     * [CountersPlacedEvent.perCounter].
      */
     fun getsCounters(
         type: CounterType? = null,
@@ -437,6 +494,7 @@ class ObjectTriggerSubject internal constructor(
         firstTimeEachTurn: Boolean = false,
         batch: Boolean = false,
         orPlayer: Boolean = false,
+        perCounter: Boolean = false,
     ): TriggerSpec = spec(
         CountersPlacedEvent(
             counterType = type,
@@ -445,24 +503,28 @@ class ObjectTriggerSubject internal constructor(
             placedBy = by,
             batch = batch,
             includePlayers = orPlayer,
+            perCounter = perCounter,
         )
     )
 
     /**
      * "one or more [type] counters are removed from" it. [lastRemoved] is "when the last [type]
      * counter is removed" (CR 310.12b and the other countdown mechanics); [byDamagePrevention] is a
-     * removal made to prevent damage.
+     * removal made to prevent damage; [by] is the player who must have removed them ("when **you**
+     * remove the last intervention counter").
      */
     fun losesCounters(
         type: CounterType? = null,
         lastRemoved: Boolean = false,
         byDamagePrevention: Boolean = false,
+        by: Player? = null,
     ): TriggerSpec = spec(
         CountersRemovedEvent(
             counterType = type,
             filter = filterOrAny,
             lastRemoved = lastRemoved,
             byDamagePrevention = byDamagePrevention,
+            removedBy = by,
         )
     )
 
@@ -521,6 +583,10 @@ class ObjectTriggerSubject internal constructor(
     /** "becomes saddled [for the first time each turn]" (CR 702.171b). */
     fun becomesSaddled(firstTimeEachTurn: Boolean = false): TriggerSpec =
         spec(BecameSaddledEvent(filter = filterOrAny, firstTimeEachTurn = firstTimeEachTurn))
+
+    /** "becomes crewed [for the first time each turn]" — a crew ability of it resolved (CR 702.122e). */
+    fun becomesCrewed(firstTimeEachTurn: Boolean = false): TriggerSpec =
+        spec(BecameCrewedEvent(filter = filterOrAny, firstTimeEachTurn = firstTimeEachTurn))
 
     /** "becomes renowned" (CR 702.112b). */
     fun becomesRenowned(): TriggerSpec = spec(BecameRenownedEvent(filter = filterOrAny))
@@ -586,11 +652,16 @@ class ObjectTriggerSubject internal constructor(
         return spec(CycleEvent(Player.You))
     }
 
-    /** "when you discard this card" — fires as it's discarded, wherever the discard sends it (madness). */
-    fun isDiscarded(): TriggerSpec {
+    /**
+     * "when you discard this card" — fires as it's discarded, wherever the discard sends it (madness).
+     * [cause] narrows it to "when a spell or ability an opponent controls causes you to discard this
+     * card" ([ZoneChangeCause.DiscardedByOpponentEffect], Psychic Purge); that controller is
+     * [Player.ControllerOfCause].
+     */
+    fun isDiscarded(cause: ZoneChangeCause = ZoneChangeCause.Any): TriggerSpec {
         unfiltered("isDiscarded")
         only("isDiscarded", TriggerBinding.SELF)
-        return spec(DiscardEvent(player = Player.You))
+        return spec(DiscardEvent(player = Player.You, cause = cause))
     }
 
     /** "when you sacrifice this" — only a sacrifice; [dies] also fires on destruction. */
@@ -625,14 +696,24 @@ class ObjectTriggerSubject internal constructor(
     }
 
     /**
-     * "whenever [by] activates an ability of <subject> without {T} in its activation cost" — the
-     * attached form of [PlayerTriggerSubject.activatesAbility] with `withoutTapInCost` (Artifact
-     * Possession). The activated permanent is the triggering entity.
+     * "whenever [by] activates an ability of <subject> [with|without {T} in its activation cost]"
+     * — the attached form of [PlayerTriggerSubject.activatesAbility]. [tapInCost] and
+     * [includeManaAbilities] read as there: Artifact Possession's "without {T}" counts mana
+     * abilities (`WITHOUT` + `includeManaAbilities`), Imprison's "with {T} … that isn't a mana
+     * ability" is `WITH` alone. The triggering entity is the activated ability on the stack ("counter
+     * that ability"), or the permanent itself for a mana ability, which never uses the stack;
+     * `ControllerOfTriggeringEntity` reads the permanent's controller through either.
      */
-    fun hasAbilityActivatedWithoutTap(by: Player = Player.Each): TriggerSpec {
-        unfiltered("hasAbilityActivatedWithoutTap")
-        only("hasAbilityActivatedWithoutTap", TriggerBinding.ATTACHED)
-        return spec(AbilityActivatedEvent(player = by, requireNoTapInCost = true))
+    fun hasAbilityActivated(
+        by: Player = Player.Each,
+        tapInCost: TapSymbolInCost? = null,
+        includeManaAbilities: Boolean = false,
+    ): TriggerSpec {
+        unfiltered("hasAbilityActivated")
+        only("hasAbilityActivated", TriggerBinding.ATTACHED)
+        return spec(
+            AbilityActivatedEvent(player = by, tapInCost = tapInCost, includeManaAbilities = includeManaAbilities)
+        )
     }
 }
 
@@ -693,10 +774,48 @@ class BatchTriggerSubject internal constructor(
         return spec(OneOrMoreDealCombatDamageToPlayerEvent(sourceFilter = filter, orBattle = true))
     }
 
-    /** "deal combat damage to you" — defensive; fires once per combat-damage batch. */
-    fun dealCombatDamageToYou(): TriggerSpec {
+    /**
+     * "deal combat damage to an opponent" — [dealCombatDamageToAPlayer] counting only your
+     * opponents; once per opponent hit, bound as `Player.TriggeringPlayer` (Parapet Thrasher).
+     */
+    fun dealCombatDamageToAnOpponent(): TriggerSpec {
+        noOther("dealCombatDamageToAnOpponent")
+        return spec(OneOrMoreDealCombatDamageToPlayerEvent(sourceFilter = filter, toOpponents = true))
+    }
+
+    /**
+     * "deal combat damage to one or more players" — once per combat-damage batch however many
+     * players were hit; every matching creature that hit one is the captured collection. No
+     * triggering player is bound (Contaminant Grafter); the players hit are
+     * `DynamicAmounts.playersDealtDamageThisWay()` / `Player.InCollection(IterationSpace.TRIGGER_DAMAGED_PLAYERS)`.
+     */
+    fun dealCombatDamageToOneOrMorePlayers(): TriggerSpec {
+        noOther("dealCombatDamageToOneOrMorePlayers")
+        return spec(OneOrMoreDealCombatDamageToPlayerEvent(sourceFilter = filter, toOneOrMorePlayers = true))
+    }
+
+    /**
+     * "deal combat damage to one or more of your opponents" — [dealCombatDamageToOneOrMorePlayers]
+     * counting only your opponents (Hordewing Skaab: draw "equal to the number of opponents dealt
+     * damage this way" = `DynamicAmounts.playersDealtDamageThisWay()`).
+     */
+    fun dealCombatDamageToOneOrMoreOpponents(): TriggerSpec {
+        noOther("dealCombatDamageToOneOrMoreOpponents")
+        return spec(
+            OneOrMoreDealCombatDamageToPlayerEvent(sourceFilter = filter, toOneOrMorePlayers = true, toOpponents = true)
+        )
+    }
+
+    /**
+     * "deal combat damage to you" — defensive; fires once per combat-damage batch.
+     *
+     * [perSourceController] fires once per player controlling matching creatures that hit you,
+     * binding that player as `Player.TriggeringPlayer` — "whenever one or more creatures an
+     * opponent controls deal combat damage to you, that opponent …" (Norn's Decree).
+     */
+    fun dealCombatDamageToYou(perSourceController: Boolean = false): TriggerSpec {
         noOther("dealCombatDamageToYou")
-        return spec(OneOrMoreDealCombatDamageToYouEvent(sourceFilter = filter))
+        return spec(OneOrMoreDealCombatDamageToYouEvent(sourceFilter = filter, perSourceController = perSourceController))
     }
 
     /**
@@ -730,8 +849,17 @@ class BatchTriggerSubject internal constructor(
         }
         return spec(
             if (fromLibrary) CardsPutIntoGraveyardFromLibraryEvent(filter = filter)
-            else CardsPutIntoYourGraveyardEvent(filter = filter, firstTimeEachTurn = firstTimeEachTurn)
+            else CardsPutIntoGraveyardEvent(filter = filter, firstTimeEachTurn = firstTimeEachTurn)
         )
+    }
+
+    /**
+     * "are put into graveyards from anywhere" — any player's graveyard, one trigger per batch
+     * (Dennick, Pious Apparition). [CardsPutIntoGraveyardEvent] with `player = Player.Any`.
+     */
+    fun putIntoGraveyards(): TriggerSpec {
+        noOther("putIntoGraveyards")
+        return spec(CardsPutIntoGraveyardEvent(filter = filter, player = Player.Any))
     }
 
     /**
@@ -763,10 +891,23 @@ class BatchTriggerSubject internal constructor(
  * `Player.TriggeringPlayer`.
  */
 class PlayerTriggerSubject internal constructor(private val player: Player) {
-    /** Each die is a separate trigger, optionally restricted to an inclusive result interval. */
-    fun rollsDie(minimumResult: Int? = null, maximumResult: Int? = null): TriggerSpec {
+    /**
+     * Each die is a separate trigger, optionally restricted to an inclusive result interval and/or
+     * to the face the die displays before modifiers — `naturalResult = 20` is "whenever you roll a
+     * natural 20" (Critical Hit).
+     */
+    fun rollsDie(minimumResult: Int? = null, maximumResult: Int? = null, naturalResult: Int? = null): TriggerSpec {
         only("rollsDie", Player.You, Player.EachOpponent, Player.Each, Player.Any)
-        return spec(EventPattern.DieRolledEvent(player, minimumResult, maximumResult))
+        return spec(EventPattern.DieRolledEvent(player, minimumResult, maximumResult, naturalResult = naturalResult))
+    }
+
+    /**
+     * "Whenever [player] roll(s) one or more dice" — one trigger per roll instruction, however many
+     * dice it rolled. Read the batch with `DynamicAmounts.triggerHighestDieResult()`.
+     */
+    fun rollsDice(): TriggerSpec {
+        only("rollsDice", Player.You, Player.EachOpponent, Player.Each, Player.Any)
+        return spec(EventPattern.DieRolledEvent(player, batch = true))
     }
 
     private fun spec(event: EventPattern, binding: TriggerBinding = TriggerBinding.ANY) =
@@ -839,29 +980,36 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
      * Moon-Reader), [excludeManaAbilities] the explicit exhaust "isn't a mana ability" one.
      * [of] scopes the ability's source permanent; [targeting] is "an ability that targets a creature
      * or player"; [loyalty] / [minLoyaltyRemoved] are loyalty abilities (CR 606.4, a −X counts X);
-     * [exhaust] is an exhaust ability (CR 702.177); [withoutTapInCost] is the Antiquities "without {T}
-     * in its activation cost" wording, which ignores the mana-ability split entirely.
+     * [onceOnlyKind] is "an exhaust / power-up / boast ability" (CR 702.177 / 702.193 / 702.142 —
+     * `OnceOnlyAbilityKind.BOAST` for Frenzied Raider's "whenever you activate a boast ability");
+     * [tapInCost] is "with / without {T} in its
+     * activation cost" — the Antiquities "without {T}" wording counts mana abilities too, so it pairs
+     * with [includeManaAbilities]. [keyword] is
+     * "a [keyword] ability" — `keyword = Keyword.NINJUTSU` for "whenever you activate a ninjutsu
+     * ability" (Satoru Umezawa).
      */
     fun activatesAbility(
         of: GameObjectFilter? = null,
         targeting: Recipient? = null,
         loyalty: Boolean = false,
         minLoyaltyRemoved: Int = 0,
-        exhaust: Boolean = false,
+        onceOnlyKind: OnceOnlyAbilityKind? = null,
         includeManaAbilities: Boolean = false,
         excludeManaAbilities: Boolean = false,
-        withoutTapInCost: Boolean = false,
+        tapInCost: TapSymbolInCost? = null,
+        keyword: com.wingedsheep.sdk.core.Keyword? = null,
     ): TriggerSpec = spec(
         AbilityActivatedEvent(
             player = player,
             targetMatch = targeting,
             sourceFilter = of,
-            requireNoTapInCost = withoutTapInCost,
-            requireExhaust = exhaust,
+            tapInCost = tapInCost,
+            onceOnlyKind = onceOnlyKind,
             excludeManaAbilities = excludeManaAbilities,
             includeManaAbilities = includeManaAbilities,
             requireLoyalty = loyalty || minLoyaltyRemoved > 0,
             minLoyaltyRemoved = minLoyaltyRemoved,
+            keyword = keyword,
         )
     )
 
@@ -869,7 +1017,16 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
      * "a creature you control attacking causes a triggered ability of that creature to trigger"
      * (Firebender Ascension) — the triggering ability is `EffectTarget.TriggeringEntity`.
      */
-    fun attackTriggersAbility(): TriggerSpec = spec(AbilityTriggeredEvent(player = player, requireAttackCause = true))
+    fun attackTriggersAbility(): TriggerSpec =
+        spec(AbilityTriggeredEvent(player = player, cause = AbilityTriggerCause.ATTACK))
+
+    /**
+     * "a permanent entering causes a triggered ability [player] controls to trigger" —
+     * [Triggers.anyPlayer] for Strict Proctor's unscoped form. The triggering ability is
+     * `EffectTarget.TriggeringEntity`.
+     */
+    fun permanentEnteringTriggersAbility(): TriggerSpec =
+        spec(AbilityTriggeredEvent(player = player, cause = AbilityTriggerCause.PERMANENT_ENTERING))
 
     // ---- Combat ------------------------------------------------------------------------------
 
@@ -877,24 +1034,36 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
      * "attacks [with one or more [with]]" — attackers are declared, once per combat.
      * [Triggers.you] is "whenever you attack"; [Triggers.anOpponent] is "whenever an opponent
      * attacks with …"; [Triggers.anyPlayer] is "whenever two or more creatures attack" (Argent
-     * Dais) — any declaration. A single creature attacking is [ObjectTriggerSubject.attacks].
+     * Dais) — any declaration; `Triggers.player(Player.EachOtherPlayer)` is "whenever another
+     * player attacks with …" (Firemane Commando). A single creature attacking is
+     * [ObjectTriggerSubject.attacks].
      */
     fun attacks(with: GameObjectFilter? = null, minAttackers: Int = 1): TriggerSpec {
-        only("attacks", Player.You, Player.EachOpponent, Player.Each)
+        only("attacks", Player.You, Player.EachOpponent, Player.EachOtherPlayer, Player.Each)
         return spec(YouAttackEvent(minAttackers = minAttackers, attackerFilter = with, player = player))
     }
 
     /**
-     * "attack **a player** [with one or more [with]]" — [Triggers.you] only (CR 508.3e). Fires once
-     * per player attacked by at least [minAttackers] matching creatures, binding that player as
-     * `Player.TriggeringPlayer` ("that player"); attackers aimed at a planeswalker or battle don't
-     * count. "Whenever you attack a player" (Echoing Assault), "whenever one or more Halflings you
-     * control attack a player" (Meriadoc Brandybuck).
+     * "attack **a player** [with one or more [with]]" — [Triggers.you] or [Triggers.anyPlayer]
+     * (CR 508.3e). Fires once per player attacked by at least [minAttackers] matching creatures,
+     * binding that player as `Player.TriggeringPlayer` ("that player"); attackers aimed at a
+     * planeswalker or battle don't count. [attacked] scopes which attacked players count, relative
+     * to the trigger's controller. "Whenever you attack a player" (Echoing Assault), "whenever one
+     * or more Halflings you control attack a player" (Meriadoc Brandybuck); "whenever a player
+     * attacks one of your opponents" is `Triggers.anyPlayer.attacksAPlayer(attacked =
+     * Player.EachOpponent)`, its attacking player `Player.ActivePlayer` (Breena, the Demagogue).
      */
-    fun attacksAPlayer(with: GameObjectFilter? = null, minAttackers: Int = 1): TriggerSpec {
-        only("attacksAPlayer", Player.You)
+    fun attacksAPlayer(
+        with: GameObjectFilter? = null,
+        minAttackers: Int = 1,
+        attacked: Player = Player.Each
+    ): TriggerSpec {
+        only("attacksAPlayer", Player.You, Player.Each)
+        require(attacked in setOf(Player.Each, Player.EachOpponent, Player.EachOtherPlayer)) {
+            "Triggers.<player>.attacksAPlayer(attacked) supports Each, EachOpponent, EachOtherPlayer, not $attacked"
+        }
         return spec(
-            YouAttackEvent(minAttackers = minAttackers, attackerFilter = with, player = player, perAttackedPlayer = true)
+            YouAttackEvent(minAttackers = minAttackers, attackerFilter = with, player = player, attackedPlayer = attacked)
         )
     }
 
@@ -904,6 +1073,8 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
      * your opponents are attacked" ([Triggers.anOpponent]). Once per combat. [unblocked] is
      * "whenever one or more creatures attack you and aren't blocked" ([Triggers.you]; Coveted
      * Jewel) — it fires after blockers instead, and binds the attacking player as "that player".
+     * `Triggers.player(Player.EnchantedPlayer).isAttacked()` is "whenever enchanted player is
+     * attacked" on a Curse (Curse of Opulence); the attacking player is the triggering player.
      */
     fun isAttacked(minAttackers: Int = 1, includePlaneswalkers: Boolean = false, unblocked: Boolean = false): TriggerSpec = when (player) {
         Player.You -> spec(
@@ -918,7 +1089,12 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
             require(!unblocked) { "unblocked is only supported for Triggers.you" }
             spec(CreaturesAttackYourOpponentEvent(minAttackers = minAttackers))
         }
-        else -> throw IllegalArgumentException("Triggers.<player>.isAttacked() supports you and anOpponent, not $player")
+        Player.EnchantedPlayer -> {
+            require(!includePlaneswalkers) { "includePlaneswalkers is only supported for Triggers.you" }
+            require(!unblocked) { "unblocked is only supported for Triggers.you" }
+            spec(CreaturesAttackYouEvent(minAttackers = minAttackers, attackedPlayer = Player.EnchantedPlayer))
+        }
+        else -> throw IllegalArgumentException("Triggers.<player>.isAttacked() supports you, anOpponent and player(EnchantedPlayer), not $player")
     }
 
     /**
@@ -944,11 +1120,11 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
     // ---- Cards and lands ---------------------------------------------------------------------
 
     /**
-     * "draws a card" — once per card (CR 121.2). [exceptFirstInDrawStep] skips the turn-based draw
-     * (CR 504.1, Orcish Bowmasters).
+     * "draws a card" — once per card (CR 121.2). [firstInDrawStep] skips (Orcish Bowmasters) or
+     * keeps only (Wiretapping) the first card drawn in each of the drawer's own draw steps (CR 504.1).
      */
-    fun draws(exceptFirstInDrawStep: Boolean = false): TriggerSpec =
-        spec(DrawEvent(player, exceptFirstInDrawStep = exceptFirstInDrawStep))
+    fun draws(firstInDrawStep: DrawStepFirstCard = DrawStepFirstCard.INCLUDED): TriggerSpec =
+        spec(DrawEvent(player, firstInDrawStep = firstInDrawStep))
 
     /** "draws their [n]th card each turn" — once, even when one multi-card draw crosses it (CR 121.5: no "draw", no count). */
     fun drawsNth(n: Int): TriggerSpec = spec(NthCardDrawnEvent(nthCard = n, player = player))
@@ -984,13 +1160,17 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
     fun cycles(): TriggerSpec = spec(CycleEvent(player))
 
     /**
-     * "plays a land [from a zone other than [fromZoneOtherThan]]" (CR 305.1) — the land-play action,
+     * "plays a land [from anywhere other than [fromZoneOtherThan]]" (CR 305.1) — the land-play action,
      * not a land an effect puts onto the battlefield.
      */
     fun playsLand(fromZoneOtherThan: Zone? = null, fromZone: Zone? = null): TriggerSpec {
         require(fromZoneOtherThan == null || fromZone == null) { "Choose one land-origin restriction" }
         return spec(LandPlayedEvent(fromZone = fromZone, fromZoneOtherThan = fromZoneOtherThan, player = player))
     }
+
+    /** "plays a land from [zone]" — e.g. `playsLandFrom(Zone.EXILE)` for "plays a land from exile". */
+    fun playsLandFrom(zone: Zone): TriggerSpec =
+        spec(LandPlayedEvent(fromZone = zone, player = player))
 
     /** "is turned face up" for "a [filter] you control" — matched on its face-up characteristics (Perimeter Enforcer). */
     fun permanentTurnedFaceUp(filter: GameObjectFilter = GameObjectFilter.Any): TriggerSpec =
@@ -1022,8 +1202,14 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
     fun gainsLife(firstTimeEachTurn: Boolean = false): TriggerSpec =
         spec(LifeGainEvent(player, firstTimeEachTurn = firstTimeEachTurn))
 
-    /** "loses life" — the amount is `TRIGGER_LIFE_LOST`. */
-    fun losesLife(): TriggerSpec = spec(LifeLossEvent(player))
+    /**
+     * "loses life" — once per life-loss event; the amount is `TRIGGER_LIFE_LOST`. [batch] is "one or
+     * more [players] lose life", once per simultaneous batch; [exactly] is "one or more [players]
+     * each lose exactly N life" (Ob Nixilis, Captive Kingpin), summed per player over the batch and
+     * always batched. See [LifeLossEvent].
+     */
+    fun losesLife(batch: Boolean = false, exactly: Int? = null): TriggerSpec =
+        spec(LifeLossEvent(player, batch = batch || exactly != null, exactAmount = exactly))
 
     /** "loses the game" (CR 104.3). */
     fun losesGame(): TriggerSpec = spec(PlayerLostGameEvent(player))
@@ -1037,9 +1223,12 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
     fun sacrifices(filter: GameObjectFilter = GameObjectFilter.Any, batch: Boolean = false): TriggerSpec =
         spec(PermanentsSacrificedEvent(filter = filter, sacrificedBy = player, perPermanent = !batch))
 
-    /** "sacrifices another [filter]" — once per permanent; the source sacrificing itself doesn't count. */
-    fun sacrificesAnother(filter: GameObjectFilter = GameObjectFilter.Any): TriggerSpec =
-        spec(PermanentsSacrificedEvent(filter = filter, sacrificedBy = player, perPermanent = true), TriggerBinding.OTHER)
+    /**
+     * "sacrifices another [filter]" — once per permanent; the source sacrificing itself doesn't count.
+     * [batch] is "sacrifices one or more other [filter]", once per batch (Forge Boss).
+     */
+    fun sacrificesAnother(filter: GameObjectFilter = GameObjectFilter.Any, batch: Boolean = false): TriggerSpec =
+        spec(PermanentsSacrificedEvent(filter = filter, sacrificedBy = player, perPermanent = !batch), TriggerBinding.OTHER)
 
     /**
      * "taps an untapped [filter]" — a tap the player *caused* (an effect instructed them to tap),
@@ -1091,6 +1280,9 @@ class PlayerTriggerSubject internal constructor(private val player: Player) {
 
     /** "forages" (CR 701.59a) — never for a declined forage. */
     fun forages(): TriggerSpec = spec(ForagedEvent(player))
+
+    /** "foretells a card" (CR 702.143a) — the special action, not casting a foretold card. */
+    fun foretells(): TriggerSpec = spec(ForetoldEvent(player))
 
     /**
      * "investigates [for the first time each turn]" (CR 701.16a) — once per investigate, never for

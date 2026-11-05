@@ -899,6 +899,101 @@
     ]
 }
 
+// Devious Cover-Up
+{
+    "name": "Devious Cover-Up",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target spell. If that spell is countered this way, exile it instead of putting it into its owner's graveyard. You may shuffle up to four target cards from your graveyard into your library.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Counter",
+                    "counterDestination": "CounterDestination.Exile"
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1[0]"
+                    },
+                    "destination": "Library"
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1[1]"
+                    },
+                    "destination": "Library"
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1[2]"
+                    },
+                    "destination": "Library"
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1[3]"
+                    },
+                    "destination": "Library"
+                },
+                "ShuffleLibrary"
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetObject",
+                "count": 4,
+                "optional": true,
+                "filter": {
+                    "baseFilter": "own:you",
+                    "zone": "Graveyard"
+                },
+                "id": "t1"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "artist": "Micah Epstein",
+        "flavorText": "First, dispose of the evidence. Then dispose of your knowledge of its disposal.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/1/21ac6b0a-b1a5-439d-b65e-5f04e1826c80.jpg?1783934190",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "Devious Cover-Up can't target itself at all. You can't try to counter it with itself and shuffle cards in, and you can't use its effect to shuffle itself into your library."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "You may target zero cards in your graveyard and still shuffle your library."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "A spell that can't be countered is a legal target for Devious Cover-Up. The spell won't be countered when Devious Cover-Up resolves, but you'll still shuffle cards into your library."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Devkarin Dissident
 {
     "name": "Devkarin Dissident",
@@ -1045,6 +1140,67 @@
     "colorIdentityOverride": [
         "BLACK",
         "BLUE"
+    ]
+}
+
+// Divine Visitation
+{
+    "name": "Divine Visitation",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "If one or more creature tokens would be created under your control, that many 4/4 white Angel creature tokens with flying and vigilance are created instead.",
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "ReplaceTokenCreationWithToken",
+                "tokens": [
+                    {
+                        "type": "CreateToken",
+                        "power": 4,
+                        "toughness": 4,
+                        "colors": [
+                            "WHITE"
+                        ],
+                        "creatureTypes": [
+                            "Angel"
+                        ],
+                        "keywords": [
+                            "FLYING",
+                            "VIGILANCE"
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/a/c/acb271a8-68bb-45e6-9f99-568479e92ea0.jpg?1783934064"
+                    }
+                ],
+                "appliesTo": {
+                    "type": "TokenCreationEvent",
+                    "tokenFilter": "creature"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "10",
+        "rarity": "MYTHIC",
+        "artist": "Victor Adame Minguez",
+        "flavorText": "The angels appreciated the offer but politely declined to eat any birdseed.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/a/da3789d4-3621-44a1-bb72-8e3bbac8bf72.jpg?1783934201",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "The token's characteristics are entirely replaced by a 4/4 white Angel creature token with flying and vigilance. It doesn't have any abilities the token would have been created with. Anything else specified in the effect creating the token (such as tapped, attacking, \"That token gains haste,\" or \"Exile that token at end of combat\") still applies."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "If you create a noncreature token that will be a creature as it enters the battlefield, perhaps because of an effect such as that of March of the Machines, Divine Visitation's effect doesn't apply to that token's creation."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "If an effect changes under whose control a token would be created, that effect applies before Divine Visitation's effect applies. If an effect changes under whose control a token would enter the battlefield, that effect applies after Divine Visitation's effect is able to be applied."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -1320,6 +1476,137 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Find // Finality
+{
+    "name": "Find // Finality",
+    "manaCost": "",
+    "typeLine": "Sorcery",
+    "oracleText": "Return up to two target creature cards from your graveyard to your hand.\n//\nYou may put two +1/+1 counters on a creature you control. Then all creatures get -4/-4 until end of turn.",
+    "metadata": {
+        "collectorNumber": "225",
+        "rarity": "RARE",
+        "artist": "Tomasz Jedruszek",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/e/1e4e9e35-6cbc-4997-beff-d1a22d87545e.jpg?1783934112",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "Finality doesn't target the creature to receive +1/+1 counters. You can cast it even if you control no creatures."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "Finality affects only creatures on the battlefield at the time it resolves. Creatures that enter the battlefield later in the turn won't get -4/-4."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ],
+    "layout": "SPLIT",
+    "cardFaces": [
+        {
+            "name": "Find",
+            "manaCost": "{B/G}{B/G}",
+            "typeLine": "Sorcery",
+            "oracleText": "Return up to two target creature cards from your graveyard to your hand.",
+            "script": {
+                "spellEffect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "destination": "Hand"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "count": 2,
+                        "optional": true,
+                        "filter": {
+                            "baseFilter": "creature own:you",
+                            "zone": "Graveyard"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Finality",
+            "manaCost": "{4}{B}{G}",
+            "typeLine": "Sorcery",
+            "oracleText": "You may put two +1/+1 counters on a creature you control. Then all creatures get -4/-4 until end of turn.",
+            "script": {
+                "spellEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.MayDecide",
+                                "prompt": "Put two +1/+1 counters on a creature you control?"
+                            },
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "SelectTarget",
+                                        "requirement": {
+                                            "type": "TargetObject",
+                                            "filter": {
+                                                "baseFilter": "creature ctrl:you"
+                                            }
+                                        },
+                                        "storeAs": "target0",
+                                        "nonTargeting": true,
+                                        "prompt": "Choose a creature you control to get two +1/+1 counters"
+                                    },
+                                    {
+                                        "type": "AddCounters",
+                                        "counterType": "PLUS_ONE_PLUS_ONE",
+                                        "count": 2,
+                                        "target": {
+                                            "type": "PipelineTarget",
+                                            "collectionName": "target0"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Group",
+                                "filter": {
+                                    "baseFilter": "creature"
+                                }
+                            },
+                            "body": {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Fixed",
+                                    "amount": -4
+                                },
+                                "toughnessModifier": {
+                                    "type": "Fixed",
+                                    "amount": -4
+                                },
+                                "target": "IterationEntity"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "hasNoManaCost": true
 }
 
 // Fire Urchin
@@ -2602,6 +2889,120 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Legion Warboss
+{
+    "name": "Legion Warboss",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Goblin Soldier",
+    "oracleText": "Mentor (Whenever this creature attacks, put a +1/+1 counter on target attacking creature with lesser power.)\nAt the beginning of combat on your turn, create a 1/1 red Goblin creature token. That token gains haste until end of turn and attacks this combat if able.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "MENTOR"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Legion Warboss:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": {
+                        "type": "ContextTarget",
+                        "index": 0
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "PowerLessThanEntity",
+                                    "reference": "Self"
+                                }
+                            ],
+                            "statePredicates": [
+                                "IsAttacking"
+                            ]
+                        }
+                    }
+                },
+                "descriptionOverride": "Mentor (Whenever this creature attacks, put a +1/+1 counter on target attacking creature with lesser power.)"
+            },
+            {
+                "id": "Legion Warboss:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "BEGIN_COMBAT"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 1,
+                            "toughness": 1,
+                            "colors": [
+                                "RED"
+                            ],
+                            "creatureTypes": [
+                                "Goblin"
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/b/2/b27dc0bd-ba46-4a5c-9559-7c11eb4ec37b.jpg?1783934062"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "PipelineTarget",
+                                "collectionName": "createdTokens"
+                            }
+                        },
+                        {
+                            "type": "MarkMustAttack",
+                            "target": {
+                                "type": "PipelineTarget",
+                                "collectionName": "createdTokens"
+                            },
+                            "window": "ControllersNextCombat"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "rarity": "RARE",
+        "artist": "Alex Konstad",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/e/5e84cb9c-9876-47a4-aea4-78574321bc36.jpg?1783934160",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "If the token can't attack for any reason (such as becoming tapped), then it doesn't attack. If there's a cost associated with having it attack, its controller isn't forced to pay that cost, so it doesn't have to attack in that case either."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "Mentor compares the power of the creature with mentor with that of the target creature at two different times: once as the triggered ability is put onto the stack, and once as the triggered ability resolves. If you wish to raise a creature's power so its mentor ability can target a bigger creature, the last chance you have to do so is during the beginning of combat step."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "If the creature with mentor leaves the battlefield with mentor on the stack, use its power as that creature last existed on the battlefield to determine whether the target creature has less power."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -4594,6 +4995,126 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Underrealm Lich
+{
+    "name": "Underrealm Lich",
+    "manaCost": "{3}{B}{G}",
+    "typeLine": "Creature — Zombie Elf Shaman",
+    "oracleText": "If you would draw a card, instead look at the top three cards of your library, then put one into your hand and the rest into your graveyard.\nPay 4 life: This creature gains indestructible until end of turn. Tap it.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Underrealm Lich:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomPayLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "INDESTRUCTIBLE",
+                            "target": "Self"
+                        },
+                        {
+                            "type": "TapUntap",
+                            "target": "Self"
+                        }
+                    ]
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "ReplaceDrawWith",
+                "replacementEffect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "looked",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "kept",
+                            "storeRemainder": "rest",
+                            "selectedLabel": "Put in hand",
+                            "remainderLabel": "Put in graveyard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "kept",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "rest",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "211",
+        "rarity": "MYTHIC",
+        "artist": "Anna Steinbauer",
+        "flavorText": "\"You've strayed, overworlder.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/0782e090-209c-428f-966a-17f3ceab2903.jpg?1783934118",
+        "rulings": [
+            {
+                "date": "2018-10-05",
+                "text": "If an effect instructs you to draw multiple cards, each draw is performed—and replaced by Underrealm Lich's ability—one at a time. This means that if you're drawing two cards, you'll look at the top three cards of your library, put one into your hand, put the other two into your graveyard, and then repeat the process with the next three cards in your library."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "Underrealm Lich's first ability applies even if you have fewer than three cards in your library. If you have no cards in your library, you can't lose the game for trying to draw a card from an empty library."
+            },
+            {
+                "date": "2018-10-05",
+                "text": "You can activate Underrealm Lich's last ability even if it's already tapped. It can't be tapped again, but it still gains indestructible."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
     ]
 }
 

@@ -4,6 +4,7 @@ import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.PlayerYields
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.player.HotseatControlComponent
@@ -252,11 +253,38 @@ class ClientStateTransformer(
             voidActive = state.nonlandPermanentLeftBattlefieldThisTurn || state.spellWarpedThisTurn,
             dayNight = state.dayNight,
             attackMode = state.attackMode.takeIf { it != com.wingedsheep.sdk.core.AttackMode.MULTIPLE },
+            playingForAnte = state.playingForAnte,
             youAreHijacking = youAreHijacking,
             youAreHijackedBy = youAreHijackedBy,
             hotseat = hotseat,
             activeYields = activeYields,
-            deck = deck
+            deck = deck,
+            subgame = projectSubgame(state),
+        )
+    }
+
+    /** The games waiting on [state] when it is a subgame (CR 729), outermost first. */
+    private fun projectSubgame(state: GameState): ClientSubgame? {
+        if (state.mainGame == null) return null
+        val waiting = generateSequence(state.mainGame) { it.mainGame }.toList().asReversed()
+        return ClientSubgame(
+            depth = waiting.size,
+            waitingGames = waiting.map { game ->
+                val source = game.pendingSubgame?.followUp?.context?.sourceId
+                    ?.let { game.getEntity(it)?.get<CardComponent>() }
+                ClientWaitingGame(
+                    sourceName = game.pendingSubgame?.sourceName,
+                    sourceImageUri = source?.imageUri,
+                    sourceOracleText = source?.oracleText,
+                    players = game.turnOrder.map { playerId ->
+                        ClientWaitingPlayer(
+                            playerId = playerId,
+                            life = game.lifeTotal(playerId),
+                            hasLost = game.getEntity(playerId)?.has<com.wingedsheep.engine.state.components.player.PlayerLostComponent>() == true,
+                        )
+                    },
+                )
+            },
         )
     }
 

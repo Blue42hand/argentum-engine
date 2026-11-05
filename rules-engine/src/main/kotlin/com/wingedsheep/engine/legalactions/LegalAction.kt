@@ -66,7 +66,7 @@ data class LegalAction(
     val xConstrainsTargetPower: Boolean = false,
     /**
      * True when the (single) target requirement's max-count is dynamically driven by the
-     * chosen X (i.e. [TargetObject.dynamicMaxCount] is [DynamicAmount.XValue]).
+     * chosen X (i.e. [TargetRequirement.dynamicMaxCount] is [DynamicAmount.XValue]).
      *
      * At enumeration time X is unbound, so [targetCount] is a placeholder (the static
      * `count` field, typically 1 or 20 from the legacy workaround). After the player
@@ -77,7 +77,7 @@ data class LegalAction(
     val xConstrainsTargetCount: Boolean = false,
     /**
      * True when that X-driven count is also the *minimum* — "X target creatures", exactly X
-     * (`TargetObject.dynamicMinCount == DynamicAmount.XValue`), as opposed to "up to X target
+     * (`TargetRequirement.dynamicMinCount == DynamicAmount.XValue`), as opposed to "up to X target
      * creatures". Set only alongside [xConstrainsTargetCount]. Once the player picks X the client
      * requires exactly X selections, not merely at most X; and [maxAffordableX] is already capped
      * at the number of legal targets, so no X the client offers leaves the spell short of targets
@@ -88,6 +88,11 @@ data class LegalAction(
     // Combat
     override val validAttackers: List<EntityId>? = null,
     val mandatoryAttackers: List<EntityId>? = null,
+    /**
+     * The [validAttackers] that can only attack alone (CR 506.5 — Master of Cruelties): a
+     * declaration with one of them and any other attacker is rejected. Null when there are none.
+     */
+    val loneAttackers: List<EntityId>? = null,
     val validAttackTargets: List<EntityId>? = null,
     /**
      * Per-attacker narrowing of [validAttackTargets] (CR 508.1b–c): each attacker chooses its own
@@ -113,17 +118,23 @@ data class LegalAction(
     /** Mana added by each repeat, for pricing a chosen count in the client. */
     val optionalManaCostString: String? = null,
     /**
-     * The mana this spell adds to its own cost for each target beyond the first — "This spell
-     * costs {W}{U} more to cast for each target beyond the first" (Officious Interrogation) sends
-     * `"{W}{U}"`. Null for every spell that does not tax itself per target.
+     * What this spell costs for each number of different targets it can be cast with — keyed by
+     * that count, present only when a cost modifier is priced per target: "This spell costs {W}{U}
+     * more to cast for each target beyond the first" (Officious Interrogation), "Spells you cast
+     * cost {1} less to cast for each target" (Hinata, Dawn-Crowned). Null for every other spell.
      *
-     * When set, [manaCostString] is the *one-target minimum*, not the final price: the real cost
-     * is settled by targeting. The client must therefore run its targeting phase **before** any
-     * manual mana-source phase (the same way an X cost forces `xSelection` first) and scale the
-     * cost it charges there by the number of targets picked. Under auto-tap none of this shows —
-     * the server prices the submitted targets itself and solves.
+     * When set, [manaCostString] is only the cheapest reachable count, not the final price: the
+     * real cost is settled by targeting. The client must therefore run its targeting phase
+     * **before** any manual mana-source phase (the same way an X cost forces `xSelection` first)
+     * and charge the entry for the number of different targets picked. Under auto-tap none of
+     * this shows — the server prices the submitted targets itself and solves.
      */
-    val manaCostPerExtraTarget: String? = null,
+    val manaCostByTargetCount: Map<Int, String>? = null,
+    /**
+     * The caster announces an X for this action. Usually that X is generic mana in the cost, but it
+     * can be announced without being paid as mana (casualty X), so mana-side consumers must check
+     * [manaCostString] for `{X}` rather than reading this flag as "X is mana".
+     */
     val hasXCost: Boolean = false,
     val maxAffordableX: Int? = null,
     val minX: Int = 0,
@@ -207,9 +218,23 @@ data class LegalAction(
     // Damage distribution
     val requiresDamageDistribution: Boolean = false,
     val totalDamageToDistribute: Int? = null,
+    /**
+     * The division's total for each X the caster may announce, keyed by X — present only when the
+     * total reads a mana-paid `{X}` (Shatterskull Smashing: "X damage divided … If X is 6 or more,
+     * … twice X damage divided … instead"). X is announced before targets and the division
+     * (CR 601.2b, 601.2d), so the client looks the total up for the X it chose; the prices are the
+     * server's. When set, [totalDamageToDistribute] is the X-less reading and is not used.
+     */
+    val totalDamageByX: Map<Int, Int>? = null,
     val minDamagePerTarget: Int? = null,
     /** What the division divides when it isn't damage — "+1/+1 counter" for a counter division. Null means damage. */
     val distributionUnit: String? = null,
+    /**
+     * Which target requirement (index into the spell's requirements) the division is among, when it
+     * is scoped to one (Magma Opus divides its damage among its "any number of targets", not the two
+     * permanents it taps). Null means among every chosen target.
+     */
+    val distributionTargetGroup: Int? = null,
 
     // Source zone
     val sourceZone: String? = null,
@@ -248,7 +273,10 @@ data class LegalAction(
     val modalEnumeration: ModalLegalEnumeration? = null,
 
     // When true, prevents auto-pass whenever this action is available
-    override val holdPriority: Boolean = false
+    override val holdPriority: Boolean = false,
+
+    // Why this action would currently do nothing (see [PriorityAction.inertReason])
+    override val inertReason: String? = null
 ) : PriorityAction {
     /** [PriorityAction]'s name for [affordable]. The DTO calls the same thing `isAffordable`. */
     override val isAffordableAction: Boolean get() = affordable
@@ -357,12 +385,12 @@ data class TargetInfo(
     val xConstrainsPower: Boolean = false,
     /**
      * True when this requirement's max-count is dynamically driven by the chosen X
-     * (`TargetObject.dynamicMaxCount == DynamicAmount.XValue`). The client should
+     * (`TargetRequirement.dynamicMaxCount == DynamicAmount.XValue`). The client should
      * clamp selectable targets to the chosen X after X selection.
      */
     val xConstrainsCount: Boolean = false,
     /**
-     * True when the X-driven count is exact — "X target creatures" (`TargetObject.dynamicMinCount`
+     * True when the X-driven count is exact — "X target creatures" (`TargetRequirement.dynamicMinCount`
      * is also [DynamicAmount.XValue]). Set only alongside [xConstrainsCount]: the client requires
      * exactly the chosen X selections for this requirement.
      */
@@ -373,7 +401,20 @@ data class TargetInfo(
      * by different players"). Lets a chooser that fills the slot itself (the AI) spread its picks.
      */
     val differentControllers: Boolean = false,
-)
+    /**
+     * "Up to one target … of each card type / color": each valid target mapped to the categories
+     * it may claim; the picks must each claim a different one
+     * ([com.wingedsheep.engine.mechanics.targeting.OnePerCategoryTargets]).
+     */
+    val distinctCategories: Map<EntityId, List<String>>? = null,
+) {
+    /**
+     * How many of [candidates] can be chosen together: one per [exclusiveGroups] pool that still
+     * holds a candidate ("… with different mana values", one per owner), else every candidate.
+     */
+    fun distinctPickCount(candidates: List<EntityId> = validTargets): Int =
+        exclusiveGroups?.count { group -> group.any { it in candidates } } ?: candidates.size
+}
 
 /**
  * The per-requirement list a [LegalAction] carries in `targetRequirements`. A single requirement
@@ -382,7 +423,8 @@ data class TargetInfo(
  * ([TargetInfo.differentControllers]) the flattened fields can't express.
  */
 fun List<TargetInfo>.surfacedRequirements(): List<TargetInfo>? =
-    takeIf { size > 1 || any { it.differentControllers || it.selectionGroups != null || it.exclusiveGroups != null } }
+    takeIf { size > 1 || any { it.differentControllers || it.selectionGroups != null || it.exclusiveGroups != null ||
+        it.distinctCategories != null } }
 
 /**
  * Information about a creature that can be tapped for Convoke.
@@ -457,6 +499,20 @@ data class AdditionalCostData(
     val costType: String,
     val validSacrificeTargets: List<EntityId> = emptyList(),
     val sacrificeCount: Int = 1,
+    /**
+     * Casualty X (CR 702.153a): the sacrifice must have power at least the X announced with the
+     * cast, so once X is chosen the picker offers only [validSacrificeTargets] whose power is X or
+     * greater (the server re-validates).
+     */
+    val sacrificeMinPowerIsX: Boolean = false,
+    /**
+     * "Sacrifice X creatures" (Eliminate the Competition, `CostAtom.VariablePermanents.exactly`):
+     * the `SacrificeVariable` picker must take exactly the X announced with the cast — not
+     * [sacrificeCount]-or-more. The action carries `hasXCost` with `maxAffordableX` capped at the
+     * candidates (and at the legal targets of an "X target …" requirement); the client asks X
+     * first, then requires exactly that many picks, and skips the picker at X = 0.
+     */
+    val sacrificeCountIsX: Boolean = false,
     /**
      * The spell's remaining mana cost after sacrificing each candidate in [validSacrificeTargets],
      * keyed by that candidate — emerge (CR 702.119), where the emerge cost is reduced by generic
@@ -536,7 +592,7 @@ data class AdditionalCostData(
      * whatever the caster actually chooses. And **the picker runs after targeting** — a cost
      * determined at CR 601.2f cannot be paid before the targets are announced at 601.2c, so the
      * client moves its cost-payment step behind the targeting step for exactly these costs, the
-     * way `manaCostPerExtraTarget` already defers mana-source selection.
+     * way `manaCostByTargetCount` already defers mana-source selection.
      *
      * A map rather than a boolean because the client must be able to *price* a selection, not just
      * know that it is deferred, and shipping the weights keeps the one sum-gated picker: the same

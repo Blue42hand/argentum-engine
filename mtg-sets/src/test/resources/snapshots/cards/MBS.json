@@ -144,6 +144,48 @@
     }
 }
 
+// Creeping Corrosion
+{
+    "name": "Creeping Corrosion",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy all artifacts.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "BattlefieldMatching",
+                        "filter": "artifact"
+                    },
+                    "storeAs": "destroyAll_gathered"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "destroyAll_gathered",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Destroy"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "78",
+        "rarity": "RARE",
+        "artist": "Ryan Pancoast",
+        "flavorText": "\"We will reveal the futility of their heresy by showing them how fragile their relics are.\"\n—Vorinclex, Voice of Hunger",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/5/05d5a7b3-18b6-4b1d-85cc-2253e605390c.jpg?1783941377"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Go for the Throat
 {
     "name": "Go for the Throat",
@@ -227,7 +269,7 @@
                         }
                     },
                     "storeSelected": "found",
-                    "prompt": "Search your library for a creature green card with mana value at most X to put onto the battlefield",
+                    "prompt": "Search your library for a green creature card with mana value at most X to put onto the battlefield",
                     "selectedLabel": "Put onto the battlefield"
                 },
                 {
@@ -274,6 +316,95 @@
     ]
 }
 
+// Hero of Bladehold
+{
+    "name": "Hero of Bladehold",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "Battle cry (Whenever this creature attacks, each other attacking creature gets +1/+0 until end of turn.)\nWhenever this creature attacks, create two 1/1 white Soldier creature tokens that are tapped and attacking.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hero of Bladehold:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature attacking",
+                            "excludeSelf": true
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 0
+                        },
+                        "target": "IterationEntity"
+                    }
+                },
+                "descriptionOverride": "Battle cry (Whenever this creature attacks, each other attacking creature gets +1/+0 until end of turn.)"
+            },
+            {
+                "id": "Hero of Bladehold:2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Soldier"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/7/a/7a563df7-7b9d-4692-ab1b-578be1887b62.jpg?1783941682",
+                    "tapped": true,
+                    "attacking": true,
+                    "attackDefender": "CONTROLLER_CHOOSES"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "rarity": "MYTHIC",
+        "artist": "Austin Hsu",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/a/8a3853ec-e307-46e0-96d7-0706b5c45c5e.jpg?1783941393",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "Whenever Hero of Bladehold attacks, both abilities will trigger. You can put them onto the stack in any order. If the token-creating ability resolves first, the tokens each get +1/+0 until end of turn from the battle cry ability."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "You choose which opponent or planeswalker an opponent controls that each token is attacking when it is put onto the battlefield."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "Although the tokens are attacking, they never were declared as attacking creatures (for purposes of abilities that trigger whenever a creature attacks, for example)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Hexplate Golem
 {
     "name": "Hexplate Golem",
@@ -288,6 +419,62 @@
         "artist": "Matt Cavotta",
         "flavorText": "\"Use everything. Iron, rust, scrap . . . even the ground must join our cause.\"\n—Ezuri, renegade leader",
         "imageUri": "https://cards.scryfall.io/normal/front/4/9/49b913f3-6581-45ae-9cdb-274c2ccd8899.jpg?1783941369"
+    },
+    "colorIdentityOverride": []
+}
+
+// Ichor Wellspring
+{
+    "name": "Ichor Wellspring",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters or is put into a graveyard from the battlefield, draw a card.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ichor Wellspring:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "When this artifact enters, draw a card."
+            },
+            {
+                "id": "Ichor Wellspring:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "When this artifact is put into a graveyard from the battlefield, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "artist": "Steven Belledin",
+        "flavorText": "\"Our glorious infection has taken hold.\"\n—Elesh Norn, Grand Cenobite",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/d/2d1ea522-a0f6-45a8-8985-6fcca95d60cc.jpg?1783941368",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "The ability will trigger when Ichor Wellspring is put into a graveyard from the battlefield, even if the ability that triggered when it entered hasn't resolved yet."
+            }
+        ]
     },
     "colorIdentityOverride": []
 }
@@ -838,6 +1025,41 @@
         ]
     },
     "colorIdentityOverride": []
+}
+
+// Vivisection
+{
+    "name": "Vivisection",
+    "manaCost": "{3}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, sacrifice a creature.\nDraw three cards.",
+    "script": {
+        "spellEffect": {
+            "type": "DrawCards",
+            "count": {
+                "type": "Fixed",
+                "amount": 3
+            }
+        },
+        "additionalCosts": [
+            {
+                "type": "AdditionalAtom",
+                "atom": {
+                    "type": "AtomSacrifice",
+                    "filter": "creature"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "artist": "Anthony Francisco",
+        "flavorText": "Phyrexians research with the grace of surgeons and the finesse of butchers.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/684a3631-f2d6-4a64-a04a-893f452e3a60.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // White Sun's Zenith

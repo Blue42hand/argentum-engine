@@ -188,7 +188,9 @@
         "replacementEffects": [
             {
                 "type": "EntersAsCopy",
-                "additionalCounters": "XValue"
+                "entersWithCounters": {
+                    "count": "XValue"
+                }
             }
         ],
         "cantBeCountered": true
@@ -1303,10 +1305,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "land Island|Swamp",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]
@@ -1390,7 +1389,7 @@
             {
                 "id": "Crawling Sensation:2",
                 "trigger": {
-                    "type": "CardsPutIntoYourGraveyardEvent",
+                    "type": "CardsPutIntoGraveyardEvent",
                     "filter": "land",
                     "firstTimeEachTurn": true
                 },
@@ -1690,6 +1689,79 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Diregraf Colossus
+{
+    "name": "Diregraf Colossus",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Zombie Giant",
+    "oracleText": "This creature enters with a +1/+1 counter on it for each Zombie card in your graveyard.\nWhenever you cast a Zombie spell, create a tapped 2/2 black Zombie creature token.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Diregraf Colossus:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Zombie"
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Zombie"
+                    ],
+                    "tapped": true
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithDynamicCounters",
+                "count": {
+                    "type": "Count",
+                    "player": "You",
+                    "zone": "Graveyard",
+                    "filter": "Zombie"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "107",
+        "rarity": "RARE",
+        "artist": "Vincent Proce",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/9039e8f6-5513-4307-a1b5-07209dc8e1c8.jpg?1783937777",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "If Diregraf Colossus enters the battlefield from your graveyard, its first ability will count itself among the Zombie cards in your graveyard. Similarly, if it enters the battlefield at the same time as another Zombie card enters the battlefield from your graveyard, the ability will count that other Zombie."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "Diregraf Colossus's last ability won't trigger when you cast it because it's not on the battlefield yet."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -2435,6 +2507,96 @@
     ]
 }
 
+// Fevered Visions
+{
+    "name": "Fevered Visions",
+    "manaCost": "{1}{U}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of each player's end step, that player draws a card. If the player is your opponent and has four or more cards in hand, this enchantment deals 2 damage to that player.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Fevered Visions:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "TriggeringPlayer"
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "All",
+                                    "conditions": [
+                                        "IsOpponentsTurn",
+                                        {
+                                            "type": "Compare",
+                                            "left": {
+                                                "type": "Count",
+                                                "player": "TriggeringPlayer",
+                                                "zone": "Hand"
+                                            },
+                                            "operator": "GTE",
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 4
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                },
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "TriggeringPlayer"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "244",
+        "rarity": "RARE",
+        "artist": "Steven Belledin",
+        "flavorText": "The mind can only expand so far before it flies apart.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/e/3ee3fc2b-c2e4-421d-ac1d-6a111bb44f44.jpg?1783937715",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "No player may take any action in between the two steps of Fevered Visions's triggered ability, so if your opponent has four or more cards in hand after drawing a card, Fevered Visions will deal 2 damage to that player."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
 // Foreboding Ruins
 {
     "name": "Foreboding Ruins",
@@ -2470,10 +2632,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "land Swamp|Mountain",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]
@@ -2636,10 +2795,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "land Mountain|Forest",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]
@@ -3033,7 +3189,10 @@
                     "from": "Battlefield",
                     "to": "Graveyard"
                 },
-                "effect": "ReturnSelfFromZoneTransformed",
+                "effect": {
+                    "type": "ReturnSelfFromZoneTransformed",
+                    "controllerOverride": "Controller"
+                },
                 "descriptionOverride": "When Harvest Hand dies, return it to the battlefield transformed under your control."
             }
         ]
@@ -5154,6 +5313,77 @@
     ]
 }
 
+// Port Town
+{
+    "name": "Port Town",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "As this land enters, you may reveal a Plains or Island card from your hand. If you don't, this land enters tapped.\n{T}: Add {W} or {U}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Port Town:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Port Town:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "OnEnterRunEffect",
+                "effect": {
+                    "type": "MayRevealCardFromHand",
+                    "filter": "land Plains|Island",
+                    "otherwise": "EnterTapped"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "278",
+        "rarity": "RARE",
+        "artist": "Noah Bradley",
+        "flavorText": "A haunted fog known as the Nebelgast shrouds the cities along Nephalia's coast.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b866712a-c3ef-4a43-ac0f-146c7836f0d6.jpg?1783937697",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "If an effect instructs you to put Port Town onto the battlefield tapped, it will still enter the battlefield tapped even if you reveal a land card from your hand."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "Lands don't have a subtype just because they can produce mana of the corresponding color. Port Town itself is neither a Plains nor an Island, even though it produces white and blue mana, so you can't reveal one to satisfy the ability of another."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "You may reveal any land card with either or both of the appropriate subtypes. It doesn't have to be a basic land. For example, you could reveal Canopy Vista from the Battle for Zendikar set to satisfy the ability of Port Town."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "If a Plains or Island is entering the battlefield from your hand at the same time as Port Town, you may reveal the other land to have Port Town enter untapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
+    ]
+}
+
 // Press for Answers
 {
     "name": "Press for Answers",
@@ -5308,6 +5538,60 @@
     ]
 }
 
+// Rabid Bite
+{
+    "name": "Rabid Bite",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target creature you control deals damage equal to its power to target creature you don't control.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "EntityProperty",
+                "entity": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                },
+                "numericProperty": "Power"
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t1"
+            },
+            "damageSource": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:opponent"
+                },
+                "id": "t1"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "223",
+        "artist": "Karl Kopinski",
+        "flavorText": "\"You should have seen the look on *both* their faces.\"\n—Morkamp, Lambholt innkeeper",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/f/2f573622-877b-4d21-adfc-40a32b7c2e6d.jpg?1783937725"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Ravenous Bloodseeker
 {
     "name": "Ravenous Bloodseeker",
@@ -5350,6 +5634,111 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Relentless Dead
+{
+    "name": "Relentless Dead",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Zombie",
+    "oracleText": "Menace (This creature can't be blocked except by two or more creatures.)\nWhen this creature dies, you may pay {B}. If you do, return it to its owner's hand.\nWhen this creature dies, you may pay {X}. If you do, return another target Zombie creature card with mana value X from your graveyard to the battlefield.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Relentless Dead:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{B}"
+                        }
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Hand",
+                        "fromZone": "Graveyard"
+                    }
+                }
+            },
+            {
+                "id": "Relentless Dead:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayDynamicManaCost",
+                            "amount": {
+                                "type": "EntityProperty",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "numericProperty": "ManaValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Battlefield",
+                        "fromZone": "Graveyard"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature Zombie own:you",
+                        "zone": "Graveyard",
+                        "excludeSelf": true
+                    },
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "rarity": "MYTHIC",
+        "artist": "Ryan Yee",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/a/2a0d7998-2f3d-43b8-a0be-6ff7e5c83223.jpg?1783937766",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "Relentless Dead's last two abilities trigger at the same time and can be put on the stack in either order. The ability put on the stack first will be the last to resolve."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "You decide whether to pay for each triggered ability as it resolves. If you do, the rest of that ability's effect happens before any player may take actions."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -6569,7 +6958,7 @@
             {
                 "id": "The Gitrog Monster:2",
                 "trigger": {
-                    "type": "CardsPutIntoYourGraveyardEvent",
+                    "type": "CardsPutIntoGraveyardEvent",
                     "filter": "land"
                 },
                 "binding": "ANY",

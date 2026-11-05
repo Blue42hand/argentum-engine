@@ -5,16 +5,24 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 
-/** Karn's Bastion — War of the Spark #248. */
+/**
+ * Karn's Bastion
+ * Land
+ * {T}: Add {C}.
+ * {4}, {T}: Proliferate.
+ */
 val KarnsBastion = card("Karn's Bastion") {
+    colorIdentity = ""
     typeLine = "Land"
     oracleText = "{T}: Add {C}.\n" +
-        "{4}, {T}: Proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)"
+        "{4}, {T}: Proliferate. (Choose any number of permanents and/or players, then give each another " +
+        "counter of each kind already there.)"
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddColorlessMana(1)
         manaAbility = true
+        effect = Effects.AddColorlessMana(1)
+        description = "{T}: Add {C}."
     }
 
     activatedAbility {

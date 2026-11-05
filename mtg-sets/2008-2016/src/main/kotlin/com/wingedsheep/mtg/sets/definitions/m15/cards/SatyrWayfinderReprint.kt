@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.m15.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Satyr Wayfinder reprint in Magic 2015. */
 val SatyrWayfinderReprint = Printing(
     oracleId = "ead4c01a-e2ae-49c9-95d9-651d81005907",
     name = "Satyr Wayfinder",

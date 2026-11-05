@@ -11,6 +11,9 @@ import com.wingedsheep.engine.core.PermanentsSacrificedEvent
 import com.wingedsheep.engine.core.GameEvent as EngineGameEvent
 import com.wingedsheep.engine.handlers.PredicateContext
 import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.replacement.PendingReplacementRider
+import com.wingedsheep.sdk.scripting.RegenerateInsteadOfDestruction
+import com.wingedsheep.sdk.scripting.ReplaceDestructionWith
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
@@ -22,6 +25,7 @@ import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.DamageDealtToCreaturesThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.DamagedBySourcesThisTurnComponent
 import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.engine.state.components.battlefield.HasDealtCombatDamageToPlayerComponent
 import com.wingedsheep.engine.state.components.battlefield.HasBecomeTappedComponent
@@ -144,6 +148,7 @@ object ZoneMovementUtils {
     fun applySagaEntryIfNeeded(
         state: GameState,
         entityId: EntityId,
+        predicateEvaluator: PredicateEvaluator,
         counterTotals: MutableMap<CounterType, Int>? = null
     ): Pair<GameState, List<EngineGameEvent>> {
         val container = state.getEntity(entityId) ?: return state to emptyList()
@@ -154,16 +159,27 @@ object ZoneMovementUtils {
 
         val current = container.get<CountersComponent>() ?: CountersComponent()
         val loreCount = sagaEntryLoreCount(container)
-        val sagaComponent = SagaComponent(triggeredChapters = (1..loreCount).toSet())
         if (counterTotals != null) {
+            // The collected entry counters are placed (and modified) later, as one placement per
+            // kind; the chapters marked here follow the unmodified count.
+            val sagaComponent = SagaComponent(triggeredChapters = (1..loreCount).toSet())
             counterTotals[CounterType.LORE] = (counterTotals[CounterType.LORE] ?: 0) + loreCount
             return state.updateEntity(entityId) { it.with(sagaComponent) } to emptyList()
         }
+        // Counters it's given as it enters (CR 122.6): the placement replacements apply — the
+        // totals branch above gets them when the collected entry counters are placed.
+        val placed = ReplacementEffectUtils.applyCounterPlacementModifiers(
+            state, entityId, CounterType.LORE, loreCount,
+            placerId = state.projectedState.getController(entityId), predicateEvaluator = predicateEvaluator, byEffect = true
+        )
+        // The chapters the entry reaches follow what was actually put on it.
+        val sagaComponent = SagaComponent(triggeredChapters = (1..placed).toSet())
+        if (placed <= 0) return state.updateEntity(entityId) { it.with(sagaComponent) } to emptyList()
         val newState = state.updateEntity(entityId) { c ->
             c.with(sagaComponent)
-                .with(current.withAdded(CounterType.LORE, loreCount))
+                .with(current.withAdded(CounterType.LORE, placed))
         }.let { DamageUtils.markCounterOnControlledPermanent(it, entityId, CounterType.LORE, entering = true) }
-        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, loreCount, cardComponent.name))
+        return newState to listOf(CountersAddedEvent(entityId, CounterType.LORE, placed, cardComponent.name))
     }
 
     /**
@@ -199,7 +215,8 @@ object ZoneMovementUtils {
      * permanent is still on the stack (see
      * [com.wingedsheep.engine.mechanics.stack.StackResolver]), so no entry gets them twice.
      *
-     * The number is read from the *current* [CardComponent]'s definition, so a double-faced card
+     * A copy exception's "its starting loyalty is N" ([CardComponent.startingLoyaltyOverride]) wins
+     * over the printed loyalty. Otherwise the number is read from the *current* [CardComponent]'s definition, so a double-faced card
      * returning transformed onto its planeswalker back face gets the back face's printed loyalty
      * (its `cardDefinitionId` has already been flipped by then).
      *
@@ -228,7 +245,8 @@ object ZoneMovementUtils {
         val cardComponent = container.get<CardComponent>() ?: return state to emptyList()
         val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId)
         val (counterType, amount) = when {
-            cardComponent.isPlaneswalker -> CounterType.LOYALTY to cardDef?.startingLoyalty
+            cardComponent.isPlaneswalker ->
+                CounterType.LOYALTY to (cardComponent.startingLoyaltyOverride ?: cardDef?.startingLoyalty)
             cardComponent.isBattle ->
                 com.wingedsheep.engine.mechanics.battle.Battles.DEFENSE_COUNTER to cardDef?.startingDefense
             else -> return state to emptyList()
@@ -512,6 +530,8 @@ object ZoneMovementUtils {
             .without<com.wingedsheep.engine.state.components.identity.RingBearerComponent>()
             // Battlefield
             .without<TappedComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.PendingTransformAttachComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.PendingTransformCopyComponent>()
             .without<SummoningSicknessComponent>()
             .without<CastFromHandComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.WasCastComponent>()
@@ -522,6 +542,7 @@ object ZoneMovementUtils {
             .without<com.wingedsheep.engine.state.components.battlefield.EnteredFromExileComponent>()
             .without<WarpedComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.DashedComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.BlitzedComponent>()
             .without<EvokedComponent>()
             // Cast-time choices (DynamicAmount.CastX / CastChoice, chosen color/type/mode, kicked)
             // are forgotten when the object changes zones (CR 400.7). The cast X is captured as
@@ -542,6 +563,13 @@ object ZoneMovementUtils {
             // object; one that leaves and returns is a new object with fresh tallies (CR 400.7).
             .without<com.wingedsheep.engine.state.components.battlefield.AbilityActivatedThisTurnComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.AbilityResolutionCountThisTurnComponent>()
+            // "Each time it has attacked this turn" counts this object's attacks only (CR 400.7).
+            .without<com.wingedsheep.engine.state.components.combat.TimesAttackedThisTurnComponent>()
+            // "Attacks during its controller's next combat phase" binds this object only (CR 400.7).
+            .without<com.wingedsheep.engine.state.components.combat.MustAttackNextCombatComponent>()
+            // So do "attacks this turn if able" marks, directed (encore) or not.
+            .without<com.wingedsheep.engine.state.components.combat.MustAttackThisTurnComponent>()
+            .without<com.wingedsheep.engine.state.components.combat.MustAttackPlayerThisTurnComponent>()
             // Exert (CR 701.43a) is a fact about the old object; a new one is unexerted.
             .without<com.wingedsheep.engine.state.components.battlefield.ExertedComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.ExertedThisTurnComponent>()
@@ -555,6 +583,7 @@ object ZoneMovementUtils {
             // A permanent that leaves and returns is a new object (CR 400.7) that has never become
             // tapped, so its "first time tapped this turn" window starts over.
             .without<HasBecomeTappedComponent>()
+            .without<com.wingedsheep.engine.state.components.battlefield.EntryTapStateComponent>()
             .without<HasDealtCombatDamageToPlayerComponent>()
             .without<CountersComponent>()
             // A battle's protector is a designation on the battlefield object (CR 310.9); the
@@ -588,6 +617,9 @@ object ZoneMovementUtils {
             .without<com.wingedsheep.engine.state.components.battlefield.SolvedComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.RenownedComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.MonstrousComponent>()
+            // The prepared designation belongs to the permanent (CR 722.3a); the object that comes
+            // back is a new one (CR 400.7) and must be free to become prepared again.
+            .without<com.wingedsheep.engine.state.components.battlefield.PreparedComponent>()
             .without<ReplacementEffectSourceComponent>()
             .without<TimestampComponent>()
             .without<com.wingedsheep.engine.state.components.battlefield.BattlefieldEntryTimestampComponent>()
@@ -656,7 +688,7 @@ object ZoneMovementUtils {
 
         // Check for regeneration shields
         if (canRegenerate) {
-            val (shieldState, wasRegenerated) = applyRegenerationShields(state, entityId)
+            val (shieldState, wasRegenerated) = applyRegeneration(state, entityId, zones.predicateEvaluator)
             if (wasRegenerated) {
                 return applyRegenerationReplacement(shieldState, entityId)
             }
@@ -676,6 +708,11 @@ object ZoneMovementUtils {
             return applyUmbraArmor(zones, state, entityId, auraId, canRegenerate)
         }
 
+        // A printed "if <it> would be destroyed, instead …" (Crackling Emergence).
+        findDestructionReplacement(state, entityId, zones.predicateEvaluator)?.let { found ->
+            return EffectResult.success(applyDestructionReplacement(state, entityId, found))
+        }
+
         // "If it would die this turn, exile it instead" (Fanged Flames) covers destruction by effect too.
         val exiledState = consumeExileOnDeath(state, entityId)
         val result = zones.moveToZone(
@@ -686,14 +723,28 @@ object ZoneMovementUtils {
     }
 
     /**
+     * Index of a live ExileOnDeath mark on [entityId] ("if it would die, exile it instead"), or -1.
+     * A granted-ability mark (Can't Stay Away) is live only while the creature still has that
+     * ability in layer 6 — a later lose-all-abilities effect strips it; a "this turn" rider always is.
+     */
+    fun exileOnDeathMarkIndex(state: GameState, entityId: EntityId): Int =
+        state.floatingEffects.indexOfFirst { effect ->
+            val mod = effect.effect.modification
+            mod is com.wingedsheep.engine.mechanics.layers.SerializableModification.ExileOnDeath &&
+                entityId in effect.effect.affectedEntities &&
+                (!mod.grantedAbility || state.projectedState.hasExileOnDeathAbility(entityId))
+        }
+
+    /** True when [entityId] carries a live ExileOnDeath mark (see [exileOnDeathMarkIndex]). */
+    fun hasExileOnDeathMark(state: GameState, entityId: EntityId): Boolean =
+        exileOnDeathMarkIndex(state, entityId) != -1
+
+    /**
      * If [entityId] carries an ExileOnDeath mark, returns the state with that mark consumed — the
      * caller then moves the permanent to exile instead of the graveyard. Null when there is no mark.
      */
     fun consumeExileOnDeath(state: GameState, entityId: EntityId): GameState? {
-        val index = state.floatingEffects.indexOfFirst { effect ->
-            effect.effect.modification is com.wingedsheep.engine.mechanics.layers.SerializableModification.ExileOnDeath &&
-                entityId in effect.effect.affectedEntities
-        }
+        val index = exileOnDeathMarkIndex(state, entityId)
         if (index == -1) return null
         return state.copy(floatingEffects = state.floatingEffects.toMutableList().apply { removeAt(index) })
     }
@@ -748,11 +799,11 @@ object ZoneMovementUtils {
     ): Boolean = when (requiredCause) {
         ZoneChangeCause.Any -> true
         ZoneChangeCause.DiscardedByOpponentEffect -> {
-            val causeControllerId = state.pendingDiscardCauseControllers[entityId]
-            val discardingPlayerId = container.get<CardComponent>()?.ownerId
-            causeControllerId != null &&
-                discardingPlayerId != null &&
-                causeControllerId != discardingPlayerId
+            ZoneTransitionService.isDiscardCausedByOpponent(
+                state,
+                state.pendingDiscardCauseControllers[entityId],
+                container.get<CardComponent>()?.ownerId
+            )
         }
     }
 
@@ -807,6 +858,14 @@ object ZoneMovementUtils {
         predicateEvaluator: PredicateEvaluator
     ): ZoneChangeRedirectResult {
         val container = state.getEntity(entityId) ?: return ZoneChangeRedirectResult(toZone)
+
+        // A spell cast with flashback, aftermath or jump-start is exiled instead of going anywhere
+        // else as it leaves the stack (CR 702.34a / 702.127a / 702.133a).
+        if (fromZone == Zone.STACK) {
+            com.wingedsheep.engine.mechanics.stack.StackExitRider.overrideZone(container)
+                ?.takeIf { it != toZone }
+                ?.let { return ZoneChangeRedirectResult(it) }
+        }
 
         // Card-intrinsic "would be put into [zone] from anywhere → redirect instead" self-replacement
         // (Darksteel Colossus, Progenitus). It says "from anywhere", so it functions from every
@@ -872,6 +931,13 @@ object ZoneMovementUtils {
         if (fromZone == Zone.BATTLEFIELD && toZone == Zone.GRAVEYARD) {
             val counters = container.get<CountersComponent>()
             if (counters != null && counters.getCount(CounterType.FINALITY) > 0) {
+                return ZoneChangeRedirectResult(Zone.EXILE)
+            }
+            // An ExileOnDeath mark ("if it would die [this turn], exile it instead") covers every
+            // way of dying, sacrifice included — not only the destroy and SBA paths that consume
+            // it up front. Leaving the battlefield prunes the mark along with the object's other
+            // floating effects, so there is nothing to consume here.
+            if (hasExileOnDeathMark(state, entityId)) {
                 return ZoneChangeRedirectResult(Zone.EXILE)
             }
         }
@@ -943,10 +1009,13 @@ object ZoneMovementUtils {
         // Granted (durational) replacement effects — e.g. Forgotten Cellar's "if a card would be
         // put into your graveyard from anywhere this turn, exile it instead". Recorded in
         // GameState.grantedReplacementEffects with the granting controller, and read here
-        // alongside permanents' printed replacement effects.
+        // alongside permanents' printed replacement effects. A `selfOnly` grant is an ability the
+        // holder gained ("it gains 'If this creature would leave the battlefield, exile it
+        // instead …'" — Elemental Expressionist), so it redirects only the holder itself.
         for (grant in state.grantedReplacementEffects) {
             val effect = grant.replacement
             if (effect !is RedirectZoneChange) continue
+            if (effect.selfOnly && grant.entityId != entityId) continue
 
             val event = effect.appliesTo
             if (event !is com.wingedsheep.sdk.scripting.EventPattern.ZoneChangeEvent) continue
@@ -994,6 +1063,14 @@ object ZoneMovementUtils {
                 sourceState.getEntity(it)?.get<DamageDealtToCreaturesThisTurnComponent>()?.creatureIds
             }
             if (damaged == null || entityId !in damaged) return false
+        }
+
+        // "A creature dealt damage this turn by a source you controlled" (Etching of Kumano) — read
+        // off the dying creature's own record of its damage sources, each frozen at damage time, so
+        // the source needn't still be around.
+        for (predicate in filter.statePredicates.filterIsInstance<StatePredicate.WasDealtDamageThisTurnBy>()) {
+            val record = container.get<DamagedBySourcesThisTurnComponent>()
+            if (record == null || !record.matchesAny(predicate.sourceFilter, sourceControllerId)) return false
         }
 
         // Check card predicates
@@ -1048,7 +1125,10 @@ object ZoneMovementUtils {
      *
      * [ReplacementRiderTiming.WITH_REPLACEMENT] riders run inline, as part of the replacement, from
      * a small whitelist: TakeExtraTurnEffect (Ugin's Nexus), AddCountersEffect on the redirected card
-     * (Darigaaz Reincarnated) and a fixed GainLifeEffect (The Darkness Crystal).
+     * (Darigaaz Reincarnated's `Self`, Dauthi Voidwalker's `TriggeringEntity`), a fixed
+     * GainLifeEffect (The Darkness Crystal), the card-scoped hand restrictions
+     * CantPlayCardsFromHandEffect / RevealCardInHandEffect on the redirected card
+     * (Firestorm Phoenix), and a CompositeEffect of those.
      * [ReplacementRiderTiming.WHEN_YOU_DO] riders ("…exile it instead. When you do, create a 2/2
      * green Wolf creature token") run nothing here: they emit a [ReflexiveAbilityTriggeredEvent]
      * the settle boundary puts on the stack (CR 603.12).
@@ -1088,6 +1168,41 @@ object ZoneMovementUtils {
                 )
             )
         }
+        if (effect is com.wingedsheep.sdk.scripting.effects.CompositeEffect) {
+            // A rider of several parts ("… return it to its owner's hand instead. … that player
+            // plays with that card revealed in their hand and can't play it") runs each part in
+            // order, still as one replacement.
+            var current = state
+            val events = mutableListOf<EngineGameEvent>()
+            for (part in effect.effects) {
+                val (next, partEvents) = applyReplacementAdditionalEffect(
+                    zones, current, part, controllerId, entityId, sourceId, riderTiming
+                )
+                current = next
+                events += partEvents
+            }
+            return current to events
+        }
+        // Card-scoped hand restrictions on the redirected card (Firestorm Phoenix): it is now a new
+        // object in its owner's hand, and the restriction is pinned to that object.
+        if (entityId != null && effect is com.wingedsheep.sdk.scripting.effects.CantPlayCardsFromHandEffect &&
+            effect.target == com.wingedsheep.sdk.scripting.targets.EffectTarget.Self
+        ) {
+            return com.wingedsheep.engine.mechanics.HandObjectRestrictions.apply(
+                state, entityId,
+                com.wingedsheep.engine.state.components.identity.HandObjectRestrictionKind.CANT_BE_PLAYED,
+                effect.duration, controllerId
+            ) ?: (state to emptyList())
+        }
+        if (entityId != null && effect is com.wingedsheep.sdk.scripting.effects.RevealCardInHandEffect &&
+            effect.target == com.wingedsheep.sdk.scripting.targets.EffectTarget.Self
+        ) {
+            return com.wingedsheep.engine.mechanics.HandObjectRestrictions.apply(
+                state, entityId,
+                com.wingedsheep.engine.state.components.identity.HandObjectRestrictionKind.REVEALED,
+                effect.duration, controllerId, zones.cardRegistry
+            ) ?: (state to emptyList())
+        }
         if (effect is com.wingedsheep.sdk.scripting.effects.TakeExtraTurnEffect) {
             // Check if extra turns are prevented by any permanent on the battlefield
             if (ReplacementEffectUtils.isExtraTurnPrevented(state)) return state to emptyList()
@@ -1103,9 +1218,18 @@ object ZoneMovementUtils {
             return newState to emptyList()
         }
         if (effect is com.wingedsheep.sdk.scripting.effects.AddCountersEffect && entityId != null) {
+            // "Exile it with a void counter on it" (Dauthi Voidwalker) names the redirected card as
+            // the triggering entity; a self-replacement's "exile it with three egg counters"
+            // (Darigaaz) names Self, which is that same card. Anything else isn't the moved card.
+            val counteredId = when (effect.target) {
+                com.wingedsheep.sdk.scripting.targets.EffectTarget.TriggeringEntity -> entityId
+                com.wingedsheep.sdk.scripting.targets.EffectTarget.Self ->
+                    entityId.takeIf { sourceId == null || sourceId == entityId }
+                else -> null
+            } ?: return state to emptyList()
             val counterType = effect.counterType
-            val current = state.getEntity(entityId)?.get<CountersComponent>() ?: CountersComponent()
-            val newState = state.updateEntity(entityId) { container ->
+            val current = state.getEntity(counteredId)?.get<CountersComponent>() ?: CountersComponent()
+            val newState = state.updateEntity(counteredId) { container ->
                 container.with(current.withAdded(counterType, effect.count))
             }
             return newState to emptyList()
@@ -1123,6 +1247,51 @@ object ZoneMovementUtils {
     }
 
     /**
+     * Whether [entityId] regenerates instead of being destroyed, and the state afterwards: a static
+     * "if it would be destroyed, regenerate it" (CR 701.19b) applies without being spent, and is
+     * preferred over a shield (CR 616.1 lets the controller order them, and keeping the shield costs
+     * nothing); otherwise one regeneration shield is consumed. "Can't be regenerated" stops both.
+     * The caller still performs the regeneration itself ([applyRegenerationReplacement]).
+     *
+     * @param lookupState the state whose battlefield decides which static regenerations apply — for
+     *        one of a simultaneous batch of destructions, the state before the batch began.
+     */
+    fun applyRegeneration(
+        state: GameState,
+        entityId: EntityId,
+        predicateEvaluator: PredicateEvaluator,
+        lookupState: GameState = state
+    ): Pair<GameState, Boolean> {
+        if (isRegenerationPrevented(state, entityId)) return state to false
+        if (hasStaticRegeneration(lookupState, entityId, predicateEvaluator)) return state to true
+        return applyRegenerationShields(state, entityId)
+    }
+
+    private fun isRegenerationPrevented(state: GameState, entityId: EntityId): Boolean =
+        state.floatingEffects.any { effect ->
+            effect.effect.modification is SerializableModification.CantBeRegenerated &&
+                entityId in effect.effect.affectedEntities
+        }
+
+    /** Whether a battlefield [RegenerateInsteadOfDestruction] covers [entityId]. */
+    private fun hasStaticRegeneration(
+        lookupState: GameState,
+        entityId: EntityId,
+        predicateEvaluator: PredicateEvaluator
+    ): Boolean {
+        val projected = lookupState.projectedState
+        return com.wingedsheep.engine.replacement.ActiveReplacements.all(lookupState).any { active ->
+            val replacement = active.effect as? RegenerateInsteadOfDestruction ?: return@any false
+            // A printed replacement is one of its host's abilities: gone once the host loses them.
+            if (!active.granted &&
+                (projected.hasLostAllAbilities(active.sourceId) || projected.isFaceDown(active.sourceId))
+            ) return@any false
+            val context = PredicateContext(controllerId = active.controllerId, sourceId = active.sourceId)
+            predicateEvaluator.matches(lookupState, projected, entityId, replacement.appliesTo.filter, context)
+        }
+    }
+
+    /**
      * Check for regeneration shields on an entity and consume one if found.
      *
      * Regeneration shields are floating effects with RegenerationShield modification.
@@ -1133,12 +1302,7 @@ object ZoneMovementUtils {
      * @return Pair of (updated state with consumed shield, whether regeneration occurred)
      */
     fun applyRegenerationShields(state: GameState, entityId: EntityId): Pair<GameState, Boolean> {
-        // Check if the entity has a CantBeRegenerated floating effect
-        val cantRegenerate = state.floatingEffects.any { effect ->
-            effect.effect.modification is SerializableModification.CantBeRegenerated &&
-                entityId in effect.effect.affectedEntities
-        }
-        if (cantRegenerate) return state to false
+        if (isRegenerationPrevented(state, entityId)) return state to false
 
         // Find the first regeneration shield targeting this entity
         val shieldIndex = state.floatingEffects.indexOfFirst { effect ->
@@ -1292,6 +1456,57 @@ object ZoneMovementUtils {
             })
         )
     }
+
+    /** A [ReplaceDestructionWith] that applies: the permanent printing it, its controller, what happens instead. */
+    data class DestructionReplacement(
+        val hostId: EntityId,
+        val controllerId: EntityId,
+        val effect: com.wingedsheep.sdk.scripting.effects.Effect
+    )
+
+    /**
+     * The battlefield [ReplaceDestructionWith] that replaces the destruction of [entityId], or null —
+     * "If enchanted land would be destroyed, instead sacrifice this Aura and …" (Crackling Emergence).
+     * The filter is read relative to the replacement's host, so `attachedToBySource()` is "enchanted".
+     *
+     * @param lookupState as for [findUmbraArmorAura]: for one of a simultaneous batch of destructions,
+     *        the state before the batch began, so an Aura destroyed by the same wipe still applies.
+     */
+    fun findDestructionReplacement(
+        lookupState: GameState,
+        entityId: EntityId,
+        predicateEvaluator: PredicateEvaluator
+    ): DestructionReplacement? {
+        val projected = lookupState.projectedState
+        for (active in com.wingedsheep.engine.replacement.ActiveReplacements.all(lookupState)) {
+            val replacement = active.effect as? ReplaceDestructionWith ?: continue
+            // A printed replacement is one of its host's abilities: gone once the host loses them.
+            if (!active.granted &&
+                (projected.hasLostAllAbilities(active.sourceId) || projected.isFaceDown(active.sourceId))
+            ) continue
+            val context = PredicateContext(controllerId = active.controllerId, sourceId = active.sourceId)
+            if (predicateEvaluator.matches(lookupState, projected, entityId, replacement.appliesTo.filter, context)) {
+                return DestructionReplacement(active.sourceId, active.controllerId, replacement.replacementEffect)
+            }
+        }
+        return null
+    }
+
+    /**
+     * Apply a [ReplaceDestructionWith]: [entityId] is not destroyed, and the printed "instead …" is
+     * queued as a [PendingReplacementRider] — part of the same replacement, so it runs before
+     * anything else happens: at the end of the destroying instruction, or inside the same
+     * state-based-action pass ([com.wingedsheep.engine.mechanics.StateBasedActionChecker]).
+     */
+    fun applyDestructionReplacement(state: GameState, entityId: EntityId, found: DestructionReplacement): GameState =
+        state.copy(
+            pendingReplacementRiders = state.pendingReplacementRiders + PendingReplacementRider(
+                effect = found.effect,
+                hostId = found.hostId,
+                controllerId = found.controllerId,
+                subjectId = entityId
+            )
+        )
 
     /**
      * Apply umbra armor's replacement (CR 702.89a): remove all damage marked on [entityId] and destroy

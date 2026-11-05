@@ -161,6 +161,12 @@ object ArenaAgents {
         // What EngineAiPlayerController plays: production-candidate-expiring plus every fix shipped
         // since. `just arena production-candidate-expiring live 300` prices the stack.
         ArenaAgent("live", AiProfile.LIVE),
+        // LIVE without pressing a winning position. `just arena live-without-pressure live 300`
+        // prices the flag on top of everything it ships with.
+        ArenaAgent("live-without-pressure", AiProfile.LIVE_WITHOUT_PRESSURE),
+        // LIVE without the opponent's combat responses: `just arena live-without-responses live 300`
+        // prices the opponent-ability model on its own.
+        ArenaAgent("live-without-responses", AiProfile.LIVE.copy(id = "live-without-responses", anticipateCombatResponses = false)),
         // Selection counts by value: searches take what they may, scry/surveil send away only the
         // cards not worth drawing. `just arena production production-selectcount 300` prices it
         // alone; `just arena production-candidate-expiring production-candidate-selectcount 300`
@@ -233,6 +239,8 @@ object ArenaAgents {
         // attack, blocks priced by the walker they save.
         ArenaAgent("production-walkerdefence", AiProfile.PRODUCTION_WALKERDEFENCE),
         ArenaAgent("production-candidate-walkerdefence", AiProfile.PRODUCTION_CANDIDATE_WALKERDEFENCE),
+        // Minus-only walkers (the empower-Jace token) spent for what they buy, granted abilities included.
+        ArenaAgent("production-candidate-fuelwalkers", AiProfile.PRODUCTION_CANDIDATE_FUELWALKERS),
         // A spell scored as the best spell it makes cheaper: enablers cast before their payoffs.
         ArenaAgent("production-enablers", AiProfile.PRODUCTION_ENABLERS),
         ArenaAgent("production-candidate-enablers", AiProfile.PRODUCTION_CANDIDATE_ENABLERS),

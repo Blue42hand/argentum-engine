@@ -338,7 +338,7 @@ class AlphaZeroSearch<T>(
      * when the structured expander or resolver owns it.
      */
     private fun foldSimpleDecision(d: PendingDecision): List<DecisionResponse>? = when (d) {
-        is YesNoDecision -> listOf(YesNoResponse(d.id, true), YesNoResponse(d.id, false))
+        is YesNoDecision -> listOfNotNull(YesNoResponse(d.id, true).takeIf { d.yesAvailable }, YesNoResponse(d.id, false))
         // The batched may-question folds to two whole-run actions; per-instance peel-off isn't an
         // MCTS action (the search treats the run as one decision, matching the AI heuristic).
         is BatchYesNoDecision -> listOf(
@@ -361,12 +361,14 @@ class AlphaZeroSearch<T>(
         is ChooseReplacementDecision,
         is DistributeDecision,
         is OrderObjectsDecision,
+        is com.wingedsheep.engine.core.OrderTriggersDecision,
         is SplitPilesDecision,
         is SearchLibraryDecision,
         is ReorderLibraryDecision,
         is AssignDamageDecision,
         is CombatResolutionDecision,
         is SelectManaSourcesDecision,
+        is com.wingedsheep.engine.core.FlipOntoBattlefieldDecision,
         is BudgetModalDecision -> null
     }
 

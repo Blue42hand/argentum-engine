@@ -49,6 +49,13 @@ data class AddDynamicCountersEffect(
 ) : Effect {
     override val description: String =
         "Put ${amount.description} ${counterType.printed} counters on ${target.description}"
+
+    /** The resolved count on the stack ("Put 2 +1/+1 counters on …"); an undeterminable amount keeps its wording. */
+    override fun runtimeDescription(resolver: (DynamicAmount) -> Int?): String {
+        val n = resolver(amount) ?: return description
+        val count = if (n == 1) "a ${counterType.printed} counter" else "$n ${counterType.printed} counters"
+        return "Put $count on ${target.description}"
+    }
 }
 
 /**
@@ -110,25 +117,72 @@ data class AddCountersUpToEffect(
  * `Proliferate(target)` — which adds one of *every* kind — and of [AddCountersEffect], whose kind
  * is fixed by the card instead of read off the recipient.
  *
- * At resolution the executor reads the kinds currently on the target: none is a no-op, exactly one
- * is placed without a prompt, and two or more ask the effect's controller to pick one through a
- * `ChooseOptionDecision`. The counters are placed through the standard [AddCountersEffect] path, so
+ * With [kindFrom] = [CounterKindSource.RECIPIENT] (the default) the executor reads the kinds
+ * currently on the target at resolution: none is a no-op, exactly one is placed without a prompt,
+ * and two or more ask the effect's controller to pick one through a `ChooseOptionDecision`.
+ * With [CounterKindSource.ITERATION] the kind is the one an enclosing
+ * `ForEachEffect(IterationSpace.CounterKindsAmong / CounterKindsOn)` is visiting — "put a counter of that kind on
+ * either of those tokens" (Exotic Pets) — and no choice is asked; outside such a loop it is a
+ * no-op. Either way the counters are placed through the standard [AddCountersEffect] path, so
  * counter-placement replacements (Hardened Scales) and counter-placed triggers apply. A recipient
  * that can't have counters put on it gets none. Works on a permanent or a player target.
  *
- * @property target The permanent (or player) whose counters are read and added to.
- * @property count How many counters of the chosen kind to add.
+ * @property target The permanent (or player) that receives the counters.
+ * @property count How many counters of the kind to add.
+ * @property kindFrom Where the kind comes from: chosen among the recipient's own, or the loop's.
  */
 @SerialName("AddCountersOfChosenKind")
 @Serializable
 data class AddCountersOfChosenKindEffect(
     val target: EffectTarget = EffectTarget.ContextTarget(0),
+    val count: Int = 1,
+    val kindFrom: CounterKindSource = CounterKindSource.RECIPIENT
+) : Effect {
+    override val description: String = when (kindFrom) {
+        CounterKindSource.RECIPIENT ->
+            "Choose a kind of counter on ${target.description}. Put " +
+                (if (count == 1) "an additional counter" else "$count additional counters") +
+                " of that kind on it"
+        CounterKindSource.ITERATION ->
+            "Put " + (if (count == 1) "a counter" else "$count counters") +
+                " of that kind on ${target.description}"
+    }
+}
+
+/**
+ * "Remove [count] counter(s) of that kind from [target]", where the kind is the one an enclosing
+ * counter-kind loop (`IterationSpace.CounterKindsOn` / `CounterKindsAmong`) is visiting — "for each
+ * kind of counter on target permanent, put another counter of that kind on it or remove one from
+ * it" (Dramatist's Puppet). The removing counterpart of
+ * `AddCountersOfChosenKindEffect(kindFrom = ITERATION)`; outside such a loop it removes nothing.
+ * A player-chosen kind ("remove a counter from target permanent") is already
+ * `Effects.RemoveCounterOfAnyKind`. Removal goes through [RemoveCountersEffect], so it removes only
+ * what is there (never below zero) and emits the usual counter-removed event.
+ *
+ * @property target The permanent (or player) losing the counters.
+ * @property count How many counters of the kind to remove.
+ */
+@SerialName("RemoveCountersOfIteratedKind")
+@Serializable
+data class RemoveCountersOfIteratedKindEffect(
+    val target: EffectTarget = EffectTarget.ContextTarget(0),
     val count: Int = 1
 ) : Effect {
     override val description: String =
-        "Choose a kind of counter on ${target.description}. Put " +
-            (if (count == 1) "an additional counter" else "$count additional counters") +
-            " of that kind on it"
+        "Remove " + (if (count == 1) "a counter" else "$count counters") + " of that kind from ${target.description}"
+}
+
+/** Where [AddCountersOfChosenKindEffect] takes its counter kind from. */
+@Serializable
+enum class CounterKindSource {
+    /** The controller chooses among the kinds already on the recipient (Ichormoon Gauntlet). */
+    RECIPIENT,
+
+    /**
+     * The kind an enclosing `IterationSpace.CounterKindsAmong` (Exotic Pets) or
+     * `IterationSpace.CounterKindsOn` (Dramatist's Puppet) loop is visiting.
+     */
+    ITERATION
 }
 
 /**
@@ -152,7 +206,7 @@ data class MoveAllLastKnownCountersEffect(
  * Double the number of counters already on a target (one-shot).
  * "Double the number of +1/+1 counters on that creature."
  *
- * Distinct from the `DoubleCounterPlacement` replacement effect, which doubles
+ * Distinct from the `ScaleCounterPlacement` replacement effect, which doubles
  * counters as they are *placed* in the future. This is an immediate doubling of
  * the counters present at resolution: the executor reads the current count of
  * [counterType] on the target and puts that many more on it (so the total
@@ -593,11 +647,20 @@ data class DistributeCountersFromSelfEffect(
  * The counters added are identical in both shapes: one of each kind the recipient currently has,
  * honoring counter-placement replacement effects, and attributed to the effect's controller so
  * counter-history predicates see the placement.
+ *
+ * [storeAs] publishes the **permanents that had a counter put on them this way** to that pipeline
+ * collection, for a follow-up that acts on them — "proliferate, then choose any number of
+ * permanents you control that had a counter put on them this way" (Ripples of Potential). Only
+ * permanents still on the battlefield whose placement actually happened are recorded: a chosen
+ * recipient that can't have counters put on it, or whose every counter a replacement reduced to
+ * zero, is left out, and players are never recorded (the follow-ups all choose permanents). Under
+ * "proliferate twice instead" the collection is the union of every proliferate in the run.
  */
 @SerialName("Proliferate")
 @Serializable
 data class ProliferateEffect(
-    val target: EffectTarget? = null
+    val target: EffectTarget? = null,
+    val storeAs: String? = null
 ) : Effect {
     override val description: String = if (target == null) {
         "Proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)"
@@ -610,34 +673,41 @@ data class ProliferateEffect(
  * Distribute a number of counters among the targets from context.
  * "Distribute N counters among one or more target creatures you control."
  *
- * Distribution is deterministic when totalCounters equals number of targets * minPerTarget.
- * With 1 target, all counters go on it. With multiple targets, counters are divided evenly
- * (remainder goes to the first target).
+ * The controller chooses the division, each target getting at least [minPerTarget]; a lone
+ * target takes the whole pool (unless the pool is [upTo]).
  *
  * [totalCounters] is a [DynamicAmount] so the pool can come from the spell's X
  * ("Distribute X +1/+1 counters among any number of target creatures you control" —
- * Grove's Bounty) as well as from a literal (`DynamicAmount.Fixed(2)` — Armament Corps).
- * It is evaluated once, when the effect resolves. Pair an X-scaled pool with
+ * Grove's Bounty), a cast-time capture (`DynamicAmount.CapturedAtCast` — Undercity Upheaval) or a
+ * literal (`DynamicAmount.Fixed(2)` — Armament Corps). It is evaluated when the division is
+ * announced as the spell or ability is put on the stack (CR 601.2d), or at resolution when it isn't. Pair an X-scaled pool with
  * `TargetObject(unlimited = true, dynamicMaxCount = DynamicAmount.XValue)` so the caster
  * can't declare more targets than there are counters to go around (CR 601.2d).
+ *
+ * [upTo] is "distribute **up to** N counters" (Lathiel, the Bounteous Dawn): the controller may
+ * place fewer than [totalCounters] in all, each target still getting at least [minPerTarget]. The
+ * division is announced the same way, as a partial one — even with a single target, which then
+ * takes any number from [minPerTarget] up to the pool.
  *
  * @property totalCounters Total number of counters to distribute
  * @property counterType The type of counter (e.g., "+1/+1")
  * @property minPerTarget Minimum counters each target must receive (per MTG rules, typically 1)
+ * @property upTo When true the pool is a cap ("up to N"), not an exact total
  */
 @SerialName("DistributeCountersAmongTargets")
 @Serializable
 data class DistributeCountersAmongTargetsEffect(
     val totalCounters: DynamicAmount,
     val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
-    val minPerTarget: Int = 1
+    val minPerTarget: Int = 1,
+    val upTo: Boolean = false
 ) : Effect {
     override val description: String =
-        "Distribute ${totalCounters.description} ${counterType.printed} counters among targets"
+        "Distribute ${if (upTo) "up to " else ""}${totalCounters.description} ${counterType.printed} counters among targets"
 }
 
 /**
- * Distribute a fixed number of *new* counters among permanents matching [filter], chosen at
+ * Distribute a resolution-evaluated number of *new* counters among permanents matching [filter], chosen at
  * resolution (NOT the spell's declared targets). The eligible group is resolved when the effect
  * resolves, then the controller picks how to split [totalCounters] among them (each chosen recipient
  * gets at least [minPerTarget] — 0 models "among any number of"). No-op when nothing matches.
@@ -645,9 +715,11 @@ data class DistributeCountersAmongTargetsEffect(
  * Distinct from [DistributeCountersAmongTargetsEffect] (which uses the spell's targets) and from
  * [DistributeCountersFromSelfEffect] (which *moves* existing counters off the source). Used by
  * Crashing Wave: "distribute three stun counters among any number of tapped creatures your opponents
- * control" — `DistributeCountersAmongFilteredEffect(3, CounterType.STUN, Creature.tapped().opponentControls())`.
+ * control" — `DistributeCountersAmongFilteredEffect(Fixed(3), CounterType.STUN, Creature.tapped().opponentControls())`.
+ * The pool is a [DynamicAmount] evaluated once at resolution, like [DistributeCountersAmongTargetsEffect]'s:
+ * Feast of the Victorious Dead distributes "that many" counters, one per creature that died this turn.
  *
- * @property totalCounters How many counters to place in total.
+ * @property totalCounters How many counters to place in total, evaluated at resolution.
  * @property counterType The counter to place (e.g. [CounterType.STUN]).
  * @property filter Which permanents are eligible to receive counters (resolved at execution).
  * @property minPerTarget Minimum counters a chosen recipient must receive (0 = "any number of").
@@ -655,13 +727,14 @@ data class DistributeCountersAmongTargetsEffect(
 @SerialName("DistributeCountersAmongFiltered")
 @Serializable
 data class DistributeCountersAmongFilteredEffect(
-    val totalCounters: Int,
+    val totalCounters: DynamicAmount,
     val counterType: CounterType = CounterType.PLUS_ONE_PLUS_ONE,
     val filter: GameObjectFilter = GameObjectFilter.Creature,
     val minPerTarget: Int = 0,
 ) : Effect {
     override val description: String =
-        "Distribute $totalCounters ${counterType.printed} counter${if (totalCounters != 1) "s" else ""} among ${filter.description}s"
+        "Distribute ${totalCounters.description} ${counterType.printed} " +
+            "counter${if (totalCounters != DynamicAmount.Fixed(1)) "s" else ""} among ${filter.description}s"
 }
 
 /**

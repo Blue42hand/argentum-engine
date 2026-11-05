@@ -33,6 +33,16 @@ data class CastSpellAdditionalCostContinuation(
     val costKind: AdditionalCostSelectionKind,
 ) : AnswerContinuation
 
+/**
+ * Announcement of X (CR 601.2b) for a cast made while an ability resolves, where no client action
+ * carried it — the miracle cast of an `{X}` miracle cost (Entreat the Angels). Resumed by
+ * re-entering the cast with [baseCastAction]'s `xValue` bound; the pause precedes every payment.
+ */
+@Serializable
+data class CastChooseXContinuation(
+    val baseCastAction: CastSpell,
+) : AnswerContinuation
+
 /** Announcement of a named additional-cost branch, before any payment is made. */
 @Serializable
 data class CastCostChoiceContinuation(

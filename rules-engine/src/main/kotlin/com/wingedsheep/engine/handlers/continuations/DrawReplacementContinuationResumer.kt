@@ -1,6 +1,8 @@
 package com.wingedsheep.engine.handlers.continuations
 
+import com.wingedsheep.engine.core.CardRevealedForMiracleEvent
 import com.wingedsheep.engine.core.DecisionResponse
+import com.wingedsheep.engine.core.MiracleRevealContinuation
 import com.wingedsheep.engine.core.EngineServices
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
@@ -17,8 +19,41 @@ class DrawReplacementContinuationResumer(
 ) : ContinuationResumerModule {
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
-        resumer(StaticDrawReplacementContinuation::class, ::resumeStaticDrawReplacement)
+        resumer(StaticDrawReplacementContinuation::class, ::resumeStaticDrawReplacement),
+        resumer(MiracleRevealContinuation::class, ::resumeMiracleReveal)
     )
+
+    /**
+     * Resume after the player answers the miracle reveal question (CR 702.94a).
+     *
+     * Yes: reveal the card to the table and emit [CardRevealedForMiracleEvent], which the trigger
+     * detector turns into the miracle trigger. No: nothing happens and nothing is shown — the
+     * question was private, so declining leaves no trace. Either way the rest of the draw
+     * instruction continues from the frame waiting beneath.
+     */
+    fun resumeMiracleReveal(
+        state: GameState,
+        continuation: MiracleRevealContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is YesNoResponse) {
+            return ExecutionResult.error(state, "Expected yes/no response for the miracle reveal")
+        }
+        val inHand = continuation.cardId in
+            state.getZone(com.wingedsheep.engine.state.ZoneKey(continuation.playerId, com.wingedsheep.sdk.core.Zone.HAND))
+        if (!response.choice || !inHand) return checkForMore(state, emptyList())
+
+        val (revealed, revealEvent) = com.wingedsheep.engine.handlers.effects.composite.MayRevealCardFromHandEffectExecutor
+            .emitReveal(state, continuation.playerId, continuation.cardId, "Miracle")
+        val miracleEvent = CardRevealedForMiracleEvent(
+            playerId = continuation.playerId,
+            cardId = continuation.cardId,
+            cardName = revealEvent.cardNames.firstOrNull() ?: "card",
+            cost = continuation.cost
+        )
+        return checkForMore(revealed, listOf(revealEvent, miracleEvent))
+    }
 
     /**
      * Resume after the player answers yes/no for an optional static draw replacement effect
@@ -62,7 +97,8 @@ class DrawReplacementContinuationResumer(
                 controllerId = playerId,
                 sourceId = continuation.sourceId,
             objectReferences = continuation.objectReferences,
-                targets = emptyList()
+                targets = emptyList(),
+                programOrigin = com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(DrawReplacementContinuationResumer::class),
             )
             val effectResult = services.effectExecutorRegistry.execute(
                 newState, continuation.replacementEffect, effectContext

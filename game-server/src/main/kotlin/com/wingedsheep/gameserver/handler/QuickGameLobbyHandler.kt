@@ -88,6 +88,7 @@ class QuickGameLobbyHandler(
             is ClientMessage.SetQuickGameLobbySetCode -> handleSetSetCode(session, message)
             is ClientMessage.SetQuickGameLobbyPublic -> handleSetPublic(session, message)
             is ClientMessage.SetQuickGameLobbyRanked -> handleSetRanked(session, message)
+            is ClientMessage.SetQuickGameLobbyAnte -> handleSetAnte(session, message)
             is ClientMessage.SetQuickGameLobbyFormat -> handleSetFormat(session, message)
             is ClientMessage.SetQuickGameAiDeck -> handleSetAiDeck(session, message)
             is ClientMessage.AddQuickGameAi -> handleAddAi(session)
@@ -260,7 +261,7 @@ class QuickGameLobbyHandler(
                     if (player.isAi) continue
                     val deck = player.deckList ?: continue
                     if (deck.isEmpty()) continue // Random pool — format restriction doesn't apply.
-                    val result = deckValidator.validate(deck, message.format)
+                    val result = deckValidator.validate(deck, message.format, playingForAnte = current.playingForAnte)
                     if (!result.valid) player.ready = false
                 }
                 // Same rule for a manually chosen AI deck. Provider-owned deck presets were
@@ -329,7 +330,67 @@ class QuickGameLobbyHandler(
             val effective = message.ranked && current.rankedEligible
             if (current.ranked == effective) return@withLock
             current.ranked = effective
+            // Ranked games are never played for ante (CR 407).
+            if (effective && current.playingForAnte) {
+                current.playingForAnte = false
+                unreadyAnteDecks(current)
+            }
             broadcastState(current)
+        }
+    }
+
+    private fun handleSetAnte(session: WebSocketSession, message: ClientMessage.SetQuickGameLobbyAnte) {
+        val playerSession = sessionRegistry.getPlayerSession(session.id) ?: run {
+            sender.sendError(session, ErrorCode.NOT_CONNECTED, "Not connected"); return
+        }
+        val lobby = lobbyRepository.findContainingPlayer(playerSession.playerId) ?: run {
+            sender.sendError(session, ErrorCode.GAME_NOT_FOUND, "Not in a lobby"); return
+        }
+        lobbyRepository.withLock(lobby.lobbyId) { current ->
+            if (current == null) return@withLock
+            val host = current.players.firstOrNull { !it.isAi }
+            if (host?.playerId != playerSession.playerId) {
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "Only the host can change ante")
+                return@withLock
+            }
+            if (current.matchmade) {
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "A matchmade game's ante setting is set by the queue")
+                return@withLock
+            }
+            if (message.playingForAnte && current.ranked) {
+                sender.sendError(session, ErrorCode.INVALID_ACTION, "Ranked games can't be played for ante")
+                return@withLock
+            }
+            if (current.playingForAnte == message.playingForAnte) return@withLock
+            current.playingForAnte = message.playingForAnte
+            if (!message.playingForAnte) unreadyAnteDecks(current)
+            broadcastState(current)
+        }
+    }
+
+    /**
+     * Ante just went off on [lobby]: CR 407.3 bars ante cards from decks and sideboards, so any human
+     * whose submitted deck holds one is un-readied and told why — the same treatment a format change
+     * gives a deck it makes illegal. Call under the lobby lock; the caller broadcasts.
+     */
+    private fun unreadyAnteDecks(lobby: QuickGameLobby) {
+        for (player in lobby.players) {
+            if (player.isAi) continue
+            val deck = player.deckList ?: continue
+            if (deck.isEmpty()) continue // Random pool — built at game start for the lobby as it is then.
+            val anteCard = (deck.keys + player.sideboard.keys + listOfNotNull(player.companion))
+                .firstOrNull { cardRegistry.getCard(it)?.requiresAnte == true } ?: continue
+            player.ready = false
+            sessionRegistry.getAllIdentities()
+                .firstOrNull { it.playerId == player.playerId }
+                ?.webSocketSession?.takeIf { it.isOpen }
+                ?.let {
+                    sender.sendError(
+                        it,
+                        ErrorCode.INVALID_DECK,
+                        "The lobby no longer plays for ante — $anteCard can only be played in a game played for ante",
+                    )
+                }
         }
     }
 
@@ -423,6 +484,8 @@ class QuickGameLobbyHandler(
 
         // Ranked only applies to a standard 1v1 human-vs-human lobby (not AI / Two-Headed Giant).
         lobby.ranked = message.ranked && lobby.rankedEligible
+        // Ranked games are never played for ante (CR 407); ranked wins the conflict.
+        lobby.playingForAnte = message.playingForAnte && !lobby.ranked
         lobby.players += QuickGameLobbyPlayer(
             playerId = playerSession.playerId,
             playerName = playerSession.playerName
@@ -507,6 +570,7 @@ class QuickGameLobbyHandler(
         lobby.applyFormat(recipe.format)
         lobby.matchmade = true
         lobby.ranked = recipe.ranked && lobby.rankedEligible
+        lobby.playingForAnte = recipe.playingForAnte && !lobby.ranked
         recipe.seats.forEach { lobby.players += it.copy(ready = true) }
         lobbyRepository.save(lobby)
         recipe.seats.forEach { markPlayerInLobby(it.playerId, lobby.lobbyId) }
@@ -640,21 +704,24 @@ class QuickGameLobbyHandler(
                     sideboard = message.sideboard.orEmpty(),
                     companion = companion,
                 )
-                deckValidator.validate(deck, lobby.format)
-            } else if (companion != null) {
-                // The structured path is the one that reads a companion and its sideboard.
+                deckValidator.validate(deck, lobby.format, playingForAnte = lobby.playingForAnte)
+            } else if (companion != null || !message.sideboard.isNullOrEmpty()) {
+                // The structured path is the one that reads a companion and its sideboard (the
+                // sideboard is checked for ante cards, CR 407.3).
                 deckValidator.validate(
                     DeckRequestConverter.toDeck(
                         message.deckList, message.cardEntries,
                         sideboard = message.sideboard.orEmpty(), companion = companion,
                     ),
                     lobby.format,
+                    playingForAnte = lobby.playingForAnte,
                 )
             } else {
                 deckValidator.validate(
                     deckList = message.deckList,
                     format = lobby.format,
                     cardEntries = message.cardEntries,
+                    playingForAnte = lobby.playingForAnte,
                 )
             }
             if (!result.valid) {
@@ -809,6 +876,8 @@ class QuickGameLobbyHandler(
             gameSession.rankedMode = com.wingedsheep.gameserver.ranking.Ranked
                 .modeForQuickGame(lobby.rules, lobby.format, lobby.momirBasic)
         }
+        // CR 407 — ranked games are never played for ante (the handlers already keep the two apart).
+        gameSession.playingForAnte = lobby.playingForAnte && !gameSession.ranked
         // Commander rules run on the engine's Commander format; everything else falls through to
         // Standard. Brawl-specific tweaks (60 cards, alternative life total) are Phase 4 territory —
         // Phase 1 covers Commander.
@@ -1096,6 +1165,7 @@ class QuickGameLobbyHandler(
             rankedEligible = lobby.rankedEligible,
             aiDeck = if (lobby.vsAi) AiDeckSpecView.of(lobby.aiDeckSpec) else null,
             matchmade = lobby.matchmade,
+            playingForAnte = lobby.playingForAnte,
         )
 
     private fun broadcastClosed(lobby: QuickGameLobby, reason: String) {

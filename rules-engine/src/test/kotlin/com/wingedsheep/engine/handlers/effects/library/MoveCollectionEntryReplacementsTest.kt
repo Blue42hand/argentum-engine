@@ -15,7 +15,9 @@ import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.model.Deck
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.CantEnterTheBattlefield
-import com.wingedsheep.sdk.scripting.DoubleCounterPlacement
+import com.wingedsheep.sdk.scripting.ScaleCounterPlacement
+import com.wingedsheep.sdk.scripting.CounterPlacementScale
+import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.EntersWithCounters
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.EntersTapped
@@ -43,8 +45,9 @@ class MoveCollectionEntryReplacementsTest : FunSpec({
     val doubler = card("Batch Counter Doubler") {
         manaCost = "{0}"
         typeLine = "Artifact"
-        replacementEffect(DoubleCounterPlacement(
-            placedByYou = false,
+        replacementEffect(ScaleCounterPlacement(
+            scale = CounterPlacementScale.DOUBLE,
+            placer = Player.Any,
             appliesTo = EventPattern.CounterPlacementEvent(
                 counterType = null, recipient = Recipient.PermanentYouControl
             )

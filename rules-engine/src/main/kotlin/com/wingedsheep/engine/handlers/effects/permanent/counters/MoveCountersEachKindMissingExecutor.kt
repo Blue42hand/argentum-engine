@@ -72,12 +72,12 @@ class MoveCountersEachKindMissingExecutor(
             newState = newState.updateEntity(sourceId) { container ->
                 container.with(curSource.withRemoved(counterType, 1))
             }
-            events.add(CountersRemovedEvent(sourceId, counterType, 1, sourceName))
+            events.add(CountersRemovedEvent(sourceId, counterType, 1, sourceName, removedBy = context.controllerId))
 
             // Add one of this kind to the destination (honoring placement replacements).
             val modified = ReplacementEffectUtils.applyCounterPlacementModifiers(
                 newState, destinationId, counterType, 1, placerId = context.controllerId,
-                predicateEvaluator = predicateEvaluator
+                predicateEvaluator = predicateEvaluator, byEffect = true
             )
             if (modified <= 0) continue
             val curDest = newState.getEntity(destinationId)?.get<CountersComponent>() ?: CountersComponent()

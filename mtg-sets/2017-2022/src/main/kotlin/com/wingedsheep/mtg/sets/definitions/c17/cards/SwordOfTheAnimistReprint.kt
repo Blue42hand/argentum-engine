@@ -3,8 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.c17.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Sword of the Animist presentation rows; canonical definition is in ORI. */
-
 val SwordOfTheAnimistReprint = Printing(
     oracleId = "d79cbc61-6c15-48ea-bbba-3cffb819ccba",
     name = "Sword of the Animist",

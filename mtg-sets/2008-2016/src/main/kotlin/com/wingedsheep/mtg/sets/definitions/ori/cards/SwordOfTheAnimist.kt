@@ -1,7 +1,5 @@
 package com.wingedsheep.mtg.sets.definitions.ori.cards
 
-import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,25 +8,40 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
+/**
+ * Sword of the Animist
+ * {2}
+ * Legendary Artifact — Equipment
+ *
+ * Equipped creature gets +1/+1.
+ * Whenever equipped creature attacks, you may search your library for a basic land card, put it
+ * onto the battlefield tapped, then shuffle.
+ * Equip {2}
+ *
+ * The attack trigger is Heart-Piercer Bow's `Triggers.attached.attacks()` carrying Ondu Giant's
+ * optional basic-land search to the battlefield tapped.
+ */
 val SwordOfTheAnimist = card("Sword of the Animist") {
     manaCost = "{2}"
     colorIdentity = ""
     typeLine = "Legendary Artifact — Equipment"
-    oracleText = "Equipped creature gets +1/+1.\nWhenever equipped creature attacks, you may search your library for a basic land card, put it onto the battlefield tapped, then shuffle.\nEquip {2}"
+    oracleText = "Equipped creature gets +1/+1.\n" +
+        "Whenever equipped creature attacks, you may search your library for a basic land card, " +
+        "put it onto the battlefield tapped, then shuffle.\n" +
+        "Equip {2}"
 
-    staticAbility { ability = ModifyStats(1, 1, Filters.EquippedCreature) }
+    staticAbility {
+        ability = ModifyStats(1, 1)
+    }
 
     triggeredAbility {
         trigger = Triggers.attached.attacks()
-        effect = Effects.May(
-            Patterns.Library.searchLibrary(
-                filter = GameObjectFilter.BasicLand,
-                count = 1,
-                destination = SearchDestination.BATTLEFIELD,
-                entersTapped = true
-            )
+        optional = true
+        effect = Patterns.Library.searchLibrary(
+            filter = GameObjectFilter.BasicLand,
+            destination = SearchDestination.BATTLEFIELD,
+            entersTapped = true,
         )
-        description = "You may search your library for a basic land card, put it onto the battlefield tapped, then shuffle"
     }
 
     equipAbility("{2}")

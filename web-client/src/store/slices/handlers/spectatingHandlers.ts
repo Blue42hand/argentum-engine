@@ -97,6 +97,8 @@ export function createSpectatingHandlers(set: SetState, get: GetState): Pick<Mes
           priorityPlayerId: msg.priorityPlayerId,
           combat: msg.combat,
           decisionStatus: msg.decisionStatus ?? null,
+          // A result already reported for this game outlives any straggling state update.
+          gameOver: state.spectatingState?.gameSessionId === msg.gameSessionId ? state.spectatingState.gameOver ?? null : null,
         },
         opponentAttackerTargets: keepAttackerPreview(spectatorStep, msg.combat != null)
           ? state.opponentAttackerTargets
@@ -104,7 +106,7 @@ export function createSpectatingHandlers(set: SetState, get: GetState): Pick<Mes
         opponentBlockerAssignments: keepBlockerPreview(
           spectatorStep,
           msg.combat != null,
-          msg.combat?.attackers?.some(a => a.blockedBy.length > 0) ?? false,
+          msg.combat?.attackers?.some(a => a.isBlocked === true || a.blockedBy.length > 0) ?? false,
         )
           ? state.opponentBlockerAssignments
           : null,

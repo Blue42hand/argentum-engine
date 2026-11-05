@@ -80,10 +80,18 @@ val verifyWebClientSearch by tasks.registering {
     val checkedIn = webClientSearchDir.asFile
     inputs.dir(checkedIn)
     doLast {
+        // The Kotlin/JS compiler lists a class's interfaces in `initMetadataFor*(…, [KtSet, Collection])`
+        // in an order that varies between compiles of identical source, so those lists are compared
+        // as sets; anything else that differs is a real change.
+        val bracketList = Regex("""\[([^\[\]]*)]""")
+        fun canonical(text: String) = text.lines().joinToString("\n") { line ->
+            if (!line.startsWith("initMetadataFor")) line
+            else line.replace(bracketList) { m -> m.groupValues[1].split(", ").sorted().joinToString(", ", "[", "]") }
+        }
         val stale = built.get().listFiles { f -> f.name.endsWith(".mjs") || f.name.endsWith(".d.mts") }!!
             .filter { file ->
                 val copy = checkedIn.resolve(file.name)
-                !copy.exists() || copy.readText() != file.readText()
+                !copy.exists() || canonical(copy.readText()) != canonical(file.readText())
             }
         if (stale.isNotEmpty()) {
             throw GradleException(

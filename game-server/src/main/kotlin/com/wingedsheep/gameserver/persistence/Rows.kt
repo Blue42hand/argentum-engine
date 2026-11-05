@@ -231,6 +231,22 @@ data class TournamentParticipantRow(
  *
  * Declining, cancelling, and unfriending all delete the row.
  */
+/**
+ * One card a signed-in player won or lost in a game played for ante (CR 407), from their side of
+ * the table — see `V19__ante_spoils.sql`.
+ */
+@Table("ante_spoils")
+data class AnteSpoilRow(
+    @Id val id: Long? = null,
+    val userId: UUID,
+    val gameId: String,
+    val won: Boolean,
+    val cardName: String,
+    val imageUri: String? = null,
+    val opponentName: String,
+    val createdAt: Instant = Instant.now(),
+)
+
 @Table("friendships")
 data class FriendshipRow(
     @Id val id: UUID? = null,

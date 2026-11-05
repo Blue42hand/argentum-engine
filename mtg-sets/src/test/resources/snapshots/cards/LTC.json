@@ -130,6 +130,72 @@
     }
 }
 
+// Galadhrim Ambush
+{
+    "name": "Galadhrim Ambush",
+    "manaCost": "{3}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Create X 1/1 green Elf Warrior creature tokens, where X is the number of attacking creatures.\nPrevent all combat damage that would be dealt this turn by non-Elf creatures.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "AggregateBattlefield",
+                        "player": "Each",
+                        "filter": "creature attacking"
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Elf",
+                        "Warrior"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/0/2/023f668a-a8e6-4fcb-98d1-30adf343f050.jpg?1783916056"
+                },
+                {
+                    "type": "PreventDamageShield",
+                    "scope": "CombatOnly",
+                    "direction": "FromTarget",
+                    "sourceFilter": {
+                        "type": "PreventFromMatching",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                {
+                                    "type": "NotSubtype",
+                                    "subtype": "Elf"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "rarity": "RARE",
+        "artist": "John Di Giovanni",
+        "flavorText": "\"None of the Orcs will ever return out of Lórien.\"\n—Haldir",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e69e06f0-6142-4f80-9208-362b3e74d51d.jpg?1783916026",
+        "rulings": [
+            {
+                "date": "2023-06-16",
+                "text": "Galadhrim Ambush counts all attacking creatures no matter which player, planeswalker, or battle they're attacking, including attacking creatures you control if Galadhrim Ambush is cast during your combat phase."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // In the Darkness Bind Them
 {
     "name": "In the Darkness Bind Them",
@@ -628,6 +694,94 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Rapacious Guest
+{
+    "name": "Rapacious Guest",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Halfling Citizen",
+    "oracleText": "Menace\nWhenever one or more creatures you control deal combat damage to a player, create a Food token.\nWhenever you sacrifice a Food, put a +1/+1 counter on this creature.\nWhen this creature leaves the battlefield, target opponent loses life equal to its power.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Rapacious Guest:1",
+                "trigger": {
+                    "type": "OneOrMoreDealCombatDamageToPlayerEvent",
+                    "sourceFilter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreatePredefinedToken",
+                    "tokenType": "Food"
+                }
+            },
+            {
+                "id": "Rapacious Guest:2",
+                "trigger": {
+                    "type": "PermanentsSacrificedEvent",
+                    "filter": "artifact Food",
+                    "perPermanent": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            },
+            {
+                "id": "Rapacious Guest:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield"
+                },
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": "Power"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "28",
+        "rarity": "RARE",
+        "artist": "Bartłomiej Gaweł",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/f/ff9dfba4-07d2-4407-a441-88acc7284d43.jpg?1783916032",
+        "rulings": [
+            {
+                "date": "2023-06-16",
+                "text": "Rapacious Guest's third ability triggers whenever you sacrifice a Food for any reason, not just to activate a Food's activated ability."
+            },
+            {
+                "date": "2023-06-16",
+                "text": "To determine the amount of life the target opponent loses from Rapacious Guest's last ability, use Rapacious Guest's power as it last existed on the battlefield, not its power in the graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -1166,8 +1320,12 @@
                             "requirement": {
                                 "type": "TargetPlayer",
                                 "restriction": {
-                                    "type": "PlayerHasMostLife",
-                                    "player": "Candidate"
+                                    "type": "PlayerHasMost",
+                                    "player": "Candidate",
+                                    "amount": {
+                                        "type": "LifeTotal",
+                                        "player": "You"
+                                    }
                                 },
                                 "descriptionOverride": "a player with the most life or tied for most life"
                             },
@@ -1234,5 +1392,75 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// The Gaffer
+{
+    "name": "The Gaffer",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Halfling Peasant",
+    "oracleText": "At the beginning of each end step, if you gained 3 or more life this turn, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "The Gaffer:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                "descriptionOverride": "At the beginning of each end step, if you gained 3 or more life this turn, draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "12",
+        "rarity": "RARE",
+        "artist": "Tomas Duchek",
+        "flavorText": "On the growing of vegetables, especially potatoes, Master Hamfast Gamgee was recognized as the leading authority by all in the neighborhood.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/863ed552-dc6d-4910-b188-3cefc3ebf0ed.jpg?1786423840",
+        "rulings": [
+            {
+                "date": "2023-06-16",
+                "text": "You draw just one card, no matter how much life you've gained past 3 life."
+            },
+            {
+                "date": "2023-06-16",
+                "text": "The Gaffer's ability looks at how much life you've gained in the turn, even if it wasn't on the battlefield when you gained life. It doesn't care if you also lost life, even if you lost more life than you gained."
+            },
+            {
+                "date": "2023-06-16",
+                "text": "If you haven't gained 3 or more life by the time an end step begins, The Gaffer's ability won't trigger at all."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }

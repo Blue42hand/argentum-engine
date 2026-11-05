@@ -129,7 +129,7 @@ sealed interface PendingGameEvent {
                     state.getEntity(it)?.get<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>()?.targetId
                 } == playerId
                 Player.You -> playerId == sourceControllerId
-                Player.Each, Player.Any, Player.ActivePlayerFirst -> true
+                Player.Each, Player.Any, Player.ActivePlayerFirst, Player.EachStartingWithYou -> true
                 Player.EachOpponent, Player.AnOpponent, Player.TargetOpponent -> state.isOpponentOf(playerId, sourceControllerId)
                 else -> context?.copy(controllerId = sourceControllerId)?.resolvePlayerTargets(
                     com.wingedsheep.sdk.scripting.targets.EffectTarget.PlayerRef(gain.player), state)?.contains(playerId) == true
@@ -174,7 +174,11 @@ sealed interface PendingGameEvent {
             context: EffectContext?
         ): Boolean {
             val drawEvent = pattern as? EventPattern.DrawEvent ?: return false
-            if (drawEvent.exceptFirstInDrawStep && drawnCardsSoFar.isEmpty()) return false
+            if (drawEvent.firstInDrawStep != DrawStepFirstCard.INCLUDED) {
+                val isFirst = state.nextDrawIsFirstInOwnDrawStep(playerId)
+                val wanted = drawEvent.firstInDrawStep == DrawStepFirstCard.ONLY
+                if (isFirst != wanted) return false
+            }
             return matchesPlayerFilter(drawEvent.player, playerId, sourceControllerId, state)
         }
 
@@ -344,6 +348,7 @@ private fun matchesPlayerFilter(
 ): Boolean {
     return when (player) {
         Player.EachDefendingPlayer -> affectedPlayerId in com.wingedsheep.engine.mechanics.combat.CombatDefenders.allDefendingPlayersInApnapOrder(state)
+        Player.EachAttackedPlayer -> affectedPlayerId in com.wingedsheep.engine.mechanics.combat.CombatDefenders.attackedPlayersInApnapOrder(state)
         Player.Each, Player.Any -> true
         Player.You -> affectedPlayerId == sourceControllerId
         Player.EachOpponent, Player.AnOpponent -> affectedPlayerId in state.getOpponents(sourceControllerId)

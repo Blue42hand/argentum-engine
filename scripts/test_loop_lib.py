@@ -63,5 +63,58 @@ class AwaitTurnTest(unittest.TestCase):
         self.assertEqual(watched, ["7"])
 
 
+# A session that writes $EVENTS to stdout, leaves a background task running (its pid in $ROOT/kid),
+# and won't exit until that task does ($KID_SECONDS later) — how `claude -p` behaves with a watcher that never finishes.
+SESSION = r'''#!/usr/bin/env bash
+printf '%s\n' "$EVENTS"
+sleep "$KID_SECONDS" &
+echo $! > "$ROOT/kid"
+wait
+'''
+
+ANSWERED = '{"type":"assistant"}\n{"type":"result","result":"Summary: merged #7.\\n\\nSTEP 6 DONE"}'
+
+
+class RunReapedTest(unittest.TestCase):
+    def run_session(self, events, kid_seconds=30):
+        with tempfile.TemporaryDirectory() as root:
+            session = Path(root) / "session"
+            session.write_text(SESSION)
+            session.chmod(0o755)
+            transcript = Path(root) / "iter1.jsonl"
+            env = {"PATH": "/usr/bin:/bin:/opt/homebrew/bin:/usr/local/bin", "ROOT": root, "EVENTS": events,
+                   "KID_SECONDS": str(kid_seconds),
+                   "LOOP_LINGER_GRACE": "2", "LOOP_REAP_TICK": "1"}
+            script = (f'log() {{ echo "LOG $*"; }}; source "{LIB}"; '
+                      f'loop_run_reaped "{transcript}" SET_COMPLETE "{session}" | tee "{transcript}" >/dev/null; '
+                      f'loop_note_reaped "{transcript}"')
+            out = subprocess.run(["bash", "-c", script], env=env, capture_output=True, text=True,
+                                 timeout=25, check=True).stdout
+            kid = Path(root, "kid").read_text().strip()
+            kid_alive = subprocess.run(["kill", "-0", kid], capture_output=True).returncode == 0
+            if kid_alive:
+                subprocess.run(["kill", kid])
+            return out, kid_alive, transcript.with_name("iter1.jsonl.reaped").exists()
+
+    def test_an_answered_session_left_lingering_is_stopped_with_its_background_tasks(self):
+        out, kid_alive, marker = self.run_session(ANSWERED)
+        self.assertIn("LOG session sat idle 2s after answering", out)
+        self.assertFalse(kid_alive)
+        self.assertFalse(marker)
+
+    # Sessions that sit silent past the grace but must be left to finish on their own.
+    def assert_left_running(self, events):
+        out, _, marker = self.run_session(events, kid_seconds=5)
+        self.assertNotIn("sat idle", out)
+        self.assertFalse(marker)
+
+    def test_a_session_still_mid_turn_is_never_taken_for_idle(self):
+        # A long silent build: the last event is a tool call, not a result.
+        self.assert_left_running(ANSWERED + '\n{"type":"assistant","message":{"content":[{"type":"tool_use"}]}}')
+
+    def test_a_result_without_a_protocol_line_is_not_an_answer(self):
+        self.assert_left_running('{"type":"result","result":"Waiting for the gate to finish"}')
+
+
 if __name__ == "__main__":
     unittest.main()

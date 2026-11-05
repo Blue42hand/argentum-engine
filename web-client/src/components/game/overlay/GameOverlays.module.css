@@ -20,6 +20,8 @@
 }
 
 .scrimFixed { position: fixed; z-index: 1000; }
+/* The game-over result: above every in-game animation layer, not just the board. */
+.scrimResult { z-index: var(--z-game-result); }
 
 .card {
   position: relative;

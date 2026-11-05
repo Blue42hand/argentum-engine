@@ -92,8 +92,10 @@ class PlayoutPolicy(
             val seed = CombatSeed.attackers(
                 state, state.projectedState, action, playerId, cardRegistry,
                 aimAtPlaneswalkers = combatAdvisor.attackPlaneswalkers,
+                walkerEngines = combatAdvisor.walkerEngines,
+                minimalLethalInPods = combatAdvisor.minimalLethalInPods,
             )
-            return DeclareAttackers(playerId, seed.attackers) to rng
+            return DeclareAttackers(playerId, CombatSeed.obeyLoneAttackers(action, seed.attackers)) to rng
         }
         legalActions.firstOrNull { it.actionType == "DeclareBlockers" }?.let { action ->
             return combatAdvisor.chooseBlockers(

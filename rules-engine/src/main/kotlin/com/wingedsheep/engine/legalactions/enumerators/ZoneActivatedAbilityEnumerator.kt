@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.mechanics.cost.SacrificeCostAssignment
 import com.wingedsheep.engine.state.LifePaymentPurpose
 
 import com.wingedsheep.engine.legalactions.surfacedRequirements
@@ -33,7 +34,8 @@ import com.wingedsheep.sdk.scripting.TimingRule
  *   ({1}{R}, Discard this card: Destroy target artifact) and Stegron the Dinosaur Man, plus
  *   Urban Retreat's "{2}, Return a tapped creature you control: put this onto the battlefield".
  *
- * Handles cost checking for Mana, Discard, DiscardSelf, ExileSelf, Blight, and Composite (with
+ * Handles cost checking for Mana, Discard, DiscardSelf, ExileSelf, Blight, Sacrifice (one or several
+ * atoms, jointly — [SacrificeCostAssignment]), and Composite (with
  * ReturnToHand), plus target requirements and X/auto-tap info.
  * [com.wingedsheep.engine.handlers.actions.ability.ActivateAbilityHandler] already accepts any
  * non-battlefield `activateFromZone` generically (owner + zone-membership check), so no handler
@@ -121,16 +123,22 @@ class ZoneActivatedAbilityEnumerator(
                 // afford only the reduced price.
                 // Then the board's statics, as the activation handler's totaller applies them —
                 // an "abilities you activate" reduction (Zirda) reaches a hand or graveyard card.
+                // A cost naming the card's own mana cost (a granted scavenge, Young Deathclaws) is
+                // lowered to that card's printed cost; one left un-lowered has no mana cost to pay.
                 val effectiveCost = context.castPermissionUtils.applyActivatedAbilityCostReduction(
                     AbilityCostReduction.apply(
-                        context.castPermissionUtils
-                            .applyDefinedXValue(ability.cost, ability, state, entityId, playerId),
+                        context.castPermissionUtils.applyDefinedXValue(
+                            context.castPermissionUtils.lowerReferencedManaCost(state, entityId, ability.cost),
+                            ability, state, entityId, playerId
+                        ),
                         ability, state, entityId, playerId, context.targetUtils,
                         predicateEvaluator = predicateEvaluator
                     ),
-                    state, entityId, playerId, ability.isExhaust, ability.isPowerUp, ability.isManaAbility,
-                    chosenTargetIds = if (ability.targetRequirements.isEmpty()) emptyList() else null
+                    state, entityId, playerId, ability.onceOnlyKind, ability.isManaAbility,
+                    chosenTargetIds = if (ability.targetRequirements.isEmpty()) emptyList() else null,
+                    abilityKeyword = ability.keyword,
                 )
+                if (effectiveCost.containsUnpayableOwnManaCost()) continue
                 val displayDescription = AbilityCostReduction.describe(ability, effectiveCost)
 
                 var costCanBePaid = true
@@ -144,6 +152,13 @@ class ZoneActivatedAbilityEnumerator(
                 )
 
                 if (!com.wingedsheep.engine.mechanics.cost.PlayerCounterPayment.canAffordAbility(state, playerId, effectiveCost)) continue
+
+                // Sacrifice atoms ("Sacrifice a Swamp and a Forest: Return Jarad from your graveyard")
+                // are unpayable without enough permanents — and, with several atoms, without one
+                // disjoint assignment (a lone Swamp Forest dual pays one atom, not both). The engine
+                // asks which permanents when the bare action arrives, so there's no payload to build.
+                val sacrificeGroups = SacrificeCostAssignment.groups(state, effectiveCost, playerId, entityId, context.predicateEvaluator)
+                if (sacrificeGroups.isNotEmpty() && !SacrificeCostAssignment.hasDisjointAssignment(sacrificeGroups)) continue
 
                 when (effectiveCost) {
                     is AbilityCost.Atom -> when (val atom = effectiveCost.atom) {
@@ -165,7 +180,11 @@ class ZoneActivatedAbilityEnumerator(
                         if (blightCreatures.isEmpty()) costCanBePaid = false
                     }
                     is AbilityCost.Composite -> {
-                        for (subCost in effectiveCost.costs) {
+                        // Cheap structural checks (an unblocked attacker to return for ninjutsu, a
+                        // card to discard) before the mana solve, so a hand full of ninjutsu cards
+                        // outside combat costs no solver run per priority pass.
+                        val cheapFirst = effectiveCost.costs.sortedBy { (it as? AbilityCost.Atom)?.atom is CostAtom.Mana }
+                        for (subCost in cheapFirst) {
                             when (subCost) {
                                 is AbilityCost.Atom -> when (val atom = subCost.atom) {
                                     is CostAtom.Mana -> {
@@ -357,4 +376,10 @@ class ZoneActivatedAbilityEnumerator(
         atom.anyPlayersZone, atom.singleZone, atom.count,
         excludeSelfId = if (atom.excludeSelf) sourceId else null,
     ).size >= atom.count
+}
+
+private fun AbilityCost.containsUnpayableOwnManaCost(): Boolean = when (this) {
+    is AbilityCost.OwnManaCost -> true
+    is AbilityCost.Composite -> costs.any { it.containsUnpayableOwnManaCost() }
+    else -> false
 }

@@ -4,6 +4,7 @@ import com.wingedsheep.ai.engine.evaluation.EvaluationWeights
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.DamageComponent
@@ -114,11 +115,42 @@ class HoldPolicy(
      */
     private val holdInstantSpeedDeploys: Boolean = false,
     /**
+     * [AiProfile.taxCountersReadTheirMana][com.wingedsheep.ai.engine.AiProfile.taxCountersReadTheirMana]
+     * — read a "counter unless they pay {N}" against the mana its target's caster has left. See
+     * [CounterTax], which is where the whole idea lives.
+     */
+    private val taxCountersReadTheirMana: Boolean = false,
+    /**
+     * [AiProfile.refuseWastedPayoffs][com.wingedsheep.ai.engine.AiProfile.refuseWastedPayoffs] —
+     * refuse a permanent whose entry trigger has nothing to target ([TargetlessEntry]), an
+     * end-of-turn shrink on a creature with no fight left ([ExpiringGrantWindow]), an end-of-combat
+     * sweep keyed on blocks its creature will never make ([IdleBlockWatcher]) and a spells-only
+     * mana grant nothing castable would spend ([UnspendableManaGrant]).
+     */
+    private val refuseWastedPayoffs: Boolean = false,
+    /**
+     * [AiProfile.lifelinkWaitsForBlocks][com.wingedsheep.ai.engine.AiProfile.lifelinkWaitsForBlocks]
+     * — [ExpiringGrantWindow]'s deferral holds a lifelink-only grant until blockers are declared.
+     */
+    private val lifelinkWaitsForBlocks: Boolean = false,
+    /**
+     * [AiProfile.tapToGrowAtTheirEndStep][com.wingedsheep.ai.engine.AiProfile.tapToGrowAtTheirEndStep]
+     * — hold a creature's "{T}: put counters on this creature" for the window where the tap costs
+     * no attack and no block. See [SelfTapGrowthWindow], which is where the whole idea lives.
+     */
+    private val tapToGrowAtTheirEndStep: Boolean = false,
+    /**
      * The profile's `EvaluationWeights.boardPresence`, so [RemovalPatience] can quote its discount
      * in the same currency as the board value it compares against. The default is the compiled
      * fallback's, which is what every profile that does not opt in would have used anyway.
      */
     private val boardPresenceWeight: Double = EvaluationWeights.DEFAULT.boardPresence,
+    /**
+     * The engine's legal actions for a player in a position — what [UnspendableManaGrant] asks of
+     * the leaf a mana grant resolves to. Null where no engine is wired, and that reader then
+     * declines.
+     */
+    private val legalActions: ((GameState, EntityId) -> List<LegalAction>)? = null,
 ) {
 
     /** Whether this policy can say anything. False when the agent has no card knowledge. */
@@ -160,16 +192,47 @@ class HoldPolicy(
 
         val intent = intents.forName(cardName) ?: return TimingVerdict.Neutral
 
+        // A permanent whose entry has nothing to point at — or an Aura whose entry is gated on a
+        // creature it is not being cast onto — does nothing in any window. Nor does a sweep over
+        // what a creature blocked when it can block nothing more, or borrowed spell mana with no
+        // spell to spend it on.
+        if (refuseWastedPayoffs && cast != null) {
+            val definition = intents.definition(cardName)
+            val predicates = intents.predicates
+            if (definition != null && predicates != null &&
+                (TargetlessEntry.holds(state, playerId, definition, cast.cardId, predicates) ||
+                    UnmetAuraEntry.holds(state, playerId, definition, cast.cardId, cast.targets, predicates) ||
+                    IdleBlockWatcher.holds(state, definition, cast.targets) ||
+                    UnspendableManaGrant.holds(state, playerId, definition, leaf, legalActions))
+            ) {
+                return TimingVerdict.NoWindow
+            }
+        }
+
         val window = windowVerdictFor(state, playerId, intent, cast, leaf)
         // A card that accomplishes nothing here is already floored below passing; there is no
         // target trade left to price on top of that.
         if (window is TimingVerdict.NoWindow) return window
 
+        // A tax counter is read against the mana they have left: futile, or the first of a stack.
+        val stackCredit = if (taxCountersReadTheirMana && cast != null) {
+            when (val reading = CounterTax.read(state, playerId, intent, cast, intents)) {
+                CounterTax.Reading.Futile -> return TimingVerdict.NoWindow
+                is CounterTax.Reading.FirstOfAStack -> boardPresenceWeight * reading.spellWorth
+                CounterTax.Reading.Silent -> 0.0
+            }
+        } else {
+            0.0
+        }
+
         val patience = patienceFor(state, playerId, intent, cast)
-        if (patience <= 0.0) return window
+        if (patience <= 0.0 && stackCredit == 0.0) return window
 
         val windowDelta = (window as? TimingVerdict.Adjust)?.delta ?: 0.0
-        return TimingVerdict.Adjust(windowDelta - patience, reason = "patience")
+        return TimingVerdict.Adjust(
+            windowDelta + stackCredit - patience.coerceAtLeast(0.0),
+            reason = if (stackCredit > 0.0) "first of stacked tax counters" else "patience",
+        )
     }
 
     /**
@@ -223,7 +286,7 @@ class HoldPolicy(
     ): TimingVerdict {
         if (activation == null) return TimingVerdict.Neutral
         if (!(holdExpiringGrantsForCombat || refuseUnspendableGrants || refuseDeadSearches ||
-                refuseEmptyPayoffs || drawWithIdleMana)
+                refuseEmptyPayoffs || drawWithIdleMana || refuseWastedPayoffs || tapToGrowAtTheirEndStep)
         ) {
             return TimingVerdict.Neutral
         }
@@ -241,12 +304,21 @@ class HoldPolicy(
             return TimingVerdict.NoWindow
         }
         if (drawWithIdleMana) drawActivationVerdict(state, playerId, ability)?.let { return it }
-        if (!(holdExpiringGrantsForCombat || refuseUnspendableGrants)) return TimingVerdict.Neutral
+        // A tap that costs an attack or a block, for counters the opponent's end step buys for free.
+        if (tapToGrowAtTheirEndStep && SelfTapGrowthWindow.holds(state, playerId, ability, activation)) {
+            return TimingVerdict.NoWindow
+        }
+        if (!(holdExpiringGrantsForCombat || refuseUnspendableGrants || refuseWastedPayoffs)) {
+            return TimingVerdict.Neutral
+        }
         val holds = ExpiringGrantWindow.holds(
             state, playerId, ability, intents,
             activation = activation,
             deferToLaterWindow = holdExpiringGrantsForCombat,
             refuseUnspendable = refuseUnspendableGrants,
+            readShrinks = refuseWastedPayoffs,
+            readRestrictions = refuseWastedPayoffs,
+            lifelinkWaitsForBlocks = lifelinkWaitsForBlocks,
         )
         return if (holds) TimingVerdict.NoWindow else TimingVerdict.Neutral
     }

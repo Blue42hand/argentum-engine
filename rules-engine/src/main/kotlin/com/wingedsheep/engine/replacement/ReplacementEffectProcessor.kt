@@ -148,7 +148,7 @@ class ReplacementEffectProcessor(
 
         // 4. If only one mandatory match, apply it directly
         if (mandatory.size == 1) {
-            return applySingle(state, mandatory[0], event, alreadyApplied)
+            return applySingle(state, mandatory[0], event, alreadyApplied, context?.programOrigin)
         }
 
         // 5. Multiple mandatory matches — group by priority order (CR 616.1a-e)
@@ -163,14 +163,14 @@ class ReplacementEffectProcessor(
                 // player chooses which to apply. Skip the prompt when the choice is unobservable.
                 val first = groupEffects.first()
                 if (isChoiceUnobservable(groupEffects, first, event, state)) {
-                    return applySingle(state, first, event, alreadyApplied)
+                    return applySingle(state, first, event, alreadyApplied, context?.programOrigin)
                 }
                 // The order is observable — the player must choose (CR 616.1).
                 return presentChoice(state, event, groupEffects, alreadyApplied, context)
             }
 
             // Single effect — auto-apply
-            return applySingle(state, groupEffects.first(), event, alreadyApplied)
+            return applySingle(state, groupEffects.first(), event, alreadyApplied, context?.programOrigin)
         }
 
         // Unreachable: mandatory was non-empty, so at least one group matched.
@@ -225,7 +225,9 @@ class ReplacementEffectProcessor(
         state: GameState,
         gathered: GatheredReplacement,
         event: PendingGameEvent,
-        alreadyApplied: Set<ReplacementEffectIdentity>
+        alreadyApplied: Set<ReplacementEffectIdentity>,
+        /** The origin of the program whose instruction the event came from, when there is one. */
+        parentOrigin: com.wingedsheep.engine.core.ProgramOrigin? = null,
     ): ProcessorResult {
         val outcome = createOutcome(gathered.effect, event, state)
 
@@ -233,9 +235,13 @@ class ReplacementEffectProcessor(
         // otherwise use the affected player as the controller so the replacement
         // effect (e.g. DrawCardsEffect from Phial of Galadriel) resolves against
         // the player the event affects, not whoever announced the draw.
+        // A replacement's effect is a program of its own, labelled with the replacement.
+        val replacementOrigin = com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter
+            .startedBy(gathered.effect::class, parentOrigin)
         val execContext = when (val identity = gathered.identity) {
             is ReplacementEffectIdentity.FloatingIdentity -> {
                 buildContextFromShield(state, identity.floatingId, gathered.sourceControllerId)
+                    ?.copy(programOrigin = replacementOrigin)
             }
             else -> EffectContext(
                 controllerId = if (event is PendingGameEvent.LifeGainPending && gathered.effect is com.wingedsheep.sdk.scripting.ReplaceLifeGainWith)
@@ -249,7 +255,8 @@ class ReplacementEffectProcessor(
                     // stops the same identity applying twice to one event, so this is unique
                     // without a random token — and reproduces on re-execution.
                     resolutionKey = "replacement:${gathered.identity}:" +
-                        "${gathered.sourceEntityId(state)?.let(state::objectRef)?.generation}")
+                        "${gathered.sourceEntityId(state)?.let(state::objectRef)?.generation}"),
+                programOrigin = replacementOrigin,
             )
         }
 
@@ -378,7 +385,7 @@ class ReplacementEffectProcessor(
             gathered, state.copy(activeReplacementChain = alreadyApplied), context
         )
             ?: // Event doesn't support optional prompts — treat as mandatory
-            return applySingle(state, gathered, event, alreadyApplied)
+            return applySingle(state, gathered, event, alreadyApplied, context?.programOrigin)
 
         val pause = state.suspendForDecision(promptResult.question, promptResult.continuation)
         return ProcessorResult.Paused(pause.state, pause.events)

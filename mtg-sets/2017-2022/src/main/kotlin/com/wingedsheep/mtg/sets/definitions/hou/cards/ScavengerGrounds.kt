@@ -12,10 +12,14 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 
 /**
- * Scavenger Grounds
+ * Scavenger Grounds — Hour of Devastation #182 (canonical printing)
  * Land — Desert
  * {T}: Add {C}.
  * {2}, {T}, Sacrifice a Desert: Exile all graveyards.
+ *
+ * "Sacrifice a Desert" is a plain filtered sacrifice cost (not `SacrificeAnother`), so Scavenger
+ * Grounds may sacrifice itself to pay for its own ability; it is then in the graveyard when the
+ * ability resolves and is exiled along with everything else (the 2017-07-14 rulings).
  */
 val ScavengerGrounds = card("Scavenger Grounds") {
     manaCost = ""

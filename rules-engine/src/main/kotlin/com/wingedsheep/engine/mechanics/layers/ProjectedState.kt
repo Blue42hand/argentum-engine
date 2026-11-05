@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.mechanics.layers
 
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Supertype
 import com.wingedsheep.sdk.model.EntityId
@@ -77,11 +78,18 @@ data class ProjectedValues(
     val isFaceDown: Boolean = false,
     val isSuspected: Boolean = false,
     val cantAttack: Boolean = false,
+    /** Attacking doesn't cause it to tap — a rule modification, not vigilance (Johan). */
+    val attacksWithoutTapping: Boolean = false,
     val canAttackAsThoughHasty: Boolean = false,
     val cantBlock: Boolean = false,
     val cantBeTurnedFaceUp: Boolean = false,
     val mustAttack: Boolean = false,
     val mustAttackPlayer: Boolean = false,
+    /**
+     * Players this creature must attack someone other than, if able — one entry per requirement
+     * ([Modification.SetMustAttackOtherThan]); a player named twice stays twice.
+     */
+    val mustAttackOtherThan: List<EntityId> = emptyList(),
     val mustBlock: Boolean = false,
     val cantBeBlockedExceptByFilters: List<com.wingedsheep.sdk.scripting.GameObjectFilter> = emptyList(),
     val canOnlyBlockCreaturesWithFilters: List<com.wingedsheep.sdk.scripting.GameObjectFilter> = emptyList(),
@@ -90,6 +98,15 @@ data class ProjectedValues(
     val manaAbilityLifeTax: Int = 0,
     val lostAllAbilities: Boolean = false,
     /**
+     * The latest timestamp among the "loses all abilities" effects applied to this object, or null
+     * when none applied. Lets a grant that records its own layer-6 timestamp
+     * ([com.wingedsheep.engine.event.GrantedTriggeredAbility.timestamp]) tell an earlier removal,
+     * which it survives, from a later one, which strips it (CR 613.7).
+     */
+    val lostAllAbilitiesTimestamp: Long? = null,
+    /** See [Modification.GrantExileOnDeathAbility]. */
+    val hasExileOnDeathAbility: Boolean = false,
+    /**
      * True when a continuous effect SET this permanent's basic land types (Blood Moon,
      * Zhao's "nonbasic lands are Mountains", Spreading Seas, …). Such effects grant the
      * new type's intrinsic mana ability (CR 305.7), which survives even a lose-all-abilities
@@ -97,6 +114,21 @@ data class ProjectedValues(
      * which Imprisoned in the Moon does remove.
      */
     val basicLandTypesSetByEffect: Boolean = false
+)
+
+/**
+ * One off-battlefield color-setting reach (a `SetColors` static's `offBattlefield`): objects whose
+ * controller (a spell) or owner (a card outside the battlefield) is in [players] and that
+ * [eligible] accepts have exactly [colors].
+ */
+class OffBattlefieldColorRule(
+    val players: Set<EntityId>,
+    val colors: Set<String>,
+    /** The permanent whose static this is, for source-relative predicates in [eligibility]. */
+    val sourceId: EntityId,
+    /** Which objects the rule reaches, for callers that only hold a card definition. */
+    val eligibility: GameObjectFilter,
+    val eligible: (EntityId) -> Boolean
 )
 
 /**
@@ -117,8 +149,73 @@ class ProjectedState(
      * you own that aren't on the battlefield". Resolved eagerly by `StateProjector`; empty for
      * virtually every game state. Battlefield permanents get the type through Layer 4 instead.
      */
-    private val crossZoneCardTypes: Map<EntityId, Set<String>> = emptyMap()
+    private val crossZoneCardTypes: Map<EntityId, Set<String>> = emptyMap(),
+    /**
+     * Colors set on **non-battlefield** objects by a `SetColors` static's off-battlefield reach —
+     * Mycosynth Lattice's "All cards that aren't on the battlefield, spells, and permanents are
+     * colorless". In layer order; empty for virtually every game state. Read lazily per object, so
+     * a spell mid-resolution (popped off the stack list, still a spell) is reached too.
+     */
+    val offBattlefieldColorRules: List<OffBattlefieldColorRule> = emptyList()
 ) {
+    /**
+     * The colors of any object, in any zone: its projected colors on the battlefield, else the
+     * colors an off-battlefield `SetColors` gives it, else its printed colors. The one read for
+     * "what color is this" wherever the object may be a spell or a card off the battlefield —
+     * reading `CardComponent.colors` directly misses Mycosynth Lattice.
+     */
+    fun colorsOf(entityId: EntityId): Set<String> {
+        projectedValues[entityId]?.let { return it.colors }
+        offBattlefieldColors(entityId)?.let { return it }
+        return baseState.getEntity(entityId)
+            ?.get<com.wingedsheep.engine.state.components.identity.CardComponent>()
+            ?.colors?.mapTo(linkedSetOf()) { it.name } ?: emptySet()
+    }
+
+    /** [colorsOf] as [Color]s. */
+    fun colorSetOf(entityId: EntityId): Set<Color> = colorsOf(entityId).mapNotNullTo(linkedSetOf()) { name ->
+        Color.entries.firstOrNull { it.name == name }
+    }
+
+    /**
+     * The off-battlefield color override for [entityId], or null when none applies: the last rule,
+     * in layer order, that reaches it — a spell its controller's rule reaches, a card outside the
+     * battlefield its owner's rule reaches.
+     */
+    fun offBattlefieldColors(entityId: EntityId): Set<String>? {
+        if (offBattlefieldColorRules.isEmpty() || projectedValues.containsKey(entityId)) return null
+        val container = baseState.getEntity(entityId) ?: return null
+        val card = container.get<com.wingedsheep.engine.state.components.identity.CardComponent>() ?: return null
+        val spell = container.get<com.wingedsheep.engine.state.components.stack.SpellOnStackComponent>()
+        val player = if (spell != null) {
+            container.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId ?: spell.casterId
+        } else {
+            if (entityId in baseState.getBattlefield()) return null
+            card.ownerId
+        }
+        var result: Set<String>? = null
+        for (rule in offBattlefieldColorRules) {
+            if (player in rule.players && rule.eligible(entityId)) result = rule.colors
+        }
+        return result
+    }
+
+    /**
+     * The colors a spell printed with [printed] has as [casterId] casts it: [printed], unless an
+     * off-battlefield `SetColors` reaching that player's spells sets them (Mycosynth Lattice). For
+     * callers that judge a spell from its definition before or while it is cast; [entityId] is the
+     * card being cast, needed only by a rule whose reach is filtered.
+     */
+    fun spellColors(casterId: EntityId, printed: Set<Color>, entityId: EntityId? = null): Set<Color> {
+        var result = printed
+        for (rule in offBattlefieldColorRules) {
+            if (casterId !in rule.players) continue
+            val reaches = rule.eligibility.cardPredicates.isEmpty() || (entityId != null && rule.eligible(entityId))
+            if (reaches) result = rule.colors.mapNotNullTo(linkedSetOf()) { name -> Color.entries.firstOrNull { it.name == name } }
+        }
+        return result
+    }
+
     /**
      * The card types a cross-zone `GrantCardType` adds to a non-battlefield object (see
      * [crossZoneCardTypes]). Read by `PredicateEvaluator`'s type predicates for objects with no
@@ -187,6 +284,18 @@ class ProjectedState(
 
     fun getKeywords(entityId: EntityId): Set<String> = projectedValues[entityId]?.keywords ?: emptySet()
 
+    /**
+     * Every "bands with other [quality]" keyword (CR 702.22b) some permanent has. Empty in
+     * virtually every game; computed once per projection for the client's per-card band
+     * qualities rather than re-scanning the battlefield for each card.
+     */
+    val bandsWithOtherInPlay: Set<String> by lazy {
+        projectedValues.values.asSequence()
+            .flatMap { it.keywords.asSequence() }
+            .filter { com.wingedsheep.sdk.scripting.KeywordAbility.BandsWithOther.isBandsWithOther(it) }
+            .toSet()
+    }
+
     fun hasKeyword(entityId: EntityId, keyword: String): Boolean =
         getKeywords(entityId).contains(keyword)
 
@@ -241,6 +350,9 @@ class ProjectedState(
     /** CR 205.4g — a snow permanent; its mana is the only mana that pays `{S}` (CR 107.4h). */
     fun isSnow(entityId: EntityId): Boolean = hasType(entityId, "SNOW")
 
+    /** CR 205.4f — a world permanent, subject to the world rule (CR 704.5k). */
+    fun isWorld(entityId: EntityId): Boolean = hasType(entityId, "WORLD")
+
     fun getSubtypes(entityId: EntityId): Set<String> = projectedValues[entityId]?.subtypes ?: emptySet()
 
     /**
@@ -261,6 +373,8 @@ class ProjectedState(
 
     fun cantAttack(entityId: EntityId): Boolean = projectedValues[entityId]?.cantAttack == true
 
+    fun attacksWithoutTapping(entityId: EntityId): Boolean = projectedValues[entityId]?.attacksWithoutTapping == true
+
     fun cantBlock(entityId: EntityId): Boolean = projectedValues[entityId]?.cantBlock == true
 
     fun cantBeTurnedFaceUp(entityId: EntityId): Boolean =
@@ -269,6 +383,9 @@ class ProjectedState(
     fun mustAttack(entityId: EntityId): Boolean = projectedValues[entityId]?.mustAttack == true
 
     fun mustAttackPlayer(entityId: EntityId): Boolean = projectedValues[entityId]?.mustAttackPlayer == true
+
+    fun mustAttackOtherThan(entityId: EntityId): List<EntityId> =
+        projectedValues[entityId]?.mustAttackOtherThan.orEmpty()
 
     fun mustBlock(entityId: EntityId): Boolean = projectedValues[entityId]?.mustBlock == true
 
@@ -300,6 +417,18 @@ class ProjectedState(
 
     fun hasLostAllAbilities(entityId: EntityId): Boolean =
         projectedValues[entityId]?.lostAllAbilities == true
+
+    /**
+     * Whether an ability-adding effect with layer-6 [timestamp] is undone by a "loses all
+     * abilities" effect on [entityId] — one with a later timestamp (CR 613.7). See
+     * [ProjectedValues.lostAllAbilitiesTimestamp].
+     */
+    fun lostAllAbilitiesAfter(entityId: EntityId, timestamp: Long): Boolean =
+        projectedValues[entityId]?.lostAllAbilitiesTimestamp?.let { it > timestamp } == true
+
+    /** See [Modification.GrantExileOnDeathAbility]. */
+    fun hasExileOnDeathAbility(entityId: EntityId): Boolean =
+        projectedValues[entityId]?.hasExileOnDeathAbility == true
 
     /** See [ProjectedValues.basicLandTypesSetByEffect]. */
     fun hasBasicLandTypesSetByEffect(entityId: EntityId): Boolean =
@@ -345,17 +474,21 @@ internal fun buildIntermediateProjectedState(
             isFaceDown = v.isFaceDown,
             isSuspected = v.isSuspected,
             cantAttack = v.cantAttack,
+            attacksWithoutTapping = v.attacksWithoutTapping,
             canAttackAsThoughHasty = v.canAttackAsThoughHasty,
             cantBlock = v.cantBlock,
             cantBeTurnedFaceUp = v.cantBeTurnedFaceUp,
             mustAttack = v.mustAttack,
             mustAttackPlayer = v.mustAttackPlayer,
+            mustAttackOtherThan = v.mustAttackOtherThan.toList(),
             mustBlock = v.mustBlock,
             cantBeBlockedExceptByFilters = v.cantBeBlockedExceptByFilters.toList(),
             canOnlyBlockCreaturesWithFilters = v.canOnlyBlockCreaturesWithFilters.toList(),
             additionalBlockCount = v.additionalBlockCount,
             manaAbilityLifeTax = v.manaAbilityLifeTax,
             lostAllAbilities = v.lostAllAbilities,
+            lostAllAbilitiesTimestamp = v.lostAllAbilitiesTimestamp,
+            hasExileOnDeathAbility = v.hasExileOnDeathAbility,
             name = v.name
         )
     }

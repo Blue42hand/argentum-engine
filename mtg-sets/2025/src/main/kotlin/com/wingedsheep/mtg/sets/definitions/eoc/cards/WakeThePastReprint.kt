@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.eoc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Presentation data; canonical Wake the Past is Commander 2021 #75. */
 val WakeThePastReprint = Printing(
     oracleId = "34143cfa-aa48-481c-af42-1240af174b80",
     name = "Wake the Past",

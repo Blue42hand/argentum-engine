@@ -1,6 +1,8 @@
 package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.view.ClientGameState
+import com.wingedsheep.engine.view.asPriorityAction
+import com.wingedsheep.engine.legalactions.MeaningfulActionFilter
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.engine.handlers.effects.DamageUtils
@@ -69,6 +71,21 @@ class ForcefieldScenarioTest : ScenarioTestBase() {
             game.declareNoBlockers().error shouldBe null
             finish(game)
             game.getLifeTotal(1) shouldBe 17
+        }
+        test("activation is flagged inert until an unblocked creature exists, so it is not a stop") {
+            val game = board()
+            fun forcefield() = game.getLegalActions(1).single {
+                (it.action as? ActivateAbility)?.sourceId == game.findPermanent("Forcefield")
+            }
+            game.declareAttackers(mapOf("Hill Giant" to 1)).error shouldBe null
+            game.passPriority().error shouldBe null
+            forcefield().inertReason shouldBe "No unblocked creature to choose yet"
+            MeaningfulActionFilter.isMeaningful(forcefield().asPriorityAction()) shouldBe false
+            game.passUntilPhase(Phase.COMBAT, Step.DECLARE_BLOCKERS)
+            game.declareNoBlockers().error shouldBe null
+            if (game.state.priorityPlayerId != game.player1Id) game.passPriority().error shouldBe null
+            forcefield().inertReason shouldBe null
+            MeaningfulActionFilter.isMeaningful(forcefield().asPriorityAction()) shouldBe true
         }
         test("blocked trampler is not an eligible source even after its blocker dies") {
             val game = board("Craw Wurm", blocker = true)

@@ -10,6 +10,7 @@ import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
+import kotlinx.serialization.Serializable
 
 /**
  * The minimal shape of a legal action that the meaningful-action and auto-pass rules read.
@@ -55,6 +56,14 @@ interface PriorityAction {
      * count: the player simply picks none.
      */
     val hasUnfillableTargetRequirement: Boolean
+
+    /**
+     * Why taking this action right now would do nothing, or null when it can matter. Set when the
+     * choice the effect makes on resolution has no eligible option yet — Forcefield's "unblocked
+     * creature of your choice" before blockers are declared. Still legal to take (nothing requires
+     * the effect to do anything), but never worth a stop, and the client greys it out with this text.
+     */
+    val inertReason: String? get() = null
 }
 
 /**
@@ -65,6 +74,22 @@ interface PriorityAction {
  * top of the stack" when a player reports the game speeding past a window they wanted.
  */
 data class AutoPassVerdict(val autoPass: Boolean, val reason: String)
+
+/**
+ * A kind of the player's **own** stack object they asked to keep priority over, instead of the
+ * default auto-pass (Rule 4). Opt-in per player, from Preferences: combo players respond to their
+ * own triggers (Overkill on the creature whose Jaws of Defeat trigger is waiting) and to their own
+ * spells and abilities, while everyone else keeps Arena's "pass and let the opponent respond".
+ *
+ * A stop only fires when the player holds an instant-speed response — with nothing to cast or
+ * activate there is no reason to hand them the window.
+ */
+@Serializable
+enum class OwnStackStop {
+    TRIGGERED_ABILITIES,
+    ACTIVATED_ABILITIES,
+    SPELLS,
+}
 
 /**
  * Arena-style priority rules — which actions are worth stopping for, and which whole priority
@@ -195,21 +220,13 @@ object MeaningfulActionFilter {
         if (action.requiresTargets && action.validTargets.isNullOrEmpty() && action.minTargets > 0) return false
         if (action.hasUnfillableTargetRequirement) return false
 
-        // A non-mana activated ability is meaningful.
-        if (action.actionType == "ActivateAbility") return true
+        // An ability whose resolution-time choice has nothing to choose from would do nothing.
+        if (action.inertReason != null) return false
 
-        // Everything with a cost is meaningful only if it can be paid. (Regular spells are only
-        // enumerated when affordable, but companion actions for cycling/morph cards are added
-        // with isAffordable = false.)
-        if (action.actionType in SPELL_CAST_ACTION_TYPES ||
-            action.actionType == "CycleCard" || action.actionType == "TypecycleCard" ||
-            action.actionType == "PlotCard" || action.actionType == "ForetellCard" ||
-            action.actionType == "PutCompanionIntoHand" || action.actionType == "CrewVehicle"
-        ) {
-            return action.isAffordableAction
-        }
-
-        return true
+        // Everything else is meaningful only if it can be paid. The enumerators offer unpayable
+        // actions greyed out (activated abilities, cycling, crew, suspend, saddle, the morph
+        // twins of a cast …) so the client can show them; none of them is a reason to stop.
+        return action.isAffordableAction
     }
 
     /** [isMeaningful] over a list, preserving the caller's own action type. */
@@ -232,8 +249,9 @@ object MeaningfulActionFilter {
         opponentTurnStops: Set<Step> = emptySet(),
         stopsMode: Boolean = false,
         cardRegistry: CardRegistry? = null,
+        ownStackStops: Set<OwnStackStop> = emptySet(),
     ): Boolean = autoPassVerdict(
-        state, playerId, legalActions, myTurnStops, opponentTurnStops, stopsMode, cardRegistry
+        state, playerId, legalActions, myTurnStops, opponentTurnStops, stopsMode, cardRegistry, ownStackStops
     ).autoPass
 
     /**
@@ -246,6 +264,8 @@ object MeaningfulActionFilter {
      *   (CR 709/715). Null falls back to the base card's type line — fine for a single-face test,
      *   but production must supply it so an Omen/Adventure instant face isn't mistaken for the
      *   permanent face and auto-resolved past.
+     * @param ownStackStops the kinds of the player's own stack objects they keep priority over when
+     *   they can respond (see [OwnStackStop]). The AI passes none.
      */
     fun autoPassVerdict(
         state: GameState,
@@ -255,6 +275,7 @@ object MeaningfulActionFilter {
         opponentTurnStops: Set<Step> = emptySet(),
         stopsMode: Boolean = false,
         cardRegistry: CardRegistry? = null,
+        ownStackStops: Set<OwnStackStop> = emptySet(),
     ): AutoPassVerdict {
         // Deliberately the *baton*, not [GameState.hasPriority]: auto-pass stays bound to the seat
         // holding [GameState.priorityPlayerId]. Under team priority (CR 805.5) a teammate may act
@@ -268,7 +289,7 @@ object MeaningfulActionFilter {
 
         // ── Rule 4: the stack response ──
         if (state.stack.isNotEmpty()) {
-            return stackVerdict(state, playerId, meaningfulActions, stopsMode, cardRegistry)
+            return stackVerdict(state, playerId, meaningfulActions, stopsMode, cardRegistry, ownStackStops)
         }
 
         // Team-aware (CR 805/810): in a shared Two-Headed Giant turn BOTH teammates are "on their
@@ -371,18 +392,21 @@ object MeaningfulActionFilter {
         meaningfulActions: List<PriorityAction>,
         stopsMode: Boolean,
         cardRegistry: CardRegistry?,
+        ownStackStops: Set<OwnStackStop>,
     ): AutoPassVerdict {
         val topOfStack = state.stack.last() // Stack is LIFO, last = top
         val topController = stackItemController(state, topOfStack)
 
         if (topController == playerId) {
             // Our own spell/ability is on top — pass and let the opponent respond, unless an
-            // available action asked to hold priority (e.g. a copy-spell ability).
-            return if (meaningfulActions.any { it.holdPriority }) {
-                STOP_OWN_STACK_ITEM_BUT_HOLDING
-            } else {
-                PASS_OWN_STACK_ITEM
+            // available action asked to hold priority (e.g. a copy-spell ability), or the player
+            // opted to keep priority over this kind of their own object and can respond to it.
+            if (meaningfulActions.any { it.holdPriority }) return STOP_OWN_STACK_ITEM_BUT_HOLDING
+            val kind = ownStackItemKind(state, topOfStack)
+            if (kind != null && kind in ownStackStops && meaningfulActions.any { it.isInstantSpeedResponse() }) {
+                return AutoPassVerdict(false, "STOP: Own ${kind.name.lowercase()} on top of stack, player keeps priority over it")
             }
+            return PASS_OWN_STACK_ITEM
         }
 
         // Persistent yield: the player explicitly asked to stop being stopped by this ability, so
@@ -435,6 +459,17 @@ object MeaningfulActionFilter {
             cardRegistry?.getCard(cardComponent.name)?.cardFaces?.getOrNull(idx)?.typeLine
         }
         return faceTypeLine?.isPermanent ?: cardComponent.isPermanent
+    }
+
+    /** Which [OwnStackStop] kind a stack item is, or null for an object none of them names. */
+    private fun ownStackItemKind(state: GameState, entityId: EntityId): OwnStackStop? {
+        val container = state.getEntity(entityId) ?: return null
+        return when {
+            container.get<TriggeredAbilityOnStackComponent>() != null -> OwnStackStop.TRIGGERED_ABILITIES
+            container.get<ActivatedAbilityOnStackComponent>() != null -> OwnStackStop.ACTIVATED_ABILITIES
+            container.get<SpellOnStackComponent>() != null -> OwnStackStop.SPELLS
+            else -> null
+        }
     }
 
     /** Controller of a stack item. Abilities and spells carry different components. */

@@ -1,5 +1,8 @@
 package com.wingedsheep.engine.handlers.actions.spell
 
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.engine.mechanics.BeamMeUp
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -67,12 +70,14 @@ class CastAdditionalCosts(
                 add(com.wingedsheep.sdk.dsl.Costs.additional.PayLife(it))
             }
         }
-        val costDefinition = if (action.alternativeCostType == AlternativeCostType.ESCAPE) {
-            action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it) }
-                ?.let { face -> cardDef?.let { costCalculator.faceCharacteristics(it, face) } } ?: cardDef
-        } else cardDef
+        // A face cast owes the announced face's printed additional costs, not the primary's —
+        // Allure of Power's sacrifice, never My Precious's (CR 715.3a / 720.3a).
+        val faceDefinition = action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it) }
+            ?.let { face -> cardDef?.let { costCalculator.faceCharacteristics(it, face) } }
+        val costDefinition = faceDefinition ?: cardDef
         if (costDefinition != null) addAll(additionalCostsForModes(costDefinition, action))
-        declaredSlotCost(state, action, costDefinition)?.let { add(it) }
+        val slotDefinition = if (action.alternativeCostType == AlternativeCostType.ESCAPE) costDefinition else cardDef
+        declaredSlotCost(state, action, slotDefinition)?.let { add(it) }
         if (action.useAlternativeCost && cardDef != null) {
             // Each bundled additional cost is gated by the chosen alternative-cost type so a
             // collision (e.g. granted warp on a card also being evoked) doesn't drag in the
@@ -83,6 +88,11 @@ class CastAdditionalCosts(
             }
             val selfAltCost = cardDef.script.selfAlternativeCost
             if (selfAltCost != null && action.altAllows(AlternativeCostType.SELF_ALTERNATIVE)) addAll(selfAltCost.additionalCosts)
+            // Evoke's non-mana half ("Evoke—Exile a green card from your hand", Endurance).
+            if (action.altAllows(AlternativeCostType.EVOKE)) {
+                cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Evoke>().firstOrNull()
+                    ?.additionalCost?.let { add(it) }
+            }
             // A battlefield-granted alternative cost's non-mana half (Conspiracy Unraveler's
             // "collect evidence 10"). The mana half was already substituted for the spell's mana
             // cost; this is the rest of the same cost, so it is paid by the ordinary additional-cost
@@ -91,6 +101,13 @@ class CastAdditionalCosts(
             if (action.altAllows(AlternativeCostType.GRANTED)) {
                 costCalculator.findAlternativeCastingCosts(state, action.playerId, cardDef)
                     .firstOrNull()?.let { addAll(it.additionalCosts) }
+            }
+            // Beam me up's non-mana half: return a creature. Which creatures qualify (the offer's
+            // pool) is checked in CastValidator.validateAlternativeCostSelections.
+            if (action.alternativeCostType == AlternativeCostType.BEAM_ME_UP &&
+                BeamMeUp.selected(state, action, cardRegistry, predicateEvaluator) != null
+            ) {
+                add(Costs.additional.ReturnToHand(GameObjectFilter.Creature))
             }
             // Flashback's bundled additional cost (e.g., Behold three Elementals)
             if (action.altAllows(AlternativeCostType.FLASHBACK) &&
@@ -120,6 +137,14 @@ class CastAdditionalCosts(
                     ?.additionalCost
                     ?.let { add(it) }
             }
+            // Blitz's bundled non-mana cost ("Blitz—{2}{B}{B}, Pay 2 life.", Tenacious Underdog).
+            if (action.altAllows(AlternativeCostType.BLITZ) &&
+                zoneResolver.hasBlitzPermission(state, action.playerId, action.cardId)
+            ) {
+                cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Blitz>().firstOrNull()
+                    ?.additionalCost
+                    ?.let { add(it) }
+            }
         }
         // Runtime additional costs from entity component (e.g., The Infamous Cruelclaw)
         state.getEntity(action.cardId)
@@ -144,6 +169,10 @@ class CastAdditionalCosts(
         // Gwenom: pay-life additional cost for a spell cast from the top of the library.
         zoneResolver.topOfLibraryAlternativeGrant(state, action.playerId, action.cardId)
             ?.additionalCost?.let { add(it) }
+
+        // Falco Spara: a costed cast-from-top permission's additional cost ("by removing a counter
+        // from a creature you control"), owed only when it is the permission the cast goes through.
+        zoneResolver.topOfLibraryGrantAdditionalCost(state, action.playerId, action.cardId)?.let { add(it) }
     }
 
 }

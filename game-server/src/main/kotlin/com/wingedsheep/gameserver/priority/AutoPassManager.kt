@@ -1,6 +1,7 @@
 package com.wingedsheep.gameserver.priority
 
 import com.wingedsheep.engine.legalactions.MeaningfulActionFilter
+import com.wingedsheep.engine.legalactions.OwnStackStop
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
@@ -28,7 +29,8 @@ import org.slf4j.LoggerFactory
  * 2. **Opponent's-turn compression** — upkeep/draw pass; main phases, combat windows and the end
  *    step stop when you have an instant-speed response; declare blockers stops when you can block.
  * 3. **Your-turn optimization** — you stop at your main phases and at declare attackers.
- * 4. **Stack response** — your own object on top auto-passes; an opponent's non-permanent spell or
+ * 4. **Stack response** — your own object on top auto-passes (unless the player keeps priority
+ *    over that kind of their own object and can respond); an opponent's non-permanent spell or
  *    ability stops.
  */
 class AutoPassManager(
@@ -57,7 +59,8 @@ class AutoPassManager(
         legalActions: List<LegalActionInfo>,
         myTurnStops: Set<Step> = emptySet(),
         opponentTurnStops: Set<Step> = emptySet(),
-        stopsMode: Boolean = false
+        stopsMode: Boolean = false,
+        ownStackStops: Set<OwnStackStop> = emptySet()
     ): Boolean {
         val verdict = MeaningfulActionFilter.autoPassVerdict(
             state = state,
@@ -67,6 +70,7 @@ class AutoPassManager(
             opponentTurnStops = opponentTurnStops,
             stopsMode = stopsMode,
             cardRegistry = cardRegistry,
+            ownStackStops = ownStackStops,
         )
         logger.debug(verdict.reason)
         return verdict.autoPass

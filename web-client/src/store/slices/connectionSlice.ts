@@ -154,6 +154,9 @@ export const createConnectionSlice: SliceCreator<ConnectionSlice> = (set, get) =
         })
         if (status === 'connected' && getWebSocket()) {
           sendAuth()
+          // The server is reachable again; an account lookup that failed while it was down can
+          // now succeed.
+          useAuthStore.getState().retryIfUnresolved()
         }
       },
       onClose: (code) => {

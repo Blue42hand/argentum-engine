@@ -35,7 +35,7 @@ class DungeonCompletionCheck : StateBasedActionCheck {
             val roomOnStack = newState.stack.any { id ->
                 newState.getEntity(id)?.get<TriggeredAbilityOnStackComponent>()?.sourceId == cardId
             }
-            val roomWaiting = newState.pendingTriggers.any { it.sourceId == cardId }
+            val roomWaiting = newState.waitingTriggers.any { it.sourceId == cardId }
             if (roomOnStack || roomWaiting) continue
 
             val (completed, completionEvents) = DungeonService.complete(newState, playerId)

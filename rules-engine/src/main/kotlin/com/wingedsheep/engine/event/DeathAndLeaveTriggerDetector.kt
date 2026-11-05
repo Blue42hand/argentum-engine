@@ -96,20 +96,11 @@ class DeathAndLeaveTriggerDetector(
             if (!matcher.isDeathTrigger(ability.trigger)) continue
 
             when (ability.binding) {
-                TriggerBinding.SELF -> {
-                    // "When this creature dies" - always matches its own death
-                    triggers.add(
-                        PendingTrigger(
-                            ability = ability,
-                            sourceId = entityId,
-                            sourceName = info.name,
-                            controllerId = controllerId,
-                            triggerContext = TriggerContext.fromEvent(event)
-                        )
-                    )
-                }
-                TriggerBinding.ANY -> {
-                    // "Whenever a creature [matching filter] dies" - check if its own death matches
+                TriggerBinding.SELF, TriggerBinding.ANY -> {
+                    // SELF: "When this creature dies [, if it was enchanted]" — its own death, still
+                    // narrowed by a `Triggers.self.matching(...)` filter, answered from the zone
+                    // change's last-known snapshot (Gunner Conscript).
+                    // ANY: "Whenever a creature [matching filter] dies" - check if its own death matches
                     // (e.g., Sultai Flayer: "Whenever a creature you control with toughness 4 or greater dies")
                     if (matcher.matchesTrigger(ability.trigger, ability.binding, event, entityId, controllerId, state)) {
                         triggers.add(
@@ -289,9 +280,11 @@ class DeathAndLeaveTriggerDetector(
             val trigger = ability.trigger
             if (trigger !is EventPattern.ZoneChangeEvent) continue
             if (trigger.from != null && trigger.from != Zone.BATTLEFIELD) continue
-            if (trigger.to != null) {
-                // "Dies" trigger: verify creature is actually in graveyard (not exiled or bounced)
-                val inTargetZone = state.turnOrder.any { attachedEntityId in state.getGraveyard(it) }
+            val toZone = trigger.to
+            if (toZone != null) {
+                // "Dies" / "is put into exile" trigger: verify the permanent actually went to that
+                // zone (a dies trigger doesn't fire when it was exiled or bounced, and vice versa).
+                val inTargetZone = state.turnOrder.any { attachedEntityId in state.getZone(it, toZone) }
                 if (!inTargetZone) continue
             }
             triggers.add(
@@ -348,7 +341,7 @@ class DeathAndLeaveTriggerDetector(
                     // Observer shape (Shelob): any source that dealt damage to the dying creature this
                     // turn must match the filter, evaluated against its last-known state when it dealt
                     // the damage (CR 608.2h). "you control" resolves to the trigger's controller.
-                    matchesDamageSourceFilter(event.lastKnown?.damageSources ?: emptySet(), sourceFilter, entry.controllerId)
+                    (event.lastKnown?.damageSources ?: emptySet()).any { it.matches(sourceFilter, entry.controllerId) }
                 }
                 // "another creature": never fire for the source observing its own death.
                 if (fires && ability.binding == com.wingedsheep.sdk.scripting.TriggerBinding.ANY &&
@@ -399,33 +392,6 @@ class DeathAndLeaveTriggerDetector(
      * evaluated — the snapshot intentionally captures just those facts (the shape used by Shelob and
      * generalizable "dealt damage by [subtype] you control/opponents control" triggers).
      */
-    private fun matchesDamageSourceFilter(
-        sources: Set<com.wingedsheep.engine.state.components.battlefield.DamageSourceLki>,
-        filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
-        observerControllerId: com.wingedsheep.sdk.model.EntityId,
-    ): Boolean {
-        if (sources.isEmpty()) return false
-        val requiredSubtype = filter.cardPredicates
-            .filterIsInstance<com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtype>()
-            .map { it.subtype }
-        val requiresCreature = filter.cardPredicates.any {
-            it is com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsCreature
-        }
-        val controllerPred = filter.controllerPredicate
-        return sources.any { src ->
-            if (requiresCreature && !src.sourceWasCreature) return@any false
-            if (requiredSubtype.isNotEmpty() && !requiredSubtype.all { it in src.sourceSubtypes }) return@any false
-            when (controllerPred) {
-                null -> true
-                is com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByYou ->
-                    src.sourceControllerId == observerControllerId
-                is com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByOpponent ->
-                    src.sourceControllerId != observerControllerId
-                else -> true
-            }
-        }
-    }
-
     /**
      * Detect persist triggers (CR 702.79) when a nontoken creature dies with no -1/-1 counters on it.
      *
@@ -612,8 +578,8 @@ class DeathAndLeaveTriggerDetector(
      * Detect "leaves the battlefield" triggers on permanents that just left.
      * Similar to detectDeathTriggers, but handles ZoneChangeEvent(from=BATTLEFIELD).
      *
-     * SELF binding always fires. ANY binding fires if the leaving entity itself matches the
-     * trigger's filter (e.g., Three Tree Scribe's "Whenever this creature or another creature
+     * SELF and ANY bindings fire if the leaving entity itself matches the trigger's pattern and
+     * filter against last-known information (e.g., Three Tree Scribe's "Whenever this creature or another creature
      * you control leaves the battlefield without dying" must fire when the Scribe itself
      * leaves — the main battlefield loop misses this because the source is no longer on the
      * battlefield by the time the event is processed).
@@ -645,27 +611,12 @@ class DeathAndLeaveTriggerDetector(
             if (event.toZone == Zone.GRAVEYARD && matcher.isDeathTrigger(ability.trigger)) continue
 
             when (ability.binding) {
-                TriggerBinding.SELF -> {
-                    // A SELF leave/exile trigger fires on its own departure, but event-fact
-                    // qualifiers on the pattern (e.g. `requireCraftMaterial` — "while you're
-                    // activating a craft ability", Market Gnome) still gate it, so an unrelated
-                    // exile doesn't fire it. Verify those against the event.
-                    // Under a disjunction, only the atoms this departure can satisfy count.
-                    val satisfiable = matcher.battlefieldExitAtoms(ability.trigger)
-                        .filter { it.to == null || it.to == event.toZone }
-                    if (satisfiable.all { it.requireCraftMaterial } && !event.craftMaterial) continue
-                    triggers.add(
-                        PendingTrigger(
-                            ability = ability,
-                            sourceId = entityId,
-                            sourceName = info.name,
-                            controllerId = controllerId,
-                            triggerContext = TriggerContext.fromEvent(event)
-                        )
-                    )
-                }
-                TriggerBinding.ANY -> {
-                    // "Whenever [this creature or] another creature you control leaves..." —
+                TriggerBinding.SELF, TriggerBinding.ANY -> {
+                    // SELF: its own departure, still gated by the pattern's event-fact qualifiers
+                    // (`requireCraftMaterial` — Market Gnome) and any `Triggers.self.matching(...)`
+                    // filter, read from last-known information. Under a disjunction, any atom this
+                    // departure satisfies fires it.
+                    // ANY: "Whenever [this creature or] another creature you control leaves..." —
                     // check the event against the trigger's filter/excludeTo/binding.
                     if (matcher.matchesTrigger(ability.trigger, ability.binding, event, entityId, controllerId, state)) {
                         triggers.add(

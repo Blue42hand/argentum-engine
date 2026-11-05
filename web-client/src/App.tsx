@@ -19,8 +19,10 @@ import { OpponentDecisionIndicator } from './components/ui/OpponentDecisionIndic
 import { DisconnectCountdown } from './components/ui/DisconnectCountdown'
 import { SessionReplacedOverlay } from './components/ui/SessionReplacedOverlay'
 import { MatchIntroAnimation } from './components/animations/MatchIntroAnimation'
+import { SubgameTransition } from './components/animations/SubgameTransition'
 import { StandaloneConcedeButton } from './components/game/overlay'
 import overlay from './components/game/overlay/GameOverlays.module.css'
+import { AnteResultPanel } from './components/ante/AnteResultPanel'
 import { trackPageView } from './utils/analytics'
 import { randomBackground } from './utils/background'
 import { useNavigate } from 'react-router-dom'
@@ -302,6 +304,7 @@ export default function App() {
         blockerAssignments: {},
         validCreatures,
         mandatoryAttackers,
+        loneAttackers: attackersAction?.loneAttackers ?? [],
         attackingCreatures: [],
         mustBeBlockedAttackers: [],
         blockerMaxBlockCounts: {},
@@ -454,6 +457,9 @@ export default function App() {
       {/* Match intro animation (plays before mulligan) */}
       {matchIntro && <MatchIntroAnimation />}
 
+      {/* A Magic subgame beginning or ending (Shahrazad) — over the board or the subgame's mulligan */}
+      <SubgameTransition />
+
       {/* Mulligan overlay */}
       {mulliganState && !matchIntro && <MulliganUI />}
 
@@ -481,6 +487,8 @@ function formatGameOverReason(
   table: 'duel' | 'pod' | 'teams' = 'duel',
 ): string {
   if (result === 'draw') {
+    // CARD_EFFECT: an effect said "the game is a draw" while players were still in.
+    if (reason === GameOverReason.CARD_EFFECT) return 'An effect made the game a draw. Nobody won.'
     return table === 'duel' ? 'Both players lost simultaneously.' : 'The remaining players lost simultaneously.'
   }
   // A pod is won by outlasting several opponents, so "your opponent" (singular, and naming only
@@ -514,6 +522,7 @@ function GameOverlay() {
   const clearError = useGameStore((state) => state.clearError)
   const returnToMenu = useGameStore((state) => state.returnToMenu)
   const enterEliminatedSpectate = useGameStore((state) => state.enterEliminatedSpectate)
+  const viewerId = useGameStore((state) => state.playerId)
   // The board state is still in the store behind the overlay; with it gone, fall back to duel copy.
   const table = useGameStore((state): 'duel' | 'pod' | 'teams' => {
     if ((state.gameState?.players.length ?? 0) <= 2) return 'duel'
@@ -543,11 +552,13 @@ function GameOverlay() {
     // One amber action: play again when there is a rematch to offer, otherwise back to the menu.
     // Everything else sits in the quieter row beneath it.
     return (
-      <div className={overlay.scrim} role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+      <div className={`${overlay.scrim} ${overlay.scrimResult}`} role="dialog" aria-modal="true" aria-labelledby="game-over-title">
         <div className={overlay.card} data-result={gameOverState.result}>
           <p className={overlay.eyebrow}>Game over</p>
           <h1 id="game-over-title" className={overlay.title}>{title}</h1>
           <p className={overlay.reason}>{reasonText}</p>
+          {/* Played for ante (CR 407): what changed hands, before the next-step actions. */}
+          {gameOverState.ante && <AnteResultPanel ante={gameOverState.ante} viewerId={viewerId} />}
           {postGame && <PostGamePanel postGame={postGame} />}
           <div className={overlay.actions}>
             {/* The quick lobby is destroyed when the game starts

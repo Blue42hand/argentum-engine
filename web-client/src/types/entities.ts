@@ -69,6 +69,13 @@ export function command(playerId: EntityId): ZoneId {
 }
 
 /**
+ * Create an ante zone for a player (CR 407) — the cards that player has wagered.
+ */
+export function ante(playerId: EntityId): ZoneId {
+  return { zoneType: ZoneType.ANTE, ownerId: playerId }
+}
+
+/**
  * Create a library zone for a player.
  */
 export function library(playerId: EntityId): ZoneId {

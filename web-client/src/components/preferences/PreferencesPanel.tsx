@@ -7,27 +7,68 @@
 import type React from 'react'
 import {
   DEFAULT_PREFERENCES,
+  OWN_STACK_STOPS,
   STACK_LIMITS,
   STOPPABLE_STEPS,
   usePreferences,
+  type ForcedChoiceMode,
   type MotionPreference,
   type StackingRule,
 } from '@/store/preferencesStore'
 import { useAuthStore } from '@/store/authStore'
 import { Step, StepDisplayNames } from '@/types/enums'
-import type { PriorityModeValue } from '@/types/messages'
+import type { OwnStackStop, PriorityModeValue } from '@/types/messages'
 import s from './Preferences.module.css'
 
 const MODE_OPTIONS: { value: PriorityModeValue; label: string; hint: string }[] = [
+  { value: 'forcedOnly', label: 'Forced Only', hint: 'Passes only when the engine offers no choice except passing. Mana abilities and other real choices remain yours.' },
   { value: 'auto', label: 'Auto', hint: 'Passes whenever you have nothing meaningful to do, and stops when you can respond.' },
   { value: 'stops', label: 'Stops', hint: "Also stops on every opponent spell and ability, and on combat damage — even when you can't respond." },
   { value: 'fullControl', label: 'Full control', hint: 'Never passes for you: you get every priority window.' },
+]
+
+/**
+ * `gameplay.forcedChoices`. Each hint names its trade-off: the faster the forced answer, the more
+ * its timing can tell an opponent the question was forced. All three answer at once a question
+ * everyone can see is forced, since a pause there hides nothing.
+ */
+const FORCED_CHOICE_OPTIONS: { value: ForcedChoiceMode; label: string; hint: string }[] = [
+  {
+    value: 'instant',
+    label: 'Answer instantly',
+    hint: 'When a question has only one legal answer — “you may reveal a Dragon card” with none in hand, a search with nothing to find, a trigger whose only legal target is itself — the game answers it at once and shows a notice. Fastest, but an observant opponent can tell from the speed that you had no choice, and so that you had no Dragon in hand.',
+  },
+  {
+    value: 'delayed',
+    label: 'Answer for me',
+    hint: 'The game answers a question with only one legal answer after a short, human-like pause, and shows a notice. Nearly as quick, and the pause makes it hard to tell from a real choice — though an opponent watching closely may still read something into the timing. When everyone can see the answer was forced (a trigger whose only target is the creature itself), there is no pause.',
+  },
+  {
+    value: 'ask',
+    label: 'Ask me every time',
+    hint: 'Every question waits for you, even one with a single legal answer. Slowest, but you click through it like any other choice, so your timing gives nothing away.',
+  },
 ]
 
 const MOTION_OPTIONS: { value: MotionPreference; label: string }[] = [
   { value: 'system', label: 'Follow system' },
   { value: 'reduce', label: 'Always reduce' },
 ]
+
+const OWN_STACK_STOP_LABELS: Record<OwnStackStop, { label: string; hint: string }> = {
+  TRIGGERED_ABILITIES: {
+    label: 'My triggered abilities',
+    hint: 'Respond to your own trigger before it resolves — say, shrink the creature whose Jaws of Defeat trigger is waiting.',
+  },
+  ACTIVATED_ABILITIES: {
+    label: 'My activated abilities',
+    hint: 'Respond to an ability you just activated, for example by activating another one on top of it.',
+  },
+  SPELLS: {
+    label: 'My spells',
+    hint: 'Respond to a spell you just cast, for example to copy it or to stack another spell above it.',
+  },
+}
 
 /** On your own turn the engine always stops in your main phases — shown checked and locked. */
 const ALWAYS_STOP_MY_TURN = new Set<Step>([Step.PRECOMBAT_MAIN, Step.POSTCOMBAT_MAIN])
@@ -130,12 +171,54 @@ export function PreferencesPanel({ compact = false }: { compact?: boolean }) {
           </button>
         )}
 
+        <div className={s.field}>
+          <div className={s.fieldText}>
+            <span className={s.label}>Hold priority over my own</span>
+            <span className={s.hint}>
+              In Auto and Stops, your own spells and abilities normally pass straight to your opponent. Switch a kind on to get priority
+              back while it waits on the stack — only when you have something you can cast or activate in response.
+            </span>
+          </div>
+        </div>
+        {OWN_STACK_STOPS.map((kind) => (
+          <Toggle
+            key={kind}
+            label={OWN_STACK_STOP_LABELS[kind].label}
+            hint={OWN_STACK_STOP_LABELS[kind].hint}
+            checked={gameplay.ownStackStops.includes(kind)}
+            onChange={(on) =>
+              update('gameplay', {
+                ownStackStops: on
+                  ? [...gameplay.ownStackStops, kind]
+                  : gameplay.ownStackStops.filter((k) => k !== kind),
+              })
+            }
+          />
+        ))}
+
         <Toggle
           label="Auto-tap mana"
           hint="Pay costs automatically when you cast a spell or activate an ability. Off: pick the mana sources yourself."
           checked={gameplay.autoTap}
           onChange={(autoTap) => update('gameplay', { autoTap })}
         />
+        <Toggle
+          label="Order my triggers automatically"
+          hint="When several of your abilities trigger at once, they go on the stack in the order they triggered — except that one checking this turn (“if you gained life this turn”) resolves after the rest. Off: you choose the order whenever it can matter — scry before you draw, make the token before the counters."
+          checked={gameplay.autoOrderTriggers}
+          onChange={(autoOrderTriggers) => update('gameplay', { autoOrderTriggers })}
+        />
+        <Field
+          label="Choices with only one answer"
+          hint={FORCED_CHOICE_OPTIONS.find((o) => o.value === gameplay.forcedChoices)?.hint}
+        >
+          <Segmented
+            value={gameplay.forcedChoices}
+            options={FORCED_CHOICE_OPTIONS}
+            onChange={(forcedChoices) => update('gameplay', { forcedChoices })}
+            label="Choices with only one answer"
+          />
+        </Field>
         <Toggle
           label="Follow the action"
           hint="In games with three or more players, move the camera to the board where something is happening."

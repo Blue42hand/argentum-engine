@@ -6,7 +6,7 @@ import com.wingedsheep.sdk.model.MtgSet
 import com.wingedsheep.sdk.model.Printing
 
 /**
- * Teenage Mutant Ninja Turtles Commander (2026)
+ * Teenage Mutant Ninja Turtles Eternal (2026)
  *
  * Set Code: TMC
  * Release Date: March 6, 2026
@@ -14,8 +14,9 @@ import com.wingedsheep.sdk.model.Printing
 object TeenageMutantNinjaTurtlesCommanderSet : MtgSet {
 
     override val code = "TMC"
-    override val displayName = "Teenage Mutant Ninja Turtles Commander"
+    override val displayName = "Teenage Mutant Ninja Turtles Eternal"
     override val releaseDate = "2026-03-06"
+    override val sealedSupported = false
     override val incomplete = true
 
     override val cards: List<CardDefinition> by lazy {

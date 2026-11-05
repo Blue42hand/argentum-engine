@@ -112,6 +112,87 @@
     ]
 }
 
+// Crested Sunmare
+{
+    "name": "Crested Sunmare",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Creature — Horse",
+    "oracleText": "Other Horses you control have indestructible.\nAt the beginning of each end step, if you gained life this turn, create a 5/5 white Horse creature token.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Crested Sunmare:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 5,
+                    "toughness": 5,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Horse"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/f/3/f3dd4d92-6471-4f4b-9c70-cbd2196e8c7b.jpg?1783936066"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "At the beginning of each end step, if you gained life this turn, create a 5/5 white Horse creature token."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "INDESTRUCTIBLE",
+                "filter": {
+                    "baseFilter": "permanent Horse ctrl:you",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "MYTHIC",
+        "artist": "Lucas Graciano",
+        "flavorText": "\"It is evidence that some pure corner of the world must still exist.\"\n—Djeru, former Tah-crop initiate",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/3/732fa4c9-11da-4bdb-96af-aa37c74be25f.jpg?1783936066",
+        "rulings": [
+            {
+                "date": "2017-07-14",
+                "text": "Crested Sunmare's triggered ability won't trigger unless you've gained life in the turn before the end step began. It can't be satisfied by another triggered ability causing you to gain life during that end step."
+            },
+            {
+                "date": "2017-07-14",
+                "text": "Crested Sunmare's triggered ability cares only whether you gained life in the turn, even if Crested Sunmare wasn't on the battlefield when that happened. It doesn't care how much you gained, whether you also lost life, or even whether you lost more life than you gained."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Defiant Khenra
 {
     "name": "Defiant Khenra",
@@ -422,6 +503,80 @@
     ]
 }
 
+// Hour of Revelation
+{
+    "name": "Hour of Revelation",
+    "manaCost": "{3}{W}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "This spell costs {3} less to cast if there are ten or more nonland permanents on the battlefield.\nDestroy all nonland permanents.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "BattlefieldMatching",
+                        "filter": "nonland permanent"
+                    },
+                    "storeAs": "destroyAll_gathered"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "destroyAll_gathered",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Destroy"
+                }
+            ]
+        },
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 3
+                },
+                "gating": {
+                    "type": "OnlyIf",
+                    "condition": {
+                        "type": "Compare",
+                        "left": {
+                            "type": "AggregateBattlefield",
+                            "player": "Each",
+                            "filter": "nonland permanent"
+                        },
+                        "operator": "GTE",
+                        "right": {
+                            "type": "Fixed",
+                            "amount": 10
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "rarity": "RARE",
+        "artist": "Raymond Swanland",
+        "flavorText": "In the first moments, the gate to the afterlife opened, and the people were prostrate in the light of the God-Pharaoh.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/9/89a89652-95ef-45b4-80c3-02241483f3c0.jpg?1783936060",
+        "rulings": [
+            {
+                "date": "2017-07-14",
+                "text": "You determine the cost to cast Hour of Revelation before you pay any of that cost. For example, if the only nonland permanents on the battlefield are Tezzeret the Schemer and nine Etherium Cells he's given you, Hour of Revelation costs {W}{W}{W} to cast. You may sacrifice three Etherium Cells to pay this cost, even though there are no longer ten or more nonland permanents after you produce {W}{W}{W}."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Marauding Boneslasher
 {
     "name": "Marauding Boneslasher",
@@ -455,6 +610,69 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Mirage Mirror
+{
+    "name": "Mirage Mirror",
+    "manaCost": "{3}",
+    "typeLine": "Artifact",
+    "oracleText": "{2}: This artifact becomes a copy of target artifact, creature, enchantment, or land until end of turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Mirage Mirror:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "EachPermanentBecomesCopyOfTarget",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "duration": "EndOfTurn",
+                    "affected": "Self"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact|creature|enchantment|land"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{2}: This artifact becomes a copy of target artifact, creature, enchantment, or land until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "165",
+        "rarity": "RARE",
+        "artist": "Craig J Spearing",
+        "flavorText": "Most mirrors show your reflection. Others show your potential.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/9/29148d7e-b398-4e19-a29e-d9a660ad5016.jpg?1783936001",
+        "rulings": [
+            {
+                "date": "2017-07-14",
+                "text": "Once Mirage Mirror's ability resolves, it no longer has that ability."
+            },
+            {
+                "date": "2017-07-14",
+                "text": "Mirage Mirror copies the printed values of the target permanent, plus any copy effects that have been applied to it. It won't copy counters on that permanent or effects that have changed its power, toughness, types, color, or so on. Notably, it won't copy effects that made the target permanent become a creature."
+            },
+            {
+                "date": "2017-07-14",
+                "text": "If you activate Mirage Mirror's ability multiple times in a turn in response to itself, then each time one of those abilities resolves, it will overwrite whatever Mirage Mirror is copying. Mirage Mirror will wind up as a copy of the permanent targeted by the last ability to resolve. When the turn ends, all instances of the ability will wear off at the same time."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Overcome
@@ -613,6 +831,101 @@
     ]
 }
 
+// Razaketh, the Foulblooded
+{
+    "name": "Razaketh, the Foulblooded",
+    "manaCost": "{5}{B}{B}{B}",
+    "typeLine": "Legendary Creature — Demon",
+    "oracleText": "Flying, trample\nPay 2 life, Sacrifice another creature: Search your library for a card, put that card into your hand, then shuffle.",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 8
+    },
+    "keywords": [
+        "FLYING",
+        "TRAMPLE"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Razaketh, the Foulblooded:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature",
+                                "excludeSelf": true
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library"
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your hand",
+                            "selectedLabel": "Put into your hand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "descriptionOverride": "Pay 2 life, Sacrifice another creature: Search your library for a card, put that card into your hand, then shuffle."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "rarity": "MYTHIC",
+        "artist": "Chris Rallis",
+        "flavorText": "Liliana insisted on coming to Amonkhet to confront one of the two remaining demons to whom she is bound.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/1/e14adff9-33cc-467e-b782-068854c5e7b7.jpg?1783936036"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Scavenger Grounds
 {
     "name": "Scavenger Grounds",
@@ -704,6 +1017,350 @@
         ]
     },
     "colorIdentityOverride": []
+}
+
+// The Locust God
+{
+    "name": "The Locust God",
+    "manaCost": "{4}{U}{R}",
+    "typeLine": "Legendary Creature — God",
+    "oracleText": "Flying\nWhenever you draw a card, create a 1/1 blue and red Insect creature token with flying and haste.\n{2}{U}{R}: Draw a card, then discard a card.\nWhen The Locust God dies, return it to its owner's hand at the beginning of the next end step.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "The Locust God:1",
+                "trigger": "DrawEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "BLUE",
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Insect"
+                    ],
+                    "keywords": [
+                        "FLYING",
+                        "HASTE"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/e/ae56d9e8-de05-456b-af32-b5992992ee15.jpg?1783936064"
+                }
+            },
+            {
+                "id": "The Locust God:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateDelayedTrigger",
+                    "step": "END",
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": "TriggeringEntity",
+                        "destination": "Hand",
+                        "fromZone": "Graveyard"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "The Locust God:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{U}{R}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand"
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard"
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "139",
+        "rarity": "MYTHIC",
+        "artist": "Lius Lasahido",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/e/4e0c1d0a-2651-4961-8b70-ff78093732ce.jpg?1783936012",
+        "rulings": [
+            {
+                "date": "2017-07-14",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" The Locust God's first triggered ability won't trigger."
+            },
+            {
+                "date": "2017-07-14",
+                "text": "If this creature dies but leaves your graveyard before the next end step, it will remain in its new zone."
+            },
+            {
+                "date": "2017-07-14",
+                "text": "The \"next end step\" refers to the next end step that occurs, not the end step of the next turn. If this creature dies before a turn's end step (for example, during combat), it will be returned to its owner's hand at the beginning of that turn's end step."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
+// The Scarab God
+{
+    "name": "The Scarab God",
+    "manaCost": "{3}{U}{B}",
+    "typeLine": "Legendary Creature — God",
+    "oracleText": "At the beginning of your upkeep, each opponent loses X life and you scry X, where X is the number of Zombies you control.\n{2}{U}{B}: Exile target creature card from a graveyard. Create a token that's a copy of it, except it's a 4/4 black Zombie.\nWhen The Scarab God dies, return it to its owner's hand at the beginning of the next end step.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "The Scarab God:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "permanent Zombie"
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "TopOfLibrary",
+                                        "count": {
+                                            "type": "AggregateBattlefield",
+                                            "player": "You",
+                                            "filter": "permanent Zombie"
+                                        },
+                                        "isScry": true
+                                    },
+                                    "storeAs": "scried"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "scried",
+                                    "selection": "ChooseAnyNumber",
+                                    "storeSelected": "toBottom",
+                                    "storeRemainder": "toTop",
+                                    "prompt": "Scry: choose cards to put on the bottom of your library",
+                                    "selectedLabel": "Put on bottom",
+                                    "remainderLabel": "Put on top"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "toBottom",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Library",
+                                        "placement": "Bottom"
+                                    }
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "toTop",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Library",
+                                        "placement": "Top"
+                                    },
+                                    "order": "ControllerChooses"
+                                },
+                                {
+                                    "type": "Gated",
+                                    "gate": {
+                                        "type": "Gate.WhenCondition",
+                                        "condition": {
+                                            "type": "Compare",
+                                            "left": {
+                                                "type": "AggregateBattlefield",
+                                                "player": "You",
+                                                "filter": "permanent Zombie"
+                                            },
+                                            "operator": "GT",
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 0
+                                            }
+                                        }
+                                    },
+                                    "then": "EmitScriedEvent"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "The Scarab God:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateDelayedTrigger",
+                    "step": "END",
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": "TriggeringEntity",
+                        "destination": "Hand",
+                        "fromZone": "Graveyard"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "The Scarab God:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{U}{B}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Exile",
+                            "fromZone": "Graveyard"
+                        },
+                        {
+                            "type": "CreateTokenCopyOfTarget",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "overridePower": 4,
+                            "overrideToughness": 4,
+                            "overrideColors": [
+                                "BLACK"
+                            ],
+                            "overrideSubtypes": [
+                                "Zombie"
+                            ]
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature",
+                            "zone": "Graveyard"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{2}{U}{B}: Exile target creature card from a graveyard. Create a token that's a copy of it, except it's a 4/4 black Zombie."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "145",
+        "rarity": "MYTHIC",
+        "artist": "Lius Lasahido",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/2/621cfd79-be4e-41e3-95ce-62b0eeff5baf.jpg?1783936010",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "The number of Zombies you control is counted as The Scarab God's first ability resolves. Players can try to change that number in response to the ability (perhaps by activating its second ability)."
+            },
+            {
+                "date": "2017-07-14",
+                "text": "If this creature dies but leaves your graveyard before the next end step, it will remain in its new zone."
+            },
+            {
+                "date": "2017-07-14",
+                "text": "The \"next end step\" refers to the next end step that occurs, not the end step of the next turn. If this creature dies before a turn's end step (for example, during combat), it will be returned to its owner's hand at the beginning of that turn's end step."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
 }
 
 // Tragic Lesson

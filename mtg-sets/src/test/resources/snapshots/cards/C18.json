@@ -203,7 +203,10 @@
                                     "effects": [
                                         {
                                             "type": "GatherCards",
-                                            "source": "Self",
+                                            "source": {
+                                                "type": "Entity",
+                                                "entity": "Self"
+                                            },
                                             "storeAs": "gathered0"
                                         },
                                         {
@@ -265,6 +268,98 @@
             }
         ]
     }
+}
+
+// Loyal Apprentice
+{
+    "name": "Loyal Apprentice",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "Haste\nLieutenant — At the beginning of combat on your turn, if you control your commander, create a 1/1 colorless Thopter artifact creature token with flying. That token gains haste until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Loyal Apprentice:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "BEGIN_COMBAT"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 1,
+                            "toughness": 1,
+                            "colors": [],
+                            "creatureTypes": [
+                                "Thopter"
+                            ],
+                            "keywords": [
+                                "FLYING"
+                            ],
+                            "artifactToken": true
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "PipelineTarget",
+                                "collectionName": "createdTokens"
+                            }
+                        }
+                    ]
+                },
+                "interveningIf": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent"
+                        ],
+                        "statePredicates": [
+                            "IsCommander"
+                        ],
+                        "controllerPredicate": "OwnedByYou"
+                    }
+                },
+                "descriptionOverride": "Lieutenant — At the beginning of combat on your turn, if you control your commander, create a 1/1 colorless Thopter artifact creature token with flying. That token gains haste until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "23",
+        "rarity": "UNCOMMON",
+        "artist": "Joe Slucher",
+        "flavorText": "Those with knowledge are wise to listen to those with imagination.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/5/b5fef5fe-3e59-4fd6-8a88-7c1cee56892f.jpg?1783934336",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If you don't control your commander as the lieutenant ability resolves, you won't get its effect."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "The lieutenant effect happens only once each combat, even if you somehow control multiple commanders (perhaps because you have two commanders with a partner ability from the Battlebond™ set)."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "If you have multiple commanders, you need to control only one for the lieutenant effect to happen."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
 }
 
 // Windgrace's Judgment

@@ -15,7 +15,9 @@ import kotlinx.serialization.Serializable
 /**
  * The owed rest of one application of a replacement effect whose printed text goes on to *do*
  * something — [com.wingedsheep.sdk.scripting.PreventDamage.onPrevented] ("You gain life equal to
- * the damage prevented this way") and [ExileCounteredSpellInstead.then] ("and you may play that
+ * the damage prevented this way"), [com.wingedsheep.sdk.scripting.PreventDamageByRemovingCounter.onRemoved]
+ * ("then give each player a rad counter for each +1/+1 counter removed this way") and
+ * [ExileCounteredSpellInstead.then] ("and you may play that
  * card without paying its mana cost").
  *
  * @property effect the rest of the replacement
@@ -24,6 +26,11 @@ import kotlinx.serialization.Serializable
  * @property subjectId what the replacement acted on: the permanent or player the damage would have
  *   been dealt to ("that creature"), or the card exiled instead of countered ("that card")
  * @property amount how much damage this application prevented; 0 where nothing is counted
+ * @property countersRemoved how many counters this application removed
+ *   ([com.wingedsheep.sdk.scripting.PreventDamageByRemovingCounter.onRemoved]); 0 elsewhere
+ * @property replacesLifeReduction this rider is a [com.wingedsheep.sdk.scripting.ReplaceLifeReductionToZero]
+ *   application whose [subjectId] is the player whose life total was protected; while it is pending,
+ *   further reductions of that total are part of the same replaced event
  */
 @Serializable
 data class PendingReplacementRider(
@@ -32,6 +39,8 @@ data class PendingReplacementRider(
     val controllerId: EntityId,
     val subjectId: EntityId,
     val amount: Int = 0,
+    val countersRemoved: Int = 0,
+    val replacesLifeReduction: Boolean = false,
     val replacementChain: Set<ReplacementEffectIdentity>? = null
 )
 
@@ -91,11 +100,13 @@ object ReplacementRiders {
             triggeringPlayerId = rider.subjectId.takeIf { subjectIsPlayer },
             triggerContext = TriggerContext(
                 triggeringEntityId = rider.subjectId,
-                damageAmount = rider.amount
+                damageAmount = rider.amount,
+                counterCount = rider.countersRemoved.takeIf { it > 0 }
             ),
             pipeline = PipelineState(
                 storedCollections = mapOf(ExileCounteredSpellInstead.EXILED_CARD to listOf(rider.subjectId))
-            )
+            ),
+            programOrigin = com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(ReplacementRiders::class),
         )
     }
 }

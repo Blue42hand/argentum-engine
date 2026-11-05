@@ -88,6 +88,25 @@ class SpellCostOrderingTest : ScenarioTestBase() {
         spell { effect = Effects.GainLife(1) }
     }
 
+    private val waterbendAlternatives = card("Cost Ordering Alternative Waterbend") {
+        manaCost = "{5}{R}"
+        typeLine = "Sorcery"
+        keywordAbility(KeywordAbility.flashback("{R}"))
+        keywordAbility(KeywordAbility.overload("{R}"))
+        waterbendCost(amount = 2)
+        spell {
+            effect = Effects.GainLife(1)
+            overloadEffect = Effects.GainLife(2)
+        }
+    }
+    private val blightWaterbend = card("Cost Ordering Blight Waterbend") {
+        manaCost = "{R}"
+        typeLine = "Sorcery"
+        waterbendCost(amount = 2)
+        additionalCost(com.wingedsheep.sdk.dsl.Costs.additional.BlightOrPay(1, "{3}"))
+        spell { effect = Effects.GainLife(1) }
+    }
+
     private fun board(name: String, mana: Int, reducers: Int, tax: Boolean = false): TestGame {
         var setup = scenario().withPlayers("Caster", "Opponent")
             .withCardInHand(1, name)
@@ -103,7 +122,7 @@ class SpellCostOrderingTest : ScenarioTestBase() {
         CastSpell(game.player1Id, game.findCardsInHand(1, name).single())
 
     init {
-        listOf(modal, perMode, overloaded, kicked, graveyardEnabler, mandatoryWaterbend, optionalWaterbend).forEach(cardRegistry::register)
+        listOf(modal, perMode, overloaded, kicked, graveyardEnabler, mandatoryWaterbend, optionalWaterbend, waterbendAlternatives, blightWaterbend).forEach(cardRegistry::register)
 
         test("extra-mode cost receives reductions beyond the printed generic cost") {
             val game = board(modal.name, mana = 3, reducers = 4)
@@ -373,6 +392,59 @@ class SpellCostOrderingTest : ScenarioTestBase() {
                 targets = listOf(ChosenTarget.Permanent(bears.last())),
                 additionalCostPayment = AdditionalCostPayment(blightTargets = listOf(bears.first()))
             )).error shouldBe null
+        }
+
+        for (type in listOf(AlternativeCostType.OVERLOAD, AlternativeCostType.FLASHBACK)) {
+            for (mana in listOf(1, 2)) {
+                test("$type quote keeps mandatory additions before reduction with $mana mana") {
+                    val setup = scenario().withPlayers("Caster", "Opponent")
+                        .withCardOnBattlefield(1, "Ruby Medallion")
+                        .withLandsOnBattlefield(1, "Mountain", mana)
+                        .withCardInLibrary(1, "Mountain").withCardInLibrary(2, "Mountain")
+                        .withActivePlayer(1).inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN)
+                    if (type == AlternativeCostType.FLASHBACK) setup.withCardInGraveyard(1, waterbendAlternatives.name)
+                    else setup.withCardInHand(1, waterbendAlternatives.name)
+                    val game = setup.build()
+                    val id = if (type == AlternativeCostType.FLASHBACK) game.state.getGraveyard(game.player1Id).single()
+                        else game.findCardsInHand(1, waterbendAlternatives.name).single()
+                    val cast = CastSpell(game.player1Id, id, useAlternativeCost = true, alternativeCostType = type)
+                    val offers = game.getLegalActions(1).filter {
+                        (it.action as? CastSpell)?.let { a -> a.cardId == id && a.alternativeCostType == type } == true
+                    }
+                    if (mana == 1) {
+                        offers.any { it.isAffordable } shouldBe false
+                        game.execute(cast).error shouldNotBe null
+                    } else {
+                        val offer = offers.single { it.isAffordable }
+                        ManaCost.parse(offer.manaCostString!!) shouldBe ManaCost.parse("{1}{R}")
+                        game.execute(cast).error shouldBe null
+                        game.findAllPermanents("Mountain").count {
+                            game.state.getEntity(it)!!.has<TappedComponent>()
+                        } shouldBe 2
+                    }
+                }
+            }
+        }
+
+        test("blight leg includes mandatory waterbend before generic reductions") {
+            val game = scenario().withPlayers("Caster", "Opponent")
+                .withCardInHand(1, blightWaterbend.name)
+                .withCardOnBattlefield(1, "Ruby Medallion")
+                .withCardOnBattlefield(1, "Grizzly Bears")
+                .withLandsOnBattlefield(1, "Mountain", 2)
+                .withCardInLibrary(1, "Mountain").withCardInLibrary(2, "Mountain")
+                .withActivePlayer(1).inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN).build()
+            val cast = action(game, blightWaterbend.name)
+            val offer = game.getLegalActions(1).single {
+                (it.action as? CastSpell)?.cardId == cast.cardId && it.additionalCostInfo?.costType == "Blight"
+            }
+            ManaCost.parse(offer.manaCostString!!) shouldBe ManaCost.parse("{1}{R}")
+            game.execute(cast.copy(additionalCostPayment = AdditionalCostPayment(
+                blightTargets = listOf(game.findPermanent("Grizzly Bears")!!)
+            ))).error shouldBe null
+            game.findAllPermanents("Mountain").count {
+                game.state.getEntity(it)!!.has<TappedComponent>()
+            } shouldBe 2
         }
 
     }

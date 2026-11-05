@@ -93,6 +93,7 @@ class StingingLionfishScenarioTest : ScenarioTestBase() {
 
                 withClue("the trigger tapped the Bears") { game.isTapped(bears) shouldBe true }
 
+                game.passPriority() // Player2 is active and receives priority after the resolution (CR 117.3b)
                 game.castSpell(1, "Flash Probe").error shouldBe null
                 withClue("the second spell this turn does not trigger") {
                     (game.getPendingDecision() is ChooseTargetsDecision) shouldBe false

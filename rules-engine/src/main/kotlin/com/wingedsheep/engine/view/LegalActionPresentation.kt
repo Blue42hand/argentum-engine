@@ -26,6 +26,8 @@ data class LegalActionTargetInfo(
     /** Server-computed choices keyed by the comma-joined earlier target IDs, in slot order. */
     val selectionGroups: List<List<EntityId>>? = null,
     val exclusiveGroups: List<List<EntityId>>? = null,
+    /** Each valid target's claimable categories; picks must each claim a different one ("of each color"). */
+    val distinctCategories: Map<EntityId, List<String>>? = null,
     val validTargetsByPrefix: Map<String, List<EntityId>>? = null,
     val targetZone: String? = null,
     /**
@@ -51,12 +53,12 @@ data class LegalActionTargetInfo(
     val xConstrainsPower: Boolean = false,
     /**
      * True when this requirement's max-count is dynamically driven by the chosen X
-     * (`TargetObject.dynamicMaxCount == DynamicAmount.XValue`). The client must
+     * (`TargetRequirement.dynamicMaxCount == DynamicAmount.XValue`). The client must
      * cap selectable targets at the chosen X after the cast-time `xSelection` phase.
      */
     val xConstrainsCount: Boolean = false,
     /**
-     * True when that X-driven count is exact — "X target creatures" (`TargetObject.dynamicMinCount`
+     * True when that X-driven count is exact — "X target creatures" (`TargetRequirement.dynamicMinCount`
      * is XValue too). The client must require exactly the chosen X selections, not merely cap them.
      */
     val xConstrainsCountExactly: Boolean = false,
@@ -116,6 +118,8 @@ data class LegalActionInfo(
     val xConstrainsTargetCountExactly: Boolean = false,
     val validAttackers: List<EntityId>? = null,
     val mandatoryAttackers: List<EntityId>? = null,
+    /** Valid attackers that can only attack alone (Master of Cruelties); null when none. */
+    val loneAttackers: List<EntityId>? = null,
     val validAttackTargets: List<EntityId>? = null,
     /**
      * Sparse per-attacker narrowing of [validAttackTargets]: an attacker listed here may attack
@@ -163,13 +167,16 @@ data class LegalActionInfo(
     val manaCostString: String? = null,
     val maxOptionalCostTimes: Int? = null,
     val optionalManaCostString: String? = null,
+    /** Legacy wire field for older recorded DTOs; current offers use [manaCostByTargetCount]. */
+    val manaCostPerExtraTarget: String? = null,
     /**
-     * Mana added to this spell's cost per target beyond the first, so [manaCostString] above is
-     * only the one-target minimum and the real price is settled by targeting. Mirrors
-     * [com.wingedsheep.engine.legalactions.LegalAction.manaCostPerExtraTarget]; the client uses it
+     * This spell's cost for each number of different targets, when a modifier prices it per
+     * target, so [manaCostString] above is only the cheapest reachable count and the real price
+     * is settled by targeting. Mirrors
+     * [com.wingedsheep.engine.legalactions.LegalAction.manaCostByTargetCount]; the client uses it
      * to run targeting before a manual mana-source pick, and to price that pick.
      */
-    val manaCostPerExtraTarget: String? = null,
+    val manaCostByTargetCount: Map<Int, String>? = null,
     /**
      * The cheapest [manaCostString] can end up being once the alternative payments this action
      * already offers are used to the maximum — convoke taps (CR 702.51a), delve exiles (CR 702.66a),
@@ -188,9 +195,17 @@ data class LegalActionInfo(
     val minimumManaCostString: String? = null,
     val requiresDamageDistribution: Boolean = false,
     val totalDamageToDistribute: Int? = null,
+    /** The division's total per announced X, when it reads a mana-paid {X} (see `LegalAction.totalDamageByX`). */
+    val totalDamageByX: Map<Int, Int>? = null,
     val minDamagePerTarget: Int? = null,
     /** What the division divides when it isn't damage — "+1/+1 counter". Null means damage. */
     val distributionUnit: String? = null,
+    /**
+     * Which target requirement (index into the spell's requirements) the division is among, when it
+     * is scoped to one (Magma Opus divides its damage among its "any number of targets", not the two
+     * permanents it taps). Null means among every chosen target.
+     */
+    val distributionTargetGroup: Int? = null,
     val autoTapPreview: List<EntityId>? = null,
     val availableManaSources: List<ManaSourceInfo>? = null,
     /**
@@ -232,7 +247,9 @@ data class LegalActionInfo(
     val modalEnumeration: ModalLegalEnumerationInfo? = null,
     val holdPriority: Boolean = false,
     /** Engine-authored step parameter contract for this offered action. */
-    val parameterSpec: ActionParameterSpec = ActionParameterSpec.EMPTY
+    val parameterSpec: ActionParameterSpec = ActionParameterSpec.EMPTY,
+    /** Why activating this right now would do nothing; the client greys the option out with it. */
+    val inertReason: String? = null
 )
 
 /**
@@ -314,6 +331,12 @@ data class AdditionalCostInfo(
     val costType: String,
     val validSacrificeTargets: List<EntityId> = emptyList(),
     val sacrificeCount: Int = 1,
+    /** Casualty X: the sacrifice needs power at least the chosen X — see
+     *  [com.wingedsheep.engine.legalactions.AdditionalCostData.sacrificeMinPowerIsX]. */
+    val sacrificeMinPowerIsX: Boolean = false,
+    /** "Sacrifice X creatures": pick exactly the announced X — see
+     *  [com.wingedsheep.engine.legalactions.AdditionalCostData.sacrificeCountIsX]. */
+    val sacrificeCountIsX: Boolean = false,
     /** Emerge (CR 702.119): the mana cost left after sacrificing each candidate — see
      *  [com.wingedsheep.engine.legalactions.AdditionalCostData.costAfterSacrifice]. Empty otherwise. */
     val costAfterSacrifice: Map<EntityId, String> = emptyMap(),

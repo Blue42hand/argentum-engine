@@ -22,6 +22,7 @@ import { DrawAnimations } from '../animations/DrawAnimations'
 import { DamageAnimations } from '../animations/DamageAnimations'
 import { RevealAnimations } from '../animations/RevealAnimations'
 import { CoinFlipAnimations } from '../animations/CoinFlipAnimations'
+import { FlipShowOverlay } from '../dexterity/FlipShowOverlay'
 import { TargetReselectedAnimations } from '../animations/TargetReselectedAnimations'
 import { useResponsive, useViewportSize, MOBILE_BREAKPOINT } from '@/hooks/useResponsive'
 import { ManaSymbol } from '../ui/ManaSymbols'
@@ -30,7 +31,7 @@ import { computeCoverage } from '../decisions/manaCoverage'
 // Import extracted components
 import { SeatPortrait, useHasSeatPortrait } from './SeatPortrait'
 import { useResponsiveContext } from './board/shared'
-import { Battlefield, CardRow, CommandZone, OpponentBoardArea, BoardNamePlate, CollapsedBoardTab, COLLAPSED_TAB_WIDTH, CELL_PLATE_BAND, useCellHandMetrics, StackDisplay, ZonePile, ResponsiveContext } from './board'
+import { Battlefield, CardRow, CommandZone, AnteZone, AnteIndicator, OpponentBoardArea, BoardNamePlate, HandCountBadge, CollapsedBoardTab, COLLAPSED_TAB_WIDTH, CELL_PLATE_BAND, useCellHandMetrics, StackDisplay, ZonePile, ResponsiveContext } from './board'
 import { RenderProfiler } from '@/utils/renderProfiler'
 import { PooledBattlefieldLayoutContext } from './board/shared'
 import { useBoardGroups } from './board/useBoardGroups'
@@ -38,7 +39,7 @@ import { usePooledBattlefieldLayout } from './board/usePooledBattlefieldLayout'
 import { CardPreview } from './card'
 import { EmotePicker } from '../tableTalk/EmotePicker'
 import { ChatButton } from '@/components/messages/ChatButton'
-import { TargetingOverlay, ManaColorSelectionOverlay, LifeDisplay, ActiveEffectsBadges, SpeedGauge, DayNightBadge, ConcedeButton, FullscreenButton, GamePreferencesButton, SpectatorCountBadge, TeamLifeBanner, EliminationNotice } from './overlay'
+import { TargetingOverlay, ManaColorSelectionOverlay, LifeDisplay, ActiveEffectsBadges, SpeedGauge, DayNightBadge, SubgameBadge, SubgameFrame, ConcedeButton, FullscreenButton, GamePreferencesButton, SpectatorCountBadge, TeamLifeBanner, EliminationNotice, AutoAnswerNotice } from './overlay'
 import { HelpDrawer, HelpDrawerButton } from '../help/HelpDrawer'
 import { markLearnSignal } from '@/learn/signals'
 import { styles } from './board/styles'
@@ -726,7 +727,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
         // Mindslaver-style hijack: this client drives the controlled opponent, so it holds
         // priority whenever that opponent does (enables Pass, casting, ability activation).
         (youAreHijacking != null && gameState.priorityPlayerId === youAreHijacking))
-  const canAct = hasPriority && !opponentDecisionStatus
+  // A question answered for us is still a question: nothing else is ours to do until it is.
+  const autoAnswerPending = useGameStore((state) => state.autoAnswerPending)
+  const canAct = hasPriority && !opponentDecisionStatus && !autoAnswerPending
   /**
    * Two-Headed Giant: pair your hand with your ally's in one centered row at the bottom of the
    * screen. Outside a team game (and while spectating) this hands the fan straight back and the
@@ -906,6 +909,8 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           : `${oppHandReservation}px minmax(0, 1fr) auto 0px 0px`
         : `${oppHandReservation}px minmax(0, ${opponentRowWeight}fr) auto minmax(0, ${playerRowWeight}fr) ${playerHandReservation}px`,
     }}>
+      {/* A Magic subgame (Shahrazad, CR 729): the whole table is framed as a game within the game. */}
+      <SubgameFrame depth={gameState.subgame?.depth} />
       {/* Fullscreen button (top-left) */}
       <FullscreenButton />
       {/* Preferences gear (top-left, next to fullscreen) — stacking, stops, motion mid-game */}
@@ -1363,6 +1368,10 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
         {/* Game-level day/night designation (CR 731) — one badge for the whole table, not per-player.
             Renders nothing until a designation exists, so most games never show it. */}
         <DayNightBadge designation={gameState.dayNight} />
+        {/* "For ante" chip (CR 407) — fixed for the whole game, so it never shifts the HUD mid-game. */}
+        <AnteIndicator />
+        {/* A subgame in progress (CR 729) — what started it and what's waiting outside it. */}
+        <SubgameBadge gameState={gameState} />
         <StepStrip
           phase={gameState.currentPhase}
           step={gameState.currentStep}
@@ -1452,6 +1461,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           )}
           <div style={styles.playerRowWithZones}>
             <CommandZone player={eliminatedBottomSeat} />
+            <AnteZone player={eliminatedBottomSeat} />
             <div style={styles.playerMainArea}>
               <Battlefield isOpponent={false} playerId={eliminatedBottomSeat.playerId} spectatorMode />
             </div>
@@ -1572,6 +1582,8 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           <div style={styles.playerRowWithZones}>
             {/* Player command zone (left side) — Commander format only; renders nothing otherwise. */}
             {effectiveViewingPlayer && <CommandZone player={effectiveViewingPlayer} />}
+            {/* The player's ante (CR 407) — only in a game played for ante; renders nothing otherwise. */}
+            {effectiveViewingPlayer && <AnteZone player={effectiveViewingPlayer} />}
 
             <div ref={playerSlotRef} style={{
               ...styles.playerMainArea,
@@ -1687,7 +1699,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
           (bottom-right) — always present, the pass disabled when unavailable. One column so the
           pass button and the icon row above it end up exactly the same width; the row's intrinsic
           width wins whenever the priority-mode label ("Full Control") makes it the wider of the two. */}
-      {!spectatorMode && !isEliminatedSpectator && viewingPlayer && !isInManaSelectionMode && !isInCounterDistMode && (() => {
+      {!spectatorMode && !isEliminatedSpectator && viewingPlayer && !isInManaSelectionMode && !isInCounterDistMode && !isInDistributeMode && (() => {
         const passEnabled = canAct && !isHijacked && !isInCombatMode && !isInDistributeMode && !isInCounterDistMode && !isInManaSelectionMode && !delveSelectionState && !tapForPowerSelectionState && !targetingState && !pipelineState
         const yieldBlockedByFullControl = fullControl || serverPriorityMode === 'fullControl'
         const canArmYield = passEnabled && !yieldBlockedByFullControl && !!interactionEpoch && stateVersion != null
@@ -1873,6 +1885,8 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
       })()}
 
       {isMulti && <EliminationNotice topOffset={effectiveTopOffset} />}
+      {/* Below the elimination notice in a pod, so the two never overlap. */}
+      <AutoAnswerNotice topOffset={effectiveTopOffset + (isMulti ? 36 : 0)} />
 
       {/* Attack-restriction explainer — "attack left/right" (CR 803.1) and similar
           restrictions are invisible on the board itself, so say exactly who can be
@@ -2155,7 +2169,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                   }}>
                     {isComplete
                       ? `All ${noun} allocated`
-                      : `${distributeRemaining} ${noun} remaining`}
+                      : `${distributeRemaining} ${isCounters && distributeRemaining === 1 ? 'counter' : noun} remaining`}
                   </div>
                   <div style={{
                     color: 'rgba(255, 255, 255, 0.7)',
@@ -2169,8 +2183,9 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
                   onClick={() => confirmDistribute(distributeState.decisionId)}
                   disabled={!canConfirm}
                   style={{
-                    ...styles.combatButton,
-                    ...(canConfirm ? styles.combatButtonPrimary : {}),
+                    ...styles.combatActionButton,
+                    borderRadius: 6,
+                    border: '1px solid',
                     backgroundColor: canConfirm ? '#16a34a' : '#333',
                     color: canConfirm ? 'white' : '#666',
                     cursor: canConfirm ? 'pointer' : 'not-allowed',
@@ -2369,6 +2384,7 @@ export function GameBoard({ spectatorMode = false, topOffset = 0 }: GameBoardPro
 
       {/* Coin flip animations */}
       <CoinFlipAnimations />
+      <FlipShowOverlay />
 
       {/* Target reselection animations (Grip of Chaos, etc.) */}
       <TargetReselectedAnimations />
@@ -2564,7 +2580,9 @@ const OPPONENT_RING = 'rgba(255, 158, 70, 0.85)'
 /**
  * The floating name label a spectator (or replay viewer) sees in the corner of each half of the
  * table. With a portrait the seat's face leads the name, ringed in the seat's colour, so the label
- * reads as a person rather than a caption; without one it stays the plain text pill.
+ * reads as a person rather than a caption; without one it stays the plain text pill. The seat's
+ * hand size trails the name: a spectator sees both hands as face-down fans, and counting
+ * overlapped card backs is the only other way to learn how many cards each player holds.
  */
 function SpectatorNameLabel({
   player,
@@ -2580,9 +2598,11 @@ function SpectatorNameLabel({
   const hasPortrait = useHasSeatPortrait(player.playerId)
   // Phones: a smaller face keeps the label its text-only height, clear of the chrome buttons above.
   const compact = useResponsiveContext().isMobile
+  const handSize = player.handSize ?? 0
   return (
     <div
       data-spectator-name-label={player.playerId}
+      title={`${player.name} — ${handSize} ${handSize === 1 ? 'card' : 'cards'} in hand`}
       style={{
         ...styles.spectatorNameLabel,
         ...(hasPortrait
@@ -2593,12 +2613,18 @@ function SpectatorNameLabel({
               padding: compact ? '3px 12px 3px 3px' : '5px 16px 5px 5px',
               borderRadius: 999,
             }
-          : {}),
+          : { display: 'inline-flex', alignItems: 'center', gap: 10 }),
         ...style,
       }}
     >
       <SeatPortrait playerId={player.playerId} size={compact ? 24 : 32} ringColor={ringColor ?? seat.base} ringWidth={2} />
       {player.name}
+      <span
+        data-spectator-hand-count={player.playerId}
+        style={{ display: 'inline-flex', fontSize: compact ? 12 : 13 }}
+      >
+        <HandCountBadge count={handSize} />
+      </span>
     </div>
   )
 }
@@ -2732,6 +2758,7 @@ function SelfBottomCell({
       {!plateAtBottom && <div style={{ height: CELL_PLATE_BAND + handBand, flexShrink: 0 }} aria-hidden />}
       <div style={{ ...styles.playerRowWithZones, alignItems: 'flex-start', flex: 1 }}>
         <CommandZone player={player} compact />
+        <AnteZone player={player} compact />
         <div style={{ ...styles.playerMainArea, ...(hijackedSurfaceStyle ?? null) }}>
           <Battlefield isOpponent={false} spectatorMode={spectatorMode} />
         </div>

@@ -15,13 +15,28 @@ import com.wingedsheep.sdk.scripting.predicates.StatePredicate
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
+/**
+ * Asmodeus the Archfiend — Adventures in the Forgotten Realms #88
+ * {4}{B}{B} · Legendary Creature — Devil God 6/6
+ *
+ * Binding Contract — If you would draw a card, exile the top card of your library face down instead.
+ * {B}{B}{B}: Draw seven cards.
+ * {B}: Return all cards exiled with Asmodeus to their owner's hand and you lose that much life.
+ *
+ * Each card of a multi-card draw is replaced on its own, so `{B}{B}{B}` exiles seven cards. The
+ * exile links each card to Asmodeus (`linkToSource`), which is the pile its last ability reads; a
+ * new Asmodeus object has no link to an old pile. No look grant: nobody may look at the face-down
+ * cards (first ruling). The life loss counts the cards that actually moved.
+ */
 val AsmodeusTheArchfiend = card("Asmodeus the Archfiend") {
     manaCost = "{4}{B}{B}"
     colorIdentity = "B"
     typeLine = "Legendary Creature — Devil God"
     power = 6
     toughness = 6
-    oracleText = "Binding Contract — If you would draw a card, exile the top card of your library face down instead.\n{B}{B}{B}: Draw seven cards.\n{B}: Return all cards exiled with Asmodeus to their owner's hand and you lose that much life."
+    oracleText = "Binding Contract — If you would draw a card, exile the top card of your library face down instead.\n" +
+        "{B}{B}{B}: Draw seven cards.\n" +
+        "{B}: Return all cards exiled with Asmodeus to their owner's hand and you lose that much life."
 
     replacementEffect(
         ReplaceDrawWith(

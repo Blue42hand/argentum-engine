@@ -48,4 +48,17 @@ class GeneratedEffectTextTest : FunSpec({
             "Untap another target creature you control. If that creature is a Bear creature, " +
             "put a +1/+1 counter on it"
     }
+
+    // "You may …" consent prompts: the decision-maker is the implicit subject, so a clause that
+    // names one must not repeat it ("You may you gain …") or keep a third-person verb ("You may
+    // target creature gets …").
+    test("Faerie Tauntings: another subject takes 'have' and the base-form verb") {
+        card("Faerie Tauntings").triggeredAbilities.single().effect.description shouldBe
+            "You may have each opponent lose 1 life"
+    }
+
+    test("Primal Boost: a target's pump reads 'have target creature get'") {
+        card("Primal Boost").triggeredAbilities.single().effect.description shouldBe
+            "You may have target creature get +1/+1 until end of turn"
+    }
 })

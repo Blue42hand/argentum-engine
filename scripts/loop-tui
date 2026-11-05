@@ -91,7 +91,7 @@ class Loop:
         self.log = runs / f"{name}.log"
         self.stop_file = runs / f"{name}.stop"
         self.prefix = status.PR_PREFIX.get(name, f"loop-{name}-")
-        self.is_set = name not in status.PR_PREFIX
+        self.is_set = name not in status.PR_PREFIX and not name.startswith("cards-")
         self.prs: list[dict] = []
         self.progress = ""
         self.usage: dict = {}

@@ -13,7 +13,7 @@ import com.wingedsheep.sdk.scripting.ChoiceSlot
 
 class ColorChoiceContinuationResumer(
     private val services: com.wingedsheep.engine.core.EngineServices,
-    private val effectRunner: EffectContinuationRunner
+    private val effectRunner: com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter
 ) : ContinuationResumerModule {
 
     private val tappedForManaBonusResolver =
@@ -63,14 +63,14 @@ class ColorChoiceContinuationResumer(
             chosenColor = response.color,
             chosenColors = if (response.colors.isEmpty()) emptySet() else response.allColors
         )
-        val effectResult = effectRunner.executeRemainingEffects(
+        val effectResult = effectRunner.runBuilt(
             state,
             listOf(continuation.then),
             contextWithColor
         )
 
         if (effectResult.outcome is Outcome.Paused) return effectResult.toExecutionResult()
-        return checkForMore(effectResult.state, effectResult.events.toList())
+        return checkForMore(effectResult.stateWithOutputsHandedOn(), effectResult.events.toList())
     }
 
     fun resumeChooseNumberThen(
@@ -85,14 +85,14 @@ class ColorChoiceContinuationResumer(
 
         // Stamp the chosen number as X so atomic effects/filters (manaValueEqualsX) read it.
         val contextWithNumber = continuation.baseContext.copy(xValue = response.number)
-        val effectResult = effectRunner.executeRemainingEffects(
+        val effectResult = effectRunner.runBuilt(
             state,
             listOf(continuation.then),
             contextWithNumber
         )
 
         if (effectResult.outcome is Outcome.Paused) return effectResult.toExecutionResult()
-        return checkForMore(effectResult.state, effectResult.events.toList())
+        return checkForMore(effectResult.stateWithOutputsHandedOn(), effectResult.events.toList())
     }
 
     fun resumeChooseNumberForSource(
@@ -181,7 +181,7 @@ class ColorChoiceContinuationResumer(
             ?: return ExecutionResult.error(state, "Opponent choice index ${response.optionIndex} out of range")
 
         val contextWithDecider = continuation.baseContext.copy(opponentDeciderId = chosen)
-        val effectResult = effectRunner.executeRemainingEffects(
+        val effectResult = effectRunner.runBuilt(
             state,
             listOf(continuation.effect),
             contextWithDecider
@@ -190,8 +190,7 @@ class ColorChoiceContinuationResumer(
         if (effectResult.outcome is Outcome.Paused) return effectResult.toExecutionResult()
         // The re-run finished without pausing (nothing left to decide). Publish whatever it
         // stored so the composite's remaining steps still see it.
-        val published = exposeCollectionsToNextFrame(effectResult.state, effectResult.updatedCollections)
-        return checkForMore(published, effectResult.events.toList())
+        return checkForMore(effectResult.stateWithOutputsHandedOn(), effectResult.events.toList())
     }
 
     fun resumeChooseManaColor(
@@ -205,7 +204,7 @@ class ColorChoiceContinuationResumer(
         }
 
         val contextWithColor = continuation.baseContext.copy(manaColorChoice = response.color)
-        val effectResult = effectRunner.executeRemainingEffects(
+        val effectResult = effectRunner.runBuilt(
             state,
             listOf(continuation.effect),
             contextWithColor

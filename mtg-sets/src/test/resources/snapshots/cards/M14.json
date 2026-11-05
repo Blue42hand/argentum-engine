@@ -72,6 +72,141 @@
     ]
 }
 
+// Angelic Accord
+{
+    "name": "Angelic Accord",
+    "manaCost": "{3}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of each end step, if you gained 4 or more life this turn, create a 4/4 white Angel creature token with flying.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Angelic Accord:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 4,
+                    "toughness": 4,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Angel"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/2/826320b7-4ccf-4ace-8c2c-15052b6bad73.jpg?1783939887"
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_GAINED"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 4
+                    }
+                },
+                "descriptionOverride": "At the beginning of each end step, if you gained 4 or more life this turn, create a 4/4 white Angel creature token with flying."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "3",
+        "rarity": "UNCOMMON",
+        "artist": "Michael C. Hayes",
+        "flavorText": "As demons are drawn to suffering, angels are drawn to acts of benevolence.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/3/03f26bc2-53d7-4448-8021-de35aa82fcc6.jpg?1783939947",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "Angelic Accord's ability checks how much life you've gained during the turn, not what your life total is compared to what it was when the turn began. For example, if you start the turn at 10 life, gain 6 life during the turn, then lose 6 life later that turn, the ability will trigger."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "If you haven't gained 4 or more life during the turn when the end step begins, the ability won't trigger at all. Gaining life during the end step won't cause the ability to trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Archangel of Thune
+{
+    "name": "Archangel of Thune",
+    "manaCost": "{3}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nLifelink (Damage dealt by this creature also causes you to gain that much life.)\nWhenever you gain life, put a +1/+1 counter on each creature you control.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Archangel of Thune:1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 1,
+                        "target": "IterationEntity"
+                    }
+                },
+                "descriptionOverride": "Whenever you gain life, put a +1/+1 counter on each creature you control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "5",
+        "rarity": "MYTHIC",
+        "artist": "James Ryman",
+        "flavorText": "Even the wicked have nightmares.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/3/531cba81-afd7-4be4-adec-87edb77ba2a9.jpg?1783939946",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "If a creature you control is dealt lethal damage at the same time that you gain life, it won't receive a counter from Archangel of Thune's ability in time to save it."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "Each creature with lifelink dealing combat damage causes a separate life-gaining event. For example, if two creatures you control with lifelink deal combat damage at the same time, the ability will trigger twice. However, if a single creature you control with lifelink deals combat damage to multiple creatures, players, and/or planeswalkers at the same time (perhaps because it has trample or was blocked by more than one creature), the ability will trigger only once."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If you gain an amount of life \"for each\" of something, that life is gained as one event and the ability triggers only once."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Barrage of Expendables
 {
     "name": "Barrage of Expendables",
@@ -1382,6 +1517,64 @@
     ]
 }
 
+// Ogre Battledriver
+{
+    "name": "Ogre Battledriver",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Ogre Warrior",
+    "oracleText": "Whenever another creature you control enters, that creature gets +2/+0 and gains haste until end of turn. (It can attack and {T} this turn.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ogre Battledriver:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "Fixed",
+                                "amount": 2
+                            },
+                            "toughnessModifier": {
+                                "type": "Fixed",
+                                "amount": 0
+                            },
+                            "target": "TriggeringEntity"
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": "TriggeringEntity"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever another creature you control enters, that creature gets +2/+0 and gains haste until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "148",
+        "rarity": "RARE",
+        "artist": "Greg Staples",
+        "flavorText": "Ogres are driven by passion, rage, and another ogre standing behind them with a whip.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/f/bff2d740-22cc-4719-ac58-28621951e68d.jpg?1783939911"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Predatory Sliver
 {
     "name": "Predatory Sliver",
@@ -1590,6 +1783,94 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Scourge of Valkas
+{
+    "name": "Scourge of Valkas",
+    "manaCost": "{2}{R}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhenever this creature or another Dragon you control enters, it deals X damage to any target, where X is the number of Dragons you control.\n{R}: This creature gets +1/+0 until end of turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Scourge of Valkas:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Dragon ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "permanent Dragon"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "damageSource": "TriggeringEntity"
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Scourge of Valkas:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{R}"
+                    }
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "rarity": "MYTHIC",
+        "artist": "Lucas Graciano",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/27ce2b55-45bf-4852-a74a-d0b17c6c9c3f.jpg?1783939910",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "The amount of damage dealt by the Dragon that entered the battlefield is based on the number of Dragons you control when the ability resolves."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "If a Dragon entering the battlefield causes Scourge of Valkas's ability to trigger but leaves the battlefield before that ability resolves, that Dragon still deals damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2111,6 +2392,56 @@
         "imageUri": "https://cards.scryfall.io/normal/front/7/7/7769159b-5a6a-45e5-b69b-8db2a6ef5418.jpg"
     },
     "colorIdentityOverride": []
+}
+
+// Warden of Evos Isle
+{
+    "name": "Warden of Evos Isle",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Bird Wizard",
+    "oracleText": "Flying\nCreature spells with flying you cast cost {1} less to cast.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "creature kw:flying"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "79",
+        "rarity": "UNCOMMON",
+        "artist": "Nils Hamm",
+        "flavorText": "On Evos Isle, the swift and formidable aven enforce the will of the ruling sphinxes.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/3/2316d281-21a4-460d-9062-f0737249484e.jpg?1783939929",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "A creature spell that doesn't have flying won't cost less even if an effect will cause the creature to have flying once on the battlefield. This is also true if the creature spell itself has an ability that gives it flying once on the battlefield under certain conditions, even if those conditions are true."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "The last ability of Warden of Evos Isle can't reduce the colored mana requirement of a creature spell with flying."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // Woodborn Behemoth

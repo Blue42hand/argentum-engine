@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.view.projection
 
+import com.wingedsheep.sdk.scripting.effects.describeSkippedPermanents
 import com.wingedsheep.engine.core.engineSerializersModule
 import com.wingedsheep.engine.event.DelayedTriggeredAbility
 import com.wingedsheep.engine.handlers.PredicateEvaluator
@@ -17,6 +18,8 @@ import com.wingedsheep.engine.state.components.battlefield.*
 import com.wingedsheep.engine.state.components.combat.MustAttackPlayerComponent
 import com.wingedsheep.engine.state.components.identity.*
 import com.wingedsheep.engine.state.components.player.*
+import com.wingedsheep.sdk.scripting.ProtectionScope
+import com.wingedsheep.sdk.scripting.effects.protectionDescription
 import com.wingedsheep.engine.view.ClientEffectProgress
 import com.wingedsheep.engine.view.ClientPlayerEffect
 import com.wingedsheep.sdk.core.Step
@@ -25,6 +28,7 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
+import com.wingedsheep.sdk.scripting.effects.DelayedTriggerStepScope
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -137,7 +141,8 @@ internal class PlayerActiveEffectsProjector(
             if (playerId !in floatingEffect.effect.affectedEntities) continue
             when (modification) {
                 is SerializableModification.PreventAllDamageTo -> {
-                    tally.preventsAllDamage = true
+                    // A Silhouette-style shield covers only targeted damage, not "all damage".
+                    if (!modification.onlyCausedByObjectTargetingIt) tally.preventsAllDamage = true
                 }
                 is SerializableModification.PreventNextDamage -> {
                     tally.preventNext += durationPhrase(state, floatingEffect) to modification.remainingAmount
@@ -364,15 +369,11 @@ internal class PlayerActiveEffectsProjector(
             )
         }
 
-        // Check for SkipUntapComponent (Exhaustion effect)
+        // Check for SkipUntapComponent (Exhaustion, Icebreaker Kraken)
         val skipUntap = container.get<SkipUntapComponent>()
         if (skipUntap != null) {
-            val affected = when {
-                skipUntap.affectsCreatures && skipUntap.affectsLands -> "Creatures and lands"
-                skipUntap.affectsCreatures -> "Creatures"
-                skipUntap.affectsLands -> "Lands"
-                else -> "Permanents"
-            }
+            val affected = skipUntap.permanents.map(::describeSkippedPermanents).distinct()
+                .joinToString(" and ").ifEmpty { "permanents" }.replaceFirstChar { it.uppercase() }
             effects.add(
                 ClientPlayerEffect(
                     effectId = "skip_untap",
@@ -467,6 +468,7 @@ internal class PlayerActiveEffectsProjector(
                 val (idSuffix, window) = when (removeOn) {
                     PlayerEffectRemoval.EndOfTurn -> "this_turn" to " this turn"
                     PlayerEffectRemoval.UntilYourNextTurn -> "until_next_turn" to " until your next turn"
+                    PlayerEffectRemoval.EndOfYourNextTurn -> "end_of_next_turn" to " until the end of your next turn"
                     PlayerEffectRemoval.Permanent -> "permanent" to ""
                 }
                 effects.add(
@@ -535,6 +537,28 @@ internal class PlayerActiveEffectsProjector(
                     effectId = "player_hexproof",
                     name = "Hexproof",
                     description = "You have hexproof (you can't be the target of spells or abilities your opponents control)",
+                    icon = "shield"
+                )
+            )
+        }
+        // Hexproof from a quality (Veil of Summer). Full hexproof above already covers every source,
+        // so the narrower badge is dropped while it applies.
+        container.get<PlayerHexproofFromComponent>()?.grants
+            ?.takeIf { it.isNotEmpty() && effects.none { e -> e.effectId == "player_hexproof" } }
+            ?.let { grants ->
+            // "from blue and from black" (CR 702.11f): a color set reads as one quality per color.
+            val qualities = grants.flatMap { grant ->
+                (grant.scope as? ProtectionScope.Colors)?.colors?.map { it.name.lowercase() }
+                    ?: listOf(grant.scope.protectionDescription())
+            }.distinct()
+            effects.add(
+                ClientPlayerEffect(
+                    effectId = "player_hexproof_from",
+                    name = "Hexproof from " + qualities.joinToString(" and from "),
+                    description = if (grants.all { it.scope is ProtectionScope.Color || it.scope is ProtectionScope.Colors })
+                        "Spells and abilities your opponents control from " + qualities.joinToString(" or ") +
+                            " sources can't target you"
+                    else "Your opponents' spells and abilities can't target you if they match: " + qualities.joinToString(", "),
                     icon = "shield"
                 )
             )
@@ -739,6 +763,26 @@ internal class PlayerActiveEffectsProjector(
                 )
             )
         }
+
+        // Check for pending "for one spell this turn, mana of any type" riders (North Star) — the
+        // player needs to see the rider is still waiting for the spell that needs it.
+        val pendingAnyType = state.pendingAnyManaTypeSpells.filter { it.controllerId == playerId }
+        if (pendingAnyType.isNotEmpty()) {
+            val sourceName = pendingAnyType.map { it.sourceName }.distinct().joinToString(", ")
+            val filterDesc = if (pendingAnyType.any { it.spellFilter == GameObjectFilter.Any }) {
+                ""
+            } else {
+                pendingAnyType.map { it.spellFilter.description }.distinct().joinToString("/") + " "
+            }
+            effects.add(
+                ClientPlayerEffect(
+                    effectId = "pending_one_spell_any_mana_type",
+                    name = "Any Mana Type",
+                    description = "For one ${filterDesc}spell this turn, you may spend mana as though it were mana of any type to pay its mana cost ($sourceName)",
+                    icon = "granted-ability"
+                )
+            )
+        }
         return effects
     }
 
@@ -911,9 +955,11 @@ internal class PlayerActiveEffectsProjector(
      * beginning of Bob's next upkeep", "At the beginning of each combat this turn".
      */
     private fun scheduleText(state: GameState, scheduled: DelayedTriggeredAbility, step: Step): String {
-        val stepName = when (step) {
-            Step.UPKEEP -> "upkeep"
-            Step.BEGIN_COMBAT -> "combat"
+        val stepName = when {
+            // "Your next main phase" waits for precombat and postcombat alike (CR 505.1).
+            scheduled.stepScope == DelayedTriggerStepScope.ANY_MAIN_PHASE -> "main phase"
+            step == Step.UPKEEP -> "upkeep"
+            step == Step.BEGIN_COMBAT -> "combat"
             else -> step.displayName.lowercase()
         }
         // Both seats read this badge, so the player is named rather than called "your".

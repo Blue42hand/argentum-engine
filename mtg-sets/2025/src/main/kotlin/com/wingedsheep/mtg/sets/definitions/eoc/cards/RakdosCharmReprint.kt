@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.eoc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Rakdos Charm reprint; the canonical definition is in RTR. */
 val RakdosCharmReprint = Printing(
     oracleId = "5e62b51d-faec-4aa0-9504-cf2c282d08ea",
     name = "Rakdos Charm",

@@ -2,6 +2,7 @@ package com.wingedsheep.sdk.scripting.effects
 
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
@@ -69,18 +70,28 @@ data class CantBeRegeneratedEffect(
 }
 
 /**
- * Mark target creature so that if it would die this turn, it goes to exile instead of graveyard.
+ * Mark target creature so that if it would die, it goes to exile instead of graveyard.
  * "If it would die this turn, exile it instead."
  *
  * Designed to be composed with damage/destroy effects via `then` for cards like Carbonize.
  * Only applies to creatures — if the target is a player, this effect does nothing.
+ *
+ * [duration] bounds the mark: [Duration.EndOfTurn] (the default) is the "this turn" rider;
+ * [Duration.Permanent] is a creature that *gains* "If this creature would die, exile it instead"
+ * (Can't Stay Away) — the mark then lasts until the creature leaves the battlefield, since a
+ * permanent that changes zones becomes a new object (CR 400.7).
  */
 @SerialName("MarkExileOnDeath")
 @Serializable
 data class MarkExileOnDeathEffect(
-    val target: EffectTarget
+    val target: EffectTarget,
+    val duration: Duration = Duration.EndOfTurn
 ) : Effect {
-    override val description: String = "If ${target.description} would die this turn, exile it instead"
+    override val description: String = when (duration) {
+        Duration.Permanent -> "${target.description} gains \"If this creature would die, exile it instead.\""
+        Duration.EndOfTurn -> "If ${target.description} would die this turn, exile it instead"
+        else -> "If ${target.description} would die ${duration.description}, exile it instead"
+    }
 }
 
 /**
@@ -227,7 +238,8 @@ data class ForceSacrificeEffect(
 ) : Effect {
     override val description: String = buildString {
         append(target.description)
-        append(" sacrifices ")
+        // "you sacrifice", not "you sacrifices" — the controller form reads as second person.
+        append(if (target.description.equals("you", ignoreCase = true)) " sacrifice " else " sacrifices ")
         if (dynamicCount != null) {
             append(dynamicCount.description)
             append(" ")
@@ -340,6 +352,26 @@ data class DestroyAllEquipmentOnTargetEffect(
     override val description: String = "Destroy all Equipment attached to ${target.description}"
 }
 
+/**
+ * One counter a [MoveToZoneEffect] puts on the card as it arrives ("enters with a [counterType]
+ * counter on it"). [onlyIf], when set, places it only if the card landed where it was sent and
+ * matches the filter there, read off *projected* state as it arrives — so a noncreature artifact
+ * that another effect makes a creature on the battlefield (March of the Machines) counts as a
+ * creature, as Recommission's ruling requires, and a permanent that was only a creature through a
+ * type-changing effect doesn't (Semester's End's ruling). Null places it unconditionally.
+ *
+ * [count] is how many of them — one by default; a [DynamicAmount] for "return it to the battlefield
+ * with X +1/+1 counters on it, where X is the number of voyage counters on it" (Cosima, God of the
+ * Voyage). It is evaluated once, *before* the card moves, so it can read the card where it was —
+ * counters on a card in exile are gone once it leaves (CR 122.2). Zero or less places none.
+ */
+@Serializable
+data class EntryCounter(
+    val counterType: CounterType,
+    val onlyIf: GameObjectFilter? = null,
+    val count: DynamicAmount = DynamicAmount.Fixed(1)
+)
+
 @SerialName("MoveToZone")
 @Serializable
 data class MoveToZoneEffect(
@@ -365,22 +397,33 @@ data class MoveToZoneEffect(
      */
     val positionFromTop: Int? = null,
     /**
-     * When non-null, the card enters the battlefield with one counter of this type, honoring
-     * counter-placement replacements and prevention. In other destinations this annotates the
+     * Counters the card enters the battlefield with, [EntryCounter.count] per entry, honoring
+     * counter-placement replacements and prevention. In other destinations they annotate the
      * arriving card — "exile it with a stash counter on it" (Tinybones, Bauble Burglar), "with a dream
-     * counter on it" (Goliath Daydreamer). The single-target counterpart of
-     * [MoveCollectionEffect.addCounterType]; skipped along with the move when [fromZone] gates it out.
+     * counter on it" (Goliath Daydreamer). Each entry's [EntryCounter.onlyIf] gates it on the card
+     * as it arrives — "if a creature enters this way, it enters with an additional +1/+1 counter"
+     * (Recommission), or Semester's End's "+1/+1 counter if it's a creature and loyalty counter if
+     * it's a planeswalker", where a creature planeswalker gets both. The single-target counterpart
+     * of [MoveCollectionEffect.addCounterType]; skipped along with the move when [fromZone] gates it out.
      */
-    val addCounterType: CounterType? = null,
+    val entryCounters: List<EntryCounter> = emptyList(),
     /**
-     * When non-null, [addCounterType] is placed only if the card landed in [destination] and matches
-     * this filter there, read off *projected* state as it arrives — "if a creature enters this way, it
-     * enters with an additional +1/+1 counter on it" (Recommission). Projected, so a noncreature
-     * artifact that another effect makes a creature on the battlefield (March of the Machines) still
-     * gets the counter, as Recommission's ruling requires. Null places the counter unconditionally.
+     * What a card put onto the battlefield [ZonePlacement.TappedAndAttacking] attacks. The default,
+     * [EnteringAttackDefender.JOIN_SOURCE], is a defending player already in this combat (else the
+     * first opponent); [EnteringAttackDefender.RETURNED_ATTACKER] is ninjutsu's "the same player,
+     * planeswalker, or battle as the creature that was returned" (CR 702.49c).
      */
-    val addCounterIf: GameObjectFilter? = null
+    val attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE
 ) : Effect {
+    init {
+        require(attackDefender != EnteringAttackDefender.CONTROLLER_CHOOSES) {
+            "MoveToZoneEffect has no per-card defender prompt; use JOIN_SOURCE or RETURNED_ATTACKER"
+        }
+        require(attackDefender == EnteringAttackDefender.JOIN_SOURCE || placement == ZonePlacement.TappedAndAttacking) {
+            "attackDefender needs placement = TappedAndAttacking"
+        }
+    }
+
     override val description: String = buildString {
         when {
             byDestruction -> append("Destroy ${target.description}")
@@ -461,11 +504,122 @@ data class ExileAndGrantOwnerPlayPermissionEffect(
 data class ReturnSelfToBattlefieldAttachedEffect(
     val target: EffectTarget = EffectTarget.TriggeringEntity,
     val transformed: Boolean = false,
+    /**
+     * When set, the Aura enters under this player's control ("under your control") instead of the
+     * default: a permanent host's controller, or the ability's controller for a player host.
+     */
+    val controllerOverride: EffectTarget? = null,
 ) : Effect {
     override val description: String = buildString {
         append("Return this card from your graveyard to the battlefield")
         if (transformed) append(" transformed")
+        if (controllerOverride != null) append(" under your control")
         append(" attached to ${target.description}")
+    }
+}
+
+/**
+ * Put a card onto the battlefield **as an Aura** it isn't printed as: "return it to the
+ * battlefield. It's an Aura enchantment with enchant [enchant] and \"…\", and it loses all other
+ * abilities" (Harold and Bob, First Numens; Bronzehide Lion).
+ *
+ * The card enters under the effect controller's control already an Aura — layer 4 sets its card
+ * types to enchantment and its subtypes to Aura (supertypes, name and colors stay), layer 6 strips
+ * every printed ability, and it has exactly [enchant] as its enchant ability plus the granted
+ * abilities. Being an Aura from the moment it enters, it is never a creature on the battlefield:
+ * "a creature entered" observers don't see it, and its controller chooses what it enchants as it
+ * enters, among the permanents [enchant] admits (CR 303.4f — not targeted, so hexproof doesn't
+ * stop it, protection does). With nothing it could legally enchant it doesn't move (CR 303.4g;
+ * the Harold and Bob ruling: "it remains in its owner's graveyard"). The changes last for as long
+ * as the permanent stays on the battlefield.
+ *
+ * No neighbour takes this: [MoveToZoneEffect] moves a card with its printed characteristics and
+ * offers an Aura host only by the card's printed enchant ability; `PutOntoBattlefieldAttachedToChosenEffect`'s
+ * host filter only narrows a printed Aura's enchant ability and never becomes it; and
+ * [BecomeArtifactEffect] rewrites a permanent already on the battlefield — applied after the move,
+ * the card would enter as a creature first and pick no host at all.
+ *
+ * @property target The card to return — [EffectTarget.Self] for a dies trigger's own card.
+ * @property enchant The enchant ability it gains ("enchant Forest you control"), read with "you"
+ *   as the Aura's controller.
+ * @property grantedStaticAbilities Static abilities it has as that Aura ("Enchanted Forest has
+ *   '{T}: …'").
+ * @property grantedAbilities Activated abilities it has as that Aura (Bronzehide Lion's
+ *   "{G}{W}: Enchanted creature gains indestructible until end of turn").
+ * @property fromZone The zone the card must still be in; a card that has left it doesn't move.
+ * @property losesOtherAbilities Whether it loses its printed abilities as that Aura (Harold and Bob,
+ *   Bronzehide Lion). `false` when the Oracle text doesn't say so — Old-Growth Troll keeps trample and
+ *   its own dies trigger; only its types change.
+ */
+@SerialName("PutOntoBattlefieldAsAura")
+@Serializable
+data class PutOntoBattlefieldAsAuraEffect(
+    val enchant: GameObjectFilter,
+    val grantedStaticAbilities: List<com.wingedsheep.sdk.scripting.StaticAbility> = emptyList(),
+    val grantedAbilities: List<com.wingedsheep.sdk.scripting.ActivatedAbility> = emptyList(),
+    val target: EffectTarget = EffectTarget.Self,
+    val fromZone: Zone? = Zone.GRAVEYARD,
+    val losesOtherAbilities: Boolean = true,
+) : Effect {
+    override val description: String = buildString {
+        append("Return ${target.description} to the battlefield. It's an Aura enchantment with enchant ")
+        append(enchant.description)
+        val gained = grantedStaticAbilities.map { it.description } + grantedAbilities.map { it.description }
+        if (gained.isNotEmpty()) append(" and ${gained.joinToString(" and ") { "\"$it\"" }}")
+        if (losesOtherAbilities) append(", and it loses all other abilities")
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newEnchant = enchant.applyTextReplacement(replacer)
+        val newStatics = grantedStaticAbilities.map { it.applyTextReplacement(replacer) }
+        val newAbilities = grantedAbilities.map { it.applyTextReplacement(replacer) }
+        return if (newEnchant != enchant || newStatics != grantedStaticAbilities || newAbilities != grantedAbilities) {
+            copy(enchant = newEnchant, grantedStaticAbilities = newStatics, grantedAbilities = newAbilities)
+        } else this
+    }
+}
+
+/**
+ * Put an Aura card onto the battlefield **as a non-Aura enchantment** — the inverse of
+ * [PutOntoBattlefieldAsAuraEffect]: "return this card to the battlefield under your control as a
+ * non-Aura enchantment. It loses \"enchant creature\" and gains \"At the beginning of that
+ * player's upkeep, …\"" (Takklemaggot).
+ *
+ * The card enters under the effect controller's control and attached to nothing, already without
+ * its Aura subtype (layer 4; its card types and other subtypes stay) and so without an enchant
+ * ability to obey — the unattached-Aura state-based action (CR 704.5m) never sees an Aura. Its other
+ * printed abilities stay; the [grantedTriggeredAbilities] are added for as long as it remains on
+ * the battlefield. [chosenPlayer], when set, is resolved now and recorded on the permanent as its
+ * [com.wingedsheep.sdk.scripting.ChoiceSlot.PLAYER] choice, so the granted abilities can name
+ * "that player" as [Player.ChosenPlayer].
+ *
+ * No neighbour takes this: [PutOntoBattlefieldAsAuraEffect] makes a card an Aura and (by default) strips every
+ * other ability, the opposite direction on both axes; [MoveToZoneEffect] moves an Aura card with
+ * its printed type line, so it would need a host and die to CR 704.5m without one.
+ *
+ * @property target The card to return — [EffectTarget.Self] for a trigger's own card.
+ * @property grantedTriggeredAbilities Triggered abilities it gains as that enchantment.
+ * @property chosenPlayer The player recorded as its chosen player, or null for none.
+ * @property fromZone The zone the card must still be in; a card that has left it doesn't move.
+ */
+@SerialName("PutOntoBattlefieldAsNonAura")
+@Serializable
+data class PutOntoBattlefieldAsNonAuraEffect(
+    val grantedTriggeredAbilities: List<com.wingedsheep.sdk.scripting.TriggeredAbility> = emptyList(),
+    val chosenPlayer: EffectTarget? = null,
+    val target: EffectTarget = EffectTarget.Self,
+    val fromZone: Zone? = Zone.GRAVEYARD,
+) : Effect {
+    override val description: String = buildString {
+        append("Return ${target.description} to the battlefield as a non-Aura enchantment. It loses its enchant ability")
+        if (grantedTriggeredAbilities.isNotEmpty()) {
+            append(" and gains ${grantedTriggeredAbilities.joinToString(" and ") { "\"${it.description}\"" }}")
+        }
+    }
+
+    override fun applyTextReplacement(replacer: TextReplacer): Effect {
+        val newAbilities = grantedTriggeredAbilities.map { it.applyTextReplacement(replacer) }
+        return if (newAbilities != grantedTriggeredAbilities) copy(grantedTriggeredAbilities = newAbilities) else this
     }
 }
 

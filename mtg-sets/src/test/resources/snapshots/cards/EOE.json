@@ -3435,6 +3435,14 @@
                     }
                 },
                 {
+                    "type": "GrantKeyword",
+                    "keyword": "VIGILANCE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
                     "type": "DealDamage",
                     "amount": {
                         "type": "EntityProperty",
@@ -8683,7 +8691,11 @@
                                 "type": "GrantMayPlayFromExile",
                                 "from": "selected1",
                                 "expiry": "Permanent",
-                                "landEntersTapped": true
+                                "entersTapped": {
+                                    "cardPredicates": [
+                                        "IsLand"
+                                    ]
+                                }
                             },
                             {
                                 "type": "GrantPlayWithCostIncrease",
@@ -8782,7 +8794,7 @@
     "script": {
         "replacementEffects": [
             {
-                "type": "DoubleCounterPlacement",
+                "type": "ScaleCounterPlacement",
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
                     "recipient": {
@@ -16403,8 +16415,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 2
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
                                 }
                             },
                             "then": {

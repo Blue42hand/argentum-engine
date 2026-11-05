@@ -3794,7 +3794,7 @@
                         ]
                     }
                 ],
-                "descriptionOverride": "Pay enchanted creature's mana cost: Remove a net counter from this Aura. Only the controller of the enchanted creature may activate this ability."
+                "descriptionOverride": "Pay enchanted creature's mana cost: Remove a net counter from this Aura."
             }
         ],
         "staticAbilities": [
@@ -4954,8 +4954,13 @@
                                 ],
                                 "statePredicates": [
                                     {
-                                        "type": "ControllerControls",
-                                        "filter": "land Island ctrl:you"
+                                        "type": "ControllerMeets",
+                                        "condition": {
+                                            "type": "Exists",
+                                            "player": "You",
+                                            "zone": "Battlefield",
+                                            "filter": "land Island"
+                                        }
                                     }
                                 ]
                             }

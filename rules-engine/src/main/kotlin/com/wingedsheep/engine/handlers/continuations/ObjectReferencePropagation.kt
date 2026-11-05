@@ -12,9 +12,18 @@ internal fun AnswerContinuation.objectReferences(): ObjectReferenceEnvironment? 
     is EffectCopyAuraEntryContinuation -> context.objectReferences
     is EnteringAttackDefenderContinuation -> context.objectReferences
     is EffectCopyEntryContinuation -> context.objectReferences
+    is GrantedEntryCopyOrderContinuation -> when (val replay = replay) {
+        is EffectReplay -> replay.context.objectReferences
+        is AnswerReplay -> replay.suspension.answer.objectReferences()
+        is PlayLandReplay, null -> null
+    }
     is EffectEntryChoiceContinuation -> context.objectReferences
+    is EffectEntryPaymentContinuation -> context.objectReferences
     is EffectDiscardDestinationContinuation -> context.objectReferences
     is EffectDiscardOrderContinuation -> context.objectReferences
+    is KeywordActionOrderContinuation -> context.objectReferences
+    is CostPaymentMillOrderContinuation -> inner.objectReferences
+    is PayOrSufferMillOrderContinuation -> inner.objectReferences
     is CounterUnlessPaysContinuation -> objectReferences
     is MayPayManaContinuation -> effectContext.objectReferences
     is MayPayManaSelectionContinuation -> effectContext.objectReferences
@@ -37,6 +46,7 @@ internal fun AnswerContinuation.objectReferences(): ObjectReferenceEnvironment? 
     is AddCountersUpToContinuation -> objectReferences
     is AddCountersOfChosenKindContinuation -> objectReferences
     is PayCountersContinuation -> objectReferences
+    is ChooseSpellCastThisTurnContinuation -> objectReferences
     is MoveChosenCountersToTargetContinuation -> objectReferences
     is AmassContinuation -> objectReferences
     is StormCopyTargetContinuation -> objectReferences
@@ -87,6 +97,7 @@ internal fun AnswerContinuation.objectReferences(): ObjectReferenceEnvironment? 
     is ReplacementChoiceContinuation -> context?.objectReferences
     is TokenCreationReplacementContinuation -> effectContext.objectReferences
     is TokenBundleReplacementContinuation -> bundle.context.objectReferences
+    is TokenSubstitutionChoiceContinuation -> effectContext.objectReferences
     is ChooseGuessKindContinuation -> effectContext.objectReferences
     is GuessTopCardKindContinuation -> effectContext.objectReferences
     is GuessConditionContinuation -> effectContext.objectReferences
@@ -100,6 +111,7 @@ internal fun AnswerContinuation.objectReferences(): ObjectReferenceEnvironment? 
     is TriggeredAbilityContinuation -> objectReferences
     is TriggerDamageDistributionContinuation -> objectReferences
     is MayAbilityContinuation -> effectContext.objectReferences
+    is KeywordActionInsteadContinuation -> actionContext.objectReferences
     is GatedEffectContinuation -> effectContext.objectReferences
     is MayRevealCardFromHandContinuation -> effectContext.objectReferences
     is BeholdContinuation -> effectContext.objectReferences
@@ -110,6 +122,7 @@ internal fun AnswerContinuation.objectReferences(): ObjectReferenceEnvironment? 
 }
 
 internal fun AutomaticContinuation.objectReferences(): ObjectReferenceEnvironment? = when (this) {
+    is PredefinedTokenMaterializationContinuation -> context.objectReferences
     is TokenBundleMaterializationContinuation -> bundle.context.objectReferences
     is CompleteInvestigationContinuation -> context.objectReferences
     is ChainCopyAfterActionContinuation -> objectReferences
@@ -117,7 +130,7 @@ internal fun AutomaticContinuation.objectReferences(): ObjectReferenceEnvironmen
     is SpliceTailContinuation -> objectReferences
     is ModalChosenModeTailContinuation -> objectReferences
     is CreateTokenCopyRemainingContinuation -> context.objectReferences
-    is EffectContinuation -> effectContext.objectReferences
+    is EffectProgram -> effectContext.objectReferences
     is GatedActionContinuation -> effectContext.objectReferences
     is ForEachContinuation -> effectContext.objectReferences
     is RepeatWhileContinuation -> effectContext.objectReferences
@@ -135,9 +148,18 @@ internal fun AnswerContinuation.withObjectReferences(refs: ObjectReferenceEnviro
     is EffectCopyAuraEntryContinuation -> copy(context = context.copy(objectReferences = refs))
     is EnteringAttackDefenderContinuation -> copy(context = context.copy(objectReferences = refs))
     is EffectCopyEntryContinuation -> copy(context = context.copy(objectReferences = refs))
+    is GrantedEntryCopyOrderContinuation -> copy(replay = when (val replay = replay) {
+        is EffectReplay -> replay.copy(context = replay.context.copy(objectReferences = refs))
+        is AnswerReplay -> replay.copy(suspension = replay.suspension.copy(answer = replay.suspension.answer.withObjectReferences(refs)))
+        is PlayLandReplay, null -> replay
+    })
     is EffectEntryChoiceContinuation -> copy(context = context.copy(objectReferences = refs))
+    is EffectEntryPaymentContinuation -> copy(context = context.copy(objectReferences = refs))
     is EffectDiscardDestinationContinuation -> copy(context = context.copy(objectReferences = refs))
     is EffectDiscardOrderContinuation -> copy(context = context.copy(objectReferences = refs))
+    is KeywordActionOrderContinuation -> copy(context = context.copy(objectReferences = refs))
+    is CostPaymentMillOrderContinuation -> copy(inner = inner.copy(objectReferences = refs))
+    is PayOrSufferMillOrderContinuation -> copy(inner = inner.copy(objectReferences = refs))
     is CounterUnlessPaysContinuation -> copy(objectReferences = refs)
     is MayPayManaContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is MayPayManaSelectionContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
@@ -160,6 +182,7 @@ internal fun AnswerContinuation.withObjectReferences(refs: ObjectReferenceEnviro
     is AddCountersUpToContinuation -> copy(objectReferences = refs)
     is AddCountersOfChosenKindContinuation -> copy(objectReferences = refs)
     is PayCountersContinuation -> copy(objectReferences = refs)
+    is ChooseSpellCastThisTurnContinuation -> copy(objectReferences = refs)
     is MoveChosenCountersToTargetContinuation -> copy(objectReferences = refs)
     is AmassContinuation -> copy(objectReferences = refs)
     is StormCopyTargetContinuation -> copy(objectReferences = refs)
@@ -210,6 +233,7 @@ internal fun AnswerContinuation.withObjectReferences(refs: ObjectReferenceEnviro
     is ReplacementChoiceContinuation -> copy(context = context?.copy(objectReferences = refs))
     is TokenCreationReplacementContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is TokenBundleReplacementContinuation -> copy(bundle = bundle.copy(context = bundle.context.copy(objectReferences = refs)))
+    is TokenSubstitutionChoiceContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is ChooseGuessKindContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is GuessTopCardKindContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is GuessConditionContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
@@ -223,6 +247,7 @@ internal fun AnswerContinuation.withObjectReferences(refs: ObjectReferenceEnviro
     is TriggeredAbilityContinuation -> copy(objectReferences = refs)
     is TriggerDamageDistributionContinuation -> copy(objectReferences = refs)
     is MayAbilityContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
+    is KeywordActionInsteadContinuation -> copy(actionContext = actionContext.copy(objectReferences = refs))
     is GatedEffectContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is MayRevealCardFromHandContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is BeholdContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
@@ -233,6 +258,7 @@ internal fun AnswerContinuation.withObjectReferences(refs: ObjectReferenceEnviro
 }
 
 internal fun AutomaticContinuation.withObjectReferences(refs: ObjectReferenceEnvironment): AutomaticContinuation = when (this) {
+    is PredefinedTokenMaterializationContinuation -> copy(context = context.copy(objectReferences = refs))
     is TokenBundleMaterializationContinuation -> copy(bundle = bundle.copy(context = bundle.context.copy(objectReferences = refs)))
     is CompleteInvestigationContinuation -> copy(context = context.copy(objectReferences = refs))
     is ChainCopyAfterActionContinuation -> copy(objectReferences = refs)
@@ -240,7 +266,7 @@ internal fun AutomaticContinuation.withObjectReferences(refs: ObjectReferenceEnv
     is SpliceTailContinuation -> copy(objectReferences = refs)
     is ModalChosenModeTailContinuation -> copy(objectReferences = refs)
     is CreateTokenCopyRemainingContinuation -> copy(context = context.copy(objectReferences = refs))
-    is EffectContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
+    is EffectProgram -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is GatedActionContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is ForEachContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))
     is RepeatWhileContinuation -> copy(effectContext = effectContext.copy(objectReferences = refs))

@@ -21,7 +21,7 @@
 - [ ] Abundant Growth
 - [ ] Ancient Ziggurat
 - [ ] Arcane Signet
-- [ ] Archfiend of Ifnir
+- [x] Archfiend of Ifnir
 - [ ] Ashling, the Limitless
 - [ ] Assassin's Trophy
 - [ ] Auntie Ool, Cursewretch
@@ -160,7 +160,7 @@
 - [ ] Timeless Lotus
 - [ ] Titan of Industry
 - [x] Tree of Perdition
-- [ ] Unclaimed Territory
+- [x] Unclaimed Territory
 - [ ] Vernal Fen
 - [ ] Vernal Sovereign
 - [ ] Village Pillagers

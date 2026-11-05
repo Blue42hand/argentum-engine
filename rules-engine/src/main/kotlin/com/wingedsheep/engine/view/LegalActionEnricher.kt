@@ -3,6 +3,7 @@ package com.wingedsheep.engine.view
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.ActionParameterizer
+import com.wingedsheep.engine.handlers.actions.spell.altAllows
 import com.wingedsheep.engine.legalactions.*
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
@@ -60,12 +61,16 @@ class LegalActionEnricher(
                     isFromHand = action.sourceZone == null || action.sourceZone == "HAND"
                 )
             } else state.getEntity(gameAction.cardId)?.get<CardComponent>()?.let { card ->
-                spellPaymentContextFor(
-                    card,
+                spellPaymentContextFor(card, colors = state.projectedState.colorSetOf(gameAction.cardId),
                     isKicked = gameAction.declaredCostSlot == ChoiceSlot.KICKED,
                     isFromExile = action.sourceZone == "EXILE",
                     // Null sourceZone means the standard hand cast.
-                    isFromHand = action.sourceZone == null || action.sourceZone == "HAND"
+                    isFromHand = action.sourceZone == null || action.sourceZone == "HAND",
+                    isFromGraveyard = gameAction.cardId in state.getZone(
+                        com.wingedsheep.engine.state.ZoneKey(gameAction.playerId, com.wingedsheep.sdk.core.Zone.GRAVEYARD)
+                    ),
+                    isDisturbCast = gameAction.useAlternativeCost &&
+                        gameAction.altAllows(com.wingedsheep.engine.core.AlternativeCostType.DISTURB),
                 )
             }
             is ActivateAbility -> state.getEntity(gameAction.sourceId)?.get<CardComponent>()?.let { card ->
@@ -110,6 +115,7 @@ class LegalActionEnricher(
             xConstrainsTargetCountExactly = action.xConstrainsTargetCountExactly,
             validAttackers = action.validAttackers,
             mandatoryAttackers = action.mandatoryAttackers,
+            loneAttackers = action.loneAttackers,
             validAttackTargets = action.validAttackTargets,
             attackTargetsByAttacker = action.attackTargetsByAttacker,
             validBlockers = action.validBlockers,
@@ -140,12 +146,14 @@ class LegalActionEnricher(
             manaCostString = action.manaCostString,
             maxOptionalCostTimes = action.maxOptionalCostTimes,
             optionalManaCostString = action.optionalManaCostString,
-            manaCostPerExtraTarget = action.manaCostPerExtraTarget,
+            manaCostByTargetCount = action.manaCostByTargetCount,
             minimumManaCostString = minimumManaCostString(action),
             requiresDamageDistribution = action.requiresDamageDistribution,
             totalDamageToDistribute = action.totalDamageToDistribute,
+            totalDamageByX = action.totalDamageByX,
             minDamagePerTarget = action.minDamagePerTarget,
             distributionUnit = action.distributionUnit,
+            distributionTargetGroup = action.distributionTargetGroup,
             autoTapPreview = action.autoTapPreview,
             availableManaSources = if (shouldExposeManaSources(action)) manaSourceInfos else null,
             eligibleRestrictedMana = eligibleRestrictedMana,
@@ -156,12 +164,13 @@ class LegalActionEnricher(
             tapForPowerCreatures = action.tapForPowerCreatures?.map { it.toDto() },
             maxRepeatableActivations = action.maxRepeatableActivations,
             modalEnumeration = action.modalEnumeration?.toDto(),
-            holdPriority = action.holdPriority
+            holdPriority = action.holdPriority,
+            inertReason = action.inertReason
         )
     }
 
     private fun fixedDelveCap(action: LegalAction): Int? {
-        if (!action.hasDelve || action.hasXCost || action.manaCostPerExtraTarget != null
+        if (!action.hasDelve || action.hasXCost || action.manaCostByTargetCount != null
             || action.maxAdditionalManaForCounters != null || action.additionalCostInfo != null
             || action.modalEnumeration != null
         ) return null
@@ -303,6 +312,7 @@ class LegalActionEnricher(
         validTargetsByPrefix = validTargetsByPrefix,
         selectionGroups = selectionGroups,
         exclusiveGroups = exclusiveGroups,
+        distinctCategories = distinctCategories,
         targetZone = targetZone,
         xConstrainsManaValue = xConstrainsManaValue,
         xConstrainsManaValueExactly = xConstrainsManaValueExactly,
@@ -317,6 +327,8 @@ class LegalActionEnricher(
         costType = costType,
         validSacrificeTargets = validSacrificeTargets,
         sacrificeCount = sacrificeCount,
+        sacrificeMinPowerIsX = sacrificeMinPowerIsX,
+        sacrificeCountIsX = sacrificeCountIsX,
         costAfterSacrifice = costAfterSacrifice,
         validTapTargets = validTapTargets,
         tapCount = tapCount,

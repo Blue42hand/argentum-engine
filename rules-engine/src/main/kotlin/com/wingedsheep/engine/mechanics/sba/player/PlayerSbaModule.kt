@@ -1,10 +1,15 @@
 package com.wingedsheep.engine.mechanics.sba.player
 
+import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.sba.StateBasedActionCheck
 import com.wingedsheep.engine.mechanics.sba.StateBasedActionModule
 
-class PlayerSbaModule(private val zones: ZoneTransitionService) : StateBasedActionModule {
+class PlayerSbaModule(
+    private val zones: ZoneTransitionService,
+    /** See [PlayerLeavesGameProcessor.process]. */
+    private val finishAbandonedResolution: (com.wingedsheep.engine.state.GameState) -> ExecutionResult,
+) : StateBasedActionModule {
     override fun checks(): List<StateBasedActionCheck> = listOf(
         StartYourEnginesCheck(),
         AscendCitysBlessingCheck(),
@@ -15,6 +20,6 @@ class PlayerSbaModule(private val zones: ZoneTransitionService) : StateBasedActi
         CommanderDamageLossCheck(predicateEvaluator = zones.predicateEvaluator),
         PoisonLossCheck(predicateEvaluator = zones.predicateEvaluator),
         TeamLossPropagationCheck(),
-        PlayerLeavesGameCheck(zones)
+        PlayerLeavesGameCheck(zones, finishAbandonedResolution)
     )
 }

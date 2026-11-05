@@ -119,6 +119,7 @@ class GameWebSocketHandler(
                 is ClientMessage.SetAbilityYield,
                 is ClientMessage.ClearAbilityYield,
                 is ClientMessage.ClearAllYields,
+                is ClientMessage.SetTriggerOrdering,
                 is ClientMessage.RequestUndo,
                 is ClientMessage.RequestResync -> gamePlayHandler.handle(session, clientMessage)
 
@@ -171,6 +172,7 @@ class GameWebSocketHandler(
                 is ClientMessage.SetQuickGameLobbySetCode,
                 is ClientMessage.SetQuickGameLobbyPublic,
                 is ClientMessage.SetQuickGameLobbyRanked,
+                is ClientMessage.SetQuickGameLobbyAnte,
                 is ClientMessage.SetQuickGameAiDeck,
                 is ClientMessage.AddQuickGameAi,
                 is ClientMessage.RemoveQuickGameAi,

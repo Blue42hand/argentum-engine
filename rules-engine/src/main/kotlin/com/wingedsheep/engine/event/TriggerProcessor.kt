@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.event
 
+import com.wingedsheep.sdk.scripting.AbilityTriggerCause
 import com.wingedsheep.engine.mechanics.targeting.withTargetConstraints
 import com.wingedsheep.engine.handlers.TargetingSourceType
 import com.wingedsheep.engine.handlers.DependentTargetSelection
@@ -34,6 +35,7 @@ import com.wingedsheep.sdk.scripting.effects.isConsentGate
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeEffect
 import com.wingedsheep.engine.handlers.effects.composite.ModalEffectExecutor
+import com.wingedsheep.engine.mechanics.modal.DistinctModeTargets
 import com.wingedsheep.engine.handlers.effects.composite.asOptionalManaPayment
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectionMode
@@ -42,6 +44,7 @@ import com.wingedsheep.engine.legalactions.utils.TargetEnumerationUtils
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.components.player.PlayerLostComponent
 import com.wingedsheep.sdk.scripting.targets.withCount
+import com.wingedsheep.sdk.scripting.targets.AnyTarget
 import com.wingedsheep.sdk.scripting.targets.TargetChooser
 import com.wingedsheep.sdk.scripting.targets.TargetObject
 import com.wingedsheep.sdk.scripting.targets.TargetOther
@@ -71,7 +74,8 @@ class TriggerProcessor(
      * Process a list of pending triggers, placing them on the stack.
      *
      * Triggers are processed in APNAP order (active player first, then others).
-     * If a trigger requires targets, execution pauses for player input.
+     * If a trigger requires targets, execution pauses for player input, and the triggers after it
+     * wait in [GameState.triggersBeingPlaced].
      *
      * @param state The current game state
      * @param triggers List of pending triggers in APNAP order
@@ -106,28 +110,10 @@ class TriggerProcessor(
             }
 
             if (result.outcome is Outcome.Paused) {
-                // This trigger requires target selection
-                // Store the remaining triggers to process after the decision
-                val remainingTriggers = liveTriggers.drop(index + 1)
-
-                // Push remaining triggers as a continuation so they are processed
-                // after this trigger's target selection is resolved
-                var stateWithContinuations = result.state
-                if (remainingTriggers.isNotEmpty()) {
-                    val pendingContinuation = PendingTriggersContinuation(
-                        remainingTriggers = remainingTriggers
-                    )
-                    // The question and its answer occupy one top suspension; keep the automatic
-                    // trigger queue beneath it so the current trigger completes first.
-                    val stack = stateWithContinuations.continuationStack
-                    val newStack = stack.dropLast(1) + pendingContinuation + stack.last()
-                    stateWithContinuations = stateWithContinuations.copy(continuationStack = newStack)
-                }
-
-                return ExecutionResult.propagatePause(
-                    stateWithContinuations,
-                    allEvents + result.events
-                )
+                // This trigger stopped for a choice (targets, modes). The rest of the wave waits
+                // in the state and goes on the stack once the choice is answered.
+                val waiting = result.state.copy(triggersBeingPlaced = liveTriggers.drop(index + 1))
+                return ExecutionResult.propagatePause(waiting, allEvents + result.events)
             }
 
             currentState = result.newState
@@ -287,15 +273,17 @@ class TriggerProcessor(
                 controllerId = trigger.controllerId,
                 triggeringEntityId = trigger.triggerContext.triggeringEntityId,
                 triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
+                triggerContext = trigger.triggerContext,
                 // The X carried by the triggering event (an {X} cycling cost, a megamorph turn-up)
                 // so an X-relative target filter — `manaValueEqualsX()` on Webstrike Elite's
                 // "artifact or enchantment with mana value X" — finds targets at legality time.
                 // Without it those predicates read an unbound X and match nothing.
                 xValue = trigger.triggerContext.xValue,
-                storedCollections = trigger.carriedPipeline?.storedCollections ?: emptyMap(),
+                storedCollections = triggerStoredCollections(trigger.triggerContext, trigger.carriedPipeline),
                 chosenValues = trigger.carriedPipeline?.chosenValues ?: emptyMap(),
                 storedStringLists = trigger.carriedPipeline?.storedStringLists ?: emptyMap(),
                 storedSubtypeGroups = trigger.carriedPipeline?.storedSubtypeGroups ?: emptyMap(),
+                storedNumbers = trigger.carriedPipeline?.storedNumbers ?: emptyMap(),
             )
         )
 
@@ -356,7 +344,7 @@ class TriggerProcessor(
         // Snapshot dynamicMaxCount on each requirement now (when the trigger is going on
         // the stack) so the resolved cap is what the player sees and the validator
         // enforces. CR 603.3d (applying 601.2c): X / target counts on triggered abilities are locked when
-        // the ability triggers. Only TargetObject carries dynamicMaxCount today.
+        // the ability triggers. TargetObject and AnyTarget carry dynamicMaxCount.
         val allRequirements = ability.allTargetRequirements.map { snapshotDynamicCount(state, trigger, it) }
 
         val sequential = DependentTargetSelection.isRequired(allRequirements)
@@ -365,11 +353,15 @@ class TriggerProcessor(
             sourceId = trigger.sourceId,
             triggeringEntityId = trigger.triggerContext.triggeringEntityId,
             triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
+            // The trigger's event numbers, for a dynamic target cap like "mana value X or less,
+            // where X is the damage dealt" (triggerDamageAmount()).
+            triggerContext = trigger.triggerContext,
             xValue = trigger.triggerContext.xValue,
-            storedCollections = trigger.carriedPipeline?.storedCollections ?: emptyMap(),
+            storedCollections = triggerStoredCollections(trigger.triggerContext, trigger.carriedPipeline),
             chosenValues = trigger.carriedPipeline?.chosenValues ?: emptyMap(),
             storedStringLists = trigger.carriedPipeline?.storedStringLists ?: emptyMap(),
             storedSubtypeGroups = trigger.carriedPipeline?.storedSubtypeGroups ?: emptyMap(),
+            storedNumbers = trigger.carriedPipeline?.storedNumbers ?: emptyMap(),
         )
         val visibleRequirements = if (sequential) allRequirements.take(1) else allRequirements
         // Find legal targets for each requirement
@@ -432,7 +424,7 @@ class TriggerProcessor(
         // "any number of" requirement counts too once its dynamic cap is zero (Quirion Beastcaller
         // dying with no counters).
         if (allRequirements.all {
-                it.count == 0 && (!it.unlimited || DynamicTargetCount.objectOf(it)?.dynamicMaxCount != null)
+                it.count == 0 && (!it.unlimited || it.dynamicMaxCount != null)
             }) {
             return putTriggerOnStack(state, trigger, emptyList())
         }
@@ -485,17 +477,10 @@ class TriggerProcessor(
             // for an unlimited requirement) would wrongly clamp the decision to a single target.
             val legalCount = allLegalTargets[index]?.size ?: 0
             val maxTargets = when {
-                // "Up to one ... of each card type" can never take more targets than can each
-                // claim a distinct card type — a maximum matching, not the count of types present.
-                (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.onePerCardType == true ->
-                    com.wingedsheep.engine.mechanics.targeting.OnePerCardType.maxDistinctAssignment(
-                        allLegalTargets[index].orEmpty()
-                            .map { com.wingedsheep.engine.mechanics.targeting.OnePerCardType.cardTypesOf(state, it) }
-                    )
                 // A dynamic cap outranks `unlimited`, as in TargetValidator: "any number of target
                 // creatures" with X counters to distribute still can't take more than X targets.
                 // snapshotDynamicCount already baked the cap into `count`.
-                req.unlimited && DynamicTargetCount.objectOf(req)?.dynamicMaxCount != null ->
+                req.unlimited && req.dynamicMaxCount != null ->
                     minOf(req.count, legalCount)
                 req.unlimited -> legalCount
                 else -> req.count
@@ -519,8 +504,7 @@ class TriggerProcessor(
                 totalManaValueAtMost = resolveTotalManaValueAtMost(state, trigger, req),
                 differentNames = (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.differentNames == true,
                 differentControllers =
-                    (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.differentControllers == true,
-                onePerCardType = (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.onePerCardType == true
+                    (req as? com.wingedsheep.sdk.scripting.targets.TargetObject)?.differentControllers == true
             ).withTargetConstraints(state, req, allLegalTargets[index].orEmpty())
         }
 
@@ -538,7 +522,7 @@ class TriggerProcessor(
                 triggeringEntityId = trigger.triggerContext.triggeringEntityId,
                 triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
                 triggerContext = trigger.triggerContext,
-                pipeline = trigger.carriedPipeline ?: com.wingedsheep.engine.handlers.PipelineState.EMPTY
+                pipeline = targetingPipeline(trigger)
             )
             ability.effect.runtimeDescription { amount -> evaluator.evaluateForDisplay(state, amount, context) }
         } catch (_: Exception) {
@@ -554,6 +538,9 @@ class TriggerProcessor(
             requirements = requirementInfos,
             legalTargets = allLegalTargets,
             effectHint = effectHint,
+            // Where the candidates were looked for, so a consumer can tell whether everyone can
+            // see the question has only one answer (#3340).
+            candidateZones = com.wingedsheep.engine.mechanics.targeting.TargetCandidateZones.of(allRequirements),
             answer = TriggeredAbilityContinuation(
                 resolvingTriggeredAbility = trigger.rulesText,
                 sourceId = trigger.sourceId,
@@ -564,7 +551,7 @@ class TriggerProcessor(
                 effect = ability.effect,
                 description = ability.description,
                 abilityIdentity = identity,
-                triggerContext = trigger.triggerContext,
+                triggerContext = trigger.triggerContext.copy(abilityTriggerCause = triggerCauseOf(trigger)),
                 elseEffect = ability.elseEffect,
                 targetRequirements = allRequirements,
                 sequentialTargets = if (sequential) emptyList() else null,
@@ -627,7 +614,7 @@ class TriggerProcessor(
             stateTriggerAbilityId = ability.id.takeIf { ability.trigger == EventPattern.StateConditionMetEvent }
         )
 
-        val causedByAttack = isAttackCausedTrigger(trigger)
+        val triggerCause = triggerCauseOf(trigger)
         val outerRequirements = listOfNotNull(ability.targetRequirement)
 
         // CR 603.3c / 700.2b — a modal triggered ability's modes are announced as the ability is
@@ -650,14 +637,14 @@ class TriggerProcessor(
                 modal = modal,
                 selectedModeIndices = emptyList(),
                 availableIndices = null,
-                causedByAttack = causedByAttack
+                triggerCause = triggerCause
             )
         }
 
         return stackResolver.putTriggeredAbility(
             state, abilityComponent, targets,
             targetRequirements = outerRequirements,
-            causedByAttack = causedByAttack
+            triggerCause = triggerCause
         )
     }
 
@@ -720,7 +707,7 @@ class TriggerProcessor(
         modal: ModalEffect,
         selectedModeIndices: List<Int>,
         availableIndices: List<Int>?,
-        causedByAttack: Boolean
+        triggerCause: AbilityTriggerCause?
     ): ExecutionResult {
         val (chooseCount, minChooseCount) = effectiveChooseCounts(state, ability, modal)
 
@@ -730,8 +717,22 @@ class TriggerProcessor(
         val remembered = ChosenModeMemory.excludedFor(state, ability.sourceId, modal)
         val candidateIndices = (availableIndices ?: modal.modes.indices.toList())
             .filter { it !in remembered }
-        val offerIndices = candidateIndices.filter { index ->
+        val legalIndices = candidateIndices.filter { index ->
             modeHasLegalTargets(state, ability, modal.modes[index])
+        }
+        // "Each mode must target a different player": offer a mode only if it, the modes already
+        // picked, and enough further legal modes to reach the minimum can all get distinct targets.
+        val offerIndices = if (!modal.eachModeTargetsDifferent) legalIndices else {
+            val pools = mutableMapOf<Int, Set<EntityId>?>()
+            val poolOf = { index: Int -> pools.getOrPut(index) { modeTargetPool(state, ability, modal.modes[index]) } }
+            legalIndices.filter { index ->
+                DistinctModeTargets.completable(
+                    selected = selectedModeIndices + index,
+                    candidates = legalIndices,
+                    needed = maxOf(minChooseCount, selectedModeIndices.size + 1),
+                    poolOf = poolOf
+                )
+            }
         }
 
         if (offerIndices.isEmpty() || selectedModeIndices.size >= chooseCount) {
@@ -744,14 +745,18 @@ class TriggerProcessor(
             }
             return presentTriggerModalTargetDecision(
                 state, ability, outerTargets, outerTargetRequirements,
-                modal.modes, selectedModeIndices, emptyList(), currentOrdinal = 0, causedByAttack,
+                modal.modes, selectedModeIndices, emptyList(), currentOrdinal = 0, triggerCause,
                 recordChosenModesOnSource = modal.excludePreviouslyChosenModes,
-                recordChosenModesThisTurn = modal.excludeModesChosenThisTurn
+                recordChosenModesThisTurn = modal.excludeModesChosenThisTurn,
+                eachModeTargetsDifferent = modal.eachModeTargetsDifferent
             )
         }
 
-        val doneOffered = selectedModeIndices.size >= minChooseCount &&
-            selectedModeIndices.size < chooseCount
+        // "You may choose two" — before the first pick, choosing no mode at all is also on the
+        // menu; once a mode is picked the printed minimum holds (CR 603.3c removes a modeless one).
+        val doneOffered = (selectedModeIndices.size >= minChooseCount &&
+            selectedModeIndices.size < chooseCount) ||
+            (modal.mayChooseNone && selectedModeIndices.isEmpty())
         // Same decline label the resolution-time modal path uses, so clients (and tests) can
         // recognise "choose up to one"'s opt-out wherever the mode question is raised.
         val optionLabels = offerIndices.map { modal.modes[it].description } +
@@ -793,9 +798,10 @@ class TriggerProcessor(
             availableIndices = candidateIndices,
             selectedModeIndices = selectedModeIndices,
             doneOptionOffered = doneOffered,
-            causedByAttack = causedByAttack,
+            triggerCause = triggerCause,
             recordChosenModesOnSource = modal.excludePreviouslyChosenModes,
-            recordChosenModesThisTurn = modal.excludeModesChosenThisTurn
+            recordChosenModesThisTurn = modal.excludeModesChosenThisTurn,
+            eachModeTargetsDifferent = modal.eachModeTargetsDifferent
         )
 
         return state.suspendForDecision(question, continuation)
@@ -816,20 +822,33 @@ class TriggerProcessor(
         chosenModeIndices: List<Int>,
         resolvedModeTargets: List<List<com.wingedsheep.engine.state.components.stack.ChosenTarget>>,
         currentOrdinal: Int,
-        causedByAttack: Boolean,
+        triggerCause: AbilityTriggerCause?,
         recordChosenModesOnSource: Boolean,
         recordChosenModesThisTurn: Boolean,
         resolvedModeTargetGroupCounts: List<List<Int>> = emptyList(),
+        eachModeTargetsDifferent: Boolean = false,
     ): ExecutionResult {
+        // Lock each chosen mode's dynamic target count ("up to X target creature cards") now, as
+        // the ability goes on the stack (CR 603.3d applies 601.2c) — the same snapshot the
+        // non-modal path takes, so the decision offers X slots and the stored requirement keeps X.
+        // Idempotent, so a resumed decision re-entering here with locked modes is unchanged.
+        // Owner-distributed counts stay dynamic: finalizeModalTrigger binds those from the picks.
+        val lockedModes = modes.mapIndexed { index, mode ->
+            if (index !in chosenModeIndices) mode
+            else mode.copy(targetRequirements = mode.targetRequirements.map { req ->
+                if (req.dynamicMaxCount == null || DynamicTargetCount.objectOf(req)?.ownerDistribution != null) req
+                else snapshotModeDynamicCount(state, ability, req)
+            })
+        }
         var ordinal = currentOrdinal
         var targetsAccum = resolvedModeTargets
         var countsAccum = resolvedModeTargetGroupCounts
         val trackCounts = chosenModeIndices.any { index ->
-            modes[index].targetRequirements.any { DynamicTargetCount.objectOf(it)?.ownerDistribution != null }
+            lockedModes[index].targetRequirements.any { DynamicTargetCount.objectOf(it)?.ownerDistribution != null }
         }
 
         while (ordinal < chosenModeIndices.size) {
-            val mode = modes[chosenModeIndices[ordinal]]
+            val mode = lockedModes[chosenModeIndices[ordinal]]
             if (mode.targetRequirements.isEmpty()) {
                 targetsAccum = targetsAccum + listOf(emptyList())
                 if (trackCounts) countsAccum = countsAccum + listOf(emptyList())
@@ -837,16 +856,30 @@ class TriggerProcessor(
                 continue
             }
 
+            // "Each mode must target a different player": drop what earlier modes took, and any
+            // target whose use here would leave a later mode without a distinct one of its own.
+            val distinctFrom: ((EntityId) -> Boolean)? = if (!eachModeTargetsDifferent) null else {
+                val taken = targetsAccum.flatten().map { it.entityId() }.toSet()
+                val laterPools = chosenModeIndices.drop(ordinal + 1).map { modeTargetPool(state, ability, lockedModes[it]) }
+                ({ id: EntityId -> id !in taken && DistinctModeTargets.assignable(laterPools, taken + id) })
+            }
             val legalTargetsMap = mutableMapOf<Int, List<EntityId>>()
             val requirementInfos = mode.targetRequirements.mapIndexed { index, req ->
+                val found = findModeLegalTargets(state, ability, req)
                 legalTargetsMap[index] = com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.eligible(
-                    state, findModeLegalTargets(state, ability, req), req)
+                    state, distinctFrom?.let { keep -> found.filter(keep) } ?: found, req)
                 TargetRequirementInfo(
                     index = index,
                     description = req.description,
                     mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
                     minTargets = req.effectiveMinCount,
-                    maxTargets = if (req.unlimited) legalTargetsMap[index].orEmpty().size else req.count
+                    maxTargets = when {
+                        // As in processTargetedTrigger: the snapshot baked a dynamic cap into `count`.
+                        req.unlimited && req.dynamicMaxCount != null -> minOf(req.count, legalTargetsMap[index].orEmpty().size)
+                        req.unlimited -> legalTargetsMap[index].orEmpty().size
+                        else -> req.count
+                    },
+                    totalManaValueAtMost = resolveModeTotalManaValueAtMost(state, ability, req)
                 ).withTargetConstraints(state, req, legalTargetsMap[index].orEmpty())
             }
 
@@ -879,7 +912,11 @@ class TriggerProcessor(
                     sourceName = ability.sourceName,
                     // Part of putting the ability on the stack, not of resolving it (CR 603.3d).
                     phase = DecisionPhase.TRIGGER,
-                    effectHint = mode.description
+                    effectHint = mode.description,
+                    // Every chosen mode's pools: "each mode targets a different player" filters this
+                    // mode's candidates by the later modes' pools.
+                    candidateZones = com.wingedsheep.engine.mechanics.targeting.TargetCandidateZones.of(
+                        chosenModeIndices.flatMap { lockedModes[it].targetRequirements })
                 ),
                 targetRequirements = requirementInfos,
                 legalTargets = legalTargetsMap
@@ -889,14 +926,15 @@ class TriggerProcessor(
                 ability = ability,
                 outerTargets = outerTargets,
                 outerTargetRequirements = outerTargetRequirements,
-                modes = modes,
+                modes = lockedModes,
                 chosenModeIndices = chosenModeIndices,
                 resolvedModeTargets = targetsAccum,
                 resolvedModeTargetGroupCounts = countsAccum,
                 currentOrdinal = ordinal,
-                causedByAttack = causedByAttack,
+                triggerCause = triggerCause,
                 recordChosenModesOnSource = recordChosenModesOnSource,
-                recordChosenModesThisTurn = recordChosenModesThisTurn
+                recordChosenModesThisTurn = recordChosenModesThisTurn,
+                eachModeTargetsDifferent = eachModeTargetsDifferent
             )
 
             return state.suspendForDecision(question, continuation)
@@ -904,7 +942,7 @@ class TriggerProcessor(
 
         return finalizeModalTrigger(
             state, ability, outerTargets, outerTargetRequirements,
-            modes, chosenModeIndices, targetsAccum, causedByAttack,
+            lockedModes, chosenModeIndices, targetsAccum, triggerCause,
             recordChosenModesOnSource, recordChosenModesThisTurn, countsAccum
         )
     }
@@ -924,7 +962,7 @@ class TriggerProcessor(
         modes: List<com.wingedsheep.sdk.scripting.effects.Mode>,
         chosenModeIndices: List<Int>,
         resolvedModeTargets: List<List<com.wingedsheep.engine.state.components.stack.ChosenTarget>>,
-        causedByAttack: Boolean,
+        triggerCause: AbilityTriggerCause?,
         recordChosenModesOnSource: Boolean,
         recordChosenModesThisTurn: Boolean,
         resolvedModeTargetGroupCounts: List<List<Int>>,
@@ -970,9 +1008,30 @@ class TriggerProcessor(
         return stackResolver.putTriggeredAbility(
             stateWithMemory, component, flatTargets,
             targetRequirements = flatRequirements,
-            causedByAttack = causedByAttack
+            triggerCause = triggerCause
         )
     }
+
+    /** [resolveTotalManaValueAtMost] for a mode's requirement, read against the ability going on the stack. */
+    private fun resolveModeTotalManaValueAtMost(
+        state: GameState,
+        ability: TriggeredAbilityOnStackComponent,
+        requirement: TargetRequirement
+    ): Int? = com.wingedsheep.engine.mechanics.targeting.resolveTotalManaValueCap(state, requirement, amountEvaluator) {
+        modeEffectContext(ability)
+    }
+
+    /** The context a mode's target-time amounts read: the ability going on the stack. */
+    private fun modeEffectContext(ability: TriggeredAbilityOnStackComponent): EffectContext = EffectContext(
+        sourceId = ability.sourceId,
+        objectReferences = ability.objectReferences,
+        controllerId = ability.controllerId,
+        triggeringEntityId = ability.triggerContext?.triggeringEntityId,
+        triggeringPlayerId = ability.triggerContext?.triggeringPlayerId,
+        xValue = ability.xValue,
+        triggerContext = ability.triggerContext,
+        pipeline = ability.carriedPipeline ?: com.wingedsheep.engine.handlers.PipelineState.EMPTY,
+    )
 
     /** Legal targets for one of a mode's requirements, in the trigger's own targeting context. */
     private fun findModeLegalTargets(
@@ -990,15 +1049,29 @@ class TriggerProcessor(
             controllerId = ability.controllerId,
             triggeringEntityId = ability.triggerContext?.triggeringEntityId,
             triggeringPlayerId = ability.triggerContext?.triggeringPlayerId,
+            triggerContext = ability.triggerContext,
             // Same reason as the pending-trigger call sites: an X-relative target filter must see
             // the X the ability went on the stack with, or it re-checks as having no legal targets.
             xValue = ability.xValue,
-            storedCollections = ability.carriedPipeline?.storedCollections ?: emptyMap(),
+            storedCollections = triggerStoredCollections(ability.triggerContext, ability.carriedPipeline),
             chosenValues = ability.carriedPipeline?.chosenValues ?: emptyMap(),
             storedStringLists = ability.carriedPipeline?.storedStringLists ?: emptyMap(),
             storedSubtypeGroups = ability.carriedPipeline?.storedSubtypeGroups ?: emptyMap(),
+            storedNumbers = ability.carriedPipeline?.storedNumbers ?: emptyMap(),
         ),
     )
+
+    /**
+     * Every legal target of [mode]'s requirements — the pool [DistinctModeTargets] matches modes
+     * against — or `null` for a mode that needn't claim one: no target requirements, or only
+     * optional ("up to one") ones, which can be chosen with zero targets.
+     */
+    private fun modeTargetPool(
+        state: GameState,
+        ability: TriggeredAbilityOnStackComponent,
+        mode: com.wingedsheep.sdk.scripting.effects.Mode
+    ): Set<EntityId>? = mode.targetRequirements.takeIf { reqs -> reqs.any { it.effectiveMinCount > 0 } }
+        ?.flatMapTo(mutableSetOf()) { findModeLegalTargets(state, ability, it) }
 
     /** True when every mandatory target requirement of [mode] has at least one legal target. */
     private fun modeHasLegalTargets(
@@ -1014,18 +1087,23 @@ class TriggerProcessor(
     }
 
     /**
-     * True when [trigger] is a creature's own "whenever this creature attacks" ability — a
-     * SELF-bound per-attacker [com.wingedsheep.sdk.scripting.EventPattern.AttackEvent]. Used to
-     * stamp `causedByAttack` on the emitted `AbilityTriggeredEvent` so Firebender Ascension's
-     * "a creature you control attacking causes a triggered ability of that creature to trigger"
-     * meta-trigger fires only for genuine attack triggers, not other in-combat triggers (deals
-     * damage, dies, etc.). The SELF binding is what ties the ability to "that [attacking] creature":
-     * an anthem-style ANY-bound "whenever a creature you control attacks" ability lives on a
-     * different permanent and is deliberately excluded.
+     * What caused [trigger] to trigger, stamped as `triggerCause` on the emitted
+     * `AbilityTriggeredEvent` for the CR 603.3b meta-triggers that key on it:
+     *  - [AbilityTriggerCause.ATTACK] — a creature's own "whenever this creature attacks" ability, a
+     *    SELF-bound per-attacker [com.wingedsheep.sdk.scripting.EventPattern.AttackEvent]
+     *    (Firebender Ascension). Other in-combat triggers (deals damage, dies, …) carry no cause, and
+     *    an anthem-style ANY-bound "whenever a creature you control attacks" ability lives on a
+     *    different permanent than "that [attacking] creature", so it is excluded too.
+     *  - [AbilityTriggerCause.PERMANENT_ENTERING] — a trigger an entry caused ([PendingTrigger.isEntryCaused],
+     *    the same classification Torpor Orb's suppression uses — Strict Proctor). Wherever its source is: the
+     *    current Oracle text counts a graveyard card's landfall ability too.
      */
-    private fun isAttackCausedTrigger(trigger: PendingTrigger): Boolean =
+    private fun triggerCauseOf(trigger: PendingTrigger): AbilityTriggerCause? = when {
         trigger.ability.trigger is com.wingedsheep.sdk.scripting.EventPattern.AttackEvent &&
-            trigger.ability.binding == com.wingedsheep.sdk.scripting.TriggerBinding.SELF
+            trigger.ability.binding == com.wingedsheep.sdk.scripting.TriggerBinding.SELF -> AbilityTriggerCause.ATTACK
+        trigger.isEntryCaused() -> AbilityTriggerCause.PERMANENT_ENTERING
+        else -> null
+    }
 
     /**
      * Create a ChosenTarget from an EntityId based on what the entity is in the game state.
@@ -1258,39 +1336,55 @@ class TriggerProcessor(
      * is only the no-dynamic-cap default. [TargetOther] is unwrapped, snapshotted, and re-wrapped
      * so "another target" wording stays intact.
      */
+    /**
+     * The pipeline a pending trigger's target-time amounts read: a reflexive trigger's carried
+     * action-half state plus the batch the trigger captured ([triggerStoredCollections]).
+     */
+    private fun targetingPipeline(trigger: PendingTrigger): com.wingedsheep.engine.handlers.PipelineState =
+        (trigger.carriedPipeline ?: com.wingedsheep.engine.handlers.PipelineState.EMPTY)
+            .copy(storedCollections = triggerStoredCollections(trigger.triggerContext, trigger.carriedPipeline))
+
     private fun snapshotDynamicCount(
         state: GameState,
         trigger: PendingTrigger,
         requirement: TargetRequirement
+    ): TargetRequirement = snapshotDynamicCount(
+        state, requirement, trigger.controllerId, trigger.sourceId, trigger.triggerContext.triggeringEntityId
+    ) { snapshotBounds(state, trigger, it) }
+
+    /**
+     * [snapshotDynamicCount] for a modal trigger's mode requirement, read against the ability going
+     * on the stack — Orcus, Prince of Undeath's "return up to X target creature cards", X paid.
+     */
+    private fun snapshotModeDynamicCount(
+        state: GameState,
+        ability: TriggeredAbilityOnStackComponent,
+        requirement: TargetRequirement
+    ): TargetRequirement = snapshotDynamicCount(
+        state, requirement, ability.controllerId, ability.sourceId, ability.triggerContext?.triggeringEntityId
+    ) { req ->
+        val context = modeEffectContext(ability)
+        DynamicTargetCount.bounds(req, context.xValue) { amount -> amountEvaluator.evaluate(state, amount, context) }
+    }
+
+    private fun snapshotDynamicCount(
+        state: GameState,
+        requirement: TargetRequirement,
+        controllerId: EntityId,
+        sourceId: EntityId,
+        triggeringEntityId: EntityId?,
+        boundsOf: (TargetRequirement) -> DynamicTargetCount.Bounds,
     ): TargetRequirement = when (requirement) {
         is TargetObject -> {
             if (requirement.ownerDistribution != null) {
-                val candidates = targetFinder.findLegalTargets(state, requirement, trigger.controllerId, trigger.sourceId,
-                    triggeringEntityId = trigger.triggerContext.triggeringEntityId)
+                val candidates = targetFinder.findLegalTargets(state, requirement, controllerId, sourceId,
+                    triggeringEntityId = triggeringEntityId)
                 val bounds = com.wingedsheep.engine.mechanics.targeting.OwnerTargetDistribution.bounds(state, requirement, candidates)!!
                 requirement.copy(count = bounds.max ?: 0, minCount = bounds.min, optional = bounds.min == 0, unlimited = false)
             } else if (requirement.dynamicMaxCount == null) {
                 requirement
             } else {
-                val context = EffectContext(
-                    sourceId = trigger.sourceId,
-                    objectReferences = trigger.objectReferences,
-                    controllerId = trigger.controllerId,
-                    triggeringEntityId = trigger.triggerContext.triggeringEntityId,
-                    triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
-                    xValue = trigger.triggerContext.xValue,
-                    // The dynamic cap may read trigger-context properties — e.g. Elrond,
-                    // Master of Healing's "up to X target creatures, where X is the number of
-                    // cards looked at while scrying" (ContextPropertyKey.TRIGGER_SCRY_COUNT).
-                    // Without this the cap resolves to 0 and the player can pick no targets.
-                    triggerContext = trigger.triggerContext,
-                    // A reflexive trigger's dynamic cap may read what its action half stashed
-                    // (e.g. `VariableReference("discarded_count")`, Amass's army reference).
-                    pipeline = trigger.carriedPipeline ?: com.wingedsheep.engine.handlers.PipelineState.EMPTY,
-                )
-                val bounds = DynamicTargetCount.bounds(requirement, trigger.triggerContext.xValue) { amount ->
-                    amountEvaluator.evaluate(state, amount, context)
-                }
+                val bounds = boundsOf(requirement)
                 val newMax = bounds.max ?: requirement.count
                 if (requirement.dynamicMinCount != null) {
                     requirement.copy(
@@ -1307,11 +1401,44 @@ class TriggerProcessor(
                 }
             }
         }
+        is AnyTarget -> if (requirement.dynamicMaxCount == null) requirement else {
+            val newMax = boundsOf(requirement).max ?: requirement.count
+            requirement.copy(count = newMax, minCount = requirement.minCount.coerceAtMost(newMax))
+        }
         is TargetOther -> {
-            val newBase = snapshotDynamicCount(state, trigger, requirement.baseRequirement)
+            val newBase = snapshotDynamicCount(state, requirement.baseRequirement, controllerId, sourceId, triggeringEntityId, boundsOf)
             if (newBase !== requirement.baseRequirement) requirement.copy(baseRequirement = newBase) else requirement
         }
         else -> requirement
+    }
+
+    /** Resolve [requirement]'s dynamic target count against the pending trigger's context. */
+    private fun snapshotBounds(
+        state: GameState,
+        trigger: PendingTrigger,
+        requirement: TargetRequirement
+    ): DynamicTargetCount.Bounds {
+        val context = EffectContext(
+            sourceId = trigger.sourceId,
+            objectReferences = trigger.objectReferences,
+            controllerId = trigger.controllerId,
+            triggeringEntityId = trigger.triggerContext.triggeringEntityId,
+            triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
+            xValue = trigger.triggerContext.xValue,
+            // The dynamic cap may read trigger-context properties — e.g. Elrond,
+            // Master of Healing's "up to X target creatures, where X is the number of
+            // cards looked at while scrying" (ContextPropertyKey.TRIGGER_SCRY_COUNT).
+            // Without this the cap resolves to 0 and the player can pick no targets.
+            triggerContext = trigger.triggerContext,
+            // A reflexive trigger's dynamic cap may read what its action half stashed
+            // (e.g. `VariableReference("discarded_count")`, Amass's army reference), and a
+            // batch trigger's cap may count what it captured (The Wise Mothman's "up to X
+            // target creatures, where X is the number of nonland cards milled this way").
+            pipeline = targetingPipeline(trigger),
+        )
+        return DynamicTargetCount.bounds(requirement, trigger.triggerContext.xValue) { amount ->
+            amountEvaluator.evaluate(state, amount, context)
+        }
     }
 
     /**
@@ -1324,23 +1451,17 @@ class TriggerProcessor(
         state: GameState,
         trigger: PendingTrigger,
         requirement: TargetRequirement
-    ): Int? {
-        val dyn = (requirement as? TargetObject)?.totalManaValueAtMost ?: return null
-        return try {
-            val context = EffectContext(
-                sourceId = trigger.sourceId,
+    ): Int? = com.wingedsheep.engine.mechanics.targeting.resolveTotalManaValueCap(state, requirement, amountEvaluator) {
+        EffectContext(
+            sourceId = trigger.sourceId,
             objectReferences = trigger.objectReferences,
-                controllerId = trigger.controllerId,
-                triggeringEntityId = trigger.triggerContext.triggeringEntityId,
-                triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
-                xValue = trigger.triggerContext.xValue,
-                triggerContext = trigger.triggerContext,
-                pipeline = trigger.carriedPipeline ?: com.wingedsheep.engine.handlers.PipelineState.EMPTY,
-            )
-            amountEvaluator.evaluate(state, dyn, context).coerceAtLeast(0)
-        } catch (_: Exception) {
-            null
-        }
+            controllerId = trigger.controllerId,
+            triggeringEntityId = trigger.triggerContext.triggeringEntityId,
+            triggeringPlayerId = trigger.triggerContext.triggeringPlayerId,
+            xValue = trigger.triggerContext.xValue,
+            triggerContext = trigger.triggerContext,
+            pipeline = targetingPipeline(trigger),
+        )
     }
 
     /**

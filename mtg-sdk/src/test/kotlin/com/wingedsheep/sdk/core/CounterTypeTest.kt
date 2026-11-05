@@ -37,9 +37,20 @@ class CounterTypeTest : DescribeSpec({
             CounterType.CORPSE.printed shouldBe "corpse"
             CounterType.BRICK.printed shouldBe "brick"
             CounterType.VITALITY.printed shouldBe "vitality"
+            CounterType.VOID.printed shouldBe "void"
+            CounterType.HARMONY.printed shouldBe "harmony"
+            CounterType.ENLIGHTENED.printed shouldBe "enlightened"
             CounterType.MUSTER.printed shouldBe "muster"
             CounterType.AGE.printed shouldBe "age"
             CounterType.RAD.printed shouldBe "rad"
+            CounterType.GLYPH.printed shouldBe "glyph"
+            CounterType.MATRIX.printed shouldBe "matrix"
+            CounterType.HATCHLING.printed shouldBe "hatchling"
+            CounterType.SCREAM.printed shouldBe "scream"
+            CounterType.SLEEP.printed shouldBe "sleep"
+            CounterType.PIN.printed shouldBe "pin"
+            CounterType.CARRION.printed shouldBe "carrion"
+            CounterType.PUPA.printed shouldBe "pupa"
         }
     }
 
@@ -110,9 +121,11 @@ class CounterTypeTest : DescribeSpec({
         val NEW_KINDS = setOf(CounterType.BLOODLINE, CounterType.INVITATION, CounterType.IMPOSTOR, CounterType.DEVOTION,
             CounterType.THEFT, CounterType.TRAINING, CounterType.MIRE, CounterType.COLLECTION,
             CounterType.REPRIEVE, CounterType.BOUNTY, CounterType.CORPSE, CounterType.BRICK,
-            CounterType.VITALITY, CounterType.AGE, CounterType.EXPERIENCE, CounterType.VOW,
+            CounterType.VITALITY, CounterType.VOID, CounterType.HARMONY, CounterType.ENLIGHTENED, CounterType.AGE, CounterType.EXPERIENCE, CounterType.VOW,
             CounterType.ACORN, CounterType.INGREDIENT, CounterType.RAD, CounterType.PHYRESIS,
-            CounterType.MUSTER)
+            CounterType.MUSTER, CounterType.GLYPH, CounterType.MATRIX, CounterType.HATCHLING,
+            CounterType.SCREAM, CounterType.SLEEP, CounterType.PIN, CounterType.CARRION,
+            CounterType.PUPA)
 
         /** The values of the retired `object Counters` string constants, verbatim. */
         val LEGACY_SPELLINGS: Map<CounterType, String> = mapOf(
@@ -136,7 +149,7 @@ class CounterTypeTest : DescribeSpec({
             CounterType.SHADOW to "shadow",
             CounterType.STASH to "stash",
             CounterType.CROAK to "croak", CounterType.BLIGHT to "blight", CounterType.COIN to "coin",
-            CounterType.FLOOD to "flood", CounterType.CHORUS to "chorus", CounterType.DREAM to "dream",
+            CounterType.FLOOD to "flood", CounterType.FUSE to "fuse", CounterType.LUCK to "luck", CounterType.CHORUS to "chorus", CounterType.DREAM to "dream",
             CounterType.QUEST to "quest", CounterType.GROWTH to "growth", CounterType.TIME to "time",
             CounterType.FEATHER to "feather", CounterType.HOURGLASS to "hourglass",
             CounterType.SPORE to "spore", CounterType.DECAYED to "decayed", CounterType.HOPE to "hope",
@@ -157,7 +170,8 @@ class CounterTypeTest : DescribeSpec({
             CounterType.TIDE to "tide", CounterType.SKEWER to "skewer", CounterType.ENERGY to "energy",
             CounterType.ICE to "ice", CounterType.PLAN to "plan", CounterType.INVASION to "invasion",
             CounterType.UNLOCK to "unlock", CounterType.JUDGMENT to "judgment",
-            CounterType.BRAIN to "brain"
+            CounterType.BRAIN to "brain", CounterType.HATCHING to "hatching",
+            CounterType.INTERVENTION to "intervention", CounterType.REJECTION to "rejection", CounterType.VALOR to "valor", CounterType.RITUAL to "ritual", CounterType.FLAME to "flame", CounterType.EMBER to "ember", CounterType.BOOK to "book", CounterType.STUDY to "study", CounterType.REFINE to "refine", CounterType.VOYAGE to "voyage", CounterType.GHOSTFORM to "ghostform", CounterType.NIGHT to "night", CounterType.MINUS_ZERO_MINUS_TWO to "-0/-2"
         )
     }
 }

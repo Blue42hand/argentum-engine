@@ -39,9 +39,9 @@ class SpectatorStateBuilder(
     private val cardRegistry: CardRegistry,
     private val stateTransformer: ClientStateTransformer
 ) {
-    private val masker = DecisionMasker(
+    private val visibility =
         Visibility(cardRegistry, conditionEvaluator = PredicateEvaluator(cardRegistry = null).conditions)
-    )
+    private val masker = DecisionMasker(visibility)
 
     /**
      * Build a spectator view of an N-player game. [seats] is every seated player in turn order;
@@ -64,7 +64,8 @@ class SpectatorStateBuilder(
         val spectatorClientState = buildClientGameState(state, seats.map { it.playerId })
 
         // Build decision status if there's a pending decision
-        val decisionStatus = state.pendingDecision?.let { decision ->
+        // A private question (the miracle reveal) is never announced: its existence is the secret.
+        val decisionStatus = state.pendingDecision?.takeIf { !state.pendingQuestionIsPrivate }?.let { decision ->
             val decidingPlayer = seats.firstOrNull { it.playerId == decision.playerId } ?: p1
             createDecisionStatus(decision, state, p1.playerId, decidingPlayer.playerName)
         }
@@ -105,6 +106,7 @@ class SpectatorStateBuilder(
             is ChooseNumberDecision -> "Choosing a number"
             is DistributeDecision -> "Distributing"
             is OrderObjectsDecision -> decision.orderingTitle ?: "Ordering blockers"
+            is com.wingedsheep.engine.core.OrderTriggersDecision -> "Ordering triggers"
             is SplitPilesDecision -> "Splitting piles"
             is SearchLibraryDecision -> "Searching library"
             is ReorderLibraryDecision -> "Reordering cards"
@@ -113,16 +115,28 @@ class SpectatorStateBuilder(
             is ChooseOptionDecision -> "Making a choice"
             is ChooseReplacementDecision -> "Changing text"
             is BudgetModalDecision -> "Choosing modes"
+            is FlipOntoBattlefieldDecision -> "Taking aim"
             is SelectManaSourcesDecision -> "Selecting mana sources"
         }
+        // A card in a hidden hand is unknown to spectators, and its id alone could name it.
+        val privateSourceHidden = decision.context.sourceIsPrivate &&
+            masker.isSourceHiddenFrom(decision, state, anySeat, isSpectator = true)
         return ServerMessage.SpectatorDecisionStatus(
             playerName = playerName,
             playerId = decision.playerId.value,
             decisionType = decision::class.simpleName ?: "Unknown",
             displayText = displayText,
             sourceName = masker.maskFor(decision, state, anySeat, isSpectator = true).context.sourceName,
-            sourceId = decision.context.sourceId?.value
+            sourceId = decision.context.sourceId?.takeUnless { privateSourceHidden }?.value,
+            sourceImageUri = decision.context.sourceId?.takeUnless { privateSourceHidden }?.let { sourceImageUri(state, it, anySeat) }
         )
+    }
+
+    /** The decision source's art, unless a spectator may not see what it is (a face-down card). */
+    private fun sourceImageUri(state: GameState, sourceId: EntityId, anySeat: EntityId): String? {
+        if (visibility.isCardIdentityHiddenFrom(state, sourceId, anySeat, isSpectator = true)) return null
+        val card = state.getEntity(sourceId)?.get<CardComponent>() ?: return null
+        return card.imageUri ?: cardRegistry.getCard(card.cardDefinitionId)?.metadata?.imageUri
     }
 
     private fun buildClientGameState(
@@ -182,7 +196,8 @@ class SpectatorStateBuilder(
             attackers.add(
                 ServerMessage.SpectatorAttacker(
                     creatureId = entityId.value,
-                    blockedBy = blockedComponent?.blockerIds?.map { it.value } ?: emptyList()
+                    blockedBy = blockedComponent?.blockerIds?.map { it.value } ?: emptyList(),
+                    isBlocked = blockedComponent != null
                 )
             )
         }

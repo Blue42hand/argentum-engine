@@ -177,12 +177,17 @@ class SaddleMountHandler(
             // Crew and saddle are activated abilities too — "was activated this turn".
             val activated = c.get<AbilityActivatedThisTurnComponent>() ?: AbilityActivatedThisTurnComponent()
             c.with(activated.withAnyActivated()).with(
-                CrewSaddleContributorsComponent(
-                    creatureIds = (existing?.creatureIds ?: emptySet()) + action.saddleCreatures,
-                    crewActivations = existing?.crewActivations ?: 0
-                )
+                (existing ?: CrewSaddleContributorsComponent(creatureIds = emptySet())).let {
+                    it.copy(creatureIds = it.creatureIds + action.saddleCreatures)
+                }
             )
         }
+
+        // ...and on the activator's per-turn memory of permanents whose abilities they activated
+        // (saddling a Mount is an activated ability of that permanent, so it counts as "first" too).
+        currentState = com.wingedsheep.engine.core.recordPermanentActivation(
+            currentState, action.playerId, com.wingedsheep.engine.core.activationSourceSnapshot(state, action.mountId)
+        )
 
         // Put the saddle ability on the stack: this permanent becomes saddled until end of turn.
         val abilityOnStack = ActivatedAbilityOnStackComponent(

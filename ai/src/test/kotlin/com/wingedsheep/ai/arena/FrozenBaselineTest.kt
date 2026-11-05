@@ -167,7 +167,18 @@ class FrozenBaselineTest : FunSpec({
          * **`LEGACY_V0` did not move.** With `", escapeAbility=null"` stripped from the recorded
          * action text, this branch reproduces the previous golden `d5d18cc7f6eb856b` exactly.
          * Seat 1 still wins on turn 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-19 for games with skipped mulligans beginning their first turn the way
+         * a kept game does (#3446): the runner now starts at turn 1's upkeep, since no player
+         * receives priority in the untap step (CR 502.4). An engine change, not a V0 one: the stream
+         * loses the two passes it used to open with in that step, where a pass was the only legal
+         * action. Seat 1 still wins on turn 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-27 for beam me up adding `CastSpell.beamMeUpSource`, which only changes
+         * the recorded action text. **`LEGACY_V0` did not move.** With `", beamMeUpSource=null"`
+         * stripped from the recorded action text, this branch reproduces the previous golden
+         * `1f2cad605b93ae18` exactly. Seat 1 still wins on turn 20 at life -8 / 16.
          */
-        private const val GOLDEN_HASH = "04ef7e7080111148"
+        private const val GOLDEN_HASH = "94e1186d5a2372f8"
     }
 }

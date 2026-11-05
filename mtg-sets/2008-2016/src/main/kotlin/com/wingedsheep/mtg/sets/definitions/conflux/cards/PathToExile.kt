@@ -9,6 +9,8 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardDestination
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.Chooser
+import com.wingedsheep.sdk.scripting.effects.EmitLibrarySearchedEventEffect
+import com.wingedsheep.sdk.scripting.effects.LookAudience
 import com.wingedsheep.sdk.scripting.effects.GatherCardsEffect
 import com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect
@@ -42,11 +44,17 @@ val PathToExile = card("Path to Exile") {
         val creature = target(TargetFilter.Creature)
         effect = Effects.Exile(creature) then Effects.May(
             effect = Effects.Pipeline {
-                val searchable = gather(CardSource.FromZone(
+                val searchable = gather(
+                    CardSource.FromZone(
                         zone = Zone.LIBRARY,
                         player = Player.ControllerOf(creature.name),
                         filter = GameObjectFilter.BasicLand,
-                    ))
+                    ),
+                    search = true,
+                    searcher = Player.ControllerOf(creature.name),
+                    // The targeted creature's controller chooses; the caster must not see their library.
+                    lookAudience = LookAudience.None,
+                )
                 val found = chooseUpTo(
                     count = 1,
                     from = searchable,
@@ -61,6 +69,7 @@ val PathToExile = card("Path to Exile") {
                     ),
                 )
                 run(Effects.ShuffleLibrary(EffectTarget.TargetController))
+                run(EmitLibrarySearchedEventEffect)
             },
             decisionMaker = EffectTarget.TargetController,
         )

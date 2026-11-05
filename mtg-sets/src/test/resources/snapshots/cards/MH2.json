@@ -420,6 +420,226 @@
     ]
 }
 
+// Archon of Cruelty
+{
+    "name": "Archon of Cruelty",
+    "manaCost": "{6}{B}{B}",
+    "typeLine": "Creature — Archon",
+    "oracleText": "Flying\nWhenever this creature enters or attacks, target opponent sacrifices a creature or planeswalker of their choice, discards a card, and loses 3 life. You draw a card and gain 3 life.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Archon of Cruelty:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ForceSacrifice",
+                            "filter": "creature|planeswalker",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand",
+                                        "player": {
+                                            "type": "BoundVariable",
+                                            "name": "t0"
+                                        }
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "chooser": "TargetPlayer",
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard",
+                                        "player": {
+                                            "type": "BoundVariable",
+                                            "name": "t0"
+                                        }
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 3
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 3
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "t0"
+                },
+                "descriptionOverride": "Whenever this creature enters or attacks, target opponent sacrifices a creature or planeswalker of their choice, discards a card, and loses 3 life. You draw a card and gain 3 life."
+            },
+            {
+                "id": "Archon of Cruelty:2",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "ForceSacrifice",
+                            "filter": "creature|planeswalker",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand",
+                                        "player": {
+                                            "type": "BoundVariable",
+                                            "name": "t1"
+                                        }
+                                    },
+                                    "storeAs": "hand"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "hand",
+                                    "selection": {
+                                        "type": "ChooseExactly",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "chooser": "TargetPlayer",
+                                    "storeSelected": "discarded",
+                                    "prompt": "Choose 1 card to discard"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "discarded",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Graveyard",
+                                        "player": {
+                                            "type": "BoundVariable",
+                                            "name": "t1"
+                                        }
+                                    },
+                                    "moveType": "Discard"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 3
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            }
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 3
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "t1"
+                },
+                "descriptionOverride": "Whenever this creature enters or attacks, target opponent sacrifices a creature or planeswalker of their choice, discards a card, and loses 3 life. You draw a card and gain 3 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "75",
+        "rarity": "MYTHIC",
+        "artist": "Andrew Mar",
+        "flavorText": "Malice spreads on wings of tyranny.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1be9d9a4-d7ee-4854-abc2-85cabf993ec9.jpg?1783926865",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "You and the opponent you target take all the actions in the order listed. Notably, the creature or planeswalker they sacrifice won't be on the battlefield as they discard a card or lose life. If any abilities trigger, they will wait to be put on the stack until after the spell resolves. If any abilities controlled by that opponent trigger but losing 3 life causes them to lose the game, none of those abilities will be put on the stack."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Battle Plan
 {
     "name": "Battle Plan",
@@ -873,6 +1093,98 @@
     ]
 }
 
+// Damn
+{
+    "name": "Damn",
+    "manaCost": "{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Destroy target creature. A creature destroyed this way can't be regenerated.\nOverload {2}{W}{W} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")",
+    "keywords": [
+        "OVERLOAD"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Overload",
+            "cost": "{2}{W}{W}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CantBeRegenerated",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ],
+        "overloadSpellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "BattlefieldMatching",
+                        "filter": "creature"
+                    },
+                    "storeAs": "destroyAll_gathered"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "destroyAll_gathered",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard"
+                    },
+                    "moveType": "Destroy",
+                    "noRegenerate": true
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "rarity": "RARE",
+        "artist": "Lucas Graciano",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/f/efeae088-9ac5-4d2f-a15c-d8675a471ac5.jpg?1783926863",
+        "rulings": [
+            {
+                "date": "2024-01-12",
+                "text": "Because a spell with overload doesn't target when its overload cost is paid, it may affect permanents with hexproof or with protection from the appropriate color."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "If you are instructed to cast a spell with overload \"without paying its mana cost,\" you can't choose to pay its overload cost instead."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
 // Darkmoss Bridge
 {
     "name": "Darkmoss Bridge",
@@ -918,6 +1230,132 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Dauthi Voidwalker
+{
+    "name": "Dauthi Voidwalker",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Dauthi Rogue",
+    "oracleText": "Shadow (This creature can block or be blocked by only creatures with shadow.)\nIf a card would be put into an opponent's graveyard from anywhere, instead exile it with a void counter on it.\n{T}, Sacrifice this creature: Choose an exiled card an opponent owns with a void counter on it. You may play it this turn without paying its mana cost.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "SHADOW"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Dauthi Voidwalker:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Exile",
+                                "player": "Each",
+                                "filter": {
+                                    "statePredicates": [
+                                        {
+                                            "type": "HasCounter",
+                                            "counterType": "VOID"
+                                        }
+                                    ],
+                                    "controllerPredicate": "OwnedByOpponent"
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Choose an exiled card with a void counter to play this turn without paying its mana cost"
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "selected1"
+                        },
+                        {
+                            "type": "GrantPlayWithoutPayingCost",
+                            "from": "selected1"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Choose an exiled card an opponent owns with a void counter on it. You may play it this turn without paying its mana cost."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "RedirectZoneChangeWithEffect",
+                "newDestination": "Exile",
+                "additionalEffect": {
+                    "type": "AddCounters",
+                    "counterType": "VOID",
+                    "count": 1,
+                    "target": "TriggeringEntity"
+                },
+                "appliesTo": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "nontoken own:opponent",
+                    "to": "Graveyard"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "81",
+        "rarity": "RARE",
+        "artist": "Sidharth Chaturvedi",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/c/dce5db87-4a78-4b8d-b5c2-918ccd1ba4e3.jpg?1783926864",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "If your opponent discards a card while you control Dauthi Voidwalker, abilities that function when that card is discarded still work, even though that card never reaches that player's graveyard. In addition, spells or abilities that check the characteristics of the discarded card can find that card in exile."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "While Dauthi Voidwalker is on the battlefield, nontoken creatures your opponents control won't die. They'll be exiled instead. Abilities that would trigger when those creatures die won't trigger."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "Tokens still die while Dauthi Voidwalker is on the battlefield."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "If a card has {X} in its mana cost, you must choose 0 as the value of X when casting it without paying its mana cost."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "Playing a card with Dauthi Voidwalker's last ability is still subject to normal timing restrictions."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "If you cast a card this way, you may not cast it for any other alternative costs it has, but you may pay for additional costs, such as kicker costs. If the spell requires an additional cost, you must pay that cost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -1122,6 +1560,97 @@
         "artist": "Yeong-Hao Han",
         "flavorText": "They often perch on street lamps, causing the poles to buckle under their weight.",
         "imageUri": "https://cards.scryfall.io/normal/front/1/a/1af03fc3-5eb6-404e-96d9-e291a1e11ec3.jpg?1783926831"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Endurance
+{
+    "name": "Endurance",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Creature — Elemental Incarnation",
+    "oracleText": "Flash\nReach\nWhen this creature enters, up to one target player puts all the cards from their graveyard on the bottom of their library in a random order.\nEvoke—Exile a green card from your hand.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLASH",
+        "REACH",
+        "EVOKE"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Evoke",
+            "cost": "",
+            "additionalCost": {
+                "type": "AdditionalAtom",
+                "atom": {
+                    "type": "AtomExileFrom",
+                    "zone": "Hand",
+                    "filter": "green"
+                }
+            }
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Endurance:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Graveyard",
+                                "player": "TargetPlayer"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetPlayer",
+                    "optional": true,
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, up to one target player puts all the cards from their graveyard on the bottom of their library in a random order."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "157",
+        "rarity": "MYTHIC",
+        "artist": "Anastasia Ovchinnikova",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/b/eb0e0404-4846-4891-acfa-bd0951ecf9c6.jpg?1783926831",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "To determine the total cost of a spell, start with the mana cost or alternative cost you're paying (such as an evoke cost), add any cost increases, then apply any cost reductions. The mana value of the spell is determined by only its mana cost, no matter what the total cost to cast that spell was."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "If you pay the evoke cost, you can have the creature's own triggered ability resolve before the evoke triggered ability. You can cast spells after that ability resolves but before you have to sacrifice the creature."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "GREEN"
@@ -1563,6 +2092,93 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Fractured Sanity
+{
+    "name": "Fractured Sanity",
+    "manaCost": "{U}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each opponent mills fourteen cards.\nCycling {1}{U} ({1}{U}, Discard this card: Draw a card.)\nWhen you cycle this card, each opponent mills four cards.",
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{1}{U}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 14
+                        },
+                        "player": "EachOpponent",
+                        "isMill": true
+                    },
+                    "storeAs": "milled"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "milled",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Graveyard",
+                        "player": "EachOpponent"
+                    }
+                }
+            ]
+        },
+        "triggeredAbilities": [
+            {
+                "id": "Fractured Sanity:1",
+                "trigger": "CycleEvent",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                },
+                                "player": "EachOpponent",
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": "EachOpponent"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When you cycle this card, each opponent mills four cards."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "44",
+        "rarity": "RARE",
+        "artist": "Drew Tucker",
+        "flavorText": "The body grows stronger under stress. The mind does not.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/1/413ac8fb-5156-4f90-81f5-1879e273c9e2.jpg?1783926878"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -2352,6 +2968,62 @@
     ]
 }
 
+// Liquimetal Torque
+{
+    "name": "Liquimetal Torque",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {C}.\n{T}: Target nonland permanent becomes an artifact in addition to its other types until end of turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Liquimetal Torque:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Liquimetal Torque:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddCardType",
+                    "cardType": "ARTIFACT",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "duration": "EndOfTurn"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "nonland permanent"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{T}: Target nonland permanent becomes an artifact in addition to its other types until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "228",
+        "rarity": "UNCOMMON",
+        "artist": "Brian Snõddy",
+        "flavorText": "\"Weaponized jewelry has a long and respected history.\"\n—Ervos Trax",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/3/13c6101a-da40-4785-8ccb-4e779bbbdb55.jpg?1783926804"
+    },
+    "colorIdentityOverride": []
+}
+
 // Marble Gargoyle
 {
     "name": "Marble Gargoyle",
@@ -2794,6 +3466,145 @@
     ]
 }
 
+// Priest of Fell Rites
+{
+    "name": "Priest of Fell Rites",
+    "manaCost": "{W}{B}",
+    "typeLine": "Creature — Human Warlock",
+    "oracleText": "{T}, Pay 3 life, Sacrifice this creature: Return target creature card from your graveyard to the battlefield. Activate only as a sorcery.\nUnearth {3}{W}{B} ({3}{W}{B}: Return this card from your graveyard to the battlefield. It gains haste. Exile it at the beginning of the next end step or if it would leave the battlefield. Unearth only as a sorcery.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "UNEARTH"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Priest of Fell Rites:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        "CostTap",
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Battlefield"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature own:you",
+                            "zone": "Graveyard"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "{T}, Pay 3 life, Sacrifice this creature: Return target creature card from your graveyard to the battlefield. Activate only as a sorcery."
+            },
+            {
+                "id": "unearth_{3}{W}{B}",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}{W}{B}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": "Self",
+                            "destination": "Battlefield",
+                            "fromZone": "Graveyard"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "SourceInZone",
+                                    "zones": [
+                                        "Battlefield"
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GrantKeyword",
+                                        "keyword": "HASTE",
+                                        "target": "Self",
+                                        "duration": "Permanent"
+                                    },
+                                    {
+                                        "type": "CreateDelayedTrigger",
+                                        "step": "END",
+                                        "effect": {
+                                            "type": "MoveTrackedBattlefieldObject",
+                                            "target": "Self",
+                                            "destination": "Exile"
+                                        }
+                                    },
+                                    {
+                                        "type": "GrantExileOnLeave",
+                                        "target": "Self"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "activateFromZone": "Graveyard",
+                "descriptionOverride": "Unearth {3}{W}{B} ({3}{W}{B}: Return this card from your graveyard to the battlefield. It gains haste. Exile it at the beginning of the next end step or if it would leave the battlefield. Unearth only as a sorcery.)"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "208",
+        "rarity": "RARE",
+        "artist": "Pauline Voss",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/1/d116329d-6de7-402c-821d-e9aeba9ad2b1.jpg?1783926812",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "You choose the target of the first ability before paying any of that ability's costs. In other words, you can't choose Priest of Fell Rites itself as the target to bring it back from the graveyard."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "If a creature returned to the battlefield by the unearth ability would leave it for any reason, it's exiled instead—unless the spell or ability that's causing the creature to leave the battlefield is actually trying to exile it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
 // Ragavan, Nimble Pilferer
 {
     "name": "Ragavan, Nimble Pilferer",
@@ -3221,6 +4032,325 @@
     ]
 }
 
+// Scion of Draco
+{
+    "name": "Scion of Draco",
+    "manaCost": "{12}",
+    "typeLine": "Artifact Creature — Dragon",
+    "oracleText": "Domain — This spell costs {2} less to cast for each basic land type among lands you control.\nFlying\nEach creature you control has vigilance if it's white, hexproof if it's blue, lifelink if it's black, first strike if it's red, and trample if it's green.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": "SelfCast",
+                "modification": {
+                    "type": "ReduceGenericBy",
+                    "source": {
+                        "type": "Dynamic",
+                        "amount": {
+                            "type": "Multiply",
+                            "amount": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "land",
+                                "aggregation": "DISTINCT_BASIC_LAND_SUBTYPES"
+                            },
+                            "multiplier": 2
+                        }
+                    }
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "VIGILANCE",
+                "filter": {
+                    "baseFilter": "creature white ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "HEXPROOF",
+                "filter": {
+                    "baseFilter": "creature blue ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "LIFELINK",
+                "filter": {
+                    "baseFilter": "creature black ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "FIRST_STRIKE",
+                "filter": {
+                    "baseFilter": "creature red ctrl:you"
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "TRAMPLE",
+                "filter": {
+                    "baseFilter": "creature green ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "234",
+        "rarity": "MYTHIC",
+        "artist": "Greg Staples",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/e/3e7da55c-7f05-46b2-aa3c-17f8d5df46bb.jpg?1783926802",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "Domain abilities count the number of basic land types among lands you control, not how many lands you control or how many of any type."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "The basic land types are Plains, Island, Swamp, Mountain, and Forest. Land types other than basic land types (such as Desert) don't contribute to domain abilities."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
+// Scurry Oak
+{
+    "name": "Scurry Oak",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Treefolk",
+    "oracleText": "Evolve (Whenever a creature you control enters, if that creature has greater power or toughness than this creature, put a +1/+1 counter on this creature.)\nWhenever one or more +1/+1 counters are put on this creature, you may create a 1/1 green Squirrel creature token.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "EVOLVE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Scurry Oak:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "EVOLVE"
+                        }
+                    ]
+                },
+                "interveningIf": {
+                    "type": "Any",
+                    "conditions": [
+                        {
+                            "type": "Compare",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "TriggeringEntity",
+                                "numericProperty": "Power"
+                            },
+                            "operator": "GT",
+                            "right": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": "Power"
+                            }
+                        },
+                        {
+                            "type": "Compare",
+                            "left": {
+                                "type": "EntityProperty",
+                                "entity": "TriggeringEntity",
+                                "numericProperty": "Toughness"
+                            },
+                            "operator": "GT",
+                            "right": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": "Toughness"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Evolve (Whenever a creature you control enters, if that creature has greater power or toughness than this creature, put a +1/+1 counter on this creature.)"
+            },
+            {
+                "id": "Scurry Oak:2",
+                "trigger": {
+                    "type": "CountersPlacedEvent",
+                    "counterType": "PLUS_ONE_PLUS_ONE"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "CreateToken",
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [
+                            "GREEN"
+                        ],
+                        "creatureTypes": [
+                            "Squirrel"
+                        ],
+                        "imageUri": "https://cards.scryfall.io/normal/front/9/7/977ddd05-1aae-46fc-95ce-866710d1c5c6.jpg?1783926589"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "172",
+        "rarity": "UNCOMMON",
+        "artist": "Mark Zug",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0fb48c2e-ee0f-4fae-9c22-247870c10d5b.jpg?1783926825",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "When comparing the characteristics of the two creatures for evolve, you always compare power to power and toughness to toughness."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "If evolve triggers, the comparison will happen again when the ability tries to resolve. If neither characteristic of the new creature is greater, the ability will do nothing. If the creature that entered the battlefield leaves the battlefield before evolve resolves, use its last known power and toughness to determine whether the creature with evolve gets a +1/+1 counter."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Serra's Emissary
+{
+    "name": "Serra's Emissary",
+    "manaCost": "{4}{W}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nAs this creature enters, choose a card type.\nYou and creatures you control have protection from the chosen card type.",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantProtectionFromToGroup",
+                "scope": {
+                    "type": "ProtectionScope.ChosenCardType",
+                    "slot": "MODE"
+                },
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            },
+            {
+                "type": "GrantProtectionToController",
+                "scope": {
+                    "type": "ProtectionScope.ChosenCardType",
+                    "slot": "MODE"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "MODE",
+                "modeOptions": [
+                    {
+                        "id": "Artifact",
+                        "label": "Artifact",
+                        "description": "You and creatures you control have protection from artifacts."
+                    },
+                    {
+                        "id": "Battle",
+                        "label": "Battle",
+                        "description": "You and creatures you control have protection from battles."
+                    },
+                    {
+                        "id": "Creature",
+                        "label": "Creature",
+                        "description": "You and creatures you control have protection from creatures."
+                    },
+                    {
+                        "id": "Enchantment",
+                        "label": "Enchantment",
+                        "description": "You and creatures you control have protection from enchantments."
+                    },
+                    {
+                        "id": "Instant",
+                        "label": "Instant",
+                        "description": "You and creatures you control have protection from instants."
+                    },
+                    {
+                        "id": "Kindred",
+                        "label": "Kindred",
+                        "description": "You and creatures you control have protection from Kindred cards."
+                    },
+                    {
+                        "id": "Land",
+                        "label": "Land",
+                        "description": "You and creatures you control have protection from lands."
+                    },
+                    {
+                        "id": "Planeswalker",
+                        "label": "Planeswalker",
+                        "description": "You and creatures you control have protection from planeswalkers."
+                    },
+                    {
+                        "id": "Sorcery",
+                        "label": "Sorcery",
+                        "description": "You and creatures you control have protection from sorceries."
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "30",
+        "rarity": "MYTHIC",
+        "artist": "Nils Hamm",
+        "flavorText": "Where swords fail, faith transcends.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/6/b6534049-3045-4546-b1e8-e5b1b0df5f56.jpg?1783926884",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "You may choose any card type. The ones that may appear in a normal game of Magic are artifact, battle, creature, enchantment, instant, kindred, land, planeswalker, and sorcery. Supertypes such as snow and basic may not be chosen. Subtypes such as Angel, Aura, and Forest also may not be chosen."
+            },
+            {
+                "date": "2021-06-18",
+                "text": "The card type choice is a replacement effect, not a triggered ability. It doesn't use the stack and can't be responded to. Notably, if you choose instant, your opponent can't try to cast an instant on the Emissary before it has protection."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Silverbluff Bridge
 {
     "name": "Silverbluff Bridge",
@@ -3524,6 +4654,78 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Squirrel Sanctuary
+{
+    "name": "Squirrel Sanctuary",
+    "manaCost": "{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "When this enchantment enters, create a 1/1 green Squirrel creature token.\nWhenever a nontoken creature you control dies, you may pay {1}. If you do, return this enchantment to its owner's hand.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Squirrel Sanctuary:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Squirrel"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/9/7/977ddd05-1aae-46fc-95ce-866710d1c5c6.jpg?1783926589"
+                }
+            },
+            {
+                "id": "Squirrel Sanctuary:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature nontoken ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{1}"
+                        }
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Hand",
+                        "fromZone": "Battlefield"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "174",
+        "rarity": "UNCOMMON",
+        "artist": "Steve Argyle",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/d/ed6ab503-5e9a-4339-a0e7-a909b2908f41.jpg?1783926824",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "The last ability functions only while Squirrel Sanctuary is on the battlefield. It won't return itself from your graveyard to your hand."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -4232,6 +5434,53 @@
     ]
 }
 
+// Thraben Watcher
+{
+    "name": "Thraben Watcher",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying, vigilance\nOther nontoken creatures you control get +1/+1 and have vigilance.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING",
+        "VIGILANCE"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "creature nontoken ctrl:you",
+                    "excludeSelf": true
+                }
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "VIGILANCE",
+                "filter": {
+                    "baseFilter": "creature nontoken ctrl:you",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "34",
+        "rarity": "UNCOMMON",
+        "artist": "Bastien L. Deharme",
+        "flavorText": "\"Fear not the angels' constant eyes,\nE'er on watch from lightless skies;\nEternal vigil will we keep,\nProtectors of the Blessed Sleep.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/b/5b4e0e11-2f16-42ad-b835-c9410c4bd7e3.jpg?1783926884"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Timeless Witness
 {
     "name": "Timeless Witness",
@@ -4443,6 +5692,136 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Verdant Command
+{
+    "name": "Verdant Command",
+    "manaCost": "{1}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Choose two —\n• Target player creates two tapped 1/1 green Squirrel creature tokens.\n• Counter target loyalty ability of a planeswalker.\n• Exile target card from a graveyard.\n• Target player gains 3 life.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "CreateToken",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "power": 1,
+                        "toughness": 1,
+                        "colors": [
+                            "GREEN"
+                        ],
+                        "creatureTypes": [
+                            "Squirrel"
+                        ],
+                        "controller": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "tapped": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetPlayer",
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Target player creates two tapped 1/1 green Squirrel creature tokens"
+                },
+                {
+                    "effect": {
+                        "type": "Counter",
+                        "target": "CounterTarget.Ability"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {
+                                    "cardPredicates": [
+                                        "IsLoyaltyAbility",
+                                        {
+                                            "type": "AbilitySourceMatches",
+                                            "subfilter": {
+                                                "cardPredicates": [
+                                                    "IsPlaneswalker"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                },
+                                "zone": "Stack"
+                            },
+                            "id": "t1"
+                        }
+                    ],
+                    "description": "Counter target loyalty ability of a planeswalker"
+                },
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t2"
+                        },
+                        "destination": "Exile"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {},
+                                "zone": "Graveyard"
+                            },
+                            "id": "t2"
+                        }
+                    ],
+                    "description": "Exile target card from a graveyard"
+                },
+                {
+                    "effect": {
+                        "type": "GainLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t3"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetPlayer",
+                            "id": "t3"
+                        }
+                    ],
+                    "description": "Target player gains 3 life"
+                }
+            ],
+            "chooseCount": 2
+        }
+    },
+    "metadata": {
+        "collectorNumber": "182",
+        "rarity": "RARE",
+        "artist": "Mark Poole",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/3/83031ea8-a6c9-4318-af16-bba701dd76bb.jpg?1783926823",
+        "rulings": [
+            {
+                "date": "2021-06-18",
+                "text": "If the target for one mode has become illegal as Verdant Command tries to resolve, but it still has at least one legal target, it will resolve and do as much as it can to the legal targets."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 

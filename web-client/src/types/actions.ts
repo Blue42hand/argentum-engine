@@ -15,6 +15,7 @@ export type GameAction =
   | CycleCardAction
   | TypecycleCardAction
   | PlotCardAction
+  | ForetellCardAction
   | PutCompanionIntoHandAction
   | SuspendCardFromHandAction
   | CrewVehicleAction
@@ -86,6 +87,11 @@ export interface AdditionalCostPayment {
   /** X chosen for `AdditionalCost.PayXLife` (e.g., Vicious Rivalry). */
   readonly payXLifeAmount?: number
   /**
+   * The opponent named to gain life for an "an opponent gains N life" alternative cost
+   * (`AdditionalCost.OthersGainLife`, Invigorate). Pre-filled by the server on each per-opponent cast.
+   */
+  readonly lifeGainRecipient?: EntityId
+  /**
    * Permanents chosen for a variable-count permanent cost — the payer decides how many
    * (`CostAtom.VariablePermanents`). Carries the creatures tapped to pay a Teamwork N cost
    * (CR 702.194a).
@@ -133,6 +139,8 @@ export interface CastSpellAction {
    * "SELF_ALTERNATIVE", "MIRACLE"). Used by the action menu to identify the impending cast option.
    */
   readonly alternativeCostType?: string
+  /** Server-selected beam me up granter (null = the card's printed ability); echoed unchanged. */
+  readonly beamMeUpSource?: EntityId | null
   /** Server-selected escape cost; echoed unchanged with the cast action. */
   readonly escapeAbility?: { readonly cost: unknown; readonly additionalCost?: unknown } | null
   /**
@@ -262,6 +270,11 @@ export interface CycleCardAction {
    * engine raises its own ChooseNumber decision rather than defaulting X to 0.
    */
   readonly xValue?: number
+  /**
+   * Which cycling ability: omitted for the card's printed cycling, else the permanent granting
+   * cycling to cards in hand (Rhet-Tomb Mystic). Echoed back from the server's legal action.
+   */
+  readonly grantedBy?: EntityId
 }
 
 export interface TypecycleCardAction {
@@ -278,6 +291,18 @@ export interface TypecycleCardAction {
  */
 export interface PlotCardAction {
   readonly type: 'PlotCard'
+  readonly playerId: EntityId
+  readonly cardId: EntityId
+  readonly paymentStrategy?: PaymentStrategy
+}
+
+/**
+ * Foretell a card from hand (CR 702.143, Kaldheim).
+ * Special action during your turn — pays {2} and exiles the card face down. The foretold card
+ * becomes castable from exile for its foretell cost on a later turn.
+ */
+export interface ForetellCardAction {
+  readonly type: 'ForetellCard'
   readonly playerId: EntityId
   readonly cardId: EntityId
   readonly paymentStrategy?: PaymentStrategy
@@ -489,6 +514,8 @@ export function getActionSubject(action: GameAction): EntityId | null {
     case 'TypecycleCard':
       return action.cardId
     case 'PlotCard':
+      return action.cardId
+    case 'ForetellCard':
       return action.cardId
     case 'PutCompanionIntoHand':
       return action.cardId

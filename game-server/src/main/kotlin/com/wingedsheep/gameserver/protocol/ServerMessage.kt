@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.protocol
 
+import com.wingedsheep.engine.legalactions.OwnStackStop
 import com.wingedsheep.engine.view.ClientCommanderDamage
 import com.wingedsheep.engine.view.ClientEvent
 import com.wingedsheep.engine.view.ClientGameState
@@ -127,7 +128,11 @@ sealed interface ServerMessage {
         val sourceName: String? = null,
         /** The spell/ability source entity, so the client can show its card from its own
          *  (already viewer-masked) game state. */
-        val sourceId: String? = null
+        val sourceId: String? = null,
+        /** The source's art, for when the viewer's game state has no entry for it — a spell
+         *  being cast from its controller's hand is announced (its name is already shown) but
+         *  isn't in the viewer's masked state yet. Null when the viewer may not see the source. */
+        val sourceImageUri: String? = null
     )
 
     /**
@@ -157,6 +162,18 @@ sealed interface ServerMessage {
         val interactionEpoch: String? = null,
         /** Active voluntary priority yield; null means inactive. */
         val priorityYield: String? = null,
+        /**
+         * The only legal answer to [pendingDecision], when it has exactly one (see
+         * `ForcedDecisionAutoAnswer`). The client may submit it unchanged instead of asking the
+         * player. Browser seats only; null whenever the question is a real choice.
+         */
+        val autoAnswer: com.wingedsheep.engine.core.DecisionResponse? = null,
+        /**
+         * True when everyone at the table can already see that [pendingDecision] has only
+         * [autoAnswer] (`ForcedDecisionAutoAnswer.isPublic`), so answering it at once gives
+         * nothing away. False whenever that is unknown, or could depend on a hidden card.
+         */
+        val autoAnswerPublic: Boolean = false,
     ) : ServerMessage
 
     /**
@@ -187,6 +204,18 @@ sealed interface ServerMessage {
         val interactionEpoch: String? = null,
         /** Active voluntary priority yield; null means inactive. */
         val priorityYield: String? = null,
+        /**
+         * The only legal answer to [pendingDecision], when it has exactly one (see
+         * `ForcedDecisionAutoAnswer`). The client may submit it unchanged instead of asking the
+         * player. Browser seats only; null whenever the question is a real choice.
+         */
+        val autoAnswer: com.wingedsheep.engine.core.DecisionResponse? = null,
+        /**
+         * True when everyone at the table can already see that [pendingDecision] has only
+         * [autoAnswer] (`ForcedDecisionAutoAnswer.isPublic`), so answering it at once gives
+         * nothing away. False whenever that is unknown, or could depend on a hidden card.
+         */
+        val autoAnswerPublic: Boolean = false,
     ) : ServerMessage
 
     /**
@@ -195,7 +224,8 @@ sealed interface ServerMessage {
     @Serializable
     data class StopOverrideInfo(
         val myTurnStops: Set<Step>,
-        val opponentTurnStops: Set<Step>
+        val opponentTurnStops: Set<Step>,
+        val ownStackStops: Set<OwnStackStop> = emptySet()
     )
 
     /**
@@ -223,7 +253,9 @@ sealed interface ServerMessage {
          * Clients decide "did I win?" from this; [winnerId] is one representative and stays for
          * the spectator / replay readers that predate teams. Empty for a draw.
          */
-        val winnerIds: List<EntityId> = emptyList()
+        val winnerIds: List<EntityId> = emptyList(),
+        /** What changed hands in a game played for ante (CR 407); null when it wasn't. */
+        val ante: AnteOutcome? = null
     ) : ServerMessage
 
     /**
@@ -436,6 +468,11 @@ sealed interface ServerMessage {
          * the deckbuilder's usual 4-of cap), so adding a card must not consume it from the pool.
          */
         val poolPlay: Boolean = false,
+        /**
+         * Per-card copy cap for the deck (basic lands exempt), or null when the pool's own copy
+         * count is the only limit — Limited's default. Always set under [poolPlay].
+         */
+        val maxCopiesPerCard: Int? = null,
     ) : ServerMessage
 
     /**
@@ -545,6 +582,11 @@ sealed interface ServerMessage {
         val deckSizeMin: Int = 60,
         /** Commander Draft/Sealed only — when true, drafted/sealed decks may include duplicates. */
         val allowDuplicates: Boolean = true,
+        /**
+         * Limited pools only — when true, decks are capped at 4 copies of any non-basic card; when
+         * false (the default), every copy in the pool is playable. Pool Play always caps.
+         */
+        val limitedCopyLimit: Boolean = false,
         /** Commander Draft/Sealed only — "BRAWL" (25 life / 16 cmdr damage) or "COMMANDER" (30/21). */
         val commanderPreset: String = "BRAWL",
         /** When true, each booster mixes cards from the union of all selected sets. */
@@ -591,6 +633,8 @@ sealed interface ServerMessage {
         val ranked: Boolean = false,
         /** Whether ranked may be enabled: a TOURNAMENT-mode bracket (1v1 matches). */
         val rankedEligible: Boolean = false,
+        /** Whether the lobby's games are played for ante (CR 407). Never true together with [ranked]. */
+        val playingForAnte: Boolean = false,
     )
 
     /**
@@ -1036,7 +1080,10 @@ sealed interface ServerMessage {
         val displayText: String,
         val sourceName: String? = null,
         /** The spell/ability source entity; the client resolves its card from the masked spectator state. */
-        val sourceId: String? = null
+        val sourceId: String? = null,
+        /** The source's art, for a source the spectator state has no entry for (a spell still
+         *  being cast from hand). Null when spectators may not see the source. */
+        val sourceImageUri: String? = null
     )
 
     /**
@@ -1091,7 +1138,9 @@ sealed interface ServerMessage {
     @Serializable
     data class SpectatorAttacker(
         val creatureId: String,
-        val blockedBy: List<String> = emptyList()
+        val blockedBy: List<String> = emptyList(),
+        /** Stays true after every blocker leaves combat (CR 509.1h); mirrors `ClientAttacker.isBlocked`. */
+        val isBlocked: Boolean = false
     )
 
     /**
@@ -1257,6 +1306,8 @@ sealed interface ServerMessage {
          * so nobody can change them, and it can't be made public or given an AI seat.
          */
         val matchmade: Boolean = false,
+        /** Whether the game is played for ante (CR 407). Never true together with [ranked]. */
+        val playingForAnte: Boolean = false,
     ) : ServerMessage
 
     /**
@@ -1478,3 +1529,38 @@ enum class GameOverReason {
     /** Commander format: 21+ combat damage from a single commander (CR 903.10a). */
     COMMANDER_DAMAGE,
 }
+
+/**
+ * The settlement of a game played for ante, on [ServerMessage.GameOver]. Ante is "for keeps"
+ * (CR 407.1); [scope] says what keeping means here.
+ */
+@Serializable
+data class AnteOutcome(
+    val scope: AnteScope,
+    /** Every card that ended the game owned by someone other than the player who brought it. Empty for a draw. */
+    val transfers: List<AnteTransferInfo>,
+)
+
+@Serializable
+enum class AnteScope {
+    /** A Limited tournament: the cards moved between the players' pools for the rest of the event. */
+    EVENT,
+
+    /** Anywhere else: the cards are a trophy, recorded on the winner's profile as spoils. */
+    SPOILS,
+}
+
+@Serializable
+data class AnteTransferInfo(
+    val cardName: String,
+    val imageUri: String?,
+    val fromPlayerId: EntityId,
+    val fromPlayerName: String,
+    val toPlayerId: EntityId,
+    val toPlayerName: String,
+    /** ANTE = won from the ante (CR 407.2); OWNERSHIP = changed hands by an ante card's effect (CR 407.3). */
+    val cause: String,
+    /** EVENT scope only: the basic land that topped the loser's deck back up to 40, if one was added. */
+    val refilledWith: String? = null,
+)
+

@@ -4140,7 +4140,7 @@
                                 ],
                                 "controllerPredicate": "ControlledByYou"
                             },
-                            "perAttackedPlayer": true
+                            "attackedPlayer": "Each"
                         },
                         "binding": "ANY",
                         "effect": {
@@ -9114,8 +9114,8 @@
                 }
             },
             {
-                "type": "ModifyUnlockCost",
-                "target": "YouUnlock",
+                "type": "ModifySpecialActionCost",
+                "action": "UNLOCK_DOOR",
                 "modification": {
                     "type": "ReduceGeneric",
                     "amount": 1
@@ -9526,6 +9526,47 @@
     ],
     "script": {
         "activatedAbilities": [
+            {
+                "id": "ninjutsu_{1}{U}{B}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{U}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Hand",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Hand",
+                "descriptionOverride": "Ninjutsu {1}{U}{B} ({1}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+                "keyword": "NINJUTSU"
+            },
             {
                 "id": "Kaito, Bane of Nightmares:1",
                 "cost": {
@@ -10357,7 +10398,7 @@
                 "modifier": 1
             }
         ],
-        "mayStartOnBattlefield": true
+        "beginOnBattlefield": {}
     },
     "metadata": {
         "collectorNumber": "18",
@@ -10383,7 +10424,7 @@
                 "cost": "{W}{U}{B}{R}{G}"
             }
         ],
-        "mayStartOnBattlefield": true
+        "beginOnBattlefield": {}
     },
     "metadata": {
         "collectorNumber": "188",
@@ -10438,7 +10479,7 @@
                 "triggerRestriction": "TriggeringSpellHasSingleTarget"
             }
         ],
-        "mayStartOnBattlefield": true
+        "beginOnBattlefield": {}
     },
     "metadata": {
         "collectorNumber": "143",
@@ -10492,7 +10533,7 @@
                 "choiceType": "CREATURE_TYPE"
             }
         ],
-        "mayStartOnBattlefield": true
+        "beginOnBattlefield": {}
     },
     "metadata": {
         "collectorNumber": "63",
@@ -11104,7 +11145,7 @@
                     ],
                     "controllerPredicate": "ControlledByYou"
                 },
-                "includeManaAbilities": true
+                "abilities": "ALL"
             }
         ]
     },
@@ -12292,7 +12333,10 @@
                         "effects": [
                             {
                                 "type": "GatherCards",
-                                "source": "TriggeringEntity",
+                                "source": {
+                                    "type": "Entity",
+                                    "entity": "TriggeringEntity"
+                                },
                                 "storeAs": "gathered0"
                             },
                             {
@@ -15923,7 +15967,8 @@
                                 "zone": "Battlefield"
                             }
                         },
-                        "ShuffleLibrary"
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
                     ]
                 },
                 "timing": "SorcerySpeed",
@@ -19192,9 +19237,16 @@
                     "Graveyard"
                 ],
                 "condition": {
-                    "type": "CreatureWithSubtypeDiedThisTurn",
-                    "subtype": "Zombie",
-                    "present": false
+                    "type": "CreatureDiedThisTurnMatching",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "NotSubtype",
+                                "subtype": "Zombie"
+                            }
+                        ]
+                    }
                 }
             }
         ],
@@ -20883,8 +20935,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 1
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
                                 }
                             },
                             "then": {
@@ -20897,8 +20958,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 2
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
                                 }
                             },
                             "then": {
@@ -20948,8 +21018,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 3
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
                                 }
                             },
                             "then": {
@@ -21007,8 +21086,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 1
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
                                 }
                             },
                             "then": {
@@ -21021,8 +21109,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 2
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
                                 }
                             },
                             "then": {
@@ -21072,8 +21169,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 3
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
                                 }
                             },
                             "then": {

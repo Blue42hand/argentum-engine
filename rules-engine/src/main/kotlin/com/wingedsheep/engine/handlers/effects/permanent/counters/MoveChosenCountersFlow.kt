@@ -158,12 +158,12 @@ object MoveChosenCountersFlow {
         if (removable <= 0) return state to emptyList()
 
         var newState = state.updateEntity(move.sourceId) { it.with(sourceCounters.withRemoved(kind, removable)) }
-        val events = mutableListOf<GameEvent>(CountersRemovedEvent(move.sourceId, kind, removable, move.sourceName))
+        val events = mutableListOf<GameEvent>(CountersRemovedEvent(move.sourceId, kind, removable, move.sourceName, removedBy = move.controllerId))
 
         val placed = ReplacementEffectUtils.applyCounterPlacementModifiers(
             newState, move.destinationId, kind, removable,
             placerId = move.controllerId,
-            predicateEvaluator = predicates
+            predicateEvaluator = predicates, byEffect = true
         )
         if (placed > 0) {
             val destCounters = newState.getEntity(move.destinationId)?.get<CountersComponent>() ?: CountersComponent()

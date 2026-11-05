@@ -4,12 +4,14 @@ import com.wingedsheep.engine.state.Component
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AbilityActivatedEverComponent
 import com.wingedsheep.engine.state.components.battlefield.AbilityActivatedThisTurnComponent
+import com.wingedsheep.engine.state.components.battlefield.EntryTapStateComponent
 import com.wingedsheep.engine.state.components.battlefield.HasBecomeTappedComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.battlefield.TargetedByControllerThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.TimestampComponent
 import com.wingedsheep.engine.state.components.player.EquipActivationsThisTurnComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
+import com.wingedsheep.engine.state.components.player.PermanentAbilitiesActivatedThisTurnComponent
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.model.GameRng
@@ -215,6 +217,15 @@ object StateProgress {
      * itself has to be listed: the `{T}` cost stamps the marker and the untap does not clear it, so
      * without this entry the pay-its-own-cost-back no-op would read as a fresh position every time.
      *
+     * [EntryTapStateComponent] is stamped by the first tap or untap of a battlefield visit with
+     * how the permanent *entered* — a fact that was already true, so recording it is no progress.
+     *
+     * [PermanentAbilitiesActivatedThisTurnComponent] is the player-side twin of
+     * [AbilityActivatedThisTurnComponent]: every activation of a permanent's ability (mana sources
+     * tapped by auto-pay included) records that permanent once, for Tezzeret, Betrayer of Flesh's
+     * "first activated ability each turn" discount. The discount it gates shows up in the position
+     * when a later activation is actually paid for.
+     *
      * [ManaPoolComponent] is the pool half of spent mana — see [manaSourcesOf]. Mana left floating
      * after a payment is what an action was paid with, and the pool empties between steps anyway.
      *
@@ -228,8 +239,10 @@ object StateProgress {
         AbilityActivatedEverComponent::class.java,
         TargetedByControllerThisTurnComponent::class.java,
         HasBecomeTappedComponent::class.java,
+        EntryTapStateComponent::class.java,
         TimestampComponent::class.java,
         ManaPoolComponent::class.java,
+        PermanentAbilitiesActivatedThisTurnComponent::class.java,
     )
 
     /**

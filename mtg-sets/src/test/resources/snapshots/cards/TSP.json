@@ -617,6 +617,50 @@
     ]
 }
 
+// Children of Korlis
+{
+    "name": "Children of Korlis",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Human Rebel Cleric",
+    "oracleText": "Sacrifice this creature: You gain life equal to the life you've lost this turn. (Damage causes loss of life.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Children of Korlis:1",
+                "cost": "CostSacrificeSelf",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "LIFE_LOST_AMOUNT"
+                    }
+                },
+                "descriptionOverride": "Sacrifice this creature: You gain life equal to the life you've lost this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "8",
+        "artist": "Quinton Hoover",
+        "flavorText": "\"We have a proud history of self-sacrifice. But it is easy, in these bleak times, to find one among us who is eager to die for any cause.\"\n—Tavalus, acolyte of Korlis",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/2/221a5895-bc21-4f10-b5fc-a4980fde843e.jpg?1783943257",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "The life you gain is based on the total amount of life you lost, not the difference in your life total from when the turn started. For example, if you lose 5 life and gain 3 life before activating the ability, the ability will cause you to gain 5 life, not 2."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Chronosavant
 {
     "name": "Chronosavant",
@@ -1342,6 +1386,97 @@
     ]
 }
 
+// Endrek Sahr, Master Breeder
+{
+    "name": "Endrek Sahr, Master Breeder",
+    "manaCost": "{4}{B}",
+    "typeLine": "Legendary Creature — Human Wizard",
+    "oracleText": "Whenever you cast a creature spell, create X 1/1 black Thrull creature tokens, where X is that spell's mana value.\nWhen you control seven or more Thrulls, sacrifice Endrek Sahr.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Endrek Sahr, Master Breeder:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "ContextProperty",
+                        "key": "TRIGGERING_SPELL_MANA_VALUE"
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Thrull"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/c/dc5604c5-4fff-4bb6-bf6d-69027e4eeb21.jpg?1783915255"
+                },
+                "descriptionOverride": "Whenever you cast a creature spell, create X 1/1 black Thrull creature tokens, where X is that spell's mana value."
+            }
+        ],
+        "stateTriggeredAbilities": [
+            {
+                "id": "Endrek Sahr, Master Breeder:2",
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "permanent Thrull"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                },
+                "effect": {
+                    "type": "SacrificeTarget",
+                    "target": "Self"
+                },
+                "descriptionOverride": "When you control seven or more Thrulls, sacrifice Endrek Sahr."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "106",
+        "rarity": "RARE",
+        "artist": "Mark Tedin",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/a/dac6faba-59f2-436f-addb-c53db2b0cc17.jpg?1783943233",
+        "rulings": [
+            {
+                "date": "2006-09-25",
+                "text": "The second ability is a state trigger. Once it triggers, it won't trigger again as long as the ability is on the stack. If the ability is countered and the trigger condition is still true, it will immediately trigger again."
+            },
+            {
+                "date": "2006-09-25",
+                "text": "When the second ability resolves, Endrek Sahr will be sacrificed regardless of how many Thrulls you control at that time, even if it's less than seven."
+            },
+            {
+                "date": "2006-09-25",
+                "text": "Face-down spells are creature spells, but they have mana value 0."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Errant Ephemeron
 {
     "name": "Errant Ephemeron",
@@ -1869,6 +2004,98 @@
     "colorIdentityOverride": [
         "GREEN"
     ]
+}
+
+// Gemstone Caverns
+{
+    "name": "Gemstone Caverns",
+    "manaCost": "",
+    "typeLine": "Legendary Land",
+    "oracleText": "If this card is in your opening hand and you're not the starting player, you may begin the game with Gemstone Caverns on the battlefield with a luck counter on it. If you do, exile a card from your hand.\n{T}: Add {C}. If Gemstone Caverns has a luck counter on it, instead add one mana of any color.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Gemstone Caverns:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "EntityMatches",
+                            "entity": "Self",
+                            "filter": {
+                                "statePredicates": [
+                                    {
+                                        "type": "HasCounter",
+                                        "counterType": "LUCK"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "then": "AddManaOfChoice",
+                    "otherwise": {
+                        "type": "AddColorlessMana",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add {C}. If Gemstone Caverns has a luck counter on it, instead add one mana of any color."
+            }
+        ],
+        "beginOnBattlefield": {
+            "onlyIf": "IsNotYourTurn",
+            "counters": {
+                "LUCK": 1
+            },
+            "then": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "GatherCards",
+                        "source": {
+                            "type": "FromZone",
+                            "zone": "Hand"
+                        },
+                        "storeAs": "hand"
+                    },
+                    {
+                        "type": "SelectFromCollection",
+                        "from": "hand",
+                        "selection": {
+                            "type": "ChooseExactly",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        "storeSelected": "exiled",
+                        "prompt": "Choose a card to exile"
+                    },
+                    {
+                        "type": "MoveCollection",
+                        "from": "exiled",
+                        "destination": {
+                            "type": "ToZone",
+                            "zone": "Exile"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "274",
+        "rarity": "RARE",
+        "artist": "Martina Pilcerova",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/4/94d74254-4750-4fb3-9e53-473a5f98b315.jpg?1783943194"
+    },
+    "colorIdentityOverride": []
 }
 
 // Grapeshot
@@ -2744,6 +2971,124 @@
     ]
 }
 
+// Mogg War Marshal
+{
+    "name": "Mogg War Marshal",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Goblin Warrior",
+    "oracleText": "Echo {1}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)\nWhen this creature enters or dies, create a 1/1 red Goblin creature token.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "ECHO"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Mogg War Marshal:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{1}{R}"
+                        }
+                    },
+                    "then": {
+                        "type": "Composite",
+                        "effects": []
+                    },
+                    "otherwise": {
+                        "type": "SacrificeTarget",
+                        "target": "Self"
+                    },
+                    "descriptionOverride": "Pay echo {1}{R}, or sacrifice this permanent?"
+                },
+                "interveningIf": {
+                    "type": "All",
+                    "conditions": [
+                        {
+                            "type": "SourceInZone",
+                            "zones": [
+                                "Battlefield"
+                            ]
+                        },
+                        {
+                            "type": "Not",
+                            "condition": {
+                                "type": "EntityMatches",
+                                "entity": "Self",
+                                "filter": {
+                                    "statePredicates": [
+                                        {
+                                            "type": "ControlledContinuouslySince",
+                                            "since": "YOUR_LAST_UPKEEP"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Echo {1}{R} (At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.)"
+            },
+            {
+                "id": "Mogg War Marshal:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Goblin"
+                    ]
+                }
+            },
+            {
+                "id": "Mogg War Marshal:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Goblin"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "170",
+        "artist": "Wayne England",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/b/8b9e0bdb-b615-447a-b80d-d7244c25c56e.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Momentary Blink
 {
     "name": "Momentary Blink",
@@ -2866,6 +3211,75 @@
     },
     "colorIdentityOverride": [
         "BLUE",
+        "BLACK"
+    ]
+}
+
+// Nether Traitor
+{
+    "name": "Nether Traitor",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "Haste\nShadow (This creature can block or be blocked by only creatures with shadow.)\nWhenever another creature is put into your graveyard from the battlefield, you may pay {B}. If you do, return this card from your graveyard to the battlefield.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "HASTE",
+        "SHADOW"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nether Traitor:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature own:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{B}"
+                        }
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Battlefield",
+                        "fromZone": "Graveyard"
+                    }
+                },
+                "activeZones": [
+                    "Graveyard"
+                ],
+                "descriptionOverride": "Whenever another creature is put into your graveyard from the battlefield, you may pay {B}. If you do, return Nether Traitor from your graveyard to the battlefield."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "120",
+        "rarity": "RARE",
+        "artist": "Vance Kovacs",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/1/911d2271-8998-4193-9d1a-1768c5dfaaad.jpg?1783943230",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "If multiple creatures are put into your graveyard at the same time, Nether Traitor's ability triggers for each of them. Once you return it to the battlefield, you may pay {B} for the other abilities as they resolve, but they'll have no effect if you do. Even if Nether Traitor returns to your graveyard, it's considered a new object and won't be returned."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "If Nether Traitor and another creature are put into your graveyard at the same time, Nether Traitor's ability won't trigger. This is because it must be in your graveyard before the creature dies in order for its ability that returns it to the battlefield to trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
         "BLACK"
     ]
 }
@@ -3481,6 +3895,119 @@
         "imageUri": "https://cards.scryfall.io/normal/front/e/d/ed6dece3-058c-4738-a22f-8893345ddd1c.jpg"
     },
     "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Scion of the Ur-Dragon
+{
+    "name": "Scion of the Ur-Dragon",
+    "manaCost": "{W}{U}{B}{R}{G}",
+    "typeLine": "Legendary Creature — Dragon Avatar",
+    "oracleText": "Flying\n{2}: Search your library for a Dragon permanent card and put it into your graveyard. If you do, Scion of the Ur-Dragon becomes a copy of that card until end of turn. Then shuffle.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Scion of the Ur-Dragon:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "permanent Dragon"
+                            },
+                            "storeAs": "gathered0",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Search your library for a Dragon permanent card to put into your graveyard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "storeMovedAs": "moved2"
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "CollectionContainsMatch",
+                                    "collection": "moved2"
+                                }
+                            },
+                            "then": {
+                                "type": "EachPermanentBecomesCopyOfTarget",
+                                "target": {
+                                    "type": "PipelineTarget",
+                                    "collectionName": "moved2"
+                                },
+                                "duration": "EndOfTurn",
+                                "affected": "Self",
+                                "sourceFromAnyZone": true
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "descriptionOverride": "Search your library for a Dragon permanent card and put it into your graveyard. If you do, Scion of the Ur-Dragon becomes a copy of that card until end of turn. Then shuffle."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "246",
+        "rarity": "RARE",
+        "artist": "Jim Murray",
+        "flavorText": "\"I am the blood of the ur-dragon, coursing through all dragonkind.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/f/efb6f85b-60e9-4191-b557-ec952b7f22fc.jpg?1783943200",
+        "rulings": [
+            {
+                "date": "2006-09-25",
+                "text": "Removing the other Dragon card from your graveyard has no effect on Scion of the Ur-Dragon."
+            },
+            {
+                "date": "2006-09-25",
+                "text": "When Scion of the Ur-Dragon becomes a copy of another Dragon, it loses its copy ability for the rest of the turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE",
+        "BLACK",
+        "RED",
         "GREEN"
     ]
 }

@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.eoc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Hangarback Walker reprint in EOC. Canonical CardDefinition lives in ORI. */
 val HangarbackWalkerReprint = Printing(
     oracleId = "dde55256-5259-44e7-a267-fca45a7f0d04",
     name = "Hangarback Walker",

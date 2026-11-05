@@ -17,9 +17,10 @@ import com.wingedsheep.engine.state.components.battlefield.MayCastFromGraveyardU
 import com.wingedsheep.engine.state.components.battlefield.MayCastFromLinkedExileUsedThisTurnComponent
 import com.wingedsheep.engine.state.components.battlefield.MayCastWithoutPayingCostUsedThisTurnComponent
 import com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent
+import com.wingedsheep.sdk.scripting.CastThisWayExile
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.player.CardsDiscardedThisTurnComponent
-import com.wingedsheep.engine.state.components.stack.GraveyardCastRiderComponent
+import com.wingedsheep.engine.state.components.stack.CastThisWayEntryRiderComponent
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Zone
@@ -38,6 +39,12 @@ internal class CastAuthorization(
     val limitedTopLibraryCastSource: EntityId?,
     /** The Tomb of Aclazotz / Bilbo: the rider-bearing graveyard-cast grant that authorized this cast. */
     val graveyardCastRiderGrant: com.wingedsheep.sdk.scripting.MayCastFromGraveyard?,
+    /** A `MayPlayCardsFromExile(oncePerTurn)` granter (Evelyn, the Covetous) whose allowance this cast spends. */
+    val oncePerTurnExileGranter: EntityId?,
+    /** Glimpse the Cosmos: the exile rider of the card's own `MayCastSelfFromZones` permission this cast went through. */
+    val selfZoneExileRider: CastThisWayExile = CastThisWayExile.NONE,
+    /** Kaldring, the Rimestaff: the `entersTapped` riders of the may-play permission this cast goes through. */
+    val mayPlayEntersTapped: List<com.wingedsheep.sdk.scripting.GameObjectFilter> = emptyList(),
 )
 
 /**
@@ -49,6 +56,7 @@ internal class CastAuthorization(
 internal class AlternativeCostMarks(
     val wasWarped: Boolean,
     val wasDashed: Boolean,
+    val wasBlitzed: Boolean,
     val wasEvoked: Boolean,
     val wasImpending: Boolean,
     val wasCleaved: Boolean,
@@ -78,6 +86,10 @@ internal class CastRecords(
         graveyardCastRiderGrant = zoneResolver.findMayCastFromGraveyardGrant(
             state, action.playerId, action.cardId, cardComponent, action.graveyardCastRider
         ),
+        oncePerTurnExileGranter = zoneResolver.findOncePerTurnExileGranter(state, action.playerId, action.cardId),
+        selfZoneExileRider = zoneResolver.findMayCastSelfFromZoneAbility(state, action.playerId, action.cardId, action)
+            ?.exileCastThisWay ?: CastThisWayExile.NONE,
+        mayPlayEntersTapped = zoneResolver.castEntersTappedRiders(state, action, cardComponent),
     )
 
     /**
@@ -105,6 +117,8 @@ internal class CastRecords(
                 WarpGrants.effectiveWarp(state, action.cardId, cardDef!!, action.playerId, cardRegistry, predicateEvaluator) != null,
             // Dash (CR 702.109): printed-only for now — no granted-dash resolver exists yet.
             wasDashed = hasKeyword(AlternativeCostType.DASH) { it is KeywordAbility.Dash },
+            // Blitz (CR 702.152a): printed only — the graveyard route is a cast permission, not a grant.
+            wasBlitzed = hasKeyword(AlternativeCostType.BLITZ) { it is KeywordAbility.Blitz },
             wasEvoked = hasKeyword(AlternativeCostType.EVOKE) { it is KeywordAbility.Evoke },
             wasImpending = hasKeyword(AlternativeCostType.IMPENDING) { it is KeywordAbility.Impending },
             // Cleave (CR 702.148): the spell resolves with its brackets-removed effect/target
@@ -154,8 +168,15 @@ internal class CastRecords(
                     .mapNotNull { name -> CardType.entries.firstOrNull { it.name == name } }
                 if (granted.isEmpty()) printed else printed.copy(cardTypes = printed.cardTypes + granted)
             },
-            manaValue = modalBackFace?.manaCost?.cmc ?: cardComponent.manaValue,
-            colors = transformedFace?.colors ?: cardComponent.colors,
+            // Each {X} counts as the announced X on the stack (CR 202.3e), as SpellCaster stamps
+            // it on the SpellCastEvent; a disturb cast keeps the front's X-free reading.
+            manaValue = (modalBackFace?.manaCost?.cmc ?: cardComponent.manaValue) +
+                if (transformedFace != null && modalBackFace == null) 0
+                else (action.xValue ?: 0) * (modalBackFace?.manaCost ?: cardComponent.manaCost).xCount,
+            // An off-battlefield SetColors (Mycosynth Lattice) reaches the card where it's cast from.
+            colors = state.projectedState.offBattlefieldColors(action.cardId)
+                ?.mapNotNullTo(linkedSetOf()) { name -> com.wingedsheep.sdk.core.Color.entries.firstOrNull { it.name == name } }
+                ?: transformedFace?.colors ?: cardComponent.colors,
             isFaceDown = action.castFaceDown,
             spentManaSubtypes = payment.spentManaProvenance.spentSubtypes,
             // The cast card moves to the stack keeping its entity id, so this matches the resolving
@@ -173,6 +194,8 @@ internal class CastRecords(
                 action.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.name }
                     ?: transformedFace?.name ?: cardComponent.name
             ),
+            // "The first kicked spell you cast each turn" (Vine Gecko) counts history by this.
+            declaredCostSlot = action.declaredCostSlot,
         )
         val existing = newState.spellsCastThisTurnByPlayer[action.playerId] ?: emptyList()
         newState = newState.copy(
@@ -202,7 +225,8 @@ internal class CastRecords(
      * *specific* grant that authorized this cast, so a simultaneous graveyard-cast permission from
      * another source is unaffected. `onlyIfResolved = false` because the replacement catches the
      * countered/fizzled spell too (printed ruling: an Adventure spell that fails to resolve is still
-     * exiled by this effect).
+     * exiled by this effect). A card's own `MayCastSelfFromZones(exileCastThisWay)` permission
+     * (Glimpse the Cosmos) arms the same rider when it is the permission the cast goes through.
      */
     fun applyCastThisWayRiders(
         state: GameState,
@@ -222,16 +246,27 @@ internal class CastRecords(
         }
         val riderSubtype: String? = grant?.takeIf { it.hasEntryRider }?.addedSubtypeOnEntry
         val riderAbility = grant?.grantedAbilityOnEntry
-        if (riderCounter != null || riderSubtype != null || riderAbility != null) {
+        // Kaldring, the Rimestaff's "if you do, it enters tapped": a may-play permission's rider,
+        // when the cast had to go through it rather than a rider-free graveyard or exile grant.
+        val riderTapped = authorization.mayPlayEntersTapped.takeIf {
+            grant == null && authorization.linkedExileGranter == null && !isForageCast
+        } ?: emptyList()
+        if (riderCounter != null || riderSubtype != null || riderAbility != null || riderTapped.isNotEmpty()) {
             newState = newState.updateEntity(action.cardId) { c ->
-                c.with(GraveyardCastRiderComponent(
-                    entersWithCounter = riderCounter, addedSubtype = riderSubtype, grantedAbility = riderAbility
+                c.with(CastThisWayEntryRiderComponent(
+                    entersWithCounter = riderCounter, addedSubtype = riderSubtype, grantedAbility = riderAbility,
+                    entersTapped = riderTapped,
                 ))
             }
         }
-        if (grant?.exileInsteadOfGraveyard == true && cardComponent.typeLine.let { it.isInstant || it.isSorcery }) {
+        val exileRider = grant?.exileCastThisWay?.takeIf { it != CastThisWayExile.NONE }
+            ?: authorization.selfZoneExileRider
+        if (exileRider != CastThisWayExile.NONE && cardComponent.typeLine.let { it.isInstant || it.isSorcery }) {
             newState = newState.updateEntity(action.cardId) { c ->
-                c.with(AfterResolveDestinationComponent(onlyIfResolved = false))
+                c.with(AfterResolveDestinationComponent(
+                    onlyIfResolved = false,
+                    everyStackExit = exileRider == CastThisWayExile.ON_ANY_STACK_EXIT
+                ))
             }
         }
         return newState
@@ -243,7 +278,8 @@ internal class CastRecords(
      * the zone the permission was found through.
      *
      * - Muldrotha: one permanent type per turn, recorded when [castingFromGraveyardViaMuldrotha].
-     * - A once-per-turn linked-exile permission (Maralen, Fae Ascendant) marks its granter.
+     * - A once-per-turn linked-exile permission (Maralen, Fae Ascendant) marks its granter, and so
+ *   does a once-per-turn filter-defined exile grant (Evelyn, the Covetous).
      * - A limited top-of-library permission belongs to its granting permanent, not to the player: the
      *   source captured before the card left the library is marked; a source that leaves and returns
      *   is a new object with a fresh allowance, and an unlimited matching source consumes nothing.
@@ -274,6 +310,9 @@ internal class CastRecords(
         if (linkedExileGranter?.ability?.oncePerTurn == true) {
             newState = newState.updateEntity(linkedExileGranter.granterId) { c -> c.with(MayCastFromLinkedExileUsedThisTurnComponent) }
         }
+        authorization.oncePerTurnExileGranter?.let { granter ->
+            newState = newState.updateEntity(granter) { c -> c.with(MayCastFromLinkedExileUsedThisTurnComponent) }
+        }
 
         authorization.limitedTopLibraryCastSource?.let { source ->
             newState = newState.updateEntity(source) { c ->
@@ -290,8 +329,19 @@ internal class CastRecords(
         }
 
         if (castFromZone == Zone.GRAVEYARD) {
-            zoneResolver.oncePerTurnGraveyardCastSourceToConsume(originState, action.playerId, action.cardId)?.let { source ->
-                newState = newState.updateEntity(source) { c -> c.with(MayCastFromGraveyardUsedThisTurnComponent) }
+            when (val spent = zoneResolver.graveyardCastAllowanceToSpend(
+                originState, action.playerId, action.cardId, authorization.graveyardCastRiderGrant
+            )) {
+                is CastZoneResolver.GraveyardCastAllowance.OncePerTurn ->
+                    newState = newState.updateEntity(spent.sourceId) { c -> c.with(MayCastFromGraveyardUsedThisTurnComponent) }
+                // One permission, one cast: drop that grant (the first equal record, so a second
+                // identical grant — Chainer activated again after re-entering — still stands).
+                is CastZoneResolver.GraveyardCastAllowance.OneShot -> {
+                    val remaining = newState.grantedStaticAbilities.toMutableList()
+                    remaining.remove(spent.grant)
+                    newState = newState.copy(grantedStaticAbilities = remaining)
+                }
+                null -> {}
             }
         }
         return newState

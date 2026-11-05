@@ -23,6 +23,7 @@ import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.AfterResolveDestinationComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.CopyOfComponent
+import com.wingedsheep.engine.state.components.stack.CipherEncodeChoiceComponent
 import com.wingedsheep.engine.state.components.identity.DoubleFacedComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent
 import com.wingedsheep.engine.state.components.stack.*
@@ -47,11 +48,6 @@ internal class NonPermanentSpellResolver(
     private val spliceTargetValidator: TargetValidator
 ) {
     /**
-     * Re-validates a spliced card's own targets as the spell resolves (CR 608.2b via 702.47d): the
-     * spliced text is skipped when its targets have become illegal, exactly as a modal spell's
-     * pre-chosen mode is.
-     */
-    /**
      * The spliced text of [spellComponent]'s spell as a drain queue (CR 702.47b) — one entry per
      * spliced card, in the caster's chosen order, each carrying its own target slice and requirements.
      *
@@ -61,6 +57,7 @@ internal class NonPermanentSpellResolver(
     private fun buildSpliceEntries(
         spellComponent: SpellOnStackComponent,
         boundRequirements: List<TargetRequirement>,
+        splicedAlignedTargets: List<ChosenTarget?>,
     ): List<PreTargetedEffectEntry> {
         // Each spliced card's requirements as the cast bound them — the tail of the recorded list,
         // in splice order — so a partly filled "up to N" spliced group names the targets it holds.
@@ -69,13 +66,23 @@ internal class NonPermanentSpellResolver(
         val bound = printed.map { reqs ->
             (if (cursor >= 0) boundRequirements.subList(cursor, cursor + reqs.size) else reqs).also { cursor += reqs.size }
         }
+        // Each spliced card's slice of the spell's resolution-validated slots (CR 608.2b): a target
+        // that became illegal is a null in its slot, so the spliced text still acts on the targets
+        // that remain legal, and on whatever it does without a target.
+        var slot = 0
+        val alignedSlices = bound.map { reqs ->
+            val count = reqs.sumOf { it.count }
+            splicedAlignedTargets.drop(slot).take(count).also { slot += count }
+        }
         return spellComponent.splicedCardNames.mapIndexedNotNull { index, name ->
             val splicedDef = cardRegistry.getCard(name) ?: return@mapIndexedNotNull null
             val effect = splicedDef.script.spellEffect ?: return@mapIndexedNotNull null
+            val aligned = alignedSlices[index]
             PreTargetedEffectEntry(
                 effect = effect,
-                targets = spellComponent.splicedTargetsOrdered.getOrNull(index) ?: emptyList(),
-                targetRequirements = bound[index]
+                targets = aligned.filterNotNull(),
+                targetRequirements = bound[index],
+                alignedTargets = aligned
             )
         }
     }
@@ -106,7 +113,8 @@ internal class NonPermanentSpellResolver(
         val events = mutableListOf<GameEvent>()
 
         val resolvedCardDef = cardComponent?.let { cardRegistry.getCard(it.name) }
-        val spellEffect = selectSpellEffect(state, spellId, spellComponent, cardComponent, resolvedCardDef)
+        val spellEffect = resolvingSpellEffect(state, spellId, spellComponent, cardComponent, resolvedCardDef)
+            ?.let { withCipherEncodeStep(state, spellId, resolvedCardDef, it) }
         // Splice (CR 702.47): the spliced cards' text is a tail that runs after the main spell's own
         // effects (CR 702.47b). Its targets were appended to the end of the flat list at cast time, so
         // the same tail is peeled off here — the main spell must see only its own targets, or an effect
@@ -117,9 +125,9 @@ internal class NonPermanentSpellResolver(
             cardRegistry.getCard(name)?.script?.targetRequirements?.size ?: 0
         }
         val allTargetRequirements = state.getEntity(spellId)?.get<TargetsComponent>()?.targetRequirements ?: emptyList()
-        val spliceEntries = buildSpliceEntries(spellComponent, allTargetRequirements)
         val splicedSlotCount = SpliceCasts
             .splicedTargetSlotCounts(spellComponent.splicedCardNames, cardRegistry, allTargetRequirements).sum()
+        val spliceEntries = buildSpliceEntries(spellComponent, allTargetRequirements, alignedTargets.takeLast(splicedSlotCount))
 
         val fusedDefinition = resolvedCardDef?.takeIf { spellComponent.castFused }
         if (spellEffect != null || fusedDefinition != null) {
@@ -149,8 +157,11 @@ internal class NonPermanentSpellResolver(
 
             val effectResult = if (fusedDefinition != null) {
                 val entries = fusedEntries(state, spellId, fusedDefinition, targetRequirements, mainAlignedTargets)
+                // Each half runs as a root of its own, not as a position in the spell's effect.
+                val halves = context.copy(programOrigin = com.wingedsheep.engine.core.ProgramOrigin.BuiltBy(
+                    com.wingedsheep.sdk.core.Keyword.FUSE.name, context.programOrigin))
                 processPreTargetedEffectQueue(newState, entries + spliceEntries,
-                    PreTargetedEffectContext(baseContext = context, controllerId = context.controllerId,
+                    PreTargetedEffectContext(baseContext = halves, controllerId = context.controllerId,
                         sourceId = spellId, sourceName = cardComponent?.name, xValue = context.xValue,
                         triggeringEntityId = null, objectReferences = context.objectReferences),
                     effects::execute, spliceTargetValidator, emptyList())
@@ -161,6 +172,12 @@ internal class NonPermanentSpellResolver(
             if (effectResult.outcome is Outcome.Paused) {
                 // The finalizer is below all effect and splice frames; no zone change yet.
                 return ExecutionResult.propagatePause(effectResult.state, events + effectResult.events)
+            }
+            if (effectResult.state.pendingSubgame != null) {
+                // The spell created a subgame (CR 729). It finishes resolving only once the subgame
+                // is over and the rest of its text has run (CR 729.5), so it stays on the stack and
+                // the finalizer waits, as it does beneath a question.
+                return ExecutionResult.success(effectResult.state, events + effectResult.events)
             }
 
             // Always apply state changes from effect execution, even on partial
@@ -179,48 +196,6 @@ internal class NonPermanentSpellResolver(
             finishNonPermanentSpell(newState, spellId, spellComponent, cardComponent)
         else ExecutionResult.success(newState)
         return completed.copy(events = events + completed.events)
-    }
-
-    /**
-     * The effect the spell resolves with: the cast face's (Adventure / split, CR 715 / 709), the
-     * kicked or cleaved variant, or the card's own — with any text-changing effect applied.
-     */
-    private fun selectSpellEffect(
-        state: GameState,
-        spellId: EntityId,
-        spellComponent: SpellOnStackComponent,
-        cardComponent: CardComponent?,
-        resolvedCardDef: com.wingedsheep.sdk.model.CardDefinition?
-    ): Effect? {
-        // Execute the spell effect if present, applying text replacement if the spell
-        // was modified by a text-changing effect (e.g., Artificial Evolution)
-        // Use kickerSpellEffect when the spell was kicked and an alternate effect is defined.
-        // Adventure / split face cast (CR 715 / 709) — when the spell was cast as a face, read
-        // the face's spell effect from `cardDef.cardFaces[faceIndex].script.spellEffect`.
-        val faceSpellEffect = spellComponent.faceIndex?.let { idx ->
-            resolvedCardDef?.cardFaces?.getOrNull(idx)?.script?.spellEffect
-        }
-        val baseSpellEffect = when {
-            faceSpellEffect != null -> faceSpellEffect
-            spellComponent.declaredCostSlot != null && cardComponent != null ->
-                resolvedCardDef?.script?.kickerSpellEffect ?: cardComponent.spellEffect
-            // Cleave (CR 702.148): a spell cast for its cleave cost resolves with its
-            // brackets-removed effect variant, applied structurally at cast time rather than by
-            // editing text — so e.g. a bracketed delayed-trigger clause is never created.
-            spellComponent.wasCleaved && cardComponent != null ->
-                resolvedCardDef?.script?.cleaveSpellEffect ?: cardComponent.spellEffect
-            // Overload (CR 702.96a): "target" reads "each" — the author-written untargeted variant.
-            spellComponent.wasOverloaded && cardComponent != null ->
-                resolvedCardDef?.script?.overloadSpellEffect ?: cardComponent.spellEffect
-            else -> cardComponent?.spellEffect
-        }
-        val rawSpellEffect = baseSpellEffect
-        val textReplacement = TextChanges.forSpell(state, spellId)
-        return if (rawSpellEffect != null && textReplacement != null) {
-            rawSpellEffect.applyTextReplacement(textReplacement)
-        } else {
-            rawSpellEffect
-        }
     }
 
     private fun fusedEntries(
@@ -258,6 +233,8 @@ internal class NonPermanentSpellResolver(
     ): EffectContext =
         EffectContext(
             sourceId = spellId,
+            // The spell's effect runs as a program whose origin is this resolving stack object.
+            programOrigin = state.objectRef(spellId)?.let { com.wingedsheep.engine.core.ProgramOrigin.Resolving(it) },
             objectReferences = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(
                 captured = true, origin = state.objectRef(spellId), source = state.objectRef(spellId),
                 resolutionKey = "$spellId:${state.objectRef(spellId)?.generation}",
@@ -426,6 +403,7 @@ internal class NonPermanentSpellResolver(
             }
         }
 
+        val cipherCreatureId = newState.getEntity(spellId)?.get<CipherEncodeChoiceComponent>()?.creatureId
         val destination = decideDestination(state, newState, spellId, spellComponent, cardDef, resolvedScript)
         val intendedDestination = destination.intendedZone
 
@@ -444,8 +422,10 @@ internal class NonPermanentSpellResolver(
                 .without<TargetsComponent>()
                 .without<com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent>()
                 .without<com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComponent>()
+                .without<com.wingedsheep.engine.state.components.identity.PlayWithCostReductionComponent>()
                 .without<com.wingedsheep.engine.state.components.identity.PlayWithFixedAlternativeManaCostComponent>()
                 .without<AfterResolveDestinationComponent>()
+                .without<CipherEncodeChoiceComponent>()
         }
         newState = newState.removeMayPlayPermissionsForCard(spellId)
         newState = newState.addToZone(destZoneKey, spellId)
@@ -465,6 +445,11 @@ internal class NonPermanentSpellResolver(
         newState = applyAfterResolveAndRedirectRiders(
             newState, spellId, cardComponent, ownerId, destinationZone, destination, redirect, events
         )
+        // Cipher (CR 702.99a): the card went from the stack straight to exile — encode it there.
+        // A redirect that sent it anywhere else leaves nothing encoded.
+        if (cipherCreatureId != null && destinationZone == Zone.EXILE) {
+            newState = encodeOnCreature(newState, spellId, cipherCreatureId, cardComponent?.name ?: "Unknown")
+        }
 
         events.add(
             ZoneChangeEvent(
@@ -504,18 +489,24 @@ internal class NonPermanentSpellResolver(
         cardDef: com.wingedsheep.sdk.model.CardDefinition?,
         resolvedScript: com.wingedsheep.sdk.model.CardScript?
     ): SpellDestination {
+        // Cipher (CR 702.99a): the spell's own last instruction exiles the card. That is not a
+        // replacement of "put it into its owner's graveyard", so the graveyard riders below
+        // (rebound, an AfterResolveDestination rider) have nothing to replace, and flashback's
+        // "exile it instead" agrees with it.
+        val cipherExile = newState.getEntity(spellId)?.has<CipherEncodeChoiceComponent>() == true
         val selfExile = resolvedScript?.selfExileOnResolve == true
-        // Flashback (printed or granted — Archmage's Newt) or Harmonize (printed or granted —
-        // Songcrafter Mage): a graveyard cast exiles on resolution instead of returning to the
-        // graveyard. A spell cast *with* flashback is exiled even if a conditional flashback's
-        // condition has since lapsed (Viral Spawning), so the recorded alternative cost counts too.
-        val flashbackExile = spellComponent.castFromZone == Zone.GRAVEYARD &&
-            (spellComponent.alternativeCost == AlternativeCostType.FLASHBACK ||
-                FlashbackGrants.effectiveFlashback(
+        // A graveyard cast paid with flashback or beam me up (the recorded cost — see
+        // StackExitRider), or one with flashback (printed or granted — Archmage's Newt) or Harmonize
+        // (printed or granted — Songcrafter Mage), exiles on resolution instead of returning to the
+        // graveyard.
+        val flashbackExile = StackExitRider.paidGraveyardExileCost(spellComponent) ||
+            spellComponent.castFromZone == Zone.GRAVEYARD &&
+            (FlashbackGrants.effectiveFlashback(
                 state, spellId, cardDef, spellComponent.casterId, cardRegistry, predicateEvaluator
             ) != null ||
                 HarmonizeGrants.effectiveHarmonize(state, spellId, cardDef) != null)
         val exileAfterResolveComp = newState.getEntity(spellId)?.get<AfterResolveDestinationComponent>()
+            ?.takeUnless { cipherExile }
         // Adventure face (CR 715.3d): when an Adventure resolves, exile it instead of putting
         // it in its owner's graveyard, and grant the caster permission to cast it as the
         // creature spell while it remains exiled.
@@ -531,7 +522,7 @@ internal class NonPermanentSpellResolver(
         val selfShuffleIntoLibrary = resolvedScript?.selfShuffleIntoLibraryOnResolve == true
         // Rebound (CR 702.88): a spell cast from hand that has rebound (printed or granted) exiles
         // on resolution instead of going to the graveyard, and arms a next-upkeep free recast.
-        val reboundExile = spellComponent.castFromZone == Zone.HAND &&
+        val reboundExile = !cipherExile && spellComponent.castFromZone == Zone.HAND &&
             spellHasRebound(newState, spellId, cardDef)
         // Not a plain priority order, because the underlying replacements aren't totally ordered:
         // the rider loses to the printed self-shuffle clause, the self-shuffle clause loses to
@@ -547,6 +538,7 @@ internal class NonPermanentSpellResolver(
         // Countered and fizzled spells really are put into a graveyard, and those paths don't read
         // the self-shuffle flag at all, so every clause here applies to them as usual.
         val intendedDestination = when {
+            cipherExile -> Zone.EXILE
             // The rider is the most specific instruction on this one spell, so it outranks the
             // card-intrinsic exile reasons below rather than being OR'd into them — it is the only
             // one that can send the card somewhere other than exile (Kylox's Voltstrider — "put it
@@ -620,6 +612,7 @@ internal class NonPermanentSpellResolver(
                     cardIds = setOf(spellId),
                     controllerId = spellComponent.casterId,
                     permanent = true,
+                    primaryFaceOnly = true,
                     timestamp = state.timestamp,
                 )
             )
@@ -700,6 +693,61 @@ internal class NonPermanentSpellResolver(
     }
 
     /**
+     * Cipher (CR 702.99a): a resolving cipher spell represented by a card runs
+     * [com.wingedsheep.sdk.scripting.Cipher.encodeStep] just after its other effects. A copy of a
+     * cipher spell has the keyword too, but isn't represented by a card, so it encodes nothing.
+     */
+    private fun withCipherEncodeStep(
+        state: GameState,
+        spellId: EntityId,
+        cardDef: com.wingedsheep.sdk.model.CardDefinition?,
+        spellEffect: Effect
+    ): Effect {
+        if (cardDef?.keywords?.contains(com.wingedsheep.sdk.core.Keyword.CIPHER) != true) return spellEffect
+        if (state.getEntity(spellId)?.has<CopyOfComponent>() == true) return spellEffect
+        return com.wingedsheep.sdk.scripting.effects.CompositeEffect(
+            listOf(spellEffect, com.wingedsheep.sdk.scripting.Cipher.encodeStep)
+        )
+    }
+
+    /**
+     * Encode the just-exiled cipher card on [creatureId] (CR 702.99b): mark the card with the
+     * creature and its own exile object, and grant the creature the cipher trigger for as long as
+     * that holds (CR 702.99c). The grant carries a fresh timestamp — it is the effect of the card's
+     * static ability, which starts now — so a "loses all abilities" effect from later strips it and
+     * one from earlier doesn't (CR 613.7). Nothing is encoded if the creature has left the
+     * battlefield in the meantime.
+     */
+    private fun encodeOnCreature(
+        state: GameState,
+        cardId: EntityId,
+        creatureId: EntityId,
+        cardName: String
+    ): GameState {
+        if (creatureId !in state.getBattlefield()) return state
+        val cardObject = state.objectRef(cardId) ?: return state
+        // Stamp with the current timestamp, then tick, so an effect created later sorts after
+        // this one (the LayerTimestamps convention).
+        return state
+            .updateEntity(cardId) {
+                it.with(
+                    com.wingedsheep.engine.state.components.battlefield.EncodedOnComponent(creatureId, cardObject)
+                )
+            }
+            .copy(
+                grantedTriggeredAbilities = state.grantedTriggeredAbilities +
+                    com.wingedsheep.engine.event.GrantedTriggeredAbility(
+                        entityId = creatureId,
+                        ability = com.wingedsheep.sdk.scripting.Cipher.encodedCardTrigger(cardId, cardName),
+                        duration = com.wingedsheep.sdk.scripting.Duration.WhileSourceEncodedOnAffected,
+                        sourceId = cardId,
+                        timestamp = state.timestamp
+                    )
+            )
+            .tick()
+    }
+
+    /**
      * Rebound (CR 702.88): a spell has rebound if the printed keyword is on its card definition
      * or the keyword was granted to this stack object (Ojer Pakpatiq via GrantKeywordToSpellEffect,
      * stored on [SpellGrantedKeywordsComponent]). Only matters for a spell cast from hand — the
@@ -737,7 +785,7 @@ internal class NonPermanentSpellResolver(
                     com.wingedsheep.sdk.scripting.effects.CompositeEffect(
                         listOf(
                             com.wingedsheep.sdk.scripting.effects.GatherCardsEffect(
-                                source = com.wingedsheep.sdk.scripting.effects.CardSource.Self,
+                                source = com.wingedsheep.sdk.scripting.effects.CardSource.Entity(com.wingedsheep.sdk.scripting.targets.EffectTarget.Self),
                                 storeAs = "rebound_recast",
                             ),
                             com.wingedsheep.sdk.scripting.effects.CastFromCollectionWithoutPayingCostEffect(
@@ -799,6 +847,7 @@ internal class NonPermanentSpellResolver(
                 .without<TargetsComponent>()
                 .without<PlayWithoutPayingCostComponent>()
                 .without<com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComponent>()
+                .without<com.wingedsheep.engine.state.components.identity.PlayWithCostReductionComponent>()
                 .without<com.wingedsheep.engine.state.components.identity.PlayWithFixedAlternativeManaCostComponent>()
                 .without<AfterResolveDestinationComponent>()
         }
@@ -855,5 +904,48 @@ internal class NonPermanentSpellResolver(
             events.add(CountersAddedEvent(cardId, counterType, 1, cardName))
         }
         return updated
+    }
+}
+
+/**
+ * The effect the spell resolves with: the cast face's (Adventure / split, CR 715 / 709), the
+ * kicked or cleaved variant, or the card's own — with any text-changing effect applied. Shared
+ * with [com.wingedsheep.sdk.scripting.predicates.CardPredicate.WouldDestroy], which previews it.
+ */
+internal fun resolvingSpellEffect(
+    state: GameState,
+    spellId: EntityId,
+    spellComponent: SpellOnStackComponent,
+    cardComponent: CardComponent?,
+    resolvedCardDef: com.wingedsheep.sdk.model.CardDefinition?
+): Effect? {
+    // Execute the spell effect if present, applying text replacement if the spell
+    // was modified by a text-changing effect (e.g., Artificial Evolution)
+    // Use kickerSpellEffect when the spell was kicked and an alternate effect is defined.
+    // Adventure / split face cast (CR 715 / 709) — when the spell was cast as a face, read
+    // the face's spell effect from `cardDef.cardFaces[faceIndex].script.spellEffect`.
+    val faceSpellEffect = spellComponent.faceIndex?.let { idx ->
+        resolvedCardDef?.cardFaces?.getOrNull(idx)?.script?.spellEffect
+    }
+    val baseSpellEffect = when {
+        faceSpellEffect != null -> faceSpellEffect
+        spellComponent.declaredCostSlot != null && cardComponent != null ->
+            resolvedCardDef?.script?.kickerSpellEffect ?: cardComponent.spellEffect
+        // Cleave (CR 702.148): a spell cast for its cleave cost resolves with its
+        // brackets-removed effect variant, applied structurally at cast time rather than by
+        // editing text — so e.g. a bracketed delayed-trigger clause is never created.
+        spellComponent.wasCleaved && cardComponent != null ->
+            resolvedCardDef?.script?.cleaveSpellEffect ?: cardComponent.spellEffect
+        // Overload (CR 702.96a): "target" reads "each" — the author-written untargeted variant.
+        spellComponent.wasOverloaded && cardComponent != null ->
+            resolvedCardDef?.script?.overloadSpellEffect ?: cardComponent.spellEffect
+        else -> cardComponent?.spellEffect
+    }
+    val rawSpellEffect = baseSpellEffect
+    val textReplacement = TextChanges.forSpell(state, spellId)
+    return if (rawSpellEffect != null && textReplacement != null) {
+        rawSpellEffect.applyTextReplacement(textReplacement)
+    } else {
+        rawSpellEffect
     }
 }

@@ -95,8 +95,10 @@ object Costs {
     /**
      * Pay life equal to an amount priced from game state as the cost is paid — War Room's "Pay
      * life equal to the number of colors in your commanders' color identity" is
-     * `PayLife(DynamicAmounts.commanderColorIdentityCount())`. Only amounts [CostAtom.PayLife]
-     * admits (a [DynamicAmount.CommanderColorIdentityCount]) are accepted.
+     * `PayLife(DynamicAmounts.commanderColorIdentityCount())`; Hand of Vecna's "Pay 1 life for
+     * each card in your hand" is `PayLife(DynamicAmounts.cardsInYourHand())`. Only
+     * amounts [CostAtom.PayLife] admits (a [DynamicAmount.CommanderColorIdentityCount] or a
+     * [DynamicAmount.Count] for `Player.You`) are accepted.
      */
     fun PayLife(amount: DynamicAmount): AbilityCost =
         AbilityCost.Atom(CostAtom.PayLife(amount))
@@ -301,7 +303,14 @@ object Costs {
      * to, without moving zones (CR 701.3d). Only payable while it *is* attached, which is the whole
      * of Sunforger's first ruling. See [CostAtom.Unattach].
      */
-    val Unattach: AbilityCost = AbilityCost.Atom(CostAtom.Unattach)
+    val Unattach: AbilityCost = AbilityCost.Atom(CostAtom.Unattach())
+
+    /**
+     * "Unattach [this Equipment]" inside an ability the Equipment *grants* (Toralf's Hammer's
+     * "{1}{R}, {T}, Unattach Toralf's Hammer: …") — detaches the granter, not the host that has the
+     * ability. The Unattach sibling of [TapGrantingPermanent]. See [CostAtom.Unattach].
+     */
+    val UnattachGrantingPermanent: AbilityCost = AbilityCost.Atom(CostAtom.Unattach(ofGrantingPermanent = true))
 
     // =========================================================================
     // Exile Costs
@@ -350,14 +359,23 @@ object Costs {
         count: Int = 1,
         filter: GameObjectFilter = GameObjectFilter.Any,
         excludeSelf: Boolean = false,
+        distinctNames: Boolean = false,
     ): AbilityCost =
-        AbilityCost.Atom(CostAtom.ExileFrom(Zone.BATTLEFIELD, filter, count, excludeSelf = excludeSelf))
+        AbilityCost.Atom(
+            CostAtom.ExileFrom(Zone.BATTLEFIELD, filter, count, excludeSelf = excludeSelf, distinctNames = distinctNames)
+        )
 
     /**
      * Exile X cards from graveyard, where X is the ability's X value.
+     *
+     * Set [linkToSource] when another ability on the same permanent reads the cards this payment
+     * exiled — "a creature card exiled with it" (Ludevic, Necrogenius).
      */
-    fun ExileXFromGraveyard(filter: GameObjectFilter = GameObjectFilter.Any): AbilityCost =
-        AbilityCost.ExileXFromGraveyard(filter)
+    fun ExileXFromGraveyard(
+        filter: GameObjectFilter = GameObjectFilter.Any,
+        linkToSource: Boolean = false,
+    ): AbilityCost =
+        AbilityCost.ExileXFromGraveyard(filter, linkToSource)
 
     /**
      * Discard X cards, where X is the ability's X value — chosen by how many cards are discarded
@@ -444,10 +462,11 @@ object Costs {
         minCount: Int = 1,
         excludeSelf: Boolean = true,
         xMeasure: VariableCostMeasure = VariableCostMeasure.TOTAL_MANA_VALUE,
-        minMeasure: Int = 0
+        minMeasure: Int = 0,
+        maxCount: Int? = null
     ): AbilityCost = AbilityCost.Atom(
         CostAtom.VariablePermanents(
-            filter, minCount, excludeSelf, PermanentCostAction.EXILE, xMeasure, minMeasure
+            filter, minCount, excludeSelf, PermanentCostAction.EXILE, xMeasure, minMeasure, maxCount
         )
     )
 
@@ -459,17 +478,20 @@ object Costs {
      *
      * [excludeSelf] defaults to false: the ability's own source is usually a legal choice for its
      * own cost (Radiant Lotus is an artifact and may sacrifice itself). Pass [xMeasure]
-     * `TOTAL_MANA_VALUE` for the "with total mana value X" shape.
+     * `TOTAL_MANA_VALUE` for the "with total mana value X" shape, and `maxCount = 1` with it for
+     * "sacrifice an artifact with mana value X" (Scrap Welder) — one permanent, whose own mana
+     * value is the X a "mana value less than X" target is measured against.
      */
     fun SacrificePermanents(
         filter: GameObjectFilter = GameObjectFilter.Any,
         minCount: Int = 1,
         excludeSelf: Boolean = false,
         xMeasure: VariableCostMeasure = VariableCostMeasure.COUNT,
-        minMeasure: Int = 0
+        minMeasure: Int = 0,
+        maxCount: Int? = null
     ): AbilityCost = AbilityCost.Atom(
         CostAtom.VariablePermanents(
-            filter, minCount, excludeSelf, PermanentCostAction.SACRIFICE, xMeasure, minMeasure
+            filter, minCount, excludeSelf, PermanentCostAction.SACRIFICE, xMeasure, minMeasure, maxCount
         )
     )
 
@@ -721,6 +743,28 @@ object Costs {
         )
 
         /**
+         * Sacrifice **X** permanents matching [filter], where X is announced with the spell — "as
+         * an additional cost to cast this spell, sacrifice X creatures" (Eliminate the
+         * Competition). There is no `{X}` in the mana cost: the cost defines X (CR 601.2b), so the
+         * caster announces it before choosing targets ("Destroy X target creatures" is
+         * `targets(…, exactly = DynamicAmounts.xValue())`) and then sacrifices exactly that many.
+         * X may be 0. The spell reads X as `DynamicAmounts.xValue()`.
+         *
+         * Not [SacrificePermanents]: "you may sacrifice any number of …" (Devouring Greed) announces
+         * nothing, so its count can't size targets.
+         */
+        fun SacrificeX(filter: GameObjectFilter = GameObjectFilter.Creature): AdditionalCost = AdditionalCost.Atom(
+            CostAtom.VariablePermanents(
+                filter = filter,
+                minCount = 0,
+                excludeSelf = false,
+                action = PermanentCostAction.SACRIFICE,
+                xMeasure = VariableCostMeasure.COUNT,
+                exactly = DynamicAmount.XValue
+            )
+        )
+
+        /**
          * Tap any number of permanents matching [filter] you control whose **total projected
          * power** is [totalPower] or more — the "tap creatures for total power N" selection crew
          * and saddle already use, re-exposed as a spell's additional cost (Teamwork N,
@@ -760,6 +804,13 @@ object Costs {
 
         /** Pay [amount] life. */
         fun PayLife(amount: Int): AdditionalCost = AdditionalCost.Atom(CostAtom.PayLife(amount))
+
+        /**
+         * Have an opponent of your choice gain [amount] life (Invigorate), or with [eachOtherPlayer]
+         * every other player (Reverent Silence) — the non-mana half of a [SelfAlternativeCost].
+         */
+        fun OthersGainLife(amount: Int, eachOtherPlayer: Boolean = false): AdditionalCost =
+            AdditionalCost.OthersGainLife(amount, eachOtherPlayer)
 
         /** Pay [amountPerTarget] life for each target chosen by this spell (Phyrexian Purge). */
         fun PayLifePerTarget(amountPerTarget: Int): AdditionalCost =
@@ -819,11 +870,33 @@ object Costs {
             fromZone: CostZone = CostZone.GRAVEYARD
         ): AdditionalCost = AdditionalCost.ExileVariableCards(minCount, filter, fromZone)
 
-        /** Sacrifice any number of [filter] permanents, each reducing generic cost by [costReductionPerCreature]. */
-        fun SacrificeCreaturesForCostReduction(
-            filter: GameObjectFilter = GameObjectFilter.Creature,
-            costReductionPerCreature: Int = 2
-        ): AdditionalCost = AdditionalCost.SacrificeCreaturesForCostReduction(filter, costReductionPerCreature)
+        /**
+         * "You may sacrifice any number of [filter]. This spell costs {[reductionPerUnit]} less to cast
+         * for each … sacrificed this way" (Torgaar, Famine Incarnate).
+         */
+        fun SacrificeAnyNumberForCostReduction(
+            filter: GameObjectFilter,
+            reductionPerUnit: Int
+        ): AdditionalCost = AdditionalCost.AnyNumberForCostReduction(PermanentCostAction.SACRIFICE, filter, reductionPerUnit)
+
+        /**
+         * "You may tap any number of untapped [filter] you control. This spell costs {[reductionPerUnit]}
+         * less to cast for each … tapped this way" (Explosive Singularity).
+         */
+        fun TapAnyNumberForCostReduction(
+            filter: GameObjectFilter,
+            reductionPerUnit: Int
+        ): AdditionalCost = AdditionalCost.AnyNumberForCostReduction(PermanentCostAction.TAP, filter, reductionPerUnit)
+
+        /**
+         * "You may exile any number of [filter] cards from your hand. This spell costs
+         * {[reductionPerUnit]} less to cast for each card exiled this way" (the NEO March cycle).
+         */
+        fun ExileAnyNumberFromHandForCostReduction(
+            filter: GameObjectFilter,
+            reductionPerUnit: Int
+        ): AdditionalCost =
+            AdditionalCost.AnyNumberForCostReduction(PermanentCostAction.EXILE, filter, reductionPerUnit, CostZone.HAND)
 
         /** Forage (exile three cards from your graveyard or sacrifice a Food). */
         val Forage: AdditionalCost = AdditionalCost.Forage
@@ -858,8 +931,8 @@ object Costs {
         /**
          * Cost-vs-cost — the caster pays exactly one of [options] ("discard a card **or** sacrifice a
          * permanent"; Souls of the Lost). For options that are each independently payable non-mana
-         * costs; use the `*OrPay` family instead when one branch pays extra *mana*. See
-         * [AdditionalCost.Choice].
+         * costs; use the `*OrPay` family instead when one branch pays extra *mana*. A pay-life option
+         * ("… or pay 4 life"; Dusk Mangler) requires [choiceSlot]. See [AdditionalCost.Choice].
          */
         fun Choice(
             vararg options: AdditionalCost,
@@ -1005,6 +1078,17 @@ object Costs {
             counterType: CounterType? = null,
             filter: GameObjectFilter = GameObjectFilter.Permanent
         ): AdditionalCost = AdditionalCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.Fixed(count), filter))
+
+        /**
+         * "Remove X [counterType] counters from among [filter]s you control" as an additional cost
+         * to cast a spell (Light Up the Night's flashback). The caster announces X with the cast,
+         * independent of any `{X}` in the mana cost, and the counters removed must total exactly X;
+         * X is bounded by the matching counters on those permanents and becomes the spell's X.
+         */
+        fun RemoveXCounters(
+            counterType: CounterType? = null,
+            filter: GameObjectFilter = GameObjectFilter.Permanent
+        ): AdditionalCost = AdditionalCost.Atom(CostAtom.RemoveCounters(counterType, DynamicAmount.XValue, filter))
 
         /** Tap [count] untapped permanents matching [filter] you control. */
         fun TapPermanents(count: Int = 1, filter: GameObjectFilter = GameObjectFilter.Creature): AdditionalCost =

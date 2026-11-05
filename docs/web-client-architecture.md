@@ -85,8 +85,7 @@ Still client-derived, and the shape of the fix for each:
   checked on Confirm. The client submits and the server rejects — the right direction of
   failure, but a per-attacker `validBlockersFor` on the `DeclareBlockers` legal action would let
   the drop highlight say so first.
-- The **per-extra-target mana tax** is summed client-side from `manaCostPerExtraTarget`; the
-  **delve / tap caps** (`maxDelve`, improvise `maxTaps` with an X in the cost) are derived from
+- The **delve / tap caps** (`maxDelve`, improvise `maxTaps` with an X in the cost) are derived from
   the cost string; the harmonize reduction is applied in a different order than the engine's.
   All display-only today, all trivially server-sendable.
 
@@ -134,7 +133,7 @@ For responsiveness, we may later add:
 | `mulliganDecision` | Player must keep/mulligan |
 | `chooseBottomCards` | Player must choose cards for bottom |
 | `mulliganComplete` | Mulligan phase finished |
-| `gameOver` | Game ended with winner/reason |
+| `gameOver` | Game ended with winner/reason. Spectators get it too (it carries nothing hidden): the client keeps the final board up under a result banner (`spectatingState.gameOver`) until the spectator sends `stopSpectating` — the banner's Back to Overview or its auto-return — which answers `spectatingStopped` + the active matches |
 | `error` | Error with code and message |
 | `matchmakingStatus` | This player's matchmaking state (searching / idle, with a notice when it changed under them; `matched` once seated) |
 | `matchFound` | The queue paired this player; accept before the window closes |

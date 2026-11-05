@@ -1,5 +1,6 @@
 package com.wingedsheep.ai.engine
 
+import com.wingedsheep.ai.engine.knowledge.IntentCatalog
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
@@ -11,6 +12,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
+import com.wingedsheep.sdk.scripting.ActivatedAbility
 
 /**
  * What a planeswalker on the battlefield is worth as an **ongoing engine**, and what loyalty damage
@@ -36,6 +38,19 @@ import com.wingedsheep.sdk.scripting.AbilityCost
  * Printed abilities only, like `IntentCatalog.loyaltyIsOnlyFuel`; without a registry (or for a
  * card it cannot read) a walker is assumed to be an engine — the dangerous reading.
  *
+ * **Priced as engines** ([AiProfile.walkersPricedAsEngines]) — every function here that takes an
+ * `engines` catalog reads the walker that way when it is non-null:
+ *
+ * - its loyalty abilities are the ones it has on the battlefield, granted ones included
+ *   ([IntentCatalog.loyaltyAbilities]) — a Jace token under Way of the Pyromancer has a +1;
+ * - a walker that refuels is worth at least [ENGINE_VALUE] beyond its loyalty on the board too, not
+ *   the [ENGINE_BOARD_BASE] floor — an engine at one loyalty still fires every turn;
+ * - its ultimate is a threat that grows as the + ability walks it there ([ultimateThreat]), not a
+ *   flag that turns on only once the ultimate is already in reach;
+ * - a walker that can only spend loyalty is worth [FUEL_LOYALTY_VALUE] a counter — the share of a
+ *   card a counter buys when "−3: Draw a card" is the best it can do — and no top-ability threat,
+ *   because its biggest minus is what its loyalty already prices.
+ *
  * **The defending side** ([AiProfile.defendPlaneswalkers]) asks two more questions of it: what a
  * walker is worth on the board *before its controller acts again* ([boardValue], read by the
  * evaluator with [expectedDamage]), and what blocking an attacker aimed at it saves (`CombatAdvisor`
@@ -55,12 +70,23 @@ object PlaneswalkerThreat {
     /** The threat of a walker that can fire its biggest ability next turn. */
     const val TOP_ABILITY_THREAT = 2.0
 
+    /**
+     * Board value of one loyalty counter on a walker that can only spend loyalty, when priced as
+     * engines: the empower-Jace token's best use of three counters is one card.
+     */
+    const val FUEL_LOYALTY_VALUE = 0.4
+
+    /** Threat of a refuelling walker's ultimate in reach, per loyalty it costs (a −6 is 4.8). */
+    const val ULTIMATE_VALUE_PER_LOYALTY = 0.8
+
     /** The shape of a walker's printed loyalty abilities. */
     data class Shape(
         /** Whether any printed loyalty ability adds loyalty (+N or +0 counts as refuelling). */
         val refuels: Boolean,
         /** The largest loyalty a printed minus ability costs; 0 when it prints none. */
         val topCost: Int,
+        /** The most loyalty one activation adds (a +2 is 2); 0 when the best it has is +0 or nothing. */
+        val climb: Int = 0,
     ) {
         /** Whether a walker at [loyalty] can fire its biggest minus ability. */
         fun topInReach(loyalty: Int): Boolean = topCost > 0 && loyalty >= topCost
@@ -68,6 +94,18 @@ object PlaneswalkerThreat {
         companion object {
             /** What an unreadable walker is assumed to be: an engine with nothing big in reach. */
             val UNKNOWN = Shape(refuels = true, topCost = 0)
+
+            /** The shape of [abilities] (loyalty abilities only); [UNKNOWN] when there are none. */
+            fun of(abilities: List<ActivatedAbility>): Shape {
+                val loyalty = abilities.filter { it.isPlaneswalkerAbility }
+                if (loyalty.isEmpty()) return UNKNOWN
+                val costs = loyalty.mapNotNull { (it.cost as? AbilityCost.Loyalty)?.change }
+                return Shape(
+                    refuels = costs.any { it >= 0 },
+                    topCost = costs.filter { it < 0 }.maxOfOrNull { -it } ?: 0,
+                    climb = costs.filter { it > 0 }.maxOrNull() ?: 0,
+                )
+            }
         }
     }
 
@@ -75,41 +113,70 @@ object PlaneswalkerThreat {
     fun loyalty(state: GameState, walkerId: EntityId): Int =
         state.getEntity(walkerId)?.get<CountersComponent>()?.getCount(CounterType.LOYALTY) ?: 0
 
-    /** The printed shape of [walkerId]'s loyalty abilities, [Shape.UNKNOWN] when it cannot be read. */
-    fun shape(state: GameState, walkerId: EntityId, cardRegistry: CardRegistry?): Shape {
+    /**
+     * The shape of [walkerId]'s loyalty abilities, [Shape.UNKNOWN] when it cannot be read: the
+     * printed ones off [cardRegistry], or — given [engines] — every one it has where it stands,
+     * granted ones included.
+     */
+    fun shape(state: GameState, walkerId: EntityId, cardRegistry: CardRegistry?, engines: IntentCatalog? = null): Shape {
+        if (engines != null) return Shape.of(engines.loyaltyAbilities(state, walkerId))
         val name = state.getEntity(walkerId)?.get<CardComponent>()?.name ?: return Shape.UNKNOWN
         val definition = cardRegistry?.getCard(name) ?: return Shape.UNKNOWN
-        val costs = definition.script.activatedAbilities
-            .filter { it.isPlaneswalkerAbility }
-            .mapNotNull { (it.cost as? AbilityCost.Loyalty)?.change }
-        if (costs.isEmpty()) return Shape.UNKNOWN
-        return Shape(
-            refuels = costs.any { it >= 0 },
-            topCost = costs.filter { it < 0 }.maxOfOrNull { -it } ?: 0,
-        )
+        return Shape.of(definition.script.activatedAbilities)
     }
 
+    /**
+     * The threat a walker of [shape] at [loyalty] carries in its biggest ability.
+     *
+     * Legacy: [TOP_ABILITY_THREAT] while that ability is in reach, nothing otherwise. Priced as
+     * [engines]: a walker that can only spend loyalty carries none (its loyalty is already priced
+     * as the activations it buys), and one that refuels carries its **ultimate** — worth
+     * [ULTIMATE_VALUE_PER_LOYALTY] per loyalty it costs, at least [TOP_ABILITY_THREAT] — divided by
+     * one plus the turns its best + ability still needs to walk it there. The Theorist (+1, −6) at
+     * 5 is one turn out and carries half its ultimate; three damage puts it four turns out.
+     */
+    fun ultimateThreat(shape: Shape, loyalty: Int, engines: Boolean): Double {
+        if (!engines) return if (shape.topInReach(loyalty)) TOP_ABILITY_THREAT else 0.0
+        if (!shape.refuels || shape.topCost <= 0 || loyalty <= 0) return 0.0
+        val full = maxOf(TOP_ABILITY_THREAT, shape.topCost * ULTIMATE_VALUE_PER_LOYALTY)
+        if (shape.topInReach(loyalty)) return full
+        if (shape.climb <= 0) return 0.0
+        val turns = (shape.topCost - loyalty + shape.climb - 1) / shape.climb
+        return full / (1 + turns)
+    }
+
+    /** Board value of one loyalty counter on a walker of [shape]. */
+    private fun counterValue(shape: Shape, engines: Boolean): Double =
+        if (engines && !shape.refuels) FUEL_LOYALTY_VALUE else LOYALTY_VALUE
+
     /** What removing [walkerId] from the battlefield takes away from its controller. */
-    fun value(state: GameState, walkerId: EntityId, cardRegistry: CardRegistry?): Double {
-        val shape = shape(state, walkerId, cardRegistry)
+    fun value(state: GameState, walkerId: EntityId, cardRegistry: CardRegistry?, engines: IntentCatalog? = null): Double {
+        val shape = shape(state, walkerId, cardRegistry, engines)
         val loyalty = loyalty(state, walkerId)
         return (if (shape.refuels) ENGINE_VALUE else FUEL_VALUE) +
-            loyalty * LOYALTY_VALUE +
-            if (shape.topInReach(loyalty)) TOP_ABILITY_THREAT else 0.0
+            loyalty * counterValue(shape, engines != null) +
+            ultimateThreat(shape, loyalty, engines != null)
     }
 
     /**
      * What [damage] loyalty damage to [walkerId] takes away: all of [value] when it kills, otherwise
-     * the counters it removes plus [TOP_ABILITY_THREAT] when it knocks the walker's biggest ability
-     * out of reach.
+     * the counters it removes plus the [ultimateThreat] it takes off — legacy, [TOP_ABILITY_THREAT]
+     * when it knocks the walker's biggest ability out of reach.
      */
-    fun damageValue(state: GameState, walkerId: EntityId, damage: Int, cardRegistry: CardRegistry?): Double {
+    fun damageValue(
+        state: GameState,
+        walkerId: EntityId,
+        damage: Int,
+        cardRegistry: CardRegistry?,
+        engines: IntentCatalog? = null,
+    ): Double {
         if (damage <= 0) return 0.0
         val loyalty = loyalty(state, walkerId)
-        if (damage >= loyalty) return value(state, walkerId, cardRegistry)
-        val shape = shape(state, walkerId, cardRegistry)
-        val deniesTop = shape.topInReach(loyalty) && !shape.topInReach(loyalty - damage)
-        return damage * LOYALTY_VALUE + if (deniesTop) TOP_ABILITY_THREAT else 0.0
+        if (damage >= loyalty) return value(state, walkerId, cardRegistry, engines)
+        val shape = shape(state, walkerId, cardRegistry, engines)
+        val priced = engines != null
+        return damage * counterValue(shape, priced) +
+            ultimateThreat(shape, loyalty, priced) - ultimateThreat(shape, loyalty - damage, priced)
     }
 
     /**
@@ -134,6 +201,19 @@ object PlaneswalkerThreat {
         val left = loyalty - expectedDamage
         if (left <= 0) return 0.0
         return (if (refuels) maxOf(prior, ENGINE_BOARD_BASE) else FUEL_VALUE) + left * LOYALTY_VALUE
+    }
+
+    /**
+     * [boardValue] priced as engines (see the class KDoc): a walker that refuels is worth its prior
+     * or [ENGINE_VALUE], whichever is more, plus [LOYALTY_VALUE] a counter and its [ultimateThreat];
+     * one that can only spend loyalty, [FUEL_VALUE] plus [FUEL_LOYALTY_VALUE] a counter. Still
+     * nothing for a walker [expectedDamage] kills.
+     */
+    fun engineBoardValue(shape: Shape, prior: Double, loyalty: Int, expectedDamage: Int): Double {
+        val left = loyalty - expectedDamage
+        if (left <= 0) return 0.0
+        val base = if (shape.refuels) maxOf(prior, ENGINE_VALUE) else FUEL_VALUE
+        return base + left * counterValue(shape, engines = true) + ultimateThreat(shape, left, engines = true)
     }
 
     /**

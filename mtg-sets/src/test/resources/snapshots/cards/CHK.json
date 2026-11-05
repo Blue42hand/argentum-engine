@@ -4734,7 +4734,10 @@
                     "effects": [
                         {
                             "type": "GatherCards",
-                            "source": "Self",
+                            "source": {
+                                "type": "Entity",
+                                "entity": "Self"
+                            },
                             "storeAs": "gathered0"
                         },
                         {
@@ -8469,7 +8472,8 @@
                     },
                     "revealed": true
                 },
-                "ShuffleLibrary"
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
             ]
         }
     },
@@ -12217,7 +12221,11 @@
                             "name": "t0"
                         },
                         "destination": "Battlefield",
-                        "addCounterType": "PLUS_ONE_PLUS_ONE"
+                        "entryCounters": [
+                            {
+                                "counterType": "PLUS_ONE_PLUS_ONE"
+                            }
+                        ]
                     }
                 }
             ]
@@ -12532,7 +12540,10 @@
                             },
                             {
                                 "type": "GatherCards",
-                                "source": "Self",
+                                "source": {
+                                    "type": "Entity",
+                                    "entity": "Self"
+                                },
                                 "storeAs": "gathered2"
                             },
                             {

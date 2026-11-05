@@ -8,17 +8,29 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.divRoundedUp
 import com.wingedsheep.sdk.model.Rarity
 
-/** Peer into the Abyss — Core Set 2021 #117. */
+/**
+ * Peer into the Abyss
+ * {4}{B}{B}{B}
+ * Sorcery
+ * Target player draws cards equal to half the number of cards in their library and loses half
+ * their life. Round up each time.
+ *
+ * Both halves are read at resolution off the targeted player, in printed order: the draw count
+ * first (rounded up), then — after the draws — half their current life total (rounded up).
+ */
 val PeerIntoTheAbyss = card("Peer into the Abyss") {
     manaCost = "{4}{B}{B}{B}"
     colorIdentity = "B"
     typeLine = "Sorcery"
-    oracleText = "Target player draws cards equal to half the number of cards in their library and loses half their life. Round up each time."
+    oracleText = "Target player draws cards equal to half the number of cards in their library and " +
+        "loses half their life. Round up each time."
 
     spell {
         val player = target(Targets.Player)
-        effect = Effects.DrawCards(DynamicAmounts.count(player.asPlayer, Zone.LIBRARY) divRoundedUp 2, player) then
-            Effects.LoseHalfLife(roundUp = true, target = player, lifePlayer = player.asPlayer)
+        effect = Effects.DrawCards(
+            DynamicAmounts.zone(player.asPlayer, Zone.LIBRARY).count() divRoundedUp 2,
+            player
+        ) then Effects.LoseHalfLife(roundUp = true, target = player, lifePlayer = player.asPlayer)
     }
 
     metadata {

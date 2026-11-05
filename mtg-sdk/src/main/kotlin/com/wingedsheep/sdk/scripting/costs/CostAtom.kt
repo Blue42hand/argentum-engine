@@ -75,8 +75,10 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
      * pricing site goes through the engine's `CostAtomAmounts.evaluate` with the payer, so the
      * legal-action enumerator and the activation validator see the same number. The whitelist in
      * `init` admits only amounts that price from game state alone (no X, no targets): a
-     * nonnegative [DynamicAmount.Fixed] or a [DynamicAmount.CommanderColorIdentityCount] for
-     * `Player.You` (a cost is priced for its payer alone).
+     * nonnegative [DynamicAmount.Fixed], or a [DynamicAmount.CommanderColorIdentityCount] or a
+     * [DynamicAmount.Count] for `Player.You` (a cost is priced for its payer alone) — Hand of
+     * Vecna's "Equip—Pay 1 life for each card in your hand" is
+     * `PayLife(DynamicAmounts.cardsInYourHand())`.
      */
     @SerialName("AtomPayLife")
     @Serializable
@@ -85,8 +87,10 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
 
         init {
             require(amount is DynamicAmount.Fixed && amount.amount >= 0 ||
-                amount is DynamicAmount.CommanderColorIdentityCount && amount.player == Player.You) {
-                "Life costs require a nonnegative fixed amount or your commanders' color-identity count"
+                amount is DynamicAmount.CommanderColorIdentityCount && amount.player == Player.You ||
+                amount is DynamicAmount.Count && amount.player == Player.You) {
+                "Life costs require a nonnegative fixed amount, your commanders' color-identity count, " +
+                    "or a count of your own objects"
             }
         }
 
@@ -95,6 +99,9 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
 
         override val description: String get() = when (amount) {
             is DynamicAmount.Fixed -> "pay ${amount.amount} life"
+            // "the number of cards in your hand" -> "pay 1 life for each card in your hand"
+            is DynamicAmount.Count -> "pay 1 life for each " + amount.description.removePrefix("the number of ")
+                .replaceFirst(DynamicAmount.pluralize(amount.filter.description), amount.filter.description.ifEmpty { "card" })
             else -> "pay life equal to ${amount.description}"
         }
     }
@@ -219,6 +226,11 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
      *    more" (Teamwork). The measure doubles as the ability's X when it resolves.
      *  - [minMeasure] — a *floor on the measure* rather than on the count: "with total power N or
      *    more". 0 means unbounded, in which case only [minCount] constrains the choice.
+     *  - [maxCount] — a *cap on the count*. `null` (the default) leaves it open ("one or more");
+     *    `minCount = maxCount = 1` is the single-permanent shape whose own measure is X: "sacrifice
+     *    an artifact with mana value X" (Scrap Welder) — still a variable cost, because which
+     *    artifact is chosen is what announces X (CR 601.2b) and so bounds a "mana value less than X"
+     *    target, which a fixed-count [Sacrifice] atom has no X to do.
      *
      * @property filter which permanents you control may be chosen.
      * @property minCount minimum number to choose (default 1 — "one or more"). Set 0 alongside a
@@ -230,6 +242,19 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
      * @property action what the cost does with the chosen permanents.
      * @property xMeasure how the chosen set is measured.
      * @property minMeasure minimum total the chosen set's [xMeasure] must reach (0 = no floor).
+     * @property maxCount maximum number to choose, or `null` for no cap.
+     * @property exactly the whole count, fixed to an amount announced *before* the cost is paid —
+     *   "as an additional cost to cast this spell, sacrifice X creatures" (Eliminate the
+     *   Competition) is `exactly = DynamicAmount.XValue`. The caster announces X with the spell
+     *   (CR 601.2b) — there is no `{X}` in the mana cost, the cost itself defines it — so X is known
+     *   when targets are chosen (601.2c: "Destroy X target creatures" needs exactly X) and the
+     *   payment at 601.2h must then choose exactly X permanents, no more and no fewer. X may be 0.
+     *   Distinct from the free count of "you may sacrifice any number of …" (Devouring Greed),
+     *   where nothing is announced and the number chosen is only read back as "sacrificed this
+     *   way". Like a target's `exactly` it stands alone: it is the whole count, so [minCount],
+     *   [maxCount] and [minMeasure] stay at their open defaults. Only [DynamicAmount.XValue] is
+     *   accepted — a fixed number of permanents is the fixed-count [Sacrifice] atom. On an
+     *   activated ability the chosen count already *is* the X, so this axis is a spell-cost one.
      */
     @SerialName("AtomVariablePermanents")
     @Serializable
@@ -239,8 +264,18 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
         val excludeSelf: Boolean = true,
         val action: PermanentCostAction = PermanentCostAction.EXILE,
         val xMeasure: VariableCostMeasure = VariableCostMeasure.TOTAL_MANA_VALUE,
-        val minMeasure: Int = 0
+        val minMeasure: Int = 0,
+        val maxCount: Int? = null,
+        val exactly: DynamicAmount? = null
     ) : CostAtom {
+        init {
+            require(maxCount == null || maxCount >= maxOf(minCount, 1)) { "maxCount must be at least minCount and 1" }
+            require(exactly == null || exactly == DynamicAmount.XValue) { "exactly supports only the announced X" }
+            require(exactly == null || (minCount <= 0 && maxCount == null && minMeasure == 0 && xMeasure == VariableCostMeasure.COUNT)) {
+                "exactly is the whole count: measure by COUNT and leave minCount, maxCount and minMeasure open"
+            }
+        }
+
         // Variable count — the floor the payer must at least select. The picker's max is the number
         // of eligible permanents, resolved by the engine at activation time.
         override val selectionCount: Int get() = minCount
@@ -250,7 +285,23 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
                 PermanentCostAction.SACRIFICE -> "sacrifice "
                 PermanentCostAction.TAP -> "tap "
             })
+            if (minCount == 1 && maxCount == 1) {
+                append(if (excludeSelf) "another ${filter.description}" else quantify(1, filter.description))
+                append(" you control")
+                when {
+                    minMeasure > 0 && xMeasure == VariableCostMeasure.TOTAL_MANA_VALUE -> append(" with mana value $minMeasure or more")
+                    minMeasure > 0 && xMeasure == VariableCostMeasure.TOTAL_POWER -> append(" with power $minMeasure or more")
+                    xMeasure == VariableCostMeasure.TOTAL_MANA_VALUE -> append(" with mana value X")
+                    xMeasure == VariableCostMeasure.TOTAL_POWER -> append(" with power X")
+                    else -> {}
+                }
+                return@buildString
+            }
             append(when {
+                exactly != null -> "X "
+                maxCount != null && maxCount == minCount -> "$minCount "
+                maxCount != null && minCount <= 0 -> "up to $maxCount "
+                maxCount != null -> "$minCount to $maxCount "
                 minCount <= 0 -> "any number of "
                 minCount == 1 -> "one or more "
                 else -> "$minCount or more "
@@ -342,15 +393,27 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
          * The [Sacrifice.excludeSelf] twin; spell additional costs have no source and leave it false.
          */
         val excludeSelf: Boolean = false,
+        /**
+         * The [count] exiled objects must all have different names — the [Sacrifice.distinctNames]
+         * twin. "Exile … artifacts you control named Eye of Vecna and Hand of Vecna" (The Book of
+         * Vile Darkness) is `count = 2` over a filter matching either name, with different names, so
+         * it takes exactly one of each. Payable only when [count] distinctly named candidates exist;
+         * a selection that repeats a name is rejected.
+         */
+        val distinctNames: Boolean = false,
     ) : CostAtom {
         override val selectionCount: Int get() = count
         override val description: String get() {
-            val what = when {
-                excludeSelf && count == 1 -> "another ${filter.description}"
-                // "Exile five other cards from your graveyard" (escape, CR 702.138).
-                excludeSelf -> quantify(count, "other ${filter.description}")
-                else -> quantify(count, filter.description)
+            // A colour-only filter describes itself as "green"; off the battlefield it's a card.
+            val noun = filter.description.let {
+                if (zone != Zone.BATTLEFIELD && !CARD_NOUN.containsMatchIn(it)) "$it card" else it
             }
+            val what = when {
+                excludeSelf && count == 1 -> "another $noun"
+                // "Exile five other cards from your graveyard" (escape, CR 702.138).
+                excludeSelf -> quantify(count, "other $noun")
+                else -> quantify(count, noun)
+            } + if (distinctNames) " with different names" else ""
             return when {
                 anyPlayersZone && singleZone -> "exile $what from a single ${zone.name.lowercase()}"
                 anyPlayersZone -> "exile $what from a ${zone.name.lowercase()}"
@@ -805,8 +868,8 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
     }
 
     /**
-     * Unattach the ability's source from the permanent it is attached to (CR 701.3d) — "Unattach
-     * this Equipment" (Sunforger). The cost twin of
+     * Unattach the ability's source — or, with [ofGrantingPermanent], the permanent that granted the
+     * ability — from what it is attached to (CR 701.3d) — "Unattach this Equipment" (Sunforger). The cost twin of
      * [com.wingedsheep.sdk.scripting.effects.UnattachEquipmentEffect]: the *effect* has existed for
      * a while (Stolen Uniform's rider), the *cost* had not.
      *
@@ -818,11 +881,19 @@ sealed interface CostAtom : TextReplaceable<CostAtom> {
      *
      * Ability-scoped: a spell on the stack is not attached to anything, so this is never a spell
      * additional cost or a "unless you …" [com.wingedsheep.sdk.scripting.PayCost].
+     *
+     * [ofGrantingPermanent] moves the cost from the ability's source to the permanent whose static
+     * ability *granted* it — Toralf's Hammer gives the equipped creature "{1}{R}, {T}, Unattach
+     * Toralf's Hammer: …", where `{T}` taps the creature and the unattach detaches the Equipment.
+     * Per CR 201.5a the name refers only to that specific granter (resolved at activation, like
+     * [com.wingedsheep.sdk.scripting.AbilityCost.TapGrantingPermanent]), and the same ruling-backed
+     * gate applies to it: the ability isn't offered unless the granter is attached to something.
      */
     @SerialName("AtomUnattach")
     @Serializable
-    data object Unattach : CostAtom {
-        override val description: String get() = "unattach this Equipment"
+    data class Unattach(val ofGrantingPermanent: Boolean = false) : CostAtom {
+        override val description: String
+            get() = if (ofGrantingPermanent) "unattach the granting Equipment" else "unattach this Equipment"
     }
 
     /**
@@ -1025,3 +1096,6 @@ sealed interface CardMeasure {
         override val unitLabel: String get() = "card types"
     }
 }
+
+/** Whether an exile-cost filter description already names its head noun ("creature card"). */
+private val CARD_NOUN = Regex("""\bcards?\b""")

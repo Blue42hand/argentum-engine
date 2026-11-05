@@ -14,6 +14,7 @@ import com.wingedsheep.engine.state.components.player.AttemptedDrawFromEmptyLibr
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.RevealFirstDrawEachTurn
+import com.wingedsheep.engine.state.components.identity.faceUpCardDefinition
 
 /**
  * Primitive single-card draw.
@@ -28,6 +29,9 @@ import com.wingedsheep.sdk.scripting.RevealFirstDrawEachTurn
  * Does **not** emit [com.wingedsheep.engine.core.CardsDrawnEvent] — the driver
  * aggregates drawn cards across multiple calls and emits a single
  * `CardsDrawnEvent` for the whole batch.
+ *
+ * When the card drawn is the first of the turn and has miracle, [Result.miracle] reports it; the
+ * miracle reveal question (CR 702.94a) is the draw loop's to ask.
  *
  * No loops, no replacement logic, no prompts. This is the shared primitive
  * that both spell/ability draws ([DrawCardsExecutor]) and the draw-step
@@ -45,13 +49,17 @@ class DrawCardPrimitive(
      *     does **not** include [com.wingedsheep.engine.core.CardsDrawnEvent]
      * @property drawnCardId the id of the drawn card, or `null` if the draw failed
      * @property failed true if the library was empty and the draw failed
+     * @property miracle the drawn card's miracle ability (printed or granted in hand) when it is the
+     *     first card its owner drew this turn, i.e. when CR 702.94a lets them reveal it; the caller
+     *     asks. Null otherwise.
      */
     data class Result(
         val state: GameState,
         val events: List<GameEvent>,
         val drawnCardId: EntityId?,
-        val failed: Boolean
-)
+        val failed: Boolean,
+        val miracle: com.wingedsheep.sdk.scripting.KeywordAbility.Miracle? = null
+    )
 
     /**
      * Draw one card from the top of [playerId]'s library into their hand.
@@ -111,46 +119,27 @@ class DrawCardPrimitive(
                 newObject = newState.objectRef(cardId)
             )
         )
+        var miracle: com.wingedsheep.sdk.scripting.KeywordAbility.Miracle? = null
         if (drawCountBefore == 0) {
             val revealEvent = checkRevealFirstDraw(newState, playerId, cardId)
             if (revealEvent != null) events.add(revealEvent)
 
-            // Miracle (CR 702.94): if the first card drawn this turn has miracle (printed or granted
-            // in hand), open its miracle window so its controller may cast it for the miracle cost
-            // this turn, and reveal it (CR 702.94b). The window component is cleared at end of turn.
+            // Miracle (CR 702.94a): the first card drawn this turn may be revealed for its miracle
+            // if it has one (printed or granted in hand). Revealing is its owner's choice, so this
+            // only reports it — the draw loop asks before the next card is drawn.
             val cardDef = newState.getEntity(cardId)?.get<CardComponent>()
                 ?.let { cardRegistry.getCard(it.cardDefinitionId) }
-            val miracle = com.wingedsheep.engine.mechanics.MiracleGrants.effectiveMiracle(
+            miracle = com.wingedsheep.engine.mechanics.MiracleGrants.effectiveMiracle(
                 newState, cardId, cardDef, playerId, cardRegistry, predicateEvaluator
             )
-            if (miracle != null) {
-                newState = newState.updateEntity(cardId) { c ->
-                    c.with(
-                        com.wingedsheep.engine.state.components.identity.MiracleWindowComponent(
-                            controllerId = playerId,
-                            turnOpened = newState.turnNumber
-                        )
-                    )
-                }
-                if (revealEvent == null) {
-                    val drawn = newState.getEntity(cardId)?.get<CardComponent>()
-                    events.add(
-                        CardRevealedFromDrawEvent(
-                            playerId = playerId,
-                            cardEntityId = cardId,
-                            cardName = drawn?.name ?: "card",
-                            isCreature = drawn?.typeLine?.isCreature ?: false
-                        )
-                    )
-                }
-            }
         }
 
         return Result(
             state = newState,
             events = events,
             drawnCardId = cardId,
-            failed = false
+            failed = false,
+            miracle = miracle
         )
     }
 
@@ -177,8 +166,7 @@ class DrawCardPrimitive(
     ): CardRevealedFromDrawEvent? {
         val projected = state.projectedState
         val hasRevealAbility = projected.getBattlefieldControlledBy(playerId).any { permanentId ->
-            val card = state.getEntity(permanentId)?.get<CardComponent>() ?: return@any false
-            val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: return@any false
+            val cardDef = state.getEntity(permanentId)?.faceUpCardDefinition(cardRegistry) ?: return@any false
             cardDef.script.staticAbilities.any { it is RevealFirstDrawEachTurn }
         }
         if (!hasRevealAbility) return null

@@ -17,18 +17,19 @@ docs it points at; load those when the work needs them.
   unrelated failure, opening the PR is allowed; disclose the failure and the verification that did pass
   in the PR body. **Exception: mtgish-only issues are non-blocking**, as specified below; continue without
   asking for confirmation.
-- **mtgish is deprecated; Argentum Assay replaced it.** Oracle-to-SDK reading and verification is
-  Assay's job (`just assay parse/explain/compile`, `just assay-differential`) plus behavioural scenario
-  tests. Don't use `:mtgish-tooling` drafts, don't teach its bridge/emitter new capabilities, and don't
-  cite its coverage numbers. mtgish differences, coverage gaps, and mtgish-only tooling/test failures
-  must not stop implementation, verification of unaffected modules, commits, or PR creation — report
-  them briefly and continue; don't take on mtgish repairs unless the task explicitly asks. If a mtgish
-  failure prevents a broader gate from completing, report that gate as incomplete and run the
-  unaffected checks rather than claiming it passed. Assay divergences and real engine/card regressions
-  remain actionable; an Assay decline is not a pass.
+- **Assay supersedes mtgish as the Oracle-to-SDK verification method.** mtgish differences, coverage
+  gaps, generated-draft mismatches, and mtgish-only tooling/test failures are accepted limitations and
+  must not stop implementation, verification of unaffected modules, commits, or PR creation. Report
+  them briefly in the verification summary and continue; do not ask for permission to proceed or take
+  on mtgish repairs unless the task explicitly requests them. This exception takes precedence over
+  skill instructions requiring mtgish checks, generator updates, or stopping on unrelated failures.
+  Use the applicable Assay gates and behavioral scenario tests instead. Assay divergences and actual
+  engine/card regressions remain actionable; an Assay decline is not a pass. If a mtgish failure prevents
+  a broader gate from completing, report that gate as incomplete and run the unaffected checks rather
+  than claiming it passed.
 - **Route to the matching skill, don't freelance:**
   - Implementing a card — or a batch of them — from a backlog file or by name → **`add-card`** (Scryfall
-    lookup, oracle errata, canonical-printing placement, a scenario test when the card earns one).
+    lookup, oracle errata, canonical-printing placement, scenario test).
   - Any engine/SDK/server/client capability that isn't a single card — effect, trigger, condition,
     keyword, decision flow → **`add-feature`** (composition-first design, cross-layer tracing, perf + UX).
   - Starting a set that has no `backlog/sets/` entry yet → **`create-backlog-for-set`** (Scryfall dump,
@@ -45,10 +46,6 @@ docs it points at; load those when the work needs them.
     expresses (declines on hand-written cards; never new SDK vocabulary) → **`just assay-loop [model]
     [focus]`** (fresh headless session per step, like `just set-loop`), or the **`assay-loop`** skill for an
     in-session `/loop`.
-  - Implementing the cards popular Commander decks run, autonomously, one PR at a time →
-    **`just commander-loop [model] [top]`** (fresh headless session per step, like `just set-loop`). It
-    finishes EDHREC's top decks in the order `just commander-staples` ranks them: the most real decks made
-    playable per card added.
   - Proving a set is *actually* finished once its backlog reads N/N, and archiving it → **`verify-set`**
     (Scryfall field verification of every compiled card, reprint and basic-land coverage, self-play pass).
     A green backlog is a claim; that skill is the proof.
@@ -56,10 +53,9 @@ docs it points at; load those when the work needs them.
   613.8 vs 613.7 and 704.5 vs 704.6 are easy to swap. Check the official Comprehensive Rules
   <https://magic.wizards.com/en/rules> — the plain-text `.txt` is too large to fetch into context, so
   `curl -o` it and `grep` locally. If you can't verify, describe the rule by name instead of guessing.
-- **One card, one test file — never batch cards into a shared test.** Not every card gets a test: a card
-  composed of well-trodden primitives is covered by the snapshot and lint nets (`add-card` Step 5 says
-  when one is earned). When a card does get one, it covers exactly that card: `<CardName>ScenarioTest.kt`
-  holding that card's tests. Five tested cards means five test files, not one `FooBatchScenarioTest`. Batched files hide which card a failure belongs to, make
+- **One card, one test file — never batch cards into a shared test.** A scenario test covers exactly one
+  card: `<CardName>ScenarioTest.kt` holding that card's tests. Implementing five cards means five test
+  files, not one `FooBatchScenarioTest`. Batched files hide which card a failure belongs to, make
   `just test-class` useless for a single card, and turn every later edit into a merge conflict between
   agents. Engine-level tests (a mechanic, a replacement effect) are the exception — those are named for
   the mechanic and may exercise several cards. This bans the shared test *file*, not the shared *PR*:
@@ -67,30 +63,7 @@ docs it points at; load those when the work needs them.
   `CONTRIBUTING.md` encourages it. A card needing new engine vocabulary still gets a PR of its own.
 - **Keep [`docs/card-sdk-language-reference.md`](docs/card-sdk-language-reference.md) in sync.** Every SDK
   addition or change — effect, trigger, condition, keyword, dynamic amount, modal shape, replacement
-  effect — updates it in the *same* change. It's the canonical catalog; drift makes it useless. The
-  generated one-line-per-type [`docs/sdk-index.md`](docs/sdk-index.md) is regenerated with
-  `just sdk-index` (`SdkIndexTest` fails when it's stale), and a new sealed SDK type needs its line in
-  `mtg-sdk/src/test/resources/sdk-surface-baseline.txt` (`SdkSurfaceBaselineTest`) — see
-  [`sdk-design-principles.md`](docs/sdk-design-principles.md), "Extend before you add".
-- **Announce milestones in the "What's new" feed.** The PR that finishes a set (drops
-  `override val incomplete = true`, i.e. `scripts/card-status --set X` reads 100%) or ships a new game
-  mode or site-level feature adds an entry to the top of
-  [`web-client/src/components/whatsNew/announcements.ts`](web-client/src/components/whatsNew/announcements.ts)
-  in the *same* PR. A set entry needs `setCode`, a `body` that pitches what the set is like to play, and
-  `tryIf`; never change a shipped `id`. Card batches, fixes and UI polish don't go in. The file's header
-  comment has the bar.
-- **Log engine AI behaviour changes in [`ai/CHANGELOG.md`](ai/CHANGELOG.md).** A PR that changes how
-  the engine AI plays or builds decks — a decision it makes, or the profile live players face — adds
-  a line at the top of its list in the *same* PR: `- #<pr> <what the AI now does differently>`. The
-  admin dashboard's **AI vs humans** screen marks each entry on its win-rate timeline and credits it
-  to the first deployed build that carried it, so an unlogged change is an improvement nobody can see
-  paying off. Refactors, perf work, tooling, per-card advisors and archetype data stay out; the file's
-  header has the rules.
-- **Document user-facing features in the in-app Help wiki.** A new mode, screen, or change to how
-  players use the site updates [`web-client/src/help/topics.ts`](web-client/src/help/topics.ts) — the
-  single source behind `/help` and the inline `HelpTip` popovers — in the *same* PR: add a topic, or
-  correct the ones the change makes wrong, and link it from `related` on its neighbours. Audience: knows
-  Magic, new to Argentum — explain what the app does, not the rules.
+  effect — updates it in the *same* change. It's the canonical catalog; drift makes it useless.
 
 ## Module layout
 
@@ -100,11 +73,11 @@ docs it points at; load those when the work needs them.
 | `mtg-sdk-tooling` | Tooling over SDK data: card-JSON load/export + compact form, filter query language, `CardValidator`, `CardLinter` | sdk |
 | `mtg-sets` | Aggregator — re-exports the whole card corpus; catalog, Scryfall sync, corpus-wide tests | sdk, sets/* |
 | `mtg-sets/core` | `CardDiscovery`, token art, the setless `custom/` cards | sdk |
-| `mtg-sets/<era>` | Card definitions, one module per fixed release-year range, independent of each other | sdk, sets/core |
+| `mtg-sets/<era>` | Card definitions, one module per fixed release-year range, chained oldest→newest | sdk, sets/core |
 | `mtg-sets/<era>/tests` | Card scenario tests for that era's sets | engine, sets |
 | `rules-engine` | Core MTG rules (zero server deps) | sdk |
 | `ai` | Built-in AI player + draft/deckbuild advisors | engine, sdk |
-| `mtg-search` | Scryfall-style search query language over a `SearchCard` projection. Kotlin Multiplatform: the server runs it on the JVM, the web-client runs it compiled to JS (`web-client/src/generated/mtg-search/`, refreshed by `just search-js`) — never a TypeScript port | — |
+| `mtg-search` | Scryfall-style search query language over a `SearchCard` projection | — |
 | `gym` / `gym-server` / `gym-trainer` | RL/MCTS env + HTTP transport + self-play SPI | engine, sdk |
 | `game-server` | Spring Boot orchestration, WebSocket, state masking | engine, sdk |
 | `mtgish-tooling` | Predictive coverage / auto-gen analyzer | — (scans source as text) |
@@ -178,19 +151,23 @@ daemons and thrash the box into watchdog timeouts; the `just` recipes limit the 
 builds through a machine-global semaphore. The `verify` skill covers which gate to run for which change
 and how to read the results.
 
-**Scale verification to the change.** A simple merge/rebase conflict resolution that preserves already
-tested behavior does not require rerunning the full test suite locally. Inspect the resolved diff and
-check for leftover conflict markers; run targeted checks only if the resolution changes behavior or
-leaves a concrete concern. Updating the PR can proceed with full regression coverage left to CI.
-This exception takes precedence over the `verify` skill's default suite requirements; disclose which
-local checks ran and which were left to CI.
+## mtgish coverage + auto-gen tooling
 
-## Deprecated: `:mtgish-tooling`
+`:mtgish-tooling` maps the [mtgish](https://github.com/i5jb/mtgish) oracle-IR corpus onto our SDK
+capabilities — for backlog triage ("which feature unlocks the most cards?") and blank-page drafts of easy
+cards. `just coverage-dashboard` is the TUI over it; recipe docs live in the `justfile` comments and
+[`mtgish-tooling/README.md`](mtgish-tooling/README.md).
 
-The `just coverage*` recipes and [`mtgish-tooling/`](mtgish-tooling/README.md) are the legacy
-mtgish-IR pipeline that [Argentum Assay](oracle-assay/README.md) replaced. They still build, but nothing
-in the workflow depends on them (see Hard rules). For triage use `just assay-report --rank tail` and the
-Set Completion view's Assay-ready badges; for a head start on a card use `just assay compile`.
+It is **predictive and non-authoritative — never a card loader.**
+
+Assay is the current verification method. mtgish is optional legacy triage/drafting tooling, and its
+issues do not block other work (see Hard rules). Updating its emitter for new SDK capabilities is
+optional unless explicitly requested. The following rules apply when working on mtgish itself:
+
+- Generated `.kt` are drafts in a staging dir. `coverage-verify` proves *compile + capabilities*, not
+  behaviour — a human-reviewed `cardDef` with a passing scenario test is the only ground truth.
+- When output is wrong, **fix the emitter, not the generated card.** Render correctly or decline to the
+  SCAFFOLD tier; never silently emit a lossy approximation.
 
 ## Documentation index
 
@@ -200,7 +177,6 @@ Set Completion view's Assay-ready badges; for a head start on a card use `just a
 | [`build-performance-plan.md`](docs/build-performance-plan.md) | Why the card corpus and scenario suite are split into per-era modules; daemon heap and cache tuning |
 | [`sdk-design-principles.md`](docs/sdk-design-principles.md) | The bar for a new SDK type: composition, reusability, naming |
 | [`card-sdk-language-reference.md`](docs/card-sdk-language-reference.md) | Full card SDK / DSL catalog — update on any SDK change |
-| [`sdk-index.md`](docs/sdk-index.md) | Generated: every sealed SDK type, one line each, by family — grep it before adding a type |
 | [`api-guide.md`](docs/api-guide.md) | Adding cards/mechanics step-by-step |
 | [`continuous-effect-dependency-system.md`](docs/continuous-effect-dependency-system.md) | Rule 613.8 dependency resolution |
 | [`managing-complex-and-rare-abilities.md`](docs/managing-complex-and-rare-abilities.md) | Patterns for complex abilities |

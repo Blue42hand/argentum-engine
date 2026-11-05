@@ -76,6 +76,16 @@ enum class EnteringAttackDefender {
      * token enters but isn't attacking.
      */
     CONTROLLER_CHOOSES,
+
+    /**
+     * The same player, planeswalker or battle as the attacking creature returned to its owner's
+     * hand to pay the resolving ability's cost — ninjutsu (CR 702.49c). Only a single-card
+     * [MoveToZoneEffect] onto the battlefield takes it (token creation has no returned attacker to
+     * follow). If that defender is no longer a legal attack target as the card enters (a player
+     * who left, a planeswalker or battle no longer on the battlefield), the card enters but is
+     * never attacking (CR 506.3c).
+     */
+    RETURNED_ATTACKER,
 }
 
 /**
@@ -175,15 +185,42 @@ data class CreateTokenEffect(
      * source's attack against a player and asks nothing; [EnteringAttackDefender.CONTROLLER_CHOOSES]
      * is the plain CR 508.4 reading of "tapped and attacking" with no "that player": the token's
      * controller picks a player, planeswalker or battle for each token as it enters (Caesar,
-     * Legion's Emperor). Requires [attacking] and the effect's own controller as the tokens'
-     * controller ([controller] null).
+     * Legion's Emperor). With [attackedPlayer] set, that choice narrows to "that player or a
+     * planeswalker they control". Requires [attacking]. A token controller who isn't an attacking
+     * player gets no defender at all (CR 506.3b) — the token enters but isn't attacking.
      */
     val attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE,
+    /**
+     * The player an [attacking] token attacks, when the effect names one. Alone (the default
+     * [attackDefender]) it is "tapped and attacking **that player**": a player who is no longer in
+     * the game (CR 508.4a) or isn't an opponent of the token's controller gets no attacker — the
+     * token enters, never attacking. With [EnteringAttackDefender.CONTROLLER_CHOOSES] it is "attacking
+     * **that player or a planeswalker they control**" (Adeline, Resplendent Cathar, inside a
+     * `ForEachPlayer(EachOpponent)` loop where it is the visited opponent): the controller picks per
+     * token among that player and their planeswalkers, and isn't asked when there's one choice.
+     * Requires [attacking].
+     */
+    val attackedPlayer: EffectTarget? = null,
+    /**
+     * Pipeline collections whose cards lend the token **all of their triggered abilities** — "create
+     * Vecna, a legendary 8/8 … token with indestructible and all triggered abilities of the exiled
+     * cards" (The Book of Vile Darkness). Read once, as the token is created: each card's printed
+     * triggered abilities become part of the token's copiable values (the Book's ruling), so a gained
+     * "when this enters" ability triggers on the token's own entry and a copy of the token keeps them.
+     * Face-down cards lend nothing (they have no abilities, CR 708.2). Only the triggered abilities a
+     * card's definition declares are read — keyword-derived triggers (prowess, exalted, bushido …) are
+     * not, since none of the motivating cards has one. The sibling of
+     * [triggeredAbilities] for abilities named by the cards a resolution gathered rather than printed
+     * on the token-maker.
+     */
+    val triggeredAbilitiesOf: List<String> = emptyList(),
 ) : Effect {
     init {
-        require(attackDefender == EnteringAttackDefender.JOIN_SOURCE || (attacking && controller == null)) {
-            "attackDefender = CONTROLLER_CHOOSES needs attacking = true and the effect controller as token controller"
+        require(attackDefender != EnteringAttackDefender.RETURNED_ATTACKER) { "RETURNED_ATTACKER is for MoveToZoneEffect only" }
+        require(attackDefender == EnteringAttackDefender.JOIN_SOURCE || attacking) {
+            "attackDefender = CONTROLLER_CHOOSES needs attacking = true"
         }
+        require(attackedPlayer == null || attacking) { "attackedPlayer needs attacking = true" }
     }
 
     constructor(
@@ -343,22 +380,26 @@ data class InvestigateEffect(
 }
 
 /**
- * Create an Aura Role token of the specified type attached to a target creature.
+ * Create a named Aura token attached to a target object: a Role ("create a Wicked Role token
+ * attached to up to one target creature") or any other predefined Aura token ("create a green Aura
+ * enchantment token named Settlement attached to up to one target land you control").
  *
- * Role tokens are Enchantment — Aura Role tokens defined in PredefinedTokens.
- * Role replacement rule: if the target already has a Role controlled by the same
- * player, the old Role is put into the graveyard before the new one enters.
+ * The token's characteristics — its enchant restriction above all — come from the token
+ * `CardDefinition` registered under [tokenName] (PredefinedTokens). No token is created when the
+ * object is undefined (an unchosen "up to one" target) or the token couldn't legally enchant it
+ * (CR 303.4i). A Role replaces any Role the same player already controls on that object
+ * (CR 303.7a).
  *
- * @property roleName The name of the Role token (e.g., "Sorcerer Role")
- * @property target The creature to attach the Role to
+ * @property tokenName The token's registered name (e.g. "Sorcerer Role", "Settlement")
+ * @property target The object to attach the token to
  */
-@SerialName("CreateRoleToken")
+@SerialName("CreateAuraToken")
 @Serializable
-data class CreateRoleTokenEffect(
-    val roleName: String,
+data class CreateAuraTokenEffect(
+    val tokenName: String,
     val target: EffectTarget = EffectTarget.ContextTarget(0)
 ) : Effect {
-    override val description: String = "Create a $roleName token attached to ${target.description}"
+    override val description: String = "Create a $tokenName token attached to ${target.description}"
 }
 
 /**
@@ -681,9 +722,21 @@ data class CreateTokenCopyOfTargetEffect(
      * the engine's CR 508.4 default: the source's defending player when that is one of the
      * creator's opponents, else an opponent already defending. A specified player who is no longer
      * in the game, or who isn't one of the creator's opponents, gets no attacker — the copy still
-     * enters, but never attacking (CR 508.4a). Requires [attacking].
+     * enters, but never attacking (CR 508.4a). With [attackDefender] =
+     * [EnteringAttackDefender.CONTROLLER_CHOOSES] it reads "that player or a planeswalker they
+     * control", as on [CreateTokenEffect.attackedPlayer]. Requires [attacking].
      */
     val attackedPlayer: EffectTarget? = null,
+    /**
+     * What an [attacking] copy attacks when the effect names no defender — see
+     * [EnteringAttackDefender]. The default joins the source's attack against a player and asks
+     * nothing; [EnteringAttackDefender.CONTROLLER_CHOOSES] is CR 508.4 as printed for a bare
+     * "tapped and attacking" (Shaun, Father of Synths): the copy's controller picks a defending
+     * player, planeswalker or battle per token, narrowed by [attackedPlayer] when set. Needs
+     * [attacking]; a copy controller who isn't an attacking player gets no defender (CR 506.3b).
+     * An Aura copy (whose host is chosen first) keeps the default.
+     */
+    val attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE,
     /**
      * The copies' base power, **computed at resolution** — the dynamic form of [overridePower] for
      * an "except its power is …" clause whose number depends on the game (CR 707.9b: a copy
@@ -697,9 +750,24 @@ data class CreateTokenCopyOfTargetEffect(
     val basePower: DynamicAmount? = null,
     /** The copies' base toughness, computed at resolution — the partner of [basePower]. */
     val baseToughness: DynamicAmount? = null,
+    /**
+     * Counters each copy **enters with** — "the token enters with half that many +1/+1 counters
+     * on it" (Ochre Jelly). The dynamic sibling of [CreateTokenEffect.initialCounters]: the amount
+     * is evaluated once per batch at resolution, and the counters arrive as part of the token's
+     * entry (CR 122.6), so counter-placement replacements (Hardened Scales) apply and ETB triggers
+     * already see them — unlike a following `AddCountersToCollection(CREATED_TOKENS, …)`, which
+     * puts them on after the token has entered. A non-positive amount puts none. A delayed
+     * trigger snapshots these amounts when it is created, so a last-known count ("that many")
+     * survives until it fires.
+     */
+    val initialCounters: Map<CounterType, DynamicAmount> = emptyMap(),
 ) : Effect {
     init {
         require(attackedPlayer == null || attacking) { "attackedPlayer needs attacking = true" }
+        require(attackDefender != EnteringAttackDefender.RETURNED_ATTACKER) { "RETURNED_ATTACKER is for MoveToZoneEffect only" }
+        require(attackDefender == EnteringAttackDefender.JOIN_SOURCE || attacking) {
+            "attackDefender = CONTROLLER_CHOOSES needs attacking = true"
+        }
         require((basePower == null) == (baseToughness == null)) {
             "basePower and baseToughness are set together"
         }
@@ -792,6 +860,10 @@ data class CreateTokenCopyOfTargetEffect(
             append(" with ${addedKeywords.joinToString(", ") { it.displayName.lowercase() }}")
         }
         if (attachedTo != null) append(" attached to ${attachedTo.description}")
+        for ((counterType, amount) in initialCounters) {
+            val pronoun = if (count == DynamicAmount.Fixed(1)) "It enters" else "They enter"
+            append(". $pronoun with ${amount.description} ${counterType.printed} counters on ${if (count == DynamicAmount.Fixed(1)) "it" else "them"}")
+        }
         if (exileAtStep != null) {
             val pronoun = if (count == DynamicAmount.Fixed(1)) "that token" else "those tokens"
             append(". At the beginning of the next ${exileAtStep.name.lowercase()} step, exile $pronoun")

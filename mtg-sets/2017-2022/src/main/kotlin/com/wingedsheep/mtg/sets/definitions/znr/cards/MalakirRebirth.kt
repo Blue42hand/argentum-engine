@@ -1,31 +1,62 @@
 package com.wingedsheep.mtg.sets.definitions.znr.cards
 
-import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.*
+import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.*
-import com.wingedsheep.sdk.scripting.effects.*
-import com.wingedsheep.sdk.scripting.filters.unified.*
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.*
+import com.wingedsheep.sdk.scripting.AbilityCost
+import com.wingedsheep.sdk.scripting.Duration
+import com.wingedsheep.sdk.scripting.EntersTapped
+import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
+/**
+ * Malakir Rebirth {B} // Malakir Mire — Zendikar Rising #111
+ * Instant // Land · Modal double-faced card
+ *
+ * Front — Malakir Rebirth: "Choose target creature. You lose 2 life. Until end of turn, that
+ * creature gains 'When this creature dies, return it to the battlefield tapped under its owner's
+ * control.'"
+ * Back — Malakir Mire: "This land enters tapped. {T}: Add {B}."
+ *
+ * The front is the Infuse with Vitality shape: an end-of-turn granted self dies-trigger that moves
+ * the card graveyard → battlefield tapped under its owner's control (`fromZone = GRAVEYARD` makes it
+ * a no-op if the card already left the graveyard). The life loss is part of the targeted spell, so
+ * when the target is illegal on resolution the spell doesn't resolve and no life is lost (ruling).
+ */
 private val MalakirRebirthFront = card("Malakir Rebirth") {
     manaCost = "{B}"
     colorIdentity = "B"
     typeLine = "Instant"
-    oracleText = "Choose target creature. You lose 2 life. Until end of turn, that creature gains \"When this creature dies, return it to the battlefield tapped under its owner's control.\""
+    oracleText = "Choose target creature. You lose 2 life. Until end of turn, that creature gains " +
+        "\"When this creature dies, return it to the battlefield tapped under its owner's control.\""
+
     spell {
         val creature = target(TargetFilter.Creature)
-        effect = Effects.LoseLife(2, EffectTarget.Controller) then Effects.GrantTriggeredAbility(
-            ability = TriggeredAbility.create(
-                trigger = Triggers.self.dies(),
-                effect = Effects.Move(EffectTarget.Self, Zone.BATTLEFIELD, placement = ZonePlacement.Tapped, fromZone = Zone.GRAVEYARD)
-            ),
-            target = creature,
-            duration = Duration.EndOfTurn
-        )
+        effect = Effects.LoseLife(2, EffectTarget.Controller) then
+            Effects.GrantTriggeredAbility(
+                ability = TriggeredAbility.create(
+                    trigger = Triggers.self.dies(),
+                    effect = Effects.Move(
+                        target = EffectTarget.Self,
+                        destination = Zone.BATTLEFIELD,
+                        placement = ZonePlacement.Tapped,
+                        fromZone = Zone.GRAVEYARD
+                    ),
+                    descriptionOverride = "When this creature dies, return it to the battlefield " +
+                        "tapped under its owner's control."
+                ),
+                target = creature,
+                duration = Duration.EndOfTurn
+            )
     }
+
     metadata {
         rarity = Rarity.UNCOMMON
         collectorNumber = "111"
@@ -48,13 +79,16 @@ private val MalakirMireBack = card("Malakir Mire") {
     typeLine = "Land"
     colorIdentity = "B"
     oracleText = "This land enters tapped.\n{T}: Add {B}."
+
     replacementEffect(EntersTapped())
+
     activatedAbility {
-        cost = Costs.Tap
+        cost = AbilityCost.Tap
         effect = Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
     }
+
     metadata {
         rarity = Rarity.UNCOMMON
         collectorNumber = "111"

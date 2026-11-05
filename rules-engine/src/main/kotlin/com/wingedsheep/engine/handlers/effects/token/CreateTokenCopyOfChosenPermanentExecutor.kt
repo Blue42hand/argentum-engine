@@ -148,6 +148,7 @@ class CreateTokenCopyOfChosenPermanentExecutor(
             }
 
             var newState = stateWithId.withEntity(tokenId, container)
+            if (cardRegistry != null) newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.applyBeforeEntry(newState, tokenId, cardRegistry, predicateEvaluator)
             newState = com.wingedsheep.engine.handlers.effects.BattlefieldEntry
                 .place(newState, controllerId, tokenId, tokenCreatorId = controllerId)
 
@@ -172,7 +173,7 @@ class CreateTokenCopyOfChosenPermanentExecutor(
             // resume; the entry ZoneChangeEvent is omitted on a pause (the choice resumer synthesizes
             // it after the choice resolves so ETB triggers fire once). Counters ride along.
             if (cardRegistry != null) {
-                val choicePlan = TokenEntryReplacements.firstEntersWithChoice(newState, tokenId, cardRegistry, predicateEvaluator = predicateEvaluator)
+                val choicePlan = TokenEntryReplacements.firstEntersWithChoice(newState, tokenId, cardRegistry, predicateEvaluator = predicateEvaluator, replacementSourceState = TokenEntryReplacements.beforeEvent(state, context))
                 if (choicePlan != null) {
                     val paused = com.wingedsheep.engine.handlers.effects.PermanentEntryReplacements
                         .pauseForEntersWithChoice(
@@ -185,6 +186,8 @@ class CreateTokenCopyOfChosenPermanentExecutor(
                             carryEvents = counterEvents,
                             syntheticRiot = choicePlan.syntheticRiot,
                             syntheticRiotRemaining = choicePlan.syntheticRiotRemaining,
+                            replacementSourceState = TokenEntryReplacements.beforeEvent(state, context),
+                            pendingEntryChoices = choicePlan.pendingEntryChoices,
                         )
                     if (paused != null) return EffectResult.from(paused)
                 }
@@ -204,7 +207,7 @@ class CreateTokenCopyOfChosenPermanentExecutor(
             // counter. BattlefieldEntry.place skips enters-with-counters setup, so apply the shared
             // Saga-entry helper (as the standard moveToZone pipeline does). No-op for non-Sagas.
             val (sagaState, sagaEvents) = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
-                .applySagaEntryIfNeeded(newState, tokenId)
+                .applySagaEntryIfNeeded(newState, tokenId, predicateEvaluator)
 
             // CR 306.5b: likewise a token copy of a planeswalker enters with the copied printed
             // loyalty (a copiable value, CR 707.2), or state-based actions (CR 704.5i) bin it on

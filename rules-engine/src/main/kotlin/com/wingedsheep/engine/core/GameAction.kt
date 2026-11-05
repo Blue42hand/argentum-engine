@@ -224,6 +224,11 @@ data class CastSpell(
      * out as its own flag for the same reason (CR 118.9a — only one alternative cost per cast).
      */
     val alternativeCostType: AlternativeCostType? = null,
+    /**
+     * The permanent granting the beam me up this cast uses (Scotty), echoed from the legal action;
+     * null for the card's printed beam me up. Read only when [alternativeCostType] is `BEAM_ME_UP`.
+     */
+    val beamMeUpSource: EntityId? = null,
     /** The selected escape cost, echoed from a legal action and checked against current abilities. */
     val escapeAbility: com.wingedsheep.sdk.scripting.KeywordAbility.Escape? = null,
     /**
@@ -248,13 +253,14 @@ data class GraveyardCastRiderSelection(
     val entersWithCounter: com.wingedsheep.sdk.core.CounterType? = null,
     val addedSubtype: String? = null,
     /**
-     * The instant/sorcery-side rider (Bilbo, Thief in the Night's "exile it instead"). Part of the
-     * identity for the same reason the two entry-rider fields are: Bilbo's grant carries no *entry*
-     * rider, so without this it would be indistinguishable from a plain free grant such as
-     * Yawgmoth's Agenda when both apply to one card, and the handler's auto-pick could apply or skip
-     * the exile the player didn't choose.
+     * The instant/sorcery-side rider (Bilbo, Thief in the Night's "exile it instead"; a granted
+     * jump-start's "exile it instead of putting it anywhere else"). Part of the identity for the same
+     * reason the two entry-rider fields are: Bilbo's grant carries no *entry* rider, so without this
+     * it would be indistinguishable from a plain free grant such as Yawgmoth's Agenda when both apply
+     * to one card, and the handler's auto-pick could apply or skip the exile the player didn't choose.
      */
-    val exileInsteadOfGraveyard: Boolean = false,
+    val exileCastThisWay: com.wingedsheep.sdk.scripting.CastThisWayExile =
+        com.wingedsheep.sdk.scripting.CastThisWayExile.NONE,
     /**
      * The grant's own additional cost (a continuous retrace grant — Six's "discard a land card").
      * Part of the identity so a player holding both a free grant and a retrace grant picks which
@@ -278,6 +284,8 @@ data class GraveyardCastRiderSelection(
 enum class AlternativeCostType {
     /** Flashback ([com.wingedsheep.sdk.scripting.KeywordAbility.Flashback]) — graveyard. */
     FLASHBACK,
+    /** Graveyard cast for mana plus returning a creature; exiled on every stack exit. */
+    BEAM_ME_UP,
     /** Harmonize ([com.wingedsheep.sdk.scripting.KeywordAbility.Harmonize], printed or granted) — graveyard. */
     HARMONIZE,
     /**
@@ -312,9 +320,23 @@ enum class AlternativeCostType {
      * but returns to hand instead of exiling, and grants haste while the marker persists).
      */
     DASH,
+    /**
+     * Blitz ([com.wingedsheep.sdk.scripting.KeywordAbility.Blitz], CR 702.152) — hand, or the
+     * graveyard through `MayCastSelfFromZones(castUsing = Keyword.BLITZ)` (Tenacious Underdog). Pays
+     * the blitz mana plus any bundled non-mana cost. The resulting permanent carries
+     * `BlitzedComponent`: haste and "when this dies, draw a card" while it's there, and a delayed
+     * trigger sacrifices it at the beginning of the next end step.
+     */
+    BLITZ,
     /** Evoke ([com.wingedsheep.sdk.scripting.KeywordAbility.Evoke]) — hand. */
     EVOKE,
     BESTOW,
+    /**
+     * Mutate ([com.wingedsheep.sdk.scripting.KeywordAbility.Mutate], CR 702.140) — pays the mutate
+     * cost and makes the spell a *mutating creature spell* targeting a non-Human creature with the
+     * same owner; see [com.wingedsheep.engine.mechanics.MutateCasts].
+     */
+    MUTATE,
     /**
      * Emerge ([com.wingedsheep.sdk.scripting.KeywordAbility.Emerge], CR 702.119) — hand, at the
      * spell's normal timing. Pays the emerge mana *reduced by the sacrificed creature's mana value*
@@ -354,15 +376,21 @@ enum class AlternativeCostType {
     OVERLOAD,
     /**
      * Miracle ([com.wingedsheep.sdk.scripting.KeywordAbility.Miracle], printed or granted) — hand,
-     * legal only while the card carries an open miracle window
-     * ([com.wingedsheep.engine.state.components.identity.MiracleWindowComponent]), opened when the
-     * card is the first card its owner drew this turn (CR 702.94).
+     * cast only by the miracle trigger as it resolves ([com.wingedsheep.sdk.scripting.Miracle],
+     * CR 702.94a). Never enumerated, and refused when a player submits it.
      */
     MIRACLE,
     /** A card's own `selfAlternativeCost` (e.g. Zahid's "tap an untapped artifact") — hand. */
     SELF_ALTERNATIVE,
     /** A battlefield-granted alternative cost (e.g. Jodah's {W}{U}{B}{R}{G}) — `GrantAlternativeCastingCost`. */
     GRANTED,
+    /**
+     * A card's own priced cast-from-zone permission — `MayCastSelfFromZones.alternativeManaCost`
+     * ("You may cast this card from your graveyard by paying {2}{W} rather than paying its mana
+     * cost", Raffine's Guidance; Squee, Dubious Monarch) — graveyard/exile. Announced so a plain
+     * cast from the same zone still reaches another permission (Muldrotha, Lurrus) at the printed cost.
+     */
+    SELF_ZONE,
 
     /**
      * The **back face** of a modal double-faced card whose back is a permanent
@@ -493,6 +521,9 @@ data class ActivateAbility(
  *   "Cycling {X}{G}{G}"), chosen as the ability is activated (CR 107.3a). Null on the legal-actions
  *   submission path — the handler then raises a ChooseNumberDecision and re-enters with it bound.
  *   Ignored for cycling costs without `{X}`.
+ * @property grantedBy Which cycling ability to activate: null for the card's printed cycling, else
+ *   the permanent whose `GrantCyclingToCardsInHand` grants it (Rhet-Tomb Mystic). A card with both
+ *   has two cycling abilities and the legal-actions list offers one action per distinct cost.
  */
 @Serializable
 @SerialName("CycleCard")
@@ -500,7 +531,8 @@ data class CycleCard(
     override val playerId: EntityId,
     val cardId: EntityId,
     val paymentStrategy: PaymentStrategy = PaymentStrategy.AutoPay,
-    val xValue: Int? = null
+    val xValue: Int? = null,
+    val grantedBy: EntityId? = null
 ) : GameAction
 
 /**
@@ -638,7 +670,8 @@ data class PlayLand(
  * @property attackers attacker entity id -> defender (player or planeswalker) being attacked.
  * @property bands Optional band groupings (CR 702.22). Each entry is the set of creatures in
  *   one band. Every creature in a band must also appear as a key in [attackers] with the same
- *   defender; at most one creature per band may lack the BANDING keyword (CR 702.22c). Bands of
+ *   defender; at most one creature per band may lack the BANDING keyword, or every member has a
+ *   quality one of them "bands with other" (CR 702.22c). Bands of
  *   size < 2 are rejected. Empty by default — no bands declared.
  */
 @Serializable
@@ -745,12 +778,15 @@ data class BottomCards(
 // =============================================================================
 
 /**
- * Player concedes the game.
+ * Player concedes the game (CR 104.3a). During a Magic subgame (CR 729) that is the subgame; with
+ * [includingMainGames] the player concedes every main game it was created from as well, so they
+ * leave the whole table rather than just the game within it.
  */
 @Serializable
 @SerialName("Concede")
 data class Concede(
-    override val playerId: EntityId
+    override val playerId: EntityId,
+    val includingMainGames: Boolean = false,
 ) : GameAction
 
 // =============================================================================

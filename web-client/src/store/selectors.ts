@@ -551,6 +551,7 @@ export function cardIdForAction(info: LegalActionInfo): EntityId | undefined {
     case 'CycleCard':
     case 'TypecycleCard':
     case 'PlotCard':
+    case 'ForetellCard':
     case 'PutCompanionIntoHand':
     case 'SuspendCardFromHand':
       return a.cardId
@@ -585,7 +586,7 @@ export function isHighlightable(a: LegalActionInfo): boolean {
     a.additionalCostInfo != null ||
     a.manaCostString != null ||
     (a.hasXCost === true && (a.maxAffordableX ?? 0) > 0)
-  return (!a.isManaAbility || needsPlayerInput) && a.isAffordable !== false
+  return (!a.isManaAbility || needsPlayerInput) && a.isAffordable !== false && a.inertReason == null
 }
 
 /**
@@ -643,6 +644,28 @@ export function useHasLegalActions(cardId: EntityId | null): boolean {
     if (!cardId) return false
     return getLegalActionsIndex(state.legalActions).highlightable.has(cardId)
   })
+}
+
+/**
+ * Cards outside the game (the viewer's sideboard) the server currently offers to play — "You may
+ * play a card you own from outside the game this turn" (Wish). Read off the legal actions'
+ * `sourceZone`, so the client never decides playability. Joined into a sorted string so Zustand's
+ * equality skips re-renders while the set is unchanged; split it with {@link splitOutsidePlayable}.
+ */
+export function useOutsidePlayableKey(): string {
+  return useGameStore((state) => {
+    const ids: string[] = []
+    for (const info of state.legalActions) {
+      if (info.sourceZone !== 'SIDEBOARD' || info.isAffordable === false) continue
+      const a = info.action
+      if (a.type === 'CastSpell' || a.type === 'PlayLand') ids.push(a.cardId)
+    }
+    return ids.length === 0 ? '' : [...new Set(ids)].sort().join(',')
+  })
+}
+
+export function splitOutsidePlayable(key: string): ReadonlySet<EntityId> {
+  return new Set(key === '' ? [] : (key.split(',') as EntityId[]))
 }
 
 export interface BattlefieldAttachments {
@@ -991,7 +1014,8 @@ export function useGroupedZoneCards(zoneId: ZoneId): readonly GroupedCard[] {
  * or castable spells (e.g., flashback), top-of-library cards playable via
  * Future Sight-like effects, and exile cards playable via Mind's Desire-like effects.
  * These are shown as translucent cards appended to the player's hand for discoverability.
- * Excludes simple mana abilities and unaffordable actions (same filtering as useHasLegalActions).
+ * Excludes unaffordable actions. A graveyard mana ability (Jack-o'-Lantern) is a ghost too: clicking
+ * its card is the only way to use it.
  *
  * A ghost is an *offer*, not the card as its zone holds it: a disturb card (CR 702.146a) is cast
  * back face up (CR 712.8c), so it joins the hand as the spirit it becomes rather than the creature
@@ -1015,7 +1039,6 @@ export function useGhostCards(playerId: EntityId | null): readonly ClientCard[] 
         const action = actionInfo.action
         if (action.type === 'ActivateAbility') {
           if (!gyCardIds.has(action.sourceId)) continue
-          if (actionInfo.isManaAbility && !actionInfo.additionalCostInfo) continue
           if (actionInfo.isAffordable === false) continue
           ghostCardIds.add(action.sourceId)
         } else if (action.type === 'CastSpell' && actionInfo.sourceZone === 'GRAVEYARD') {
@@ -1052,6 +1075,21 @@ export function useGhostCards(playerId: EntityId | null): readonly ClientCard[] 
     const topCardId = librarySlots(libZone)[0]
     if (topCardId && gameState.cards[topCardId]) {
       ghostCardIds.add(topCardId)
+    }
+
+    // 2b. The top card of *another* player's library you may play (Xanathar, Guild Kingpin's "you
+    // may play the top card of their library") — the server only offers a library action on it when
+    // a permission reaches that library.
+    for (const zone of gameState.zones) {
+      if (zone.zoneId.zoneType !== ZoneType.LIBRARY || zoneIdEquals(zone.zoneId, libZoneId)) continue
+      const otherTopId = librarySlots(zone)[0]
+      if (!otherTopId) continue
+      const playable = legalActions.some((actionInfo) => {
+        const action = actionInfo.action
+        return actionInfo.sourceZone === 'LIBRARY' && actionInfo.isAffordable !== false &&
+          (action.type === 'CastSpell' || action.type === 'PlayLand') && action.cardId === otherTopId
+      })
+      if (playable) ghostCardIds.add(otherTopId)
     }
 
     // 3. Exile cards playable via Mind's Desire-like effects

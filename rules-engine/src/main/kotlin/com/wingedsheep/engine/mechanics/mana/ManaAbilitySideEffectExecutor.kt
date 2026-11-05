@@ -65,7 +65,8 @@ class ManaAbilitySideEffectExecutor(
         for (source in solution.sources) {
             val production = solution.manaProduced[source.entityId]
             val (tappedState, tapEvents) = tapForMana(
-                currentState, source.entityId, controllerId, production?.producedColors.orEmpty()
+                currentState, source.entityId, controllerId, production?.producedColors.orEmpty(),
+                production?.total ?: 1,
             )
             currentState = tappedState
             events.addAll(tapEvents)
@@ -116,9 +117,9 @@ class ManaAbilitySideEffectExecutor(
      * card (nothing to name in the event).
      *
      * `costsTap` is true by construction — this path only ever reaches sources it taps — so the
-     * Antiquities "without {T} in its activation cost" template correctly ignores these. `isExhaust`
+     * Antiquities "without {T} in its activation cost" template correctly ignores these. `onceOnlyKind`
      * is read off the matching printed ability where one is found; an intrinsic land mana ability
-     * has no [ActivatedAbility] entry to consult and is never exhaust anyway.
+     * has no [ActivatedAbility] entry to consult and is never exhaust or boast anyway.
      */
     fun activationEvent(
         state: GameState,
@@ -143,7 +144,7 @@ class ManaAbilitySideEffectExecutor(
             abilityEntityId = null,
             costsTap = true,
             isManaAbility = true,
-            isExhaust = matchingAbility?.isExhaust == true
+            onceOnlyKind = matchingAbility?.onceOnlyKind
         )
     }
 

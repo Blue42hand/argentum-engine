@@ -3498,7 +3498,7 @@
                             }
                         ]
                     },
-                    "perAttackedPlayer": true
+                    "attackedPlayer": "Each"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -4850,7 +4850,10 @@
                 },
                 {
                     "type": "DistributeCountersAmongFiltered",
-                    "totalCounters": 3,
+                    "totalCounters": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
                     "counterType": "STUN",
                     "filter": "creature tapped ctrl:opponent"
                 }
@@ -7323,7 +7326,8 @@
                         "placement": "Tapped"
                     }
                 },
-                "ShuffleLibrary"
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
             ]
         }
     },
@@ -8610,7 +8614,7 @@
                 "id": "Firebender Ascension:2",
                 "trigger": {
                     "type": "AbilityTriggeredEvent",
-                    "requireAttackCause": true
+                    "cause": "ATTACK"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -11099,7 +11103,8 @@
         ],
         "staticAbilities": [
             {
-                "type": "GraveyardCardsHaveFlashback",
+                "type": "GraveyardCardsHaveCastKeyword",
+                "keyword": "Flashback",
                 "filter": {
                     "cardPredicates": [
                         {
@@ -11118,7 +11123,8 @@
                 "duringYourTurnOnly": true
             },
             {
-                "type": "GraveyardCardsHaveFlashback",
+                "type": "GraveyardCardsHaveCastKeyword",
+                "keyword": "Flashback",
                 "filter": "instant|sorcery Lesson",
                 "cost": "{1}",
                 "duringYourTurnOnly": true
@@ -15051,7 +15057,11 @@
                                     "filter": "basicland"
                                 },
                                 "storeAs": "gathered0",
-                                "search": true
+                                "search": true,
+                                "searcher": {
+                                    "type": "ControllerOf",
+                                    "targetDescription": "target"
+                                }
                             },
                             {
                                 "type": "SelectFromCollection",
@@ -15082,7 +15092,8 @@
                             {
                                 "type": "ShuffleLibrary",
                                 "target": "TargetController"
-                            }
+                            },
+                            "EmitLibrarySearchedEvent"
                         ]
                     },
                     "decisionMaker": "TargetController"
@@ -17638,8 +17649,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 2
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
                                 }
                             },
                             "then": {

@@ -103,6 +103,116 @@
     ]
 }
 
+// Coat of Arms
+{
+    "name": "Coat of Arms",
+    "manaCost": "{5}",
+    "typeLine": "Artifact",
+    "oracleText": "Each creature gets +1/+1 for each other creature on the battlefield that shares at least one creature type with it. (For example, if two Goblin Warriors and a Goblin Shaman are on the battlefield, each gets +2/+2.)",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "Each",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "SharesCreatureTypeWith",
+                                "entity": "AffectedEntity"
+                            }
+                        ]
+                    },
+                    "excludeSelf": true
+                },
+                "toughnessBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "Each",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "SharesCreatureTypeWith",
+                                "entity": "AffectedEntity"
+                            }
+                        ]
+                    },
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "rarity": "RARE",
+        "artist": "Scott M. Fischer",
+        "flavorText": "\"Hup, two, three, four,\nDunno how to count no more.\"\n—Mogg march",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/e/9e32c939-1d64-4082-bafe-59dfa9c054f6.jpg?1783946501",
+        "rulings": [
+            {
+                "date": "2009-10-01",
+                "text": "Sharing multiple creature types doesn't give an additional bonus. Coat of Arms counts creatures, not creature types."
+            },
+            {
+                "date": "2004-10-04",
+                "text": "If a creature has more than one creature type, and one of those types matches the creature you are calculating for, then count that creature. Only one type needs to match in order to get counted."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
+// Culling the Weak
+{
+    "name": "Culling the Weak",
+    "manaCost": "{B}",
+    "typeLine": "Instant",
+    "oracleText": "As an additional cost to cast this spell, sacrifice a creature.\nAdd {B}{B}{B}{B}.",
+    "script": {
+        "spellEffect": {
+            "type": "AddMana",
+            "color": "BLACK",
+            "amount": {
+                "type": "Fixed",
+                "amount": 4
+            }
+        },
+        "additionalCosts": [
+            {
+                "type": "AdditionalAtom",
+                "atom": {
+                    "type": "AtomSacrifice",
+                    "filter": "creature"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "artist": "Scott M. Fischer",
+        "flavorText": "\"The blood of the weak shall be the ink with which we scribe great Yawgmoth's glorious name.\"\n—Stronghold architect, journal",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/50c33f18-0a5c-4e46-ab0d-6e450915594f.jpg?1783946521",
+        "rulings": [
+            {
+                "date": "2013-04-15",
+                "text": "You must sacrifice exactly one creature to cast this spell; you cannot cast it without sacrificing a creature, and you cannot sacrifice additional creatures."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "Players can only respond once this spell has been cast and all its costs have been paid. No one can try to destroy the creature you sacrificed to prevent you from casting this spell."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Curiosity
 {
     "name": "Curiosity",
@@ -563,7 +673,7 @@
                         "id": "t0"
                     }
                 ],
-                "descriptionOverride": "Remove attacking creature from combat and untap it"
+                "descriptionOverride": "Remove target attacking creature you control from combat and untap it."
             }
         ]
     },

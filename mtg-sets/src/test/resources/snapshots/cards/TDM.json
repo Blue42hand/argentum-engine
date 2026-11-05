@@ -1907,7 +1907,8 @@
                             },
                             "revealed": true
                         },
-                        "ShuffleLibrary"
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
                     ]
                 }
             }
@@ -9517,7 +9518,11 @@
                                         "filter": "basicland"
                                     },
                                     "storeAs": "gathered0",
-                                    "search": true
+                                    "search": true,
+                                    "searcher": {
+                                        "type": "ControllerOf",
+                                        "targetDescription": "nonbasic land an opponent controls"
+                                    }
                                 },
                                 {
                                     "type": "SelectFromCollection",
@@ -9549,7 +9554,8 @@
                                 {
                                     "type": "ShuffleLibrary",
                                     "target": "TargetController"
-                                }
+                                },
+                                "EmitLibrarySearchedEvent"
                             ]
                         }
                     ]
@@ -13107,24 +13113,9 @@
         "RENEW"
     ],
     "script": {
-        "triggeredAbilities": [
-            {
-                "id": "Rot-Curse Rakshasa:1",
-                "trigger": "AttackEvent",
-                "effect": {
-                    "type": "CreateDelayedTrigger",
-                    "step": "END_COMBAT",
-                    "effect": {
-                        "type": "SacrificeTarget",
-                        "target": "Self"
-                    }
-                },
-                "descriptionOverride": "Decayed (This creature can't block, and when it attacks, sacrifice it at end of combat.)"
-            }
-        ],
         "activatedAbilities": [
             {
-                "id": "Rot-Curse Rakshasa:2",
+                "id": "Rot-Curse Rakshasa:1",
                 "cost": {
                     "type": "CostComposite",
                     "costs": [
@@ -13166,9 +13157,6 @@
                 "activateFromZone": "Graveyard",
                 "descriptionOverride": "Renew — {X}{B}{B}, Exile this card from your graveyard: For each target, put a decayed counter on target Activate only as a sorcery."
             }
-        ],
-        "staticAbilities": [
-            "CantBlock"
         ]
     },
     "metadata": {
@@ -13396,7 +13384,8 @@
                 "trigger": "CastThisSpellEvent",
                 "effect": {
                     "type": "CopyTargetSpell",
-                    "target": "TriggeringEntity"
+                    "target": "TriggeringEntity",
+                    "mayChooseNewTargets": false
                 },
                 "interveningIf": {
                     "type": "PlayerCastSpellsThisTurn",
@@ -16467,7 +16456,8 @@
                     "effects": [
                         {
                             "type": "CopyTargetSpell",
-                            "target": "TriggeringEntity"
+                            "target": "TriggeringEntity",
+                            "mayChooseNewTargets": false
                         },
                         {
                             "type": "Counter",
@@ -17730,6 +17720,7 @@
                             }
                         },
                         "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent",
                         {
                             "type": "GrantMayPlayFromExile",
                             "from": "selected1"

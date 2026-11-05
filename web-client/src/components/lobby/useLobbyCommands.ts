@@ -39,6 +39,8 @@ export interface LobbyCommands {
   togglePlayerTeam: (playerId: string) => void
   setPublic: (isPublic: boolean) => void
   setRanked: (ranked: boolean) => void
+  /** Play for ante (CR 407). The server rejects it while the lobby is ranked. */
+  setAnte: (playingForAnte: boolean) => void
   /** Tear this lobby down and stand it back up on the other server implementation. */
   recreate: (spec: RecreateSpec) => void
   /** The one button beside Leave — ready / cancel ready / start, per {@link UnifiedLobbyView}. */
@@ -60,6 +62,7 @@ const NO_LOBBY: LobbyCommands = {
   togglePlayerTeam: noop,
   setPublic: noop,
   setRanked: noop,
+  setAnte: noop,
   recreate: noop,
   runPrimary: noop,
   leave: noop,
@@ -183,6 +186,11 @@ export function useLobbyCommands(
       setRanked: (ranked) => {
         if (isQuick) s().setQuickGameLobbyRanked(ranked)
         else s().updateLobbySettings({ ranked })
+      },
+
+      setAnte: (playingForAnte) => {
+        if (isQuick) s().setQuickGameLobbyAnte(playingForAnte)
+        else s().updateLobbySettings({ playingForAnte })
       },
 
       runPrimary: () => {

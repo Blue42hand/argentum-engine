@@ -40,6 +40,27 @@ sealed interface IterationSpace {
     data object Targets : IterationSpace
 
     /**
+     * Iterate the targets chosen for **one** target declaration — the requirement whose handle
+     * id is [group] — while the spell or ability also has other targets: "target creature you
+     * control deals damage equal to its power to **each of X target creatures**" (Spinning Wheel
+     * Kick). Per iteration the current target is bound as [EffectTarget.IterationEntity]; the
+     * context's targets, named targets and `storedCollections` are left untouched, so the body
+     * still reads the other declarations through their handles. Only still-legal targets are
+     * visited (CR 608.2b): one that became illegal before resolution is skipped.
+     *
+     * Closest neighbours: [Targets] rebinds the whole target list to the visited target (the
+     * other declarations' handles would still resolve, but it visits every declaration's
+     * targets, the creature you control included), and [Collection] iterates a pipeline
+     * collection that no step fills with a declaration's targets.
+     *
+     * @property group The binding id the DSL minted for the declaration (`targets(…)` handles
+     *   are `group[0]`, `group[1]`, …) — build it with `Effects.ForEachTargetOf(handles, …)`.
+     */
+    @SerialName("IterationSpace.TargetsOf")
+    @Serializable
+    data class TargetsOf(val group: String) : IterationSpace
+
+    /**
      * Iterate players matching [players] (e.g. `Player.Each`, `Player.EachOpponent`,
      * `Player.ActivePlayerFirst`). Per iteration, the body's `controllerId` is rebound
      * to the current player (so `Player.You` resolves to them), `opponentId` is
@@ -93,8 +114,44 @@ sealed interface IterationSpace {
     @Serializable
     data class ColorsOf(val source: EffectTarget.SingleEntity) : IterationSpace
 
+    /**
+     * Iterate each **kind of counter** among the battlefield permanents matching [filter] —
+     * "for each kind of counter among creatures you control, put a counter of that kind on …"
+     * (Exotic Pets). A kind counts once however many matching permanents carry it, and only
+     * while at least one counter of it is on one of them. The kinds are snapshotted before
+     * the first iteration (in canonical id order, for deterministic event sequencing) and
+     * each is exposed through the chosen-counter-kind context, which
+     * `AddCountersOfChosenKind(kindFrom = CounterKindSource.ITERATION)` reads. Outer
+     * `storedCollections` are preserved, so the body can choose among objects an earlier
+     * step created. No matching counters → zero iterations.
+     *
+     * The counter-kind analogue of [ColorsOf]; [Group] iterates the permanents themselves.
+     */
+    @SerialName("IterationSpace.CounterKindsAmong")
+    @Serializable
+    data class CounterKindsAmong(val filter: GroupFilter) : IterationSpace
+
+    /**
+     * Iterate each **kind of counter** on one referenced permanent — "for each kind of counter
+     * on target permanent, put another counter of that kind on it or remove one from it"
+     * (Dramatist's Puppet). The single-object sibling of [CounterKindsAmong]: the kinds are read
+     * off [entity] (its current counters, only kinds with at least one counter), snapshotted
+     * before the first iteration in canonical id order, and each is exposed through the
+     * chosen-counter-kind context exactly as [CounterKindsAmong] exposes it — so
+     * `AddCountersOfChosenKind(kindFrom = ITERATION)` / `RemoveCountersOfIteratedKind`, a
+     * `{counter}` placeholder in a body prompt or a `ChooseAction` label, all read the visited
+     * kind. An unresolvable entity or one without counters → zero iterations.
+     */
+    @SerialName("IterationSpace.CounterKindsOn")
+    @Serializable
+    data class CounterKindsOn(val entity: EffectTarget.SingleEntity) : IterationSpace
+
     fun applyTextReplacement(replacer: TextReplacer): IterationSpace = when (this) {
         is Group -> {
+            val newFilter = filter.applyTextReplacement(replacer)
+            if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+        is CounterKindsAmong -> {
             val newFilter = filter.applyTextReplacement(replacer)
             if (newFilter !== filter) copy(filter = newFilter) else this
         }
@@ -110,6 +167,15 @@ sealed interface IterationSpace {
          * (Kambal, Profiteering Mayor). The engine seeds this collection when the triggered ability resolves.
          */
         const val TRIGGER_CAPTURED_COLLECTION = "trigger.captured"
+
+        /**
+         * Well-known [Collection] name under which a "deal combat damage to one or more players"
+         * batch trigger seeds the players it damaged (`OneOrMoreDealCombatDamageToPlayerEvent` with
+         * `toOneOrMorePlayers`). "The number of opponents dealt damage this way" is
+         * `DynamicAmounts.playersDealtDamageThisWay()` (its `_count`); "those players" is
+         * `Player.InCollection(TRIGGER_DAMAGED_PLAYERS)` (Hordewing Skaab).
+         */
+        const val TRIGGER_DAMAGED_PLAYERS = "trigger.damagedPlayers"
     }
 }
 
@@ -162,10 +228,21 @@ data class ForEachEffect(
 
         return when (space) {
             is IterationSpace.Targets -> "For each target, ${bodyClauses()}"
+            is IterationSpace.TargetsOf -> {
+                val inner = text(body)
+                if (inner.contains(ITERATION_ENTITY_NOUN, ignoreCase = true)) {
+                    inner.replace(ITERATION_ENTITY_NOUN, "each of those targets", ignoreCase = true)
+                        .replaceFirstChar { it.uppercase() }
+                } else "For each of those targets, ${bodyClauses()}"
+            }
             is IterationSpace.Players -> "For each player, ${bodyClauses()}"
             is IterationSpace.Collection -> "For each permanent in ${space.collection}, ${bodyClauses()}"
             is IterationSpace.Group -> renderGroupDescription(text(body), space.filter, space.noRegenerate)
             is IterationSpace.ColorsOf -> "for each color of ${space.source.description}, ${text(body)}"
+            is IterationSpace.CounterKindsAmong ->
+                "For each kind of counter among ${space.filter.description.removePrefix("all ").trimStart()}, ${bodyClauses()}"
+            is IterationSpace.CounterKindsOn ->
+                "For each kind of counter on ${space.entity.description}, ${bodyClauses()}"
         }
     }
 
@@ -272,3 +349,21 @@ fun ForEachInGroupEffect(
 @Suppress("FunctionName")
 fun ForEachColorOfEffect(source: EffectTarget.SingleEntity, effect: Effect): ForEachEffect =
     ForEachEffect(IterationSpace.ColorsOf(source), effect)
+
+/**
+ * Run [effect] once per kind of counter among the permanents matching [filter], exposing
+ * the current kind via the chosen-counter-kind context (Exotic Pets). Lowers to
+ * [ForEachEffect] over [IterationSpace.CounterKindsAmong].
+ */
+@Suppress("FunctionName")
+fun ForEachCounterKindAmongEffect(filter: GroupFilter, effect: Effect): ForEachEffect =
+    ForEachEffect(IterationSpace.CounterKindsAmong(filter), effect)
+
+/**
+ * Run [effect] once per kind of counter on the referenced permanent, exposing the current kind
+ * via the chosen-counter-kind context (Dramatist's Puppet). Lowers to [ForEachEffect] over
+ * [IterationSpace.CounterKindsOn].
+ */
+@Suppress("FunctionName")
+fun ForEachCounterKindOnEffect(entity: EffectTarget.SingleEntity, effect: Effect): ForEachEffect =
+    ForEachEffect(IterationSpace.CounterKindsOn(entity), effect)

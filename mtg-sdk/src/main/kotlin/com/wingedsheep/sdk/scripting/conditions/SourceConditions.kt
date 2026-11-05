@@ -46,6 +46,25 @@ data class SourceDealtDamageToPlayerThisTurn(
 }
 
 /**
+ * Condition: the effect's source — a creature — was declared attacking [player] this turn
+ * (CR 508.1). Only a player chosen directly as the defender counts: attacking a planeswalker or
+ * battle doesn't attack its controller or protector. The record belongs to the creature as the
+ * current object and survives it leaving combat; a returned creature has attacked nobody
+ * (CR 400.7), while an ability that outlives the creature reads its last known record (CR 608.2h).
+ *
+ * Inside `ForEachPlayer(Player.Each)`, `SourceAttackedPlayerThisTurn(Player.You)` asks the
+ * question of each player in turn — "each player this creature attacked this turn loses the
+ * game" (Angel of Destiny).
+ */
+@SerialName("SourceAttackedPlayerThisTurn")
+@Serializable
+data class SourceAttackedPlayerThisTurn(
+    val player: Player
+) : Condition {
+    override val description: String = "if this attacked ${player.description} this turn"
+}
+
+/**
  * Condition: "it's [threshold] or less of the controller's turn of the game".
  *
  * True when the controller (resolved through context) has taken at most
@@ -123,10 +142,11 @@ data object YouChoseOtherCreatureAsRingBearer : Condition {
 /**
  * Condition: "As long as this permanent is modified"
  *
- * Per CR 700.4, a permanent is modified if it has one or more counters on it, one or more
+ * Per CR 700.9, a permanent is modified if it has one or more counters on it, one or more
  * Equipment attached, or is enchanted by one or more Auras its controller controls. Kept
  * as a dedicated condition because the controller-of-source / controller-of-Aura match
- * isn't expressible via the generic `SourceMatches` filter machinery.
+ * isn't expressible via the generic `SourceMatches` filter machinery. Once the source has
+ * left the battlefield it reads last-known information (CR 608.2h) — Ian the Reckless.
  */
 @SerialName("SourceIsModified")
 @Serializable
@@ -206,26 +226,38 @@ data object NoManaSpentToCastEntered : Condition {
 }
 
 /**
- * Condition: "if one or more of them entered from exile or was cast from exile."
+ * Condition: "if one or more of them entered from [zone] or was cast from [zone]."
  *
  * The batch-enters, any-of counterpart of
  * [com.wingedsheep.sdk.scripting.conditions.TriggeringEntityEnteredOrWasCastFromGraveyard]:
  * evaluated over the permanents a batch-enters trigger captured (the
  * `Triggers.oneOrMore(filter).enter()` batch, exposed as the `trigger.captured` pipeline
- * collection), it is true iff **at least one** captured permanent came from exile — either put
- * onto the battlefield directly from exile or cast from exile. An empty capture is false.
+ * collection), it is true iff **at least one** captured permanent came from [zone] — either put
+ * onto the battlefield directly from it or cast from it. An empty capture is false.
  *
- * Note the quantifier: [NoManaSpentToCastEntered] is an *every* over the batch ("if **none** of
- * them …"), this one is an *any* ("if **one or more** of them …").
+ * [zone] is [Zone.EXILE] or [Zone.GRAVEYARD], the two zones the engine stamps entry and cast
+ * provenance for. Note the quantifier: [NoManaSpentToCastEntered] is an *every* over the batch
+ * ("if **none** of them …"), this one is an *any* ("if **one or more** of them …").
  *
- * Used by **Extraordinary Journey** as a real intervening-"if" (CR 603.4) rather than a
- * resolution-time gate, which matters because the ability also carries `oncePerTurn`: a batch with
- * no exile arrivals must not trigger at all, or it would burn the turn's single firing.
+ * Works as a real intervening-"if" (CR 603.4) as well as a resolution-time gate, which matters
+ * when the ability also carries `oncePerTurn`: a batch with no qualifying arrivals must not trigger
+ * at all, or it would burn the turn's single firing.
+ * - **Extraordinary Journey** — `AnyEnteredOrWasCastFrom(Zone.EXILE)`, once each turn.
+ * - **Kotis, Sibsig Champion** — `AnyEnteredOrWasCastFrom(Zone.GRAVEYARD)`.
  */
-@SerialName("AnyEnteredOrWasCastFromExile")
+@SerialName("AnyEnteredOrWasCastFrom")
 @Serializable
-data object AnyEnteredOrWasCastFromExile : Condition {
-    override val description: String = "one or more of them entered from exile or was cast from exile"
+data class AnyEnteredOrWasCastFrom(val zone: Zone) : Condition {
+    init {
+        require(zone == Zone.EXILE || zone == Zone.GRAVEYARD) {
+            "AnyEnteredOrWasCastFrom tracks EXILE or GRAVEYARD provenance, not $zone"
+        }
+    }
+
+    override val description: String = when (zone) {
+        Zone.GRAVEYARD -> "one or more of them entered from a graveyard or was cast from a graveyard"
+        else -> "one or more of them entered from exile or was cast from exile"
+    }
 }
 
 /**
@@ -483,11 +515,13 @@ data class CastChoiceMade(val slot: com.wingedsheep.sdk.scripting.ChoiceSlot) : 
         com.wingedsheep.sdk.scripting.ChoiceSlot.SECOND_KICKER -> "if it was kicked with its second kicker"
         com.wingedsheep.sdk.scripting.ChoiceSlot.BARGAINED -> "if it was bargained"
         com.wingedsheep.sdk.scripting.ChoiceSlot.EVIDENCE_COLLECTED -> "if evidence was collected"
+        com.wingedsheep.sdk.scripting.ChoiceSlot.ADDITIONAL_COST_PAID -> "if this spell's additional cost was paid"
         com.wingedsheep.sdk.scripting.ChoiceSlot.SNEAK -> "if its sneak cost was paid"
         com.wingedsheep.sdk.scripting.ChoiceSlot.WEB_SLUNG -> "if it was cast using web-slinging"
         com.wingedsheep.sdk.scripting.ChoiceSlot.MAYHEM_CAST -> "if this spell's mayhem cost was paid"
         com.wingedsheep.sdk.scripting.ChoiceSlot.WATERBEND_PAID -> "if its waterbend cost was paid"
         com.wingedsheep.sdk.scripting.ChoiceSlot.GIFT_PROMISED -> "if the gift was promised"
+        com.wingedsheep.sdk.scripting.ChoiceSlot.FORETOLD -> "if this spell was foretold"
         else -> "if a ${slot.name.lowercase().replace('_', ' ')} was chosen"
     }
 }
@@ -510,29 +544,6 @@ data class CastChoiceIs(
     val value: String
 ) : Condition {
     override val description: String = "if the chosen ${slot.name.lowercase().replace('_', ' ')} is \"$value\""
-}
-
-/**
- * Condition: the named cast-time capture [flag] was true *as the source spell was cast* (CR 601.2i).
- *
- * The reader half of the cast-time condition-capture mechanic
- * ([com.wingedsheep.sdk.scripting.CastTimeCapture]). A spell declares, via the `captureAtCast`
- * DSL, one or more named conditions evaluated the moment it finishes being cast; the engine records
- * the names that were true onto the spell on the stack. At resolution the spell's own effect reads
- * the recorded flag through this condition, so "deals 4 damage instead if you controlled a Mount as
- * you cast this spell" (Steer Clear) stays true even if the Mount has since left — the read is of
- * the frozen cast-time answer, not the current board.
- *
- * Distinct from the player-choice slot conditions [CastChoiceMade] / [CastChoiceIs]: those read a
- * value the player *chose* (a color, a mode); this reads whether an automatically-evaluated game
- * condition *held* at cast time.
- *
- * @property flag The capture name to read (matches the name given to `captureAtCast`).
- */
-@SerialName("CastTimeFlagSet")
-@Serializable
-data class CastTimeFlagSet(val flag: String) : Condition {
-    override val description: String = "if \"$flag\" was true as this spell was cast"
 }
 
 /**

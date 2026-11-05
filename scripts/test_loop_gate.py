@@ -35,6 +35,11 @@ class LoopGatePlanTest(unittest.TestCase):
         self.assertNotEqual(args[i + 1:i + 2], ["--tests"])  # the whole era, not one class
         self.assertNotIn(":mtg-sets:2024:tests:test", args)
 
+    def test_rebless_rides_on_the_content_suite_only(self):
+        args, _ = loop_gate.plan([CARD, GOLDEN])
+        self.assertEqual(loop_gate.with_rebless(args)[-1], "-DupdateSnapshots=true")
+        self.assertEqual(loop_gate.with_rebless([]), [])
+
     def test_docs_only_change_runs_nothing(self):
         self.assertEqual(loop_gate.plan(["docs/card-sdk-language-reference.md"]), ([], False))
 

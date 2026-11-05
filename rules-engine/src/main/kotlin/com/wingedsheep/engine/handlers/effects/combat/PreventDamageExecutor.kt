@@ -15,7 +15,7 @@ import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
+import com.wingedsheep.engine.state.components.battlefield.chosenSubtype
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.EntityId
@@ -62,6 +62,42 @@ class PreventDamageExecutor(
         }
         PreventionSourceFilter.AnySource -> createFloatingEffect(state, effect, sourceFilter = null, context)
         PreventionSourceFilter.ThisSource -> handleThisSource(state, effect, context)
+        PreventionSourceFilter.TargetingRecipient -> handleTargetingRecipient(state, effect, context)
+    }
+
+    /**
+     * "If a spell or ability that targets that creature would cause a source to deal damage to
+     * that creature this turn, prevent that damage" (Silhouette): an all-damage shield on one
+     * recipient that only fires while the damage's cause — the innermost resolving spell or
+     * ability — targets that recipient. Only the single-recipient, prevent-all shape lowers.
+     */
+    private fun handleTargetingRecipient(
+        state: GameState,
+        effect: PreventDamageEffect,
+        context: EffectContext
+    ): EffectResult {
+        if (effect.direction != PreventionDirection.ToTarget || effect.amount != null ||
+            effect.recipientGroup != null || effect.recipientGroupIncludesController ||
+            effect.onPrevented != null || effect.gainLifeFromPrevented || effect.gainLifeFromColors.isNotEmpty() ||
+            effect.toPlayersOnly || !effect.preventDamage || effect.halvePreventedDamage ||
+            effect.nextInstanceOnly || effect.scope != PreventionScope.AllDamage
+        ) {
+            return EffectResult.error(
+                state,
+                "PreventDamageEffect with TargetingRecipient supports only a prevent-all shield on one recipient"
+            )
+        }
+        val targetId = context.resolveTarget(effect.target, state) ?: return EffectResult.success(state)
+        state.getEntity(targetId) ?: return EffectResult.success(state)
+        val newState = state.addFloatingEffect(
+            layer = Layer.ABILITY,
+            modification = SerializableModification.PreventAllDamageTo(onlyCausedByObjectTargetingIt = true),
+            affectedEntities = setOf(targetId),
+            duration = effect.duration,
+            context = context,
+            timestamp = state.timestamp
+        )
+        return EffectResult.success(newState)
     }
 
     /**
@@ -119,7 +155,7 @@ class PreventDamageExecutor(
         context: EffectContext
     ): GameObjectFilter? {
         if (CardPredicate.HasChosenSubtype !in filter.cardPredicates) return filter
-        val chosenType = context.sourceId?.let { state.getEntity(it) }?.chosenCreatureType() ?: return null
+        val chosenType = context.sourceId?.let { state.getEntity(it) }?.chosenSubtype() ?: return null
         return filter.copy(
             cardPredicates = filter.cardPredicates.map {
                 if (it == CardPredicate.HasChosenSubtype) CardPredicate.HasSubtype(Subtype(chosenType)) else it

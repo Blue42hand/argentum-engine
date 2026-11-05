@@ -90,6 +90,75 @@
     ]
 }
 
+// Archfiend of Ifnir
+{
+    "name": "Archfiend of Ifnir",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Creature — Demon",
+    "oracleText": "Flying\nWhenever you cycle or discard another card, put a -1/-1 counter on each creature your opponents control.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Cycling",
+            "cost": "{2}"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Archfiend of Ifnir:1",
+                "trigger": "DiscardEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:opponent"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "MINUS_ONE_MINUS_ONE",
+                        "count": 1,
+                        "target": "IterationEntity"
+                    }
+                },
+                "descriptionOverride": "Whenever you cycle or discard another card, put a -1/-1 counter on each creature your opponents control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "78",
+        "rarity": "RARE",
+        "artist": "Seb McKinnon",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/3/33176679-d571-47a1-ae05-bed9b748491d.jpg?1783936512",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "An ability that triggers whenever you \"cycle or discard\" a card triggers only once if you cycle a card. The ability \"Whenever you discard a card\" is functionally identical to this ability; cycling is mentioned for clarity."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "If a player discards a card during their cleanup step due to having too many cards in hand, any appropriate abilities that trigger on discarding that card trigger. If this happens, those triggered abilities are put onto the stack and players receive priority in that cleanup step to cast spells or activate abilities (normally, no players may take actions during a cleanup step). Another cleanup step is created following that one."
+            },
+            {
+                "date": "2017-04-18",
+                "text": "Some cards have an ability that triggers whenever you cycle any card. These triggered abilities resolve before you draw from the cycling ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Baleful Ammit
 {
     "name": "Baleful Ammit",
@@ -139,6 +208,42 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Blazing Volley
+{
+    "name": "Blazing Volley",
+    "manaCost": "{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Blazing Volley deals 1 damage to each creature your opponents control.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "creature ctrl:opponent"
+                }
+            },
+            "body": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "target": "IterationEntity"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "119",
+        "artist": "Zezhou Chen",
+        "flavorText": "The arrows fell like fiery rain, and for a moment, the sky itself seemed to burn.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/a/ba450179-4591-4e8a-b6ca-66cbef1817f2.jpg?1783936495"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2345,6 +2450,67 @@
     ]
 }
 
+// Harvest Season
+{
+    "name": "Harvest Season",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for up to X basic land cards, where X is the number of tapped creatures you control, put those cards onto the battlefield tapped, then shuffle.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "basicland"
+                    },
+                    "storeAs": "searchable",
+                    "search": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "creature tapped"
+                        }
+                    },
+                    "storeSelected": "found",
+                    "prompt": "Search your library for basic land cards (up to the number of tapped creatures you control) to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield",
+                        "placement": "Tapped"
+                    }
+                },
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "170",
+        "rarity": "RARE",
+        "artist": "Shreya Shetty",
+        "flavorText": "A true reflection of nature: death fostering life.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/b/bb18e745-a925-477f-a50f-3ec7fba22d88.jpg?1783936475"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Haze of Pollen
 {
     "name": "Haze of Pollen",
@@ -2372,6 +2538,102 @@
     "colorIdentityOverride": [
         "GREEN"
     ]
+}
+
+// Hazoret's Monument
+{
+    "name": "Hazoret's Monument",
+    "manaCost": "{3}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "Red creature spells you cast cost {1} less to cast.\nWhenever you cast a creature spell, you may discard a card. If you do, draw a card.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hazoret's Monument:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.DoAction",
+                            "action": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Hand"
+                                        },
+                                        "storeAs": "hand"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "hand",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "discarded",
+                                        "prompt": "Choose 1 card to discard"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "discarded",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Discard"
+                                    }
+                                ]
+                            }
+                        },
+                        "then": {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "creature red"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "229",
+        "rarity": "UNCOMMON",
+        "artist": "Richard Wright",
+        "flavorText": "\"The worthy shall rush to the God-Pharaoh's side with relentless zeal, rising to overcome every obstacle.\"\n—Monument inscription",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/a/7a0a70f2-f2cb-4a08-a1a7-95c8fc3de6e3.jpg?1783936452"
+    }
 }
 
 // Hieroglyphic Illumination
@@ -2925,6 +3187,76 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Manglehorn
+{
+    "name": "Manglehorn",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Beast",
+    "oracleText": "When this creature enters, you may destroy target artifact.\nArtifacts your opponents control enter tapped.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Manglehorn:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, you may destroy target artifact."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "PermanentsEnterTapped",
+                "appliesTo": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "artifact ctrl:opponent",
+                    "to": "Battlefield"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "175",
+        "rarity": "UNCOMMON",
+        "artist": "Lius Lasahido",
+        "flavorText": "\"Rely too much on your weapons and watch your dreams shatter in your hands.\"\n—Rhonas, god of strength",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/a/0aa3a844-97e6-4f5d-a36f-56fea4e06932.jpg?1783936473",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "If an artifact enters the battlefield under an opponent's control at the same time that Manglehorn enters the battlefield under your control, that artifact won't enter tapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -3559,6 +3891,84 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Plague Belcher
+{
+    "name": "Plague Belcher",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Zombie Beast",
+    "oracleText": "Menace\nWhen this creature enters, put two -1/-1 counters on target creature you control.\nWhenever another Zombie you control dies, each opponent loses 1 life.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Plague Belcher:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "MINUS_ONE_MINUS_ONE",
+                    "count": 2,
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you"
+                    },
+                    "id": "t0"
+                }
+            },
+            {
+                "id": "Plague Belcher:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Zombie ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "EachOpponent"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "104",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/8/280ae211-f025-4971-83e6-118ca08a1911.jpg?1783936500",
+        "rulings": [
+            {
+                "date": "2017-04-18",
+                "text": "If another Zombie you control dies at the same time as Plague Belcher, Plague Belcher's last ability will trigger for that Zombie."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 

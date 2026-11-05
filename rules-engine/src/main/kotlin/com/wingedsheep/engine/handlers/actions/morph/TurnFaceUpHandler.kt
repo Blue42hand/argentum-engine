@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.morph
 
+import com.wingedsheep.engine.mechanics.layers.LayerTimestamps
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.ExecutionResult
 import com.wingedsheep.engine.core.GameEvent
@@ -439,6 +440,8 @@ class TurnFaceUpHandler(
             updated = staticAbilityHandler.addReplacementEffectComponent(updated)
             updated
         }
+        // CR 613.7f — a permanent gets a new timestamp each time it turns face up.
+        currentState = LayerTimestamps.renew(currentState, action.sourceId)
 
         // Execute face-up replacement effect (e.g., "put five +1/+1 counters on it")
         if (faceUpEffect != null) {
@@ -448,6 +451,7 @@ class TurnFaceUpHandler(
                     origin = currentState.objectRef(action.sourceId), source = currentState.objectRef(action.sourceId),
                     resolutionKey = "face-up:${action.sourceId.value}:${currentState.objectRef(action.sourceId)?.generation}"),
                 controllerId = action.playerId,
+                programOrigin = com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(TurnFaceUpHandler::class),
             )
             val effectResult = effectExecutorRegistry.execute(currentState, faceUpEffect, effectContext)
             if (effectResult.error == null) {

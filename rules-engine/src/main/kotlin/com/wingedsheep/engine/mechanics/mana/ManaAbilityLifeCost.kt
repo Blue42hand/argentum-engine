@@ -14,7 +14,6 @@ import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.costs.CostAtom
-import com.wingedsheep.sdk.scripting.effects.AddAnyColorManaSpendOnChosenTypeEffect
 import com.wingedsheep.sdk.scripting.effects.AddColorlessManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect
 import com.wingedsheep.sdk.scripting.effects.AddManaEffect
@@ -146,16 +145,20 @@ object ManaAbilityLifeCost {
         tapperId: EntityId,
         production: ManaProduction? = null,
     ): Pair<GameState, List<GameEvent>> {
-        val (tapped, tapEvents) = tapForMana(state, sourceId, tapperId, production?.producedColors.orEmpty())
+        val (tapped, tapEvents) = tapForMana(state, sourceId, tapperId, production?.producedColors.orEmpty(), production?.total ?: 1)
         if (tapEvents.isEmpty()) return tapped to tapEvents
         val ability = activatedManaAbility(zones.cardRegistry, tapped, sourceId, production, tapperId, zones.predicateEvaluator)
         val (paid, lifeEvents) = pay(zones, tapped, sourceId, tapperId, ability)
         return paid to (tapEvents + lifeEvents)
     }
 
-    /** The mana a player-selected source is credited with: its first color, else colorless. */
-    fun creditedProduction(producesColors: Collection<Color>): ManaProduction =
-        producesColors.firstOrNull()?.let { ManaProduction(color = it) } ?: ManaProduction(color = null, colorless = 1)
+    /**
+     * The mana a player-selected source is credited with: [amount] of its first color, else
+     * [amount] colorless — what "the amount of mana this creature produced" reads (Tyvar).
+     */
+    fun creditedProduction(producesColors: Collection<Color>, amount: Int): ManaProduction =
+        producesColors.firstOrNull()?.let { ManaProduction(color = it, amount = amount) }
+            ?: ManaProduction(color = null, colorless = amount)
 
     private fun abilityProducesColor(ability: ActivatedAbility, color: Color?): Boolean =
         manaSubEffects(ability.effect).any { effect -> effectProduces(effect, color) }
@@ -163,8 +166,7 @@ object ManaAbilityLifeCost {
     private fun effectProduces(effect: Effect, color: Color?): Boolean = when (effect) {
         is AddManaEffect -> effect.color == color
         is AddColorlessManaEffect -> color == null
-        is AddManaOfChoiceEffect,
-        is AddAnyColorManaSpendOnChosenTypeEffect -> color != null  // any non-null color
+        is AddManaOfChoiceEffect -> color != null  // any non-null color
         is AddDynamicManaEffect -> color != null && color in effect.allowedColors
         else -> false
     }
@@ -178,6 +180,5 @@ object ManaAbilityLifeCost {
     internal fun isManaEffect(effect: Effect): Boolean = effect is AddManaEffect ||
         effect is AddColorlessManaEffect ||
         effect is AddManaOfChoiceEffect ||
-        effect is AddAnyColorManaSpendOnChosenTypeEffect ||
         effect is AddDynamicManaEffect
 }

@@ -12,7 +12,16 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
-/** Wake the Past — Commander 2021 #75. Only artifacts actually returned gain temporary haste. */
+/**
+ * Wake the Past — Commander 2021 #75 (rare)
+ * {5}{R}{W} · Sorcery
+ *
+ * Return all artifact cards from your graveyard to the battlefield. They gain haste until end of turn.
+ *
+ * Gather every artifact card in your graveyard, move them all to the battlefield with
+ * `moveTracked` so "they" is exactly the cards that actually arrived (a replacement effect or a
+ * card that couldn't enter leaves it out), then grant haste to each of those.
+ */
 val WakeThePast = card("Wake the Past") {
     manaCost = "{5}{R}{W}"
     colorIdentity = "RW"

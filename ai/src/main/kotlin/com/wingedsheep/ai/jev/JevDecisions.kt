@@ -10,7 +10,7 @@ internal class JevDecisions(private val q: JevChoices, private val label: (Entit
 
     fun answer(d: PendingDecision): DecisionResponse = when (d) {
         is PlayCardDecision -> PlayCardResponse(d.id, requireNotNull(playCard)(d))
-        is YesNoDecision -> YesNoResponse(d.id, q.pick(d.prompt, listOf(true, false)) { if (it) d.yesText else d.noText })
+        is YesNoDecision -> YesNoResponse(d.id, q.pick(d.prompt, listOfNotNull(true.takeIf { d.yesAvailable }, false)) { if (it) d.yesText else d.noText })
         is BatchYesNoDecision -> BatchYesNoResponse(d.id,
             q.pick(d.prompt, listOf(true, false)) { if (it) d.yesText else d.noText }, applyToAll = false)
         is ChooseOptionDecision -> OptionChosenResponse(d.id, q.pick(d.prompt, d.options.indices.toList()) { d.options[it] })
@@ -29,6 +29,8 @@ internal class JevDecisions(private val q: JevChoices, private val label: (Entit
             chosen + (r.index to cards("${d.prompt}: ${r.description}", d.legalTargetsFor(r.index, chosen), r.minTargets, r.maxTargets))
         })
         is OrderObjectsDecision -> OrderedResponse(d.id, cards("${d.prompt}: choose next in order", d.objects, d.objects.size, d.objects.size))
+        is OrderTriggersDecision -> TriggerOrderResponse(d.id, q.select("${d.prompt}: choose next to resolve",
+            d.triggers.indices.toList(), d.triggers.size, d.triggers.size) { "${d.triggers[it].sourceName}: ${d.triggers[it].text}" })
         is ReorderLibraryDecision -> OrderedResponse(d.id, cards("${d.prompt}: top first", d.cards, d.cards.size, d.cards.size))
         is SplitPilesDecision -> if (d.suggestedPiles != null) PilesSplitResponse(d.id, d.suggestedPiles!!) else {
             val piles = List(d.numberOfPiles) { mutableListOf<EntityId>() }
@@ -46,6 +48,14 @@ internal class JevDecisions(private val q: JevChoices, private val label: (Entit
                 d.toOptions[it]
             }
             ReplacementChosenResponse(d.id, from, to)
+        }
+        is FlipOntoBattlefieldDecision -> {
+            // Aim at a permanent's centre with a clean release, or throw it off the table.
+            val aims = d.table.cards.filter { it.eligible }
+            val aim = q.pick("${d.prompt}: aim at", aims + listOf(null)) { it?.let { c -> c.name ?: "a face-down permanent" } ?: "Off the table" }
+            val release = d.release.sweetSpot
+            if (aim == null) FlipThrowResponse(d.id, d.table.width / 2, -2 * d.table.height, release)
+            else FlipThrowResponse(d.id, aim.x, aim.y, release)
         }
         is BudgetModalDecision -> {
             var budget = d.budget

@@ -25,6 +25,9 @@ enum class ChoiceSlot {
     /** A creature type chosen as the object entered (e.g. Riptide Replicator "choose a creature type"). */
     CREATURE_TYPE,
 
+    /** A planeswalker type chosen as the object entered (e.g. Deification "choose a planeswalker type"). */
+    PLANESWALKER_TYPE,
+
     /** A basic land type chosen as the object entered (e.g. Phantasmal Terrain). */
     LAND_TYPE,
 
@@ -199,6 +202,26 @@ enum class ChoiceSlot {
      */
     ESCAPED,
 
+    /**
+     * Whether the spell was cast by paying its own printed alternative cost
+     * ([com.wingedsheep.sdk.model.CardScript.selfAlternativeCost], CR 118.9 — "You may pay {1}{B}
+     * rather than pay this spell's mana cost"). A present value means "that cost was paid". Read back
+     * through [com.wingedsheep.sdk.dsl.Conditions.SelfAlternativeCostWasPaid] for the Strixhaven
+     * Mastery cycle's "If the {1}{B} cost was paid, …" riders. The engine answers it from the spell
+     * on the stack while it resolves (a copy keeps the original's answer, CR 707.10) and stamps it on
+     * a permanent the spell becomes.
+     */
+    SELF_ALTERNATIVE_COST_PAID,
+
+    /**
+     * Whether the spell **was foretold** (CR 702.143c) — it was a foretold card in exile before it
+     * was cast, whatever cost it was then cast for. Stamped by the engine as the spell is cast, never
+     * declared by the player. Read back through [com.wingedsheep.sdk.dsl.Conditions.WasForetold] for
+     * the Kaldheim "If this spell was foretold, …" riders (Poison the Cup, Starnheim Unleashed), from
+     * the spell while it resolves and from the permanent a permanent spell becomes.
+     */
+    FORETOLD,
+
     /** The X declared for a `blight X` additional cost when cast (e.g. Soul Immolation). */
     BLIGHT_AMOUNT,
 
@@ -245,6 +268,14 @@ enum class ChoiceSlot {
     OPPONENT,
 
     /**
+     * A player — any player, not only an opponent — recorded as the object entered, stored as a
+     * [ChoiceValue.EntityChoice] carrying the player entity id (Takklemaggot returning as a
+     * non-Aura enchantment that hurts "that player"). Read back through
+     * [com.wingedsheep.sdk.scripting.references.Player.ChosenPlayer].
+     */
+    PLAYER,
+
+    /**
      * A general-purpose chosen number stored durably on the permanent and re-settable over its
      * lifetime (e.g. Shapeshifter "as this enters and at each upkeep, choose a number between 0
      * and 7; its power is that number and its toughness is 7 minus it"). Written at entry by the
@@ -259,6 +290,31 @@ enum class ChoiceSlot {
      */
     CHOSEN_NUMBER,
 
+    /**
+     * A number *noted* for the permanent rather than chosen — "note your life total" (Sigarda's
+     * Splendor). Written by [com.wingedsheep.sdk.scripting.effects.NoteNumberForSourceEffect]
+     * (at entry inside an [OnEnterRun], and again by later abilities — the last note wins) and read
+     * back as "the last noted …" through
+     * [com.wingedsheep.sdk.scripting.values.DynamicAmount.CastChoice].
+     */
+    NOTED_NUMBER,
+
     /** Zero-based branch of a declared additional-cost choice. */
     ADDITIONAL_COST_BRANCH,
+
+    /**
+     * Whether the spell's **unnamed optional additional cost** was paid when cast — the plain
+     * "As an additional cost to cast this spell, you may <cost>" that no keyword names (Kamigawa:
+     * Neon Dynasty's Voltage Surge: "you may sacrifice an artifact … If this spell's additional
+     * cost was paid, …"). A present value means the cost was declared and paid. Declared through
+     * [com.wingedsheep.sdk.scripting.KeywordAbility.Companion.optionalAdditionalCost] and read back
+     * through [com.wingedsheep.sdk.dsl.Conditions.AdditionalCostWasPaid].
+     *
+     * Deliberately distinct from [KICKED], [BARGAINED] and [EVIDENCE_COLLECTED] even though all ride
+     * the same optional-additional-cost rail
+     * ([com.wingedsheep.sdk.scripting.KeywordAbility.OptionalAdditionalCost.declaredSlot]): the
+     * spell is neither kicked nor bargained, so it must not satisfy "whenever you cast a kicked
+     * spell" payoffs.
+     */
+    ADDITIONAL_COST_PAID,
 }

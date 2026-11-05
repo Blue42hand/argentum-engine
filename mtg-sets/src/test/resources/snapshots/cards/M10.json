@@ -381,6 +381,99 @@
     ]
 }
 
+// Cemetery Reaper
+{
+    "name": "Cemetery Reaper",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Creature — Zombie",
+    "oracleText": "Other Zombie creatures you control get +1/+1.\n{2}{B}, {T}: Exile target creature card from a graveyard. Create a 2/2 black Zombie creature token.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Cemetery Reaper:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{B}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Exile"
+                        },
+                        {
+                            "type": "CreateToken",
+                            "power": 2,
+                            "toughness": 2,
+                            "colors": [
+                                "BLACK"
+                            ],
+                            "creatureTypes": [
+                                "Zombie"
+                            ]
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature",
+                            "zone": "Graveyard"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "creature Zombie ctrl:you",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "87",
+        "rarity": "RARE",
+        "artist": "Dave Allsop",
+        "flavorText": "Every grave cradles a recruit.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/3/639b48f0-3426-46cf-b857-4611f7de4826.jpg?1783942385",
+        "rulings": [
+            {
+                "date": "2009-10-01",
+                "text": "The creature card in a graveyard is exiled as part of the activated ability's effect, not as a cost. If that card has left the graveyard by the time the ability would resolve, the ability doesn't resolve and you don't get a Zombie token."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Centaur Courser
 {
     "name": "Centaur Courser",
@@ -1639,6 +1732,68 @@
     ]
 }
 
+// Open the Vaults
+{
+    "name": "Open the Vaults",
+    "manaCost": "{4}{W}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Return all artifact and enchantment cards from all graveyards to the battlefield under their owners' control. (Auras with nothing to enchant remain in graveyards.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Graveyard",
+                        "player": "Each",
+                        "filter": "artifact|enchantment"
+                    },
+                    "storeAs": "gathered0"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "gathered0",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    },
+                    "underOwnersControl": true
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "21",
+        "rarity": "RARE",
+        "artist": "Brian Despain",
+        "flavorText": "When the vaults are empty, everyone is rich.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/f/ffb29703-96de-475a-9499-b3cd2a2d6566.jpg?1783942401",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "If an Aura is put onto the battlefield without being cast, the Aura's controller-to-be chooses what it will enchant as it enters the battlefield. An Aura put onto the battlefield this way doesn't target anything (so it could be attached to an opponent's permanent with hexproof, for example), but the Aura's enchant ability restricts what it can be attached to. If the Aura can't legally be attached to anything, it remains in its current zone."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If an Aura can be returned to the battlefield with Open the Vaults, it must be, even if its owner doesn't like what it would enchant."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If multiple players have Auras in their graveyards, the player whose turn it is announces what their Auras will enchant, then each other player in turn order does the same, then all artifacts and enchantments (including both Auras and non-Auras) enter the battlefield at the same time."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "An Aura put onto the battlefield this way can't enchant an artifact or enchantment that's also being put onto the battlefield with Open the Vaults."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Planar Cleansing
 {
     "name": "Planar Cleansing",
@@ -1793,6 +1948,70 @@
     ]
 }
 
+// Sanguine Bond
+{
+    "name": "Sanguine Bond",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever you gain life, target opponent loses that much life.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sanguine Bond:1",
+                "trigger": "LifeGainEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "ContextProperty",
+                        "key": "TRIGGER_LIFE_GAINED"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "111",
+        "rarity": "RARE",
+        "artist": "Jaime Jones",
+        "flavorText": "\"Blood is constant. Every drop I drink, someone must bleed.\"\n—Vradeen, vampire nocturnus",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/4/445d6a68-ed53-4c96-973a-c29282514f41.jpg?1783942379",
+        "rulings": [
+            {
+                "date": "2009-10-01",
+                "text": "Sanguine Bond's ability triggers just once for each life-gaining event, whether it's 1 life from Soul Warden or 8 life from Tendrils of Corruption."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "If you gain an amount of life \"for each\" of something, that life is gained as one event and Sanguine Bond's ability triggers only once."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "If an ability triggers whenever an opponent loses life and causes you to gain life, such as the ability of Exquisite Blood, this will loop until either you win the game or a player takes an action to break the loop. If neither of these happen, the game ends in a draw."
+            },
+            {
+                "date": "2023-09-01",
+                "text": "Each creature with lifelink dealing combat damage causes a separate life-gaining event. For example, if two creatures you control with lifelink deal combat damage at the same time, Sanguine Bond's ability will trigger twice and you may choose a different opponent for each trigger. However, if a single creature you control with lifelink deals combat damage to multiple creatures, players, planeswalkers, and/or battles at the same time (perhaps because it has trample or was blocked by more than one creature), the ability will trigger only once."
+            },
+            {
+                "date": "2024-04-12",
+                "text": "In a Two-Headed Giant game, life gained by your teammate won't cause Sanguine Bond's ability to trigger, even though it caused your team's life total to increase."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Seismic Strike
 {
     "name": "Seismic Strike",
@@ -1902,6 +2121,47 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Silence
+{
+    "name": "Silence",
+    "manaCost": "{W}",
+    "typeLine": "Instant",
+    "oracleText": "Your opponents can't cast spells this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "CantCastSpells",
+            "target": {
+                "type": "PlayerRef",
+                "player": "EachOpponent"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "31",
+        "rarity": "RARE",
+        "artist": "Wayne Reynolds",
+        "flavorText": "\"All the wizardry in the world has to pass through one small and easily sealed door.\"\n—Ajani Goldmane",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/5/1559d660-8a9d-422b-95d3-710a046583dd.jpg?1783942397",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Silence won't affect spells that your opponents cast before you cast Silence, including any spells that are still on the stack. Silence also won't stop your opponents from casting spells after you cast Silence but before Silence resolves."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "The only thing Silence stops is casting spells. Your opponents can still activate abilities, including abilities of cards in their hands (like cycling). Their triggered abilities work as normal, they can still play lands, and so on."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "A player who can't cast a spell can't suspend a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 

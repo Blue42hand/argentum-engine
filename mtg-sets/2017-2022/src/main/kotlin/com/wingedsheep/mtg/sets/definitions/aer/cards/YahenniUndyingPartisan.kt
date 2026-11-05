@@ -10,6 +10,13 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
+/**
+ * Yahenni, Undying Partisan — Aether Revolt #74
+ * {2}{B} · Legendary Creature — Aetherborn Vampire · 2/2
+ * Haste
+ * Whenever a creature an opponent controls dies, put a +1/+1 counter on Yahenni.
+ * Sacrifice another creature: Yahenni gains indestructible until end of turn.
+ */
 val YahenniUndyingPartisan = card("Yahenni, Undying Partisan") {
     manaCost = "{2}{B}"
     colorIdentity = "B"

@@ -183,6 +183,13 @@ class DecksController(
          * identity in Commander, and its copy count with the deck's.
          */
         val companion: String? = null,
+        /**
+         * Validate for a game played for ante (CR 407): ante cards are then allowed (CR 407.3).
+         * Absent or false, any ante card in the deck or sideboard is a REQUIRES_ANTE error.
+         * Nullable because an absent JSON field maps to null, which `FAIL_ON_NULL_FOR_PRIMITIVES`
+         * would reject for a bare `Boolean`.
+         */
+        val playingForAnte: Boolean? = false,
     )
 
     @GetMapping("/examples")
@@ -227,13 +234,14 @@ class DecksController(
                 sideboard = request.sideboard.orEmpty(),
                 companion = request.companion,
             )
-            return deckValidator.validate(deck, request.format)
+            return deckValidator.validate(deck, request.format, playingForAnte = request.playingForAnte == true)
         }
         return deckValidator.validate(
             deckList = request.deckList,
             format = request.format,
             cardEntries = request.cardEntries,
             commanderPrinting = request.commanderPrinting,
+            playingForAnte = request.playingForAnte == true,
         )
     }
 

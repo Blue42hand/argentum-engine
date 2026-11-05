@@ -12,4 +12,5 @@ val GrenzoHavocRaiserReprint = Printing(
     imageUri = "https://cards.scryfall.io/normal/front/6/1/619fc399-d45d-431f-8ce4-ba9db2a2e39c.jpg?1783937000",
     releaseDate = "2016-11-16",
     rarity = Rarity.RARE,
+    scryfallId = "619fc399-d45d-431f-8ce4-ba9db2a2e39c",
 )

@@ -6,12 +6,21 @@ import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.GrantHexproofFromToGroup
 import com.wingedsheep.sdk.scripting.ProtectionScope
+import com.wingedsheep.sdk.scripting.SetBasePowerToughnessStatic
 import com.wingedsheep.sdk.scripting.SkipStepOrPhase
 import com.wingedsheep.sdk.scripting.StaticAbility
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.conditions.TriggeringEntityWas
+import com.wingedsheep.engine.state.components.stack.SpellOnStackComponent
+import com.wingedsheep.engine.state.permissions.MayPlayPermission
+import com.wingedsheep.sdk.model.EntityId
+import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.EntryCounter
+import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
+import com.wingedsheep.sdk.scripting.effects.GrantMayPlayFromExileEffect
 import com.wingedsheep.sdk.scripting.effects.SkipDuration
 import com.wingedsheep.sdk.scripting.effects.SkipStepOrPhaseEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
@@ -27,8 +36,10 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
 
 /**
  * Games persisted before the SDK consolidation hold retired discriminators inside card scripts.
@@ -62,11 +73,17 @@ class RetiredSdkTypeLiftTest : FunSpec({
         }
     }
 
-    test("the name-not-shared predicates become a negated SharesNameWithPermanentYouControl") {
+    test("the name-not-shared predicates become a negated SharesNameWithYourCard") {
         lifted(CardPredicate.serializer(), old("NameNotSharedWithControlledToken")) shouldBe
-            CardPredicate.Not(CardPredicate.SharesNameWithPermanentYouControl(GameObjectFilter.Token, excludeSelf = false))
+            CardPredicate.Not(CardPredicate.SharesNameWithYourCard(GameObjectFilter.Token, excludeSelf = false))
         lifted(CardPredicate.serializer(), old("NameNotSharedWithAnotherControlledPermanent")) shouldBe
-            CardPredicate.Not(CardPredicate.SharesNameWithPermanentYouControl(GameObjectFilter.Permanent, excludeSelf = true))
+            CardPredicate.Not(CardPredicate.SharesNameWithYourCard(GameObjectFilter.Permanent, excludeSelf = true))
+    }
+
+    test("SharesNameWithPermanentYouControl becomes a battlefield SharesNameWithYourCard") {
+        val filter = json.encodeToJsonElement(GameObjectFilter.serializer(), GameObjectFilter.Token)
+        lifted(CardPredicate.serializer(), old("SharesNameWithPermanentYouControl", "filter" to filter, "excludeSelf" to JsonPrimitive(true))) shouldBe
+            CardPredicate.SharesNameWithYourCard(GameObjectFilter.Token, excludeSelf = true, zone = Zone.BATTLEFIELD)
     }
 
     test("the life conditions keep their threshold") {
@@ -103,6 +120,11 @@ class RetiredSdkTypeLiftTest : FunSpec({
         val source = json.encodeToJsonElement(GroupFilter.serializer(), GroupFilter.source())
         lifted(StaticAbility.serializer(), old("GrantHexproofFromMulticoloredToGroup", "filter" to source)) shouldBe
             GrantHexproofFromToGroup(ProtectionScope.Multicolored, GroupFilter.source())
+        val opponents = json.encodeToJsonElement(GroupFilter.serializer(), GroupFilter.AllCreaturesOpponentsControl)
+        lifted(
+            StaticAbility.serializer(),
+            old("SetBaseToughnessForCreatureGroup", "toughness" to JsonPrimitive(1), "filter" to opponents)
+        ) shouldBe SetBasePowerToughnessStatic(power = null, toughness = 1, filter = GroupFilter.AllCreaturesOpponentsControl)
     }
 
     test("a retired object nested deep in a document is rewritten in place") {
@@ -115,11 +137,122 @@ class RetiredSdkTypeLiftTest : FunSpec({
             JsonObject(mapOf("cards" to JsonArray(listOf(JsonObject(mapOf("filter" to expected))))))
     }
 
+    test("the retired may-play singleUse flag becomes a cap of one play, or drops out when false") {
+        val grant = GrantMayPlayFromExileEffect(from = "exiled", nonLandOnly = true)
+        val encodedGrant = json.encodeToJsonElement(Effect.serializer(), grant).jsonObject
+        lifted(Effect.serializer(), JsonObject(encodedGrant - "maxPlays" + ("singleUse" to JsonPrimitive(true)))) shouldBe
+            grant.copy(maxPlays = 1)
+        lifted(Effect.serializer(), JsonObject(encodedGrant - "maxPlays" + ("singleUse" to JsonPrimitive(false)))) shouldBe
+            grant
+
+        val permission = MayPlayPermission(
+            id = EntityId.of("perm"), cardIds = setOf(EntityId.of("card")), controllerId = EntityId.of("player"), timestamp = 1
+        )
+        val encodedPermission = json.encodeToJsonElement(MayPlayPermission.serializer(), permission).jsonObject
+        lifted(
+            MayPlayPermission.serializer(),
+            JsonObject(encodedPermission - "playsRemaining" + ("singleUse" to JsonPrimitive(true)))
+        ) shouldBe permission.copy(playsRemaining = 1)
+    }
+
+    test("the retired colorlessAsAnyColor flag becomes spendAsAnyColor = COLORLESS, or drops out when false") {
+        val grant = GrantMayPlayFromExileEffect(from = "exiled", nonLandOnly = true)
+        val encodedGrant = json.encodeToJsonElement(Effect.serializer(), grant).jsonObject
+        lifted(Effect.serializer(), JsonObject(encodedGrant - "spendAsAnyColor" + ("colorlessAsAnyColor" to JsonPrimitive(true)))) shouldBe
+            grant.copy(spendAsAnyColor = com.wingedsheep.sdk.scripting.effects.ManaSpentAsAnyColor.COLORLESS)
+        lifted(Effect.serializer(), JsonObject(encodedGrant - "spendAsAnyColor" + ("colorlessAsAnyColor" to JsonPrimitive(false)))) shouldBe
+            grant
+
+        val permission = MayPlayPermission(
+            id = EntityId.of("perm"), cardIds = setOf(EntityId.of("card")), controllerId = EntityId.of("player"), timestamp = 1
+        )
+        val encodedPermission = json.encodeToJsonElement(MayPlayPermission.serializer(), permission).jsonObject
+        lifted(
+            MayPlayPermission.serializer(),
+            JsonObject(encodedPermission - "spendAsAnyColor" + ("colorlessAsAnyColor" to JsonPrimitive(true)))
+        ) shouldBe permission.copy(spendAsAnyColor = com.wingedsheep.sdk.scripting.effects.ManaSpentAsAnyColor.COLORLESS)
+    }
+
+    test("the retired landEntersTapped flag becomes a Land entersTapped filter, or drops out when false") {
+        val grant = GrantMayPlayFromExileEffect(from = "exiled")
+        val encodedGrant = json.encodeToJsonElement(Effect.serializer(), grant).jsonObject
+        lifted(Effect.serializer(), JsonObject(encodedGrant - "entersTapped" + ("landEntersTapped" to JsonPrimitive(true)))) shouldBe
+            grant.copy(entersTapped = GameObjectFilter.Land)
+        lifted(Effect.serializer(), JsonObject(encodedGrant - "entersTapped" + ("landEntersTapped" to JsonPrimitive(false)))) shouldBe
+            grant
+
+        val permission = MayPlayPermission(
+            id = EntityId.of("perm"), cardIds = setOf(EntityId.of("card")), controllerId = EntityId.of("player"), timestamp = 1
+        )
+        val encodedPermission = json.encodeToJsonElement(MayPlayPermission.serializer(), permission).jsonObject
+        lifted(
+            MayPlayPermission.serializer(),
+            JsonObject(encodedPermission - "entersTapped" + ("landEntersTapped" to JsonPrimitive(true)))
+        ) shouldBe permission.copy(entersTapped = GameObjectFilter.Land)
+    }
+
+    test("the redirection shield's retired creaturesOnly flag becomes a Creature protectedFilter, or drops out when false") {
+        val effect = com.wingedsheep.sdk.scripting.effects.RedirectNextDamageEffect(
+            protectedTargets = emptyList(), redirectTo = EffectTarget.Controller
+        )
+        val encodedEffect = json.encodeToJsonElement(Effect.serializer(), effect).jsonObject
+        lifted(Effect.serializer(), JsonObject(encodedEffect - "protectedFilter" + ("creaturesOnly" to JsonPrimitive(true)))) shouldBe
+            effect.copy(protectedFilter = GameObjectFilter.Creature)
+        lifted(Effect.serializer(), JsonObject(encodedEffect - "protectedFilter" + ("creaturesOnly" to JsonPrimitive(false)))) shouldBe
+            effect
+
+        val shield = com.wingedsheep.engine.mechanics.layers.SerializableModification.RedirectNextDamage(EntityId.of("player"))
+        val serializer = com.wingedsheep.engine.mechanics.layers.SerializableModification.serializer()
+        val encodedShield = json.encodeToJsonElement(serializer, shield).jsonObject
+        lifted(serializer, JsonObject(encodedShield - "protectedFilter" + ("creaturesOnly" to JsonPrimitive(true)))) shouldBe
+            shield.copy(protectedFilter = GameObjectFilter.Creature)
+    }
+
+    test("the cast-time flag reader becomes a comparison over the numeric capture") {
+        lifted(Condition.serializer(), old("CastTimeFlagSet", "flag" to JsonPrimitive("controlledMount"))) shouldBe
+            Conditions.CapturedAtCast("controlledMount")
+    }
+
+    test("a spell's retired castTimeFlags become castTimeValues of one") {
+        val spell = SpellOnStackComponent(casterId = EntityId.of("player"), castTimeValues = mapOf("controlledMount" to 1))
+        val encoded = json.encodeToJsonElement(SpellOnStackComponent.serializer(), spell).jsonObject
+        val legacy = JsonObject(encoded - "castTimeValues" + ("castTimeFlags" to JsonArray(listOf(JsonPrimitive("controlledMount")))))
+        lifted(SpellOnStackComponent.serializer(), legacy) shouldBe spell
+    }
+
+    test("a move's retired single entry counter becomes a one-entry entryCounters list") {
+        val move = MoveToZoneEffect(EffectTarget.Self, Zone.BATTLEFIELD,
+            entryCounters = listOf(EntryCounter(CounterType.PLUS_ONE_PLUS_ONE, GameObjectFilter.Creature)))
+        val encoded = json.encodeToJsonElement(Effect.serializer(), move).jsonObject
+        val counter = json.encodeToJsonElement(CounterType.serializer(), CounterType.PLUS_ONE_PLUS_ONE)
+        val filter = json.encodeToJsonElement(GameObjectFilter.serializer(), GameObjectFilter.Creature)
+        lifted(Effect.serializer(), JsonObject(encoded - "entryCounters" +
+            ("addCounterType" to counter) + ("addCounterIf" to filter))) shouldBe move
+        lifted(Effect.serializer(), JsonObject(encoded - "entryCounters" +
+            ("addCounterType" to JsonNull) + ("addCounterIf" to JsonNull))) shouldBe move.copy(entryCounters = emptyList())
+    }
+
     test("a document with no retired type passes through as the same instance") {
         val current = json.encodeToJsonElement(
             Effect.serializer(),
             SkipStepOrPhaseEffect(TurnPart.DRAW_STEP, SkipDuration.NEXT)
         )
         RetiredSdkTypeLift.lift(current) shouldBeSameInstanceAs current
+    }
+
+    test("the retired skip-untap flags become a permanents filter, on the effect and the pending marker") {
+        lifted(Effect.serializer(), old("SkipUntap", "affectsCreatures" to JsonPrimitive(true), "affectsLands" to JsonPrimitive(false))) shouldBe
+            com.wingedsheep.sdk.scripting.effects.SkipUntapEffect(permanents = GameObjectFilter.Creature)
+        lifted(Effect.serializer(), old("SkipUntap", "affectsCreatures" to JsonPrimitive(true), "affectsLands" to JsonPrimitive(true))) shouldBe
+            com.wingedsheep.sdk.scripting.effects.SkipUntapEffect()
+        lifted(
+            com.wingedsheep.engine.state.components.player.SkipUntapComponent.serializer(),
+            JsonObject(mapOf("affectsCreatures" to JsonPrimitive(false), "affectsLands" to JsonPrimitive(true)))
+        ) shouldBe com.wingedsheep.engine.state.components.player.SkipUntapComponent(listOf(GameObjectFilter.Land))
+    }
+
+    test("a retired bare-number additional-land count becomes a Fixed amount") {
+        lifted(Effect.serializer(), old("PlayAdditionalLands", "count" to JsonPrimitive(2))) shouldBe
+            com.wingedsheep.sdk.scripting.effects.PlayAdditionalLandsEffect(DynamicAmount.Fixed(2))
     }
 })

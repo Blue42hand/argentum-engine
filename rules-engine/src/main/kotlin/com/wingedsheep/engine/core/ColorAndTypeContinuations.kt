@@ -194,7 +194,7 @@ data class ChooseColorOrColorlessForProtectionContinuation(
  * Resume after a player chose a creature type for "each player chooses a creature type" effects.
  *
  * Each player (in APNAP order) chooses a creature type. After all players have chosen,
- * the accumulated chosen types are stored in the EffectContinuation below via storedStringLists[storeAs].
+ * the accumulated chosen types are stored in the EffectProgram below via storedStringLists[storeAs].
  *
  * @property sourceId The spell that created this effect
  * @property sourceName Name of the source for display

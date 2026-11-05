@@ -205,6 +205,7 @@ value class Subtype(val value: String) {
         val BACKGROUND = Subtype("Background")
         val CASE = Subtype("Case")
         val CLASS = Subtype("Class")
+        val CURSE = Subtype("Curse")
         val ROLE = Subtype("Role")
         val ROOM = Subtype("Room")
         val SAGA = Subtype("Saga")
@@ -269,6 +270,17 @@ value class Subtype(val value: String) {
         )
 
         /**
+         * All land types per comprehensive rules 205.3i — the basic ones plus Cave, Desert, Gate,
+         * Lair, Locus, Mine, Planet, Power-Plant, Sphere, Tower, Town and Urza's. A land whose
+         * subtype an effect *sets* loses every one of these it had (Rule 305.7), and "loses all
+         * land types" strips exactly these, leaving any non-land subtypes (e.g. Dryad Arbor's Dryad).
+         */
+        val ALL_LAND_TYPES: Set<String> = ALL_BASIC_LAND_TYPES + setOf(
+            "Cave", "Desert", "Gate", "Lair", "Locus", "Mine", "Planet", "Power-Plant", "Sphere",
+            "Tower", "Town", "Urza's"
+        )
+
+        /**
          * Creature types that make a card, spell, or permanent an *outlaw*
          * (Outlaws of Thunder Junction). A card is an outlaw if it has one or
          * more of these subtypes; "outlaw" itself is not a creature type.
@@ -278,6 +290,22 @@ value class Subtype(val value: String) {
          * `notAnyOfSubtypes`, so future outlaw-matters cards reuse the same group.
          */
         val OUTLAW_TYPES: List<Subtype> = listOf(ASSASSIN, MERCENARY, PIRATE, ROGUE, WARLOCK)
+
+        /**
+         * All official planeswalker types per comprehensive rules 205.3j, alphabetical — the options
+         * of a "choose a planeswalker type" decision.
+         */
+        val ALL_PLANESWALKER_TYPES: List<String> = listOf(
+            "Ajani", "Aminatou", "Angrath", "Arlinn", "Ashiok", "Bahamut", "Basri", "Bolas", "Calix",
+            "Chandra", "Comet", "Dack", "Dakkon", "Daretti", "Davriel", "Dellian", "Dihada", "Domri",
+            "Dovin", "Ellywick", "Elminster", "Elspeth", "Estrid", "Freyalise", "Garruk", "Gideon",
+            "Grist", "Guff", "Huatli", "Jace", "Jared", "Jaya", "Jeska", "Kaito", "Karn", "Kasmina",
+            "Kaya", "Kiora", "Koth", "Liliana", "Lolth", "Lukka", "Minsc", "Mordenkainen", "Nahiri",
+            "Narset", "Niko", "Nissa", "Nixilis", "Oko", "Quintorius", "Ral", "Rowan", "Saheeli",
+            "Samut", "Sarkhan", "Serra", "Sivitri", "Sorin", "Szat", "Tamiyo", "Tasha", "Teferi",
+            "Teyo", "Tezzeret", "Tibalt", "Tyvar", "Ugin", "Urza", "Venser", "Vivien", "Vraska",
+            "Vronos", "Will", "Windgrace", "Wrenn", "Xenagos", "Yanggu", "Yanling", "Zariel"
+        )
 
         /**
          * All official creature types per comprehensive rules 205.3m.
@@ -302,14 +330,14 @@ value class Subtype(val value: String) {
             "Faerie", "Ferret", "Fish", "Flagbearer", "Fox", "Fractal", "Frog",
             "Fungus",
             "Gamer", "Gamma", "Gargoyle", "Germ", "Giant", "Gith", "Glimmer",
-            "Gnoll", "Gnome", "Goat", "Goblin", "God", "Golem", "Gorgon",
+            "Gnoll", "Gnome", "Goat", "Goblin", "God", "Golem", "Gorgon", "Gorn",
             "Graveborn", "Gremlin", "Griffin", "Guest",
             "Hag", "Halfling", "Hamster", "Harpy", "Hedgehog", "Hellion", "Hero",
             "Hippo", "Hippogriff", "Homarid", "Homunculus", "Horror", "Horse",
             "Human", "Hydra", "Hyena",
             "Illusion", "Imp", "Incarnation", "Inkling", "Inquisitor", "Insect",
             "Jackal", "Jellyfish", "Juggernaut",
-            "Kangaroo", "Kavu", "Kirin", "Kithkin", "Knight", "Kobold", "Kor",
+            "Kangaroo", "Kavu", "Kirin", "Kithkin", "Klingon", "Knight", "Kobold", "Kor",
             "Kraken",
             "Lamia", "Lammasu", "Leech", "Lemur", "Leviathan", "Lhurgoyf", "Licid",
             "Lizard", "Llama", "Lobster",
@@ -318,7 +346,7 @@ value class Subtype(val value: String) {
             "Moogle", "Moonfolk", "Mount", "Mouse", "Mutant", "Myr", "Mystic",
             "Nautilus", "Necron", "Nephilim", "Nightmare", "Nightstalker", "Ninja",
             "Noble", "Noggle", "Nomad", "Nymph",
-            "Octopus", "Ogre", "Ooze", "Orb", "Orc", "Orgg", "Otter", "Ouphe", "Ox",
+            "Octopus", "Officer", "Ogre", "Ooze", "Orb", "Orc", "Orgg", "Otter", "Ouphe", "Ox",
             "Oyster",
             "Pangolin", "Peasant", "Pegasus", "Pentavite", "Performer", "Pest",
             "Phelddagrif", "Phoenix", "Phyrexian", "Pilot", "Pincher", "Pirate",
@@ -339,7 +367,7 @@ value class Subtype(val value: String) {
             "Time Lord", "Toy", "Treefolk", "Trilobite", "Triskelavite", "Troll",
             "Turtle", "Tyranid",
             "Unicorn", "Utrom",
-            "Vampire", "Varmint", "Vedalken", "Villain", "Volver",
+            "Vampire", "Varmint", "Vedalken", "Villain", "Volver", "Vulcan",
             "Wall", "Walrus", "Warlock", "Warrior", "Weasel", "Weird", "Werewolf",
             "Whale", "Wizard", "Wolf", "Wolverine", "Wombat", "Worm", "Wraith",
             "Wurm",

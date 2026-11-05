@@ -1,7 +1,7 @@
 /**
  * Account profile: shows the signed-in user, lets them rename their display name, a compact win/loss
  * summary (with a link to the full stats dashboard), a launcher into the deckbuilder's saved-deck
- * browser, and a paginated list of recent games — each of which can be opened to review both players'
+ * browser, the ante Spoils won in games played for ante, and a paginated list of recent games — each of which can be opened to review both players'
  * decks or watched/shared as a replay. Prompts sign-in when anonymous. The heavy analytics (charts,
  * head-to-head, colors, mana curve, …) live on the separate /stats page.
  */
@@ -21,6 +21,7 @@ import {
 import { LoginModal } from '@/components/auth/LoginModal'
 import { AvatarPicker } from '@/components/profile/AvatarPicker'
 import { DeckViewModal } from '@/components/profile/DeckViewModal'
+import { SpoilsPanel } from '@/components/profile/SpoilsPanel'
 import { TournamentDetailModal } from '@/components/profile/TournamentDetailModal'
 import {
   AccountPage,
@@ -283,6 +284,9 @@ export function ProfilePage() {
             </div>
           )}
         </section>
+
+        {/* Cards won in games played for ante (CR 407). */}
+        <SpoilsPanel />
 
         {tournaments.length > 0 && (
           <section className={p.panel}>

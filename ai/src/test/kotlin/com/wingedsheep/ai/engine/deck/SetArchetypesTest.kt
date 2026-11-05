@@ -26,6 +26,26 @@ class SetArchetypesTest : StringSpec({
         synergies.archetypes.map { it.colors.toSet() } shouldContainExactly ALL_COLOR_PAIRS.toList()
     }
 
+    "Legends exposes its five allied gold-legend pairs" {
+        val synergies = requireNotNull(SetArchetypes.getForSet("leg"))
+
+        synergies.setName shouldBe "Legends"
+        synergies.archetypes.map { it.name } shouldContainExactly listOf(
+            "Banding Skies",
+            "Legendary Control",
+            "Landwalk Aggro",
+            "Rampage Stompy",
+            "Legendary Midrange",
+        )
+        synergies.archetypes.map { it.colors.toSet() } shouldContainExactly listOf(
+            setOf(Color.WHITE, Color.BLUE),
+            setOf(Color.BLUE, Color.BLACK),
+            setOf(Color.BLACK, Color.RED),
+            setOf(Color.RED, Color.GREEN),
+            setOf(Color.GREEN, Color.WHITE),
+        )
+    }
+
     "Dominaria United exposes all ten limited color-pair archetypes" {
         val synergies = requireNotNull(SetArchetypes.getForSet("dmu"))
 
@@ -151,6 +171,144 @@ class SetArchetypesTest : StringSpec({
     "Innistrad Remastered archetypes can be matched by deck colors" {
         SetArchetypes.getMatchingArchetypes("INR", setOf(Color.WHITE, Color.BLUE))
             .map { it.name } shouldContainExactly listOf("Spirits Tempo")
+    }
+    "Streets of New Capenna exposes its five families and five allied-pair archetypes" {
+        val synergies = SetArchetypes.getForSet("SNC")!!
+
+        synergies.setName shouldBe "Streets of New Capenna"
+        synergies.archetypes.associate { it.name to it.colors.toSet() } shouldBe mapOf(
+            "Brokers" to setOf(Color.WHITE, Color.BLUE, Color.GREEN),
+            "Obscura" to setOf(Color.WHITE, Color.BLUE, Color.BLACK),
+            "Maestros" to setOf(Color.BLUE, Color.BLACK, Color.RED),
+            "Riveteers" to setOf(Color.BLACK, Color.RED, Color.GREEN),
+            "Cabaretti" to setOf(Color.RED, Color.GREEN, Color.WHITE),
+            "Counters Flyers" to setOf(Color.WHITE, Color.BLUE),
+            "Graveyard Value" to setOf(Color.BLUE, Color.BLACK),
+            "Sacrifice" to setOf(Color.BLACK, Color.RED),
+            "Treasure Ramp" to setOf(Color.RED, Color.GREEN),
+            "Citizens" to setOf(Color.GREEN, Color.WHITE),
+        )
+        synergies.archetypes.single { it.name == "Citizens" }.creatureTypes shouldContainExactly listOf("Citizen")
+    }
+
+    "Kamigawa: Neon Dynasty exposes one archetype per allied and enemy pair" {
+        val synergies = SetArchetypes.getForSet("NEO")!!
+
+        synergies.setName shouldBe "Kamigawa: Neon Dynasty"
+        synergies.archetypes.associate { it.name to it.colors.toSet() } shouldBe mapOf(
+            "Vehicles" to setOf(Color.WHITE, Color.BLUE),
+            "Ninjas" to setOf(Color.BLUE, Color.BLACK),
+            "Artifact Sacrifice" to setOf(Color.BLACK, Color.RED),
+            "Modified" to setOf(Color.RED, Color.GREEN),
+            "Enchantments" to setOf(Color.GREEN, Color.WHITE),
+            "Artifacts & Enchantments" to setOf(Color.WHITE, Color.BLACK),
+            "Artifacts Tempo" to setOf(Color.BLUE, Color.RED),
+            "Graveyard Value" to setOf(Color.BLACK, Color.GREEN),
+            "Samurai & Warriors" to setOf(Color.RED, Color.WHITE),
+            "Channel Ramp" to setOf(Color.GREEN, Color.BLUE),
+        )
+        synergies.archetypes.single { it.name == "Ninjas" }.creatureTypes shouldContainExactly listOf("Ninja", "Rogue")
+        synergies.archetypes.single { it.name == "Samurai & Warriors" }.creatureTypes shouldContainExactly
+            listOf("Samurai", "Warrior")
+    }
+
+    "Innistrad: Midnight Hunt exposes one archetype per gold signpost uncommon" {
+        val synergies = SetArchetypes.getForSet("MID")!!
+
+        synergies.setName shouldBe "Innistrad: Midnight Hunt"
+        synergies.archetypes.associate { it.name to it.colors.toSet() } shouldBe mapOf(
+            "Disturb Spirits" to setOf(Color.WHITE, Color.BLUE),
+            "Decayed Zombies" to setOf(Color.BLUE, Color.BLACK),
+            "Vampire Aggro" to setOf(Color.BLACK, Color.RED),
+            "Werewolves" to setOf(Color.RED, Color.GREEN),
+            "Coven Humans" to setOf(Color.GREEN, Color.WHITE),
+            "Sacrifice" to setOf(Color.WHITE, Color.BLACK),
+            "Flashback Spells" to setOf(Color.BLUE, Color.RED),
+            "Graveyard Value" to setOf(Color.BLACK, Color.GREEN),
+            "Day/Night Aggro" to setOf(Color.RED, Color.WHITE),
+            "Self-Mill Flashback" to setOf(Color.GREEN, Color.BLUE),
+        )
+        synergies.archetypes.single { it.name == "Werewolves" }.creatureTypes shouldContainExactly listOf("Werewolf")
+        synergies.archetypes.single { it.name == "Decayed Zombies" }.creatureTypes shouldContainExactly listOf("Zombie")
+    }
+
+    "March of the Machine: The Aftermath exposes one archetype per gold signpost uncommon" {
+        val synergies = SetArchetypes.getForSet("MAT")!!
+
+        synergies.setName shouldBe "March of the Machine: The Aftermath"
+        synergies.archetypes.associate { it.name to it.colors.toSet() } shouldBe mapOf(
+            "Legends Matter" to setOf(Color.WHITE, Color.BLUE),
+            "Death Rewards" to setOf(Color.WHITE, Color.BLACK),
+            "Artifact & Enchantment Value" to setOf(Color.RED, Color.WHITE),
+            "Graveyard Recursion" to setOf(Color.GREEN, Color.WHITE),
+        )
+        synergies.archetypes.all { it.creatureTypes.isEmpty() } shouldBe true
+    }
+    "Zendikar Rising exposes its ten signpost color-pair archetypes" {
+        val synergies = requireNotNull(SetArchetypes.getForSet("znr"))
+
+        synergies.setName shouldBe "Zendikar Rising"
+        synergies.archetypes.associate { it.name to it.colors.toSet() } shouldBe mapOf(
+            "Party Up" to setOf(Color.WHITE, Color.BLUE),
+            "Rogue Mill" to setOf(Color.BLUE, Color.BLACK),
+            "Party Aggro" to setOf(Color.BLACK, Color.RED),
+            "Landfall Aggro" to setOf(Color.RED, Color.GREEN),
+            "Lands Ramp" to setOf(Color.GREEN, Color.WHITE),
+            "Clerics Life Gain" to setOf(Color.WHITE, Color.BLACK),
+            "Wizards Spells" to setOf(Color.BLUE, Color.RED),
+            "Counters & Kicker" to setOf(Color.BLACK, Color.GREEN),
+            "Warriors Aggro" to setOf(Color.RED, Color.WHITE),
+            "Kicker Ramp" to setOf(Color.GREEN, Color.BLUE),
+        )
+        synergies.archetypes.map { it.colors.toSet() }.toSet() shouldBe ALL_COLOR_PAIRS
+        synergies.archetypes.filter { it.creatureTypes.isNotEmpty() }.associate { it.name to it.creatureTypes } shouldBe mapOf(
+            "Rogue Mill" to listOf("Rogue"),
+            "Clerics Life Gain" to listOf("Cleric"),
+            "Wizards Spells" to listOf("Wizard"),
+            "Warriors Aggro" to listOf("Warrior"),
+        )
+    }
+    "Kaldheim exposes its ten signpost color-pair archetypes" {
+        val synergies = requireNotNull(SetArchetypes.getForSet("khm"))
+
+        synergies.setName shouldBe "Kaldheim"
+        synergies.archetypes.associate { it.name to it.colors.toSet() } shouldBe mapOf(
+            "Foretell" to setOf(Color.WHITE, Color.BLUE),
+            "Snow Zombies" to setOf(Color.BLUE, Color.BLACK),
+            "Berserkers" to setOf(Color.BLACK, Color.RED),
+            "Big Spells Ramp" to setOf(Color.RED, Color.GREEN),
+            "Go Wide" to setOf(Color.GREEN, Color.WHITE),
+            "Double Spells" to setOf(Color.WHITE, Color.BLACK),
+            "Giants & Wizards" to setOf(Color.BLUE, Color.RED),
+            "Elves" to setOf(Color.BLACK, Color.GREEN),
+            "Equipment & Auras" to setOf(Color.RED, Color.WHITE),
+            "Snow" to setOf(Color.GREEN, Color.BLUE),
+        )
+        synergies.archetypes.map { it.colors.toSet() }.toSet() shouldBe ALL_COLOR_PAIRS
+        synergies.archetypes.filter { it.creatureTypes.isNotEmpty() }.associate { it.name to it.creatureTypes } shouldBe mapOf(
+            "Snow Zombies" to listOf("Zombie"),
+            "Berserkers" to listOf("Berserker"),
+            "Giants & Wizards" to listOf("Giant", "Wizard"),
+            "Elves" to listOf("Elf"),
+        )
+    }
+    "Adventures in the Forgotten Realms exposes its ten signpost color-pair archetypes" {
+        val synergies = requireNotNull(SetArchetypes.getForSet("afr"))
+
+        synergies.setName shouldBe "Adventures in the Forgotten Realms"
+        synergies.archetypes.map { it.name } shouldContainExactly listOf(
+            "Dungeon Delvers",
+            "Evasive Control",
+            "Treasure Sacrifice",
+            "Pack Tactics",
+            "Life Gain Counters",
+            "Venture Recursion",
+            "Dice Rolling",
+            "Death Value",
+            "Equipment Aggro",
+            "Ramp Value",
+        )
+        synergies.archetypes.map { it.colors.toSet() } shouldContainExactly ALL_COLOR_PAIRS.toList()
     }
 })
 

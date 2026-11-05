@@ -115,6 +115,16 @@ fun ComponentContainer.chosenColor(): Color? =
 fun ComponentContainer.chosenCreatureType(): String? =
     (get<CastChoicesComponent>()?.chosen?.get(ChoiceSlot.CREATURE_TYPE) as? ChoiceValue.TextChoice)?.text
 
+/** The planeswalker type chosen as this object entered (Deification), or null. */
+fun ComponentContainer.chosenPlaneswalkerType(): String? =
+    (get<CastChoicesComponent>()?.chosen?.get(ChoiceSlot.PLANESWALKER_TYPE) as? ChoiceValue.TextChoice)?.text
+
+/**
+ * The subtype [com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasChosenSubtype] matches:
+ * the creature type chosen as this object entered, else its chosen planeswalker type.
+ */
+fun ComponentContainer.chosenSubtype(): String? = chosenCreatureType() ?: chosenPlaneswalkerType()
+
 /** The basic land type chosen as this object entered, or null. */
 fun ComponentContainer.chosenLandType(): String? =
     (get<CastChoicesComponent>()?.chosen?.get(ChoiceSlot.LAND_TYPE) as? ChoiceValue.TextChoice)?.text
@@ -158,6 +168,10 @@ fun ChoiceValue.EntityChoice.currentIn(state: GameState): EntityId? {
 /** The opponent chosen as this object entered (a player entity id), or null. */
 fun ComponentContainer.chosenOpponent(): EntityId? =
     (get<CastChoicesComponent>()?.chosen?.get(ChoiceSlot.OPPONENT) as? ChoiceValue.EntityChoice)?.entityId
+
+/** The player (any player) recorded as this object entered ([ChoiceSlot.PLAYER]), or null. */
+fun ComponentContainer.chosenPlayer(): EntityId? =
+    (get<CastChoicesComponent>()?.chosen?.get(ChoiceSlot.PLAYER) as? ChoiceValue.EntityChoice)?.entityId
 
 /** Whether this object was cast kicked. */
 fun ComponentContainer.wasKickedChoice(): Boolean =

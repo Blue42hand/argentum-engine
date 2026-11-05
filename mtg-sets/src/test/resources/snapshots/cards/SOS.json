@@ -422,9 +422,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -436,9 +435,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -1284,9 +1282,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -1298,9 +1295,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -2836,9 +2832,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -2850,9 +2845,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -3328,7 +3322,8 @@
                         "zone": "Graveyard"
                     }
                 },
-                "ShuffleLibrary"
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
             ]
         }
     },
@@ -4918,7 +4913,11 @@
                                     "filter": "basicland"
                                 },
                                 "storeAs": "gathered0",
-                                "search": true
+                                "search": true,
+                                "searcher": {
+                                    "type": "ControllerOf",
+                                    "targetDescription": "target"
+                                }
                             },
                             {
                                 "type": "SelectFromCollection",
@@ -4949,7 +4948,8 @@
                             {
                                 "type": "ShuffleLibrary",
                                 "target": "TargetController"
-                            }
+                            },
+                            "EmitLibrarySearchedEvent"
                         ]
                     },
                     "decisionMaker": "TargetController"
@@ -6050,9 +6050,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -6064,9 +6063,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -7497,9 +7495,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -7511,9 +7508,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -8994,20 +8990,26 @@
                 "id": "Lumaret's Favor:1",
                 "trigger": "CastThisSpellEvent",
                 "effect": {
-                    "type": "CopyTargetSpell",
-                    "target": "TriggeringEntity"
-                },
-                "triggerRestriction": {
-                    "type": "Compare",
-                    "left": {
-                        "type": "TurnTracking",
-                        "player": "You",
-                        "tracker": "LIFE_GAINED"
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "TurnTracking",
+                                "player": "You",
+                                "tracker": "LIFE_GAINED"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
                     },
-                    "operator": "GTE",
-                    "right": {
-                        "type": "Fixed",
-                        "amount": 1
+                    "then": {
+                        "type": "CopyTargetSpell",
+                        "target": "TriggeringEntity"
                     }
                 },
                 "descriptionOverride": "Infusion — When you cast this spell, copy it if you gained life this turn. You may choose new targets for the copy."
@@ -9238,6 +9240,7 @@
                                 "numericProperty": "ManaSpent"
                             }
                         },
+                        "stepScope": "AnyMainPhase",
                         "fireOnPlayer": {
                             "type": "PlayerRef",
                             "player": "You"
@@ -10486,22 +10489,28 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "AddCounters",
-                    "counterType": "PLUS_ONE_PLUS_ONE",
-                    "count": 2,
-                    "target": "Self"
-                },
-                "triggerRestriction": {
-                    "type": "Compare",
-                    "left": {
-                        "type": "TurnTracking",
-                        "player": "You",
-                        "tracker": "LIFE_GAINED"
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "TurnTracking",
+                                "player": "You",
+                                "tracker": "LIFE_GAINED"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
                     },
-                    "operator": "GTE",
-                    "right": {
-                        "type": "Fixed",
-                        "amount": 1
+                    "then": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 2,
+                        "target": "Self"
                     }
                 }
             }
@@ -10997,9 +11006,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -11011,9 +11019,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -11367,18 +11374,37 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "ModifyStats",
-                    "powerModifier": {
-                        "type": "Fixed",
-                        "amount": -4
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "TurnTracking",
+                                "player": "You",
+                                "tracker": "LIFE_GAINED"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
                     },
-                    "toughnessModifier": {
-                        "type": "Fixed",
-                        "amount": -4
-                    },
-                    "target": {
-                        "type": "BoundVariable",
-                        "name": "t0"
+                    "then": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -4
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -4
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
                     }
                 },
                 "targetRequirement": {
@@ -11387,19 +11413,6 @@
                         "baseFilter": "creature ctrl:opponent"
                     },
                     "id": "t0"
-                },
-                "triggerRestriction": {
-                    "type": "Compare",
-                    "left": {
-                        "type": "TurnTracking",
-                        "player": "You",
-                        "tracker": "LIFE_GAINED"
-                    },
-                    "operator": "GTE",
-                    "right": {
-                        "type": "Fixed",
-                        "amount": 1
-                    }
                 }
             }
         ]
@@ -14904,7 +14917,8 @@
                     "gate": "Gate.MayDecide",
                     "then": {
                         "type": "CopyTargetSpell",
-                        "target": "TriggeringEntity"
+                        "target": "TriggeringEntity",
+                        "mayChooseNewTargets": false
                     }
                 },
                 "triggerRestriction": {
@@ -16816,9 +16830,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -16830,9 +16843,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -16930,9 +16942,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -16944,9 +16955,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -17424,9 +17434,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -17438,9 +17447,8 @@
                         {
                             "type": "Compare",
                             "left": {
-                                "type": "EntityProperty",
-                                "entity": "TriggeringEntity",
-                                "numericProperty": "ManaSpent"
+                                "type": "ContextProperty",
+                                "key": "MANA_SPENT_ON_TRIGGERING_SPELL"
                             },
                             "operator": "GT",
                             "right": {
@@ -17514,23 +17522,29 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "Sacrifice",
-                    "filter": "permanent"
-                },
-                "triggerRestriction": {
-                    "type": "Not",
-                    "condition": {
-                        "type": "Compare",
-                        "left": {
-                            "type": "TurnTracking",
-                            "player": "You",
-                            "tracker": "LIFE_GAINED"
-                        },
-                        "operator": "GTE",
-                        "right": {
-                            "type": "Fixed",
-                            "amount": 1
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Not",
+                            "condition": {
+                                "type": "Compare",
+                                "left": {
+                                    "type": "TurnTracking",
+                                    "player": "You",
+                                    "tracker": "LIFE_GAINED"
+                                },
+                                "operator": "GTE",
+                                "right": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
                         }
+                    },
+                    "then": {
+                        "type": "Sacrifice",
+                        "filter": "permanent"
                     }
                 },
                 "descriptionOverride": "Infusion — At the beginning of your end step, sacrifice a permanent unless you gained life this turn."

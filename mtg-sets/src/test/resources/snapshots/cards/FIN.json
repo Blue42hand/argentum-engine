@@ -4169,7 +4169,11 @@
             {
                 "type": "ReduceEquipCost",
                 "amount": 2,
-                "onlyIfTargetIsSource": true
+                "targetFilter": {
+                    "statePredicates": [
+                        "IsSource"
+                    ]
+                }
             }
         ]
     },
@@ -7047,7 +7051,8 @@
                         ]
                     }
                 },
-                "ShuffleLibrary"
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
             ]
         }
     },
@@ -14791,7 +14796,8 @@
                         "placement": "Tapped"
                     }
                 },
-                "ShuffleLibrary"
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
             ]
         }
     },
@@ -16444,7 +16450,11 @@
                                             "filter": "basicland"
                                         },
                                         "storeAs": "gathered0",
-                                        "search": true
+                                        "search": true,
+                                        "searcher": {
+                                            "type": "ControllerOf",
+                                            "targetDescription": "target"
+                                        }
                                     },
                                     {
                                         "type": "SelectFromCollection",
@@ -16475,7 +16485,8 @@
                                     {
                                         "type": "ShuffleLibrary",
                                         "target": "TargetController"
-                                    }
+                                    },
+                                    "EmitLibrarySearchedEvent"
                                 ]
                             },
                             "decisionMaker": "TargetController"
@@ -17015,8 +17026,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 4
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 4
+                                    }
                                 }
                             },
                             "then": "Transform"
@@ -21920,7 +21940,7 @@
             }
         ],
         "replacementEffects": [
-            "DoubleCounterPlacement"
+            "ScaleCounterPlacement"
         ]
     },
     "metadata": {
@@ -25476,19 +25496,16 @@
                     }
                 },
                 "effect": {
-                    "type": "AddManaOfChoice",
-                    "colorSet": {
-                        "type": "ManaColorSet.Specific",
-                        "colors": [
-                            "BLUE",
-                            "RED"
-                        ]
-                    },
-                    "amount": {
+                    "type": "AddDynamicMana",
+                    "amountSource": {
                         "type": "EntityProperty",
                         "entity": "Self",
                         "numericProperty": "Power"
-                    }
+                    },
+                    "allowedColors": [
+                        "BLUE",
+                        "RED"
+                    ]
                 },
                 "timing": "ManaAbility",
                 "restrictions": [

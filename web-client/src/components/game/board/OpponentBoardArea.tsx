@@ -4,11 +4,12 @@ import type { RefObject } from 'react'
 import { useGameStore } from '@/store/gameStore'
 import type { ClientPlayer } from '@/types'
 import { hand } from '@/types'
-import { useRevealedLibraryTopCard, useIdentityColor, useIsSharedLifeTeamGame, useZoneCards } from '@/store/selectors'
+import { useHasLegalActions, useRevealedLibraryTopCard, useIdentityColor, useIsSharedLifeTeamGame, useZoneCards } from '@/store/selectors'
 import { useResponsiveContext } from './shared'
 import { Battlefield } from './Battlefield'
 import { CardRow, HAND_FAN_EDGE_MARGIN } from './HandZone'
 import { CommandZone } from './CommandZone'
+import { AnteZone } from './AnteZone'
 import { ZonePile } from './ZonePiles'
 import { styles } from './styles'
 import { isLoneTargetRequirement } from '@/utils/targeting.ts'
@@ -212,9 +213,12 @@ export function OpponentBoardArea({
   liftHand?: boolean
 }) {
   const revealedTopCard = useRevealedLibraryTopCard(opponent.playerId)
+  // A top card *you* may play (Xanathar, Guild Kingpin) is offered as a ghost in your own hand;
+  // drawing it here as well would put two interactive copies of the same card on the table.
+  const topCardPlayableByYou = useHasLegalActions(revealedTopCard?.id ?? null)
   const ghostCards = useMemo(
-    () => (revealedTopCard ? [revealedTopCard] : []),
-    [revealedTopCard]
+    () => (revealedTopCard && !topCardPlayableByYou ? [revealedTopCard] : []),
+    [revealedTopCard, topCardPlayableByYou]
   )
   const {
     cellRef,
@@ -301,6 +305,7 @@ export function OpponentBoardArea({
       <div style={{ ...styles.playerRowWithZones, alignItems: 'flex-start' }}>
         {/* Opponent command zone (left side) — Commander format only; renders nothing otherwise. */}
         <CommandZone player={opponent} isOpponent compact={layout === 'strip'} />
+        <AnteZone player={opponent} isOpponent compact={layout === 'strip'} />
 
         <div
           style={{
@@ -614,9 +619,10 @@ export const COLLAPSED_TAB_WIDTH = 30
  * All you can learn from a fully face-down fan is how many cards the seat is holding, and a
  * nine-card arc spends a whole band of cell height saying it. On the plate it costs nothing: the
  * plate is already there, and in a shared-life team game it has room going spare where the life
- * total used to be.
+ * total used to be. A 1v1 spectator's corner name labels carry it too: both hands are face-down
+ * fans there, and the number is the only thing in them a spectator can read.
  */
-function HandCountBadge({ count }: { count: number }) {
+export function HandCountBadge({ count }: { count: number }) {
   return (
     <span
       style={{

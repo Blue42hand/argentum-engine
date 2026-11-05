@@ -702,6 +702,63 @@ data class AiProfile(
      */
     val defendPlaneswalkers: Boolean = false,
     /**
+     * Spend a planeswalker whose every loyalty ability costs loyalty — the empower-Jace token,
+     * "[−1]: Surveil 1. [−3]: Draw a card." — instead of sitting on it.
+     *
+     * Off the 2026-10-15 production games: across 95 games the AI passed its own main phase 148
+     * times with the token's "−1: Surveil 1" affordable and 15 times with "−3: Draw a card"
+     * affordable (`016656ce` turns 12–28, `0529ed74` turns 5–13, `3b0479cb` turn 13 with both on
+     * offer), while the humans activated theirs ~190 times. [fuelLoyaltyIsNotBoardValue]'s refund
+     * covered only a walker that survives its activation, so a −1 at one loyalty or a −3 at three
+     * was charged the whole walker for one card; a surveil at two or more scored an exact tie with
+     * passing, because nothing the evaluator reads changes when a card is looked at; and a minus
+     * granted by a FRA "Way of the X" card was not recognised as a loyalty ability at all.
+     *
+     * With this on, a loyalty activation of such a walker is priced, from the position it was
+     * made in, as what it buys: the static gain of the leaf over the same position with the loyalty
+     * already spent (the walker gone when that was its last counter), plus a small value per card
+     * surveilled or scried ([Strategist] `fuelWalkerSpend`). Its value *is* its loyalty, so cashing
+     * the last counters in for a card is a card, not a card minus a walker — and with no + ability
+     * there is nothing else to save them for. A draw outbids a surveil whenever both are on offer.
+     * The one reason to hold: when the next opposing attack would be lethal to us and the walker
+     * is the other thing it could hit, an activation that kills the walker is floored below
+     * passing. Loyalty abilities granted by other permanents (`GrantActivatedAbility`) count both as
+     * the walker's own activations and, a granted + ability, as the refuel that makes it no longer
+     * fuel-only — so a Jace token under Way of the Pyromancer keeps its loyalty as before.
+     * Pinned by `LoyaltyActivationAiTest`.
+     */
+    val spendFuelWalkers: Boolean = false,
+    /**
+     * Price a planeswalker — above all an opponent's — as the engine it is: by what it keeps doing
+     * and how close it is to its ultimate, not by the pile of loyalty on it ([PlaneswalkerThreat]).
+     *
+     * Off the 2026-10-15 production games: `52f175b0` turns 15–21, The Theorist, Jace Beleren
+     * (+1 / −2 / −6) climbed to its ultimate and made 11/11 Illusions while the AI attacked the
+     * player; `4b240f7a` turn 14, No Admittance killed a Jace token rather than set The Theorist
+     * at 4 back to 1 — the same Theorist whose −6 later pumped the team for 58 damage. Three
+     * mis-shaped terms put a minus-only Jace token level with or above a real engine:
+     *
+     * - **An engine's ultimate counted only once it was in reach.** [defendPlaneswalkers]'s board
+     *   value and [attackPlaneswalkers]' aim priced an ultimate as a flat 2.0 at loyalty ≥ its
+     *   cost and nothing a turn short of it, so damage that set The Theorist back four turns was
+     *   worth only the counters it removed. Now its ultimate is a threat worth 0.8 per loyalty it
+     *   costs, divided by one plus the turns its best + ability still needs ([PlaneswalkerThreat.ultimateThreat]).
+     * - **A minus-only walker's counters were priced like an engine's** — 0.8 each, plus the flat
+     *   2.0 for its −3 "ultimate" being in reach — though three of them buy one card. Now 0.4 each
+     *   and no top-ability threat. Killing the token also does not stop the deck that empowers it:
+     *   the next "empower Jace" makes a new one, and the AI reads no hidden hand to guess at it.
+     * - **On the board an engine was worth its loyalty plus a 1.6 floor** — so The Theorist at 1
+     *   was 2.4, below a big Jace token. Now an engine is worth at least the 4.0 [attackPlaneswalkers]
+     *   already priced it at, and every ability is read off the battlefield, granted ones included
+     *   (the FRA "Way of the X" cards — a Way of the Pyromancer "+1: Add {R}" makes the token an engine;
+     *   a granted minus does not).
+     *
+     * One reading for every question: the evaluator's walker value (removal targets, the attack
+     * search, Mabel's "remove up to three counters"), the attack seed's aim, and blocks for our own
+     * walkers. Pinned by `OpposingWalkerThreatTest`.
+     */
+    val walkersPricedAsEngines: Boolean = false,
+    /**
      * Count the land drop still to come as mana when [sequenceLandsByUsableMana] decides whether
      * tapped lands were idle — so playing an untapped land can never score below passing.
      *
@@ -893,6 +950,24 @@ data class AiProfile(
      */
     val enablersFirst: Boolean = false,
     /**
+     * Credit a line that **puts a land in hand with the land drop unused** with playing that land
+     * the same turn — the same follow-up credit [landDropUnlocksSpells] gives a land drop, chained
+     * one step further back.
+     *
+     * 2026-10-16 AI self-play (2p game 03, turns 7 and 11): stuck on three lands with no land in
+     * hand and a hand of four-to-six drops, the AI passed both main phases with Plainscycling
+     * Noble Templar on offer. The search is one action deep, so the cycle was scored as "a Plains
+     * in hand, a Templar gone" — and a land in hand is priced well below a business card — never as
+     * the fourth land on the battlefield it becomes a moment later.
+     *
+     * With this on, `Strategist` looks at every non-land leaf in our own main phase that comes to
+     * rest quietly (no pending decision, empty stack, same step, our priority) with a land in our
+     * hand that was not there at the root, and simulates playing it. The land play is a follow-up
+     * of that leaf, adjusted as its own decision would be; a leaf that stops on a decision (the
+     * cycle's library search) has it answered with the AI's own choice first.
+     */
+    val fetchedLandDropFollowUp: Boolean = false,
+    /**
      * In our own precombat main, price a **pump that changes who attacks** by the attack it buys.
      *
      * PR #3211's known gap. [HoldPolicy] holds a combat trick out of the main phase and
@@ -937,6 +1012,272 @@ data class AiProfile(
      * other instant up. Needs [useCardIntent].
      */
     val holdInstantSpeedDeploys: Boolean = false,
+    /**
+     * When the blocks still let lethal through, **stack chump blockers on a trampler** until it
+     * stops spilling enough damage to kill us, and count double strike when adding up what gets
+     * through.
+     *
+     * 2026-10-15 logs, `LIVE`. Game `359c26af` turn 19: at 9 life, facing Hortimancer 7/6, a 6/8
+     * flying Angel and an 8/8 trampling Puppetbeast with ten untapped creatures (six 2/2 Cadets),
+     * the AI blocked with two bodies and died to 7 trample + 6. The survival pass (rebuild the
+     * blocks for damage prevented, adopted only when it brings incoming damage below life) gave
+     * every attacker exactly one blocker, so the trampler kept spilling 8 − 4 and the plan stayed
+     * lethal and was thrown away. Three Cadets behind the Puppetbeast soak six, and the AI lives.
+     * Game `ee5a693b` turn 22 is the same shape: at 4 life against the same 8/8 trampler, one 1/1
+     * Thopter blocked while the 2/4 Angel and 2/3 Pegasus stayed home.
+     *
+     * With this on, that pass keeps adding the spare blocker that soaks the most (any body against
+     * deathtouch) to the trampler spilling the most, until we survive or nothing helps. The same
+     * arithmetic also stops ignoring double strike: an unblocked double striker deals twice its
+     * power, and a blocked double-striking trampler spills `2 × power − lethal to its blockers`.
+     */
+    val stackChumpsOnTramplers: Boolean = false,
+    /**
+     * Pay a **convoke** spell with mana first and tap creatures only for the shortfall, cheapest
+     * creatures first.
+     *
+     * 2026-10-15 logs, `LIVE`. Game `ecbad62a` turn 14: Unexpected Assistance convoked with all
+     * three of the AI's would-be blockers while lands sat untapped, and the next turn 11 damage came
+     * in unblocked (16 → 5). Game `42518dd1` turn 19: Merrow Skyswimmer convoked with the whole team
+     * precombat, and the AI then had nothing to attack with. The convoke payment was built greedily —
+     * every offered creature tapped, up to the whole cost — before a land was looked at.
+     *
+     * With this on the payment starts from the full convoke assignment with the creatures ordered
+     * cheapest first, then releases creatures most valuable first while the rest of the cost is
+     * still payable from mana ([com.wingedsheep.engine.mechanics.mana.ManaSolver.canPay]), so a
+     * spell the lands can pay taps no creature at all.
+     */
+    val convokeLandsFirst: Boolean = false,
+    /**
+     * Read a card choice by **whose card moves and which way** — not by the prompt's words. The
+     * responder simulates choosing one option and watches where it goes: out of a hand into a
+     * graveyard, exile or library is its owner's loss; into a hand or onto the battlefield is a
+     * gain for whoever gets it. The cards are then valued from that player's side
+     * ([CardSelectionValue]): an opponent's discard or exile takes the card most valuable to
+     * *them* (with a spell's wait to cast discounted, since it reaches us either way), our own
+     * takes our least valuable, and a choice that hands us cards takes as many as it may. Needs
+     * [castabilityAwareCardSelection].
+     *
+     * 2026-10-15 logs, `LIVE`. Choosing from the opponent's hand ranked their cards as ours:
+     * `383cddc3` T14 Solve for Disappointment discarded Lich's Relic (no black source) over Guiding
+     * Hydra, cast for X=5 next turn; `3b0479cb` T9 Null Summoner exiled Greenhouse Propagator
+     * over Craftwork Crusher; `8d62c942` T13 Klaw took one of three Murdock's Crusades — the card
+     * *we* couldn't cast. Tinybones' "each opponent discards a card" prompts "Choose 1 card", so
+     * the generic branch kept the best card, i.e. discarded it: `98be3ea5` T5 pitched the only
+     * Plains of a two-land hand of three- to five-drops, `ca15647d` T5 the castable Danitha over
+     * the uncastable Karn. And `d8d3a29c` T2 Seismic Sense (a labelled "up to one") declined the
+     * Forest it showed on two lands.
+     */
+    val selectionSeesWhoseCards: Boolean = false,
+    /**
+     * "Its owner puts it on the top or bottom of their library": keep the card on top only when
+     * it is worth at least an average draw from that library ([CardSelectionValue], as a card
+     * drawn later). The simulation can't see library order, so the two options always tied and
+     * the first — the top — won. Needs [castabilityAwareCardSelection].
+     *
+     * 2026-10-15 logs, `LIVE`. `98be3ea5` T7: Plan for All Outcomes on the AI's Yoshimaru while it
+     * sat on two lands with five spells in hand; it chose the top, so its next draw was a two-drop instead of
+     * a chance at a land.
+     */
+    val topOrBottomWeighsTheDraw: Boolean = false,
+    /**
+     * Score an attack plan by the **race**: our next swing as well as theirs, each attack's defence
+     * charged once, and the crack-back checked against the block the defender would rather not make.
+     *
+     * 2026-10-15 logs, `LIVE`. The AI sat still while ahead, then threw creatures away once behind.
+     * `42518dd1` turn 17: 20–6 up, 6 power against one untapped 3/3 reach blocker, and it declared
+     * no attack — sending everything costs a 2/2 flier and leaves the opponent on 2, facing a team
+     * that kills them next turn, and it never attacked again. `c71b39d3` turn 24: at 1 life it
+     * swung Skrull 4/4 beside a vigilant 4/7 flier, leaving one blocker against two attackers; the
+     * plan read safe only because the simulated defender double-blocked the Skrull and so had no
+     * crack-back left. The human took the eight and swung back for the win. Three terms of
+     * [CombatAdvisor]'s attack evaluation were mis-shaped:
+     *
+     * - **Only their next swing was priced.** The crack-back charges what the opponent's next
+     *   attack does to us; nothing charged or credited what *our* next attack does to them, and the
+     *   evaluator's race term reads raw power, which saturates once power reaches their life — six
+     *   power into one blocker on 6 life and four power on 2 read as the same "won" race. With this
+     *   on, the plan is also credited with our follow-up: turns to kill them through every blocker
+     *   they will have, chump blocks included, priced on the evaluator's own race scale
+     *   ([com.wingedsheep.ai.engine.evaluation.ThreatAssessment.raceLeadValue]).
+     * - **An attack paid for its defence twice.** The post-combat board was scored with the
+     *   attackers tapped — a tapped discount and an untapped-only defence term — and then the
+     *   crack-back charged the same missing blockers again as life. The board is now read as it
+     *   stands at our next untap, so the crack-back is the only price of a tapped attacker; a
+     *   vigilant or unblockable attacker was never charged it and costs nothing extra now either.
+     * - **The defender was assumed to block.** When the predicted blocks cost the defender a
+     *   creature, the plan is also scored with no blocks at all — the defender keeping its creatures
+     *   for the swing back — and counts at the worse of the two.
+     */
+    val attacksReadTheRace: Boolean = false,
+    /**
+     * Read a **tax counter** ("counter target spell unless its controller pays {N}") against the
+     * mana its target's caster has left — the caster's whole mana, read by the engine's own solver.
+     *
+     * 2026-10-15 logs, `LIVE`, game `2f830698`: the AI held two Divert Disasters ("unless its
+     * controller pays {2}") from turn 9 to turn 21. On turns 13 and 15 the opponent cast Tannuk and
+     * Nova Hellkite with exactly two mana left, and the AI had four Islands open: one Divert alone
+     * gets paid, so the leaf scored each as a card spent for a Lander and passed — and never saw the
+     * line where the first Divert drains their two mana and the second is a hard counter, because it
+     * scores one cast at a time. On turn 21 it threw both at a Bombard cast off ten lands, and the
+     * opponent paid both taxes.
+     *
+     * With this on, [com.wingedsheep.ai.engine.knowledge.CounterTax] stacks the taxes of the tax
+     * counters in hand that our mana can still cast behind this one: when the caster can pay the
+     * whole stack the counter is floored below passing (it cannot counter); when it can pay this tax
+     * but not the stack, the cast is credited with the spell's worth on the board-value scale, so the
+     * first counter of the line is cast and the second one's own leaf finishes it.
+     */
+    val taxCountersReadTheirMana: Boolean = false,
+    /**
+     * Refuse two more shapes of a payoff that provably lands on nothing — the cast and the
+     * activation siblings of [refuseEmptyPayoffs].
+     *
+     * 2026-10-15 logs, `LIVE`:
+     *
+     * - **A permanent whose entry has nothing to target.** `cfe8d858` turn 5: Banishing Light cast
+     *   into a human with no nonland permanent, so its exile trigger left the stack for want of a
+     *   target and the enchantment did nothing all game — it was the AI's only answer to the
+     *   Thrumming Hivepool that came down later. A noncreature permanent carries a board prior of its
+     *   own, which is all the leaf saw. [com.wingedsheep.ai.engine.knowledge.TargetlessEntry] floors
+     *   a noncreature, nonland permanent whose only abilities are a targeted entry trigger (and the
+     *   linked-exile return that undoes it) when a required target slot has no legal target.
+     * - **An Aura whose entry is gated on a creature it isn't cast onto.** Earthbind ("if enchanted
+     *   creature has flying, …") cast on a non-flyer: the intervening-if is false on entry and the
+     *   Aura does nothing. [com.wingedsheep.ai.engine.knowledge.UnmetAuraEntry] floors an Aura whose
+     *   only abilities are entry triggers gated on the enchanted permanent, aimed at a creature that
+     *   fails every gate.
+     * - **An end-of-turn shrink with no fight to shrink.** `3f847e6d` turn 8: Proft, Sinister
+     *   Mastermind discarded from hand in our own declare-attackers step after we declared no attack,
+     *   to give an opposing 2/4 -3/-1 until end of turn. [com.wingedsheep.ai.engine.knowledge.ExpiringGrantWindow]
+     *   now reads a fixed stat loss that kills nothing as a payoff [refuseUnspendableGrants]' floor can
+     *   judge: refused when the creature it lands on can no longer attack or block this turn.
+     * - **A combat restriction outside its window.** `2878b4bb` (2026-10-19) turns 20/22/24: Edifice
+     *   of Authority's "target creature can't attack this turn" (plus a brick counter) spent in the
+     *   AI's own main phase on the human's Reaper from the Abyss, which then attacked through the
+     *   tapped Edifice. [com.wingedsheep.ai.engine.knowledge.ExpiringGrantWindow] refuses a
+     *   this-turn can't-attack/can't-block where it restrains nothing — and, when the only other
+     *   payoff is a counter on a source that taps, where activating now keeps it tapped through the
+     *   window that matters.
+     * - **An end-of-combat sweep over blocks that won't happen.** 2026-10-25 playtest, turn 27:
+     *   Glyph of Doom cast on our own Wall in our own precombat main, where the Wall can't block.
+     *   [com.wingedsheep.ai.engine.knowledge.IdleBlockWatcher] floors a spell whose only effect is an
+     *   end-of-combat sweep over what its target blocked this turn, when that creature has blocked
+     *   nothing and can't block before the sweep fires.
+     * - **Borrowed spell mana with no spell to spend it on.** Same playtest, turn 26: Piracy cast
+     *   holding only counterspells, with nothing to counter.
+     *   [com.wingedsheep.ai.engine.knowledge.UnspendableManaGrant] floors a spell whose only effect is
+     *   an until-end-of-turn, spells-only "tap permanents you don't control for mana" grant when the
+     *   position it resolves to offers no affordable spell with fillable targets.
+     */
+    val refuseWastedPayoffs: Boolean = false,
+    /**
+     * Press a winning position instead of sitting on it: who is the beatdown is read off the board
+     * ([BoardRole]), and the side that is ahead is credited for the damage an attack deals.
+     *
+     * The user report: "sometimes it just sits there, giving the player the opportunity to grow in
+     * strength again." Four Grizzly Bears facing one Hill Giant, both players on 20, and the AI
+     * declares no attack: sending all four loses a Bear to the Giant's block and deals six, and the
+     * leaf scored that 13.4 against 13.8 for passing. The cause is that a one-ply leaf has no clock.
+     * The attack leaf and the pass leaf sit at the same moment, so the turn a pass hands the
+     * opponent — a draw step toward the answer — is free in both, and the attack's six damage is
+     * priced on [com.wingedsheep.ai.engine.evaluation.LifeDifferential]'s defender's curve, half a
+     * point each above 15. Bad trades that a dominant board makes to push damage never paid.
+     *
+     * With this on, [CombatAdvisor]'s attack score adds the damage dealt as the share of the
+     * opponent's life it removes — urgency already cashed — on the evaluator's race scale, times the
+     * dominance of the board the combat leaves: resources share (creatures plus cards in hand) and
+     * race lead, averaged, in `[-1, 1]`. It is continuous — no threshold for "ahead" — it is zero
+     * whenever the remaining board does not dominate, so the side that is behind attacks exactly
+     * as before, and a trade that gives the lead away earns nothing. A plan whose crack-back is
+     * lethal gets no credit at all. Local search also starts from the all-in plan, which its
+     * one-attacker climb cannot reach when every single attacker alone is a bad attack.
+     */
+    val pressWhenAhead: Boolean = false,
+    /**
+     * Expect the opponent to use what its board can do in a fight. Every combat [CombatAdvisor]
+     * simulates — each attack plan it weighs, each block it tries — gives the opponents their
+     * windows (after attackers are declared, after blockers are) and lets them use the activated
+     * abilities their permanents can afford when that wins them the fight: a team pump, a pinger,
+     * a first-strike or deathtouch granter, a regeneration shield, a token blocker.
+     * [com.wingedsheep.ai.engine.CombatResponses] does the playing; the abilities are the
+     * engine's own legal actions, so mana, tap costs, summoning sickness and once-per-turn limits
+     * bound them, and an ability that would be possible but bad for them is not assumed.
+     *
+     * The shape it closes: a 3/3 sent into a 2/2 beside a Leonin Sun Standard and four open
+     * Plains, scored as if the Bears could never be 4/4 — and its mirror, a 3/3 blocking a 2/2
+     * whose controller holds the same pump.
+     */
+    val anticipateCombatResponses: Boolean = false,
+    /**
+     * Hold an end-of-turn **lifelink** grant until blockers are declared, on either side's turn.
+     *
+     * 2026-10-19 logs, `LIVE` — Hardened Academic (`Discard a card: This creature gains lifelink
+     * until end of turn`):
+     *
+     * - `37ad54e6` turn 9: the opponent declares two attackers, the AI pitches Ancestral Anger for
+     *   lifelink in that declare-attackers step, then declares no blocks.
+     * - `f17ff187` turn 3: the AI attacks an empty board at 20 life and pitches a card for lifelink
+     *   before blocks; two life for a card.
+     *
+     * [holdExpiringGrantsForCombat]'s deferral releases at the last window that can still change a
+     * *declaration* — their declare-attackers step, our beginning of combat — because evasion,
+     * pumps, deathtouch and first strike all change who can block or who survives, and the combat
+     * planners read the board as it stands. Lifelink changes neither: it only adds life to damage
+     * the creature deals. So the window after blockers are declared is strictly better for it — the
+     * blocker is known to be blocking, and on our turn the simulation carries the line through
+     * combat damage and prices the life actually gained rather than a keyword on the board.
+     * [com.wingedsheep.ai.engine.knowledge.ExpiringGrantWindow] extends the deferral through the
+     * declare-attackers step for a grant whose every payoff is lifelink; from there
+     * [refuseUnspendableGrants] refuses it on a creature that did not block.
+     */
+    val lifelinkWaitsForBlocks: Boolean = false,
+    /**
+     * Hold a creature's "{T}: put a counter on this creature" until the tap costs nothing: an
+     * opponent's turn, after blockers, with our own turn next.
+     *
+     * Player report (2026-10-23): the engine AI kept tapping Clockwork Hydra ("{T}: Put a +1/+1
+     * counter on this creature") in its own precombat main and in the opponent's precombat main,
+     * so a 5/5 that grew every turn never attacked and never blocked. The leaf prices a counter and
+     * has no term for the attack or block the tap gave up. Activated at the opponent's end step
+     * instead, the counter arrives before our next turn and the creature untaps with it, so waiting
+     * gives up nothing but a turn of the counter on a creature that could not have used it. See
+     * [com.wingedsheep.ai.engine.knowledge.SelfTapGrowthWindow]. Pinned by `SelfTapGrowthWindowTest`.
+     */
+    val tapToGrowAtTheirEndStep: Boolean = false,
+    /**
+     * In a pod, make a lethal attack with only what the kill needs and keep the rest home for the
+     * opponents still at the table.
+     *
+     * Off a 4-player AI-vs-AI playtest (2026-10-25, game 01): turn 38, Seat1 sent all six attackers
+     * at a seat on 2 life with no flying blockers, when two Drakes or the Griffin alone were enough;
+     * turn 40, the next seat swung 21 power into the tapped-out board and Seat1 died at −7. When
+     * [CombatSeed]'s lethal check passes, the alpha strike is returned without local search or
+     * crack-back pricing — right in 1v1, where the game ends, wrong while another opponent lives.
+     *
+     * With this on and more than one opponent left, the lethal seed is shrunk to a minimal subset
+     * aimed at the dying seat ([CombatSeed.minimalLethal]): only attackers that would be home to
+     * block next turn (able to block, no vigilance) are dropped, non-evasive and high-toughness
+     * first, and only while the rest is still lethal with any one attacker answered — a removal
+     * spell or flash blocker must not save the dying seat (plain lethal when the full attack lacks
+     * that margin). Mandatory, vigilant and can't-block attackers stay. 1v1 is untouched. Pinned by `MinimalLethalInPodsTest`.
+     */
+    val minimalLethalInPods: Boolean = false,
+    /**
+     * Read a blocker whose block trigger destroys the attacker it blocks as a killer, the way
+     * deathtouch is read.
+     *
+     * Off a 4-player AI-vs-AI playtest (2026-10-25, game 01, turn 29): a hexproof 6/5 Leviathan
+     * token attacked alone into an untapped Alaborn Zealot ("When this creature blocks a creature,
+     * destroy both creatures") and traded for the 1/1. The attack evaluator predicts the defender's
+     * blocks with the stats-and-keywords block heuristic, which saw a 1/1 in front of a 6/5 as a
+     * chump it would never make — so the Zealot block was never simulated and the trigger never
+     * priced. With this on, the heuristic reads the untargeted self-blocks destroy-the-blocked
+     * trigger ([com.wingedsheep.ai.engine.knowledge.BlockTriggerRemoval]) as a kill that first
+     * strike cannot stop, and a trade when it destroys the blocker too. Pinned by
+     * `BlockTriggersKillTest`.
+     */
+    val blockTriggersKill: Boolean = false,
     /** Non-null profiles may only be selected automatically for this set. Arena selection stays explicit. */
     val restrictedToSet: String? = null,
 ) {
@@ -1879,7 +2220,32 @@ data class AiProfile(
             defendPlaneswalkers = true,
             holdInstantSpeedDeploys = true,
             enablersFirst = true,
+            fetchedLandDropFollowUp = true,
             precombatPumpsForThePlan = true,
+            spendFuelWalkers = true,
+            walkersPricedAsEngines = true,
+            stackChumpsOnTramplers = true,
+            convokeLandsFirst = true,
+            selectionSeesWhoseCards = true,
+            topOrBottomWeighsTheDraw = true,
+            attacksReadTheRace = true,
+            taxCountersReadTheirMana = true,
+            refuseWastedPayoffs = true,
+            anticipateCombatResponses = true,
+            pressWhenAhead = true,
+            lifelinkWaitsForBlocks = true,
+            tapToGrowAtTheirEndStep = true,
+            minimalLethalInPods = true,
+            blockTriggersKill = true,
+        )
+
+        /**
+         * [LIVE] without [pressWhenAhead]: `just arena live-without-pressure live 300` prices the
+         * flag on top of everything it ships with.
+         */
+        val LIVE_WITHOUT_PRESSURE = LIVE.copy(
+            id = "live-without-pressure",
+            pressWhenAhead = false,
         )
 
         /**
@@ -1982,6 +2348,16 @@ data class AiProfile(
             id = "production-candidate-walkerdefence",
             fuelLoyaltyIsNotBoardValue = true,
             defendPlaneswalkers = true,
+        )
+
+        /**
+         * [spendFuelWalkers] on top of [PRODUCTION_CANDIDATE_WALKERDEFENCE], whose walker pricing it
+         * builds on, so `just arena production-candidate-walkerdefence
+         * production-candidate-fuelwalkers` measures it and nothing else. [LIVE] ships it.
+         */
+        val PRODUCTION_CANDIDATE_FUELWALKERS = PRODUCTION_CANDIDATE_WALKERDEFENCE.copy(
+            id = "production-candidate-fuelwalkers",
+            spendFuelWalkers = true,
         )
 
         /**

@@ -157,6 +157,7 @@ class TrainingObservationTest : FunSpec({
             Zone.BATTLEFIELD,
             Zone.COMMAND,
             Zone.SIDEBOARD,
+            Zone.ANTE,
         )
         // Every engine zone is classified in the contract itself, so a new one cannot be absorbed
         // by relaxing this test — it has to be named either per-player or explicitly not.

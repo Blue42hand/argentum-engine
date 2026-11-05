@@ -2,10 +2,10 @@ package com.wingedsheep.mtg.sets.definitions.nph.cards
 
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
 /**
  * Dispatch
@@ -15,25 +15,20 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
  * Tap target creature.
  * Metalcraft — If you control three or more artifacts, exile that creature.
  *
- * Metalcraft is an ability word, so the artifact count is an ordinary resolution-time
- * [ConditionalEffect]. The creature is always tapped first; if metalcraft is true as Dispatch
- * resolves, the same target is then exiled.
+ * Metalcraft is checked as the spell resolves, after the creature is tapped.
  */
 val Dispatch = card("Dispatch") {
     manaCost = "{W}"
-    colorIdentity = "W"
     typeLine = "Instant"
     oracleText = "Tap target creature.\n" +
         "Metalcraft — If you control three or more artifacts, exile that creature."
-
     spell {
-        val creature = target(TargetFilter.Creature)
-        effect = Effects.Tap(creature) then Effects.If(
-            condition = Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact),
-            then = Effects.Exile(creature),
+        val t = target(TargetFilter.Creature)
+        effect = Effects.Tap(t) then Effects.If(
+            Conditions.YouControlAtLeast(3, GameObjectFilter.Artifact),
+            Effects.Exile(t)
         )
     }
-
     metadata {
         rarity = Rarity.UNCOMMON
         collectorNumber = "7"

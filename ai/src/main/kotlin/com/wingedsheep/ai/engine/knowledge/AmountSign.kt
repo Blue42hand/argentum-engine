@@ -80,6 +80,8 @@ internal enum class AmountSign {
             is DynamicAmount.YourLifeTotal, is DynamicAmount.LifeTotal -> UNKNOWN
             // Opaque at analysis time: a pipeline variable or a trigger-context value could be anything.
             is DynamicAmount.VariableReference, is DynamicAmount.ContextProperty -> UNKNOWN
+            // A cast-time capture holds whatever amount the card froze, which can be negative.
+            is DynamicAmount.CapturedAtCast -> UNKNOWN
 
             // Counts, mana values, mana spent, X: none of them can go below zero.
             is DynamicAmount.Speed, is DynamicAmount.DungeonsCompleted, is DynamicAmount.PlayerCounterCount, is DynamicAmount.CardsCycledThisGame,
@@ -99,6 +101,7 @@ internal enum class AmountSign {
             is DynamicAmount.CreaturesWithSubtypeDiedThisTurn, is DynamicAmount.PermanentsSacrificedThisWay,
             is DynamicAmount.CountersRemovedAsCost, is DynamicAmount.TotalPowerSacrificedThisWay,
             is DynamicAmount.LargestSharedCreatureTypeCount -> GAIN
+            is DynamicAmount.PartySize -> GAIN
         }
 
         private fun ofInt(n: Int): AmountSign = when {
@@ -109,7 +112,8 @@ internal enum class AmountSign {
 
         private fun ofCardProperty(property: CardNumericProperty?): AmountSign = when (property) {
             CardNumericProperty.POWER, CardNumericProperty.TOUGHNESS -> UNKNOWN
-            null, CardNumericProperty.MANA_VALUE, CardNumericProperty.COUNTERS -> GAIN
+            null, CardNumericProperty.MANA_VALUE, CardNumericProperty.COUNTERS,
+            CardNumericProperty.COLOR_COUNT -> GAIN
         }
 
         private fun sum(a: AmountSign, b: AmountSign): AmountSign = when {

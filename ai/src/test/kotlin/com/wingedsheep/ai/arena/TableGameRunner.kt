@@ -248,7 +248,7 @@ object TableGameRunner {
         fun seatOf(playerId: EntityId) = bySeat[playerId] ?: -1
         fun aiFor(playerId: EntityId) = players[seatOf(playerId)]
 
-        var state: GameState = init.state
+        var state: GameState = processor.beginGame(init.state, init.events).state
         trainingObserver?.gameStarted(state, seatIds)
         var actionCount = 0
         val illegalActions = mutableMapOf<String, Int>()

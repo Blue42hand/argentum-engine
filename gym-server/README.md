@@ -46,6 +46,28 @@ Default port **8081** so it coexists with the game server on 8080. The server bi
 | `GET /status` | constant | returns `{ status, service, schemaHash, buildRevision }` — see below |
 | `GET /actuator/metrics/http.server.requests` | Spring Actuator | request count / timing — see below |
 
+### Multi-seat observations and lifecycle
+
+Masked observations contain actions and pending decisions only for the selected seat when that
+seat is the current `agentToAct`. Read `agentToAct`, then request
+`GET /envs/{id}?perspectivePlayerId=<playerId>` before acting for that player. This also applies
+before submitting a structured decision. Observing a non-acting seat clears the environment's
+current action registry and decision permission. Step responses return to the configured default
+perspective, so repeat this selection when another seat acts. The server serializes concurrent calls
+naming the same environment, but a client acting for several seats must still order its
+observe-then-act pairs itself; seat selection is an information-set convention, not authentication.
+
+`revealAll=true` retains the debug view of every seat's choices. Unknown player IDs return 400.
+The observation contract hash is `argentum-gym-contract@v1.17-upstream-decision-and-cost-choices`. Mandatory paid play
+uses `PLAY_CARD`, identifies the card through `subjectEntityId`, and exposes ordinary cast/land
+action templates. Their action IDs accept normal casting parameters; structured callers send a
+`PlayCardResponse` carrying the completed action.
+
+Batch creation returns results in request order and disposes successful siblings when an item fails.
+An interrupted batch waits for every submitted worker to settle, then disposes what they created. Snapshot disposal is idempotent:
+empty batches, duplicate handles and previously disposed handles are safe. Disposing a snapshot does
+not dispose its source environment; restoring a disposed handle returns 404.
+
 ### `params`: the choices an action ID can't carry
 
 `DeclareAttackers` is enumerated once, with an **empty** attacker map; the candidates and the

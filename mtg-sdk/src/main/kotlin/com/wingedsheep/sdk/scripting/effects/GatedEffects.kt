@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.conditions.Condition
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.targets.SELF_NOUN_TOKEN
 import com.wingedsheep.sdk.scripting.text.TextReplacer
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import kotlinx.serialization.SerialName
@@ -117,53 +118,65 @@ data class GatedEffect(
     val decisionMaker: EffectTarget? = null,
     val descriptionOverride: String? = null,
     val hint: String? = null
-) : Effect {
-    override val description: String = descriptionOverride ?: when (val g = gate) {
-        is Gate.MayDecide -> g.prompt ?: buildString {
-            append("You may ${then.description.replaceFirstChar { it.lowercase() }}")
-            if (otherwise != null && otherwise.description.isNotBlank()) {
-                append(". Otherwise, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
+) : Effect, SelfReferentialDescription {
+    // Built twice from one renderer: once over each sub-effect's self-noun *template* (so the
+    // type-aware render layer can say "tap this land" / name the card), once over the plain
+    // descriptions. The two agree once the placeholder is default-resolved.
+    override val descriptionTemplate: String
+        get() = descriptionOverride ?: render { (it as? SelfReferentialDescription)?.descriptionTemplate ?: it.description }
+
+    override val description: String = descriptionOverride ?: render { it.description }
+
+    private fun render(textOf: (Effect) -> String): String {
+        val thenText = textOf(then).trim().removeSuffix(".")
+        val otherwiseText = otherwise?.let { textOf(it).trim().removeSuffix(".") }?.takeIf { it.isNotBlank() }
+        return when (val g = gate) {
+            is Gate.MayDecide -> g.prompt ?: buildString {
+                append("You may ${mayClause(thenText)}")
+                if (otherwiseText != null) append(". Otherwise, ${otherwiseText.lowercaseFirst()}")
             }
-        }
-        is Gate.MayPay -> buildString {
-            append("You may ${g.cost.description.replaceFirstChar { it.lowercase() }}. ")
-            append("If you do, ${then.description.replaceFirstChar { it.lowercase() }}")
-            if (otherwise != null && otherwise.description.isNotBlank()) {
-                append(". Otherwise, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
+            is Gate.MayPay -> buildString {
+                append("You may ${mayClause(textOf(g.cost).trim().removeSuffix("."))}")
+                // "You may pay 2 life. If you don't, it enters tapped." — paying can be its own
+                // reward (an empty `then`), and "If you do, ." is not a sentence.
+                if (thenText.isNotBlank()) {
+                    append(". If you do, ${thenText.lowercaseFirst()}")
+                    if (otherwiseText != null) append(". Otherwise, ${otherwiseText.lowercaseFirst()}")
+                } else if (otherwiseText != null) {
+                    append(". If you don't, ${otherwiseText.lowercaseFirst()}")
+                }
             }
-        }
-        is Gate.WhenCondition -> buildString {
-            append(g.condition.description.replaceFirstChar { it.uppercase() })
-            append(", ")
-            append(pronounForTestedTarget(g.condition, then.description).replaceFirstChar { it.lowercase() })
-            if (otherwise != null && otherwise.description.isNotBlank()) {
-                append(". Otherwise, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
+            is Gate.WhenCondition -> buildString {
+                // Most conditions read "if …"; a bare comparison ("you gained life this turn")
+                // needs the "If" supplied.
+                val condition = g.condition.description
+                val clause = if (condition.startsWith("if ", ignoreCase = true) ||
+                    condition.startsWith("unless ", ignoreCase = true)
+                ) condition else "if $condition"
+                append(clause.replaceFirstChar { it.uppercase() })
+                append(", ")
+                append(pronounForTestedTarget(g.condition, thenText).lowercaseFirst())
+                if (otherwiseText != null) append(". Otherwise, ${otherwiseText.lowercaseFirst()}")
             }
-        }
-        is Gate.DoAction -> buildString {
-            append(g.action.description.replaceFirstChar { it.uppercase() })
-            append(". If you do, ")
-            append(then.description.replaceFirstChar { it.lowercase() })
-            if (otherwise != null && otherwise.description.isNotBlank()) {
-                append(". If you don't, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
+            is Gate.DoAction -> buildString {
+                append(textOf(g.action).trim().removeSuffix(".").replaceFirstChar { it.uppercase() })
+                append(". If you do, ")
+                append(thenText.lowercaseFirst())
+                if (otherwiseText != null) append(". If you don't, ${otherwiseText.lowercaseFirst()}")
             }
-        }
-        is Gate.MayPayX -> buildString {
-            append("You may pay {X}. If you do, ${then.description.replaceFirstChar { it.lowercase() }}")
-            if (otherwise != null && otherwise.description.isNotBlank()) {
-                append(". Otherwise, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
+            is Gate.MayPayX -> buildString {
+                append("You may pay {X}. If you do, ${thenText.lowercaseFirst()}")
+                if (otherwiseText != null) append(". Otherwise, ${otherwiseText.lowercaseFirst()}")
             }
-        }
-        is Gate.MayPayAnyAmountOfLife -> buildString {
-            append("You may pay any amount of life. If you do, ${then.description.replaceFirstChar { it.lowercase() }}")
-            if (otherwise != null && otherwise.description.isNotBlank()) {
-                append(". Otherwise, ${otherwise.description.replaceFirstChar { it.lowercase() }}")
+            is Gate.MayPayAnyAmountOfLife -> buildString {
+                append("You may pay any amount of life. If you do, ${thenText.lowercaseFirst()}")
+                if (otherwiseText != null) append(". Otherwise, ${otherwiseText.lowercaseFirst()}")
             }
+            // The budget gate is invisible in prompt text — the "Do this only once each turn" rider is
+            // rendered once, on the owning TriggeredAbility. Rendering it here too would double it up
+            // inside the enclosing "You may …" prompt.
+            is Gate.OnceEachTurn -> textOf(then)
         }
-        // The budget gate is invisible in prompt text — the "Do this only once each turn" rider is
-        // rendered once, on the owning TriggeredAbility. Rendering it here too would double it up
-        // inside the enclosing "You may …" prompt.
-        is Gate.OnceEachTurn -> then.description
     }
 
     override fun applyTextReplacement(replacer: TextReplacer): Effect {
@@ -410,4 +423,90 @@ private fun pronounForTestedTarget(condition: Condition, then: String): String {
     val phrase = entity.description
     if (targetNoun(phrase) == null) return then
     return then.replace(phrase, "it")
+}
+
+private fun String.lowercaseFirst(): String = replaceFirstChar { it.lowercase() }
+
+/**
+ * Words that open a clause whose subject is something other than the decision-maker — "*target
+ * creature* gets +2/+0", "*this creature* becomes …", "*each opponent* loses 1 life". After "you
+ * may" such a clause needs "have" and its verb in the base form: "you may have target creature get
+ * +2/+0".
+ */
+private val NON_YOU_SUBJECT_OPENERS = setOf(
+    "target", "this", "that", "each", "it", "its", "enchanted", "equipped", "another", "all",
+    "defending", "up", SELF_NOUN_TOKEN
+)
+
+/**
+ * The third-person verbs effect descriptions are generated with, mapped to the base form a "you may
+ * (have X) …" clause takes. Only these are rewritten — a relative clause's verb ("a creature that
+ * player *controls*") is deliberately absent so it is never mistaken for the main verb.
+ */
+private val THIRD_PERSON_VERBS: Map<String, String> = listOf(
+    "becomes", "gets", "gains", "loses", "fights", "deals", "discards", "draws", "sacrifices",
+    "shuffles", "connives", "blocks", "untaps", "taps", "mills", "returns", "explores", "attacks",
+    "creates", "reveals", "searches", "exiles", "phases", "transforms", "puts", "assigns", "copies",
+    "chooses", "pays", "scries", "surveils", "investigates", "proliferates", "adapts", "has", "is",
+    "does", "dies", "takes", "skips", "plays", "casts", "looks", "doubles", "switches"
+).associateWith { verb ->
+    when {
+        verb == "has" -> "have"
+        verb == "is" -> "be"
+        verb == "does" -> "do"
+        verb == "dies" -> "die"
+        verb.endsWith("ies") -> verb.dropLast(3) + "y"
+        verb.endsWith("ches") || verb.endsWith("shes") || verb.endsWith("sses") || verb.endsWith("xes") -> verb.dropLast(2)
+        else -> verb.dropLast(1)
+    }
+}
+
+/**
+ * Rewrite a generated effect clause so it reads after "You may " — the decision-maker is the
+ * implicit subject, so a clause that already names one must not repeat or contradict it:
+ *
+ *  - "You gain that many life" → "gain that many life" (not "You may you gain …")
+ *  - "this creature becomes an Equipment …" → "have this creature become an Equipment …"
+ *  - "Target creature gets +1/+1 until end of turn" → "have target creature get +1/+1 …"
+ *  - "draw a card" → unchanged (already imperative)
+ *
+ * Only the first sentence's main verb (and any verb joined to it by "and") is put in the base
+ * form; quoted ability text is never touched.
+ */
+internal fun mayClause(clause: String): String {
+    val text = clause.trim()
+    val firstWord = text.substringBefore(' ').lowercase()
+    return when {
+        firstWord == "you" -> baseFormVerbs(text.substringAfter(' ')).lowercaseFirst()
+        firstWord in NON_YOU_SUBJECT_OPENERS -> "have " + baseFormVerbs(text).lowercaseFirst()
+        else -> text.lowercaseFirst()
+    }
+}
+
+/**
+ * Put the main verb of [text]'s first sentence into its base form — the first known third-person
+ * verb outside quotes, plus any later one directly after "and" ("becomes … and loses"). Text after
+ * the first sentence, and inside quotes, is left as written.
+ */
+private fun baseFormVerbs(text: String): String {
+    val sentenceEnd = text.indexOf(". ").let { if (it < 0) text.length else it }
+    val head = text.substring(0, sentenceEnd)
+    val tail = text.substring(sentenceEnd)
+    val out = StringBuilder()
+    var inQuote = false
+    var foundMain = false
+    var previousWord = ""
+    val tokens = Regex("""[A-Za-z']+|[^A-Za-z']""").findAll(head).map { it.value }.toList()
+    for (token in tokens) {
+        if (token == "\"") inQuote = !inQuote
+        val base = THIRD_PERSON_VERBS[token]
+        if (!inQuote && base != null && (!foundMain || previousWord == "and")) {
+            out.append(base)
+            foundMain = true
+        } else {
+            out.append(token)
+        }
+        if (token.isNotBlank() && token.first().isLetter()) previousWord = token
+    }
+    return out.toString() + tail
 }

@@ -9,6 +9,7 @@ import com.wingedsheep.ai.engine.evaluation.BoardEvaluator
 import com.wingedsheep.ai.engine.evaluation.BoardPresence
 import com.wingedsheep.ai.engine.evaluation.EvaluationWeights
 import com.wingedsheep.ai.engine.evaluation.ThreatAssessment
+import com.wingedsheep.ai.engine.knowledge.EffectWalker
 import com.wingedsheep.ai.engine.knowledge.ExpiringGrantWindow
 import com.wingedsheep.ai.engine.knowledge.IntentTag
 import com.wingedsheep.ai.engine.knowledge.HoldPolicy
@@ -32,16 +33,20 @@ import com.wingedsheep.engine.core.DeclareAttackers
 import com.wingedsheep.engine.core.DeclareBlockers
 import com.wingedsheep.engine.core.GameAction
 import com.wingedsheep.engine.core.PaymentStrategy
+import com.wingedsheep.engine.core.PassPriority
 import com.wingedsheep.engine.core.PlayLand
 import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
 import com.wingedsheep.engine.legalactions.LegalAction
 import com.wingedsheep.engine.legalactions.MeaningfulActionFilter
+import com.wingedsheep.engine.mechanics.mana.ManaSolver
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.TokenComponent
 import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.player.LandDropsComponent
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
@@ -57,6 +62,12 @@ import com.wingedsheep.sdk.scripting.AlternativePaymentChoice
 import com.wingedsheep.sdk.scripting.ConvokePayment
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
+import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.ScryEffect
+import com.wingedsheep.sdk.scripting.effects.SurveilEffect
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * Chooses which [LegalAction] to take when the AI has priority.
@@ -172,6 +183,11 @@ class Strategist(
      */
     private val defendPlaneswalkers: Boolean = false,
     /**
+     * [AiProfile.spendFuelWalkers] — a minus-only walker's loyalty activation is priced as what it
+     * buys, granted loyalty abilities included. See [fuelWalkerSpend].
+     */
+    private val spendFuelWalkers: Boolean = false,
+    /**
      * [AiProfile.landDropUnlocksSpells] — a land drop scores as the best spell it makes castable.
      * See [landDropFollowUps].
      */
@@ -188,6 +204,11 @@ class Strategist(
      */
     private val enablersFirst: Boolean = false,
     /**
+     * [AiProfile.fetchedLandDropFollowUp] — a line that puts a land in hand with the land drop
+     * unused scores as at least playing that land. See [fetchedLandFollowUps].
+     */
+    private val fetchedLandDropFollowUp: Boolean = false,
+    /**
      * [AiProfile.precombatPumpsForThePlan] — in our precombat main, a pump that changes who the
      * attack plan sends is priced by the attack it buys. See [pumpThatBuysTheAttack].
      */
@@ -197,6 +218,32 @@ class Strategist(
      * to [com.wingedsheep.ai.engine.knowledge.AmbushWindow] along with each candidate's leaf.
      */
     private val holdInstantSpeedDeploys: Boolean = false,
+    /**
+     * [AiProfile.taxCountersReadTheirMana] — passed straight through to [HoldPolicy], which hands
+     * it to [com.wingedsheep.ai.engine.knowledge.CounterTax].
+     */
+    private val taxCountersReadTheirMana: Boolean = false,
+    /**
+     * [AiProfile.refuseWastedPayoffs] — passed straight through to [HoldPolicy], which hands it to
+     * [com.wingedsheep.ai.engine.knowledge.TargetlessEntry] and
+     * [com.wingedsheep.ai.engine.knowledge.ExpiringGrantWindow].
+     */
+    private val refuseWastedPayoffs: Boolean = false,
+    /**
+     * [AiProfile.lifelinkWaitsForBlocks] — passed straight through to [HoldPolicy], which hands it
+     * to [com.wingedsheep.ai.engine.knowledge.ExpiringGrantWindow].
+     */
+    private val lifelinkWaitsForBlocks: Boolean = false,
+    /**
+     * [AiProfile.tapToGrowAtTheirEndStep] — passed straight through to [HoldPolicy], which hands it
+     * to [com.wingedsheep.ai.engine.knowledge.SelfTapGrowthWindow].
+     */
+    private val tapToGrowAtTheirEndStep: Boolean = false,
+    /**
+     * [AiProfile.convokeLandsFirst] — a convoke spell taps creatures only for what mana cannot
+     * pay, cheapest creatures first. See [withAutomaticConvoke].
+     */
+    private val convokeLandsFirst: Boolean = false,
     /**
      * The profile's `EvaluationWeights.boardPresence`. Only [HoldPolicy] reads it, to quote a
      * patience discount in the same units the leaf score prices board value in.
@@ -230,7 +277,12 @@ class Strategist(
         holdUnusablePumps = holdUnusablePumps,
         drawWithIdleMana = drawWithIdleMana,
         holdInstantSpeedDeploys = holdInstantSpeedDeploys,
+        taxCountersReadTheirMana = taxCountersReadTheirMana,
+        refuseWastedPayoffs = refuseWastedPayoffs,
+        lifelinkWaitsForBlocks = lifelinkWaitsForBlocks,
+        tapToGrowAtTheirEndStep = tapToGrowAtTheirEndStep,
         boardPresenceWeight = boardPresenceWeight,
+        legalActions = simulator::getLegalActions,
     )
 
     /**
@@ -392,6 +444,10 @@ class Strategist(
             if (enablersFirst && !forcedPlay) {
                 addAll(enablerFollowUps(evaluationState, legalActions, leaves, leafStates, playerId, budget))
             }
+            // ── Pass 1d: the land drop a line puts in hand — see [fetchedLandFollowUps] ──
+            if (fetchedLandDropFollowUp && !forcedPlay) {
+                addAll(fetchedLandFollowUps(evaluationState, leaves, leafStates, playerId, budget))
+            }
         }
 
         // ── Pass 2: score every leaf at once ──
@@ -441,7 +497,11 @@ class Strategist(
             }.maxByOrNull { it.second.score }
             val adjustment = if (unlocked != null && unlocked.second.score > own.score) {
                 val name = resolveCardName(leafStates[i], unlocked.first.action) ?: "a spell"
-                val why = if (leaves[i].action is PlayLand) "land first: unlocks" else "first: discounts"
+                val why = when {
+                    leaves[i].action is PlayLand -> "land first: unlocks"
+                    unlocked.first.action.action is PlayLand -> "then plays"
+                    else -> "first: discounts"
+                }
                 AdjustedScore(
                     unlocked.second.score,
                     listOfNotNull(own.note, "$why $name %.2f".format(unlocked.second.score))
@@ -905,6 +965,7 @@ class Strategist(
         passScore: Double,
         leafState: GameState,
     ): AdjustedScore {
+        if (spendFuelWalkers) fuelWalkerSpend(state, action, playerId, passScore, leafState)?.let { return it }
         val deployed = deploymentCredit(state, action, leafState, playerId)
         val fuel = fuelLoyaltyCredit(state, action, leafState, playerId)
         val credit = deployed + fuel
@@ -1261,6 +1322,61 @@ class Strategist(
         return followUps
     }
 
+    /**
+     * For each non-land leaf, the land drops it puts in our hand — [AiProfile.fetchedLandDropFollowUp].
+     *
+     * The search is one action deep, so a landcycle, a land tutor or a draw that finds a land is
+     * scored as "a land in hand" — and a land in hand is priced well below the business card it
+     * cost — never as the land on the battlefield it becomes a moment later when our land drop is
+     * still unused. The misplay (2026-10-16 AI self-play, 2p game 03, turns 7 and 11): stuck on
+     * three lands with only four-to-six drops in hand, the AI passed both main phases rather than
+     * Plainscycling Noble Templar for the fourth land.
+     *
+     * Only lands that were not in our hand at the root: a land already there is a root candidate of
+     * its own, and crediting it to an unrelated spell would argue for that spell on the land's
+     * merits. The leaf must be quiet — no pending decision (the simulator's decision resolver has
+     * already answered the search with the AI's own pick), empty stack, the same main step, our
+     * priority — so the land play is legal and the next decision is ours. Stops when the budget does.
+     */
+    private fun fetchedLandFollowUps(
+        root: GameState,
+        leaves: List<LegalAction>,
+        leafStates: List<GameState>,
+        playerId: EntityId,
+        budget: DecisionBudget,
+    ): List<LandFollowUp> {
+        if (!root.isActiveTurnFor(playerId) || root.stack.isNotEmpty()) return emptyList()
+        if (root.step != Step.PRECOMBAT_MAIN && root.step != Step.POSTCOMBAT_MAIN) return emptyList()
+        // No land drop left: nothing a leaf fetches can be played this turn.
+        if ((root.getEntity(playerId)?.get<LandDropsComponent>()?.remaining ?: 0) <= 0) return emptyList()
+        val hand = root.getZone(ZoneKey(playerId, Zone.HAND)).toSet()
+        val followUps = mutableListOf<LandFollowUp>()
+        for (i in leaves.indices) {
+            if (budget.expired()) return followUps
+            val action = leaves[i].action
+            if (action is PlayLand || action is PassPriority) continue
+            val after = leafStates[i]
+            if (after.pendingDecision != null || after.stack.isNotEmpty() ||
+                after.step != root.step || after.priorityPlayerId != playerId
+            ) continue
+            val newLands = after.getZone(ZoneKey(playerId, Zone.HAND)).filterTo(HashSet()) {
+                it !in hand && after.getEntity(it)?.get<CardComponent>()?.typeLine?.isLand == true
+            }
+            if (newLands.isEmpty()) continue
+            val fetched = simulator.getLegalActions(after, playerId).filter {
+                val play = it.action as? PlayLand
+                it.affordable && play != null && play.cardId in newLands
+            }
+            for (land in fetched) {
+                if (budget.expired()) return followUps
+                val simulation = simulator.simulate(after, land.action)
+                if (simulation is SimulationResult.Illegal || simulation is SimulationResult.StoppedAtLimit) continue
+                followUps += LandFollowUp(i, land, simulation.state)
+            }
+        }
+        return followUps
+    }
+
     /** The mana value of an enumerated cast's price, or null when it has none to compare (X). */
     private fun priceOf(action: LegalAction): Int? {
         if (action.hasXCost) return null
@@ -1350,6 +1466,96 @@ class Strategist(
         val charge = evaluator.evaluate(restored, restored.projectedState, playerId) -
             evaluator.evaluate(leaf, leaf.projectedState, playerId)
         return charge.coerceAtLeast(0.0)
+    }
+
+    /**
+     * A loyalty activation of a walker that can only spend loyalty, priced as what it buys —
+     * [AiProfile.spendFuelWalkers]. Null for anything else, which keeps the ordinary scoring.
+     *
+     * Such a walker's value *is* its loyalty: with no + ability (printed or granted —
+     * [IntentCatalog.loyaltyIsOnlyFuel]) a counter it keeps can only be spent later on the same
+     * abilities, so spending it, even its last one, is not a loss. The price is therefore the static
+     * gain of [leaf] over [root] with the loyalty already spent — the walker gone when that was
+     * its last counter — plus [SELECTION_VALUE] per card the ability surveils or scries, which
+     * nothing the evaluator reads would otherwise see. A draw is a card; a surveil is a small,
+     * positive selection; a granted −2 that makes a 2/2 is a 2/2. Laid on top of [passScore]
+     * rather than the leaf's own score, as [pumpThatBuysTheAttack] does: the difference is a card
+     * or less, and a rollout's estimate of two leaves that differ only by it is noise that size.
+     *
+     * The one reason to hold: an activation that kills the walker while the next opposing attack
+     * would be lethal to us is floored below passing — the walker is the only other thing that
+     * attack can be pointed at.
+     *
+     * The ability is matched among the walker's loyalty abilities as it stands
+     * ([IntentCatalog.loyaltyAbilities]), so a minus granted by a "Way of the X" enchantment —
+     * whose id names the enchantment, not the walker — is a loyalty spend like a printed one.
+     */
+    private fun fuelWalkerSpend(
+        root: GameState,
+        action: LegalAction,
+        playerId: EntityId,
+        passScore: Double,
+        leaf: GameState,
+    ): AdjustedScore? {
+        val activation = action.action as? ActivateAbility ?: return null
+        val walkerId = activation.sourceId
+        val projected = root.projectedState
+        if (!projected.isPlaneswalker(walkerId) || projected.getController(walkerId) != playerId) return null
+        val ability = intents.loyaltyAbilities(root, walkerId).find { it.id == activation.abilityId } ?: return null
+        if (!intents.loyaltyIsOnlyFuel(root, walkerId)) return null
+        val owner = root.turnOrder.firstOrNull { walkerId in root.getBattlefield(it) } ?: return null
+        val before = PlaneswalkerThreat.loyalty(root, walkerId)
+        val after = if (walkerId in leaf.getBattlefield(owner)) PlaneswalkerThreat.loyalty(leaf, walkerId) else 0
+        val spent = before - after
+        if (spent <= 0) return null
+        // Drawing past the end of the library loses the game (CR 704.5b), which nothing the board
+        // evaluator reads shows and the drawn-card floor below would price as a card.
+        val drawn = EffectWalker.fold(ability.effect, CardsDrawn)
+        if (drawn > root.getLibrary(playerId).size) {
+            return AdjustedScore(passScore - 1.0, "draws from an empty library — floored below passing", floored = true)
+        }
+        val dies = after <= 0
+        if (dies && PlaneswalkerThreat.expectedDamage(root, projected, playerId) >= root.lifeTotal(playerId)) {
+            return AdjustedScore(
+                passScore - 1.0,
+                "walker may soak a lethal attack — its last loyalty held, floored below passing",
+                floored = true,
+            )
+        }
+        val spentRoot = if (dies) root.removeFromZone(ZoneKey(owner, Zone.BATTLEFIELD), walkerId)
+        else root.updateEntity(walkerId) { c ->
+            c.with((c.get<CountersComponent>() ?: return@updateEntity c).withRemoved(CounterType.LOYALTY, spent))
+        }
+        val rooted = evaluator.rootedAt(root, playerId)
+        val gain = rooted.evaluate(leaf, leaf.projectedState, playerId) -
+            rooted.evaluate(spentRoot, spentRoot.projectedState, playerId)
+        // The leaf drew the real top card, which the player cannot know: a land the hand curve
+        // prices at nothing was still a random card when the loyalty was spent.
+        val total = maxOf(gain, DRAWN_CARD_FLOOR * drawn) + SELECTION_VALUE * EffectWalker.fold(ability.effect, CardsLookedAt)
+        return AdjustedScore(passScore + total, "minus-only walker spent for what it buys %+.2f".format(total))
+    }
+
+    /** Cards an effect surveils or scries, read off its tree; a branch counts its larger arm. */
+    private object CardsLookedAt : EffectWalker.Fold<Int> {
+        override fun leaf(effect: Effect): Int = when (effect) {
+            is SurveilEffect -> effect.count
+            is ScryEffect -> effect.count
+            else -> 0
+        }
+        override fun composite(parts: List<Int>): Int = parts.sum()
+        override fun conditional(thenValue: Int, elseValue: Int?): Int = maxOf(thenValue, elseValue ?: 0)
+        override fun may(thenValue: Int): Int = thenValue
+    }
+
+    /** Cards an effect has its controller draw, read off its tree (fixed counts only). */
+    private object CardsDrawn : EffectWalker.Fold<Int> {
+        override fun leaf(effect: Effect): Int =
+            if (effect is DrawCardsEffect && effect.target == EffectTarget.Controller) {
+                (effect.count as? DynamicAmount.Fixed)?.amount ?: 0
+            } else 0
+        override fun composite(parts: List<Int>): Int = parts.sum()
+        override fun conditional(thenValue: Int, elseValue: Int?): Int = minOf(thenValue, elseValue ?: 0)
+        override fun may(thenValue: Int): Int = thenValue
     }
 
     /**
@@ -1526,7 +1732,7 @@ class Strategist(
      * projected controller/type/counter legality.
      */
     private fun withAutomaticPayments(state: GameState, action: LegalAction): GameAction {
-        val gameAction = withAutomaticTapForGeneric(action, withAutomaticConvoke(action))
+        val gameAction = withAutomaticTapForGeneric(action, withAutomaticConvoke(state, action))
         val info = action.additionalCostInfo ?: return gameAction
         val existing = when (gameAction) {
             is CastSpell -> gameAction.additionalCostPayment
@@ -1539,7 +1745,8 @@ class Strategist(
             else -> null
         }
         val cheapestFirst = CostCandidateOrder(state, payerId)
-        val primary = deterministicPayment(info, existing, cheapestFirst) ?: when (info.costType) {
+        val xValue = (gameAction as? CastSpell)?.xValue ?: 0
+        val primary = deterministicPayment(info, existing, cheapestFirst, xValue) ?: when (info.costType) {
             // Teamwork N (CR 702.194a): tap as *few* creatures as will clear the total-power
             // threshold, and among equally-few selections the *smallest* bodies — a board with a
             // 5/5 and a 1/1 paying teamwork 1 should turn the 1/1 sideways and keep the better
@@ -1576,7 +1783,7 @@ class Strategist(
             else -> return gameAction
         }
         // "Discard a card and sacrifice a creature": every further selection cost is paid too.
-        val payment = info.alsoRequired.fold(primary) { acc, extra -> deterministicPayment(extra, acc, cheapestFirst) ?: acc }
+        val payment = info.alsoRequired.fold(primary) { acc, extra -> deterministicPayment(extra, acc, cheapestFirst, xValue) ?: acc }
         return when (gameAction) {
             is CastSpell -> gameAction.copy(additionalCostPayment = payment)
             is ActivateAbility -> gameAction.copy(costPayment = payment)
@@ -1633,6 +1840,7 @@ class Strategist(
         info: com.wingedsheep.engine.legalactions.AdditionalCostData,
         existing: AdditionalCostPayment,
         cheapestFirst: CostCandidateOrder,
+        xValue: Int,
     ): AdditionalCostPayment? = when (info.costType) {
         "Blight" -> existing.copy(blightTargets = info.validBlightTargets.take(1))
         "Behold" -> existing.copy(beheldCards = info.validBeholdTargets.take(info.beholdCount))
@@ -1652,8 +1860,10 @@ class Strategist(
         )
         "ExileFromGraveyard" -> existing.copy(exiledCards = info.validExileTargets.take(info.exileMinCount))
         // "Sacrifice any number of …": only the floor, so a zero-floor cost sacrifices nothing.
+        // "Sacrifice X creatures": exactly the cast's announced X.
         "SacrificeVariable" -> existing.copy(
-            variableCostPermanents = cheapestFirst.permanents(info.validSacrificeTargets).take(info.sacrificeCount)
+            variableCostPermanents = cheapestFirst.permanents(info.validSacrificeTargets)
+                .take(if (info.sacrificeCountIsX) xValue else info.sacrificeCount)
         )
         else -> null
     }
@@ -1783,11 +1993,18 @@ class Strategist(
      * cast handler consumes. Colored pips are satisfied first; remaining creatures pay only the
      * generic part of the cost, so the AI never submits an invalid overpayment.
      */
-    private fun withAutomaticConvoke(action: LegalAction): GameAction {
+    private fun withAutomaticConvoke(state: GameState, action: LegalAction): GameAction {
         val cast = action.action as? CastSpell ?: return action.action
-        val creatures = action.convokeCreatures.orEmpty()
+        val offered = action.convokeCreatures.orEmpty()
         val costString = action.manaCostString
-        if (!action.hasConvoke || creatures.isEmpty() || costString == null) return cast
+        if (!action.hasConvoke || offered.isEmpty() || costString == null) return cast
+        // Under [convokeLandsFirst] the cheapest bodies are first in line, so the greedy pass below
+        // spends them before the creatures we would rather keep untapped.
+        val creatures = if (convokeLandsFirst) {
+            offered.sortedBy { CombatMath.creatureValue(state, state.projectedState, it.entityId) }
+        } else {
+            offered
+        }
 
         val cost = ManaCost.parse(costString)
         val coloredNeeded = cost.symbols
@@ -1813,6 +2030,7 @@ class Strategist(
             payments[creature.entityId] = ConvokePayment()
             genericNeeded--
         }
+        if (convokeLandsFirst) releaseConvokeForMana(state, cast.playerId, cost, payments)
         if (payments.isEmpty()) return cast
 
         val existing = cast.alternativePayment ?: AlternativePaymentChoice.NONE
@@ -1821,6 +2039,43 @@ class Strategist(
                 convokedCreatures = existing.convokedCreatures + payments
             )
         )
+    }
+
+    private val manaSolver: ManaSolver by lazy {
+        ManaSolver(simulator.cardRegistry, PredicateEvaluator(simulator.cardRegistry))
+    }
+
+    /**
+     * [convokeLandsFirst]: untap every convoking creature whose pip the rest of our mana can pay
+     * instead, most valuable first. A creature tapped for convoke is a creature that does not
+     * attack or block; a land tapped for the same pip costs nothing else on most turns. What is
+     * left in [payments] is the shortfall mana genuinely cannot cover. Mutates [payments].
+     */
+    private fun releaseConvokeForMana(
+        state: GameState,
+        playerId: EntityId,
+        cost: ManaCost,
+        payments: LinkedHashMap<EntityId, ConvokePayment>,
+    ) {
+        val projected = state.projectedState
+        val mostValuableFirst = payments.keys.sortedByDescending { CombatMath.creatureValue(state, projected, it) }
+        for (creature in mostValuableFirst) {
+            val without = LinkedHashMap(payments).apply { remove(creature) }
+            if (manaSolver.canPay(state, playerId, costAfterConvoke(cost, without.values), excludeSources = without.keys)) {
+                payments.remove(creature)
+            }
+        }
+    }
+
+    /** [cost] with each convoke payment's pip taken off: its color, or one generic. */
+    private fun costAfterConvoke(cost: ManaCost, payments: Collection<ConvokePayment>): ManaCost {
+        val symbols = cost.symbols.toMutableList()
+        var generic = 0
+        for (payment in payments) {
+            val color = payment.color
+            if (color == null) generic++ else symbols.remove(ManaSymbol.Colored(color))
+        }
+        return ManaCost(symbols).reduceGeneric(generic)
     }
 
     /**
@@ -1929,7 +2184,10 @@ class Strategist(
         val base = action.action
         val maxX = action.maxAffordableX
         val info = action.additionalCostInfo
-        val payableCost = info == null || info.costType == "DiscardCard"
+        // "Sacrifice X creatures" (Eliminate the Competition) is paid once X is bound — the
+        // cheapest X permanents, in [deterministicPayment].
+        val payableCost = info == null || info.costType == "DiscardCard" ||
+            (info.costType == "SacrificeVariable" && info.sacrificeCountIsX)
         // The Momir avatar is expanded before the generic affordability guard below, because for it
         // "not worth activating" must mean *dropped*, not "fall through to the bare action". The
         // bare action carries `xValue = 0`, and with no mana available (`maxX == 0`) that is exactly
@@ -2082,6 +2340,22 @@ class Strategist(
          * magnitude above this and floating-point summation-order noise orders of magnitude below.
          */
         const val SCORE_EPSILON = 1e-9
+
+        /**
+         * What looking at one card with a surveil or scry is worth to [fuelWalkerSpend], in evaluator
+         * units — the selection the board score cannot see. Small on purpose: positive, so a −1
+         * surveil beats letting the loyalty sit, and below the least a drawn card is worth (a land
+         * in hand when mana-rich is 0.2 on `CardAdvantage`'s curve, a spell 0.8 and up), so a −3
+         * draw outbids it whenever both are on offer.
+         */
+        const val SELECTION_VALUE = 0.15
+
+        /**
+         * The least a card drawn by [fuelWalkerSpend]'s activation counts for: twice a look, so a
+         * draw outbids a surveil even when the card the leaf happened to draw — the real top card,
+         * which the player cannot know — is one the hand curve prices at nothing.
+         */
+        const val DRAWN_CARD_FLOOR = 0.3
 
         /**
          * Targets simulated per requirement when rescuing a candidate the cheap pick made inert.

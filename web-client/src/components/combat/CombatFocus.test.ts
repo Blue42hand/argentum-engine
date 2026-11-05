@@ -7,9 +7,9 @@ const id = (s: string) => s as EntityId
 const edge = (blocker: string, attacker: string): BlockEdge => ({ blockerId: id(blocker), attackerId: id(attacker) })
 const attackers = new Set([id('A1'), id('A2'), id('A3')])
 
-function focus(hovered: string, edges: BlockEdge[], bands: EntityId[][] = [], blocksKnown = true) {
+function focus(hovered: string, edges: BlockEdge[], bands: EntityId[][] = [], blocksKnown = true, blockedWithoutBlockers: EntityId[] = []) {
   const clique = computeCombatClique(id(hovered), edges, bands, attackers)!
-  return describeFocus(id(hovered), clique, edges, bands, blocksKnown)
+  return describeFocus(id(hovered), clique, edges, bands, blocksKnown, new Set(blockedWithoutBlockers))
 }
 
 describe('describeFocus', () => {
@@ -30,6 +30,10 @@ describe('describeFocus', () => {
   it('says unblocked only once blocks are known', () => {
     expect(focus('A3', [edge('B1', 'A1')])?.role).toBe('unblocked')
     expect(focus('A3', [], [], false)).toBeNull()
+  })
+
+  it('an attacker whose blockers all left combat stays blocked, not unblocked', () => {
+    expect(focus('A3', [], [], true, [id('A3')])).toEqual({ role: 'blocked', others: [], bandSize: 0 })
   })
 
   it('shows just the band before blocks are known', () => {

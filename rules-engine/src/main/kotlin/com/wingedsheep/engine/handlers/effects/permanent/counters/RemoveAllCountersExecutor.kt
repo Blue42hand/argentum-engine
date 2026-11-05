@@ -45,7 +45,7 @@ class RemoveAllCountersExecutor : EffectExecutor<RemoveAllCountersEffect> {
 
         val entityName = targetEntity.get<CardComponent>()?.name ?: ""
         val events = present.map { (type, amount) ->
-            CountersRemovedEvent(targetId, type, amount, entityName)
+            CountersRemovedEvent(targetId, type, amount, entityName, removedBy = context.controllerId)
         }
 
         return EffectResult.success(newState, events)

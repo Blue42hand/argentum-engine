@@ -74,21 +74,25 @@ class FastDecisionResponder(private val intents: IntentCatalog = IntentCatalog.N
     fun respond(state: GameState, decision: PendingDecision, playerId: EntityId): DecisionResponse {
         TrivialDecisions.responseFor(decision)?.let { return it }
         return when (decision) {
+            is com.wingedsheep.engine.core.FlipOntoBattlefieldDecision ->
+                com.wingedsheep.ai.engine.FlipAim.respond(state, decision, playerId, samples = 4)
             is com.wingedsheep.engine.core.PlayCardDecision ->
                 error("Forced play must use the rollout's ordinary action policy")
             // Rank by the same heuristic the Strategist's cheap path uses. Not "first legal": a
             // playout that aims every removal spell at the nearest 1/1 systematically undervalues
             // removal, which is a bias in the leaf the whole phase exists to improve.
             // In slot order: a slot that reads an earlier target draws from the earlier picks' table.
+            // Automatic ordering's order: a playout has no reason to prefer another.
+            is com.wingedsheep.engine.core.OrderTriggersDecision ->
+                com.wingedsheep.engine.core.TriggerOrderResponse(decision.id, decision.triggers.indices.toList())
             is ChooseTargetsDecision -> TargetsResponse(
                 decision.id,
                 decision.targetRequirements.fold(emptyMap()) { chosen, req ->
                     val pool = decision.legalTargetsFor(req.index, chosen)
-                    val ownerPicks = req.exclusiveGroups?.let { groups ->
-                        constrainedTargetSelection(pool, req.minTargets, req.maxTargets, req.selectionGroups, groups) {
-                            TargetSelection.rank(state, it, playerId, intents)
-                        }
-                    }
+                    val ownerPicks = if (req.exclusiveGroups != null || req.distinctCategories != null) {
+                        constrainedTargetSelection(pool, req.minTargets, req.maxTargets, req.selectionGroups,
+                            req.exclusiveGroups, { TargetSelection.rank(state, it, playerId, intents) }, req.distinctCategories)
+                    } else null
                     val legal = ownerPicks ?: req.selectionGroups?.map { group -> group.filter { it in pool } }
                         ?.filter { it.size >= req.minTargets }
                         ?.maxByOrNull { group -> group.sortedByDescending { TargetSelection.rank(state, it, playerId, intents) }
@@ -97,9 +101,10 @@ class FastDecisionResponder(private val intents: IntentCatalog = IntentCatalog.N
                     val count = req.maxTargets.coerceAtMost(legal.size).coerceAtLeast(
                         req.minTargets.coerceAtMost(legal.size)
                     )
-                    chosen + (req.index to legal
-                        .sortedByDescending { TargetSelection.rank(state, it, playerId, intents) }
-                        .take(count))
+                    val ranked = legal.sortedByDescending { TargetSelection.rank(state, it, playerId, intents) }
+                    chosen + (req.index to (req.totalManaValueAtMost?.let { cap ->
+                        TargetSelection.underManaValueCap(state, ranked, cap, count)
+                    } ?: ranked.take(count)))
                 }
             )
 
@@ -129,7 +134,7 @@ class FastDecisionResponder(private val intents: IntentCatalog = IntentCatalog.N
             )
 
             // "You may" is on the card because doing it is usually good.
-            is YesNoDecision -> YesNoResponse(decision.id, choice = true)
+            is YesNoDecision -> YesNoResponse(decision.id, choice = decision.yesAvailable)
             is BatchYesNoDecision -> BatchYesNoResponse(decision.id, choice = true, applyToAll = true)
 
             is ChooseModeDecision -> {

@@ -870,6 +870,91 @@
     ]
 }
 
+// Elenda, the Dusk Rose
+{
+    "name": "Elenda, the Dusk Rose",
+    "manaCost": "{2}{W}{B}",
+    "typeLine": "Legendary Creature — Vampire Knight",
+    "oracleText": "Lifelink\nWhenever another creature dies, put a +1/+1 counter on Elenda.\nWhen Elenda dies, create X 1/1 white Vampire creature tokens with lifelink, where X is Elenda's power.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "LIFELINK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Elenda, the Dusk Rose:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            },
+            {
+                "id": "Elenda, the Dusk Rose:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": "Power"
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Vampire"
+                    ],
+                    "keywords": [
+                        "LIFELINK"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/0/9/09293ae7-0629-417b-9eda-9bd3f6d8e118.jpg?1783935812"
+                },
+                "descriptionOverride": "When Elenda dies, create X 1/1 white Vampire creature tokens with lifelink, where X is Elenda's power."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "157",
+        "rarity": "MYTHIC",
+        "artist": "Chris Rahn",
+        "flavorText": "Her centuries-long search is ended.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/5/a52af49b-cfeb-47a8-9ce5-5d35bfa9eb75.jpg?1783935277",
+        "rulings": [
+            {
+                "date": "2018-01-19",
+                "text": "If Elenda dies at the same time as another creature, both of its triggered abilities trigger. However, the first one won't do anything since you can't put a +1/+1 counter on Elenda."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "To determine how many Vampire tokens are created, use Elenda's power as it last existed on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLACK"
+    ]
+}
+
 // Exultant Skymarcher
 {
     "name": "Exultant Skymarcher",
@@ -1665,6 +1750,121 @@
     ]
 }
 
+// Journey to Eternity
+{
+    "name": "Journey to Eternity",
+    "manaCost": "{1}{B}{G}",
+    "typeLine": "Legendary Enchantment — Aura",
+    "oracleText": "Enchant creature you control\nWhen enchanted creature dies, return it to the battlefield under your control, then return this card to the battlefield transformed under your control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Journey to Eternity:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": "TriggeringEntity",
+                            "destination": "Battlefield",
+                            "controllerOverride": "Controller",
+                            "fromZone": "Graveyard"
+                        },
+                        {
+                            "type": "ReturnSelfFromZoneTransformed",
+                            "controllerOverride": "Controller"
+                        }
+                    ]
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            }
+        }
+    },
+    "backFace": {
+        "name": "Atzal, Cave of Eternity",
+        "manaCost": "",
+        "typeLine": "Legendary Land",
+        "oracleText": "(Transforms from Journey to Eternity.)\n{T}: Add one mana of any color.\n{3}{B}{G}, {T}: Return target creature card from your graveyard to the battlefield.",
+        "script": {
+            "activatedAbilities": [
+                {
+                    "id": "Atzal, Cave of Eternity:1",
+                    "cost": "CostTap",
+                    "effect": "AddManaOfChoice",
+                    "timing": "ManaAbility",
+                    "isManaAbility": true
+                },
+                {
+                    "id": "Atzal, Cave of Eternity:2",
+                    "cost": {
+                        "type": "CostComposite",
+                        "costs": [
+                            {
+                                "type": "CostAtomWrapper",
+                                "atom": {
+                                    "type": "AtomMana",
+                                    "cost": "{3}{B}{G}"
+                                }
+                            },
+                            "CostTap"
+                        ]
+                    },
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Battlefield",
+                        "fromZone": "Graveyard"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature own:you",
+                                "zone": "Graveyard"
+                            },
+                            "id": "t0"
+                        }
+                    ]
+                }
+            ]
+        },
+        "metadata": {
+            "collectorNumber": "160",
+            "rarity": "RARE",
+            "artist": "Deruchenko Alexander",
+            "imageUri": "https://cards.scryfall.io/normal/back/d/8/d81c4b3f-81c2-403b-8a5d-c9415f73a1f9.jpg?1783935280"
+        },
+        "colorIdentityOverride": [
+            "BLACK",
+            "GREEN"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "160",
+        "rarity": "RARE",
+        "artist": "Deruchenko Alexander",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/8/d81c4b3f-81c2-403b-8a5d-c9415f73a1f9.jpg?1783935280"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
+}
+
 // Jungle Creeper
 {
     "name": "Jungle Creeper",
@@ -2159,6 +2359,98 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Nezahal, Primal Tide
+{
+    "name": "Nezahal, Primal Tide",
+    "manaCost": "{5}{U}{U}",
+    "typeLine": "Legendary Creature — Elder Dinosaur",
+    "oracleText": "This spell can't be countered.\nYou have no maximum hand size.\nWhenever an opponent casts a noncreature spell, draw a card.\nDiscard three cards: Exile Nezahal. Return it to the battlefield tapped under its owner's control at the beginning of the next end step.",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Nezahal, Primal Tide:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsNoncreature"
+                        ]
+                    },
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Nezahal, Primal Tide:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomDiscard",
+                        "count": 3
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": "Self",
+                            "destination": "Exile"
+                        },
+                        {
+                            "type": "CreateDelayedTrigger",
+                            "step": "END",
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": "Self",
+                                "destination": "Battlefield",
+                                "placement": "Tapped"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Discard three cards: Exile Nezahal. Return it to the battlefield tapped under its owner's control at the beginning of the next end step."
+            }
+        ],
+        "staticAbilities": [
+            "NoMaximumHandSize"
+        ],
+        "cantBeCountered": true
+    },
+    "metadata": {
+        "collectorNumber": "45",
+        "rarity": "RARE",
+        "artist": "Sam Burley",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/8/48eba418-94ab-46a3-958c-4d5058fc2bcd.jpg?1783935322",
+        "rulings": [
+            {
+                "date": "2018-01-19",
+                "text": "Nezahal's triggered ability resolves before the noncreature spell that caused it to trigger."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "After Nezahal returns to the battlefield, it will be a new object with no connection to the creature that was exiled. It won't be in combat or have any additional abilities it may have had when it was exiled. Any +1/+1 counters on it or Auras attached to it are removed, and any Equipment will no longer be attached."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -3222,6 +3514,109 @@
     ]
 }
 
+// Twilight Prophet
+{
+    "name": "Twilight Prophet",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Creature — Vampire Cleric",
+    "oracleText": "Flying\nAscend (If you control ten or more permanents, you get the city's blessing for the rest of the game.)\nAt the beginning of your upkeep, if you have the city's blessing, reveal the top card of your library and put it into your hand. Each opponent loses X life and you gain X life, where X is that card's mana value.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "ASCEND"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Twilight Prophet:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "StoredCardManaValue",
+                                "collectionName": "gathered0"
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "StoredCardManaValue",
+                                "collectionName": "gathered0"
+                            }
+                        }
+                    ]
+                },
+                "interveningIf": "PlayerHasCitysBlessing"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "88",
+        "rarity": "MYTHIC",
+        "artist": "Seb McKinnon",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/d/9da6974f-6753-48ac-98cd-86412cc93726.jpg?1783935305",
+        "rulings": [
+            {
+                "date": "2018-01-19",
+                "text": "If the mana cost of the revealed card includes {X}, X is considered to be 0."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "If the revealed card doesn't have a mana cost (because it's a land card, for example), its mana value is 0."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "In a Two-Headed Giant game, Twilight Prophet's last ability causes the opposing team to lose twice X life and you gain X life."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "Once you have the city's blessing, you have it for the rest of the game, even if you lose control of some or all of your permanents. The city's blessing isn't a permanent itself and can't be removed by any effect."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "Some cards have triggered abilities with an intervening \"if\" clause that checks whether you have the city's blessing. You must already have the city's blessing in order for these abilities to trigger; otherwise they do nothing."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Vampire Champion
 {
     "name": "Vampire Champion",
@@ -3337,6 +3732,53 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Wayward Swordtooth
+{
+    "name": "Wayward Swordtooth",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Dinosaur",
+    "oracleText": "Ascend (If you control ten or more permanents, you get the city's blessing for the rest of the game.)\nYou may play an additional land on each of your turns.\nThis creature can't attack or block unless you have the city's blessing.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "keywords": [
+        "ASCEND"
+    ],
+    "script": {
+        "staticAbilities": [
+            "GrantAdditionalLandDrop",
+            {
+                "type": "CantAttackUnless",
+                "condition": "PlayerHasCitysBlessing"
+            },
+            {
+                "type": "CantBlockUnless",
+                "condition": "PlayerHasCitysBlessing"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "RARE",
+        "artist": "Chris Rahn",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/5/351e8b1b-4e4e-4ffc-a134-3cf0e2a1dd6d.jpg?1783935278",
+        "rulings": [
+            {
+                "date": "2018-01-19",
+                "text": "Wayward Swordtooth's middle ability is cumulative if you control more than one. It's also cumulative with other effects that let you play additional lands, such as the one from Enter the Unknown."
+            },
+            {
+                "date": "2018-01-19",
+                "text": "Once you have the city's blessing, you have it for the rest of the game, even if you lose control of some or all of your permanents."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 

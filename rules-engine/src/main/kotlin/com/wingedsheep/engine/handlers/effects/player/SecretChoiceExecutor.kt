@@ -94,7 +94,11 @@ object SecretChoiceLogic {
 
     private fun finish(state: GameState, frame: SecretChoiceContinuation): ExecutionResult {
         val original = frame.effectContext.copy(objectReferences = frame.objectReferences)
-        val branches = mutableListOf<EffectContinuation>()
+        val branches = mutableListOf<EffectProgram>()
+        // Each outcome branch is a program of its own that this step built, queued to run later.
+        fun branch(effect: Effect, effectContext: EffectContext) = EffectProgram.queued(
+            listOf(effect), effectContext,
+            origin = effectContext.programOrigin)
         val revealed = mutableListOf<GameEvent>()
         val publicSourceName = frame.sourceName?.let { name ->
             original.sourceId?.let { nameVisibleToAll(state, it, name) } ?: name
@@ -114,14 +118,14 @@ object SecretChoiceLogic {
                         choice.lowestEffect?.let { it to eligible.filterValues { n -> n == lowest } },
                         choice.tiedEffect?.takeIf { highest == lowest }?.let { it to eligible },
                     )
-                    for ((effect, bidders) in groups) for ((player, number) in bidders) branches += EffectContinuation(
-                        remainingEffects = listOf(effect), effectContext = original.copy(
+                    for ((effect, bidders) in groups) for ((player, number) in bidders) branches += branch(
+                        effect, original.copy(
                             effectControllerId = original.effectControllerId ?: original.controllerId,
                             controllerId = player, xValue = number))
                 }
                 val matched = frame.numbers.isNotEmpty() && frame.numbers.values.distinct().size == 1
                 (if (matched) choice.matchedEffect else choice.unmatchedEffect)?.let {
-                    branches += EffectContinuation(remainingEffects = listOf(it), effectContext = original)
+                    branches += branch(it, original)
                 }
             }
             is SecretChoice.Entity -> {
@@ -135,7 +139,7 @@ object SecretChoiceLogic {
                 context = original.copy(pipeline = original.pipeline.copy(storedCollections = original.pipeline.storedCollections + collections))
             }
         }
-        frame.effect.then?.let { branches += EffectContinuation(remainingEffects = listOf(it), effectContext = context) }
+        frame.effect.then?.let { branches += branch(it, context) }
         val published = exposeCollectionsToNextFrame(state, collections)
         val queued = branches.asReversed().fold(published) { s, branch -> s.pushContinuation(branch) }
         return ExecutionResult.success(queued, revealed)

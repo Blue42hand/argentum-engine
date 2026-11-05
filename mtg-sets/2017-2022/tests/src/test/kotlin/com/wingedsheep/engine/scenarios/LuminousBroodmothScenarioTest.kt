@@ -28,8 +28,8 @@ class LuminousBroodmothScenarioTest : ScenarioTestBase() {
                 .withCardOnBattlefield(1, "Grizzly Bears")
                 .withCardInHand(2, "Shock")
                 .withLandsOnBattlefield(2, "Mountain", 1)
-                // The second Shock is Player1's own: after Broodmoth's trigger resolves, priority
-                // sits with its controller, so they finish off their returned flyer themselves.
+                // The second Shock is Player1's own: once Player2 (active, so holding priority
+                // after Broodmoth's trigger resolves) passes, they finish off their returned flyer.
                 .withCardInHand(1, "Shock")
                 .withLandsOnBattlefield(1, "Mountain", 1)
                 .withActivePlayer(2)
@@ -52,6 +52,7 @@ class LuminousBroodmothScenarioTest : ScenarioTestBase() {
                 game.state.projectedState.hasKeyword(returned, Keyword.FLYING) shouldBe true
             }
 
+            game.passPriority()
             game.castSpell(1, "Shock", returned!!).error shouldBe null
             game.resolveStack()
 

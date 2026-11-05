@@ -49,10 +49,11 @@ data class PipelineState(
 
         /**
          * Reserved metadata collection published by a library-searching gather
-         * (`GatherCardsEffect.search`) alongside [collection]: the cards that search found. A
-         * SelectFromCollection over [collection] reads it to mark its decision as a library
-         * search ([com.wingedsheep.engine.core.SelectCardsDecision.librarySearch]). Empty when a
-         * later non-search gather reused the name.
+         * (`GatherCardsEffect.search`) alongside [collection]: the player who searched, present
+         * even when the search found nothing. A SelectFromCollection over [collection] reads it to
+         * mark its decision as a library search
+         * ([com.wingedsheep.engine.core.SelectCardsDecision.librarySearch]), whose empty answer is
+         * "fail to find". Empty when a later non-search gather reused the name.
          */
         fun searchedKey(collection: String): String = "__searched:$collection"
 
@@ -63,6 +64,40 @@ data class PipelineState(
          * Empty when a later non-mill gather reused the name.
          */
         fun milledKey(collection: String): String = "__milled:$collection"
+
+        /**
+         * Reserved metadata collection published alongside [collection] when which cards it holds
+         * was decided by cards some player can't see — a filtered gather over a hand or library, a
+         * selection over hidden cards. Holds the players whose hidden cards decided it; empty (or
+         * absent) when the pool is public. A step over [collection] then asks its question rather
+         * than skipping it or answering it itself (#3340). See
+         * [com.wingedsheep.engine.handlers.effects.library.HiddenPools].
+         */
+        fun hiddenPoolKey(collection: String): String = "__hiddenPool:$collection"
+
+        /**
+         * Reserved metadata collection: every card this pipeline has revealed to all players
+         * (`RevealCollectionEffect`). A reveal is only an event, so [com.wingedsheep.engine.view.Visibility]
+         * still calls those cards hidden; steps after it read this to know every player has seen them.
+         */
+        const val REVEALED_KEY = "__revealed"
+
+        /**
+         * Reserved metadata collection published by a library-searching gather
+         * (`GatherCardsEffect.search`): a single entry, the player who searched
+         * (`GatherCardsEffect.searcher`, resolved). The pipeline's `EmitLibrarySearchedEventEffect`
+         * tail reads it so the searched event names the player who actually searched — the
+         * destroyed land's controller for Sandworm, not Sandworm's controller.
+         */
+        const val SEARCHER_KEY = "__searcher"
+
+        /**
+         * Reserved metadata collection published beside [SEARCHER_KEY]: the searcher when every
+         * library the search looked through was forbidden to them
+         * ([com.wingedsheep.engine.handlers.effects.library.LibrarySearchRestrictions]), else
+         * empty. A forbidden search is no search, so `EmitLibrarySearchedEventEffect` emits nothing.
+         */
+        const val SEARCH_FORBIDDEN_KEY = "__searchForbidden"
 
         /**
          * Pipeline collection name under which a batch trigger seeds the entities it captured

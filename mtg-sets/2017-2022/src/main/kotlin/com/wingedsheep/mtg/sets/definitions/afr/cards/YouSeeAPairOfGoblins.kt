@@ -4,13 +4,21 @@ import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.Mode
-import com.wingedsheep.sdk.scripting.effects.ModalEffect
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
-/** You See a Pair of Goblins — Adventures in the Forgotten Realms #170. */
+/**
+ * You See a Pair of Goblins
+ * {2}{R}
+ * Instant
+ *
+ * Choose one —
+ * • Charge Them — Creatures you control get +2/+0 until end of turn.
+ * • Befriend Them — Create two 1/1 red Goblin creature tokens.
+ *
+ * A choose-one `modal(chooseCount = 1)`: a group +2/+0 pump over the creatures you control at
+ * resolution, or two of the set's 1/1 red Goblin tokens (Swarming Goblins' token art).
+ */
 val YouSeeAPairOfGoblins = card("You See a Pair of Goblins") {
     manaCost = "{2}{R}"
     colorIdentity = "R"
@@ -20,25 +28,24 @@ val YouSeeAPairOfGoblins = card("You See a Pair of Goblins") {
         "• Befriend Them — Create two 1/1 red Goblin creature tokens."
 
     spell {
-        effect = ModalEffect.chooseOne(
-            Mode.noTarget(
-                Effects.ForEachInGroup(
-                    GroupFilter(GameObjectFilter.Creature.youControl()),
-                    Effects.ModifyStats(2, 0, EffectTarget.IterationEntity),
-                ),
-                "Creatures you control get +2/+0 until end of turn",
-            ),
-            Mode.noTarget(
-                Effects.CreateToken(
+        modal(chooseCount = 1) {
+            mode("Charge Them — Creatures you control get +2/+0 until end of turn.") {
+                effect = Effects.ForEachInGroup(
+                    GroupFilter.AllCreaturesYouControl,
+                    Effects.ModifyStats(2, 0, EffectTarget.IterationEntity)
+                )
+            }
+            mode("Befriend Them — Create two 1/1 red Goblin creature tokens.") {
+                effect = Effects.CreateToken(
                     power = 1,
                     toughness = 1,
                     colors = setOf(Color.RED),
                     creatureTypes = setOf("Goblin"),
                     count = 2,
-                ),
-                "Create two 1/1 red Goblin creature tokens",
-            ),
-        )
+                    imageUri = "https://cards.scryfall.io/normal/front/1/4/1425e965-7eea-419c-a7ec-c8169fa9edbf.jpg?1783926342",
+                )
+            }
+        }
     }
 
     metadata {

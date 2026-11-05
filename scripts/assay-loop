@@ -265,9 +265,11 @@ while [ ! -e "$RUNS/assay.stop" ]; do
     FINAL=$RESULT
     STATS="exit $SESSION_STATUS"
   else
-    (cd "$REPO" && claude -p "$PROMPT" --model "$MODEL" --permission-mode "${PERMISSION_MODE:-auto}" \
+    (cd "$REPO" && loop_run_reaped "$TRANSCRIPT" ASSAY_COMPLETE \
+        claude -p "$PROMPT" --model "$MODEL" --permission-mode "${PERMISSION_MODE:-auto}" \
         --output-format stream-json --verbose 2>&1) \
       | tee "$TRANSCRIPT" | jq -Rr --unbuffered --argjson verbose "$VERBOSE" "fromjson? | $PRETTY"
+    loop_note_reaped "$TRANSCRIPT"
 
     FINAL=$(jq -Rc 'fromjson? | select(.type == "result")' "$TRANSCRIPT" 2>/dev/null | tail -1)
     RESULT=$(echo "$FINAL" | jq -r '.result // empty' 2>/dev/null)

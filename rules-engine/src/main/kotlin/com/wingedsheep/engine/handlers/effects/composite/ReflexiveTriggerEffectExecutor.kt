@@ -80,11 +80,18 @@ class ReflexiveTriggerEffectExecutor(
         // still firing the payoff), and a mandatory [action] would otherwise resolve vacuously —
         // a discard pipeline on an empty hand auto-selects nothing and reports success, which
         // `executeActionThenEmit`'s `Outcome.Done` check can't distinguish from a real discard.
-        if (!isActionFeasible(state, effect.action, context)) {
+        //
+        // Only what every player can tell may skip the question (#3340). "You may discard a
+        // creature card" with a hand but no creature in it is asked, with "no" as its only answer.
+        if (!isActionFeasible(state, effect.action, context, publicOnly = true)) {
             return EffectResult.success(state)
         }
+        val feasible = isActionFeasible(state, effect.action, context)
         if (effect.optional) {
-            return presentOptionalChoice(state, effect, context)
+            return presentOptionalChoice(state, effect, context, yesAvailable = feasible)
+        }
+        if (!feasible) {
+            return EffectResult.success(state)
         }
         return executeActionThenEmit(state, effect, context)
     }
@@ -92,7 +99,8 @@ class ReflexiveTriggerEffectExecutor(
     private fun presentOptionalChoice(
         state: GameState,
         effect: ReflexiveTriggerEffect,
-        context: EffectContext
+        context: EffectContext,
+        yesAvailable: Boolean
     ): EffectResult {
         val playerId = context.controllerId
         val sourceName = context.sourceId?.let { sourceId ->
@@ -110,7 +118,8 @@ class ReflexiveTriggerEffectExecutor(
             ),
             yesText = "Yes",
             noText = "No",
-            hint = effect.hint
+            hint = effect.hint,
+            yesAvailable = yesAvailable
         ) }
 
         val continuation = MayAbilityContinuation(
@@ -149,12 +158,16 @@ class ReflexiveTriggerEffectExecutor(
      * steps of the enclosing composite. A collection that isn't in the map is unknown, and any
      * selection from it fails open; `null` means the bookkeeping has stopped altogether, so every
      * selection fails open (see [isCompositeFeasible]).
+     * @param publicOnly Answer whether the action *might* be feasible as far as every player can
+     * tell (#3340): a hidden zone's cards are counted without their filter, because which of them
+     * match is hidden. Every `false` here is also `false` without it.
      */
     private fun isActionFeasible(
         state: GameState,
         action: Effect,
         context: EffectContext,
-        gathered: Map<String, Int>? = emptyMap()
+        gathered: Map<String, Int>? = emptyMap(),
+        publicOnly: Boolean = false
     ): Boolean = when (action) {
         is SelectTargetEffect -> targetFinder.findLegalTargets(
             state = state,
@@ -188,7 +201,7 @@ class ReflexiveTriggerEffectExecutor(
             ).size >= action.count
         }
         is ChooseActionEffect -> action.choices.any { choice ->
-            checkFeasibility(state, context.controllerId, choice.feasibilityCheck, predicateEvaluator = predicateEvaluator, manaSolver = manaSolver)
+            checkFeasibility(state, context.controllerId, choice.feasibilityCheck, predicateEvaluator, manaSolver, publicOnly)
         }
         is SelectFromCollectionEffect -> {
             val available = gathered?.get(action.from)
@@ -199,7 +212,12 @@ class ReflexiveTriggerEffectExecutor(
             // minimum-carrying selection impossible.
             available == null || minimum == null || minimum == 0 || available > 0
         }
-        is CompositeEffect -> isCompositeFeasible(state, action, context, gathered)
+        is CompositeEffect -> isCompositeFeasible(state, action, context, gathered, publicOnly)
+        // "You may pay {2} and sacrifice an Aura …" (Three Dog, Galaxy News DJ) — a mana payment
+        // that can't be made can't be performed, so the may-question must be absent. Mirrors
+        // GatedEffectExecutor.canAfford for the same shape in a Gate.MayPay cost slot.
+        is com.wingedsheep.sdk.scripting.effects.PayManaCostEffect ->
+            action.waterbend || manaSolver.canPay(state, context.controllerId, action.cost)
         // "You may pay {E}{E}{E}" (Guide of Souls) — an all-or-nothing player-counter payment
         // is only feasible if the payer already has at least that many. Mirrors the SacrificeEffect
         // case: without this, the "may pay" prompt would be offered even at 0 energy, and
@@ -267,6 +285,11 @@ class ReflexiveTriggerEffectExecutor(
      * `ChosenCreature`, …) that the stateless overload can't reach. Treating "don't know" as zero
      * would silently delete the whole ability, so callers fail open on it — the same policy as this
      * method's `else -> true`.
+     *
+     * An object that *was* resolvable but has since changed zones is not "don't know": it is a new
+     * object with no counters (CR 400.7). Leatherhead killed by a blocker in the very damage step
+     * she tramples over in still triggers, but "remove a counter from her" then names nothing —
+     * `resolveTarget` drops the lost source to `null`, which must read as zero, not fail open.
      */
     private fun countersOn(
         state: GameState,
@@ -274,6 +297,7 @@ class ReflexiveTriggerEffectExecutor(
         target: com.wingedsheep.sdk.scripting.targets.EffectTarget,
         kind: CounterType? = null
     ): Int? {
+        if (TargetResolutionUtils.isLostObject(target, context, state)) return 0
         val targetId = context.resolveTarget(target, state) ?: return null
         val counters = state.getEntity(targetId)
             ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
@@ -305,14 +329,15 @@ class ReflexiveTriggerEffectExecutor(
         state: GameState,
         action: CompositeEffect,
         context: EffectContext,
-        gathered: Map<String, Int>?
+        gathered: Map<String, Int>?,
+        publicOnly: Boolean
     ): Boolean {
         var known = gathered
         for (step in action.effects) {
-            if (!isActionFeasible(state, step, context, known)) return false
+            if (!isActionFeasible(state, step, context, known, publicOnly)) return false
             known = when (step) {
                 is GatherCardsEffect -> known?.let { sizes ->
-                    gatherableCount(state, step, context)?.let { sizes + (step.storeAs to it) }
+                    gatherableCount(state, step, context, publicOnly)?.let { sizes + (step.storeAs to it) }
                 }
                 is SelectFromCollectionEffect -> known
                 else -> null
@@ -359,12 +384,14 @@ class ReflexiveTriggerEffectExecutor(
     private fun gatherableCount(
         state: GameState,
         gather: GatherCardsEffect,
-        context: EffectContext
+        context: EffectContext,
+        publicOnly: Boolean = false
     ): Int? {
         val source = gather.source as? CardSource.FromZone ?: return null
         val playerIds = gatherPlayers(source.player, context, state) ?: return null
         val cards = playerIds.flatMap { state.getZone(ZoneKey(it, source.zone)) }
         if (source.filter == GameObjectFilter.Any) return cards.size
+        if (publicOnly && source.zone.isHidden) return cards.size
         val predicateContext = PredicateContext.fromEffectContext(context)
         return cards.count { cardId ->
             predicateEvaluator.matches(state, state.projectedState, cardId, source.filter, predicateContext)
@@ -378,10 +405,15 @@ class ReflexiveTriggerEffectExecutor(
         state: GameState
     ): List<EntityId>? = when (player) {
         is com.wingedsheep.sdk.scripting.references.Player.EachDefendingPlayer -> com.wingedsheep.engine.mechanics.combat.CombatDefenders.allDefendingPlayersInApnapOrder(state)
+        is com.wingedsheep.sdk.scripting.references.Player.EachAttackedPlayer -> com.wingedsheep.engine.mechanics.combat.CombatDefenders.attackedPlayersInApnapOrder(state)
         is com.wingedsheep.sdk.scripting.references.Player.Each,
         is com.wingedsheep.sdk.scripting.references.Player.ActivePlayerFirst -> state.turnOrder
+        is com.wingedsheep.sdk.scripting.references.Player.EachStartingWithYou ->
+            state.turnOrderStartingWith(context.controllerId)
         is com.wingedsheep.sdk.scripting.references.Player.EachOpponent ->
             state.turnOrder.filter { it != context.controllerId }
+        is com.wingedsheep.sdk.scripting.references.Player.EachOtherPlayer ->
+            state.getOtherPlayers(context.controllerId)
         else -> TargetResolutionUtils.resolvePlayerRef(player, context, state)?.let { listOf(it) }
     }
 
@@ -431,9 +463,14 @@ class ReflexiveTriggerEffectExecutor(
         // CompositeEffectExecutor's sibling-to-sibling propagation.
         val mergedContext = if (
             result.updatedCollections.isNotEmpty() || result.updatedSubtypeGroups.isNotEmpty() ||
-            result.updatedStoredNumbers.isNotEmpty() || result.updatedChosenValues.isNotEmpty()
+            result.updatedStoredNumbers.isNotEmpty() || result.updatedChosenValues.isNotEmpty() ||
+            result.updatedSacrificedPermanents.isNotEmpty()
         ) {
             context.copy(
+                // "When you sacrifice an Aura this way" reads what the action sacrificed — the
+                // same snapshots the paused path merges in through exposeCollectionsToNextFrame.
+                sacrificedPermanents = context.sacrificedPermanents +
+                    result.updatedSacrificedPermanents.filterNot { it in context.sacrificedPermanents },
                 pipeline = context.pipeline.copy(
                     storedCollections = context.pipeline.storedCollections + result.updatedCollections,
                     storedSubtypeGroups = context.pipeline.storedSubtypeGroups + result.updatedSubtypeGroups,
@@ -495,7 +532,10 @@ class ReflexiveTriggerEffectExecutor(
                         xValue = effectContext.xValue,
                         triggeringOrigin = null,
                         triggeringObject = null,
-                        triggeringBattlefieldTimestamp = null
+                        triggeringBattlefieldTimestamp = null,
+                        // What the resolving ability sacrificed, so "that Aura" still resolves
+                        // once the reflexive ability builds its own context.
+                        sacrificedPermanents = effectContext.sacrificedPermanents
                     )
             )
         }

@@ -4,6 +4,7 @@ import com.wingedsheep.ai.engine.CombatMath
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.battlefield.DamageComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.combat.AttackingComponent
 import com.wingedsheep.engine.state.components.combat.BlockedComponent
@@ -19,6 +20,9 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.Duration
 import com.wingedsheep.sdk.scripting.TimingRule
+import com.wingedsheep.sdk.scripting.effects.AddCountersEffect
+import com.wingedsheep.sdk.scripting.effects.CantAttackEffect
+import com.wingedsheep.sdk.scripting.effects.CantBlockEffect
 import com.wingedsheep.sdk.scripting.effects.ChooseOptionEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.effects.ForEachEffect
@@ -29,6 +33,7 @@ import com.wingedsheep.sdk.scripting.effects.ModifyStatsEffect
 import com.wingedsheep.sdk.scripting.effects.SetLandTypeEffect
 import com.wingedsheep.sdk.scripting.effects.TapUntapEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
  * "Why are you paying for that now?" — the **activated ability** half of [HoldPolicy].
@@ -118,11 +123,33 @@ internal object ExpiringGrantWindow {
          * long-game release on it.
          */
         refuseUnspendable: Boolean = false,
+        /**
+         * [com.wingedsheep.ai.engine.AiProfile.refuseWastedPayoffs]: read an end-of-turn **shrink**
+         * ("target creature gets -3/-1 until end of turn") that kills nothing as a payoff
+         * [nothingCanSpend] can judge — see [PayoffKind.SHRINK].
+         */
+        readShrinks: Boolean = false,
+        /**
+         * [com.wingedsheep.ai.engine.AiProfile.refuseWastedPayoffs]: read an end-of-turn combat
+         * **restriction** ("target creature can't attack this turn") — see [restrictionHasNoWindow].
+         */
+        readRestrictions: Boolean = false,
+        /**
+         * [com.wingedsheep.ai.engine.AiProfile.lifelinkWaitsForBlocks]: a grant whose every payoff
+         * is lifelink defers through the declare-attackers step too — see [waitsForBlocks].
+         */
+        lifelinkWaitsForBlocks: Boolean = false,
     ): Boolean {
         if (ability.isManaAbility) return false
 
-        if (refuseUnspendable && activation != null &&
-            nothingCanSpend(state, playerId, ability, activation, intents)
+        if (readRestrictions && activation != null &&
+            restrictionHasNoWindow(state, playerId, ability, activation, intents)
+        ) {
+            return true
+        }
+
+        if ((refuseUnspendable || readShrinks) && activation != null &&
+            nothingCanSpend(state, playerId, ability, activation, intents, refuseUnspendable, readShrinks)
         ) {
             return true
         }
@@ -141,7 +168,8 @@ internal object ExpiringGrantWindow {
         }
         if (!expires) return false
 
-        if (!laterWindowIsStillAhead(state, playerId)) return false
+        val untilBlocks = lifelinkWaitsForBlocks && waitsForBlocks(ability.effect)
+        if (!laterWindowIsStillAhead(state, playerId, untilBlocks)) return false
 
         if (somethingOnTheStackThreatensUs(state, playerId, intents)) return false
 
@@ -200,8 +228,12 @@ internal object ExpiringGrantWindow {
         ability: ActivatedAbility,
         activation: ActivateAbility,
         intents: IntentCatalog,
+        readGrants: Boolean = true,
+        readShrinks: Boolean = false,
     ): Boolean {
-        val payoffs = expiringPayoffs(ability.effect) ?: return false
+        val payoffs = expiringPayoffs(ability.effect, readShrinks) ?: return false
+        // Without [readGrants] only the shrink half is asked about; a grant is left to the leaf.
+        if (!readGrants && payoffs.any { it.kind != PayoffKind.SHRINK }) return false
         if (somethingOnTheStackThreatensUs(state, playerId, intents)) return false
 
         val projected = state.projectedState
@@ -233,7 +265,104 @@ internal object ExpiringGrantWindow {
                     }
                 }
                 PayoffKind.LAND -> affected.any { canStillMatter(state, projected, playerId, it) }
+                PayoffKind.SHRINK -> affected.any { id ->
+                    killedBy(state, projected, id, payoff.toughnessLoss) ||
+                        if (projected.getController(id) == playerId) {
+                            canStillFight(state, projected, playerId, id, activation.sourceId, sourceTaps)
+                        } else {
+                            opposingCanStillFight(state, projected, playerId, id)
+                        }
+                }
             }
+        }
+    }
+
+    /**
+     * Whether [activation] spends an end-of-turn combat **restriction** where it cannot matter — the
+     * floor [com.wingedsheep.ai.engine.AiProfile.refuseWastedPayoffs] adds for "target creature
+     * can't attack this turn" and its mirror "target creature can't block this turn".
+     *
+     * Off a live game (`2878b4bb`, turns 20, 22, 24): Edifice of Authority ("{1}, {T}: Target
+     * creature can't attack this turn. Put a brick counter on this artifact.") activated in the
+     * AI's *own* precombat main on the human's Reaper from the Abyss — a creature that cannot attack
+     * on our turn anyway. The Edifice then sat tapped through the human's turn, and on turn 23 the
+     * Reaper and six friends took the AI from 18 to 4. Activated in the human's upkeep or beginning
+     * of combat, the same activation adds the same brick and keeps the 6/6 home.
+     *
+     * A restriction only buys something in one window, read off whose turn it is:
+     *
+     *  - **Can't attack** — on the turn of the creature's controller, before attackers are declared,
+     *    on a creature that could attack ([CombatMath.getCreaturesThatCanAttack]).
+     *  - **Can't block** — on our own turn, before blockers are declared, on an untapped creature
+     *    (and once attackers are declared, only while something is attacking).
+     *
+     * Outside that window the restriction is worth nothing, and the question is what else the
+     * ability buys:
+     *
+     *  - **Nothing else** — the activation is a waste of its cost, in this window, full stop.
+     *  - **A counter on the source** (the brick) — bought just the same by the activation in the
+     *    restriction's own window. That is dominance, not a guess, only when activating now *costs*
+     *    that window: the source taps to pay ([tapsItsSource]) and stays tapped until our untap step,
+     *    which for a can't-attack activated on our own turn is after the opponent's attack. A
+     *    can't-block, or a can't-attack after their attack, gets the source back before its next
+     *    window, so the counter there is free and stays the leaf's call.
+     *
+     * Any other leaf, a restriction on a creature of ours, a target that cannot be resolved, or a
+     * stack object that threatens us hands the decision back to the leaf score.
+     */
+    private fun restrictionHasNoWindow(
+        state: GameState,
+        playerId: EntityId,
+        ability: ActivatedAbility,
+        activation: ActivateAbility,
+        intents: IntentCatalog,
+    ): Boolean {
+        val restrictions = mutableListOf<Pair<Boolean, EffectTarget>>() // (isCantAttack, target)
+        var sideBenefit = false
+        for (leaf in EffectWalker.leaves(ability.effect)) {
+            when {
+                leaf is CantAttackEffect && leaf.duration == Duration.EndOfTurn -> restrictions += true to leaf.target
+                leaf is CantBlockEffect && leaf.duration == Duration.EndOfTurn -> restrictions += false to leaf.target
+                leaf is AddCountersEffect && leaf.target == EffectTarget.Self -> sideBenefit = true
+                leaf is TapUntapEffect && leaf.tap && leaf.target == EffectTarget.Self -> Unit
+                else -> return false
+            }
+        }
+        if (restrictions.isEmpty()) return false
+        if (somethingOnTheStackThreatensUs(state, playerId, intents)) return false
+
+        val projected = state.projectedState
+        val ourTurn = state.isActiveTurnFor(playerId)
+        for ((cantAttack, target) in restrictions) {
+            val affected = affectedBy(state, projected, playerId, target, activation) ?: return false
+            for (creature in affected) {
+                if (!projected.isCreature(creature)) return false
+                val controller = projected.getController(creature) ?: return false
+                if (controller == playerId) return false
+                val spendable = if (cantAttack) {
+                    state.isActiveTurnFor(controller) && state.step in UNTIL_ATTACKERS_DECLARED &&
+                        creature in CombatMath.getCreaturesThatCanAttack(state, projected, controller)
+                } else {
+                    ourTurn && opposingCanStillBeBlockedOut(state, creature)
+                }
+                if (spendable) return false
+            }
+        }
+        if (!sideBenefit) return true
+
+        // The side benefit is bought again in the restriction's own window, unless activating now
+        // keeps the source tapped through it.
+        return tapsItsSource(ability) && ourTurn && restrictions.all { (cantAttack, _) -> cantAttack }
+    }
+
+    /** Whether a can't-block on an opposing [creature] still keeps it out of a block this turn. */
+    private fun opposingCanStillBeBlockedOut(state: GameState, creature: EntityId): Boolean {
+        val entity = state.getEntity(creature) ?: return false
+        if (entity.has<TappedComponent>()) return false
+        return when (state.step) {
+            in UNTIL_ATTACKERS_DECLARED -> true
+            Step.DECLARE_ATTACKERS -> state.getBattlefield().any { state.getEntity(it)?.has<AttackingComponent>() == true }
+            else -> false
         }
     }
 
@@ -390,11 +519,79 @@ internal object ExpiringGrantWindow {
         }
     }
 
+    /**
+     * Whether a shrink that takes [toughnessLoss] toughness off [creature] kills it — the one way a
+     * shrink buys something that outlives the turn. Marked damage counts, as the state-based action
+     * will count it (CR 704.5g).
+     */
+    private fun killedBy(state: GameState, projected: ProjectedState, creature: EntityId, toughnessLoss: Int): Boolean {
+        val toughness = projected.getToughness(creature) ?: return false
+        val damage = state.getEntity(creature)?.get<DamageComponent>()?.amount ?: 0
+        return toughness - damage - toughnessLoss <= 0
+    }
+
+    /**
+     * Whether an **opposing** creature can still be in a fight this turn that a shrink on it would
+     * change — [canStillFight] from the other side of the table.
+     *
+     *  - **Our turn**: it can block. Before our attack that is any untapped creature of theirs; once
+     *    attackers are declared it needs an attacker to block, and once blocks are in it must be
+     *    blocking.
+     *  - **Their turn**: it can attack. Before their attack that is any untapped creature; once
+     *    attackers are declared it must be attacking.
+     *
+     * The position that asked for it (2026-10-15, game `3f847e6d`, turn 8): Proft, Sinister
+     * Mastermind discarded from hand in our own declare-attackers step, after we declared no attack,
+     * to give an opposing 2/4 -3/-1 that wore off in cleanup.
+     */
+    private fun opposingCanStillFight(
+        state: GameState,
+        projected: ProjectedState,
+        playerId: EntityId,
+        creature: EntityId,
+    ): Boolean {
+        if (!projected.isCreature(creature)) return false
+        val entity = state.getEntity(creature) ?: return false
+        val untapped = !entity.has<TappedComponent>()
+        return if (state.isActiveTurnFor(playerId)) {
+            when (state.step) {
+                in UNTIL_ATTACKERS_DECLARED -> untapped
+                Step.DECLARE_ATTACKERS -> untapped &&
+                    state.getBattlefield().any { state.getEntity(it)?.has<AttackingComponent>() == true }
+                in FIGHT_STILL_AHEAD -> entity.has<BlockingComponent>()
+                else -> false
+            }
+        } else {
+            when (state.step) {
+                in UNTIL_ATTACKERS_DECLARED -> untapped
+                in FIGHT_STILL_AHEAD -> entity.has<AttackingComponent>()
+                else -> false
+            }
+        }
+    }
+
     /** What an end-of-turn payoff is bought for — see [nothingCanSpend]. */
-    private enum class PayoffKind { CREATURE, LAND }
+    private enum class PayoffKind {
+        CREATURE,
+        LAND,
+
+        /**
+         * A stat loss on a creature that is not the source — "target creature gets -3/-1 until end
+         * of turn". It buys something only if it kills ([killedBy]) or if the creature it shrinks
+         * still has a fight to shrink it in ([opposingCanStillFight]). Read only under
+         * [com.wingedsheep.ai.engine.AiProfile.refuseWastedPayoffs].
+         */
+        SHRINK,
+    }
 
     /** One leaf of an ability whose payoff ends at cleanup, and where it lands. */
-    private data class Payoff(val kind: PayoffKind, val target: EffectTarget?, val keyword: String? = null)
+    private data class Payoff(
+        val kind: PayoffKind,
+        val target: EffectTarget?,
+        val keyword: String? = null,
+        /** For a [PayoffKind.SHRINK]: the toughness it takes away. */
+        val toughnessLoss: Int = 0,
+    )
 
     /**
      * The payoffs of [effect] when **every** one of them is gone at cleanup, or null when any part
@@ -416,14 +613,14 @@ internal object ExpiringGrantWindow {
      *
      * An effect with no payoff left once those are skipped is not this shape either.
      */
-    private fun expiringPayoffs(effect: Effect): List<Payoff>? {
+    private fun expiringPayoffs(effect: Effect, readShrinks: Boolean = false): List<Payoff>? {
         val payoffs = mutableListOf<Payoff>()
         for (leaf in EffectWalker.leaves(effect)) {
             when {
                 leaf is TapUntapEffect && leaf.tap && leaf.target == EffectTarget.Self -> Unit
                 leaf is ChooseOptionEffect -> Unit
                 leaf is ForEachEffect && leaf.space is IterationSpace.Group -> {
-                    val body = expiringPayoffs(leaf.body) ?: return null
+                    val body = expiringPayoffs(leaf.body, readShrinks) ?: return null
                     if (body.any { it.target != EffectTarget.IterationEntity }) return null
                     payoffs += body
                 }
@@ -436,6 +633,13 @@ internal object ExpiringGrantWindow {
                 leaf is ModifyStatsEffect && leaf.duration == Duration.EndOfTurn &&
                     (isPump(leaf) || leaf.target == EffectTarget.Self) ->
                     payoffs += Payoff(PayoffKind.CREATURE, leaf.target)
+                readShrinks && leaf is ModifyStatsEffect && leaf.duration == Duration.EndOfTurn &&
+                    statsSign(leaf.powerModifier, leaf.toughnessModifier) == AmountSign.LOSS -> {
+                    // The loss has to be a number to tell a shrink from removal; anything else is
+                    // left to the leaf, which is the fail-safe direction.
+                    val toughness = leaf.toughnessModifier as? DynamicAmount.Fixed ?: return null
+                    payoffs += Payoff(PayoffKind.SHRINK, leaf.target, toughnessLoss = -toughness.amount)
+                }
                 else -> return null
             }
         }
@@ -514,9 +718,32 @@ internal object ExpiringGrantWindow {
      * not this policy, then decides. With no combat the grant had nothing to buy in the first place,
      * so the score sees no payoff for paying a card to watch it expire in the end step.
      */
-    private fun laterWindowIsStillAhead(state: GameState, playerId: EntityId): Boolean =
-        if (state.isActiveTurnFor(playerId)) state.step in BEFORE_OUR_ATTACK
+    private fun laterWindowIsStillAhead(state: GameState, playerId: EntityId, untilBlocks: Boolean = false): Boolean =
+        if (untilBlocks) state.step in BEFORE_BLOCKS
+        else if (state.isActiveTurnFor(playerId)) state.step in BEFORE_OUR_ATTACK
         else state.step in BEFORE_THEIR_ATTACK
+
+    /**
+     * Whether everything [effect] buys is a keyword that changes only what the creature's damage
+     * *does* — [SPENT_ONLY_IN_DAMAGE] — so the window after blockers are declared is strictly
+     * better than any before it, on either side's turn.
+     *
+     * [laterWindowIsStillAhead]'s ordinary deadline is the last window that can still change a
+     * declaration, because most grants change one: evasion decides who can block, and a pump,
+     * deathtouch or first strike decides who survives, which is what the block and attack planners
+     * read off the board. Lifelink decides neither. It adds life to damage dealt and nothing else,
+     * so a blocker gains nothing from having it before it blocks, and an attacker gains nothing
+     * from having it before blocks are known. Once they are, [nothingCanSpend] refuses it on a
+     * creature that is not in the fight, and on one that is the simulation carries the line through
+     * combat damage, so the leaf prices the life actually gained against the cost — two life at 20
+     * is not worth a card; two life at 2 is.
+     *
+     * Off the 2026-10-19 log review: Hardened Academic pitching a card for lifelink in the
+     * opponent's declare-attackers step and then not blocking, and pitching one before blocks while
+     * attacking an empty board at 20 life.
+     */
+    private fun waitsForBlocks(effect: Effect): Boolean =
+        expiringPayoffs(effect)?.all { it.kind == PayoffKind.CREATURE && it.keyword in SPENT_ONLY_IN_DAMAGE } == true
 
     /**
      * Whether anything on the stack is a reason to spend the grant *now* rather than later.
@@ -591,6 +818,9 @@ internal object ExpiringGrantWindow {
     /** [BEFORE_OUR_ATTACK] plus the step where their attack is not yet known. */
     private val BEFORE_THEIR_ATTACK = BEFORE_OUR_ATTACK + Step.BEGIN_COMBAT
 
+    /** Every step before blockers are declared, on either side's turn — see [waitsForBlocks]. */
+    private val BEFORE_BLOCKS = BEFORE_THEIR_ATTACK + Step.DECLARE_ATTACKERS
+
     /**
      * Every step in which, on either side of the table, no attacker has been declared yet — the
      * same set as [BEFORE_THEIR_ATTACK], named for what [canStillFight] reads it as.
@@ -610,9 +840,16 @@ internal object ExpiringGrantWindow {
         Keyword.FIRST_STRIKE, Keyword.DEATHTOUCH, Keyword.INDESTRUCTIBLE, Keyword.TRAMPLE,
     ).map { it.name }.toSet()
 
+    /**
+     * Keywords that change only what a creature's combat damage does — not who can block it, not
+     * who survives the fight. See [waitsForBlocks].
+     */
+    private val SPENT_ONLY_IN_DAMAGE = setOf(Keyword.LIFELINK.name)
+
     /** The keywords a land-type change can open a path for — see [canStillMatter]. */
     private val LANDWALK_KEYWORDS = setOf(
         Keyword.PLAINSWALK, Keyword.ISLANDWALK, Keyword.SWAMPWALK, Keyword.MOUNTAINWALK,
         Keyword.FORESTWALK, Keyword.DESERTWALK, Keyword.NONBASIC_LANDWALK,
+        Keyword.LEGENDARY_LANDWALK,
     ).map { it.name }.toSet()
 }

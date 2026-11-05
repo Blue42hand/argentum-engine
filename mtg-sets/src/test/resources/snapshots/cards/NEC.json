@@ -111,3 +111,201 @@
         "WHITE"
     ]
 }
+
+// Ruthless Technomancer
+{
+    "name": "Ruthless Technomancer",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "When this creature enters, you may sacrifice another creature you control. If you do, create a number of Treasure tokens equal to that creature's power.\n{2}{B}, Sacrifice X artifacts: Return target creature card with power X or less from your graveyard to the battlefield. X can't be 0.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ruthless Technomancer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "creature",
+                                "player": "You",
+                                "excludeSelf": true
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "You may sacrifice another creature you control",
+                            "selectedLabel": "Sacrifice",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "ConditionalOnCollection",
+                            "collection": "selected1",
+                            "ifNotEmpty": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "selected1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Graveyard"
+                                        },
+                                        "moveType": "Sacrifice"
+                                    },
+                                    {
+                                        "type": "CreatePredefinedToken",
+                                        "tokenType": "Treasure",
+                                        "dynamicCount": {
+                                            "type": "EntityProperty",
+                                            "entity": "SacrificedAsCost",
+                                            "numericProperty": "Power"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, you may sacrifice another creature you control. If you do, create a number of Treasure tokens equal to that creature's power."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Ruthless Technomancer:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomVariablePermanents",
+                                "filter": "artifact",
+                                "excludeSelf": false,
+                                "action": "SACRIFICE",
+                                "xMeasure": "COUNT"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "POWER",
+                                        "operator": "LTE",
+                                        "amount": "XValue"
+                                    }
+                                ],
+                                "controllerPredicate": "OwnedByYou"
+                            },
+                            "zone": "Graveyard"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{2}{B}, Sacrifice X artifacts: Return target creature card with power X or less from your graveyard to the battlefield. X can't be 0."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "rarity": "RARE",
+        "artist": "PINDURSKI",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/d/dddeb5cc-b535-4484-8a0e-ce32c4c09000.jpg?1783923986"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Yoshimaru, Ever Faithful
+{
+    "name": "Yoshimaru, Ever Faithful",
+    "manaCost": "{W}",
+    "typeLine": "Legendary Creature — Dog",
+    "oracleText": "Whenever another legendary permanent you control enters, put a +1/+1 counter on Yoshimaru.\nPartner (You can have two commanders if both have partner.)",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywordAbilities": [
+        "Partner"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Yoshimaru, Ever Faithful:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent",
+                            "IsLegendary"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "32",
+        "rarity": "MYTHIC",
+        "artist": "Ilse Gort",
+        "flavorText": "Day after day he sat there, knowing that the Wanderer would soon be back for him.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/a/aa409269-3698-42a2-8c51-75557b27a6f6.jpg?1783923987"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}

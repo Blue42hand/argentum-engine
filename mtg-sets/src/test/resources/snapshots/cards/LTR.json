@@ -18,7 +18,7 @@
                 "trigger": {
                     "type": "DrawEvent",
                     "player": "EachOpponent",
-                    "exceptFirstInDrawStep": true
+                    "firstInDrawStep": "EXCLUDED"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -3747,8 +3747,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 2
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    }
                                 }
                             },
                             "then": "TheRingTemptsYou"
@@ -7119,8 +7128,17 @@
                             "gate": {
                                 "type": "Gate.WhenCondition",
                                 "condition": {
-                                    "type": "SourceAbilityResolvedNTimesThisTurn",
-                                    "count": 3
+                                    "type": "Compare",
+                                    "left": {
+                                        "type": "EntityProperty",
+                                        "entity": "Self",
+                                        "numericProperty": "AbilityResolutionsThisTurn"
+                                    },
+                                    "operator": "EQ",
+                                    "right": {
+                                        "type": "Fixed",
+                                        "amount": 3
+                                    }
                                 }
                             },
                             "then": {
@@ -8868,7 +8886,7 @@
                 "trigger": {
                     "type": "YouAttackEvent",
                     "minAttackers": 2,
-                    "perAttackedPlayer": true
+                    "attackedPlayer": "Each"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -9475,7 +9493,7 @@
                 "trigger": {
                     "type": "YouAttackEvent",
                     "minAttackers": 2,
-                    "perAttackedPlayer": true
+                    "attackedPlayer": "Each"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -10713,7 +10731,7 @@
                         ],
                         "controllerPredicate": "ControlledByYou"
                     },
-                    "perAttackedPlayer": true
+                    "attackedPlayer": "Each"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -12577,7 +12595,7 @@
                 "trigger": {
                     "type": "DrawEvent",
                     "player": "EachOpponent",
-                    "exceptFirstInDrawStep": true
+                    "firstInDrawStep": "EXCLUDED"
                 },
                 "binding": "ANY",
                 "effect": {

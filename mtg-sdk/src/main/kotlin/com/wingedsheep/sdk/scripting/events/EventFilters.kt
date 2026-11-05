@@ -128,6 +128,15 @@ sealed interface Recipient {
         /** "An opponent or battle" — Bloodfeather Phoenix's "deals damage to an opponent or battle". */
         val OpponentOrBattle: Recipient = AnyOf(listOf(Opponent, Object(GameObjectFilter.Battle)))
 
+        /**
+         * "A permanent or player" — Ghyrson Starn, Kelermorph's "deals exactly 1 damage to a permanent
+         * or player". It reaches every damage recipient [Any] does, but it is a *recipient-restricted*
+         * form: simultaneous combat damage one source deals to several recipients stays one trigger per
+         * recipient instead of folding into one trigger carrying the total, as the unrestricted [Any]
+         * does ("whenever this deals damage"). Keep it distinct from [Any].
+         */
+        val PermanentOrPlayer: Recipient = AnyOf(listOf(AnyPermanent, AnyPlayer))
+
         /** "A creature or player" — Ertha Jo, Frontier Mentor's "an ability that targets a creature or player". */
         val CreatureOrPlayer: Recipient = AnyOf(listOf(Object(GameObjectFilter.Creature), AnyPlayer))
 
@@ -322,6 +331,23 @@ sealed interface SpellCastPredicate {
     }
 
     /**
+     * Snow mana of at least one of the spell's own colors was spent on the cast — Boreal Outrider's
+     * "if {S} of any of that spell's colors was spent to cast it". Snow mana is mana from a snow
+     * source (CR 107.4h), so this asks whether some colored unit spent on the cast came from a snow
+     * source *and* shares a color with the spell; snow colorless mana never counts (colorless is not
+     * a color), nor does a colorless spell. Neighbours: [PaidWithManaFromCardType] and
+     * [PaidWithManaFromSubtype] read the source's types but not the mana's color, and
+     * `DynamicAmount.SnowManaSpent` counts snow mana of any color spent on the ability's own source,
+     * not on a triggering spell. Like them the payment never changes, so it reads the same when the
+     * trigger is put on the stack and when it resolves.
+     */
+    @SerialName("SpellPaidWithSnowManaOfItsColors")
+    @Serializable
+    data object PaidWithSnowManaOfItsColors : SpellCastPredicate {
+        override val description = "if {S} of any of that spell's colors was spent to cast it"
+    }
+
+    /**
      * Mana produced by the trigger's own source permanent was spent on the cast — "Whenever you cast
      * a … spell using mana produced by [this]" (Tecutlan, the Searing Rift / Barracks of the Thousand
      * / The Myriad Pools). Matched against the source that produced the mana, not a subtype, so it
@@ -390,6 +416,8 @@ sealed interface SpellCastPredicate {
      * ("a spell that targets a creature you don't control" — Legolas, Master Archer).
      * The filter is evaluated against each chosen target relative to the trigger
      * controller (so `youControl()` / opponent-controlled predicates resolve correctly).
+     * A filter that names no zone means permanents on the battlefield (CR 109.2), as for
+     * [com.wingedsheep.sdk.scripting.predicates.CardPredicate.TargetsMatching].
      *
      * [only] is "a spell that targets **only a single** [filter]" (Ivy, Gleeful Spellthief; Vesuvan
      * Duplimancy): every instance of the word "target" on the spell — player targets included —
@@ -554,6 +582,25 @@ sealed interface AttackPredicate {
     @Serializable
     data class AttackerCountAtLeast(val n: Int) : AttackPredicate {
         override val description = "with $n or more attackers"
+    }
+
+    /**
+     * The creatures declared as attackers this combat have a total **projected** power of at least
+     * [n] — the pack tactics condition (AFR: "Whenever this creature attacks, if you attacked with
+     * creatures with total power 6 or greater this combat, …"). The power-sum sibling of
+     * [AttackerCountAtLeast]: same band (every declared attacker, counting the trigger's own), summed
+     * instead of counted.
+     *
+     * The sum is read when attackers are declared (the trigger checks it then), so a creature put onto
+     * the battlefield attacking never contributes, and a power change after declaration neither adds a
+     * trigger nor stops one that already triggered. Powers are summed as they are, so a negative power
+     * lowers the total, as `sumPower()` does. Not per-attacker: it reads the whole band, so it works on
+     * any binding, though pack tactics uses `SELF`.
+     */
+    @SerialName("AttackersTotalPowerAtLeast")
+    @Serializable
+    data class AttackersTotalPowerAtLeast(val n: Int) : AttackPredicate {
+        override val description = "with creatures with total power $n or greater"
     }
 
     /**

@@ -15,7 +15,7 @@ import { create } from 'zustand'
 import { fetchPreferences, savePreferences } from '@/api/account'
 import { useAuthStore } from '@/store/authStore'
 import { Step } from '@/types/enums'
-import type { PriorityModeValue } from '@/types/messages'
+import type { OwnStackStop, PriorityModeValue } from '@/types/messages'
 
 const STORAGE_KEY = 'argentum-preferences'
 const LEGACY_AUTO_TAP_KEY = 'argentum-auto-tap'
@@ -36,6 +36,11 @@ export interface StackingRule {
 
 /** `system` follows the OS "reduce motion" setting; `reduce` always cuts animations short. */
 export type MotionPreference = 'system' | 'reduce'
+/**
+ * What to do with a question that has only one legal answer (#3340): answer it at once, answer it
+ * after a human-like pause, or show it like any other.
+ */
+export type ForcedChoiceMode = 'instant' | 'delayed' | 'ask'
 
 export interface Preferences {
   version: 1
@@ -48,8 +53,29 @@ export interface Preferences {
     myTurnStops: Step[]
     /** Steps the engine always stops at on an opponent's turn. */
     opponentTurnStops: Step[]
+    /**
+     * Your own stack objects the engine holds priority over when you can respond, instead of passing
+     * them straight to the opponent — for responding to your own triggers (combo turns).
+     */
+    ownStackStops: OwnStackStop[]
     /** Pay mana costs automatically when you cast a spell or activate an ability. */
     autoTap: boolean
+    /**
+     * Put your own simultaneous triggered abilities on the stack in the order they triggered. Off:
+     * the game asks you to order them whenever the order can matter (CR 603.3b).
+     */
+    autoOrderTriggers: boolean
+    /**
+     * A question that has only one legal answer for you ("you may reveal a Dragon card" with none
+     * in hand) — the server says which questions those are. `instant` answers it at once and
+     * `delayed` after a short randomized pause, each with a notice instead of a dialog; `ask`
+     * shows it as usual. Either answering mode answers at once when the server marks the question
+     * public (everyone can see it is forced). Shown as "Choices with only one answer".
+     *
+     * Replaces the boolean `autoAnswerForced` (true = `delayed`, false = `ask`), which documents
+     * saved before the change still carry; [parsePreferences] reads it.
+     */
+    forcedChoices: ForcedChoiceMode
     /** Multiplayer: move the camera to the board where the action is. */
     followAction: boolean
   }
@@ -92,10 +118,13 @@ export const DEFAULT_PREFERENCES: Preferences = {
   version: 1,
   updatedAt: 0,
   gameplay: {
-    priorityMode: 'auto',
+    priorityMode: 'forcedOnly',
     myTurnStops: [],
     opponentTurnStops: [],
+    ownStackStops: [],
     autoTap: true,
+    autoOrderTriggers: true,
+    forcedChoices: 'delayed',
     followAction: true,
   },
   battlefield: {
@@ -116,8 +145,11 @@ export const DEFAULT_PREFERENCES: Preferences = {
 // ----- Parsing (defensive: the document may come from an older or newer build) -----
 
 const STEP_SET = new Set<string>(STOPPABLE_STEPS)
-const MODES = new Set<string>(['auto', 'stops', 'fullControl'])
+export const OWN_STACK_STOPS: readonly OwnStackStop[] = ['TRIGGERED_ABILITIES', 'ACTIVATED_ABILITIES', 'SPELLS']
+const OWN_STACK_STOP_SET = new Set<string>(OWN_STACK_STOPS)
+const MODES = new Set<string>(['forcedOnly', 'auto', 'stops', 'fullControl'])
 const MOTIONS = new Set<string>(['system', 'reduce'])
+const FORCED_CHOICE_MODES = new Set<string>(['instant', 'delayed', 'ask'])
 
 function obj(v: unknown): Record<string, unknown> {
   return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {}
@@ -132,6 +164,10 @@ function steps(v: unknown): Step[] {
   if (!Array.isArray(v)) return []
   return [...new Set(v.filter((s): s is Step => typeof s === 'string' && STEP_SET.has(s)))]
 }
+function ownStackStops(v: unknown): OwnStackStop[] {
+  if (!Array.isArray(v)) return []
+  return [...new Set(v.filter((k): k is OwnStackStop => typeof k === 'string' && OWN_STACK_STOP_SET.has(k)))]
+}
 function stacking(v: unknown, fallback: StackingRule): StackingRule {
   const o = obj(v)
   const groupFrom = int(o.groupFrom, fallback.groupFrom, 0, STACK_LIMITS.groupFromMax)
@@ -141,6 +177,15 @@ function stacking(v: unknown, fallback: StackingRule): StackingRule {
     groupFrom: groupFrom === 1 ? 2 : groupFrom,
     stackSize: stackSize === 1 ? 0 : stackSize,
   }
+}
+
+/** `gameplay.forcedChoices`, or the boolean it replaced in a document saved before it existed. */
+function forcedChoices(g: Record<string, unknown>): ForcedChoiceMode {
+  if (typeof g.forcedChoices === 'string' && FORCED_CHOICE_MODES.has(g.forcedChoices)) {
+    return g.forcedChoices as ForcedChoiceMode
+  }
+  if (typeof g.autoAnswerForced === 'boolean') return g.autoAnswerForced ? 'delayed' : 'ask'
+  return DEFAULT_PREFERENCES.gameplay.forcedChoices
 }
 
 /** Read any JSON as preferences, falling back to the default for every missing or invalid field. */
@@ -160,7 +205,10 @@ export function parsePreferences(raw: unknown): Preferences {
         : D.gameplay.priorityMode,
       myTurnStops: steps(g.myTurnStops),
       opponentTurnStops: steps(g.opponentTurnStops),
+      ownStackStops: ownStackStops(g.ownStackStops),
       autoTap: bool(g.autoTap, D.gameplay.autoTap),
+      autoOrderTriggers: bool(g.autoOrderTriggers, D.gameplay.autoOrderTriggers),
+      forcedChoices: forcedChoices(g),
       followAction: bool(g.followAction, D.gameplay.followAction),
     },
     battlefield: {

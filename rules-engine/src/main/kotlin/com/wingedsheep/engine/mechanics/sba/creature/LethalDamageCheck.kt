@@ -16,7 +16,8 @@ import com.wingedsheep.sdk.core.Keyword
  * 704.5h - A creature that's been dealt damage by a source with deathtouch is destroyed.
  * Note: Indestructible creatures are not destroyed by lethal damage (Rule 702.12b).
  * Creatures with regeneration shields are regenerated instead of destroyed; umbra armor
- * (CR 702.89a) spends an Aura instead.
+ * (CR 702.89a) spends an Aura instead, and a printed "would be destroyed, instead …"
+ * ([com.wingedsheep.sdk.scripting.ReplaceDestructionWith]) does what it says instead.
  */
 class LethalDamageCheck(private val zones: ZoneTransitionService) : StateBasedActionCheck {
     override val name = "704.5g/h Lethal Damage"
@@ -58,8 +59,10 @@ class LethalDamageCheck(private val zones: ZoneTransitionService) : StateBasedAc
             val hasDeathtouch = damageComponent.deathtouchDamageReceived
 
             if (hasLethalDamage || hasDeathtouch) {
-                // Check for regeneration shields
-                val (shieldState, wasRegenerated) = ZoneMovementUtils.applyRegenerationShields(newState, entityId)
+                // Regeneration — a shield, or a static "would be destroyed, regenerate it" read
+                // off `passStartState` (every destruction in this pass is simultaneous, CR 704.3).
+                val (shieldState, wasRegenerated) =
+                    ZoneMovementUtils.applyRegeneration(newState, entityId, zones.predicateEvaluator, passStartState)
                 if (wasRegenerated) {
                     val regenResult = ZoneMovementUtils.applyRegenerationReplacement(shieldState, entityId)
                     newState = regenResult.newState
@@ -86,6 +89,15 @@ class LethalDamageCheck(private val zones: ZoneTransitionService) : StateBasedAc
                     val umbraResult = ZoneMovementUtils.applyUmbraArmor(zones, newState, entityId, umbraAura)
                     newState = umbraResult.newState
                     events.addAll(umbraResult.events)
+                    continue
+                }
+
+                // "If <it> would be destroyed, instead …" (Crackling Emergence: "whether the
+                // enchanted land would be destroyed due to lethal damage or any other reason").
+                // The rest of the replacement is queued and runs before the next SBA pass.
+                val replacement = ZoneMovementUtils.findDestructionReplacement(passStartState, entityId, zones.predicateEvaluator)
+                if (replacement != null) {
+                    newState = ZoneMovementUtils.applyDestructionReplacement(newState, entityId, replacement)
                     continue
                 }
 

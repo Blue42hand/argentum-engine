@@ -1,8 +1,10 @@
 package com.wingedsheep.sdk.scripting.predicates
 
+import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.references.Player
@@ -374,6 +376,21 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     @Serializable
     data class NameEqualsChosenComponent(val slot: ChoiceSlot = ChoiceSlot.CARD_NAME) : CardPredicate {
         override val description: String = "with the chosen name"
+    }
+
+    /**
+     * Matches cards with a **card type** equal to a card type chosen earlier in the pipeline and
+     * stored in `chosenValues[variableName]` (via
+     * [com.wingedsheep.sdk.scripting.effects.OptionType.CARD_TYPE]). The pipeline-variable sibling of
+     * [CardTypeEqualsChosenComponent], as [NameEqualsChosen] is of [NameEqualsChosenComponent].
+     * Case-insensitive; fails closed when nothing has been stored, or in static/projection contexts
+     * that have no pipeline. Used by "choose a card type, then … cards of the chosen type" effects
+     * (Alrund, God of the Cosmos).
+     */
+    @SerialName("CardTypeEqualsChosen")
+    @Serializable
+    data class CardTypeEqualsChosen(val variableName: String) : CardPredicate {
+        override val description: String = "of the chosen type"
     }
 
     /**
@@ -806,18 +823,22 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     }
 
     /**
-     * An Aura card whose printed "Enchant …" restriction ([com.wingedsheep.sdk.model.CardScript.auraTarget])
-     * the referenced permanent satisfies — "search your library for an Aura card that could enchant
-     * it" (Auratouched Mage). Only the enchant restriction is read, not targeting legality: an Aura
-     * put onto the battlefield isn't cast and doesn't target (CR 303.4f), so hexproof and shroud
-     * don't matter. "You" in the restriction ("Enchant creature you control") is the evaluating
-     * controller — the player who would put the Aura onto the battlefield. A non-Aura never
-     * matches, and nor does an unresolvable reference.
+     * An Aura, Equipment or Fortification card that could be attached to the referenced permanent
+     * — "search your library for an Aura card that could enchant it" (Auratouched Mage), "return …
+     * Aura and/or Equipment cards … attached to enchanted creature" where the ones that couldn't be
+     * stay behind (Mantle of the Ancients). An Aura needs a host its printed "Enchant …" restriction
+     * ([com.wingedsheep.sdk.model.CardScript.auraTarget]) admits; an Equipment needs a creature, a
+     * Fortification a land; none may meet protection from it (CR 702.16c/d). Only attachment
+     * legality is read, not targeting: a card put onto the battlefield attached isn't cast and
+     * doesn't target (CR 303.4f), so hexproof and shroud don't matter. "You" in a restriction
+     * ("Enchant creature you control") is the evaluating controller — the player who would put the
+     * card onto the battlefield. Any other card never matches, and nor does an unresolvable
+     * reference.
      */
-    @SerialName("CouldEnchant")
+    @SerialName("CouldAttachTo")
     @Serializable
-    data class CouldEnchant(val reference: EffectTarget.SingleEntity) : CardPredicate {
-        override val description: String = "that could enchant ${reference.description}"
+    data class CouldAttachTo(val reference: EffectTarget.SingleEntity) : CardPredicate {
+        override val description: String = "that could be attached to ${reference.description}"
         override fun applyTextReplacement(replacer: TextReplacer): CardPredicate = this
     }
 
@@ -965,6 +986,26 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
         override val description: String = "that convoked it"
     }
 
+    /**
+     * Matches the permanent the source **chose as it entered** — "the chosen permanent" of an
+     * [com.wingedsheep.sdk.scripting.EntersWithChoice]`(ChoiceType.CREATURE_ON_BATTLEFIELD)`
+     * replacement (Scheming Fence's "Activated abilities of the chosen permanent can't be
+     * activated"), read from the source's [com.wingedsheep.sdk.scripting.ChoiceSlot.CREATURE] slot.
+     * Only the same object matches: once the chosen permanent leaves the battlefield, a later
+     * object the card becomes is a new one (CR 400.7) and no longer matches.
+     *
+     * The filter-shaped reader of the slot that
+     * [com.wingedsheep.sdk.scripting.targets.EffectTarget.ChosenCreature] (an effect target) and
+     * [com.wingedsheep.sdk.scripting.filters.unified.Scope.ChosenCreature] (a group scope) also read —
+     * needed where an ability takes a [com.wingedsheep.sdk.scripting.filters.unified.GameObjectFilter]
+     * (`PreventActivatedAbilities`, `GainActivatedAbilitiesOfPermanents`). Fails closed with no source.
+     */
+    @SerialName("ChosenBySource")
+    @Serializable
+    data object ChosenBySource : CardPredicate {
+        override val description: String = "the chosen permanent"
+    }
+
     /** Matches creatures that share a creature subtype with the triggering entity */
     @SerialName("SharesCreatureTypeWithTriggeringEntity")
     @Serializable
@@ -972,7 +1013,12 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
         override val description: String = "that shares a creature type with it"
     }
 
-    /** Matches creatures that have the subtype chosen on the source permanent (CastChoicesComponent) */
+    /**
+     * Matches objects that have the subtype chosen on the source permanent as it entered — its
+     * chosen creature type ([com.wingedsheep.sdk.scripting.ChoiceSlot.CREATURE_TYPE]) or, failing
+     * that, its chosen planeswalker type ([com.wingedsheep.sdk.scripting.ChoiceSlot.PLANESWALKER_TYPE],
+     * Deification). Read from the source's CastChoicesComponent.
+     */
     @SerialName("HasChosenSubtype")
     @Serializable
     data object HasChosenSubtype : CardPredicate {
@@ -1015,14 +1061,30 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      * Card types only — the supertypes (legendary, basic, snow) and the subtypes below them are
      * deliberately not compared, because "card type" is the printed term for exactly the middle
      * band of the type line (CR 205.2a). Reach for [SharesCreatureTypeWith] for the subtype axis.
+     *
+     * [among] narrows which shared card types count: empty means any card type; otherwise only a
+     * type in [among] that both objects have — "target permanent an opponent controls that shares
+     * one of those types with it", where "those types" are artifact, creature and land (Gauntlets
+     * of Chaos). A shared enchantment doesn't qualify there.
      */
     @SerialName("SharesCardTypeWith")
     @Serializable
-    data class SharesCardTypeWith(val entity: EffectTarget.SingleEntity) : CardPredicate {
-        override val description: String = when (entity) {
-            is EffectTarget.Self -> "that shares a card type with this permanent"
-            is EffectTarget.TriggeringEntity -> "that shares a card type with it"
-            else -> "that shares a card type with ${entity.description}"
+    data class SharesCardTypeWith(
+        val entity: EffectTarget.SingleEntity,
+        val among: Set<CardType> = emptySet()
+    ) : CardPredicate {
+        override val description: String = run {
+            val what = if (among.isEmpty()) "a card type" else {
+                val names = among.map { it.displayName.lowercase() }
+                val listed = if (names.size < 3) names.joinToString(" or ")
+                else names.dropLast(1).joinToString(", ") + ", or " + names.last()
+                "one of the types $listed"
+            }
+            when (entity) {
+                is EffectTarget.Self -> "that shares $what with this permanent"
+                is EffectTarget.TriggeringEntity -> "that shares $what with it"
+                else -> "that shares $what with ${entity.description}"
+            }
         }
     }
 
@@ -1104,7 +1166,7 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      * Matches objects whose name **equals** the referenced entity's name — "a land with the same
      * name as the exiled card" (Extraplanar Lens). The name sibling of [SharesManaValueWith] over
      * the same [EffectTarget.SingleEntity] vocabulary, and the entity-referencing counterpart of
-     * [SharesNameWithPermanentYouControl], which searches a filter over your battlefield instead
+     * [SharesNameWithYourCard], which searches a filter over your cards in a zone instead
      * of naming one object.
      *
      * Names are read from *projected* state with a fall back to base card data, so a permanent
@@ -1171,33 +1233,43 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     }
 
     /**
-     * Matches objects whose name equals that of at least one permanent the evaluating player
-     * controls matching [filter]. The name-sharing sibling of [SharesColorWithPermanentYouControl].
+     * Matches objects whose name equals that of at least one of the evaluating player's cards in
+     * [zone] matching [filter] — on the battlefield (the default) a permanent they **control**,
+     * anywhere else a card in their own [zone] (a graveyard, hand, library or exile are owned
+     * zones). The name-sharing sibling of [SharesColorWithPermanentYouControl].
      *
      * - Key to the Side-Door — "a legendary card with the same name as a legendary permanent you
      *   control": `filter = GameObjectFilter.Permanent.legendary()`.
+     * - Frostpyre Arcanist — "an instant or sorcery card with the same name as a card in your
+     *   graveyard": `zone = Zone.GRAVEYARD`, `filter = GameObjectFilter.Any`.
      * - Under [Not], the "doesn't have the same name as …" restrictions: The Apprentice's Folly's
      *   "… as a token you control" (`filter = GameObjectFilter.Token`) and Yenna, Redtooth Regent's
      *   "… as **another** permanent you control" (`filter = GameObjectFilter.Permanent`,
-     *   [excludeSelf] = true). [excludeSelf] leaves the candidate out of the compared set so a
-     *   permanent never disqualifies itself; two permanents sharing a name still disqualify each
-     *   other.
+     *   [excludeSelf] = true). [excludeSelf] leaves the candidate out of the compared set so an
+     *   object never disqualifies itself; two objects sharing a name still disqualify each other.
      *
      * Names are compared exactly and read through the projection on both sides (falling back to
      * the card's own name), so a Layer 3 name-changing effect (Witness Protection, Honest Work) is
-     * respected. A nameless object — a face-down permanent (CR 708.2a) — never shares a name
-     * (CR 201.2a). Outside a controller's scope it never matches — so the [Not] form matches. Only
-     * the live evaluator can answer it; matchers without a battlefield in scope (layer projection,
-     * cast permissions, cast records) fail closed on both it and its [Not] form.
+     * respected. A nameless object — a face-down permanent or a face-down exiled card (CR 708.2a)
+     * — never shares a name (CR 201.2a). Outside a controller's scope it never matches — so the
+     * [Not] form matches. Only the live evaluator can answer it; matchers without the game state in
+     * scope (layer projection, cast permissions, cast records) fail closed on both it and its [Not]
+     * form.
      */
-    @SerialName("SharesNameWithPermanentYouControl")
+    @SerialName("SharesNameWithYourCard")
     @Serializable
-    data class SharesNameWithPermanentYouControl(
+    data class SharesNameWithYourCard(
         val filter: GameObjectFilter,
         val excludeSelf: Boolean = false,
+        val zone: Zone = Zone.BATTLEFIELD,
     ) : CardPredicate {
-        override val description: String =
-            "with the same name as ${if (excludeSelf) "another " else ""}${filter.description} you control"
+        override val description: String = buildString {
+            val noun = filter.description
+            append("with the same name as ")
+            append(if (excludeSelf) "another " else if (noun.firstOrNull()?.lowercaseChar()?.let { it in "aeiou" } == true) "an " else "a ")
+            append(noun)
+            append(if (zone == Zone.BATTLEFIELD) " you control" else " in your ${zone.noun}")
+        }
         override fun applyTextReplacement(replacer: TextReplacer): CardPredicate {
             val newFilter = filter.applyTextReplacement(replacer)
             return if (newFilter !== filter) copy(filter = newFilter) else this
@@ -1276,6 +1348,17 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     }
 
     /**
+     * Matches only **loyalty abilities** on the stack — activated abilities with a loyalty symbol
+     * in their cost (CR 606.2). A copy of a loyalty ability is one too: it copies the ability,
+     * cost included. Used by Verdant Command: "Counter target loyalty ability of a planeswalker."
+     */
+    @SerialName("IsLoyaltyAbility")
+    @Serializable
+    data object IsLoyaltyAbility : CardPredicate {
+        override val description: String = "loyalty ability"
+    }
+
+    /**
      * Matches a permanent that has at least one intrinsic activated ability that isn't a
      * mana ability (and isn't a loyalty ability). Backed by the precomputed
      * `CardComponent.hasNonManaActivatedAbility` flag, so abilities granted by other
@@ -1315,6 +1398,19 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     }
 
     /**
+     * Matches a card with a kicker ability — kicker, multikicker (a kicker variant, CR 702.33c) or
+     * "kicker [A] and/or [B]". Not Offspring, Bargain, Squad or a flash-timing unlock, which ride the
+     * same optional-additional-cost rail but are not kicker. Backed by the precomputed
+     * `CardComponent.hasKicker` flag stamped from the card's printed keyword abilities. Used by
+     * Murasa Sproutling: "return target card with a kicker ability from your graveyard to your hand."
+     */
+    @SerialName("HasKicker")
+    @Serializable
+    data object HasKicker : CardPredicate {
+        override val description: String = "with a kicker ability"
+    }
+
+    /**
      * Matches a land one of whose mana abilities could produce colorless mana ({C}) — Wastes, an
      * Eldrazi Temple, a land granted "{T}: Add {C}". Like [com.wingedsheep.sdk.scripting.values.ManaColorSet.LandsCouldProduce]
      * it reads the abilities' effects, not their costs or whether the land is tapped (Reflecting
@@ -1340,6 +1436,10 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
      * The subfilter is evaluated in the same [com.wingedsheep.engine.handlers.PredicateContext]
      * as the outer match — so "you control" inside the subfilter resolves against the
      * outer chooser, exactly as for any other filter.
+     *
+     * A subfilter that names no zone means permanents on the battlefield (CR 109.2): "a spell
+     * that targets a creature" ignores a creature card targeted in a graveyard and a creature
+     * spell targeted on the stack. Add `currentlyIn(zone)` to the subfilter to look elsewhere.
      */
     @SerialName("TargetsMatching")
     @Serializable
@@ -1365,6 +1465,36 @@ sealed interface CardPredicate : TextReplaceable<CardPredicate> {
     @Serializable
     data class TargetsPlayer(val player: Player) : CardPredicate {
         override val description: String = "that targets ${player.description}"
+    }
+
+    /**
+     * Matches a spell or ability on the stack that **would destroy** at least one permanent
+     * matching [subfilter] if it resolved right now — "counter target spell if it would destroy a
+     * land you control" (Equinox). Where [TargetsMatching] reads only the chosen targets, this
+     * reads what the object's effect does: a destroy aimed at one of its targets, or a "destroy
+     * all/each …" sweep whose group currently holds a matching permanent.
+     *
+     * Only destruction the text performs directly and unconditionally counts (the Equinox
+     * rulings): a destroy behind a "may", a choice, a condition or a random outcome, a sacrifice,
+     * or lethal damage (the game rules destroy that creature, not the spell) never matches.
+     * The subfilter is evaluated in the outer [com.wingedsheep.engine.handlers.PredicateContext],
+     * so `Land.youControl()` is relative to the filter's chooser, as in [TargetsMatching].
+     */
+    @SerialName("WouldDestroy")
+    @Serializable
+    data class WouldDestroy(val subfilter: GameObjectFilter) : CardPredicate {
+        /** "that would destroy a land you control" — the controller scope after the noun, as printed. */
+        override val description: String
+            get() {
+                val noun = subfilter.copy(controllerPredicate = null)
+                val scope = subfilter.controllerPredicate?.description?.takeIf { it.isNotEmpty() }
+                return listOfNotNull("that would destroy ${noun.indefiniteArticle} ${noun.description}", scope)
+                    .joinToString(" ")
+            }
+        override fun applyTextReplacement(replacer: TextReplacer): CardPredicate {
+            val newSubfilter = subfilter.applyTextReplacement(replacer)
+            return if (newSubfilter !== subfilter) copy(subfilter = newSubfilter) else this
+        }
     }
 
     /**

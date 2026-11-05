@@ -1,15 +1,25 @@
 package com.wingedsheep.mtg.sets.definitions.leg.cards
 
-import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.*
+import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Conditions
+import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.*
-import com.wingedsheep.sdk.scripting.effects.*
-import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.filters.unified.*
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.*
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.SearchDestination
 
+/**
+ * Land Tax
+ * {W}
+ * Enchantment
+ * At the beginning of your upkeep, if an opponent controls more lands than you, you may search
+ * your library for up to three basic land cards, reveal them, put them into your hand, then shuffle.
+ *
+ * The upkeep trigger is an intervening-if over the shared [Conditions.OpponentControlsMoreLands]
+ * land comparison (checked on trigger and again on resolution); the "you may" makes the whole
+ * search optional, and accepting it shuffles even when no basic land is taken.
+ */
 val LandTax = card("Land Tax") {
     manaCost = "{W}"
     colorIdentity = "W"
@@ -20,7 +30,12 @@ val LandTax = card("Land Tax") {
         trigger = Triggers.you.beginningOf(Step.UPKEEP)
         interveningIf = Conditions.OpponentControlsMoreLands
         optional = true
-        effect = Patterns.Library.searchLibrary(filter = GameObjectFilter.BasicLand, count = 3, destination = SearchDestination.HAND, reveal = true)
+        effect = Patterns.Library.searchLibrary(
+            filter = GameObjectFilter.BasicLand,
+            count = 3,
+            destination = SearchDestination.HAND,
+            reveal = true
+        )
     }
 
     metadata {

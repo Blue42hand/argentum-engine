@@ -39,6 +39,8 @@ import type {
   MatchmakingStatusMessage,
   MatchFoundMessage,
   MatchmakingQueueCount,
+  FlipTable,
+  FlipLanding,
 } from '@/types'
 import type { ConnectionStatus } from '@/network/websocket.ts'
 import type { AssistUndo, DeckSnapshot } from './assistDeck'
@@ -88,6 +90,8 @@ export interface TargetingState {
   /** Server-approved pools whose members may be selected together. */
   selectionGroups?: readonly (readonly EntityId[])[] | null
   exclusiveGroups?: readonly (readonly EntityId[])[] | null
+  /** Each candidate's claimable categories; picks must each claim a different one ("of each color"). */
+  distinctCategories?: Readonly<Record<EntityId, readonly string[]>> | null
   action: GameAction
   validTargets: readonly EntityId[]
   selectedTargets: readonly EntityId[]
@@ -217,6 +221,11 @@ export interface CombatState {
   validCreatures: readonly EntityId[]
   /** Creatures that must attack this combat (from MustAttack, Taunt, etc.) */
   mandatoryAttackers: readonly EntityId[]
+  /**
+   * Valid attackers that can only attack alone (Master of Cruelties) — the server's list. Picking
+   * one clears the rest of the selection; picking another creature drops it.
+   */
+  loneAttackers?: readonly EntityId[]
   /** For blockers mode: creatures that are attacking */
   attackingCreatures: readonly EntityId[]
   /** For blockers mode: attackers that must be blocked by all creatures able to block them */
@@ -250,6 +259,8 @@ export interface GameOverState {
    * of the game) alongside the exit buttons.
    */
   eliminated?: boolean
+  /** The ante settlement (CR 407) when the game was played for ante. */
+  ante?: import('../../types').AnteResult | null
 }
 
 /**
@@ -262,6 +273,8 @@ export interface DecisionSelectionState {
   /** Server-approved pools whose members may be selected together. */
   selectionGroups?: readonly (readonly EntityId[])[] | null
   exclusiveGroups?: readonly (readonly EntityId[])[] | null
+  /** Each candidate's claimable categories; picks must each claim a different one ("of each color"). */
+  distinctCategories?: Readonly<Record<EntityId, readonly string[]>> | null
   /** The pending decision this selection is for */
   decisionId: string
   /** Valid card IDs that can be selected */
@@ -277,6 +290,9 @@ export interface DecisionSelectionState {
   /** Transient warning shown when the user tries an illegal toggle (e.g. clicking past max
    * on a multi-select step). Cleared on the next successful toggle. */
   warning?: string | null
+  /** "... with total mana value N or less": the picks' summed mana value may not exceed `cap`;
+   * `values` holds each option's mana value. */
+  manaValueCap?: { readonly cap: number; readonly values: Readonly<Record<EntityId, number>> } | null
 }
 
 /**
@@ -608,6 +624,11 @@ export interface DeckBuildingState {
    * usual 4-of cap), so adding a card must not remove it from the pool view.
    */
   poolPlay: boolean
+  /**
+   * Per-card copy cap (basic lands exempt), or null when the pool's own copy count is the only
+   * limit. Sent by the server, which enforces the same cap on submit.
+   */
+  maxCopiesPerCard: number | null
 }
 
 /**
@@ -761,6 +782,22 @@ export interface SpectatingState {
   decisionStatus: SpectatorDecisionStatus | null
   /** When true, `ReplayPlayer` handles its own UI — SpectatorGameBoard should not render */
   isReplay?: boolean
+  /**
+   * Set when the server reports the watched game has ended. The board stays up behind a result
+   * banner until the spectator goes back to the overview (or the banner's auto-return fires).
+   */
+  gameOver?: SpectatorGameOver | null
+}
+
+/** How a spectated game ended — the public `gameOver` payload, seen from outside the game. */
+export interface SpectatorGameOver {
+  /** Every seat that won (the whole team in Two-Headed Giant). Empty for a draw. */
+  winnerIds: readonly EntityId[]
+  reason: GameOverReason
+  /** Server-written end-of-game text (e.g. a stalled game's explanation), preferred when present. */
+  message: string | null
+  /** The ante settlement (CR 407) when the game was played for ante. */
+  ante?: import('../../types').AnteResult | null
 }
 
 /**
@@ -778,6 +815,33 @@ export interface MatchIntro {
   playerRecord?: string
   opponentRecord?: string
 }
+
+/**
+ * The interstitial shown as a Magic subgame (Shahrazad, CR 729) begins or ends: the table is about
+ * to become a different game, and the players should see that happen rather than find it.
+ */
+export type SubgameTransition =
+  | {
+      kind: 'start'
+      /** 1 for a subgame of the main game, 2 for one within it. */
+      depth: number
+      sourceName: string | null
+      sourceImageUri: string | null
+      /** The randomly chosen first player: "You" or their name. */
+      firstPlayerName: string
+      youGoFirst: boolean
+    }
+  | {
+      kind: 'end'
+      depth: number
+      sourceName: string | null
+      sourceImageUri: string | null
+      /** Empty for a draw. */
+      winnerNames: string[]
+      youWon: boolean
+      /** The players who didn't win — what the spell does to them next, it says itself. */
+      nonWinnerNames: string[]
+    }
 
 /**
  * A log entry for the game log panel.
@@ -812,6 +876,31 @@ export interface RevealAnimation {
   imageUri: string | null
   isOpponent: boolean
   startTime: number
+}
+
+/**
+ * A dexterity flip (Chaos Orb) in the air or just landed. The thrower's client creates it the
+ * moment they let go (so the flight starts with no network wait); the server's
+ * `cardFlippedOntoBattlefield` event then supplies [result] — and creates it outright on every
+ * other client.
+ */
+export interface FlipShow {
+  id: string
+  table: FlipTable
+  sourceName: string
+  sourceImageUri: string | null
+  flipperId: EntityId
+  /** True on the thrower's own client. */
+  isYours: boolean
+  /** The thrower's intent, known only on their client before the result arrives. */
+  aim: { x: number; y: number; strength: number } | null
+  result: {
+    landing: FlipLanding
+    turnedOver: boolean
+    touched: readonly EntityId[]
+    affected: readonly EntityId[]
+  } | null
+  startedAt: number
 }
 
 /**
@@ -993,6 +1082,11 @@ export type GameStore = {
   spectatorCount: number
   /** Names of currently-active spectators (for hover display on the badge). */
   spectatorNames: readonly string[]
+  /** The last forced question this client answered for the player, shown as a brief notice. */
+  autoAnswerNotice: import('./handlers/autoAnswer').AutoAnswerNotice | null
+  dismissAutoAnswerNotice: () => void
+  /** A forced question is waiting to be answered for the player (see `autoAnswer.ts`). */
+  autoAnswerPending: boolean
   createGame: (deckList: Record<string, number>, setCode?: string) => void
   createAiGame: (deckList: Record<string, number>, setCode?: string) => void
   joinGame: (sessionId: string, deckList: Record<string, number>) => void
@@ -1001,12 +1095,15 @@ export type GameStore = {
   submitDecision: (decisionId: string, selectedCards: readonly EntityId[]) => void
   submitTargetsDecision: (decisionId: string, selectedTargets: Record<number, readonly EntityId[]>) => void
   submitOrderedDecision: (decisionId: string, orderedObjects: readonly EntityId[]) => void
+  /** Answer an OrderTriggersDecision: the decision's trigger indices, first-to-resolve first. */
+  submitTriggerOrder: (decisionId: string, resolutionOrder: readonly number[]) => void
   submitYesNoDecision: (decisionId: string, choice: boolean) => void
   submitBatchYesNoDecision: (decisionId: string, choice: boolean, applyToAll: boolean) => void
   submitNumberDecision: (decisionId: string, number: number) => void
   submitOptionDecision: (decisionId: string, optionIndex: number) => void
   submitReplacementDecision: (decisionId: string, fromIndex: number, toIndex: number) => void
   submitBudgetModalDecision: (decisionId: string, selectedModeIndices: readonly number[]) => void
+  submitFlipThrow: (decisionId: string, aimX: number, aimY: number, strength: number, sway: number) => void
   submitDistributeDecision: (decisionId: string, distribution: Record<EntityId, number>) => void
   submitDamageAssignmentDecision: (decisionId: string, assignments: Record<EntityId, number>) => void
   submitCombatResolutionDecision: (decisionId: string, edges: ReadonlyArray<{ edgeId: string; amount: number }>) => void
@@ -1024,7 +1121,11 @@ export type GameStore = {
   mulligan: () => void
   chooseBottomCards: (cardIds: readonly EntityId[]) => void
   toggleMulliganCard: (cardId: EntityId) => void
-  concede: () => void
+  /**
+   * Concede. During a Magic subgame (CR 729), `subgameOnly` concedes just the subgame — the main
+   * game then resumes — instead of the main game as well.
+   */
+  concede: (subgameOnly?: boolean) => void
   requestUndo: () => void
   toggleAutoTap: () => void
   cancelGame: () => void
@@ -1044,7 +1145,7 @@ export type GameStore = {
   tournamentState: TournamentState | null
   ffaState: FfaState | null
   spectatingState: SpectatingState | null
-  createTournamentLobby: (setCodes: string[], format?: TournamentFormat, boosterCount?: number, maxPlayers?: number, pickTimeSeconds?: number, isPublic?: boolean, gameMode?: LobbyGameMode, rules?: GameRules) => void
+  createTournamentLobby: (setCodes: string[], format?: TournamentFormat, boosterCount?: number, maxPlayers?: number, pickTimeSeconds?: number, isPublic?: boolean, gameMode?: LobbyGameMode, rules?: GameRules, playingForAnte?: boolean) => void
   joinLobby: (lobbyId: string) => void
   startLobby: () => void
   leaveLobby: () => void
@@ -1079,7 +1180,7 @@ export type GameStore = {
 
   // Quick Game Lobby slice
   quickGameLobbyState: QuickGameLobbyStateMessage | null
-  createQuickGameLobby: (vsAi?: boolean, setCode?: string, isPublic?: boolean, format?: DeckFormat, momirBasic?: boolean, ranked?: boolean) => void
+  createQuickGameLobby: (vsAi?: boolean, setCode?: string, isPublic?: boolean, format?: DeckFormat, momirBasic?: boolean, ranked?: boolean, playingForAnte?: boolean) => void
   addQuickGameAi: () => void
   removeQuickGameAi: () => void
   joinQuickGameLobby: (lobbyId: string) => void
@@ -1097,6 +1198,7 @@ export type GameStore = {
   setQuickGameLobbySetCode: (setCodes: readonly string[]) => void
   setQuickGameLobbyPublic: (isPublic: boolean) => void
   setQuickGameLobbyRanked: (ranked: boolean) => void
+  setQuickGameLobbyAnte: (playingForAnte: boolean) => void
   setQuickGameLobbyFormat: (format: DeckFormat | null, momirBasic?: boolean) => void
   /** Host-only: choose what the AI opponent plays (auto / built from sets / an exact list). */
   setQuickGameAiDeck: (spec: AiDeckSpec) => void
@@ -1226,7 +1328,6 @@ export type GameStore = {
   autoTapPreview: readonly EntityId[] | null
   draggingBlockerId: EntityId | null
   draggingAttackerId: EntityId | null
-  draggingAttackerHasBanding: boolean | null
   draggingCardId: EntityId | null
   revealedHandCardIds: readonly EntityId[] | null
   revealedCardsInfo: {
@@ -1259,6 +1360,7 @@ export type GameStore = {
   damageAnimations: readonly DamageAnimation[]
   revealAnimations: readonly RevealAnimation[]
   coinFlipAnimations: readonly CoinFlipAnimation[]
+  flipShow: FlipShow | null
   targetReselectedAnimations: readonly TargetReselectedAnimation[]
   /**
    * Battlefield card ids currently pulsing after being beheld, along with the
@@ -1285,7 +1387,7 @@ export type GameStore = {
   clearBlockerAssignments: () => void
   startDraggingBlocker: (blockerId: EntityId) => void
   stopDraggingBlocker: () => void
-  startDraggingAttacker: (attackerId: EntityId, hasBanding?: boolean) => void
+  startDraggingAttacker: (attackerId: EntityId) => void
   stopDraggingAttacker: () => void
   setAttackTarget: (attackerId: EntityId, targetId: EntityId) => void
   assignDefenderToSelectedAttackers: (defenderId: EntityId) => void
@@ -1381,6 +1483,7 @@ export type GameStore = {
   removeRevealAnimation: (id: string) => void
   addCoinFlipAnimation: (animation: CoinFlipAnimation) => void
   removeCoinFlipAnimation: (id: string) => void
+  setFlipShow: (show: FlipShow | null) => void
   addTargetReselectedAnimation: (animation: TargetReselectedAnimation) => void
   removeTargetReselectedAnimation: (id: string) => void
   addBeholdPulse: (cardId: EntityId, sourceName: string) => void
@@ -1389,4 +1492,6 @@ export type GameStore = {
   matchIntro: MatchIntro | null
   setMatchIntro: (intro: MatchIntro) => void
   clearMatchIntro: () => void
+  subgameTransition: SubgameTransition | null
+  clearSubgameTransition: () => void
 }

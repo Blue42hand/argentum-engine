@@ -110,13 +110,14 @@
                                             "subtype": "Aura"
                                         },
                                         {
-                                            "type": "CouldEnchant",
+                                            "type": "CouldAttachTo",
                                             "reference": "Self"
                                         }
                                     ]
                                 }
                             },
-                            "storeAs": "gathered0"
+                            "storeAs": "gathered0",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -4953,14 +4954,15 @@
         "replacementEffects": [
             "MultiplyTokenCreation",
             {
-                "type": "DoubleCounterPlacement",
+                "type": "ScaleCounterPlacement",
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
                     "recipient": {
                         "type": "RecipientObject",
                         "filter": "permanent ctrl:you"
                     }
-                }
+                },
+                "effectsOnly": true
             }
         ]
     },
@@ -6973,7 +6975,7 @@
                                         ],
                                         "statePredicates": [
                                             {
-                                                "type": "BlockedOrWasBlockedByEntityThisTurn",
+                                                "type": "BlockPairedWithEntityThisTurn",
                                                 "reference": "TriggeringEntity"
                                             }
                                         ]
@@ -10177,7 +10179,10 @@
         "castRestrictions": [
             {
                 "type": "CastOnlyIfCondition",
-                "condition": "BeforeAttackersDeclaredThisTurn"
+                "condition": {
+                    "type": "BeforeFirstCombatStepThisTurn",
+                    "step": "DECLARE_ATTACKERS"
+                }
             }
         ]
     },
@@ -15221,7 +15226,8 @@
                                 "zone": "Library",
                                 "filter": "instant red|white mv<=4"
                             },
-                            "storeAs": "gathered0"
+                            "storeAs": "gathered0",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -15237,6 +15243,7 @@
                             "prompt": "Search for a red or white instant card with mana value 4 or less to cast without paying its mana cost"
                         },
                         "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent",
                         {
                             "type": "CastFromCollectionWithoutPayingCost",
                             "from": "selected1"
@@ -17258,7 +17265,11 @@
                 },
                 "destination": "Battlefield",
                 "fromZone": "Graveyard",
-                "addCounterType": "PLUS_ONE_PLUS_ONE"
+                "entryCounters": [
+                    {
+                        "counterType": "PLUS_ONE_PLUS_ONE"
+                    }
+                ]
             },
             "otherwise": {
                 "type": "MoveToZone",

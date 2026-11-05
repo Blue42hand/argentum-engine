@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.cost.spell
 
+import com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality
 import com.wingedsheep.engine.state.LifePaymentPurpose
 
 import com.wingedsheep.engine.mechanics.cost.SharedCreatureTypeTapCost
@@ -10,6 +11,7 @@ import com.wingedsheep.engine.core.ZoneChangeEvent
 import com.wingedsheep.engine.core.tap
 import com.wingedsheep.engine.handlers.CostHandler
 import com.wingedsheep.engine.handlers.PredicateContext
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
 import com.wingedsheep.engine.handlers.costs.CostAtomAmounts
 import com.wingedsheep.engine.handlers.costs.GraveyardTotalExileResolver
@@ -94,7 +96,7 @@ internal fun exileFromOwnZone(ledger: SpellCostLedger, cardIds: List<EntityId>, 
 /** "Sacrifice a creature" (Natural Order). */
 internal object SacrificeCostKind : SpellCostKind<CostAtom.Sacrifice> {
     override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.Sacrifice, costHandler: CostHandler) =
-        costHandler.findMatchingPermanentsUnified(state, payerId, cost.filter).size >= cost.count
+        costHandler.findSacrificeCostCandidates(state, payerId, cost.filter).size >= cost.count
 
     override fun enumerate(env: SpellCostEnumeration, cost: CostAtom.Sacrifice, offer: SpellCostOffer): Boolean {
         val validSacTargets = candidates(env, cost)
@@ -145,6 +147,9 @@ internal object SacrificeCostKind : SpellCostKind<CostAtom.Sacrifice> {
             if (!check.predicateEvaluator.matches(state, projected, permId, cost.filter, context)) {
                 return "${permCard.name} doesn't match the required filter: $filterDesc"
             }
+            if (!SacrificeCostLegality.canSacrificeForCost(state, permId)) {
+                return "${permCard.name} can't be sacrificed to cast this spell"
+            }
         }
         return null
     }
@@ -153,7 +158,7 @@ internal object SacrificeCostKind : SpellCostKind<CostAtom.Sacrifice> {
         // Snapshot projected subtypes and P/T before zone change
         // (Rule 113.7a / 608.2h — "as it last existed on the battlefield")
         val sacrificed = ledger.payment.sacrificedPermanents
-        ledger.sacrificedSnapshots.addAll(captureEntitySnapshots(sacrificed, ledger.state.projectedState, ledger.state))
+        ledger.sacrificedSnapshots.addAll(captureEntitySnapshots(sacrificed, ledger.state))
         for (permId in sacrificed) {
             if (ledger.state.getEntity(permId) == null) continue
             ledger.sacrifice(permId)
@@ -164,8 +169,19 @@ internal object SacrificeCostKind : SpellCostKind<CostAtom.Sacrifice> {
 
 /** "Sacrifice all creatures you control" (Soulblast) — every matching permanent, nothing chosen. */
 internal object SacrificeAllCostKind : SpellCostKind<CostAtom.SacrificeAll> {
-    // Controlling none of them sacrifices nothing, so this is always payable (CR 118.3).
-    override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.SacrificeAll, costHandler: CostHandler) = true
+    // Controlling none of them sacrifices nothing, so this is payable (CR 118.3) — unless one of
+    // them is a permanent no cost may sacrifice.
+    override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.SacrificeAll, costHandler: CostHandler) =
+        costHandler.sacrificeAllCandidates(state, cost, payerId).all { SacrificeCostLegality.canSacrificeForCost(state, it) }
+
+    // The cast enumeration and the cast validator ask the same question as canPay, so the spell is
+    // neither offered nor accepted while one of the permanents it would take can't be sacrificed.
+    override fun enumerate(env: SpellCostEnumeration, cost: CostAtom.SacrificeAll, offer: SpellCostOffer) =
+        env.costUtils.canPaySacrificeAll(env.state, env.playerId, cost)
+
+    override fun validate(check: SpellCostCheck, cost: CostAtom.SacrificeAll): String? =
+        if (canPay(check.state, check.playerId, cost, check.costHandler)) null
+        else "A permanent this spell would sacrifice can't be sacrificed to cast it"
 
     // The caster picks nothing, so the client submits no payment for it.
     override fun paysUnprompted(cost: CostAtom.SacrificeAll) = true
@@ -173,7 +189,7 @@ internal object SacrificeAllCostKind : SpellCostKind<CostAtom.SacrificeAll> {
     override fun pay(ledger: SpellCostLedger, cost: CostAtom.SacrificeAll): String? {
         val all = ledger.costHandler.sacrificeAllCandidates(ledger.state, cost, ledger.playerId)
         // Snapshot before any of them leaves (CR 608.2h) — "the sacrificed creatures' total power".
-        ledger.sacrificedSnapshots.addAll(captureEntitySnapshots(all, ledger.state.projectedState, ledger.state))
+        ledger.sacrificedSnapshots.addAll(captureEntitySnapshots(all, ledger.state))
         for (permId in all) ledger.sacrifice(permId)
         return null
     }
@@ -680,6 +696,21 @@ internal object ReturnToHandCostKind : SpellCostKind<CostAtom.ReturnToHand> {
  * Greed) is offered on the main rail through [enumerate], as the `SacrificeVariable` picker.
  */
 internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePermanents> {
+    /** Whether [cost] is "sacrifice X …" — its whole count is the X announced with the cast. */
+    private fun countIsX(cost: CostAtom.VariablePermanents) = cost.exactly == DynamicAmount.XValue
+
+    /**
+     * The X ceiling the "sacrifice X creatures" costs among [costs] put on the cast's announcement
+     * (CR 601.2b — the cost defines X, there is no `{X}` in the mana cost), or null when none of
+     * them reads X: the number of permanents that could pay. Fed to
+     * [SpellCosts.additionalCostMaxX] beside "remove X counters", so the cast offer carries
+     * `hasXCost` and the client asks for X before targets.
+     */
+    fun maxX(state: GameState, payerId: EntityId, costs: List<AdditionalCost>, predicateEvaluator: PredicateEvaluator): Int? =
+        SpellCosts.flattenComposites(costs)
+            .mapNotNull { ((it as? AdditionalCost.Atom)?.atom as? CostAtom.VariablePermanents)?.takeIf(::countIsX) }
+            .minOfOrNull { VariablePermanentsCost.candidates(state, payerId, it, predicateEvaluator = predicateEvaluator).size }
+
     // Payable when the payer has enough candidates to clear both floors. No `sourceId` is passed —
     // a *spell's* additional cost has no source permanent on the battlefield to exclude (teamwork
     // sets `excludeSelf = false` anyway).
@@ -710,7 +741,9 @@ internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePerm
 
     /**
      * The `SacrificeVariable` picker: choose between [CostAtom.VariablePermanents.minCount] and all
-     * of [candidates]. The chosen ids come back as `additionalCostPayment.variableCostPermanents`.
+     * of [candidates] — or, for an [CostAtom.VariablePermanents.exactly] cost, exactly the cast's
+     * announced X (`sacrificeCountIsX`). The chosen ids come back as
+     * `additionalCostPayment.variableCostPermanents`.
      */
     fun sacrificeVariableData(cost: CostAtom.VariablePermanents, candidates: List<EntityId>) =
         AdditionalCostData(
@@ -718,10 +751,11 @@ internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePerm
             costType = "SacrificeVariable",
             validSacrificeTargets = candidates,
             sacrificeCount = cost.minCount,
+            sacrificeCountIsX = countIsX(cost),
         )
 
     override fun selectionSupplied(cost: CostAtom.VariablePermanents, payment: AdditionalCostPayment) =
-        payment.variableCostPermanents.isNotEmpty()
+        !payment.variableCostPermanents.isNullOrEmpty()
 
     override fun validate(check: SpellCostCheck, cost: CostAtom.VariablePermanents): String? {
         val state = check.state
@@ -731,8 +765,20 @@ internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePerm
         if (chosen.size != chosen.distinct().size) {
             return "The same permanent can't be chosen twice to $verb for this spell"
         }
+        // "Sacrifice X creatures": exactly the announced X (CR 601.2b), which may be 0. An
+        // unannounced X reads as 0, the cast's usual default.
+        if (countIsX(cost)) {
+            val x = check.action.xValue ?: 0
+            if (chosen.size != x) {
+                return "You must $verb exactly $x ${cost.filter.description}(s) to cast this spell (X = $x)"
+            }
+        }
         if (chosen.size < cost.minCount) {
             return "You must $verb at least ${cost.minCount} ${cost.filter.description}(s) to cast this spell"
+        }
+        val maxCount = cost.maxCount
+        if (maxCount != null && chosen.size > maxCount) {
+            return "You may $verb at most $maxCount ${cost.filter.description}(s) to cast this spell"
         }
         val context = PredicateContext(controllerId = check.playerId)
         for (permId in chosen) {
@@ -752,6 +798,9 @@ internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePerm
             if (cost.action == PermanentCostAction.TAP && permContainer.has<TappedComponent>()) {
                 return "${permCard.name} is already tapped"
             }
+            if (cost.action == PermanentCostAction.SACRIFICE && !SacrificeCostLegality.canSacrificeForCost(state, permId)) {
+                return "${permCard.name} can't be sacrificed to cast this spell"
+            }
             if (!check.predicateEvaluator.matches(state, projected, permId, cost.filter, context)) {
                 return "${permCard.name} doesn't match the required filter: ${cost.filter.description}"
             }
@@ -770,7 +819,7 @@ internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePerm
 
     override fun pay(ledger: SpellCostLedger, cost: CostAtom.VariablePermanents): String? {
         // Validation already re-checked control, filter, and the measure floor.
-        val chosen = ledger.payment.variableCostPermanents
+        val chosen = ledger.payment.variableCostPermanents.orEmpty()
         when (cost.action) {
             PermanentCostAction.TAP -> {
                 // The tap carries its *cause* ([TapReason]), which is what lets "whenever this
@@ -794,7 +843,7 @@ internal object VariablePermanentsCostKind : SpellCostKind<CostAtom.VariablePerm
                 ledger.events.addAll(tapEvents)
             }
             PermanentCostAction.SACRIFICE -> {
-                ledger.sacrificedSnapshots.addAll(captureEntitySnapshots(chosen, ledger.state.projectedState, ledger.state))
+                ledger.sacrificedSnapshots.addAll(captureEntitySnapshots(chosen, ledger.state))
                 for (permId in chosen) {
                     if (ledger.state.getEntity(permId) == null) continue
                     ledger.sacrifice(permId)
@@ -894,22 +943,40 @@ internal object RevealFromHandCostKind : SpellCostKind<CostAtom.RevealFromHand> 
  * client sends the typed per-entity, per-counter-type removals
  * ([AdditionalCostPayment.distributedCounterRemovals]), so the player explicitly picks which counter
  * types come off each creature.
+ *
+ * A `count` of [DynamicAmount.XValue] ("remove X loyalty counters from among planeswalkers you
+ * control", Light Up the Night's flashback) owes exactly the announced X: the cast offer carries
+ * [maxX] as its X ceiling, and the removals must total `action.xValue`.
  */
 internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> {
     private fun fixedCount(cost: CostAtom.RemoveCounters): Int = (cost.count as? DynamicAmount.Fixed)?.amount ?: 0
 
+    private fun isX(cost: CostAtom.RemoveCounters) = cost.count is DynamicAmount.XValue && !cost.self
+
+    /** Counters this cost may take: matching counters on the matching permanents [payerId] controls. */
+    private fun available(state: GameState, payerId: EntityId, cost: CostAtom.RemoveCounters, predicateEvaluator: PredicateEvaluator): Int {
+        val projected = state.projectedState
+        val ctx = PredicateContext(controllerId = payerId)
+        return projected.getBattlefieldControlledBy(payerId).sumOf { entityId ->
+            if (!predicateEvaluator.matches(state, projected, entityId, cost.filter, ctx)) return@sumOf 0
+            val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return@sumOf 0
+            if (cost.counterType != null) counters.getCount(cost.counterType!!) else counters.counters.values.sum()
+        }
+    }
+
+    /**
+     * The X ceiling the "remove X counters" costs among [costs] put on the cast's announcement, or
+     * null when none of them reads X. Each such cost alone can take every matching counter.
+     */
+    fun maxX(state: GameState, payerId: EntityId, costs: List<AdditionalCost>, predicateEvaluator: PredicateEvaluator): Int? =
+        SpellCosts.flattenComposites(costs)
+            .mapNotNull { ((it as? AdditionalCost.Atom)?.atom as? CostAtom.RemoveCounters)?.takeIf(::isX) }
+            .minOfOrNull { available(state, payerId, it, predicateEvaluator) }
+
     override fun canPay(state: GameState, payerId: EntityId, cost: CostAtom.RemoveCounters, costHandler: CostHandler): Boolean {
         val needed = fixedCount(cost)
         if (needed <= 0) return true
-        val counterType = cost.counterType?.let { it }
-        val projected = state.projectedState
-        val ctx = PredicateContext(controllerId = payerId)
-        val total = projected.getBattlefieldControlledBy(payerId).sumOf { entityId ->
-            if (!costHandler.predicateEvaluator.matches(state, projected, entityId, cost.filter, ctx)) return@sumOf 0
-            val counters = state.getEntity(entityId)?.get<CountersComponent>() ?: return@sumOf 0
-            if (counterType != null) counters.getCount(counterType) else counters.counters.values.sum()
-        }
-        return total >= needed
+        return available(state, payerId, cost, costHandler.predicateEvaluator) >= needed
     }
 
     // The pool is counters, not objects, so affordability sums what the matching permanents carry
@@ -933,9 +1000,15 @@ internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> 
     override fun validate(check: SpellCostCheck, cost: CostAtom.RemoveCounters): String? {
         val state = check.state
         val projected = state.projectedState
-        val needed = fixedCount(cost)
         val removals = check.payment?.distributedCounterRemovals ?: emptyList()
         val total = removals.sumOf { it.count }
+        if (isX(cost)) {
+            val x = check.action.xValue ?: 0
+            if (total != x) {
+                return "You must remove exactly $x counters from among ${cost.filter.description}s you control to cast this spell"
+            }
+        }
+        val needed = fixedCount(cost)
         if (total < needed) {
             val phrase = if (needed == 1) "1 counter from a" else "$needed counters from among"
             val plural = if (needed == 1) "" else "s"
@@ -986,7 +1059,8 @@ internal object RemoveCountersCostKind : SpellCostKind<CostAtom.RemoveCounters> 
                 entityId = removal.entityId,
                 counterType = resolvedType,
                 amount = removal.count,
-                entityName = container.get<CardComponent>()?.name ?: "Permanent"
+                entityName = container.get<CardComponent>()?.name ?: "Permanent",
+                removedBy = ledger.playerId
             ))
         }
         return null

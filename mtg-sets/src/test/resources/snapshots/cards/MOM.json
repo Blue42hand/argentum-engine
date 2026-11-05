@@ -3015,7 +3015,7 @@
                                 "includeCurrentTurn": false
                             },
                             "nonLandOnly": true,
-                            "singleUse": true
+                            "maxPlays": 1
                         }
                     ]
                 },
@@ -4769,14 +4769,8 @@
                     "scope": "Self"
                 },
                 "sourceFilter": "creature ctrl:opponent",
-                "includeManaAbilities": true
-            },
-            {
-                "type": "SpendAnyManaTypeForActivatedAbilities",
-                "filter": {
-                    "baseFilter": "permanent",
-                    "scope": "Self"
-                }
+                "abilities": "ALL",
+                "spendAsThoughAnyColor": true
             }
         ]
     },
@@ -8757,6 +8751,7 @@
                             "storeMovedAs": "moved2"
                         },
                         "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent",
                         {
                             "type": "GrantMayPlayFromExile",
                             "from": "moved2",
@@ -9457,7 +9452,10 @@
                     },
                     {
                         "type": "DistributeCountersAmongFiltered",
-                        "totalCounters": 3,
+                        "totalCounters": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
                         "filter": "creature ctrl:you"
                     },
                     {
@@ -10935,7 +10933,8 @@
                                     ]
                                 }
                             },
-                            "storeAs": "gathered0"
+                            "storeAs": "gathered0",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -19536,7 +19535,8 @@
                                 "zone": "Library",
                                 "filter": "Praetor"
                             },
-                            "storeAs": "gathered0"
+                            "storeAs": "gathered0",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -19553,7 +19553,8 @@
                                 "zone": "Battlefield"
                             }
                         },
-                        "ShuffleLibrary"
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
                     ]
                 },
                 "descriptionOverride": "{10}, {T}, Sacrifice Realmbreaker: Search your library for any number of Praetor cards, put them onto the battlefield, then shuffle."
@@ -23966,7 +23967,7 @@
                                 "ability": {
                                     "type": "MayCastFromGraveyard",
                                     "filter": "instant|sorcery",
-                                    "exileInsteadOfGraveyard": true,
+                                    "exileCastThisWay": "INSTEAD_OF_GRAVEYARD",
                                     "fromAnyGraveyard": true
                                 },
                                 "target": "Controller"

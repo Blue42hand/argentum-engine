@@ -1,3 +1,39 @@
+// Aven Mindcensor
+{
+    "name": "Aven Mindcensor",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Bird Wizard",
+    "oracleText": "Flash\nFlying\nIf an opponent would search a library, that player searches the top four cards of that library instead.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLASH",
+        "FLYING"
+    ],
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "LimitLibrarySearch",
+                "appliesTo": {
+                    "player": "EachOpponent"
+                },
+                "topCount": 4
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "rarity": "UNCOMMON",
+        "artist": "Rebecca Guay",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/b/5b8ede8a-5317-4662-b964-a9bd202a4aab.jpg?1783943127"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Blade of the Sixth Pride
 {
     "name": "Blade of the Sixth Pride",
@@ -185,6 +221,49 @@
     "colorIdentityOverride": []
 }
 
+// Dakmor Salvage
+{
+    "name": "Dakmor Salvage",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped.\n{T}: Add {B}.\nDredge 2 (If you would draw a card, you may mill two cards instead. If you do, return this card from your graveyard to your hand.)",
+    "keywords": [
+        "DREDGE"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Dredge",
+            "amount": 2
+        }
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Dakmor Salvage:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "169",
+        "rarity": "UNCOMMON",
+        "artist": "John Avon",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/f/8f7f06e8-d8ee-435c-965c-8e1302a8ec10.jpg?1783943090"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dryad Arbor
 {
     "name": "Dryad Arbor",
@@ -239,6 +318,106 @@
     ]
 }
 
+// Fleshwrither
+{
+    "name": "Fleshwrither",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Creature — Horror",
+    "oracleText": "Transfigure {1}{B}{B} ({1}{B}{B}, Sacrifice this creature: Search your library for a creature card with the same mana value as this creature, put that card onto the battlefield, then shuffle. Transfigure only as a sorcery.)",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Fleshwrither:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{B}{B}"
+                            }
+                        },
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        {
+                                            "type": "ManaValueEqualsDynamic",
+                                            "amount": {
+                                                "type": "EntityProperty",
+                                                "entity": "SacrificedAsCost",
+                                                "numericProperty": "ManaValue"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a creature card with mana value equal to the sacrificed creature's mana value to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "descriptionOverride": "Transfigure {1}{B}{B} — Sacrifice Fleshwrither to search for a creature card with the same mana value and put it onto the battlefield."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "84",
+        "rarity": "UNCOMMON",
+        "artist": "Dave Allsop",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/08e1a646-6925-4a53-a99c-8951af016a7a.jpg?1783943112",
+        "rulings": [
+            {
+                "date": "2007-05-01",
+                "text": "Transfigure is similar to Transmute, though it can be activated only if the permanent with Transfigure is on the battlefield, and it can fetch only a creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Fomori Nomad
 {
     "name": "Fomori Nomad",
@@ -290,6 +469,201 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Graven Cairns
+{
+    "name": "Graven Cairns",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{B/R}, {T}: Add {B}{B}, {B}{R}, or {R}{R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Graven Cairns:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Graven Cairns:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{B/R}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Graven Cairns:3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{B/R}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "BLACK"
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Graven Cairns:4",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{B/R}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "175",
+        "rarity": "RARE",
+        "artist": "Anthony S. Waters",
+        "flavorText": "Shamans of Kar-Sengir claim that their sun sets because it can no longer bear the gaze of those pain-carved cliffs.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/1/81e7d329-ef6a-45f3-82b6-37a3606c00bc.jpg?1783943089",
+        "rulings": [
+            {
+                "date": "2007-05-01",
+                "text": "\"{B/R}, {T}\" is the same as saying \"{B}, {T}\" or \"{R}, {T}\"."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
+// Grinning Ignus
+{
+    "name": "Grinning Ignus",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Elemental",
+    "oracleText": "{R}, Return this creature to its owner's hand: Add {C}{C}{R}. Activate only as a sorcery.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Grinning Ignus:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{R}"
+                            }
+                        },
+                        "CostReturnSelfToHand"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddColorlessMana",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isManaAbility": true,
+                "descriptionOverride": "{R}, Return this creature to its owner's hand: Add {C}{C}{R}. Activate only as a sorcery."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "116",
+        "artist": "James Kei",
+        "flavorText": "\"Take care what you offer the ignus. Food, perhaps. Coins. But nothing flammable!\"\n—Stovic, village eccentric",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/31716a43-2522-46ff-a9a4-b6952cd41f11.jpg?1783943102",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Although Grinning Ignus's ability has a timing restriction, it's still a mana ability. It doesn't use the stack and it can't be responded to."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "If you cast Grinning Ignus during your main phase, it will enter the battlefield and you'll receive priority. If no abilities trigger because of this, you can activate its ability immediately, before any other player has a chance to remove it from the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -375,6 +749,80 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Pact of Negation
+{
+    "name": "Pact of Negation",
+    "manaCost": "{0}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target spell.\nAt the beginning of your next upkeep, pay {3}{U}{U}. If you don't, you lose the game.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                "Counter",
+                {
+                    "type": "CreateDelayedTrigger",
+                    "step": "UPKEEP",
+                    "effect": {
+                        "type": "PayOrSuffer",
+                        "cost": {
+                            "type": "PayAtom",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{U}{U}"
+                            }
+                        },
+                        "suffer": "LoseGame",
+                        "consequenceDescription": "lose the game"
+                    },
+                    "timing": "NextTurn",
+                    "fireOnPlayer": {
+                        "type": "PlayerRef",
+                        "player": "You"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "42",
+        "rarity": "RARE",
+        "artist": "Jason Chan",
+        "flavorText": "Those who expect betrayal at every turn are seldom disappointed.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/c/cca467a2-a2b3-4bdf-9d60-62979f675347.jpg?1783943120",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "If Pact of Negation is countered or otherwise doesn't resolve (perhaps because its target became illegal), the delayed triggered ability that threatens you with a game loss won't trigger at the beginning of your next upkeep."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "If Pact of Negation resolves with a legal target but fails to counter that spell (most likely because that spell can't be countered), the delayed triggered ability will still trigger at the beginning of your next upkeep and you will have to pay. Or else."
+            },
+            {
+                "date": "2013-06-07",
+                "text": "Although originally printed with a characteristic-defining ability that defined its color, this card now has a color indicator. This color indicator can't be affected by text-changing effects (such as the one created by Crystal Spray), although color-changing effects can still overwrite it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ],
+    "colorIndicator": [
+        "BLUE"
     ]
 }
 

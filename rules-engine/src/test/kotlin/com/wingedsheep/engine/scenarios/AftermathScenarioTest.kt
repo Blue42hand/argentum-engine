@@ -62,11 +62,23 @@ class AftermathScenarioTest : ScenarioTestBase() {
         }
     }
 
+    private val graveyardTaxer = card("Aftermath Graveyard Taxer") {
+        typeLine = "Artifact"
+        staticAbility {
+            ability = com.wingedsheep.sdk.scripting.ModifySpellCost(
+                target = com.wingedsheep.sdk.scripting.SpellCostTarget.OpponentsCastFromZones(
+                    setOf(com.wingedsheep.sdk.core.Zone.GRAVEYARD)),
+                modification = com.wingedsheep.sdk.scripting.CostModification.IncreaseGeneric(2)
+            )
+        }
+    }
+
     private val rise = 0
     private val fall = 1
 
     init {
         cardRegistry.register(riseFall)
+        cardRegistry.register(graveyardTaxer)
 
         fun boardWithCardIn(zone: String): TestGame {
             val builder = scenario()
@@ -124,6 +136,26 @@ class AftermathScenarioTest : ScenarioTestBase() {
                     game.state.getHand(game.player1Id).contains(game.splitCardId()) shouldBe true
                 }
             }
+        }
+
+        test("free aftermath quote and payment retain graveyard-only tax") {
+            val game = scenario().withPlayers("Caster", "Opponent")
+                .withCardInGraveyard(1, riseFall.name)
+                .withCardOnBattlefield(2, graveyardTaxer.name)
+                .withCardOnBattlefield(2, "Hill Giant")
+                .withLandsOnBattlefield(1, "Mountain", 2)
+                .withCardInLibrary(1, "Mountain").withCardInLibrary(2, "Mountain")
+                .withActivePlayer(1).inPhase(Phase.PRECOMBAT_MAIN, Step.PRECOMBAT_MAIN).build()
+            game.state = game.state.updateEntity(game.splitCardId()) {
+                it.with(com.wingedsheep.engine.state.components.identity.PlayWithoutPayingCostComponent(game.player1Id))
+            }
+            val offer = game.getLegalActions(1).single { it.description == "Cast Test Fall (Aftermath)" }
+            com.wingedsheep.sdk.core.ManaCost.parse(offer.manaCostString!!) shouldBe
+                com.wingedsheep.sdk.core.ManaCost.parse("{2}")
+            game.castFall().error.shouldBeNull()
+            game.findAllPermanents("Mountain").count {
+                game.state.getEntity(it)!!.has<TappedComponent>()
+            } shouldBe 2
         }
 
         context("CR 702.127a — the aftermath half may be cast from your graveyard") {

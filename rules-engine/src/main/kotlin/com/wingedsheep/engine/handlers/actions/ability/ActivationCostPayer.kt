@@ -40,6 +40,7 @@ import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
+import com.wingedsheep.sdk.scripting.costs.PermanentCostAction
 
 /**
  * Last-known information an activation captures while paying its costs (CR 113.7a / 608.2h), for
@@ -229,13 +230,14 @@ internal class ActivationCostPayer(
             discardChoices = action.costPayment?.discardedCards ?: emptyList(),
             putOnLibraryChoices = action.costPayment?.cardsPutOnLibrary ?: emptyList(),
             exileChoices = exileChoices,
-            variablePermanentChoices = action.costPayment?.variableCostPermanents ?: emptyList(),
+            variablePermanentChoices = action.costPayment?.variableCostPermanents,
             tapChoices = firstTapSlice,
             bounceChoices = action.costPayment?.bouncedPermanents ?: emptyList(),
             xValue = xValue,
             distributedCounterRemovals = action.costPayment?.distributedCounterRemovals ?: emptyList(),
             blightChoices = action.costPayment?.blightTargets ?: emptyList(),
-            granterId = activation.staticGranterId
+            granterId = activation.staticGranterId,
+            millCount = action.costPayment?.millCount
         )
 
         val snapshots = captureCostSnapshots(currentState, action, effectiveCost, firstTapSlice)
@@ -261,6 +263,12 @@ internal class ActivationCostPayer(
         } else {
             effectiveCost
         }
+
+        // Loyalty on the source before payment — a [+N] cost's placement can be modified
+        // (Innkeeper's Talent), so the counters-placed event reports what actually went on.
+        val loyaltyBeforeCost = currentState.getEntity(action.sourceId)
+            ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
+            ?.getCount(CounterType.LOYALTY) ?: 0
 
         // Pay the cost (using effective cost with text replacements applied)
         val costResult = costHandler.payAbilityCost(
@@ -312,19 +320,24 @@ internal class ActivationCostPayer(
             // A [+N] cost *puts* N loyalty counters on the planeswalker (CR 606.4), and the
             // activating player is the one putting them (CR 122.6). Emitting the ordinary
             // counters-placed event lets "whenever you put one or more loyalty counters on a
-            // planeswalker" (Inspired Tethermage) and any-kind counter triggers see it. It is a
-            // cost, not an effect, so counter-placement replacements (Doubling Season) don't
-            // apply — CostHandler already added exactly `change` counters.
-            val (marked, firstThisTurn, firstOfTypeThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(
-                currentState, action.sourceId, CounterType.LOYALTY, placerId = action.playerId
-            )
-            currentState = marked
-            events.add(
-                com.wingedsheep.engine.core.CountersAddedEvent(
-                    action.sourceId, CounterType.LOYALTY, abilityCost.change, activation.sourceName,
-                    firstThisTurn, firstOfTypeThisTurn = firstOfTypeThisTurn, placedBy = action.playerId
+            // planeswalker" (Inspired Tethermage) and any-kind counter triggers see it. CostHandler
+            // already ran the placement replacements over it (a cost, so Doubling Season's
+            // "if an effect would put" passed it by); report the count that actually went on.
+            val placed = (currentState.getEntity(action.sourceId)
+                ?.get<com.wingedsheep.engine.state.components.battlefield.CountersComponent>()
+                ?.getCount(CounterType.LOYALTY) ?: 0) - loyaltyBeforeCost
+            if (placed > 0) {
+                val (marked, firstThisTurn, firstOfTypeThisTurn) = com.wingedsheep.engine.handlers.effects.DamageUtils.recordCounterPlacement(
+                    currentState, action.sourceId, CounterType.LOYALTY, placerId = action.playerId
                 )
-            )
+                currentState = marked
+                events.add(
+                    com.wingedsheep.engine.core.CountersAddedEvent(
+                        action.sourceId, CounterType.LOYALTY, placed, activation.sourceName,
+                        firstThisTurn, firstOfTypeThisTurn = firstOfTypeThisTurn, placedBy = action.playerId
+                    )
+                )
+            }
         } else if (abilityCost is AbilityCost.Loyalty) {
             events.add(LoyaltyChangedEvent(action.sourceId, activation.sourceName, abilityCost.change))
         } else if (abilityCost == AbilityCost.LoyaltyX) {
@@ -505,6 +518,7 @@ internal class ActivationCostPayer(
                     action.playerId, sourceId = action.sourceId,
                 )
                 .let { if (sacrificeCost.excludeSelf) it.filter { id -> id != action.sourceId } else it }
+                .let { com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.sacrificeableForCost(state, it) }
                 .takeIf { it.size <= sacrificeCost.count && !sacrificeCost.distinctNames }
                 .orEmpty()
         } else {
@@ -514,9 +528,19 @@ internal class ActivationCostPayer(
         val sacrificeAllTargets = effectiveCost.extractSacrificeAllCost()
             ?.let { costHandler.sacrificeAllCandidates(state, it, action.playerId, action.sourceId) }
             .orEmpty()
-        val sacrificeTargetIds = chosenSacrifices + forcedSacrifices + sacrificeAllTargets +
-            (action.costPayment?.variableCostPermanents ?: emptyList())
-        val sacrificedSnapshots = captureEntitySnapshots(sacrificeTargetIds, state.projectedState, state)
+        // A variable-count cost's picks are sacrificed only when its action says so — an exile
+        // (Fabrication Foundry) or tap (Teamwork) cost moves nothing to the graveyard and must not
+        // read back as "sacrificed this way".
+        val variableSacrifices =
+            if (effectiveCost.extractVariablePermanentsCost()?.action == PermanentCostAction.SACRIFICE) {
+                action.costPayment?.variableCostPermanents ?: emptyList()
+            } else {
+                emptyList()
+            }
+        val sacrificeTargetIds = chosenSacrifices + forcedSacrifices + sacrificeAllTargets + variableSacrifices
+        // The state-aware capture also freezes token-ness and copiable values, so "a copy of the
+        // sacrificed permanent" can still be made after a sacrificed token ceased to exist.
+        val sacrificedSnapshots = captureEntitySnapshots(sacrificeTargetIds, state)
 
         // Mirror sacrifice snapshots for tapped-as-cost permanents — they may leave the
         // battlefield in response while the ability is on the stack.
@@ -550,8 +574,20 @@ internal class ActivationCostPayer(
         // `CardPredicate.AbilitySourceMatches` in PredicateEvaluator. Reading the *projected* type
         // line here also gets the animated-artifact / crewed-Vehicle source right.
         //
+        // A source exiled from the graveyard (scavenge) has no projection to read, so its power and
+        // toughness are recorded as it last existed there — a characteristic-defining P/T is
+        // evaluated now, before the exile that may change it (Young Deathclaws ruling 2024-03-08:
+        // "based on the card's power as it last existed in the graveyard").
         val lastKnownSourceSnapshot: EntitySnapshot? =
-            if (movesSource) captureLastKnown(state, action.sourceId) else null
+            if (movesSource) captureLastKnown(state, action.sourceId).let { snapshot ->
+                if (action.sourceId in state.getBattlefield()) snapshot
+                else snapshot.copy(
+                    power = snapshot.power
+                        ?: predicateEvaluator.amounts.offBattlefieldStat(state, action.sourceId, isPower = true),
+                    toughness = snapshot.toughness
+                        ?: predicateEvaluator.amounts.offBattlefieldStat(state, action.sourceId, isPower = false),
+                )
+            } else null
 
         // Snapshot the entity ids attached to the source before a self-exile / self-sacrifice cost
         // moves it off the battlefield (CR 113.7a). The host's live AttachmentsComponent is gone by

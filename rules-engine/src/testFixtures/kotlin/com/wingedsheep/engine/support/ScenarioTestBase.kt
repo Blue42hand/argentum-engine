@@ -314,14 +314,19 @@ abstract class ScenarioTestBase : FunSpec() {
          * [AttachedToComponent] and the host's [AttachmentsComponent] and registers the Aura's
          * static/replacement effects, so its "enchanted permanent ..." abilities apply immediately —
          * the deterministic alternative to casting + resolving the Aura. The attachment owner/
-         * controller is [playerNumber].
+         * controller is [playerNumber]; [isToken] makes the attachment a token.
          */
-        fun withCardAttachedTo(playerNumber: Int, auraName: String, hostName: String): ScenarioBuilder {
+        fun withCardAttachedTo(
+            playerNumber: Int,
+            auraName: String,
+            hostName: String,
+            isToken: Boolean = false,
+        ): ScenarioBuilder {
             val playerId = if (playerNumber == 1) player1Id!! else player2Id!!
             val hostId = findPermanentInBuilder(hostName)
                 ?: error("Host '$hostName' must already be on the battlefield before attaching '$auraName'")
 
-            withCardOnBattlefield(playerNumber, auraName)
+            withCardOnBattlefield(playerNumber, auraName, isToken = isToken)
             val auraId = findPermanentInBuilder(auraName)
                 ?: error("Failed to place aura '$auraName' on the battlefield")
 
@@ -374,6 +379,23 @@ abstract class ScenarioTestBase : FunSpec() {
             val playerId = if (playerNumber == 1) player1Id!! else player2Id!!
             val cardId = createCard(cardName, playerId)
             state = state.addToZone(ZoneKey(playerId, Zone.EXILE), cardId)
+            return this
+        }
+
+        /**
+         * Add a card a player owns to the ante (CR 407). Pair with [playingForAnte] — the ante
+         * only exists in a game played for ante.
+         */
+        fun withCardInAnte(playerNumber: Int, cardName: String): ScenarioBuilder {
+            val playerId = if (playerNumber == 1) player1Id!! else player2Id!!
+            val cardId = createCard(cardName, playerId)
+            state = state.addToZone(ZoneKey(playerId, Zone.ANTE), cardId)
+            return this
+        }
+
+        /** Mark the game as played for ante (CR 407), as the lobby option does. */
+        fun playingForAnte(): ScenarioBuilder {
+            state = state.copy(playingForAnte = true)
             return this
         }
 
@@ -523,6 +545,7 @@ abstract class ScenarioTestBase : FunSpec() {
                 hasNonManaActivatedAbility = cardDef.hasNonManaActivatedAbility,
                 hasActivatedAbility = cardDef.hasActivatedAbility,
                 hasCycling = cardDef.hasCycling,
+                hasKicker = cardDef.hasKicker,
                 originalSetCode = cardDef.setCode,
                 hasAdventure = cardDef.isAdventure,
                 isDoubleFaced = cardDef.isDoubleFaced,
@@ -1198,6 +1221,20 @@ abstract class ScenarioTestBase : FunSpec() {
             return state.getZone(playerId, Zone.SIDEBOARD).size
         }
 
+        /** Check if a card with the given name, owned by the player, is in the ante (CR 407). */
+        fun isInAnte(playerNumber: Int, cardName: String): Boolean {
+            val playerId = if (playerNumber == 1) player1Id else player2Id
+            return state.getZone(playerId, Zone.ANTE).any { entityId ->
+                state.getEntity(entityId)?.get<CardComponent>()?.name == cardName
+            }
+        }
+
+        /** Number of cards the player owns in the ante. */
+        fun anteSize(playerNumber: Int): Int {
+            val playerId = if (playerNumber == 1) player1Id else player2Id
+            return state.getZone(playerId, Zone.ANTE).size
+        }
+
         /**
          * Check if a card with the given name is in a player's exile zone.
          */
@@ -1391,6 +1428,9 @@ abstract class ScenarioTestBase : FunSpec() {
                 is YesNoDecision -> answerYesNo(false)
                 is ReorderLibraryDecision -> {
                     submitDecision(OrderedResponse(decision.id, decision.cards))
+                }
+                is OrderTriggersDecision -> {
+                    submitDecision(TriggerOrderResponse(decision.id, decision.triggers.indices.toList()))
                 }
                 is OrderObjectsDecision -> {
                     submitDecision(OrderedResponse(decision.id, decision.objects))

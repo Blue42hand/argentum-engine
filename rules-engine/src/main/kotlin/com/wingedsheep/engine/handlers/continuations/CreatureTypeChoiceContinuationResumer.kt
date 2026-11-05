@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.handlers.continuations
 
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.handlers.mergeOutputs
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
@@ -128,7 +129,7 @@ class CreatureTypeChoiceContinuationResumer(
     /**
      * Resume after player chose a generic option in a pipeline context.
      *
-     * Injects the chosen value into every EffectContinuation on the stack
+     * Injects the chosen value into every EffectProgram on the stack
      * (via chosenValues map) so any downstream pipeline effect — including
      * ones in outer composites that wrap the choice (e.g., a ChooseOption
      * nested inside a Effects.May inside an outer CompositeEffect) — can
@@ -170,7 +171,7 @@ class CreatureTypeChoiceContinuationResumer(
     /**
      * Resume after the player picked a creature type for a [com.wingedsheep.sdk.scripting.effects.NoteCreatureTypeEffect].
      * Appends the chosen type to the source's [NotedCreatureTypesComponent] (creating the
-     * component on demand) AND injects the chosen value into every `EffectContinuation` on the
+     * component on demand) AND injects the chosen value into every `EffectProgram` on the
      * stack via `chosenValues[storeAs]` — same pattern as [resumeChooseOptionPipeline] so a
      * downstream pipeline step (e.g., the delayed-trigger spawn that fires "when you next cast
      * a creature spell of that type this turn") reads it the same way it would read any
@@ -276,7 +277,7 @@ class CreatureTypeChoiceContinuationResumer(
      * Resume after a player chose a creature type for "each player chooses a creature type" effects.
      *
      * Records the chosen type, asks the next player if any remain,
-     * or injects the chosen types into the EffectContinuation below on the stack
+     * or injects the chosen types into the EffectProgram below on the stack
      * via storedStringLists[storeAs].
      */
     fun resumeEachPlayerChoosesCreatureType(
@@ -324,13 +325,14 @@ class CreatureTypeChoiceContinuationResumer(
             )
         }
 
-        // All players have chosen — inject chosen types into EffectContinuation below
+        // All players have chosen — inject chosen types into EffectProgram below
         val nextFrame = state.peekContinuation()
-        val newState = if (nextFrame is EffectContinuation) {
+        val newState = if (nextFrame is EffectProgram) {
             val (_, stateAfterPop) = state.popContinuation()
             stateAfterPop.pushContinuation(
-                nextFrame.copy(effectContext = nextFrame.effectContext.copy(
-                    pipeline = nextFrame.effectContext.pipeline.copy(storedStringLists = nextFrame.effectContext.pipeline.storedStringLists + (continuation.storeAs to updatedChosenTypes))
+                nextFrame.copy(effectContext = nextFrame.effectContext.mergeOutputs(
+                    com.wingedsheep.engine.handlers.PipelineOutputs(stringLists = mapOf(continuation.storeAs to updatedChosenTypes)),
+                    dedupSnapshots = true,
                 ))
             )
         } else {
@@ -341,10 +343,12 @@ class CreatureTypeChoiceContinuationResumer(
     }
 
     /**
-     * Copy [chosenValue] into `chosenValues[storeAs]` on every [EffectContinuation] frame, so a
+     * Copy [chosenValue] into `chosenValues[storeAs]` on every [EffectProgram] frame, so a
      * downstream pipeline step inside the same composite — or in an outer composite that wraps
      * the choice (a `ChooseOption` nested inside a `Effects.May` inside a `CompositeEffect`) —
-     * reads the same value the original chooser saw. Non-effect frames pass through unchanged.
+     * reads the same value the original chooser saw. Within a program the value goes into every
+     * open composite's entry as well, as it went into every per-composite frame before programs
+     * existed. Non-effect frames pass through unchanged.
      *
      * Pass [mirrorChosenCreatureType] = true to also write the value into the legacy
      * `chosenCreatureType` field, kept for compatibility with `SelectFromCollectionExecutor` and
@@ -356,15 +360,12 @@ class CreatureTypeChoiceContinuationResumer(
         chosenValue: String,
         mirrorChosenCreatureType: Boolean = false
     ): List<ContinuationFrame> = stack.map { frame ->
-        if (frame !is EffectContinuation) return@map frame
-        val newPipeline = frame.effectContext.pipeline.copy(
-            chosenValues = frame.effectContext.pipeline.chosenValues + (storeAs to chosenValue)
+        if (frame !is EffectProgram) return@map frame
+        val updated = frame.withOutputsEverywhere(
+            com.wingedsheep.engine.handlers.PipelineOutputs(chosenValues = mapOf(storeAs to chosenValue))
         )
-        val newContext = if (mirrorChosenCreatureType) {
-            frame.effectContext.copy(chosenCreatureType = chosenValue, pipeline = newPipeline)
-        } else {
-            frame.effectContext.copy(pipeline = newPipeline)
-        }
-        frame.copy(effectContext = newContext)
+        // The legacy field isn't pipeline storage; an entry takes it from the frame's context.
+        if (mirrorChosenCreatureType) updated.copy(effectContext = updated.effectContext.copy(chosenCreatureType = chosenValue))
+        else updated
     }
 }

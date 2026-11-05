@@ -80,7 +80,9 @@ sealed interface EffectTarget {
      * The permanent this aura/equipment is attached to, regardless of its type.
      * Use for auras that enchant non-creature permanents (e.g., Wellspring enchants
      * a land: "gain control of enchanted land"). Resolves via the source's
-     * attachment relationship, exactly like [EnchantedCreature]/[EquippedCreature].
+     * attachment relationship, exactly like [EnchantedCreature]/[EquippedCreature]. For an Aura
+     * with enchant player (a Curse) the host is that player, so entity reads that make sense for
+     * a player — `AttachmentCount` ("the number of Curses attached to that player") — work too.
      */
     @SerialName("EnchantedPermanent")
     @Serializable
@@ -308,7 +310,7 @@ sealed interface EffectTarget {
      * TARGETING SOURCE: "that spell or ability" in a becomes-the-target trigger — the object on the
      * stack that did the targeting, not the permanent it targeted (that one is [TriggeringEntity]).
      * Only meaningful inside a [com.wingedsheep.sdk.scripting.EventPattern.BecomesTargetEvent]
-     * trigger; the object sibling of [com.wingedsheep.sdk.scripting.references.Player.ControllerOfTargetingSource].
+     * trigger; the object sibling of [com.wingedsheep.sdk.scripting.references.Player.ControllerOfCause].
      *
      * Mirror-Shield Hoplite: "…becomes the target of a backup ability, copy that ability" is
      * `CopyTargetTriggeredAbility(TargetingSource)`.
@@ -317,6 +319,39 @@ sealed interface EffectTarget {
     @Serializable
     data object TargetingSource : SingleEntity {
         override val description: String = "that ability"
+    }
+
+    /**
+     * DAMAGE SOURCE: the object that dealt the damage of a deals-damage trigger — "it" in "whenever
+     * equipped creature deals combat damage to a player, you may sacrifice it" (Ogre-Head Helm).
+     * Only meaningful inside a [com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent]
+     * trigger, where [TriggeringEntity] is the damage's *recipient*.
+     *
+     * Unlike [EquippedCreature]/[EnchantedCreature], which re-read the attachment at resolution,
+     * this is fixed when the trigger fires, so it still names the creature that dealt the damage
+     * after the Equipment moved or left in response. Read live: once that creature has left the
+     * battlefield, an effect on it does nothing. Its controller ("that creature's controller")
+     * is [ControllerOfDamageSource], which keeps last-known information.
+     */
+    @SerialName("DamageSource")
+    @Serializable
+    data object DamageSource : SingleEntity {
+        override val description: String = "that creature"
+    }
+
+    /**
+     * DAMAGE RECIPIENT: the permanent that was dealt the damage of a deals-damage trigger — "that
+     * planeswalker" in "whenever a creature you control deals combat damage to a planeswalker,
+     * destroy that planeswalker" (Zagras, Thief of Heartbeats). The recipient counterpart of
+     * [DamageSource]: a deals-damage trigger with a source filter binds [TriggeringEntity] to the
+     * damage's *source*, so the damaged permanent needs its own name. On every other deals-damage
+     * trigger it is the same object as [TriggeringEntity]. Fixed when the trigger fires and read
+     * live, so a recipient that left the battlefield in response makes the effect a no-op.
+     */
+    @SerialName("DamageRecipient")
+    @Serializable
+    data object DamageRecipient : SingleEntity {
+        override val description: String = "that permanent"
     }
 
     /**
@@ -347,6 +382,26 @@ sealed interface EffectTarget {
     @Serializable
     data object AttachedToTriggeringPermanent : SingleEntity {
         override val description: String = "that permanent"
+    }
+
+    /**
+     * ATTACKED BY: "the player or planeswalker [attacker] is attacking" — the defender itself, not
+     * the defending player (Raid Bombardment, Hellrider: "deals 1 damage to the player or
+     * planeswalker that creature is attacking"). [attacker] is usually [TriggeringEntity] inside a
+     * `Triggers.a(...).attacks()` trigger.
+     *
+     * Read from the attacker's attack assignment, or — once it has left the battlefield — from the
+     * defender frozen in its last-known snapshot (the creature "was attacking before it left").
+     * A creature attacking a battle resolves to nothing: "player or planeswalker" is literal, and
+     * the payoff does nothing (Raid Bombardment's ruling).
+     *
+     * Distinct from `PlayerRef(Player.DefendingPlayer)`, which is always a *player* (the attacked
+     * planeswalker's controller); this names the planeswalker itself when one is attacked.
+     */
+    @SerialName("AttackedBy")
+    @Serializable
+    data class AttackedBy(val attacker: SingleEntity = TriggeringEntity) : SingleEntity {
+        override val description: String = "the player or planeswalker ${attacker.description} is attacking"
     }
 
     /**
@@ -532,13 +587,17 @@ sealed interface EffectTarget {
     }
 
     /**
-     * CONTROLLER OF DAMAGE SOURCE: the controller of the source dealing the damage
-     * currently being processed. Only meaningful inside a damage replacement
-     * (e.g. [com.wingedsheep.sdk.scripting.RedirectDamage]); resolved by the damage
-     * pipeline from the source of the in-flight damage.
+     * CONTROLLER OF DAMAGE SOURCE: the controller of the source dealing the damage.
+     * Inside a damage replacement (e.g. [com.wingedsheep.sdk.scripting.RedirectDamage]) it is
+     * resolved by the damage pipeline from the source of the in-flight damage — Harsh Judgment
+     * ("If an instant or sorcery spell of the chosen color would deal damage to you, it deals
+     * that damage to its controller instead").
      *
-     * Used by Harsh Judgment ("If an instant or sorcery spell of the chosen color
-     * would deal damage to you, it deals that damage to its controller instead").
+     * Inside a [com.wingedsheep.sdk.scripting.EventPattern.DealsDamageEvent] trigger it is the
+     * controller of [DamageSource]: its current controller while it is still on the battlefield,
+     * else its controller when it dealt the damage (CR 608.2h) — so a token that died to the same
+     * combat damage still names a player. Backfire: "Whenever enchanted creature deals damage to
+     * you, this Aura deals that much damage to that creature's controller."
      */
     @SerialName("ControllerOfDamageSource")
     @Serializable

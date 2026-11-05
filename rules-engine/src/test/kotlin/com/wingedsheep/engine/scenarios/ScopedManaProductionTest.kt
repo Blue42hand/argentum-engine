@@ -69,8 +69,8 @@ class ScopedManaProductionTest : FunSpec({
         val p = d.activePlayer!!
         d.replaceState(d.state.pushContinuation(ManaSpendingObligationsContinuation(p,
             EffectContext(sourceId = null, controllerId = p), "scope")))
-        if (pauseAfter) d.replaceState(d.state.pushContinuation(EffectContinuation(
-            listOf(Effects.May(Effects.GainLife(1))), EffectContext(sourceId = null, controllerId = p))))
+        if (pauseAfter) d.replaceState(d.state.pushContinuation(EffectProgram.queued(
+            listOf(Effects.May(Effects.GainLife(1))), EffectContext(sourceId = null, controllerId = p), origin = com.wingedsheep.engine.core.ProgramOrigin.BuiltBy("Test", null))))
     }
     fun pool(d: GameTestDriver) = d.state.getEntity(d.activePlayer!!)!!.get<ManaPoolComponent>()!!
     fun activate(d: GameTestDriver, card: CardDefinition): ExecutionResult {

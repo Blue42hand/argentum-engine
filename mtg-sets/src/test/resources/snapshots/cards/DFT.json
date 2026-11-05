@@ -133,7 +133,7 @@
                 "id": "Adrenaline Jockey:2",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
-                    "requireExhaust": true
+                    "onceOnlyKind": "EXHAUST"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -354,7 +354,7 @@
                 "id": "Afterburner Expert:2",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
-                    "requireExhaust": true
+                    "onceOnlyKind": "EXHAUST"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -1534,7 +1534,7 @@
                     "type": "Fixed",
                     "amount": 2
                 },
-                "exhaustOnly": true
+                "onceOnlyKind": "EXHAUST"
             }
         ]
     },
@@ -3436,7 +3436,11 @@
                             },
                             "destination": "Battlefield",
                             "controllerOverride": "Controller",
-                            "addCounterType": "FINALITY"
+                            "entryCounters": [
+                                {
+                                    "counterType": "FINALITY"
+                                }
+                            ]
                         },
                         {
                             "type": "GrantKeyword",
@@ -7717,7 +7721,8 @@
                                     "zone": "Library",
                                     "filter": "artifact"
                                 },
-                                "storeAs": "gathered0"
+                                "storeAs": "gathered0",
+                                "search": true
                             },
                             {
                                 "type": "SelectFromCollection",
@@ -8428,7 +8433,7 @@
                             "imageUri": "https://cards.scryfall.io/normal/front/7/0/7072dea6-0d99-47fa-a83d-c8607e6a4bbd.jpg?1783907679"
                         },
                         {
-                            "type": "MarkMustAttackThisTurn",
+                            "type": "MarkMustAttack",
                             "target": {
                                 "type": "PipelineTarget",
                                 "collectionName": "createdTokens"
@@ -10441,7 +10446,8 @@
                     },
                     "then": {
                         "type": "CopyTargetSpell",
-                        "target": "TriggeringEntity"
+                        "target": "TriggeringEntity",
+                        "mayChooseNewTargets": false
                     }
                 },
                 "triggerRestriction": {
@@ -10453,7 +10459,7 @@
                         "amount": 4
                     }
                 },
-                "descriptionOverride": "Max speed — you casts a artifact spell, you may pay {1}. If you do, copy target spell."
+                "descriptionOverride": "Max speed — you casts a artifact spell, you may pay {1}. If you do, copy that spell."
             }
         ]
     },
@@ -12122,7 +12128,7 @@
                     "trigger": {
                         "event": {
                             "type": "AbilityActivatedEvent",
-                            "requireExhaust": true,
+                            "onceOnlyKind": "EXHAUST",
                             "excludeManaAbilities": true
                         },
                         "binding": "ANY"
@@ -13063,7 +13069,7 @@
                 "id": "Rangers' Aetherhive:1",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
-                    "requireExhaust": true
+                    "onceOnlyKind": "EXHAUST"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -13121,7 +13127,7 @@
                 "id": "Rangers' Refueler:1",
                 "trigger": {
                     "type": "AbilityActivatedEvent",
-                    "requireExhaust": true
+                    "onceOnlyKind": "EXHAUST"
                 },
                 "binding": "ANY",
                 "effect": {
@@ -13519,7 +13525,8 @@
                                 "zone": "Library",
                                 "filter": "artifact"
                             },
-                            "storeAs": "gathered0"
+                            "storeAs": "gathered0",
+                            "search": true
                         },
                         {
                             "type": "FilterCollection",
@@ -14991,7 +14998,7 @@
                 "powerBonus": 2,
                 "toughnessBonus": 2,
                 "filter": {
-                    "baseFilter": "creature|artifact ctrl:you",
+                    "baseFilter": "artifact creature ctrl:you",
                     "excludeSelf": true
                 }
             }

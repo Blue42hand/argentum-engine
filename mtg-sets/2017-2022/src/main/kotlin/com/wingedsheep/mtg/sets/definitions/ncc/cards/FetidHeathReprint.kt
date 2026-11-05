@@ -3,9 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ncc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/**
- * Fetid Heath reprint in NCC. Canonical CardDefinition lives in its earliest set.
- */
 val FetidHeathReprint = Printing(
     oracleId = "42bf259d-4bb9-49c3-b4ec-223dca62f4d6",
     name = "Fetid Heath",

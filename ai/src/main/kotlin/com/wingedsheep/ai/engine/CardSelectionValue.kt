@@ -61,8 +61,10 @@ internal class CardSelectionValue private constructor(
     private val librarySize: Int,
     private val libraryLands: Int,
     private val libraryLandsByColor: Map<Color, Int>,
-    /** Names of legendary permanents this player controls. */
-    private val legendsInPlay: Set<String>,
+    /** Legendary permanents this player controls, by name. */
+    private val legendsInPlay: Map<String, List<EntityId>>,
+    /** What each turn of waiting to cast a spell costs it — see [of]'s `denial`. */
+    private val delayPerTurn: Double,
 ) {
 
     /** Higher = more valuable to keep. */
@@ -121,7 +123,7 @@ internal class CardSelectionValue private constructor(
         // A second copy of a legend is a dead card while the first is (or will be) out.
         if (card.typeLine.isLegendary && isRedundantLegend(cardId, card.name)) score -= LEGEND_DUPLICATE_PENALTY
 
-        return score - turns * DELAY_PER_TURN
+        return score - turns * delayPerTurn
     }
 
     private fun landScore(cardId: EntityId, card: CardComponent): Double {
@@ -162,7 +164,8 @@ internal class CardSelectionValue private constructor(
         state.projectedState.getBattlefieldControlledBy(playerId).any { state.projectedState.isCreature(it) }
 
     private fun isRedundantLegend(cardId: EntityId, name: String): Boolean {
-        if (name in legendsInPlay) return true
+        // The scored card itself on the battlefield (a top-or-bottom choice) is no duplicate of itself.
+        if (legendsInPlay[name].orEmpty().any { it != cardId }) return true
         // Among copies in hand, the first one keeps its value; the later ones are the spares.
         val copies = handSpells.filter { it.second.name == name }.map { it.first }
         val index = copies.indexOf(cardId)
@@ -173,6 +176,13 @@ internal class CardSelectionValue private constructor(
         /** The wait, in turns, charged for a card nothing in the library can unlock. */
         private const val NEVER_TURNS = 10.0
         private const val DELAY_PER_TURN = 0.7
+
+        /**
+         * The wait's price when the card is being taken *away* from its holder: a card the
+         * opponent casts in two turns still lands on us, so delay only halves its threat, and a
+         * card no source can ever pay for ([NEVER_TURNS]) still prices near nothing.
+         */
+        private const val DENIAL_DELAY_PER_TURN = 0.35
         private const val SPELL_BASE = 3.0
         private const val MANA_VALUE_WEIGHT = 0.3
         private const val REMOVAL_BONUS = 2.0
@@ -208,12 +218,18 @@ internal class CardSelectionValue private constructor(
          * [drawnLater]: the priced cards stay in the library for a later draw (scry, surveil,
          * library reorder) rather than reaching the hand now, so this turn's land drop is no
          * reason to keep a land.
+         *
+         * [denial]: the score is read for a choice that takes the card away from [playerId] — an
+         * opponent's discard or exile chosen by someone else — so a spell's wait costs it
+         * [DENIAL_DELAY_PER_TURN] instead of [DELAY_PER_TURN]. The holder's tempo is not the
+         * chooser's concern; what the card does once it is cast is.
          */
         fun of(
             state: GameState,
             playerId: EntityId,
             intents: IntentCatalog,
             drawnLater: Boolean = false,
+            denial: Boolean = false,
         ): CardSelectionValue {
             val projected = state.projectedState
             val myPermanents = projected.getBattlefieldControlledBy(playerId)
@@ -241,8 +257,8 @@ internal class CardSelectionValue private constructor(
             }
 
             val legends = myPermanents.mapNotNull { id ->
-                state.getEntity(id)?.get<CardComponent>()?.takeIf { it.typeLine.isLegendary }?.name
-            }.toSet()
+                state.getEntity(id)?.get<CardComponent>()?.takeIf { it.typeLine.isLegendary }?.let { it.name to id }
+            }.groupBy({ it.first }, { it.second })
 
             return CardSelectionValue(
                 state = state,
@@ -258,6 +274,7 @@ internal class CardSelectionValue private constructor(
                 libraryLands = libraryLands.size,
                 libraryLandsByColor = byColor,
                 legendsInPlay = legends,
+                delayPerTurn = if (denial) DENIAL_DELAY_PER_TURN else DELAY_PER_TURN,
             )
         }
     }

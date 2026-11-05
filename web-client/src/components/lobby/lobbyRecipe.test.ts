@@ -238,6 +238,13 @@ describe('validateRecipe', () => {
     expect(out?.recipe.settings.boosterCount).toBe(6)
   })
 
+  it('keeps a boolean play-for-ante setting and drops anything else', () => {
+    expect(validateRecipe({ ...base, settings: { ...base.settings, playingForAnte: true } }, ctx)
+      ?.recipe.settings.playingForAnte).toBe(true)
+    expect(validateRecipe({ ...base, settings: { ...base.settings, playingForAnte: 'yes' } }, ctx)
+      ?.recipe.settings.playingForAnte).toBeUndefined()
+  })
+
   it('falls back to no deck when the stored reference is unusable', () => {
     expect(validateRecipe({ ...base, deck: { kind: 'SAVED', name: '' } }, ctx)?.recipe.deck)
       .toEqual({ kind: 'NONE' })

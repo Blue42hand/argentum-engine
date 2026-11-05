@@ -9,7 +9,6 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifyStats
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -18,6 +17,9 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * {1}{U}{B}
  * Legendary Creature — Faerie Noble
  * 2/3
+ * Flying, deathtouch
+ * Other Faeries you control get +1/+1.
+ * Whenever another Faerie you control dies, you draw a card and you lose 1 life.
  */
 val TegwyllDukeOfSplendor = card("Tegwyll, Duke of Splendor") {
     manaCost = "{1}{U}{B}"

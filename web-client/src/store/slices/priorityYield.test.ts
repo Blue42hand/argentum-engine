@@ -8,6 +8,7 @@ vi.stubGlobal('window', { addEventListener: () => {}, removeEventListener: () =>
 const { useGameStore } = await import('../gameStore')
 const { createGameplayHandlers } = await import('./handlers/gameplayHandlers')
 const { setWebSocket } = await import('./shared')
+const { DEFAULT_PREFERENCES, usePreferences } = await import('../preferencesStore')
 const { entityId, Phase, Step } = await import('@/types')
 const me = entityId('me')
 const send = vi.fn()
@@ -24,6 +25,7 @@ function receive(priorityYield: PriorityYieldMode | null, delta = false, isGameO
 }
 
 beforeEach(() => {
+  usePreferences.getState().replace(DEFAULT_PREFERENCES)
   send.mockClear()
   setWebSocket({ send, onStateVersionReceived: vi.fn(), requestResync: vi.fn() } as unknown as GameWebSocket)
   useGameStore.setState({ sessionId: 'game', playerId: me, priorityYield: null, gameOverState: null, priorityMode: 'forcedOnly', fullControl: false })
@@ -111,5 +113,24 @@ describe('temporary priority yield', () => {
       useGameStore.getState().cyclePriorityMode()
       expect(send).toHaveBeenLastCalledWith({ type: 'setPriorityMode', mode })
     }
+  })
+})
+
+describe('game-start priority preferences', () => {
+  it.each(['forcedOnly', 'auto'] as const)('sends the selected %s mode, including Auto against the fork default', (priorityMode) => {
+    usePreferences.getState().replace({
+      ...DEFAULT_PREFERENCES,
+      gameplay: { ...DEFAULT_PREFERENCES.gameplay, priorityMode },
+    })
+    handlers.onGameStarted({
+      type: 'gameStarted',
+      players: [
+        { playerId: me, name: 'You', seatIndex: 0, isYou: true, isAi: false },
+        { playerId: 'opponent', name: 'Opponent', seatIndex: 1, isYou: false, isAi: false },
+      ],
+    })
+    expect(send).toHaveBeenCalledWith({ type: 'setPriorityMode', mode: priorityMode })
+    expect(useGameStore.getState().priorityMode).toBe(priorityMode)
+    expect(useGameStore.getState().fullControl).toBe(false)
   })
 })

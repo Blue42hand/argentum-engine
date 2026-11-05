@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.mechanics.combat.rules
 
+import com.wingedsheep.engine.mechanics.targeting.TypeQualityProtection
 import com.wingedsheep.engine.state.components.battlefield.chosenCreatureOf
 import com.wingedsheep.engine.mechanics.targeting.SourceKindProtection
 import com.wingedsheep.engine.mechanics.targeting.ColorProtection
@@ -22,6 +23,7 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.Scope
 import com.wingedsheep.sdk.scripting.predicates.CardPredicate
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
+import com.wingedsheep.engine.state.components.identity.faceUpCardDefinition
 
 /**
  * Unblockable: Cannot be blocked at all (CANT_BE_BLOCKED flag).
@@ -96,8 +98,8 @@ class FearRule : BlockEvasionRule {
     override fun check(ctx: BlockCheckContext): String? {
         if (ctx.projected.hasKeyword(ctx.attackerId, Keyword.FEAR)) {
             val blockerCard = ctx.state.getEntity(ctx.blockerId)?.get<CardComponent>() ?: return null
-            val isArtifactCreature = blockerCard.typeLine.isArtifactCreature
-            val isBlackCreature = Color.BLACK in blockerCard.colors
+            val isArtifactCreature = ctx.projected.hasType(ctx.blockerId, "ARTIFACT")
+            val isBlackCreature = Color.BLACK in ctx.projected.colorSetOf(ctx.blockerId)
             if (!isArtifactCreature && !isBlackCreature) {
                 val attackerName = ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature"
                 return "${blockerCard.name} cannot block $attackerName (fear)"
@@ -132,9 +134,13 @@ class IntimidateRule : BlockEvasionRule {
 }
 
 /**
- * Landwalk: Cannot be blocked if defending player controls land of that type.
+ * Landwalk (CR 702.14): cannot be blocked if the defending player controls a land of that type —
+ * unless a [com.wingedsheep.sdk.scripting.SuppressLandwalkForGroup] lets the attacker be blocked
+ * as though it didn't have that landwalk ([LandwalkSuppression]).
  */
-class LandwalkRule : BlockEvasionRule {
+class LandwalkRule(
+    private val predicateEvaluator: PredicateEvaluator
+) : BlockEvasionRule {
     private val landwalkToSubtype = mapOf(
         Keyword.FORESTWALK to Subtype.FOREST,
         Keyword.SWAMPWALK to Subtype.SWAMP,
@@ -145,23 +151,42 @@ class LandwalkRule : BlockEvasionRule {
     )
 
     override fun check(ctx: BlockCheckContext): String? {
-        val attackerName = ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature"
+        // The suppression scan runs only once a landwalk would actually apply.
+        val suppressed by lazy(LazyThreadSafetyMode.NONE) {
+            LandwalkSuppression.suppressedLandwalks(ctx.state, ctx.attackerId, ctx.cardRegistry, predicateEvaluator)
+        }
+        val attackerName = { ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature" }
         for ((landwalkKeyword, landSubtype) in landwalkToSubtype) {
-            if (ctx.projected.hasKeyword(ctx.attackerId, landwalkKeyword)) {
-                if (playerControlsLandWithSubtype(ctx, landSubtype)) {
-                    return "$attackerName has ${landwalkKeyword.displayName} and cannot be blocked"
-                }
+            if (ctx.projected.hasKeyword(ctx.attackerId, landwalkKeyword) &&
+                playerControlsLandWithSubtype(ctx, landSubtype) &&
+                landwalkKeyword !in suppressed
+            ) {
+                return "${attackerName()} has ${landwalkKeyword.displayName} and cannot be blocked"
             }
         }
         // Nonbasic landwalk (CR 702.14 family): unblockable while the defending player controls any
         // land that isn't a basic land.
         if (ctx.projected.hasKeyword(ctx.attackerId, Keyword.NONBASIC_LANDWALK) &&
-            playerControlsNonbasicLand(ctx)
+            playerControlsNonbasicLand(ctx) &&
+            Keyword.NONBASIC_LANDWALK !in suppressed
         ) {
-            return "$attackerName has ${Keyword.NONBASIC_LANDWALK.displayName} and cannot be blocked"
+            return "${attackerName()} has ${Keyword.NONBASIC_LANDWALK.displayName} and cannot be blocked"
+        }
+        // Legendary landwalk (CR 702.14c): unblockable while the defending player controls a
+        // legendary land. Supertypes are read off the projection so a granted "legendary" counts.
+        if (ctx.projected.hasKeyword(ctx.attackerId, Keyword.LEGENDARY_LANDWALK) &&
+            playerControlsLegendaryLand(ctx) &&
+            Keyword.LEGENDARY_LANDWALK !in suppressed
+        ) {
+            return "${attackerName()} has ${Keyword.LEGENDARY_LANDWALK.displayName} and cannot be blocked"
         }
         return null
     }
+
+    private fun playerControlsLegendaryLand(ctx: BlockCheckContext): Boolean =
+        ctx.projected.getBattlefieldControlledBy(ctx.blockingPlayer).any { entityId ->
+            ctx.projected.hasType(entityId, "LAND") && ctx.projected.isLegendary(entityId)
+        }
 
     private fun playerControlsNonbasicLand(ctx: BlockCheckContext): Boolean {
         return ctx.state.getBattlefield().any { entityId ->
@@ -320,7 +345,7 @@ class CantBeBlockedExceptByColorRule : BlockEvasionRule {
 
         val blockerCard = ctx.state.getEntity(ctx.blockerId)?.get<CardComponent>() ?: return null
         val requiredColor = Color.valueOf(colorRestriction.color)
-        if (!blockerCard.colors.contains(requiredColor)) {
+        if (requiredColor !in ctx.projected.colorSetOf(ctx.blockerId)) {
             val attackerName = ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature"
             return "${blockerCard.name} cannot block $attackerName (can only be blocked by ${requiredColor.displayName.lowercase()} creatures)"
         }
@@ -344,7 +369,7 @@ class CantBeBlockedByColorRule : BlockEvasionRule {
 
         val blockerCard = ctx.state.getEntity(ctx.blockerId)?.get<CardComponent>() ?: return null
         val forbiddenColor = Color.valueOf(colorRestriction.color)
-        if (blockerCard.colors.contains(forbiddenColor)) {
+        if (forbiddenColor in ctx.projected.colorSetOf(ctx.blockerId)) {
             val attackerName = ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature"
             return "${blockerCard.name} cannot block $attackerName (can't be blocked by ${forbiddenColor.displayName.lowercase()} creatures)"
         }
@@ -523,37 +548,16 @@ class ProtectionFromSourceKindRule : BlockEvasionRule {
 }
 
 /**
- * Protection from subtype: Attacker can't be blocked by creatures of a subtype it has protection from.
+ * Protection from a subtype or supertype, optionally narrowed to a card type: the attacker can't
+ * be blocked by creatures of that quality ("protection from Goblins", "from legendary creatures",
+ * "from God creatures").
  */
-class ProtectionFromSubtypeRule : BlockEvasionRule {
+class ProtectionFromTypeQualityRule : BlockEvasionRule {
     override fun check(ctx: BlockCheckContext): String? {
+        val quality = TypeQualityProtection.matchedQuality(ctx.projected, ctx.attackerId, ctx.blockerId) ?: return null
         val attackerName = ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature"
         val blockerName = ctx.state.getEntity(ctx.blockerId)?.get<CardComponent>()?.name ?: "Creature"
-
-        for (subtype in ctx.projected.getSubtypes(ctx.blockerId)) {
-            if (ctx.projected.hasKeyword(ctx.attackerId, "PROTECTION_FROM_SUBTYPE_${subtype.uppercase()}")) {
-                return "$attackerName has protection from ${subtype.lowercase()}s and can't be blocked by $blockerName"
-            }
-        }
-        return null
-    }
-}
-
-/**
- * Protection from supertype: Attacker can't be blocked by creatures of a supertype it has
- * protection from (e.g. "protection from legendary creatures").
- */
-class ProtectionFromSupertypeRule : BlockEvasionRule {
-    override fun check(ctx: BlockCheckContext): String? {
-        val attackerName = ctx.state.getEntity(ctx.attackerId)?.get<CardComponent>()?.name ?: "Creature"
-        val blockerName = ctx.state.getEntity(ctx.blockerId)?.get<CardComponent>()?.name ?: "Creature"
-
-        for (supertype in ctx.projected.getSupertypes(ctx.blockerId)) {
-            if (ctx.projected.hasKeyword(ctx.attackerId, "PROTECTION_FROM_SUPERTYPE_${supertype.uppercase()}")) {
-                return "$attackerName has protection from ${supertype.lowercase()} and can't be blocked by $blockerName"
-            }
-        }
-        return null
+        return "$attackerName has protection from $quality and can't be blocked by $blockerName"
     }
 }
 
@@ -682,8 +686,7 @@ class CantBeBlockedWhilePropertyAtMostRule : BlockEvasionRule {
 
         // Scan the attacking player's battlefield for permanents with this ability
         for (entityId in ctx.projected.getBattlefieldControlledBy(attackerController)) {
-            val card = ctx.state.getEntity(entityId)?.get<CardComponent>() ?: continue
-            val cardDef = ctx.cardRegistry.getCard(card.cardDefinitionId) ?: continue
+            val cardDef = ctx.state.getEntity(entityId)?.faceUpCardDefinition(ctx.cardRegistry) ?: continue
             for (ability in cardDef.staticAbilities.filterIsInstance<CantBeBlockedWhilePropertyAtMost>()) {
                 if (ability.filter.scope is Scope.Self && entityId != ctx.attackerId) continue
                 val checks = ability.properties
@@ -758,7 +761,7 @@ fun defaultBlockEvasionRules(
     ShadowRule(),
     FearRule(),
     IntimidateRule(),
-    LandwalkRule(),
+    LandwalkRule(predicateEvaluator),
     CantBeBlockedByRule(predicateEvaluator),
     CantBlockSpecificAttackerRule(),
     CantBeBlockedExceptByColorRule(),
@@ -770,8 +773,7 @@ fun defaultBlockEvasionRules(
     CantBeBlockedWhilePropertyAtMostRule(),
     CantBeBlockedIfCastSpellTypeRule(predicateEvaluator),
     ProtectionFromColorRule(),
-    ProtectionFromSubtypeRule(),
-    ProtectionFromSupertypeRule(),
+    ProtectionFromTypeQualityRule(),
     ProtectionFromCardTypeRule(),
     ProtectionFromEachOpponentRule(),
     ProtectionFromSourceKindRule(),

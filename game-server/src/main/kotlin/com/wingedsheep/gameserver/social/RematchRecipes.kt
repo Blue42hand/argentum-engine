@@ -19,6 +19,8 @@ data class RematchRecipe(
     val setCode: String?,
     val seats: List<QuickGameLobbyPlayer>,
     val recordedAt: Long = System.currentTimeMillis(),
+    /** Whether the game was played for ante (CR 407). */
+    val playingForAnte: Boolean = false,
 ) {
     companion object {
         /** The recipe for a started [lobby], or null when it isn't a human 1v1 a rematch can replay. */
@@ -31,6 +33,7 @@ data class RematchRecipe(
                 momirBasic = lobby.momirBasic,
                 setCode = lobby.setCode,
                 seats = lobby.players.map { it.copy(ready = false) },
+                playingForAnte = lobby.playingForAnte,
             )
         }
     }

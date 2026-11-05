@@ -4867,7 +4867,7 @@
             {
                 "id": "Crawling Infestation:2",
                 "trigger": {
-                    "type": "CardsPutIntoYourGraveyardEvent",
+                    "type": "CardsPutIntoGraveyardEvent",
                     "filter": "creature"
                 },
                 "binding": "ANY",
@@ -8861,7 +8861,11 @@
                     "target": "TriggeringEntity",
                     "destination": "Exile",
                     "fromZone": "Graveyard",
-                    "addCounterType": "CROAK"
+                    "entryCounters": [
+                        {
+                            "counterType": "CROAK"
+                        }
+                    ]
                 }
             }
         ],
@@ -20948,8 +20952,8 @@
                             {
                                 "type": "StateNot",
                                 "predicate": {
-                                    "type": "WasCastFromZone",
-                                    "zone": "Hand"
+                                    "type": "WasCast",
+                                    "fromZone": "Hand"
                                 }
                             }
                         ]

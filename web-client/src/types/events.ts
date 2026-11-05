@@ -1,5 +1,6 @@
 import { EntityId } from './entities'
 import { DayNight } from './enums'
+import type { FlipLanding, FlipTable } from './messages'
 
 /**
  * Client-facing game events.
@@ -32,6 +33,7 @@ export type ClientEvent =
   | SpellCounteredEvent
   | AbilityTriggeredEvent
   | AbilityActivatedEvent
+  | AbilityResolvedEvent
   | AbilityAutoAnsweredEvent
   | PermanentTappedEvent
   | PermanentUntappedEvent
@@ -44,12 +46,17 @@ export type ClientEvent =
   | HandRevealedEvent
   | CardsRevealedEvent
   | TurnedFaceUpEvent
+  | MutatedEvent
   | TransformedEvent
   | DieRolledEvent
   | CoinFlippedEvent
+  | CardFlippedOntoBattlefieldEvent
   | TurnChangedEvent
   | GameRestartedEvent
+  | SubgameStartedEvent
+  | SubgameEndedEvent
   | ControlChangedEvent
+  | OwnershipChangedEvent
   | CardCycledEvent
   | LibraryShuffledEvent
   | AbilityFizzledEvent
@@ -285,6 +292,22 @@ export interface AbilityActivatedEvent {
   readonly description: string
 }
 
+/**
+ * A triggered or activated ability finished resolving (the ability-side `spellResolved`).
+ * `abilityId` is the stack object that just left; `abilityDescription` is empty for an activated
+ * ability. Delivered per update only — the server keeps it out of the persistent game log.
+ */
+export interface AbilityResolvedEvent {
+  readonly type: 'abilityResolved'
+  readonly sourceId: EntityId
+  readonly sourceName: string
+  readonly abilityDescription: string
+  readonly abilityId?: EntityId
+  readonly controllerId?: EntityId
+  readonly isYours?: boolean
+  readonly description: string
+}
+
 /** A "you may" may-question was auto-resolved from the viewer's persistent yield (backlog §C). */
 export interface AbilityAutoAnsweredEvent {
   readonly type: 'abilityAutoAnswered'
@@ -407,6 +430,28 @@ export interface TransformedEvent {
 }
 
 // ============================================================================
+// Dexterity flip (Chaos Orb)
+// ============================================================================
+
+/** A card was flipped onto the battlefield; carries the table so every client can replay it. */
+export interface CardFlippedOntoBattlefieldEvent {
+  readonly type: 'cardFlippedOntoBattlefield'
+  readonly playerId: EntityId
+  readonly sourceId: EntityId | null
+  readonly sourceName: string
+  readonly sourceImageUri: string | null
+  readonly table: FlipTable
+  readonly landing: FlipLanding
+  readonly turnedOver: boolean
+  /** Every permanent the landed card overlaps. */
+  readonly touched: readonly EntityId[]
+  /** The touched permanents the flip counts (destroyed, for Chaos Orb). */
+  readonly affected: readonly EntityId[]
+  readonly isYours: boolean | null
+  readonly description: string
+}
+
+// ============================================================================
 // Coin Flip Events
 // ============================================================================
 
@@ -427,6 +472,18 @@ export interface CoinFlippedEvent {
 // ============================================================================
 // Morph Events
 // ============================================================================
+
+/** A mutating creature spell merged with a creature — over (`onTop`) or under it. */
+export interface MutatedEvent {
+  readonly type: 'mutated'
+  readonly cardId: EntityId
+  readonly mutatingCardId: EntityId
+  readonly mutatingCardName: string
+  readonly targetName: string
+  readonly controllerId: EntityId
+  readonly onTop: boolean
+  readonly description: string
+}
 
 export interface TurnedFaceUpEvent {
   readonly type: 'turnedFaceUp'
@@ -455,6 +512,29 @@ export interface GameRestartedEvent {
   readonly description: string
 }
 
+/** A Magic subgame began (Shahrazad, CR 729); the state now shows it. */
+export interface SubgameStartedEvent {
+  readonly type: 'subgameStarted'
+  readonly startingPlayerId: EntityId
+  /** 1 for a subgame of the main game, 2 for one within it (CR 729.6). */
+  readonly depth: number
+  readonly sourceName?: string | null
+  readonly isYourTurn: boolean | null
+  readonly description: string
+}
+
+/** A Magic subgame ended (CR 729.5) and its main game resumed. */
+export interface SubgameEndedEvent {
+  readonly type: 'subgameEnded'
+  /** Empty for a draw. */
+  readonly winnerIds: readonly EntityId[]
+  readonly nonWinnerIds: readonly EntityId[]
+  readonly depth: number
+  readonly sourceName?: string | null
+  readonly youWon: boolean | null
+  readonly description: string
+}
+
 // ============================================================================
 // Control Events
 // ============================================================================
@@ -464,6 +544,18 @@ export interface ControlChangedEvent {
   readonly permanentName: string
   readonly newControllerId: EntityId
   readonly isYours: boolean | null
+  readonly description: string
+}
+
+/**
+ * A card permanently changed owner — an ante effect such as Darkpact or Bronze Tablet (CR 407).
+ * Unlike [ControlChangedEvent] this outlives the game; `description` reads "You now own …".
+ */
+export interface OwnershipChangedEvent {
+  readonly type: 'ownershipChanged'
+  readonly cardName: string
+  readonly newOwnerId: EntityId
+  readonly isYours?: boolean | null
   readonly description: string
 }
 
@@ -519,8 +611,11 @@ export interface PermanentsSacrificedEvent {
 
 export interface TargetReselectedEvent {
   readonly type: 'targetReselected'
+  readonly spellOrAbilityId: EntityId
   readonly spellOrAbilityName: string
+  readonly oldTargetId: EntityId | null
   readonly oldTargetName: string
+  readonly newTargetId: EntityId | null
   readonly newTargetName: string
   readonly sourceName: string
   readonly description: string
@@ -608,5 +703,9 @@ export interface DieRolledEvent {
   readonly sourceId: EntityId | null
   readonly sourceName: string
   readonly isYours?: boolean
+  /** True when a "roll that many dice plus one and ignore the lowest" replacement (Pixie Guide) discarded this roll. */
+  readonly ignored?: boolean
+  /** The face that came up; differs from `result` when the instruction modifies the roll ("subtract X"). */
+  readonly natural?: number
   readonly description: string
 }

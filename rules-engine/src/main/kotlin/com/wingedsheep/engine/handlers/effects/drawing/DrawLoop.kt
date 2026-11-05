@@ -4,6 +4,8 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.DrawnThisTurnComponent
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -125,10 +127,78 @@ object DrawLoop {
 
             drawnCards.add(drawOneResult.drawnCardId!!)
             remaining--
+
+            // 3. Miracle (CR 702.94a): "you may reveal this card from your hand as you draw it" —
+            //    asked now, before the next card is drawn, with the rest of the instruction waiting
+            //    beneath the question.
+            val miracle = drawOneResult.miracle
+            if (miracle != null) {
+                val pause = askMiracleReveal(
+                    newState, playerId, drawOneResult.drawnCardId, miracle.cost, remaining, isDrawStep
+                )
+                return buildPausedResult(newState, playerId, drawnCards, perCardEvents, pause)
+            }
         }
 
         return buildSuccessResult(newState, playerId, drawnCards, perCardEvents)
     }
+
+    /**
+     * Pause the draw on the miracle reveal question for [cardId]. The question is a
+     * [PrivateQuestion]: it exists only because the card has miracle, so it reaches no other seat.
+     * The [DrawReplacementRemainingDrawsContinuation] beneath it carries the rest of the
+     * instruction — an empty tail too, which in the draw step hands the drawing player priority
+     * once the answer is in.
+     */
+    private fun askMiracleReveal(
+        state: GameState,
+        playerId: EntityId,
+        cardId: EntityId,
+        cost: com.wingedsheep.sdk.core.ManaCost,
+        remainingDraws: Int,
+        isDrawStep: Boolean
+    ): EffectResult {
+        val cardName = state.getEntity(cardId)?.get<CardComponent>()?.name ?: "this card"
+        val withTail = state.copy(activeReplacementChain = null).pushContinuation(
+            DrawReplacementRemainingDrawsContinuation(
+                drawingPlayerId = playerId,
+                remainingDraws = remainingDraws,
+                isDrawStep = isDrawStep,
+                announcementApplied = true
+            )
+        )
+        return EffectResult.from(withTail.suspendForDecision(
+            question = { id ->
+                YesNoDecision(
+                    id = id,
+                    playerId = playerId,
+                    prompt = "Reveal $cardName for its miracle?",
+                    context = DecisionContext(
+                        sourceId = cardId,
+                        sourceName = cardName,
+                        phase = DecisionPhase.RESOLUTION
+                    ),
+                    yesText = "Reveal",
+                    noText = "Keep hidden",
+                    hint = "Miracle $cost — reveal it as the first card you drew this turn, and a " +
+                        "trigger lets you cast it for $cost as it resolves."
+                )
+            },
+            answer = MiracleRevealContinuation(playerId, cardId, cost)
+        ))
+    }
+
+    /**
+     * Pin each drawn card's [DrawnThisTurnComponent] to the object it is now in its hand
+     * (`StatePredicate.DrawnThisTurn`). A card no longer in a hand by now — moved on by a pause's
+     * own effects — is skipped, since it already stopped being the drawn object.
+     */
+    private fun stampDrawnThisTurn(state: GameState, drawnCards: List<EntityId>): GameState =
+        drawnCards.fold(state) { acc, cardId ->
+            val ref = acc.objectRef(cardId)
+            if (ref == null || acc.logicalZone(cardId)?.zoneType != Zone.HAND) acc
+            else acc.updateEntity(cardId) { it.with(DrawnThisTurnComponent(ref.generation)) }
+        }
 
     /**
      * Build a success result with a prepended [CardsDrawnEvent] aggregating
@@ -148,9 +218,9 @@ object DrawLoop {
         if (drawnCards.isNotEmpty()) {
             val cardNames = drawnCards.map { newState.getEntity(it)?.get<CardComponent>()?.name ?: "Card" }
             events.add(CardsDrawnEvent(playerId, drawnCards.size, drawnCards, cardNames, setOf(state.actorFor(playerId)) - playerId))
-            newState = newState.copy(
+            newState = stampDrawnThisTurn(newState.copy(
                 lastCardDrawnThisTurnByPlayer = newState.lastCardDrawnThisTurnByPlayer + (playerId to drawnCards.last())
-            )
+            ), drawnCards)
         }
         events.addAll(perCardEvents)
         return EffectResult.success(newState, events)
@@ -174,9 +244,9 @@ object DrawLoop {
         if (drawnCards.isNotEmpty()) {
             val cardNames = drawnCards.map { state.getEntity(it)?.get<CardComponent>()?.name ?: "Card" }
             allEvents.add(CardsDrawnEvent(playerId, drawnCards.size, drawnCards.toList(), cardNames, setOf(state.actorFor(playerId)) - playerId))
-            pausedState = pausedState.copy(
+            pausedState = stampDrawnThisTurn(pausedState.copy(
                 lastCardDrawnThisTurnByPlayer = pausedState.lastCardDrawnThisTurnByPlayer + (playerId to drawnCards.last())
-            )
+            ), drawnCards)
         }
         allEvents.addAll(perCardEvents)
         allEvents.addAll(pauseResult.events)

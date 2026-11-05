@@ -91,6 +91,180 @@
     ]
 }
 
+// Bloodforged Battle-Axe
+{
+    "name": "Bloodforged Battle-Axe",
+    "manaCost": "{1}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +2/+0.\nWhenever equipped creature deals combat damage to a player, create a token that's a copy of this Equipment.\nEquip {2}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Bloodforged Battle-Axe:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "binding": "ATTACHED",
+                "effect": "CreateTokenCopyOfSource",
+                "descriptionOverride": "Whenever equipped creature deals combat damage to a player, create a token that's a copy of this Equipment."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Bloodforged Battle-Axe:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 0
+            }
+        ]
+    },
+    "equipCost": "{2}",
+    "metadata": {
+        "collectorNumber": "50",
+        "rarity": "RARE",
+        "artist": "Alayna Danner",
+        "flavorText": "Spilled blood always begets more of the same.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7f22249-579f-433d-9422-29d4e82ddc49.jpg?1783935932",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "The token enters the battlefield unattached."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "The token has all three of Bloodforged Battle-Axe's abilities, including the one that creates more tokens."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
+// Curse of Opulence
+{
+    "name": "Curse of Opulence",
+    "manaCost": "{R}",
+    "typeLine": "Enchantment — Aura Curse",
+    "oracleText": "Enchant player\nWhenever enchanted player is attacked, create a Gold token. Each opponent attacking that player does the same. (A Gold token is an artifact with \"Sacrifice this token: Add one mana of any color.\")",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Curse of Opulence:1",
+                "trigger": {
+                    "type": "CreaturesAttackYouEvent",
+                    "attackedPlayer": "EnchantedPlayer"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreatePredefinedToken",
+                            "tokenType": "Gold"
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Players",
+                                "players": "EachOpponent"
+                            },
+                            "body": {
+                                "type": "Gated",
+                                "gate": {
+                                    "type": "Gate.WhenCondition",
+                                    "condition": {
+                                        "type": "Exists",
+                                        "player": "You",
+                                        "zone": "Battlefield",
+                                        "filter": {
+                                            "cardPredicates": [
+                                                "IsCreature"
+                                            ],
+                                            "statePredicates": [
+                                                "IsAttackingEnchantedPlayer"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "then": {
+                                    "type": "CreatePredefinedToken",
+                                    "tokenType": "Gold"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever enchanted player is attacked, create a Gold token. Each opponent attacking that player does the same."
+            }
+        ],
+        "auraTarget": "TargetPlayer"
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "rarity": "UNCOMMON",
+        "artist": "Kieran Yanner",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/2/e23db9d3-d11f-4b2c-8349-687bc0e9d4c2.jpg?1783935943",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "Curse of Opulence's triggered ability resolves after attackers have been declared. Any costs to attack must have already been paid before the attacking player creates the Gold."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "Each Curse's ability triggers only once, no matter how many creatures are attacking the enchanted player."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "A player is attacking another player if they control a creature that's attacking that player. If no creatures are attacking the enchanted player as a Curse's ability resolves (most likely because they've left the battlefield), only the Curse's controller performs its actions."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "The triggered ability of these Curses won't trigger if only a planeswalker controlled by the enchanted player is attacked."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If you enchant yourself with one of these Curses, you'll get its effects whenever another player attacks you."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Edgar Markov
 {
     "name": "Edgar Markov",
@@ -602,7 +776,8 @@
                         "type": "Fixed",
                         "amount": 1
                     }
-                }
+                },
+                "descriptionOverride": "Whenever a creature you control of the chosen type enters or attacks, draw a card."
             }
         ],
         "replacementEffects": [
@@ -639,6 +814,240 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Kindred Dominance
+{
+    "name": "Kindred Dominance",
+    "manaCost": "{5}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose a creature type. Destroy all creatures that aren't of the chosen type.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ChooseOption",
+                    "optionType": "CREATURE_TYPE",
+                    "storeAs": "chosen0"
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature",
+                                        {
+                                            "type": "Not",
+                                            "predicate": {
+                                                "type": "HasSubtypeFromVariable",
+                                                "variableName": "chosen0"
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "18",
+        "rarity": "RARE",
+        "artist": "Bram Sels",
+        "flavorText": "In the end, the lights fade, the land withers, and only the dead and vile remain.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/7/9794115a-5509-4d9a-b119-d2b61942e87b.jpg?1783935945",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "Once Kindred Dominance begins to resolve, no players may take other actions until it's done. Notably, players can't try to save their creatures after you've chosen a creature type."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "You can't choose multiple creature types, such as \"Cat Warrior.\" A Cat Warrior is both a Cat and a Warrior. It's affected by anything that affects either type and unaffected by things that affect non-Cat or non-Warrior creatures."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// New Blood
+{
+    "name": "New Blood",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "As an additional cost to cast this spell, tap an untapped Vampire you control.\nGain control of target creature. Change the text of that creature by replacing all instances of one creature type with Vampire.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GainControl",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "ChangeCreatureTypeText",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "replacementType": "Vampire"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ],
+        "additionalCosts": [
+            {
+                "type": "AdditionalAtom",
+                "atom": {
+                    "type": "AtomTapPermanents",
+                    "filter": "creature Vampire"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "rarity": "RARE",
+        "artist": "Howard Lyon",
+        "flavorText": "\"Now isn't that better?\"\n—Olivia Voldaren",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/6/f6b44503-7978-4c9e-a8a1-fd38c76d3545.jpg?1783935944"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Patron of the Vein
+{
+    "name": "Patron of the Vein",
+    "manaCost": "{4}{B}{B}",
+    "typeLine": "Creature — Vampire Shaman",
+    "oracleText": "Flying\nWhen this creature enters, destroy target creature an opponent controls.\nWhenever a creature an opponent controls dies, exile it and put a +1/+1 counter on each Vampire you control.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Patron of the Vein:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:opponent"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, destroy target creature an opponent controls."
+            },
+            {
+                "id": "Patron of the Vein:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:opponent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MoveToZone",
+                            "target": "TriggeringEntity",
+                            "destination": "Exile",
+                            "fromZone": "Graveyard"
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Group",
+                                "filter": {
+                                    "baseFilter": "permanent Vampire ctrl:you"
+                                }
+                            },
+                            "body": {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 1,
+                                "target": "IterationEntity"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever a creature an opponent controls dies, exile it and put a +1/+1 counter on each Vampire you control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "20",
+        "rarity": "RARE",
+        "artist": "Tommy Arnold",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/2/e27db39c-c4b8-46b9-afe6-1737841bdad6.jpg?1783935944",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "Destroying a creature with Patron of the Vein's first ability causes its last ability to trigger if Patron of the Vein is still on the battlefield."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "Patron of the Vein's last ability puts a +1/+1 counter on each Vampire you control, including itself, even if the creature that died can't be exiled (most likely because it was a token)."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If Patron of the Vein and a creature an opponent controls die simultaneously (perhaps because they fought or were in combat together), Patron of the Vein's last ability triggers, but Patron of the Vein won't be on the battlefield as that ability resolves. It can't be saved by the +1/+1 counter that would have been put on it. The same is true of any other Vampires you control that die at the same time. Your remaining Vampires will each get a +1/+1 counter."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -838,5 +1247,150 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// The Ur-Dragon
+{
+    "name": "The Ur-Dragon",
+    "manaCost": "{4}{W}{U}{B}{R}{G}",
+    "typeLine": "Legendary Creature — Dragon Avatar",
+    "oracleText": "Eminence — As long as The Ur-Dragon is in the command zone or on the battlefield, other Dragon spells you cast cost {1} less to cast.\nFlying\nWhenever one or more Dragons you control attack, draw that many cards, then you may put a permanent card from your hand onto the battlefield.",
+    "creatureStats": {
+        "power": 10,
+        "toughness": 10
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "The Ur-Dragon:1",
+                "trigger": {
+                    "type": "YouAttackEvent",
+                    "attackerFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Dragon"
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "DistinctEntitiesInCollections",
+                                "collections": [
+                                    "trigger.captured"
+                                ]
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand",
+                                        "filter": "permanent"
+                                    },
+                                    "storeAs": "put_candidates"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "put_candidates",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    },
+                                    "storeSelected": "putting"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "putting",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever one or more Dragons you control attack, draw that many cards, then you may put a permanent card from your hand onto the battlefield."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": "Dragon"
+                },
+                "modification": {
+                    "type": "ReduceGeneric",
+                    "amount": 1
+                }
+            },
+            {
+                "type": "ZoneScopedStaticAbility",
+                "ability": {
+                    "type": "ModifySpellCost",
+                    "target": {
+                        "type": "YouCast",
+                        "filter": "Dragon"
+                    },
+                    "modification": {
+                        "type": "ReduceGeneric",
+                        "amount": 1
+                    }
+                },
+                "activeZones": [
+                    "Command"
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "MYTHIC",
+        "artist": "Jaime Jones",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/e/7e78b70b-0c67-4f14-8ad7-c9f8e3f59743.jpg?1783935933",
+        "rulings": [
+            {
+                "date": "2017-08-25",
+                "text": "You draw one card for each Dragon you controlled that attacked, even if some of them left the battlefield before The Ur-Dragon's triggered ability resolves."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "You may only put one permanent card from your hand onto the battlefield, no matter how many Dragons you attacked with or how many players they attacked."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "If a Dragon you control enters the battlefield attacking, it won't cause The Ur-Dragon's last ability to trigger."
+            },
+            {
+                "date": "2017-08-25",
+                "text": "The Ur-Dragon's triggered ability resolves after all attackers have been chosen. You can't attack with some Dragons, put a creature card with haste onto the battlefield, and then attack with that creature. Similarly, any \"whenever a creature attacks\" abilities of the permanent card you put onto the battlefield won't trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE",
+        "BLACK",
+        "RED",
+        "GREEN"
     ]
 }

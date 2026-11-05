@@ -15,6 +15,7 @@ import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.targeting.ControllerHexproof
 import com.wingedsheep.engine.mechanics.targeting.ControllerShroud
 import com.wingedsheep.engine.mechanics.targeting.SourceKindProtection
+import com.wingedsheep.engine.mechanics.targeting.UntargetableByRules
 import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.engine.mechanics.targeting.StackObjectTargeting
 import com.wingedsheep.sdk.core.Keyword
@@ -50,7 +51,7 @@ enum class TargetingSourceType {
  * and returns a list of valid target EntityIds.
  */
 class TargetFinder(
-    private val predicateEvaluator: PredicateEvaluator
+    internal val predicateEvaluator: PredicateEvaluator
 ) {
     /** Authoritative per-candidate checks, shared with cast-time validation. */
     internal val validator by lazy { com.wingedsheep.engine.mechanics.targeting.TargetValidator(predicateEvaluator) }
@@ -148,13 +149,19 @@ class TargetFinder(
         val sourceColors = sourceId?.takeIf { state.hasEntity(it) }?.let { id ->
             sourceColorNames(state, projected, id)
         }
+        // CantBeTargetedBy: keyed on the source and this requirement, so computed once.
+        val untargetableKeywords = UntargetableByRules.blockingKeywords(state, sourceId, targetingSourceType, requirement)
+        // CardsInZonesCantBeTargeted (Ground Seal): read only once an off-battlefield card shows up.
+        val zoneLocks by lazy(LazyThreadSafetyMode.NONE) { UntargetableByRules.zoneLocks(state) }
         return candidates.filter { id ->
             if (id in state.turnOrder) {
-                !PlayerProtectionRules.isProtectedFromSource(
+                !PlayerProtectionRules.blocksTargeting(
                     state, id, sourceId, controllerId, predicateEvaluator = predicateEvaluator
                 )
             } else {
-                sourceColors == null || !ColorProtection.isProtected(projected, id, sourceColors)
+                (sourceColors == null || !ColorProtection.isProtected(projected, id, sourceColors)) &&
+                    !UntargetableByRules.isBlocked(state, id, untargetableKeywords) &&
+                    (projected.getProjectedValues(id) != null || !UntargetableByRules.isZoneLocked(state, id, zoneLocks, predicateEvaluator))
             }
         }
     }
@@ -699,8 +706,7 @@ class TargetFinder(
     }
 
     private fun sourceColorNames(state: GameState, projected: ProjectedState, sourceId: EntityId): Set<String> =
-        if (sourceId in state.getBattlefield()) projected.getColors(sourceId)
-        else state.getEntity(sourceId)?.get<CardComponent>()?.colors?.map { it.name }?.toSet().orEmpty()
+        projected.colorsOf(sourceId)
 
     /**
      * Find card targets in non-battlefield, non-stack zones (hand, library, exile, command).

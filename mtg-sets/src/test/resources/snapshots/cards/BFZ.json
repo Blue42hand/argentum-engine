@@ -1277,6 +1277,72 @@
     ]
 }
 
+// Drana, Liberator of Malakir
+{
+    "name": "Drana, Liberator of Malakir",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Legendary Creature — Vampire Ally",
+    "oracleText": "Flying, first strike\nWhenever Drana deals combat damage to a player, put a +1/+1 counter on each attacking creature you control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING",
+        "FIRST_STRIKE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Drana, Liberator of Malakir:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature attacking ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 1,
+                        "target": "IterationEntity"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "rarity": "MYTHIC",
+        "artist": "Mike Bierek",
+        "flavorText": "\"I will not live as a slave. If you would be free, then fight alongside me.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/3/d3f6ed18-eb6f-4d07-8660-cf7c074c87cd.jpg?1783938202",
+        "rulings": [
+            {
+                "date": "2015-08-25",
+                "text": "Drana's last ability triggers after combat damage has been dealt, so only attacking creatures that survive the combat damage step in which Drana deals combat damage will have +1/+1 counters put on them."
+            },
+            {
+                "date": "2015-08-25",
+                "text": "The +1/+1 counter won't change how much damage Drana or any other attacking creature with first strike or double strike deals during that combat damage step. However, the +1/+1 counters that are put on attacking creatures without first strike will affect the damage those creatures deal during the regular combat damage step."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Eldrazi Devastator
 {
     "name": "Eldrazi Devastator",
@@ -1297,6 +1363,117 @@
         "imageUri": "https://cards.scryfall.io/normal/front/0/4/04b13e32-01b9-4a86-a3df-ca8b784c6a6c.jpg?1783938225"
     },
     "colorIdentityOverride": []
+}
+
+// Emeria Shepherd
+{
+    "name": "Emeria Shepherd",
+    "manaCost": "{5}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nLandfall — Whenever a land you control enters, you may return target nonland permanent card from your graveyard to your hand. If that land is a Plains, you may return that nonland permanent card to the battlefield instead.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Emeria Shepherd:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "EntityMatches",
+                            "entity": "TriggeringEntity",
+                            "filter": "land Plains"
+                        }
+                    },
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.MayDecide",
+                            "prompt": "Return the targeted card to the battlefield instead of your hand?"
+                        },
+                        "then": {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Battlefield",
+                            "fromZone": "Graveyard"
+                        },
+                        "otherwise": {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.MayDecide",
+                                "prompt": "Return the targeted card to your hand?"
+                            },
+                            "then": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "destination": "Hand",
+                                "fromZone": "Graveyard"
+                            }
+                        }
+                    },
+                    "otherwise": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.MayDecide",
+                            "prompt": "Return the targeted card to your hand?"
+                        },
+                        "then": {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Hand",
+                            "fromZone": "Graveyard"
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "nonland permanent own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, you may return target nonland permanent card from your graveyard to your hand. If that land is a Plains, you may return that nonland permanent card to the battlefield instead."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "22",
+        "rarity": "RARE",
+        "artist": "Cynthia Sheppard",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c366f25-93c7-4088-88a4-64d3ee18a89a.jpg?1783938221",
+        "rulings": [
+            {
+                "date": "2015-08-25",
+                "text": "If you return an Aura to the battlefield this way, you choose what it will enchant as it enters the battlefield. This doesn't target any player or permanent, so you could attach an Aura to a permanent with hexproof controlled by an opponent, for example. If there's nothing the Aura can legally enchant, it stays in the graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
 }
 
 // Endless One
@@ -3044,6 +3221,91 @@
     "colorIdentityOverride": [
         "RED",
         "WHITE"
+    ]
+}
+
+// Retreat to Coralhelm
+{
+    "name": "Retreat to Coralhelm",
+    "manaCost": "{2}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "Landfall — Whenever a land you control enters, choose one —\n• You may tap or untap target creature.\n• Scry 1. (Look at the top card of your library. You may put that card on the bottom.)",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Retreat to Coralhelm:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "Gated",
+                                "gate": "Gate.MayDecide",
+                                "then": {
+                                    "type": "Modal",
+                                    "modes": [
+                                        {
+                                            "effect": {
+                                                "type": "TapUntap",
+                                                "target": {
+                                                    "type": "BoundVariable",
+                                                    "name": "t0"
+                                                }
+                                            },
+                                            "description": "Tap that creature"
+                                        },
+                                        {
+                                            "effect": {
+                                                "type": "TapUntap",
+                                                "target": {
+                                                    "type": "BoundVariable",
+                                                    "name": "t0"
+                                                },
+                                                "tap": false
+                                            },
+                                            "description": "Untap that creature"
+                                        }
+                                    ],
+                                    "countsAsModalSpell": false
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature"
+                                    },
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "You may tap or untap target creature"
+                        },
+                        {
+                            "effect": {
+                                "type": "Scry",
+                                "count": 1
+                            },
+                            "description": "Scry 1"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "82",
+        "rarity": "UNCOMMON",
+        "artist": "Kieran Yanner",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68684c8e-dc19-4a56-b511-4e21140b137f.jpg?1783938208"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

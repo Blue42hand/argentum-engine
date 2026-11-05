@@ -627,6 +627,82 @@
     ]
 }
 
+// Mina and Denn, Wildborn
+{
+    "name": "Mina and Denn, Wildborn",
+    "manaCost": "{2}{R}{G}",
+    "typeLine": "Legendary Creature — Elf Ally",
+    "oracleText": "You may play an additional land on each of your turns.\n{R}{G}, Return a land you control to its owner's hand: Target creature gains trample until end of turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Mina and Denn, Wildborn:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{R}{G}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": "land"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "TRAMPLE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{R}{G}, Return a land you control to its owner's hand: Target creature gains trample until end of turn."
+            }
+        ],
+        "staticAbilities": [
+            "GrantAdditionalLandDrop"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "156",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "flavorText": "Greenweaver Mina and her twin brother Denn lead the last of the Mul Daya into an uncertain future.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/2/d27ff523-0ff3-480d-ae95-ff5e04483e40.jpg?1783937896",
+        "rulings": [
+            {
+                "date": "2016-01-22",
+                "text": "Once you announce that you're activating the last ability, it's too late for anyone to interrupt you by trying to remove the land you returned."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
 // Ruin in Their Wake
 {
     "name": "Ruin in Their Wake",
@@ -805,6 +881,71 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Sifter of Skulls
+{
+    "name": "Sifter of Skulls",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Eldrazi",
+    "oracleText": "Devoid (This card has no color.)\nWhenever another nontoken creature you control dies, create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this token: Add {C}.\" ({C} represents colorless mana.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEVOID"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sifter of Skulls:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature nontoken ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Eldrazi",
+                        "Scion"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/0/a03edf14-3495-4f61-ad73-f16e9456472c.jpg?1783937863",
+                    "activatedAbilities": [
+                        {
+                            "id": "Sifter of Skulls:1",
+                            "cost": "CostSacrificeSelf",
+                            "effect": {
+                                "type": "AddColorlessMana",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "timing": "ManaAbility",
+                            "isManaAbility": true,
+                            "descriptionOverride": "Sacrifice this token: Add {C}."
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "77",
+        "rarity": "RARE",
+        "artist": "Slawomir Maniak",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/e/be57a5aa-44f1-483f-9274-aa68f5a2bf1f.jpg?1783937914"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 

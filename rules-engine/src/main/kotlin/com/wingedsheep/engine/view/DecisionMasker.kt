@@ -17,6 +17,10 @@ import com.wingedsheep.sdk.model.EntityId
  * reveal, a "look at face-down creatures" static, or CR 708.5's controller access is honoured
  * exactly as the client state honours it.
  *
+ * A source marked [DecisionContext.sourceIsPrivate] — a card in a hidden zone the question does
+ * not reveal — is masked as well, to anyone who may not see that card: its name is dropped
+ * rather than replaced, since there is no face-down label to show for a card in a hand.
+ *
  * Masked fields: [com.wingedsheep.engine.core.DecisionContext]`.sourceName` on any decision, the
  * combat board's nodes and prompt, and the `cardInfo` maps. Other prompts are not rewritten: they
  * are built for their chooser, who controls the source they name. A new decision that names an
@@ -41,10 +45,11 @@ class DecisionMasker(private val visibility: Visibility) {
         }
 
         val sourceId = decision.context.sourceId
-        val context = if (sourceId != null && decision.context.sourceName != null && hidden(sourceId)) {
-            decision.context.copy(sourceName = label(sourceId))
-        } else {
-            decision.context
+        val context = when {
+            sourceId == null || decision.context.sourceName == null -> decision.context
+            hidden(sourceId) -> decision.context.copy(sourceName = label(sourceId))
+            isPrivateSourceHiddenFrom(decision, state, viewerId, isSpectator) -> decision.context.copy(sourceName = null)
+            else -> decision.context
         }
 
         return when (decision) {
@@ -64,6 +69,11 @@ class DecisionMasker(private val visibility: Visibility) {
                 )
             }
             is SelectCardsDecision -> decision.copy(context = context, cardInfo = maskInfo(decision.cardInfo))
+            // Built for the controller, who may look at their own face-down sources; anyone else
+            // shown it sees the label and no art.
+            is OrderTriggersDecision -> decision.copy(context = context, triggers = decision.triggers.map {
+                if (hidden(it.sourceId)) it.copy(sourceName = label(it.sourceId), imageUri = null) else it
+            })
             is OrderObjectsDecision -> decision.copy(context = context, cardInfo = maskInfo(decision.cardInfo))
             is SplitPilesDecision -> decision.copy(context = context, cardInfo = maskInfo(decision.cardInfo))
             // Listed one by one, with no `else`, so a new decision type does not compile until
@@ -82,8 +92,39 @@ class DecisionMasker(private val visibility: Visibility) {
             is ReorderLibraryDecision -> decision.copy(context = context)
             is SelectManaSourcesDecision -> decision.copy(context = context)
             is BudgetModalDecision -> decision.copy(context = context)
+            // Face-down permanents already lie on the table nameless and imageless.
+            is FlipOntoBattlefieldDecision -> decision.copy(context = context)
             is PlayCardDecision -> decision.copy(context = context)
         }
+    }
+
+    /**
+     * Whether [viewerId] may not know what [decision]'s source is: a face-down source they may not
+     * look under, or a [DecisionContext.sourceIsPrivate] card they may not see where it lies. A
+     * status shown to them then carries none of the source's name, art or id.
+     */
+    fun isSourceHiddenFrom(
+        decision: PendingDecision,
+        state: GameState,
+        viewerId: EntityId,
+        isSpectator: Boolean = false,
+    ): Boolean {
+        val sourceId = decision.context.sourceId ?: return false
+        return visibility.isCardIdentityHiddenFrom(state, sourceId, viewerId, isSpectator) ||
+            isPrivateSourceHiddenFrom(decision, state, viewerId, isSpectator)
+    }
+
+    private fun isPrivateSourceHiddenFrom(
+        decision: PendingDecision,
+        state: GameState,
+        viewerId: EntityId,
+        isSpectator: Boolean,
+    ): Boolean {
+        val sourceId = decision.context.sourceId
+        if (!decision.context.sourceIsPrivate || sourceId == null) return false
+        // A source that has left every zone was put somewhere public or ceased to exist.
+        val zoneKey = state.zones.entries.firstOrNull { sourceId in it.value }?.key ?: return false
+        return !visibility.isCardIdentityVisibleTo(state, zoneKey, sourceId, viewerId, isSpectator)
     }
 
     /** What a face-down object shows: its label and nothing of the card underneath (CR 708.2a). */

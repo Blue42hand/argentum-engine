@@ -1,6 +1,7 @@
 import { useShallow } from 'zustand/react/shallow'
 import { useGameStore, type GameStore } from '@/store/gameStore.ts'
 import type { EntityId } from '@/types'
+import { bandIsLegal, mergedBand } from '@/utils/combatBands'
 import type { CounterRemovalCreatureInfo } from '@/types/messages.ts'
 
 /**
@@ -173,11 +174,10 @@ export interface CardInteractionInput {
   readonly cardId: EntityId
   readonly isCreature: boolean
   readonly isOpponentCard: boolean
-  readonly hasBanding: boolean
 }
 
 export function selectCardInteraction(state: GameStore, input: CardInteractionInput): CardInteractionState {
-  const { cardId, isCreature, isOpponentCard, hasBanding } = input
+  const { cardId, isCreature, isOpponentCard } = input
   const viewed = state.spectatingState?.gameState ?? state.gameState
 
   // Targeting
@@ -199,6 +199,7 @@ export function selectCardInteraction(state: GameStore, input: CardInteractionIn
   const isTriggerYesNo = decision?.type === 'YesNoDecision'
     && !!decision.context.inlineOnTrigger
     && decision.context.triggeringEntityId === cardId
+    && decision.yesAvailable !== false
   const isDecisionSubject = decision?.context.subjectEntityId === cardId
 
   // Decision selection
@@ -231,12 +232,16 @@ export function selectCardInteraction(state: GameStore, input: CardInteractionIn
   const tapForGeneric = state.tapForGenericSelectionState
   const harmonize = state.harmonizeSelectionState
 
-  // Combat. In single-client hotseat the seat we control may render on the opponent row, so any
-  // creature counts as "ours" / "theirs" and combatState membership disambiguates.
+  // Combat. When this client declares for another seat — single-client hotseat, or a declaration
+  // the server routed to us (Master Warcraft, Brutal Hordechief: we choose an opponent's blocks) —
+  // the declaring seat's creatures may render on the opponent row, so any creature counts as
+  // "ours" / "theirs" and combatState membership disambiguates.
   const combat = state.combatState
   const hotseat = viewed?.hotseat ?? false
-  const ownForCombat = (!isOpponentCard && isCreature) || (hotseat && isCreature)
-  const opponentForCombat = isOpponentCard || hotseat
+  const declaringForAnotherSeat = !!combat?.actingSeat && !!state.playerId && combat.actingSeat !== state.playerId
+  const anySideForCombat = hotseat || declaringForAnotherSeat
+  const ownForCombat = (!isOpponentCard && isCreature) || (anySideForCombat && isCreature)
+  const opponentForCombat = isOpponentCard || anySideForCombat
   const isInAttackerMode = combat?.mode === 'declareAttackers'
   const isInBlockerMode = combat?.mode === 'declareBlockers'
   const isValidCombatCreature = listHas(combat?.validCreatures, cardId)
@@ -258,7 +263,9 @@ export function selectCardInteraction(state: GameStore, input: CardInteractionIn
     !!draggingAttackerId &&
     draggingAttackerId !== cardId &&
     isValidCombatCreature &&
-    (hasBanding || state.draggingAttackerHasBanding === true)
+    // Exactly the band the drop would make, checked as the server will (CR 702.22c — banding or
+    // "bands with other"), so the highlight never promises a band the link would refuse.
+    bandIsLegal(mergedBand(combat.bands, draggingAttackerId, cardId), (id) => viewed?.cards?.[id])
 
   const isValidBlocker = isInBlockerMode && ownForCombat && isValidCombatCreature
   const isSelectedAsBlocker = isInBlockerMode && !!(combat.blockerAssignments[cardId]?.length)
@@ -336,8 +343,8 @@ export function selectCardInteraction(state: GameStore, input: CardInteractionIn
 
 /** Subscribes a card to its own slice of the interaction state; see [CardInteractionState]. */
 export function useCardInteractionState(input: CardInteractionInput): CardInteractionState {
-  const { cardId, isCreature, isOpponentCard, hasBanding } = input
+  const { cardId, isCreature, isOpponentCard } = input
   return useGameStore(
-    useShallow((state) => selectCardInteraction(state, { cardId, isCreature, isOpponentCard, hasBanding })),
+    useShallow((state) => selectCardInteraction(state, { cardId, isCreature, isOpponentCard })),
   )
 }

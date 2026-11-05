@@ -42,6 +42,24 @@ value class CounterType(val name: String) {
             "${SIGNS.getValue(sign1)}${NUMBERS.indexOf(n1)}/${SIGNS.getValue(sign2)}${NUMBERS.indexOf(n2)}"
         } ?: name.lowercase().replace('_', ' ')
 
+    /**
+     * What this counter adds to power and toughness (CR 122.1a — a `+X/+Y` counter adds X to power
+     * and Y to toughness), derived from the id's shape: `MINUS_ZERO_MINUS_TWO` is `0 to -2`. `null`
+     * for every kind that isn't a stat counter. The layer system sums this over a permanent's
+     * counters, so a new printed size only needs its constant, never an engine change.
+     */
+    val ptDelta: Pair<Int, Int>?
+        get() {
+            // Split rather than regex: the layer system reads this for every counter on every projection.
+            if (!name.startsWith("PLUS_") && !name.startsWith("MINUS_")) return null
+            val parts = name.split('_')
+            if (parts.size != 4) return null
+            val power = NUMBERS.indexOf(parts[1])
+            val toughness = NUMBERS.indexOf(parts[3])
+            if (power < 0 || toughness < 0 || parts[0] !in SIGNS || parts[2] !in SIGNS) return null
+            return signed(parts[0], power) to signed(parts[2], toughness)
+        }
+
     override fun toString(): String = name
 
     companion object {
@@ -60,9 +78,12 @@ value class CounterType(val name: String) {
         val MINUS_ONE_MINUS_ZERO = CounterType("MINUS_ONE_MINUS_ZERO")
         val MINUS_ZERO_MINUS_ONE = CounterType("MINUS_ZERO_MINUS_ONE")
 
+        /** -0/-2 counter (LEG — Spirit Shackle: one each time the enchanted creature becomes tapped). */
+        val MINUS_ZERO_MINUS_TWO = CounterType("MINUS_ZERO_MINUS_TWO")
+
         /**
-         * The Fallen Empires stat counters. CR 122.1a defines a +X/+Y counter generally, but the engine
-         * enumerates the kinds it can sum, so each printed size needs its own constant:
+         * The Fallen Empires stat counters. CR 122.1a defines a +X/+Y counter generally and the layer
+         * system sums any stat-shaped id through [ptDelta]; the constants exist so [KNOWN] lists them:
          * `+1/+2` (Armor Thrull), `+2/+2` (Soul Exchange), `-2/-2` (Ebon Praetor).
          */
         val PLUS_ONE_PLUS_TWO = CounterType("PLUS_ONE_PLUS_TWO")
@@ -83,6 +104,14 @@ value class CounterType(val name: String) {
         val DEFENSE = CounterType("DEFENSE")
         val CHARGE = CounterType("CHARGE")
         val GEM = CounterType("GEM")
+        val GLYPH = CounterType("GLYPH")
+        val MATRIX = CounterType("MATRIX")
+        val HATCHLING = CounterType("HATCHLING")
+        val SCREAM = CounterType("SCREAM")
+        val SLEEP = CounterType("SLEEP")
+        val PIN = CounterType("PIN")
+        val CARRION = CounterType("CARRION")
+        val PUPA = CounterType("PUPA")
         val POISON = CounterType("POISON")
         val SILVER = CounterType("SILVER")
         val GOLD = CounterType("GOLD")
@@ -163,6 +192,18 @@ value class CounterType(val name: String) {
         val BLIGHT = CounterType("BLIGHT")
         val COIN = CounterType("COIN")
         val FLOOD = CounterType("FLOOD")
+
+        /**
+         * Fuse counter (SPE — Pumpkin Bombs). A pure tally: the artifact deals damage equal to the
+         * number of fuse counters on it, so the bomb hits harder each time it changes hands.
+         */
+        val FUSE = CounterType("FUSE")
+
+        /**
+         * Luck counter (TSP — Gemstone Caverns). A marker: the land begins the game with one when put
+         * onto the battlefield from an opening hand, and taps for any color while it has one.
+         */
+        val LUCK = CounterType("LUCK")
         val CHORUS = CounterType("CHORUS")
         val DREAM = CounterType("DREAM")
         val QUEST = CounterType("QUEST")
@@ -175,9 +216,9 @@ value class CounterType(val name: String) {
          * Decayed counter (Tarkir: Dragonstorm). A keyword-ability counter (CR 702.147a): a creature
          * with one or more decayed counters has Decayed — "This creature can't block" and "When this
          * creature attacks, sacrifice it at end of combat." Granted to *any* creature, independent of
-         * its printed abilities (e.g. Rot-Curse Rakshasa's Renew). The behavior is realized by the
-         * engine off the counter, mirroring how the printed [com.wingedsheep.sdk.dsl.card]`.decayed()`
-         * helper composes the same static + triggered ability.
+         * its printed abilities (e.g. Rot-Curse Rakshasa's Renew). The counter projects the
+         * [Keyword.DECAYED] keyword, and the engine realizes the ability off that keyword exactly as
+         * it does for a printed or token Decayed.
          */
         val DECAYED = CounterType("DECAYED")
 
@@ -728,6 +769,27 @@ value class CounterType(val name: String) {
         val VITALITY = CounterType("VITALITY")
 
         /**
+         * Void counter (AFR — Sphere of Annihilation). A passive tally with no inherent rule: the
+         * card enters with X of them and its upkeep trigger exiles everything with mana value at
+         * most their number.
+         */
+        val VOID = CounterType("VOID")
+
+        /**
+         * Harmony counter (AFR — Instrument of the Bards). A passive tally with no inherent rule:
+         * its upkeep trigger may add one, and its search ability finds a creature card whose mana
+         * value equals their number.
+         */
+        val HARMONY = CounterType("HARMONY")
+
+        /**
+         * Enlightened counter (AFR — The Book of Exalted Deeds). A pure marker with no inherent
+         * rule: the Book puts one on the Angel it grants "You can't lose the game and your
+         * opponents can't win the game", and nothing reads it.
+         */
+        val ENLIGHTENED = CounterType("ENLIGHTENED")
+
+        /**
          * Phyresis counter (DMU — Weatherlight Compleated). A passive tally with no inherent rule:
          * the card reads it as "four or more" (it's a Phyrexian creature) and "seven or more"
          * (draw instead of scry).
@@ -746,6 +808,91 @@ value class CounterType(val name: String) {
          */
         val BRAIN = CounterType("BRAIN")
 
+        /**
+         * Hatching counter (NEO — The Dragon-Kami Reborn). A pure marker on a face-down card in exile:
+         * Dragon-Kami's Egg lets its owner cast a creature spell from among the exiled cards that have one.
+         */
+        val HATCHING = CounterType("HATCHING")
+
+        /**
+         * Intervention counter (LEG — Divine Intervention). A countdown with no inherent rule: an
+         * upkeep trigger removes one, and "when you remove the last intervention counter" ends the
+         * game in a draw.
+         */
+        val INTERVENTION = CounterType("INTERVENTION")
+
+        /**
+         * Rejection counter (MAT — Tolarian Contempt). A mark with no inherent rule: the enchantment's
+         * enters trigger puts one on each opposing creature, and its end-step trigger may only target
+         * creatures that carry one.
+         */
+        val REJECTION = CounterType("REJECTION")
+
+        /**
+         * Valor counter (MID — Intrepid Adversary). A mark with no inherent rule: the creature's
+         * enters trigger puts one on it per repeated payment, and its static anthem gives creatures
+         * you control +1/+1 for each one on it.
+         */
+        val VALOR = CounterType("VALOR")
+
+        /**
+         * Ritual counter (MID — Heirloom Mirror). A mark with no inherent rule: the artifact's
+         * activated ability adds one, then removes them all and transforms it once it has three.
+         */
+        val RITUAL = CounterType("RITUAL")
+
+        /**
+         * Flame counter (MID — Embodiment of Flame). A mark with no inherent rule: a spell you
+         * control dealing damage adds one, and its impulse-draw ability removes one as a cost.
+         */
+        val FLAME = CounterType("FLAME")
+
+        /**
+         * Ember counter (MID — Smoldering Egg). A mark with no inherent rule: each instant or
+         * sorcery cast adds the mana spent on it, and at seven or more they're removed and it transforms.
+         */
+        val EMBER = CounterType("EMBER")
+
+        /**
+         * Book counter (STX — Spell Satchel). A mark with no inherent rule: magecraft adds one, and
+         * its two mana/draw abilities remove one or three as a cost.
+         */
+        val BOOK = CounterType("BOOK")
+
+        /**
+         * Study counter (STX — Kianne, Dean of Substance // Imbraham, Dean of Theory). A mark with no
+         * inherent rule, placed on cards in exile: the deans' abilities read the nonland cards you own
+         * in exile that carry one, wherever the counters came from.
+         */
+        val STUDY = CounterType("STUDY")
+
+        /**
+         * Refine counter (STX — Uvilda, Dean of Perfection). A countdown on a card in exile: Uvilda puts
+         * three on the instant or sorcery she exiles, the abilities that card gains remove one each
+         * upkeep, and removing the last lets its owner cast it for {4} less.
+         */
+        val REFINE = CounterType("REFINE")
+
+        /**
+         * Voyage counter (KHM — Cosima, God of the Voyage). A tally on a card in exile with no inherent
+         * rule: the ability Cosima gains as she exiles herself adds one per land you control entering,
+         * and returning her reads the count for her +1/+1 counters and cards drawn.
+         */
+        val VOYAGE = CounterType("VOYAGE")
+
+        /**
+         * Ghostform counter (KHM — Kaya the Inexorable). A reminder with no rule of its own: the
+         * returning trigger Kaya's +1 grants keeps working even if the counter is removed.
+         */
+        val GHOSTFORM = CounterType("GHOSTFORM")
+
+        /**
+         * Night counter (KHM — Replicating Ring). A passive countdown with no inherent rule, unrelated
+         * to the day/night designation: the Ring's upkeep trigger adds one and, at eight, removes them
+         * all and makes eight Replicated Ring tokens.
+         */
+        val NIGHT = CounterType("NIGHT")
+
         /** Every counter kind the SDK names, in declaration order. */
         val KNOWN: List<CounterType> = listOf(
             PLUS_ONE_PLUS_ONE,
@@ -756,6 +903,7 @@ value class CounterType(val name: String) {
             PLUS_ZERO_PLUS_TWO,
             MINUS_ONE_MINUS_ZERO,
             MINUS_ZERO_MINUS_ONE,
+            MINUS_ZERO_MINUS_TWO,
             PLUS_ONE_PLUS_TWO,
             PLUS_TWO_PLUS_TWO,
             MINUS_TWO_MINUS_TWO,
@@ -763,6 +911,14 @@ value class CounterType(val name: String) {
             DEFENSE,
             CHARGE,
             GEM,
+            GLYPH,
+            MATRIX,
+            HATCHLING,
+            SCREAM,
+            SLEEP,
+            PIN,
+            CARRION,
+            PUPA,
             POISON,
             SILVER,
             GOLD,
@@ -796,6 +952,8 @@ value class CounterType(val name: String) {
             BLIGHT,
             COIN,
             FLOOD,
+            FUSE,
+            LUCK,
             CHORUS,
             DREAM,
             QUEST,
@@ -874,9 +1032,25 @@ value class CounterType(val name: String) {
             CORPSE,
             BRICK,
             VITALITY,
+            VOID,
+            HARMONY,
+            ENLIGHTENED,
             PHYRESIS,
             MUSTER,
             BRAIN,
+            HATCHING,
+            INTERVENTION,
+            REJECTION,
+            VALOR,
+            RITUAL,
+            FLAME,
+            EMBER,
+            BOOK,
+            STUDY,
+            REFINE,
+            VOYAGE,
+            GHOSTFORM,
+            NIGHT,
         )
 
         /**
@@ -899,6 +1073,7 @@ value class CounterType(val name: String) {
         private val SIGNS = mapOf("PLUS" to "+", "MINUS" to "-")
         private val SIGN_WORDS = SIGNS.entries.associate { (word, sign) -> sign to word }
         private val STAT_ID = NUMBERS.joinToString("|").let { n -> Regex("""(PLUS|MINUS)_($n)_(PLUS|MINUS)_($n)""") }
+        private fun signed(sign: String, n: Int) = if (sign == "MINUS") -n else n
         private val STAT_PRINTED = Regex("""([+-])(\d)/([+-])(\d)""")
     }
 }

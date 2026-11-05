@@ -4,6 +4,7 @@ import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.TriggerSpec
 import com.wingedsheep.sdk.scripting.effects.DelayedTriggerExpiry
+import com.wingedsheep.sdk.scripting.effects.DelayedTriggerStepScope
 import com.wingedsheep.sdk.scripting.effects.Effect
 import kotlinx.serialization.Serializable
 
@@ -41,6 +42,14 @@ data class DelayedTriggeredAbility(
      */
     val watchedEntityId: EntityId? = null,
     /**
+     * The identity of [watchedEntityId]'s object when this event-based trigger was created. "When
+     * *that* creature dies" follows that object only (CR 400.7): once it changes zones it is a new
+     * object, so a later departure of the same entity id does not match, and the cleanup step
+     * drops the trigger once the object is no longer current. Null for player-scoped watchers and
+     * for objects created without identity bookkeeping.
+     */
+    val watchedObject: com.wingedsheep.engine.state.ObjectRef? = null,
+    /**
      * For event-based delayed triggers: scopes the trigger to events whose *recipient*
      * (the damaged/targeted entity) matches this id. Whereas [watchedEntityId] narrows by the
      * event's source, this narrows by the event's recipient — e.g. "whenever a creature you
@@ -67,6 +76,11 @@ data class DelayedTriggeredAbility(
     val fireOnce: Boolean = false,
     /** Whether a step-based delayed trigger remains resident after each matching step. */
     val repeatAtEachMatchingStep: Boolean = false,
+    /**
+     * Which step beginnings match [fireAtStep]: that step exactly, or any main phase ("your next
+     * main phase"). Baked from [com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect.stepScope].
+     */
+    val stepScope: DelayedTriggerStepScope = DelayedTriggerStepScope.STEP,
     /** If set, this trigger won't fire before this turn number. Used for "your next end step" effects. */
     val notBeforeTurn: Int? = null,
     /**
@@ -108,6 +122,13 @@ data class DelayedTriggeredAbility(
      * to exist — is dropped when the trigger fires ([carriedPipelineFor]).
      */
     val carriedCollections: Map<String, List<com.wingedsheep.engine.handlers.CapturedObjectBinding>> = emptyMap(),
+    /**
+     * Copiable values of departed objects the delayed effect copies, frozen when it was scheduled
+     * ("when this dies, … create a token that's a copy of it at the beginning of the next end step"
+     * — Ochre Jelly): a token that died has ceased to exist by the time this fires (CR 704.5d).
+     * Handed to the firing trigger as [TriggerContext.capturedEntitySnapshots].
+     */
+    val capturedEntitySnapshots: List<com.wingedsheep.engine.state.components.stack.EntitySnapshot> = emptyList(),
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment()
 )
 

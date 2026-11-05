@@ -15,6 +15,7 @@ import com.wingedsheep.engine.mechanics.targeting.HexproofSuppression
 import com.wingedsheep.engine.mechanics.targeting.PlayerTargetRestriction
 import com.wingedsheep.engine.mechanics.targeting.SourceKindProtection
 import com.wingedsheep.engine.mechanics.targeting.StackObjectTargeting
+import com.wingedsheep.engine.mechanics.targeting.UntargetableByRules
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
@@ -44,7 +45,27 @@ class TargetEnumerationUtils(
         playerId: EntityId,
         requirement: TargetRequirement,
         sourceId: EntityId? = null,
-        targetingSourceType: TargetingSourceType = TargetingSourceType.ANY
+        targetingSourceType: TargetingSourceType = TargetingSourceType.ANY,
+        /** The cast face's subtypes when it isn't the entity's own face (a disturb Aura back). */
+        spellSubtypes: Set<String>? = null
+    ): List<EntityId> {
+        val candidates = findCandidateTargets(state, playerId, requirement, sourceId, targetingSourceType)
+        // CantBeTargetedBy: keyed on the source and this requirement, so computed once.
+        val untargetableKeywords = UntargetableByRules.blockingKeywords(state, sourceId, targetingSourceType, requirement, spellSubtypes)
+        val unblocked = if (untargetableKeywords.isEmpty()) candidates
+        else candidates.filterNot { UntargetableByRules.isBlocked(state, it, untargetableKeywords) }
+        // CardsInZonesCantBeTargeted (Ground Seal) — cards off the battlefield only.
+        val zoneLocks = UntargetableByRules.zoneLocks(state)
+        return if (zoneLocks.isEmpty()) unblocked
+        else unblocked.filterNot { UntargetableByRules.isZoneLocked(state, it, zoneLocks, predicateEvaluator) }
+    }
+
+    private fun findCandidateTargets(
+        state: GameState,
+        playerId: EntityId,
+        requirement: TargetRequirement,
+        sourceId: EntityId?,
+        targetingSourceType: TargetingSourceType
     ): List<EntityId> {
         return when (requirement) {
             is TargetPlayer -> state.turnOrder.filter { state.hasEntity(it) && !playerHasShroud(state, it) &&
@@ -194,9 +215,7 @@ class TargetEnumerationUtils(
     }
 
     private fun sourceColorNames(state: GameState, sourceId: EntityId): Set<String> =
-        state.projectedState.getColors(sourceId).ifEmpty {
-            state.getEntity(sourceId)?.get<CardComponent>()?.colors?.map { it.name }?.toSet().orEmpty()
-        }
+        state.projectedState.colorsOf(sourceId)
 
     private fun hasHexproofFromSource(state: GameState, targetId: EntityId, sourceId: EntityId): Boolean {
         val projected = state.projectedState
@@ -248,6 +267,7 @@ class TargetEnumerationUtils(
             Zone.BATTLEFIELD -> findValidPermanentTargets(state, playerId, filter, sourceId, targetingSourceType)
             Zone.GRAVEYARD -> findValidGraveyardTargets(state, playerId, filter, sourceId)
             Zone.EXILE -> findValidExileTargets(state, playerId, filter, sourceId)
+            Zone.ANTE -> findValidOwnerKeyedZoneTargets(state, playerId, filter, sourceId)
             Zone.STACK -> findValidSpellTargets(state, playerId, filter)
             else -> emptyList()
         }
@@ -264,6 +284,18 @@ class TargetEnumerationUtils(
         playerId: EntityId,
         filter: TargetFilter,
         sourceId: EntityId? = null
+    ): List<EntityId> = findValidOwnerKeyedZoneTargets(state, playerId, filter, sourceId)
+
+    /**
+     * Targets among the cards in [filter]'s zone, for a public zone the engine keys by owner —
+     * exile, and the ante ("target card in the ante", Darkpact). Scans only the targeting player's
+     * copy when the filter restricts to cards they own or control.
+     */
+    fun findValidOwnerKeyedZoneTargets(
+        state: GameState,
+        playerId: EntityId,
+        filter: TargetFilter,
+        sourceId: EntityId? = null
     ): List<EntityId> {
         val playerIds = when (filter.baseFilter.controllerPredicate) {
             ControllerPredicate.ControlledByYou, ControllerPredicate.OwnedByYou -> listOf(playerId)
@@ -271,7 +303,7 @@ class TargetEnumerationUtils(
         }
         val context = PredicateContext(controllerId = playerId, sourceId = sourceId)
         return playerIds.flatMap { pid ->
-            state.getExile(pid).filter { entityId ->
+            state.getZone(pid, filter.zone).filter { entityId ->
                 if (filter.excludeSelf && entityId == sourceId) return@filter false
                 predicateEvaluator.matches(state, state.projectedState, entityId, filter.baseFilter, context)
             }
@@ -317,6 +349,7 @@ class TargetEnumerationUtils(
                     Zone.HAND -> "Hand"
                     Zone.LIBRARY -> "Library"
                     Zone.COMMAND -> "Command"
+                    Zone.ANTE -> "Ante"
                     else -> null
                 }
             }
@@ -346,7 +379,8 @@ class TargetEnumerationUtils(
         playerId: EntityId,
         targetReqs: List<TargetRequirement>,
         sourceId: EntityId? = null,
-        targetingSourceType: TargetingSourceType = TargetingSourceType.ANY
+        targetingSourceType: TargetingSourceType = TargetingSourceType.ANY,
+        spellSubtypes: Set<String>? = null
     ): List<TargetInfo> {
         if (com.wingedsheep.engine.handlers.DependentTargetSelection.isRequired(targetReqs)) {
             return dependentTargetInfos(state, playerId, targetReqs, sourceId, targetingSourceType)
@@ -354,12 +388,17 @@ class TargetEnumerationUtils(
         return targetReqs.mapIndexed { index, req ->
             // A board-state count ("X target creatures, where X is …") is knowable now; an X from
             // the cost is not, and stays at the static bounds until the player announces it.
-            val candidates = findValidTargets(state, playerId, req, sourceId, targetingSourceType)
+            val candidates = findValidTargets(state, playerId, req, sourceId, targetingSourceType, spellSubtypes)
             val bounds = com.wingedsheep.engine.mechanics.targeting.OwnerTargetDistribution.bounds(state, req, candidates)
                 ?: DynamicTargetCount.bounds(req, xValue = null) { amount ->
                 predicateEvaluator.amounts.evaluate(state, amount, EffectContext(sourceId = sourceId, controllerId = playerId))
             }
+            // "Up to one target … of each card type / color": a candidate with no category to claim
+            // (a colourless card) can never be chosen, so it isn't offered.
+            val distinctCategories = com.wingedsheep.engine.mechanics.targeting.OnePerCategoryTargets
+                .forCandidates(state, req, candidates)
             val validTargets = candidates
+                .let { all -> if (distinctCategories == null) all else all.filter { it in distinctCategories } }
                 .takeIf { satisfiesControllerSpread(state, req, it) }
                 // Too few distinct legal objects for the required count leaves no legal choice
                 // (CR 601.2c, 115.3), so the requirement reports none and the action isn't offered.
@@ -367,9 +406,17 @@ class TargetEnumerationUtils(
                 ?: emptyList()
             val equalityGroups = com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality
                 .compatibleGroups(state, validTargets, req, bounds.min)
+            // "… with different mana values": one exclusive pool per value, so the count can't
+            // exceed the distinct values on offer (and too few of them leaves no legal choice).
+            val differentValueGroups = (req as? TargetObject)?.differentNumericProperty?.let {
+                com.wingedsheep.engine.mechanics.targeting.NumericTargetEquality.groups(state, validTargets, it)
+            }?.takeIf { it.size >= bounds.min }
+            val offered = if ((req as? TargetObject)?.differentNumericProperty != null && differentValueGroups == null)
+                emptyList() else validTargets
             TargetInfo(
                 exclusiveGroups = if ((req as? TargetObject)?.ownerDistribution != null)
-                    com.wingedsheep.engine.mechanics.targeting.OwnerTargetDistribution.groups(state, validTargets) else null,
+                    com.wingedsheep.engine.mechanics.targeting.OwnerTargetDistribution.groups(state, validTargets)
+                    else differentValueGroups,
                 selectionGroups = equalityGroups,
                 index = index,
                 description = req.description,
@@ -387,10 +434,15 @@ class TargetEnumerationUtils(
                 // legal division.
                 maxTargets = when {
                     (req as? TargetObject)?.ownerDistribution != null -> bounds.max ?: 0
+                    distinctCategories != null -> minOf(bounds.max ?: Int.MAX_VALUE,
+                        com.wingedsheep.engine.mechanics.targeting.OnePerCategoryTargets
+                            .maxTargets(distinctCategories.filterKeys { it in validTargets }))
+                    differentValueGroups != null -> minOf(differentValueGroups.size,
+                        bounds.max ?: if (req.unlimited) differentValueGroups.size else req.count)
                     req.unlimited -> minOf(validTargets.size, bounds.max ?: validTargets.size)
                     else -> bounds.max ?: req.count
                 },
-                validTargets = equalityGroups?.flatten() ?: validTargets,
+                validTargets = equalityGroups?.flatten() ?: offered,
                 targetZone = getTargetZone(req),
                 mustDifferFromEarlier = req is TargetOther,
                 xConstrainsManaValue = requirementComparesToX(req, CardNumericProperty.MANA_VALUE, ComparisonOperator.LTE),
@@ -399,6 +451,7 @@ class TargetEnumerationUtils(
                 xConstrainsCount = requirementXConstrainsCount(req),
                 xConstrainsCountExactly = requirementXConstrainsCountExactly(req),
                 differentControllers = (req as? TargetObject)?.differentControllers == true,
+                distinctCategories = distinctCategories?.filterKeys { it in validTargets },
             )
         }
     }
@@ -448,13 +501,12 @@ class TargetEnumerationUtils(
     }
 
     /**
-     * True when [requirement] is a [TargetObject] whose `dynamicMaxCount` is the
+     * True when [requirement]'s `dynamicMaxCount` is the
      * [DynamicAmount.XValue] sentinel. Surfaced to the client so the targeting UI
      * caps selectable targets at the X chosen for the spell's cost.
      */
     fun requirementXConstrainsCount(requirement: TargetRequirement): Boolean {
-        val target = DynamicTargetCount.objectOf(requirement) ?: return false
-        return target.dynamicMaxCount == DynamicAmount.XValue
+        return requirement.dynamicMaxCount == DynamicAmount.XValue
     }
 
     /**
@@ -462,8 +514,7 @@ class TargetEnumerationUtils(
      * X — so the client must require the chosen X selections rather than cap at them.
      */
     fun requirementXConstrainsCountExactly(requirement: TargetRequirement): Boolean {
-        val target = DynamicTargetCount.objectOf(requirement) ?: return false
-        return target.dynamicMaxCount == DynamicAmount.XValue && target.dynamicMinCount == DynamicAmount.XValue
+        return requirement.dynamicMaxCount == DynamicAmount.XValue && requirement.dynamicMinCount == DynamicAmount.XValue
     }
 
     /**
@@ -503,13 +554,13 @@ class TargetEnumerationUtils(
 
     /**
      * True if [playerId] is protected from a source [sourceId] controlled by [casterId]
-     * (CR 702.16) — so the source can't legally target that player (The One Ring).
-     * Delegates to the shared [PlayerProtectionRules] used by the targeting validator and
-     * damage executor.
+     * (CR 702.16, The One Ring) or has hexproof from its quality (CR 702.11d, Veil of Summer) —
+     * so the source can't legally target that player. Delegates to the shared
+     * [PlayerProtectionRules] used by the targeting validator.
      */
     fun playerHasProtectionFrom(state: GameState, playerId: EntityId, sourceId: EntityId?, casterId: EntityId): Boolean =
         com.wingedsheep.engine.mechanics.targeting.PlayerProtectionRules
-            .isProtectedFromSource(state, playerId, sourceId, casterId, predicateEvaluator = predicateEvaluator)
+            .blocksTargeting(state, playerId, sourceId, casterId, predicateEvaluator = predicateEvaluator)
 
     companion object {
         /**

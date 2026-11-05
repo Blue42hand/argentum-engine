@@ -37,10 +37,10 @@ import type {
  * these is sent to the server as a `Card` target tagged with its zone, so a cross-zone union
  * requirement (Sorceress's Schemes: graveyard ∪ exile) matches it to the correct clause.
  */
-const CARD_TARGET_ZONES = new Set(['Graveyard', 'Exile', 'Hand', 'Library', 'Command'])
+const CARD_TARGET_ZONES = new Set(['Graveyard', 'Exile', 'Hand', 'Library', 'Command', 'Ante'])
 
 /** The entity a chosen target points at, whichever arm of the union it is. */
-function targetEntityId(target: ChosenTarget): EntityId {
+export function targetEntityId(target: ChosenTarget): EntityId {
   switch (target.type) {
     case 'Player':
       return target.playerId
@@ -255,12 +255,13 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
     (p) => p.type === 'delve' || p.type === 'convoke',
   )
   const hasPhyrexianMana = (actionInfo.manaCostString ?? '').includes('/P}')
-  //    A spell that taxes itself per target ("costs {W}{U} more for each target beyond the first")
-  //    advertises only its one-target minimum, so picking sources before targeting would always
-  //    under-tap and the server would reject the cast. Defer the manaSource step past targeting,
-  //    exactly as an X cost puts `xSelection` before it. Under auto-tap neither phase runs and the
-  //    server prices the submitted targets itself, so this only bites manual tappers.
-  const manaAfterTargeting = actionInfo.manaCostPerExtraTarget != null
+  //    A spell priced per target ("costs {W}{U} more for each target beyond the first"; Hinata's
+  //    "{1} less for each target") advertises only its cheapest target count, so picking sources
+  //    before targeting would mis-tap and the server would reject the cast. Defer the manaSource
+  //    step past targeting, exactly as an X cost puts `xSelection` before it. Under auto-tap
+  //    neither phase runs and the server prices the submitted targets itself, so this only bites
+  //    manual tappers.
+  const manaAfterTargeting = actionInfo.manaCostByTargetCount != null
   const needsManaSource =
     ((actionInfo.availableManaSources?.length ?? 0) > 0 || hasPhyrexianMana) &&
     (hasAlternativePaymentPhase || hasPhyrexianMana || !options?.autoTapEnabled)
@@ -270,7 +271,7 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
 
   // A cost priced off the spell's targets can't be paid before they're chosen — the engine
   // determines it at CR 601.2f, after targets are announced at 601.2c. `exileWeightPerTarget`
-  // carries the per-target prices *and* is the signal to defer, exactly as `manaCostPerExtraTarget`
+  // carries the per-target prices *and* is the signal to defer, exactly as `manaCostByTargetCount`
   // defers the manaSource step above. Urgent Necropsy: "collect evidence X, where X is the total
   // mana value of the permanents this spell targets."
   const costAfterTargeting =
@@ -285,6 +286,7 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
       'SacrificeForCostReduction',
       'SacrificeVariable',
       'TapPermanents',
+      'TapForCostReduction',
       'BouncePermanent',
       'DiscardCard',
       'ExileFromGraveyard',
@@ -355,9 +357,22 @@ export function computePhases(actionInfo: LegalActionInfo, options?: ComputePhas
 // mergeResult — applies a phase result to the accumulated action
 // ---------------------------------------------------------------------------
 
+/**
+ * "Sacrifice X creatures" announced at X = 0 owes nothing, so its picker would only ask the
+ * player to confirm an empty selection: drop it from the phases left after the X pick.
+ */
+export function dropSacrificeXPickerAtZero(
+  phases: PipelinePhase[],
+  actionInfo: LegalActionInfo,
+  xValue: number,
+): PipelinePhase[] {
+  if (xValue !== 0 || !actionInfo.additionalCostInfo?.sacrificeCountIsX) return phases
+  return phases.filter((p) => !(p.type === 'costPayment' && (p.costIndex ?? 0) === 0))
+}
+
 export function mergeResult(
   action: GameAction,
-  _actionInfo: LegalActionInfo,
+  actionInfo: LegalActionInfo,
   result: PhaseResult,
   gameState: ClientGameState,
 ): GameAction {
@@ -392,9 +407,13 @@ export function mergeResult(
       if (action.type === 'CastSpell') {
         // Fixed distributed counter cost (Dawnhand Dissident's linked-exile cost) —
         // send the typed payload so the engine knows exactly which counter type
-        // came off each creature.
+        // came off each creature. A "remove X counters" cost (Light Up the Night's
+        // flashback) has no fixed total: the counters removed announce X.
         return {
           ...action,
+          ...(actionInfo.hasXCost && !actionInfo.additionalCostInfo?.distributedCounterRemovalTotal
+            ? { xValue: result.xValue }
+            : {}),
           additionalCostPayment: {
             ...action.additionalCostPayment,
             distributedCounterRemovals: [...result.distributedCounterRemovals],
@@ -554,7 +573,7 @@ export function mergeResult(
           return casualtyCreature ? { ...action, casualtyCreature } : action
         }
         const fieldUpdate =
-          costType === 'TapPermanents'
+          costType === 'TapPermanents' || costType === 'TapForCostReduction'
             ? { tappedPermanents: selectedTargets }
             : costType === 'DiscardCard'
               ? { discardedCards: selectedTargets }
@@ -585,7 +604,7 @@ export function mergeResult(
         // each tapping its own creature (the engine slices `tappedPermanents` per activation).
         if (
           costType === 'TapPermanents' &&
-          (_actionInfo.additionalCostInfo?.tapBatchMaxActivations ?? 1) > 1
+          (actionInfo.additionalCostInfo?.tapBatchMaxActivations ?? 1) > 1
         ) {
           return {
             ...action,
@@ -702,15 +721,20 @@ export function enterPhase(
         }
       }
       const fixedTotal = actionInfo.additionalCostInfo?.distributedCounterRemovalTotal
+      // A counter-removal cost names itself ("Remove X loyalty counters from among planeswalkers
+      // you control"). Other payloads only carry counterRemovalCreatures alongside a different
+      // cost (an ability's "Sacrifice …"), so they keep the panel's default label.
+      const costDescription = actionInfo.additionalCostInfo?.costType === 'RemoveCounters'
+        ? actionInfo.additionalCostInfo.description
+        : undefined
       store.startCounterDistribution({
         actionInfo,
         cardName: actionInfo.description,
         xValue: 0,
         creatures: counterCreatures,
         distribution,
-        ...(fixedTotal && fixedTotal > 0
-          ? { requiredTotal: fixedTotal, description: actionInfo.additionalCostInfo!.description }
-          : {}),
+        ...(costDescription ? { description: costDescription } : {}),
+        ...(fixedTotal && fixedTotal > 0 ? { requiredTotal: fixedTotal } : {}),
       })
       break
     }
@@ -956,8 +980,9 @@ export function enterPhase(
           // non-creature sacrifice cost (Castle Doom's artifact, a land, an enchantment).
           flags.targetDescription = costInfo.description
           // Emerge (CR 702.119) is the one sacrifice cost where the choice changes the mana owed.
-          // Forward the server's per-candidate costs so the overlay can price each pick.
-          if (costInfo.costAfterSacrifice) {
+          // Forward the server's per-candidate costs so the overlay can price each pick. Every other
+          // sacrifice cost arrives with an empty map, which must not switch the emerge pricing on.
+          if (costInfo.costAfterSacrifice && Object.keys(costInfo.costAfterSacrifice).length > 0) {
             flags.costAfterSacrifice = costInfo.costAfterSacrifice
             if (actionInfo.manaCostString) flags.costBeforeSacrifice = actionInfo.manaCostString
           }
@@ -969,13 +994,34 @@ export function enterPhase(
           flags.isSacrificeSelection = true
           flags.targetDescription = costInfo.description
           break
-        case 'SacrificeVariable':
-          validTargets = [...(costInfo.validSacrificeTargets ?? [])]
-          minTargets = costInfo.sacrificeCount ?? 0
+        // "You may tap any number of untapped creatures you control; this spell costs {1} less for
+        // each" (Explosive Singularity) — any number, none included.
+        case 'TapForCostReduction':
+          validTargets = [...(costInfo.validTapTargets ?? [])]
+          minTargets = 0
           maxTargets = validTargets.length
           flags.isSacrificeSelection = true
+          flags.isTapPermanentSelection = true
           flags.targetDescription = costInfo.description
           break
+        case 'SacrificeVariable': {
+          validTargets = [...(costInfo.validSacrificeTargets ?? [])]
+          // "Sacrifice X creatures": exactly the X the xSelection phase put on the action.
+          const xCount =
+            costInfo.sacrificeCountIsX && action.type === 'CastSpell' && typeof action.xValue === 'number'
+              ? action.xValue
+              : null
+          minTargets = xCount ?? costInfo.sacrificeCount ?? 0
+          maxTargets = xCount ?? validTargets.length
+          flags.isSacrificeSelection = true
+          flags.targetDescription =
+            xCount == null
+              ? costInfo.description
+              : xCount === 1
+                ? costInfo.description.replace(/\bX (\w+?)s\b/, '1 $1')
+                : costInfo.description.replace(/\bX\b/, String(xCount))
+          break
+        }
         case 'TapPermanents': {
           validTargets = [...(costInfo.validTapTargets ?? [])]
           // Station-style multi-select shortcut (CR 702.184a): each chosen creature becomes its
@@ -1007,6 +1053,25 @@ export function enterPhase(
           // Shown verbatim as the prompt: it is what tells "Untap two tapped creatures you
           // control" (Halo Fountain) apart from an ordinary tap cost.
           flags.targetDescription = costInfo.description
+          break
+        }
+        // Casualty N / X (CR 702.153a): casualty is its own legal action — declining it is the plain
+        // cast — so exactly one creature with power N (or the announced X) or greater is picked here.
+        case 'Casualty': {
+          const chosenX = action.type === 'CastSpell' ? action.xValue : undefined
+          const candidates = costInfo.validSacrificeTargets ?? []
+          validTargets =
+            costInfo.sacrificeMinPowerIsX && typeof chosenX === 'number' && gameState != null
+              ? candidates.filter((id) => (gameState.cards[id]?.power ?? -1) >= chosenX)
+              : [...candidates]
+          minTargets = 1
+          maxTargets = 1
+          flags.isSacrificeSelection = true
+          // Name the announced X in the prompt: "power 2 or greater", not "power X or greater".
+          flags.targetDescription =
+            costInfo.sacrificeMinPowerIsX && typeof chosenX === 'number'
+              ? costInfo.description.replace('power X', `power ${chosenX}`)
+              : costInfo.description
           break
         }
         case 'Conspire':
@@ -1230,10 +1295,16 @@ export function enterPhase(
       // XValue server-side), the static `count` field is just a placeholder (often
       // its default of 1). After the user picks X via the cast-time xSelection
       // phase, the chosen X *replaces* the placeholder as the max — not min(static, X).
-      const resolveMaxByX = (staticMax: number, constrained: boolean | undefined): number => {
-        if (!constrained) return staticMax
-        if (chosenX == null) return staticMax
-        return chosenX
+      // A division whose total the server priced per X (Shatterskull Smashing: "X damage divided
+      // … among up to two targets") can only reach as many targets as that total covers at the
+      // server's per-target floor — X = 1 can't be split between two creatures.
+      const divisionTotal =
+        actionInfo.totalDamageByX && chosenX != null ? actionInfo.totalDamageByX[chosenX] : undefined
+      const divisionCap =
+        divisionTotal != null ? Math.floor(divisionTotal / (actionInfo.minDamagePerTarget ?? 1)) : Infinity
+      const resolveMaxByX = (staticMax: number, constrained: boolean | undefined, divided = true): number => {
+        const max = !constrained || chosenX == null ? staticMax : chosenX
+        return divided ? Math.min(max, divisionCap) : max
       }
       // "X target creatures" (as opposed to "up to X") is exact: the server flags it, and the
       // chosen X becomes the minimum as well as the maximum.
@@ -1248,13 +1319,18 @@ export function enterPhase(
 
       if (actionInfo.targetRequirements && actionInfo.targetRequirements.length > 0) {
         const firstReq = actionInfo.targetRequirements[0]!
-        const maxTargets = resolveMaxByX(firstReq.maxTargets, firstReq.xConstrainsCount)
+        const maxTargets = resolveMaxByX(
+          firstReq.maxTargets,
+          firstReq.xConstrainsCount,
+          (actionInfo.distributionTargetGroup ?? 0) === 0,
+        )
         store.startTargeting({
           action,
           validTargets: applyXFilters(firstReq.validTargets, firstReq.xConstrainsManaValue, firstReq.xConstrainsPower, firstReq.xConstrainsManaValueExactly),
           selectedTargets: [],
           selectionGroups: firstReq.selectionGroups ?? null,
           exclusiveGroups: firstReq.exclusiveGroups ?? null,
+          distinctCategories: firstReq.distinctCategories ?? null,
           minTargets: resolveMinByX(firstReq.minTargets, maxTargets, firstReq.xConstrainsCountExactly),
           maxTargets,
           currentRequirementIndex: 0,

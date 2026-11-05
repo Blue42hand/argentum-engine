@@ -160,6 +160,8 @@ class PuzzleComparisonBenchmark : ScenarioTestBase() {
                 // Our own planeswalkers defended, and spent before they die.
                 AiProfile.PRODUCTION_WALKERDEFENCE,
                 AiProfile.PRODUCTION_CANDIDATE_WALKERDEFENCE,
+                // Minus-only walkers spent for what they buy.
+                AiProfile.PRODUCTION_CANDIDATE_FUELWALKERS,
                 // Enablers cast before the spells they discount.
                 AiProfile.PRODUCTION_ENABLERS,
                 AiProfile.PRODUCTION_CANDIDATE_ENABLERS,
@@ -176,6 +178,10 @@ class PuzzleComparisonBenchmark : ScenarioTestBase() {
                 // tapped fliers keeping their evasion — alone and on top of what is live.
                 AiProfile.PRODUCTION_ATTACKS,
                 AiProfile.PRODUCTION_CANDIDATE_ATTACKS,
+                // Pressing a winning position — the damage an attack deals credited by how far the
+                // board it leaves dominates — off and on, on top of everything live.
+                AiProfile.LIVE_WITHOUT_PRESSURE,
+                AiProfile.LIVE,
                 // Phase 7's rollout evaluator, isolated from Phases 4 and 6 so the column is
                 // attributable to the rollouts alone.
                 AiProfile.PHASE7,

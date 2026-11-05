@@ -804,6 +804,8 @@ class TournamentMatchHandler(
             gameSession.rankedMode = com.wingedsheep.gameserver.ranking.Ranked
                 .modeForTournament(lobby.rules, lobby.format)
         }
+        // CR 407 — the lobby handlers keep this off whenever the lobby is ranked.
+        gameSession.playingForAnte = lobby.playingForAnte && !lobby.ranked
         val ps1 = player1State.identity.toPlayerSession()
         val ps2 = player2State.identity.toPlayerSession()
 

@@ -93,13 +93,24 @@ class GameSimulator(
      * [maxAutomaticTransitions], the unfinished state is returned as
      * [SimulationResult.StoppedAtLimit], never as successful completion.
      */
-    fun simulate(state: GameState, action: GameAction): SimulationResult {
+    fun simulate(state: GameState, action: GameAction): SimulationResult =
+        simulate(state, action, stopBeforeCombatDamage = false)
+
+    /**
+     * [simulate], and with [stopBeforeCombatDamage] the simulation stops at the empty stack even
+     * inside combat with blockers declared, overriding [resolveThroughCombatDamage] for this call.
+     *
+     * For a caller that drives combat priority by priority itself — [CombatResponses] gives a
+     * player the window after blocks to act in, which carrying straight through to the damage
+     * would skip.
+     */
+    fun simulate(state: GameState, action: GameAction, stopBeforeCombatDamage: Boolean): SimulationResult {
         val play = state.pendingDecision as? PlayCardDecision
         val submission = if (play != null && (action is CastSpell || action is PlayLand)) {
             SubmitDecision(play.playerId, PlayCardResponse(play.id, action))
         } else action
         val result = processor.process(state, submission).result
-        return resolveToQuietState(result)
+        return resolveToQuietState(result, throughCombatDamage = resolveThroughCombatDamage && !stopBeforeCombatDamage)
     }
 
     /**
@@ -110,7 +121,7 @@ class GameSimulator(
             ?: return SimulationResult.Illegal(state, emptyList(), "No pending decision")
         val action = SubmitDecision(pending.playerId, response)
         val result = processor.process(state, action).result
-        return resolveToQuietState(result)
+        return resolveToQuietState(result, throughCombatDamage = resolveThroughCombatDamage)
     }
 
     /**
@@ -119,6 +130,14 @@ class GameSimulator(
     fun getLegalActions(state: GameState, playerId: EntityId): List<LegalAction> {
         return enumerator.enumerate(state, playerId, EnumerationMode.ACTIONS_ONLY)
     }
+
+    /**
+     * The non-mana activated abilities [playerId]'s permanents offer, whoever holds priority —
+     * what an opponent's visible board can still do. See
+     * [LegalActionEnumerator.enumeratePermanentAbilities].
+     */
+    fun getPermanentAbilityActions(state: GameState, playerId: EntityId): List<LegalAction> =
+        enumerator.enumeratePermanentAbilities(state, playerId, EnumerationMode.ACTIONS_ONLY)
 
     /**
      * Simulate each legal action (1-ply) and return scored outcomes.
@@ -150,7 +169,7 @@ class GameSimulator(
      * (lands tapped, creature not yet on battlefield), making every spell
      * look worse than passing.
      */
-    private fun resolveToQuietState(result: ExecutionResult): SimulationResult {
+    private fun resolveToQuietState(result: ExecutionResult, throughCombatDamage: Boolean): SimulationResult {
         var current = result
         var allEvents = result.events
         var iterations = 0
@@ -233,7 +252,7 @@ class GameSimulator(
             // Stack empty, no pending decision — normally a quiet state. Inside combat with
             // blockers already declared it is a *pre-damage* state, and the whole point of the
             // candidate may be the damage; pass priority to advance the step and look again.
-            if (resolveThroughCombatDamage && isPreDamageCombatState(state)) {
+            if (throughCombatDamage && isPreDamageCombatState(state)) {
                 if (priorityPlayerId == null || state.gameOver) {
                     return SimulationResult.Terminal(state, allEvents)
                 }

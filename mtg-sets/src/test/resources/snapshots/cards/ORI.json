@@ -287,6 +287,54 @@
     "colorIdentityOverride": []
 }
 
+// Alhammarret's Archive
+{
+    "name": "Alhammarret's Archive",
+    "manaCost": "{5}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "If you would gain life, you gain twice that much life instead.\nIf you would draw a card except the first one you draw in each of your draw steps, draw two cards instead.",
+    "script": {
+        "replacementEffects": [
+            "ModifyLifeGain",
+            {
+                "type": "ReplaceDrawWith",
+                "replacementEffect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "appliesTo": {
+                    "type": "DrawEvent",
+                    "firstInDrawStep": "EXCLUDED"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "221",
+        "rarity": "MYTHIC",
+        "artist": "Richard Wright",
+        "flavorText": "It contains the totality of Alhammarret's notes, theories, and ponderings.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/70afb856-6697-411b-b1aa-e9290a0bfd68.jpg?1783938312",
+        "rulings": [
+            {
+                "date": "2015-06-22",
+                "text": "If an effect would set your life total to a specific number that's higher than your current life total, that effect would cause you to gain life equal to the difference. Alhammarret's Archive will then double the amount of life that effect would cause you to gain. For example, if you have 3 life and an effect says that your life total \"becomes 10,\" your life total will actually become 17."
+            },
+            {
+                "date": "2015-06-22",
+                "text": "If two or more replacement effects would apply to a card-drawing event, the player drawing the card chooses the order in which to apply them."
+            },
+            {
+                "date": "2015-06-22",
+                "text": "Similarly, the effects of the last abilities of multiple Archives are cumulative. If you control two, you'll draw four times the number of cards, and so on."
+            }
+        ]
+    }
+}
+
 // Ampryn Tactician
 {
     "name": "Ampryn Tactician",
@@ -1001,6 +1049,97 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Dark Petition
+{
+    "name": "Dark Petition",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Search your library for a card, put that card into your hand, then shuffle.\nSpell mastery — If there are two or more instant and/or sorcery cards in your graveyard, add {B}{B}{B}.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library"
+                    },
+                    "storeAs": "searchable",
+                    "search": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a card to put into your hand",
+                    "selectedLabel": "Put into your hand"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                },
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent",
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Compare",
+                            "left": {
+                                "type": "Count",
+                                "player": "You",
+                                "zone": "Graveyard",
+                                "filter": "instant|sorcery"
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "AddMana",
+                        "color": "BLACK",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "90",
+        "rarity": "RARE",
+        "artist": "Igor Kieryluk",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/9/e9df9c5e-7087-42b2-9001-c89d40a66c68.jpg?1783938344",
+        "rulings": [
+            {
+                "date": "2015-06-22",
+                "text": "Check to see if there are two or more instant and/or sorcery cards in your graveyard as the spell resolves to determine whether the spell mastery ability applies. The spell itself won't count because it's still on the stack as you make this check."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -2928,7 +3067,7 @@
                     "color": "RED",
                     "riders": [
                         {
-                            "type": "CopySpellWhenSpent",
+                            "type": "TriggersWhenSpent",
                             "spellFilter": {
                                 "cardPredicates": [
                                     {
@@ -2943,6 +3082,10 @@
                                         "color": "RED"
                                     }
                                 ]
+                            },
+                            "effect": {
+                                "type": "CopyTargetSpell",
+                                "target": "TriggeringEntity"
                             }
                         }
                     ]
@@ -3175,6 +3318,62 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Shaman of the Pack
+{
+    "name": "Shaman of the Pack",
+    "manaCost": "{1}{B}{G}",
+    "typeLine": "Creature — Elf Shaman",
+    "oracleText": "When this creature enters, target opponent loses life equal to the number of Elves you control.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Shaman of the Pack:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "LoseLife",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "permanent Elf"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetOpponent",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "217",
+        "rarity": "UNCOMMON",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "To the elves, her spear is a compass; to the boggarts, a harbinger of doom.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/0/304687b1-2294-4144-b2bd-7e36f9aaac34.jpg?1783938313",
+        "rulings": [
+            {
+                "date": "2016-06-08",
+                "text": "Count the number of Elves you control as Shaman of the Pack's ability resolves, including Shaman of the Pack if it's still on the battlefield, to determine how much life is lost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
     ]
 }
 
@@ -3525,8 +3724,7 @@
                             "EmitLibrarySearchedEvent"
                         ]
                     }
-                },
-                "descriptionOverride": "You may search your library for a basic land card, put it onto the battlefield tapped, then shuffle"
+                }
             }
         ],
         "activatedAbilities": [

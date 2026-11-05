@@ -33,6 +33,18 @@ describe('parsePreferences', () => {
     expect(parsePreferences('nope')).toEqual(DEFAULT_PREFERENCES)
   })
 
+  it('defaults missing priority preferences to the fork forced-only policy', () => {
+    expect(DEFAULT_PREFERENCES.gameplay.priorityMode).toBe('forcedOnly')
+    expect(parsePreferences({}).gameplay.priorityMode).toBe('forcedOnly')
+    expect(parsePreferences({ gameplay: { priorityMode: 'unknown' } }).gameplay.priorityMode).toBe('forcedOnly')
+  })
+
+  it.each(['forcedOnly', 'auto'] as const)('preserves an explicit %s preference through parsing', (priorityMode) => {
+    const parsed = parsePreferences({ gameplay: { priorityMode } })
+    expect(parsed.gameplay.priorityMode).toBe(priorityMode)
+    expect(parsePreferences(JSON.parse(JSON.stringify(parsed))).gameplay.priorityMode).toBe(priorityMode)
+  })
+
   it('reads the message alert switch, defaulting to on for documents written before it existed', () => {
     expect(parsePreferences({ display: { motion: 'reduce' } }).messages.alertsAway).toBe(true)
     expect(parsePreferences({ messages: { alertsAway: false } }).messages.alertsAway).toBe(false)
@@ -54,6 +66,30 @@ describe('parsePreferences', () => {
     expect(p.battlefield.creatures.groupFrom).toBe(10)
     expect(p.battlefield.maxVisibleLayers).toBe(1)
     expect(p.display).toEqual({ motion: 'system', hoverPreview: false })
+  })
+
+  it('keeps known own-stack stops, deduped, and defaults to none', () => {
+    expect(parsePreferences({}).gameplay.ownStackStops).toEqual([])
+    expect(
+      parsePreferences({ gameplay: { ownStackStops: ['TRIGGERED_ABILITIES', 'BOGUS', 'TRIGGERED_ABILITIES', 'SPELLS'] } })
+        .gameplay.ownStackStops,
+    ).toEqual(['TRIGGERED_ABILITIES', 'SPELLS'])
+    expect(parsePreferences({ gameplay: { ownStackStops: 'SPELLS' } }).gameplay.ownStackStops).toEqual([])
+  })
+
+  it('reads the forced-choice mode, migrating the boolean it replaced', () => {
+    const mode = (gameplay: Record<string, unknown>) => parsePreferences({ gameplay }).gameplay.forcedChoices
+    expect(mode({})).toBe('delayed')
+    expect(mode({ forcedChoices: 'instant' })).toBe('instant')
+    expect(mode({ forcedChoices: 'ask' })).toBe('ask')
+    // A document saved before the three modes existed keeps its choice.
+    expect(mode({ autoAnswerForced: true })).toBe('delayed')
+    expect(mode({ autoAnswerForced: false })).toBe('ask')
+    // The new field wins over a leftover old one; nonsense falls back to the old one, then the default.
+    expect(mode({ forcedChoices: 'instant', autoAnswerForced: false })).toBe('instant')
+    expect(mode({ forcedChoices: 'sometimes', autoAnswerForced: false })).toBe('ask')
+    expect(mode({ forcedChoices: 3 })).toBe('delayed')
+    expect('autoAnswerForced' in parsePreferences({ gameplay: { autoAnswerForced: false } }).gameplay).toBe(false)
   })
 
   it('normalizes a one-card stack: group-from 1 is 2, stack-size 1 is unlimited', () => {

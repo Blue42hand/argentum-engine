@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.mechanics.stack
 
+import com.wingedsheep.sdk.scripting.AbilityTriggerCause
+import com.wingedsheep.engine.mechanics.ManaValues
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
@@ -12,6 +14,7 @@ import com.wingedsheep.engine.state.nameVisibleToAll
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.targets.*
+import com.wingedsheep.sdk.scripting.OnceOnlyAbilityKind
 
 /**
  * Puts the non-cast stack objects on the stack — a copy of a spell (CR 707.10), a triggered
@@ -29,19 +32,18 @@ internal object StackPlacement {
         targets: List<ChosenTarget> = emptyList(),
         targetRequirements: List<TargetRequirement> = emptyList(),
         /**
-         * True when this ability fired because its own source creature was declared as an attacker
-         * (a SELF-bound attacks trigger). Stamped onto the emitted [AbilityTriggeredEvent] so
-         * Firebender Ascension's "attacking causes a triggered ability of that creature to trigger"
-         * meta-trigger can key on it.
+         * What caused this ability to trigger (its creature attacking, a permanent entering), or
+         * null. Stamped onto the emitted [AbilityTriggeredEvent] so the CR 603.3b meta-triggers
+         * (Firebender Ascension, Strict Proctor) can key on it.
          */
-        causedByAttack: Boolean = false
+        triggerCause: AbilityTriggerCause? = null
     ): ExecutionResult {
         // Create a new entity for the ability on the stack
         val (abilityId, stateWithId) = state.newEntity()
 
         var container = ComponentContainer.of(ability)
         if (targets.isNotEmpty()) {
-            container = container.with(TargetsComponent.capture(state, targets, targetRequirements))
+            container = container.with(TargetsComponent.capture(state, targets, targetRequirements, ability.sourceId))
         }
 
         var newState = stateWithId.withEntity(abilityId, container)
@@ -60,7 +62,7 @@ internal object StackPlacement {
                 ability.controllerId,
                 ability.description,
                 abilityEntityId = abilityId,
-                causedByAttack = causedByAttack
+                triggerCause = triggerCause
             )
         )
 
@@ -114,7 +116,7 @@ internal object StackPlacement {
         exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None,
         retainedTargetIndices: Set<Int>? = null
     ): ExecutionResult {
-        val sourceContainer = state.getEntity(sourceSpellId)
+        val sourceContainer = state.spellOrLastKnown(sourceSpellId)
             ?: return ExecutionResult.error(state, "Source spell not found: $sourceSpellId")
         // CR 707.10: a spell that can't be copied yields no copy. Succeed without change.
         if (sourceContainer.has<com.wingedsheep.engine.state.components.identity.CantBeCopiedComponent>()) {
@@ -170,6 +172,9 @@ internal object StackPlacement {
             // copiable values (CR 707.2), so the uncast copy has no offspring to have paid.
             declaredCostSlot = sourceSpell.declaredCostSlot.takeUnless { it == ChoiceSlot.OFFSPRING },
             entryKeywordGrants = emptyList(),
+            // Counters owed to the original aren't copied either (CR 707.2) — neither a cast
+            // trigger's nor Chorus of the Conclave's bought ones: a copy isn't cast (CR 707.10).
+            additionalEntryCounters = emptyList(),
             manaSpentWhite = 0,
             manaSpentBlue = 0,
             manaSpentBlack = 0,
@@ -255,7 +260,8 @@ internal object StackPlacement {
                 originalSpellId = sourceSpellId,
                 copyIndex = copyIndex,
                 copyTotal = copyTotal,
-                manaValue = copiedCardComp.manaValue
+                // The copy is on the stack with the original's X (CR 707.10), which counts (CR 202.3e).
+                manaValue = ManaValues.of(newState, copyId, copiedCardComp)
             )
         )
 
@@ -285,7 +291,7 @@ internal object StackPlacement {
         targetRequirements: List<TargetRequirement> = emptyList(),
         emitActivationEvent: Boolean = true,
         costsTap: Boolean = false,
-        isExhaust: Boolean = false,
+        onceOnlyKind: OnceOnlyAbilityKind? = null,
         cantBeCopied: Boolean = false,
         isLoyalty: Boolean = false,
         loyaltyCountersRemoved: Int = 0,
@@ -294,7 +300,7 @@ internal object StackPlacement {
 
         var container = ComponentContainer.of(ability)
         if (targets.isNotEmpty()) {
-            container = container.with(TargetsComponent.capture(state, targets, targetRequirements))
+            container = container.with(TargetsComponent.capture(state, targets, targetRequirements, ability.sourceId))
         }
         // CR 707.10e — "This ability can't be copied": tag the ability instance on the stack so a
         // copy-ability effect (e.g. Gogo, Master of Mimicry) makes no copy of it.
@@ -321,9 +327,10 @@ internal object StackPlacement {
                     abilityEntityId = abilityId,
                     costsTap = costsTap,
                     isManaAbility = false,
-                    isExhaust = isExhaust,
+                    onceOnlyKind = onceOnlyKind,
                     isLoyalty = isLoyalty,
                     loyaltyCountersRemoved = loyaltyCountersRemoved,
+                    keyword = ability.activatedAbility?.keyword,
                 )
             )
         }

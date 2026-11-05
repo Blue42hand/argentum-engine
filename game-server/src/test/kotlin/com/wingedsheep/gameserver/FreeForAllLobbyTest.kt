@@ -161,7 +161,7 @@ class FreeForAllLobbyTest : FunSpec() {
             }
 
             // ── Mid-game concede: Charlie leaves, the game continues 2-way (CR 800.4a) ──
-            charlie.send(ClientMessage.Concede)
+            charlie.send(ClientMessage.Concede())
             eventually(10.seconds) {
                 charlie.messages.any { it is ServerMessage.PlayerEliminated } shouldBe true
             }
@@ -178,7 +178,7 @@ class FreeForAllLobbyTest : FunSpec() {
             bob.messages.none { it is ServerMessage.GameOver } shouldBe true
 
             // ── Second concede ends the game; standings are the elimination order ──
-            bob.send(ClientMessage.Concede)
+            bob.send(ClientMessage.Concede())
             eventually(10.seconds) {
                 listOf(alice, bob, charlie).all { c ->
                     c.messages.any { it is ServerMessage.FreeForAllGameComplete }
@@ -551,7 +551,7 @@ class FreeForAllLobbyTest : FunSpec() {
             // Once the only human concedes there is nobody left for the AI-only table to serve.
             // The server finalizes it through the normal completion path instead of letting both
             // AI controllers keep playing an invisible game in the background.
-            host.send(ClientMessage.Concede)
+            host.send(ClientMessage.Concede())
             eventually(10.seconds) {
                 host.messages.any { it is ServerMessage.FreeForAllGameComplete } shouldBe true
             }

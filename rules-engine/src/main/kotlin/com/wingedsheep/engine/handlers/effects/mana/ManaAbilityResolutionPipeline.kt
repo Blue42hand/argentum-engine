@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.AdditionalManaOnTap
 import com.wingedsheep.sdk.scripting.AdditionalSourceTriggers
 import com.wingedsheep.sdk.scripting.DampLandManaProduction
 import com.wingedsheep.sdk.scripting.TappedForManaType
+import com.wingedsheep.engine.state.components.identity.faceUpCardDefinition
 
 /**
  * Everything that happens *after* a mana ability's own effect has resolved: the Damping Sphere
@@ -195,10 +196,14 @@ class ManaAbilityResolutionPipeline(
                 val auraController = container.get<ControllerComponent>()?.playerId ?: landController
                 val extraFirings = countAdditionalSourceTriggerDoublers(currentState, entityId, auraController)
                 val firings = 1 + extraFirings
+                // The aura is the source of this mana (CR 106.3), so a snow aura's bonus is snow
+                // mana whatever the land is (Glittering Frost).
+                val snowAura = ManaProvenanceTracker.isSnowSource(currentState, entityId)
                 repeat(firings) {
                     currentState = currentState.updateEntity(landController) { c ->
                         val pool = c.get<ManaPoolComponent>() ?: ManaPoolComponent()
-                        c.with(pool.add(manaColor, amount))
+                        val added = pool.add(manaColor, amount)
+                        c.with(if (snowAura) added.markSnow(manaColor, amount) else added)
                     }
 
                     events.add(ManaAddedEvent(
@@ -262,9 +267,7 @@ class ManaAbilityResolutionPipeline(
         // on and grants it to its controller for the turn.
         val holders: List<Pair<EntityId, AdditionalManaOnSourceTap>> =
             currentState.getBattlefield().flatMap { entityId ->
-                val container = currentState.getEntity(entityId)
-                val card = container?.get<CardComponent>()
-                val cardDef = card?.let { cardRegistry.getCard(it.cardDefinitionId) }
+                val cardDef = currentState.faceUpCardDefinition(entityId, cardRegistry)
                 cardDef?.script?.staticAbilities.orEmpty()
                     .filterIsInstance<AdditionalManaOnSourceTap>()
                     .map { entityId to it }
@@ -295,6 +298,8 @@ class ManaAbilityResolutionPipeline(
                     )) continue
 
                 val effectContext = EffectContext(
+                    programOrigin = com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter
+                        .startedBy(ManaAbilityResolutionPipeline::class),
                     sourceId = entityId,
                     controllerId = tappingPlayerId,
                     targets = emptyList(),
@@ -313,12 +318,14 @@ class ManaAbilityResolutionPipeline(
                 // them just like any other trigger. firings = 1 (natural) + N (doublers).
                 val extraFirings = countAdditionalSourceTriggerDoublers(currentState, entityId, staticController)
                 val firings = 1 + extraFirings
+                // This static's permanent is the mana's source (CR 106.3): snow if it is snow.
+                val snowSource = ManaProvenanceTracker.isSnowSource(currentState, entityId)
                 repeat(firings) {
                     currentState = currentState.updateEntity(tappingPlayerId) { c ->
                         val pool = c.get<ManaPoolComponent>() ?: ManaPoolComponent()
                         val newPool = if (bonusColor != null) pool.add(bonusColor, bonusAmount)
                                       else pool.addColorless(bonusAmount)
-                        c.with(newPool)
+                        c.with(if (snowSource) newPool.markSnow(bonusColor, bonusAmount) else newPool)
                     }
 
                     events.add(ManaAddedEvent(
@@ -421,8 +428,7 @@ class ManaAbilityResolutionPipeline(
     private fun hasDampLandManaProduction(state: GameState): Boolean {
         for (playerId in state.turnOrder) {
             for (entityId in state.getBattlefield(playerId)) {
-                val card = state.getEntity(entityId)?.get<CardComponent>() ?: continue
-                val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
+                val cardDef = state.getEntity(entityId)?.faceUpCardDefinition(cardRegistry) ?: continue
                 if (cardDef.script.staticAbilities.any { it is DampLandManaProduction }) {
                     return true
                 }
@@ -449,6 +455,17 @@ private fun ManaAddedEvent?.producedColors(): Set<Color> {
  * resolution added, however many effects it took (restricted mana included). Empty when only
  * colorless was added.
  */
+/**
+ * How much mana [playerId]'s pool gained between [before] and [after] — "the amount of mana this
+ * creature produced" for [com.wingedsheep.engine.core.ManaAbilityResolvedEvent]. Read before
+ * obligation tagging moves plain mana into per-unit entries, as [manaColorsAdded] is.
+ */
+fun manaAmountAdded(before: GameState, after: GameState, playerId: EntityId): Int {
+    val old = before.getEntity(playerId)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
+    val new = after.getEntity(playerId)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
+    return (new.total - old.total).coerceAtLeast(0)
+}
+
 fun manaColorsAdded(before: GameState, after: GameState, playerId: EntityId): Set<Color> {
     val old = before.getEntity(playerId)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
     val new = after.getEntity(playerId)?.get<ManaPoolComponent>() ?: ManaPoolComponent()

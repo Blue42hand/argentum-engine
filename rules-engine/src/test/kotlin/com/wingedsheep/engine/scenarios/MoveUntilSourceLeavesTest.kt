@@ -113,7 +113,8 @@ class MoveUntilSourceLeavesTest : ScenarioTestBase() {
             val moved = executor.execute(game.state, MoveUntilSourceLeavesEffect(EffectTarget.SpecificEntity(victim), Zone.EXILE), context(game.state, source))
             val result = com.wingedsheep.engine.mechanics.sba.player.PlayerLeavesGameProcessor.process(
                 zones,
-                moved.state, game.player1Id, com.wingedsheep.engine.core.GameEndReason.CONCESSION
+                moved.state, game.player1Id, com.wingedsheep.engine.core.GameEndReason.CONCESSION,
+                services.finishAbandonedResolution
             )
             result.state.getBattlefield() shouldContain victim
             result.state.zoneReturns.size shouldBe 0

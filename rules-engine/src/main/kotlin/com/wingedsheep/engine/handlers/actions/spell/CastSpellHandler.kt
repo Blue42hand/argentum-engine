@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.actions.spell
 
+import com.wingedsheep.engine.state.manaAbilitySourceAllowed
 import com.wingedsheep.engine.mechanics.targeting.withTargetConstraints
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.TargetingSourceType
@@ -80,6 +81,7 @@ import com.wingedsheep.engine.state.components.identity.CantBeCounteredComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.TextChanges
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
+import com.wingedsheep.engine.state.components.identity.ForetoldComponent
 import com.wingedsheep.engine.state.permissions.activeMayPlayFor
 import com.wingedsheep.engine.state.components.identity.PlayWithAdditionalCostComponent
 import com.wingedsheep.engine.state.components.identity.PlayWithCostIncreaseComponent
@@ -279,6 +281,33 @@ class CastSpellHandler(
         )
     }
 
+    /**
+     * Ask for X (CR 601.2b) when a miracle cast reaches the handler without one. The miracle
+     * trigger casts as it resolves, so no client announced X; Entreat the Angels' {X}{W}{W} would
+     * otherwise be cast with X = 0. Bounded by the mana the caster can make after the cost's fixed
+     * part, like a cycling {X}; the payment still charges the total authoritatively.
+     */
+    private fun surfaceUnannouncedX(state: GameState, action: CastSpell, cardDef: com.wingedsheep.sdk.model.CardDefinition?): ExecutionResult? {
+        if (action.xValue != null || cardDef == null) return null
+        if (!action.useAlternativeCost || action.alternativeCostType != AlternativeCostType.MIRACLE) return null
+        val cost = MiracleGrants.effectiveMiracle(state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator)
+            ?.cost?.takeIf { it.hasX } ?: return null
+        val maxX = ((manaSolver.getAvailableManaCount(state, action.playerId) - cost.withXAs(0).cmc) /
+            cost.xCount.coerceAtLeast(1)).coerceAtLeast(0)
+        val cardName = state.getEntity(action.cardId)?.get<CardComponent>()?.name ?: "the spell"
+        return state.withPriority(action.playerId).suspendForDecision(
+            question = { id -> com.wingedsheep.engine.core.ChooseNumberDecision(
+                id = id,
+                playerId = action.playerId,
+                prompt = "Choose X for $cardName (0-$maxX)",
+                context = DecisionContext(sourceId = action.cardId, sourceName = cardName, phase = DecisionPhase.CASTING),
+                minValue = 0,
+                maxValue = maxX,
+            ) },
+            answer = com.wingedsheep.engine.core.CastChooseXContinuation(action),
+        )
+    }
+
     private fun executeAnnounced(
         inputState: GameState, action: CastSpell, lockedCost: ManaCost? = null,
         lockedPayment: com.wingedsheep.engine.core.LockedCastPayment? = null,
@@ -311,6 +340,7 @@ class CastSpellHandler(
             return ExecutionResult.error(state, it)
         }
         surfaceAdditionalCostChoice(announcedState, action, rawCosts)?.let { return it }
+        surfaceUnannouncedX(announcedState, action, cardDef)?.let { return it }
         pauseForUnannouncedModesOrTargets(announcedState, action, cardDef, cardComponent)?.let { return it }
         val authorization = castRecords.captureAuthorization(announcedState, action, cardComponent)
 
@@ -365,30 +395,25 @@ class CastSpellHandler(
                 zoneResolver.hasCommanderCastPermission(announcedState, action.playerId, action.cardId))
             if (computed != null) {
                 val context = castCostPayer.spellPaymentContext(announcedState, action, cardComponent)
-                val payableCost = if (castCostPayer.isCastWithAnyManaType(announcedState, action))
-                    computed.cost.relaxColors() else computed.cost
+                val payableCost = castCostPayer.relaxForCastPermission(announcedState, action, computed.cost, computed.paymentXValue)
                 val needsManualMana = action.alternativePayment == null && cardDef != null &&
                     computed.cost.phyrexianSymbols.isEmpty() &&
                     !manaSolver.canPay(announcedState, action.playerId, payableCost, computed.paymentXValue,
                         spellContext = context, includeManualMana = false) &&
                     manaSolver.canPay(announcedState, action.playerId, payableCost, computed.paymentXValue,
                         spellContext = context)
-                val hasLifeFundedAction = announcedState.playerActionPermissions.any {
-                    it.playerId == action.playerId && it.action.timing == com.wingedsheep.sdk.scripting.effects.PlayerActionTiming.ManaAbility
-                }
-                val needsLifeFundedMana = if (hasLifeFundedAction) {
+                val needsExplicitMana = run {
                     val sources = manaSolver.findAvailableManaSources(announcedState, action.playerId)
                         .filter { !it.requiresSacrifice && it.tapPermanentsSubCost == null }.map { it.entityId }
                     val explicit = action.copy(paymentStrategy = com.wingedsheep.engine.core.PaymentStrategy.Explicit(sources))
                     castCostPayer.validateManaPayment(announcedState, explicit, computed.cost, computed.paymentXValue) != null
-                } else false
-                if (needsManualMana || needsLifeFundedMana) {
+                }
+                if (needsManualMana || needsExplicitMana) {
                     // Sacrifice mana abilities require an explicit activation. Their sources must
                     // not appear as one-click cast-window payment choices.
                     val sacrificeSources = manaSolver.findAvailableManaSources(announcedState, action.playerId, context)
                         .filter { it.requiresSacrifice }.map { it.entityId }.toSet()
-                    val cost = (if (castCostPayer.isCastWithAnyManaType(announcedState, action)) computed.cost.relaxColors() else computed.cost)
-                        .withXAs(computed.paymentXValue)
+                    val cost = payableCost.withXAs(computed.paymentXValue)
                     val lockedEmerge = if (action.useAlternativeCost && action.altAllows(AlternativeCostType.EMERGE))
                         EmergeCasts.effectiveEmerge(announcedState, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator)
                     else null
@@ -405,17 +430,28 @@ class CastSpellHandler(
                     val lockedForage = zoneResolver.hasMayCastCreaturesFromGraveyardWithForage(
                         announcedState, action.playerId, action.cardId, cardComponent
                     ) && action.cardId in announcedState.getZone(ZoneKey(action.playerId, Zone.GRAVEYARD))
+                    // A cast restricted to certain sources' mana (Security Rhox) offers only those
+                    // sources and counts only their floating mana — when the window opens and when
+                    // its answer floats the chosen mana, so every non-matching source (sacrifice
+                    // sources included) is refused on both sides.
+                    val restricted = castCostPayer.manaSourceRestriction(announcedState, action, cardDef)
+                    val windowState = restricted?.state ?: announcedState
+                    val refused = if (restricted == null) emptySet() else manaSolver
+                        .findAvailableManaSources(announcedState, action.playerId).map { it.entityId }
+                        .filterNot { windowState.manaAbilitySourceAllowed(action.playerId, it, predicateEvaluator) }
+                        .toSet()
+                    val excludedSources = sacrificeSources + refused
                     return announcedState.suspendForDecision(
                         question = { id -> com.wingedsheep.engine.mechanics.mana.ManaPaymentWindow.buildDecision(
-                            announcedState, action.playerId, cost, id, "Produce mana for ${cardComponent.name}",
+                            windowState, action.playerId, cost, id, "Produce mana for ${cardComponent.name}",
                             DecisionContext(sourceId = action.cardId, sourceName = cardComponent.name, phase = DecisionPhase.CASTING),
-                            true, manaSolver, excludeSources = sacrificeSources, spellContext = context,
+                            true, manaSolver, excludeSources = excludedSources, spellContext = context,
                             // The displayed cost has X folded into generic mana, while actual
                             // payment can still enforce X-specific rules such as Soul Burn.
                             unknownAutoPayFeasibility = payableCost.xCount > 0 && computed.paymentXValue > 0,
                         ) },
                         answer = { decision -> com.wingedsheep.engine.core.ManaActionPaymentContinuation(action, cost, lockedCastCost = totalCost,
-                            excludedSources = sacrificeSources, paymentContext = context,
+                            excludedSources = excludedSources, paymentContext = context,
                             castPayment = com.wingedsheep.engine.core.LockedCastPayment(
                                 computed.paymentXValue, owedCosts, lockedForage, lockedLifeTax,
                                 dedicatedAlternative, lockedEmerge, decision.availableSources,
@@ -432,8 +468,9 @@ class CastSpellHandler(
         // that source to another cost of this same spell doesn't take the counters back.
         val additionalEntryCounters = if (action.additionalManaForCounters > 0) {
             AdditionalManaForCounters.applicableGrant(announcedState, action.playerId, action.cardId, cardRegistry, predicateEvaluator = predicateEvaluator)
-                ?.let { AdditionalEntryCounters(it.counterType, action.additionalManaForCounters) }
-        } else null
+                ?.let { listOf(AdditionalEntryCounters(it.counterType, action.additionalManaForCounters)) }
+                .orEmpty()
+        } else emptyList()
 
         // --- 3. Pay (CR 601.2g–h) ----------------------------------------------------------------
 
@@ -678,6 +715,16 @@ class CastSpellHandler(
         return SpellTargeting(requirements, perMode, modalEffect, action.chosenModes.takeIf { perMode.isNotEmpty() }.orEmpty())
     }
 
+    /**
+     * CR 702.143c: a spell "was foretold" when it was a foretold card in exile before it was cast —
+     * whatever cost then paid for it. Recorded on the same cast-choice rail as kicker, so
+     * `Conditions.WasForetold` reads it from the resolving spell and from the permanent it becomes.
+     */
+    private fun foretoldChoice(originState: GameState, action: CastSpell): Map<ChoiceSlot, Int> =
+        if (originState.getEntity(action.cardId)?.get<ForetoldComponent>() != null &&
+            castCostTotaller.castSourceZone(originState, action.cardId) == Zone.EXILE
+        ) mapOf(ChoiceSlot.FORETOLD to 1) else emptyMap()
+
     /** Puts the paid-for spell on the stack with everything its resolution will read. */
     private fun putSpellOnStack(
         state: GameState,
@@ -691,7 +738,7 @@ class CastSpellHandler(
         returned: ReturnedForAlternativeCost,
         marks: AlternativeCostMarks,
         splicedCardNames: List<String>,
-        additionalEntryCounters: AdditionalEntryCounters?,
+        additionalEntryCounters: List<AdditionalEntryCounters>,
     ): ExecutionResult {
         // Derive per-mode target groups from the flat target list when the action arrived with
         // chosenModes but no modeTargetsOrdered (current web-client cast-time UI for choose-1 modal
@@ -743,7 +790,7 @@ class CastSpellHandler(
                         ?.filterIsInstance<KeywordAbility.OptionalAdditionalCost>().orEmpty()).any { it.multi }
                 }?.let { it to action.declaredCostTimes }).toMap() + linkedKickerChoices(
                 action, cardDef?.keywordAbilities?.filterIsInstance<KeywordAbility.OptionalAdditionalCost>().orEmpty()
-            ),
+            ) + foretoldChoice(originState, action),
             wasBlightPaid = (action.additionalCostPayment?.blightTargets?.isNotEmpty() == true),
             // True when the spell's waterbend additional cost was paid (Avatar) — mandatory costs
             // always, optional "you may waterbend {N}" only when the player elected it.
@@ -754,6 +801,7 @@ class CastSpellHandler(
             giftRecipient = action.giftRecipient?.takeIf { cardDef?.giftKeyword() != null },
             wasWarped = marks.wasWarped,
             wasDashed = marks.wasDashed,
+            wasBlitzed = marks.wasBlitzed,
             wasEvoked = marks.wasEvoked,
             wasImpending = marks.wasImpending,
             wasCleaved = marks.wasCleaved,
@@ -789,27 +837,34 @@ class CastSpellHandler(
             faceIndex = action.faceIndex,
             castFused = action.castFused,
             spentManaProvenance = paid.payment.spentManaProvenance,
-            castTimeFlags = castTimeFlags(state, action, castTimeScript),
+            castTimeValues = castTimeValues(state, action, castTimeScript, ledger.costDefinedX ?: action.xValue ?: 0),
             // Every enumerated alternative-cost offer names its mechanic explicitly, so this is the
-            // declared choice rather than a guess. Descriptive only — the rules consequences of each
-            // mechanic ride the `was*` flags above.
-            alternativeCost = action.alternativeCostType?.takeIf { action.useAlternativeCost },
+            // declared choice; an untyped cast records the base its price came from. Read by
+            // Conditions.SelfAlternativeCostWasPaid and Escaped; the other mechanics' rules
+            // consequences ride the `was*` flags above.
+            alternativeCost = castCostTotaller.paidAlternativeCostType(originState, action, cardDef),
             castOriginState = originState
         )
     }
 
     /**
-     * Evaluates the "as you cast this spell" condition captures (CR 601.2i). The spell has finished
-     * being cast (costs paid) but isn't on the stack yet; freezing the answers now lets the resolving
-     * effect read the cast-time board even if it has since changed (Steer Clear's "if you controlled
-     * a Mount as you cast this spell"). The caster is the controller; the captured names are carried
-     * onto SpellOnStackComponent.castTimeFlags.
+     * Evaluates the "as you cast this spell" captures (CR 601.2i). The spell has finished being cast
+     * (costs paid) but isn't on the stack yet; freezing the numbers now lets the resolving effect
+     * read the cast-time board even if it has since changed (Steer Clear's "if you controlled a Mount
+     * as you cast this spell", Lethal Exploit's "for each modified creature you controlled as you
+     * cast this spell"). The caster is the controller; the values are carried onto
+     * SpellOnStackComponent.castTimeValues.
      */
-    private fun castTimeFlags(state: GameState, action: CastSpell, castTimeScript: com.wingedsheep.sdk.model.CardScript?): Set<String> {
+    private fun castTimeValues(
+        state: GameState,
+        action: CastSpell,
+        castTimeScript: com.wingedsheep.sdk.model.CardScript?,
+        xValue: Int
+    ): Map<String, Int> {
         val captures = castTimeScript?.castTimeCaptures.orEmpty()
-        if (captures.isEmpty()) return emptySet()
-        val captureContext = EffectContext(sourceId = action.cardId, controllerId = action.playerId, targets = emptyList(), xValue = 0)
-        return captures.filter { conditionEvaluator.evaluate(state, it.condition, captureContext) }.map { it.flag }.toSet()
+        if (captures.isEmpty()) return emptyMap()
+        val captureContext = EffectContext(sourceId = action.cardId, controllerId = action.playerId, targets = emptyList(), xValue = xValue)
+        return captures.associate { it.captureName to conditionEvaluator.amounts.evaluate(state, it.value, captureContext) }
     }
 
     /**
@@ -1162,7 +1217,17 @@ class CastSpellHandler(
 
             // No real choice (exactly enough legal options) — auto-pay and re-enter, so a forced
             // single sacrifice doesn't prompt. The re-entry sees this cost satisfied and moves on.
-            if (options.size == count) {
+            // A pool drawn from a hidden zone ("discard a creature card") is forced only when the
+            // zone's size says so: which of its cards match is hidden, and skipping the question
+            // would tell the opponent the zone held no other eligible card (#3340).
+            val hiddenPoolSize = when {
+                kind == AdditionalCostSelectionKind.DISCARD ->
+                    state.getHand(action.playerId).count { it != action.cardId }
+                atom is CostAtom.ExileFrom && atom.zone.isHidden ->
+                    state.getZone(com.wingedsheep.engine.state.ZoneKey(action.playerId, atom.zone)).count { it != action.cardId }
+                else -> null
+            }
+            if (options.size == count && (hiddenPoolSize == null || hiddenPoolSize == count)) {
                 return execute(state, withAdditionalCostSelection(action, kind, options))
             }
 
@@ -1237,9 +1302,9 @@ class CastSpellHandler(
     /**
      * How many targets a mode's requirement must and may take, for the cast-time per-mode decision.
      *
-     * A [TargetObject.dynamicMaxCount] is authoritative when present — the static `count` is only
+     * A [TargetRequirement.dynamicMaxCount] is authoritative when present — the static `count` is only
      * the placeholder the author writes when the real cap isn't knowable until cast time — and a
-     * [TargetObject.dynamicMinCount] ("X target creatures": exactly X) is the floor. Both are read
+     * [TargetRequirement.dynamicMinCount] ("X target creatures": exactly X) is the floor. Both are read
      * through [DynamicTargetCount], exactly as [TargetValidator] reads them, so the count the player
      * is *offered* and the count the cast is *validated* against are the same numbers; otherwise
      * "up to X target creatures" offers one target at X = 3, or offers unbounded picks the validator
@@ -1306,12 +1371,20 @@ class CastSpellHandler(
                 sourceId = cardId,
                 xValue = baseCastAction.xValue
             )
+            // A slot whose filter reads an earlier slot of this mode ("up to three target cards
+            // from their graveyard" after "target player", Quandrix Command) is offered per prefix.
+            val prefixTables = if (com.wingedsheep.engine.handlers.DependentTargetSelection.isRequired(modeTargetReqs)) {
+                com.wingedsheep.engine.handlers.DependentTargetSelection.prefixTables(
+                    state, modeTargetReqs, xContext, targetFinder, TargetingSourceType.SPELL
+                )
+            } else null
             val legalTargetsMap = mutableMapOf<Int, List<EntityId>>()
             modeTargetReqs.forEachIndexed { index, req ->
-                legalTargetsMap[index] = targetFinder.findLegalTargets(
-                    state, req, casterId, cardId,
-                    targetingSourceType = TargetingSourceType.SPELL, pipelineContext = xContext
-                )
+                legalTargetsMap[index] = prefixTables?.get(index)?.values?.flatten()?.distinct()
+                    ?: targetFinder.findLegalTargets(
+                        state, req, casterId, cardId,
+                        targetingSourceType = TargetingSourceType.SPELL, pipelineContext = xContext
+                    )
             }
             val modeCounts = modeTargetReqs.map { req ->
                 resolveModeTargetCounts(state, req, casterId, cardId, baseCastAction.xValue)
@@ -1340,7 +1413,9 @@ class CastSpellHandler(
                     description = req.description,
                     mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther,
                     minTargets = counts.min,
-                    maxTargets = maxTargets
+                    maxTargets = maxTargets,
+                    legalTargetsByPrefix = prefixTables?.get(index)?.takeIf { index > 0 },
+                    prefixLength = index.takeIf { prefixTables != null && index > 0 }
                 ).withTargetConstraints(state, req, legalTargetsMap[index].orEmpty())
             }
 

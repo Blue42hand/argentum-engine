@@ -65,17 +65,29 @@ data class BlockedComponent(
 data object BlockedOrWasBlockedByLegendaryThisTurnComponent : Component
 
 /**
- * The creatures this creature blocked, or was blocked by, at any point during the current turn.
- * Stamped on **both** creatures of each blocking pair at block-declaration time and cleared at
- * end-of-turn cleanup, so the history survives the pairing ending (a partner dying, removal from
- * combat, the combat phase ending) and a second combat in the same turn adds to it. Backs
- * [com.wingedsheep.sdk.scripting.predicates.StatePredicate.BlockedOrWasBlockedByEntityThisTurn]
- * (Gaze of the Gorgon).
+ * The creatures this creature blocked ([blockedIds]) and was blocked by ([blockedByIds]) at any
+ * point during the current turn. Stamped on **both** creatures of each blocking pair at
+ * block-declaration time — the blocker records the attacker in [blockedIds], the attacker records
+ * the blocker in [blockedByIds] — and cleared at end-of-turn cleanup, so the history survives the
+ * pairing ending (a partner dying, removal from combat, the combat phase ending) and a second
+ * combat in the same turn adds to it. Backs
+ * [com.wingedsheep.sdk.scripting.predicates.StatePredicate.BlockPairedWithEntityThisTurn]
+ * (Gaze of the Gorgon, Glyph of Doom).
+ *
+ * [controllerWhenBlockedBy] maps each blocker in [blockedByIds] to the player who controlled this
+ * creature the last time that blocker blocked it — overwritten on every new block, so it answers
+ * "the player who controlled that creature the last time it became blocked by that Wall" (Glyph of
+ * Reincarnation, via `CaptureControllersEffect.asLastBlockedBy`) even after control has changed.
  */
 @Serializable
 data class CombatPartnersThisTurnComponent(
-    val partnerIds: Set<EntityId>
-) : Component
+    val blockedIds: Set<EntityId> = emptySet(),
+    val blockedByIds: Set<EntityId> = emptySet(),
+    val controllerWhenBlockedBy: Map<EntityId, EntityId> = emptyMap()
+) : Component {
+    /** Every creature this one was paired with in a block this turn, either way round. */
+    val partnerIds: Set<EntityId> get() = blockedIds + blockedByIds
+}
 
 /**
  * Marks a creature that was declared as an attacker at least once during the current combat
@@ -87,6 +99,44 @@ data class CombatPartnersThisTurnComponent(
  */
 @Serializable
 data object AttackedThisCombatComponent : Component
+
+/**
+ * How many combat phases this turn this creature has been declared as an attacker in (CR 508.1) —
+ * incremented once per declaration, so a creature that attacks in the natural combat and again in
+ * an added one reads 2. Unlike [AttackedThisCombatComponent] it survives the end of combat, and
+ * unlike the player-level `PlayerAttackersThisTurnComponent` set it is a count kept on the object
+ * itself, scoped like `DamageDealtThisTurnComponent` to a [turnNumber] and an object incarnation
+ * ([attackerObject]): a creature that changed zones is a new object that hasn't attacked
+ * (CR 400.7), and a stale tally from an earlier turn reads 0. It is also stripped when the creature
+ * leaves the battlefield and cleared at end-of-turn cleanup. A creature put onto the battlefield
+ * attacking was never declared and is never stamped. Backs
+ * [com.wingedsheep.sdk.scripting.values.EntityNumericProperty.TimesAttackedThisTurn]
+ * (Moraug, Fury of Akoum).
+ *
+ * [attackedPlayerIds] are the players this creature was declared attacking directly this turn,
+ * unioned across combats — a planeswalker or battle defender adds nobody. Backs
+ * [com.wingedsheep.sdk.scripting.conditions.SourceAttackedPlayerThisTurn] (Angel of Destiny).
+ * When the creature leaves the battlefield the component is re-attached to the card as last known
+ * information (CR 608.2h) for abilities that outlive it, and dropped on its next zone change.
+ */
+@Serializable
+data class TimesAttackedThisTurnComponent(
+    val turnNumber: Int,
+    val count: Int,
+    val attackerObject: com.wingedsheep.engine.state.ObjectRef?,
+    val attackedPlayerIds: Set<EntityId> = emptySet()
+) : Component {
+    private fun describes(turn: Int, current: com.wingedsheep.engine.state.ObjectRef?): Boolean =
+        turnNumber == turn && attackerObject == current
+
+    /** This tally's count if it still describes [current] on [turn], else 0. */
+    fun countFor(turn: Int, current: com.wingedsheep.engine.state.ObjectRef?): Int =
+        if (describes(turn, current)) count else 0
+
+    /** The players attacked directly if this tally still describes [current] on [turn], else none. */
+    fun attackedPlayersFor(turn: Int, current: com.wingedsheep.engine.state.ObjectRef?): Set<EntityId> =
+        if (describes(turn, current)) attackedPlayerIds else emptySet()
+}
 
 /**
  * Marks a creature that was declared as a blocker at least once during the current combat
@@ -250,6 +300,33 @@ data class MustAttackPlayerComponent(
  */
 @Serializable
 data object MustAttackThisTurnComponent : Component
+
+/**
+ * Marks a creature that attacks a **named player** this turn if able — encore's token copies,
+ * "attacks that opponent this turn if able" (CR 702.141a), put there by a
+ * [com.wingedsheep.sdk.scripting.effects.MarkMustAttackEffect] with a `defender`.
+ *
+ * Unlike [MustAttackThisTurnComponent] the requirement is directed: it binds the creature only
+ * while it could attack one of [defenderIds] at no cost (CR 508.1d), and then only an attack on
+ * that player — not their planeswalker or battle — obeys it. `DirectedAttackRequirements` reads it
+ * alongside the Public Enemy static. Removed at end of turn during cleanup.
+ */
+@Serializable
+data class MustAttackPlayerThisTurnComponent(val defenderIds: Set<EntityId>) : Component
+
+/**
+ * Marks a creature that attacks during its controller's next combat phase if able (Sizzling
+ * Soloist) — [com.wingedsheep.sdk.scripting.effects.MustAttackWindow.ControllersNextCombat].
+ * Enforced like [MustAttackThisTurnComponent] while its controller declares attackers, and
+ * removed as that player's combat phase ends (`CombatManager.endCombat`), whether or not the
+ * creature could attack; it survives turn boundaries until then.
+ *
+ * @property waitsOutCurrentCombat set when the mark lands during a combat phase of the
+ *   creature's controller whose attackers are already declared: that combat isn't "next", so
+ *   its end only clears this flag.
+ */
+@Serializable
+data class MustAttackNextCombatComponent(val waitsOutCurrentCombat: Boolean = false) : Component
 
 /**
  * Marker component letting a creature attack this turn as though it didn't have defender.

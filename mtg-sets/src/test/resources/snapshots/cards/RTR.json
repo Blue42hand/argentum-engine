@@ -87,6 +87,125 @@
     ]
 }
 
+// Angel of Serenity
+{
+    "name": "Angel of Serenity",
+    "manaCost": "{4}{W}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nWhen this creature enters, you may exile up to three other target creatures from the battlefield and/or creature cards from graveyards.\nWhen this creature leaves the battlefield, return the exiled cards to their owners' hands.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Angel of Serenity:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": "ChosenTargets",
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "gathered0",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Exile"
+                                },
+                                "linkToSource": true
+                            }
+                        ]
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "count": 3,
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature",
+                        "excludeSelf": true,
+                        "alternatives": [
+                            {
+                                "baseFilter": "creature",
+                                "zone": "Graveyard"
+                            }
+                        ]
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When this creature enters, you may exile up to three other target creatures from the battlefield and/or creature cards from graveyards."
+            },
+            {
+                "id": "Angel of Serenity:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "FromLinkedExile",
+                            "storeAs": "linked_return_hand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "linked_return_hand",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature leaves the battlefield, return the exiled cards to their owners' hands."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "MYTHIC",
+        "artist": "Aleksi Briclot",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f10d82f7-7759-457e-a9bb-f9a5bd968f82.jpg?1783940378",
+        "rulings": [
+            {
+                "date": "2013-01-24",
+                "text": "You choose up to three total targets from among other creatures on the battlefield and creature cards in graveyards. You may choose zero targets."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "You choose the targets as part of putting the \"enters\" trigger on the stack. Because that ability includes \"you may,\" you choose whether to exile the targets when the ability resolves."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "If a creature targeted by the \"enters\" ability dies before that ability resolves, it will become an illegal target even though it may be a creature card in a graveyard when the ability resolves. It won't be exiled."
+            },
+            {
+                "date": "2012-10-01",
+                "text": "If Angel of Serenity leaves the battlefield before its \"enters\" ability has resolved, its leaves-the-battlefield ability will trigger and do nothing. Then the \"enters\" ability will resolve and exile the targeted creatures and/or creature cards indefinitely."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Aquus Steed
 {
     "name": "Aquus Steed",
@@ -903,6 +1022,44 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Corpsejack Menace
+{
+    "name": "Corpsejack Menace",
+    "manaCost": "{2}{B}{G}",
+    "typeLine": "Creature — Fungus",
+    "oracleText": "If one or more +1/+1 counters would be put on a creature you control, twice that many +1/+1 counters are put on it instead.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "replacementEffects": [
+            "ScaleCounterPlacement"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "152",
+        "rarity": "RARE",
+        "artist": "Chris Rahn",
+        "flavorText": "Weakness is not in the nature of the Swarm.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/3/b35a8efe-2a3e-4060-9134-d4150e4bdf28.jpg?1783940342",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "If a creature you control would enter the battlefield with a number of +1/+1 counters on it, it enters with twice that many instead."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "If you control two Corpsejack Menaces, the number of +1/+1 counters put on a creature is four times the original number. Three Corpsejack Menaces multiplies the original number by eight, and so on."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
     ]
 }
 
@@ -1828,6 +1985,96 @@
     ]
 }
 
+// Electrickery
+{
+    "name": "Electrickery",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "oracleText": "Electrickery deals 1 damage to target creature you don't control.\nOverload {1}{R} (You may cast this spell for its overload cost. If you do, change \"target\" in its text to \"each.\")",
+    "keywords": [
+        "OVERLOAD"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Overload",
+            "cost": "{1}{R}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 1
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "controllerPredicate": {
+                            "type": "ControllerNot",
+                            "predicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "id": "t0"
+            }
+        ],
+        "overloadSpellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "controllerPredicate": {
+                            "type": "ControllerNot",
+                            "predicate": "ControlledByYou"
+                        }
+                    }
+                }
+            },
+            "body": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "target": "IterationEntity"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "93",
+        "artist": "Greg Staples",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/e/5ed81ee8-d5e4-4127-876e-9bff81f9c726.jpg?1783940356",
+        "rulings": [
+            {
+                "date": "2024-01-12",
+                "text": "Because a spell with overload doesn't target when its overload cost is paid, it may affect permanents with hexproof or with protection from the appropriate color."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "Note that if the spell with overload is dealing damage, protection from that spell's color will still prevent that damage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Explosive Impact
 {
     "name": "Explosive Impact",
@@ -2446,6 +2693,57 @@
     ]
 }
 
+// Judge's Familiar
+{
+    "name": "Judge's Familiar",
+    "manaCost": "{W/U}",
+    "typeLine": "Creature — Bird",
+    "oracleText": "Flying\nSacrifice this creature: Counter target instant or sorcery spell unless its controller pays {1}.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Judge's Familiar:1",
+                "cost": "CostSacrificeSelf",
+                "effect": {
+                    "type": "Counter",
+                    "condition": {
+                        "type": "CounterCondition.UnlessPaysMana",
+                        "cost": "{1}"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "instant|sorcery",
+                            "zone": "Stack"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "218",
+        "rarity": "UNCOMMON",
+        "artist": "Jack Wang",
+        "flavorText": "\"It misses nothing and it has no sense of humor.\"\n—Barvisa, courtroom scribe",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0fc51899-3970-416b-b7de-fadbc9678955.jpg?1783940327"
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
+    ]
+}
+
 // Keening Apparition
 {
     "name": "Keening Apparition",
@@ -2917,7 +3215,10 @@
                                 "source": {
                                     "type": "FromZone",
                                     "zone": "Graveyard",
-                                    "player": "TargetPlayer"
+                                    "player": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    }
                                 },
                                 "storeAs": "gathered0"
                             },
@@ -2926,7 +3227,11 @@
                                 "from": "gathered0",
                                 "destination": {
                                     "type": "ToZone",
-                                    "zone": "Exile"
+                                    "zone": "Exile",
+                                    "player": {
+                                        "type": "BoundVariable",
+                                        "name": "t0"
+                                    }
                                 }
                             }
                         ]
@@ -3674,6 +3979,46 @@
     ]
 }
 
+// Sphinx's Revelation
+{
+    "name": "Sphinx's Revelation",
+    "manaCost": "{X}{W}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "You gain X life and draw X cards.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GainLife",
+                    "amount": "XValue"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": "XValue"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "200",
+        "rarity": "MYTHIC",
+        "artist": "Slawomir Maniak",
+        "flavorText": "\"Let the knowledge of absolute law inspire you to live a life of absolute order.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/0/404d9413-ef57-4b6e-8584-48a1dc7fe6f1.jpg?1783940331",
+        "rulings": [
+            {
+                "date": "2012-10-01",
+                "text": "If the value chosen for X is larger than the number of cards left in your library, you'll lose the game the next time state-based actions are performed."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
+    ]
+}
+
 // Stealer of Secrets
 {
     "name": "Stealer of Secrets",
@@ -4221,6 +4566,58 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Utvara Hellkite
+{
+    "name": "Utvara Hellkite",
+    "manaCost": "{6}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhenever a Dragon you control attacks, create a 6/6 red Dragon creature token with flying.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Utvara Hellkite:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "creature Dragon ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 6,
+                    "toughness": 6,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Dragon"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/4/84310f84-3e5f-4db8-bff1-16bef64de1a0.jpg?1783940383"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "rarity": "MYTHIC",
+        "artist": "Mark Zug",
+        "flavorText": "The fear of dragons is as old and as powerful as the fear of death itself.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f17c6478-dd80-4854-9560-bfc5ef597872.jpg?1783940353"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 

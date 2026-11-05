@@ -28,6 +28,37 @@ sealed interface EntityNumericProperty {
     }
 
     /**
+     * How many times this object's counted abilities have resolved this turn — "where X is the
+     * number of times this ability has resolved this turn" (Bronze Cudgels), and, compared with
+     * `EQ`, "if this is the second time this ability has resolved this turn" (Harvestrite Host).
+     * The ability counts itself by running `IncrementAbilityResolutionCountEffect` as it resolves,
+     * so a read after that step includes the current resolution. Turn-scoped, kept per permanent
+     * object: a zone change starts a new object at zero.
+     */
+    @SerialName("AbilityResolutionsThisTurn")
+    @Serializable
+    data object AbilityResolutionsThisTurn : EntityNumericProperty {
+        override val description: String = "the number of times this ability has resolved this turn"
+    }
+
+    /**
+     * How many times this creature has been declared as an attacker this turn (CR 508.1) — "gets
+     * +1/+0 for each time it has attacked this turn" (Moraug, Fury of Akoum). Each combat phase it
+     * is declared in counts once, so a creature that attacks in the natural combat and in an added
+     * one has attacked twice; being removed from combat afterwards doesn't undo it, and a creature
+     * put onto the battlefield attacking was never declared and doesn't count. Turn-scoped and kept
+     * per permanent object: a zone change starts a new object at zero (CR 400.7). The count-valued
+     * sibling of the `StatePredicate.AttackedThisTurn` filter; the attack is stamped as it is
+     * declared, before any trigger or the damage step of that combat, so a layer-7 static fed this
+     * amount already counts the combat in progress.
+     */
+    @SerialName("TimesAttackedThisTurn")
+    @Serializable
+    data object TimesAttackedThisTurn : EntityNumericProperty {
+        override val description: String = "the number of times it has attacked this turn"
+    }
+
+    /**
      * Paid enlist instances for this rules object during the current combat. Unlike
      * [DamageDealtThisTurn], this is combat-scoped and records optional attack costs rather than
      * damage; [PermanentsSacrificedToCast] records spell costs, not a permanent's attack costs.
@@ -140,7 +171,10 @@ sealed interface EntityNumericProperty {
      * [AttachmentKind]. [AttachmentKind.ANY] (the default) counts every attachment — Auras,
      * Equipment, and Fortifications alike — matching the historical behaviour;
      * [AttachmentKind.EQUIPMENT] / [AttachmentKind.AURA] count only that kind (Shagrat, Loot
-     * Bearer: "X is the number of Equipment attached to Shagrat").
+     * Bearer: "X is the number of Equipment attached to Shagrat"); [AttachmentKind.CURSE] counts
+     * the Curses, the Auras that enchant players (Curse of Surveillance: "the number of
+     * Curses attached to that player" — read off `EffectTarget.EnchantedPermanent`, the player the
+     * source Curse is attached to, since players carry attachments too).
      */
     @SerialName("AttachmentCount")
     @Serializable
@@ -149,6 +183,7 @@ sealed interface EntityNumericProperty {
             AttachmentKind.ANY -> "the number of Auras and Equipment attached"
             AttachmentKind.EQUIPMENT -> "the number of Equipment attached"
             AttachmentKind.AURA -> "the number of Auras attached"
+            AttachmentKind.CURSE -> "the number of Curses attached"
         }
     }
 
@@ -260,7 +295,8 @@ sealed interface EntityNumericProperty {
 /**
  * Which kind of attachment [EntityNumericProperty.AttachmentCount] counts. The set is the
  * small closed family of MTG attachment types; [ANY] preserves the original
- * "all attachments" semantics.
+ * "all attachments" semantics. [CURSE] narrows [AURA] to the Aura subtype players are enchanted
+ * by (CR 303.4 lets an Aura enchant a player; Curses are the Auras that do).
  */
 @Serializable
-enum class AttachmentKind { ANY, EQUIPMENT, AURA }
+enum class AttachmentKind { ANY, EQUIPMENT, AURA, CURSE }

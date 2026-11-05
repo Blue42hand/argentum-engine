@@ -9,9 +9,20 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.TimingRule
 
-/** Everflowing Chalice — Worldwake #123. */
+/**
+ * Everflowing Chalice
+ * {0}
+ * Artifact
+ *
+ * Multikicker {2}
+ * This artifact enters with a charge counter on it for each time it was kicked.
+ * {T}: Add {C} for each charge counter on this artifact.
+ *
+ * Multikicker records its payment count under [ChoiceSlot.KICKED]; the entering replacement reads
+ * it through `castChoice(KICKED)` (0 when unkicked, or when the artifact is put onto the
+ * battlefield without being cast). The mana ability reads the charge counters at activation.
+ */
 val EverflowingChalice = card("Everflowing Chalice") {
     manaCost = "{0}"
     colorIdentity = ""
@@ -22,16 +33,19 @@ val EverflowingChalice = card("Everflowing Chalice") {
 
     keywordAbility(KeywordAbility.multikicker("{2}"))
 
-    replacementEffect(EntersWithDynamicCounters(
-        counterType = CounterType.CHARGE,
-        count = DynamicAmounts.castChoice(ChoiceSlot.OPTIONAL_COST_TIMES),
-    ))
+    replacementEffect(
+        EntersWithDynamicCounters(
+            counterType = CounterType.CHARGE,
+            count = DynamicAmounts.castChoice(ChoiceSlot.KICKED)
+        )
+    )
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddColorlessMana(DynamicAmounts.countersOnSelf(CounterType.CHARGE))
         manaAbility = true
-        timing = TimingRule.ManaAbility
+        effect = Effects.AddColorlessMana(
+            DynamicAmounts.countersOnSelf(CounterType.CHARGE)
+        )
         description = "{T}: Add {C} for each charge counter on this artifact."
     }
 

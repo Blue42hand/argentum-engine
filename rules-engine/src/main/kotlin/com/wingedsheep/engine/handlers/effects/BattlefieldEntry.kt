@@ -34,16 +34,19 @@ object BattlefieldEntry {
      * Add [entityId] to [controllerId]'s battlefield and record the ETB-by-type. Token-creation
      * callers pass [tokenCreatorId] after replacement handling so creation history is credited to
      * the creator independently of who controls the resulting token.
+     * [putBy] identifies the player putting it there; [spellCopy] distinguishes a resolving spell copy.
      */
     fun place(
         state: GameState,
         controllerId: EntityId,
         entityId: EntityId,
         tokenCreatorId: EntityId? = null,
+        putBy: EntityId? = null,
+        spellCopy: Boolean = false,
     ): GameState {
         val battlefieldZone = ZoneKey(controllerId, Zone.BATTLEFIELD)
         val withZone = state.addToZone(battlefieldZone, entityId)
-        val withEntry = PermanentEntryTracker.record(withZone, controllerId, entityId)
+        val withEntry = PermanentEntryTracker.record(withZone, controllerId, entityId, putBy = putBy, spellCopy = spellCopy)
         return tokenCreatorId?.let { creatorId ->
             withEntry.updateEntity(creatorId) { container ->
                 val count = container.get<TokensCreatedThisTurnComponent>()?.count ?: 0

@@ -169,6 +169,7 @@ export enum Keyword {
   PLAINSWALK = 'PLAINSWALK',
   DESERTWALK = 'DESERTWALK',
   NONBASIC_LANDWALK = 'NONBASIC_LANDWALK',
+  LEGENDARY_LANDWALK = 'LEGENDARY_LANDWALK',
   // Combat
   FIRST_STRIKE = 'FIRST_STRIKE',
   DOUBLE_STRIKE = 'DOUBLE_STRIKE',
@@ -215,9 +216,12 @@ export enum Keyword {
   // Spell mechanics
   STORM = 'STORM',
   FLASHBACK = 'FLASHBACK',
+  BEAM_ME_UP = 'BEAM_ME_UP',
   SPLIT_SECOND = 'SPLIT_SECOND',
   EVOKE = 'EVOKE',
   BESTOW = 'BESTOW',
+  BLITZ = 'BLITZ',
+  MUTATE = 'MUTATE',
   PROTOTYPE = 'PROTOTYPE',
   EXPLOIT = 'EXPLOIT',
   SNEAK = 'SNEAK',
@@ -246,6 +250,7 @@ export enum Keyword {
   OFFSPRING = 'OFFSPRING',
   // Damage modification
   WITHER = 'WITHER',
+  INFECT = 'INFECT',
   TOXIC = 'TOXIC',
   // Death replacement
   PERSIST = 'PERSIST',
@@ -269,6 +274,7 @@ export enum Keyword {
   EVOLVE = 'EVOLVE',
   // Enters with X +1/+1 counters, draws at X >= 5 (CR 702.156)
   RAVENOUS = 'RAVENOUS',
+  RECONFIGURE = 'RECONFIGURE',
   // Day/night transforming DFCs (Innistrad, CR 702.145)
   DAYBOUND = 'DAYBOUND',
   NIGHTBOUND = 'NIGHTBOUND',
@@ -280,6 +286,7 @@ export enum Keyword {
   EERIE = 'EERIE',
   // Instant/sorcery recast next upkeep (Rise of the Eldrazi; granted by Ojer Pakpatiq)
   REBOUND = 'REBOUND',
+  CIPHER = 'CIPHER',
   // Mirrored from Keyword.kt once KeywordClientMirrorTest started enforcing the match
   PROTECTION_FROM_EACH_OPPONENT = 'PROTECTION_FROM_EACH_OPPONENT',
   UMBRA_ARMOR = 'UMBRA_ARMOR',
@@ -293,6 +300,7 @@ export enum Keyword {
   EMBALM = 'EMBALM',
   ETERNALIZE = 'ETERNALIZE',
   UNEARTH = 'UNEARTH',
+  ENCORE = 'ENCORE',
   ANNIHILATOR = 'ANNIHILATOR',
   BUSHIDO = 'BUSHIDO',
   RAMPAGE = 'RAMPAGE',
@@ -305,6 +313,7 @@ export enum Keyword {
   FADING = 'FADING',
   VANISHING = 'VANISHING',
   CUMULATIVE_UPKEEP = 'CUMULATIVE_UPKEEP',
+  ECHO = 'ECHO',
   SUSPEND = 'SUSPEND',
   RENOWN = 'RENOWN',
   FABRICATE = 'FABRICATE',
@@ -332,6 +341,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.PLAINSWALK]: 'Plainswalk',
   [Keyword.DESERTWALK]: 'Desertwalk',
   [Keyword.NONBASIC_LANDWALK]: 'Nonbasic landwalk',
+  [Keyword.LEGENDARY_LANDWALK]: 'Legendary landwalk',
   [Keyword.FIRST_STRIKE]: 'First strike',
   [Keyword.DOUBLE_STRIKE]: 'Double strike',
   [Keyword.TRAMPLE]: 'Trample',
@@ -368,9 +378,12 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.EMERGE]: 'Emerge',
   [Keyword.STORM]: 'Storm',
   [Keyword.FLASHBACK]: 'Flashback',
+  [Keyword.BEAM_ME_UP]: 'Beam me up',
   [Keyword.SPLIT_SECOND]: 'Split second',
   [Keyword.EVOKE]: 'Evoke',
   [Keyword.BESTOW]: 'Bestow',
+  [Keyword.BLITZ]: 'Blitz',
+  [Keyword.MUTATE]: 'Mutate',
   [Keyword.PROTOTYPE]: 'Prototype',
   [Keyword.EXPLOIT]: 'Exploit',
   [Keyword.SNEAK]: 'Sneak',
@@ -397,6 +410,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.PLOT]: 'Plot',
   [Keyword.OFFSPRING]: 'Offspring',
   [Keyword.WITHER]: 'Wither',
+  [Keyword.INFECT]: 'Infect',
   [Keyword.TOXIC]: 'Toxic',
   [Keyword.PERSIST]: 'Persist',
   [Keyword.UNDYING]: 'Undying',
@@ -410,6 +424,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.MENTOR]: 'Mentor',
   [Keyword.EVOLVE]: 'Evolve',
   [Keyword.RAVENOUS]: 'Ravenous',
+  [Keyword.RECONFIGURE]: 'Reconfigure',
   [Keyword.DAYBOUND]: 'Daybound',
   [Keyword.NIGHTBOUND]: 'Nightbound',
   [Keyword.JOB_SELECT]: 'Job select',
@@ -417,6 +432,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.COMPLEATED]: 'Compleated',
   [Keyword.EERIE]: 'Eerie',
   [Keyword.REBOUND]: 'Rebound',
+  [Keyword.CIPHER]: 'Cipher',
   [Keyword.PROTECTION_FROM_EACH_OPPONENT]: 'Protection from each opponent',
   [Keyword.UMBRA_ARMOR]: 'Umbra armor',
   [Keyword.DEVOUR]: 'Devour',
@@ -429,6 +445,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.EMBALM]: 'Embalm',
   [Keyword.ETERNALIZE]: 'Eternalize',
   [Keyword.UNEARTH]: 'Unearth',
+  [Keyword.ENCORE]: 'Encore',
   [Keyword.ANNIHILATOR]: 'Annihilator',
   [Keyword.BUSHIDO]: 'Bushido',
   [Keyword.RAMPAGE]: 'Rampage',
@@ -441,6 +458,7 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
   [Keyword.FADING]: 'Fading',
   [Keyword.VANISHING]: 'Vanishing',
   [Keyword.CUMULATIVE_UPKEEP]: 'Cumulative upkeep',
+  [Keyword.ECHO]: 'Echo',
   [Keyword.SUSPEND]: 'Suspend',
   [Keyword.RENOWN]: 'Renown',
   [Keyword.FABRICATE]: 'Fabricate',
@@ -459,13 +477,17 @@ export const KeywordDisplayNames: Record<Keyword, string> = {
  * These are stored in the projected state's keyword set alongside true keywords.
  */
 export enum AbilityFlag {
+  CANT_BE_BEAMED_UP = 'CANT_BE_BEAMED_UP',
   CANT_BE_BLOCKED = 'CANT_BE_BLOCKED',
   CANT_BE_BLOCKED_BY_MORE_THAN_ONE = 'CANT_BE_BLOCKED_BY_MORE_THAN_ONE',
   DOESNT_UNTAP = 'DOESNT_UNTAP',
   CANT_BECOME_UNTAPPED = 'CANT_BECOME_UNTAPPED',
   MAY_NOT_UNTAP = 'MAY_NOT_UNTAP',
   CANT_RECEIVE_COUNTERS = 'CANT_RECEIVE_COUNTERS',
+  CANT_BE_SACRIFICED = 'CANT_BE_SACRIFICED',
+  CANT_BE_SACRIFICED_FOR_COSTS = 'CANT_BE_SACRIFICED_FOR_COSTS',
   SURVIVES_ZERO_LOYALTY = 'SURVIVES_ZERO_LOYALTY',
+  CANT_CREW = 'CANT_CREW',
   CANT_TRANSFORM = 'CANT_TRANSFORM',
   CANT_BECOME_SUSPECTED = 'CANT_BECOME_SUSPECTED',
   ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS = 'ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS',
@@ -475,13 +497,17 @@ export enum AbilityFlag {
 }
 
 export const AbilityFlagDisplayNames: Record<AbilityFlag, string> = {
+  [AbilityFlag.CANT_BE_BEAMED_UP]: "Can't be beamed up",
   [AbilityFlag.CANT_BE_BLOCKED]: "Can't be blocked",
   [AbilityFlag.CANT_BE_BLOCKED_BY_MORE_THAN_ONE]: "Can't be blocked by more than one creature",
   [AbilityFlag.DOESNT_UNTAP]: "Doesn't untap during your untap step",
   [AbilityFlag.CANT_BECOME_UNTAPPED]: "Can't become untapped",
   [AbilityFlag.MAY_NOT_UNTAP]: 'You may choose not to untap',
   [AbilityFlag.CANT_RECEIVE_COUNTERS]: "Can't have counters put on it",
+  [AbilityFlag.CANT_BE_SACRIFICED]: "Can't be sacrificed",
+  [AbilityFlag.CANT_BE_SACRIFICED_FOR_COSTS]: "Can't be sacrificed to cast spells or activate abilities",
   [AbilityFlag.SURVIVES_ZERO_LOYALTY]: "Isn't put into its owner's graveyard for having 0 loyalty",
+  [AbilityFlag.CANT_CREW]: "Can't crew Vehicles",
   [AbilityFlag.CANT_TRANSFORM]: "Can't transform",
   [AbilityFlag.CANT_BECOME_SUSPECTED]: "Can't become suspected",
   [AbilityFlag.ASSIGNS_COMBAT_DAMAGE_AS_TOUGHNESS]: 'Assigns combat damage equal to its toughness rather than its power',
@@ -504,13 +530,16 @@ export enum ZoneType {
   STACK = 'Stack',
   EXILE = 'Exile',
   COMMAND = 'Command',
+  // The ante zone (CR 407): cards wagered in a game played for ante. Public, and keyed per owner
+  // like exile/command so each player's stake renders beside their board.
+  ANTE = 'Ante',
   // Cards owned "outside the game" (CR 100.4 / 400.11a) — a player's sideboard, reachable in-game
   // only by wish effects. Private to its owner; opponents never see it.
   SIDEBOARD = 'Sideboard',
 }
 
 export function isPublicZone(zoneType: ZoneType): boolean {
-  return [ZoneType.BATTLEFIELD, ZoneType.GRAVEYARD, ZoneType.STACK, ZoneType.EXILE, ZoneType.COMMAND].includes(zoneType)
+  return [ZoneType.BATTLEFIELD, ZoneType.GRAVEYARD, ZoneType.STACK, ZoneType.EXILE, ZoneType.COMMAND, ZoneType.ANTE].includes(zoneType)
 }
 
 export function isHiddenZone(zoneType: ZoneType): boolean {
@@ -518,7 +547,7 @@ export function isHiddenZone(zoneType: ZoneType): boolean {
 }
 
 export function isSharedZone(zoneType: ZoneType): boolean {
-  return [ZoneType.BATTLEFIELD, ZoneType.STACK, ZoneType.EXILE].includes(zoneType)
+  return [ZoneType.BATTLEFIELD, ZoneType.STACK, ZoneType.EXILE, ZoneType.ANTE].includes(zoneType)
 }
 
 /**
@@ -533,12 +562,21 @@ export enum CounterType {
   PLUS_ZERO_PLUS_TWO = 'PLUS_ZERO_PLUS_TWO',
   MINUS_ONE_MINUS_ZERO = 'MINUS_ONE_MINUS_ZERO',
   MINUS_ZERO_MINUS_ONE = 'MINUS_ZERO_MINUS_ONE',
+  MINUS_ZERO_MINUS_TWO = 'MINUS_ZERO_MINUS_TWO',
   PLUS_ONE_PLUS_TWO = 'PLUS_ONE_PLUS_TWO',
   PLUS_TWO_PLUS_TWO = 'PLUS_TWO_PLUS_TWO',
   MINUS_TWO_MINUS_TWO = 'MINUS_TWO_MINUS_TWO',
   LOYALTY = 'LOYALTY',
   CHARGE = 'CHARGE',
   GEM = 'GEM',
+  GLYPH = 'GLYPH',
+  MATRIX = 'MATRIX',
+  HATCHLING = 'HATCHLING',
+  SCREAM = 'SCREAM',
+  SLEEP = 'SLEEP',
+  PIN = 'PIN',
+  CARRION = 'CARRION',
+  PUPA = 'PUPA',
   POISON = 'POISON',
   GOLD = 'GOLD',
   PLAGUE = 'PLAGUE',
@@ -569,6 +607,8 @@ export enum CounterType {
   BLIGHT = 'BLIGHT',
   COIN = 'COIN',
   FLOOD = 'FLOOD',
+  FUSE = 'FUSE',
+  LUCK = 'LUCK',
   CHORUS = 'CHORUS',
   DREAM = 'DREAM',
   QUEST = 'QUEST',
@@ -653,9 +693,25 @@ export enum CounterType {
   CORPSE = 'CORPSE',
   BRICK = 'BRICK',
   VITALITY = 'VITALITY',
+  VOID = 'VOID',
+  HARMONY = 'HARMONY',
+  ENLIGHTENED = 'ENLIGHTENED',
   PHYRESIS = 'PHYRESIS',
   MUSTER = 'MUSTER',
   BRAIN = 'BRAIN',
+  HATCHING = 'HATCHING',
+  INTERVENTION = 'INTERVENTION',
+  REJECTION = 'REJECTION',
+  VALOR = 'VALOR',
+  RITUAL = 'RITUAL',
+  FLAME = 'FLAME',
+  EMBER = 'EMBER',
+  BOOK = 'BOOK',
+  STUDY = 'STUDY',
+  REFINE = 'REFINE',
+  VOYAGE = 'VOYAGE',
+  GHOSTFORM = 'GHOSTFORM',
+  NIGHT = 'NIGHT',
 }
 
 export const CounterTypeDisplayNames: Record<CounterType, string> = {
@@ -667,12 +723,21 @@ export const CounterTypeDisplayNames: Record<CounterType, string> = {
   [CounterType.PLUS_ZERO_PLUS_TWO]: '+0/+2',
   [CounterType.MINUS_ONE_MINUS_ZERO]: '-1/-0',
   [CounterType.MINUS_ZERO_MINUS_ONE]: '-0/-1',
+  [CounterType.MINUS_ZERO_MINUS_TWO]: '-0/-2',
   [CounterType.PLUS_ONE_PLUS_TWO]: '+1/+2',
   [CounterType.PLUS_TWO_PLUS_TWO]: '+2/+2',
   [CounterType.MINUS_TWO_MINUS_TWO]: '-2/-2',
   [CounterType.LOYALTY]: 'Loyalty',
   [CounterType.CHARGE]: 'Charge',
   [CounterType.GEM]: 'Gem',
+  [CounterType.GLYPH]: 'Glyph',
+  [CounterType.MATRIX]: 'Matrix',
+  [CounterType.HATCHLING]: 'Hatchling',
+  [CounterType.SCREAM]: 'Scream',
+  [CounterType.SLEEP]: 'Sleep',
+  [CounterType.PIN]: 'Pin',
+  [CounterType.CARRION]: 'Carrion',
+  [CounterType.PUPA]: 'Pupa',
   [CounterType.POISON]: 'Poison',
   [CounterType.GOLD]: 'Gold',
   [CounterType.PLAGUE]: 'Plague',
@@ -703,6 +768,8 @@ export const CounterTypeDisplayNames: Record<CounterType, string> = {
   [CounterType.BLIGHT]: 'Blight',
   [CounterType.COIN]: 'Coin',
   [CounterType.FLOOD]: 'Flood',
+  [CounterType.FUSE]: 'Fuse',
+  [CounterType.LUCK]: 'Luck',
   [CounterType.CHORUS]: 'Chorus',
   [CounterType.DREAM]: 'Dream',
   [CounterType.QUEST]: 'Quest',
@@ -785,9 +852,25 @@ export const CounterTypeDisplayNames: Record<CounterType, string> = {
   [CounterType.CORPSE]: 'Corpse',
   [CounterType.BRICK]: 'Brick',
   [CounterType.VITALITY]: 'Vitality',
+  [CounterType.VOID]: 'Void',
+  [CounterType.HARMONY]: 'Harmony',
+  [CounterType.ENLIGHTENED]: 'Enlightened',
   [CounterType.PHYRESIS]: 'Phyresis',
   [CounterType.MUSTER]: 'Muster',
   [CounterType.BRAIN]: 'Brain',
+  [CounterType.HATCHING]: 'Hatching',
+  [CounterType.INTERVENTION]: 'Intervention',
+  [CounterType.REJECTION]: 'Rejection',
+  [CounterType.VALOR]: 'Valor',
+  [CounterType.RITUAL]: 'Ritual',
+  [CounterType.FLAME]: 'Flame',
+  [CounterType.EMBER]: 'Ember',
+  [CounterType.BOOK]: 'Book',
+  [CounterType.STUDY]: 'Study',
+  [CounterType.REFINE]: 'Refine',
+  [CounterType.VOYAGE]: 'Voyage',
+  [CounterType.GHOSTFORM]: 'Ghostform',
+  [CounterType.NIGHT]: 'Night',
 }
 
 /**

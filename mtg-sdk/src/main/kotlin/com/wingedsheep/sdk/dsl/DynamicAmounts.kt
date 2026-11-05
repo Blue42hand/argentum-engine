@@ -9,8 +9,10 @@ import com.wingedsheep.sdk.scripting.values.CardNumericProperty
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import com.wingedsheep.sdk.scripting.values.EntityNumericProperty
+import com.wingedsheep.sdk.scripting.values.ManaPayment
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.IterationSpace
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.values.TurnTracker
@@ -60,6 +62,12 @@ object DynamicAmounts {
      * counters", "when this enters, … X" ([DynamicAmount.CastX]).
      */
     fun castX(): DynamicAmount = DynamicAmount.CastX
+
+    /**
+     * A number frozen as this spell was cast by its `captureAtCast(name, amount)` declaration —
+     * "for each modified creature you controlled as you cast this spell" ([DynamicAmount.CapturedAtCast]).
+     */
+    fun capturedAtCast(captureName: String): DynamicAmount = DynamicAmount.CapturedAtCast(captureName)
 
     /** A number the source locked in as it was cast (a chosen number, a blight amount, …). */
     fun castChoice(slot: com.wingedsheep.sdk.scripting.ChoiceSlot): DynamicAmount = DynamicAmount.CastChoice(slot)
@@ -166,6 +174,9 @@ object DynamicAmounts {
     fun largestSharedCreatureTypeCount(player: Player = Player.You): DynamicAmount =
         DynamicAmount.LargestSharedCreatureTypeCount(player)
 
+    /** The number of creatures in [player]'s party, 0–4 (CR 700.8). */
+    fun partySize(player: Player = Player.You): DynamicAmount = DynamicAmount.PartySize(player)
+
     /** Craft's exiled materials: their total power / total mana value / number of colors. */
     fun craftedMaterialsTotalPower(): DynamicAmount = DynamicAmount.CraftedMaterialsTotalPower
     fun craftedMaterialsTotalManaValue(): DynamicAmount = DynamicAmount.CraftedMaterialsTotalManaValue
@@ -205,6 +216,10 @@ object DynamicAmounts {
     /** The final result of the die roll that triggered this ability. */
     fun triggerDieResult(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DIE_RESULT)
 
+    /** Highest result of the roll behind a one-or-more-dice trigger (`Triggers.you.rollsDice()`). */
+    fun triggerHighestDieResult(): DynamicAmount =
+        DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_HIGHEST_DIE_RESULT)
+
     /** The number the triggering scry looked at. */
     fun triggerScryCount(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_SCRY_COUNT)
 
@@ -226,6 +241,9 @@ object DynamicAmounts {
      * [Costs.RemoveAllCountersFromSelf].
      */
     fun countersRemovedAsCost(): DynamicAmount = DynamicAmount.CountersRemovedAsCost
+
+    /** The amount of mana the triggering mana ability produced ([Triggers.self]`.manaAbilityResolves()`). */
+    fun triggerManaProduced(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_MANA_PRODUCED)
 
     /** The discover value of the triggering discover. */
     fun triggerDiscoverValue(): DynamicAmount = DynamicAmount.ContextProperty(ContextPropertyKey.TRIGGER_DISCOVER_VALUE)
@@ -376,6 +394,14 @@ object DynamicAmounts {
         /** The number of card types among the matched cards ("card types among cards in your graveyard"). */
         fun distinctTypes(): DynamicAmount =
             DynamicAmount.AggregateZone(player, zone, filter, Aggregation.DISTINCT_TYPES)
+
+        /**
+         * The number of distinct values of [property] among the matched cards — e.g.
+         * `distinctValues(MANA_VALUE)` for "the number of different mana values among cards in your
+         * graveyard" (All-Seeing Arbiter). Two cards sharing a value count once.
+         */
+        fun distinctValues(property: CardNumericProperty): DynamicAmount =
+            DynamicAmount.AggregateZone(player, zone, filter, Aggregation.DISTINCT_VALUES, property)
     }
 
     // =========================================================================
@@ -410,9 +436,12 @@ object DynamicAmounts {
     /**
      * The number of distinct colors of mana spent to cast the source spell (0–5).
      * Backs the Converge ability word and the Sunburst counter rule. Colorless is not a
-     * color, so it never contributes.
+     * color, so it never contributes. `payment = ACTIVATION` counts the colors spent to activate
+     * the resolving ability instead ("if exactly three colors of mana were spent to activate this
+     * ability").
      */
-    fun colorsOfManaSpent(): DynamicAmount = DynamicAmount.DistinctColorsManaSpent
+    fun colorsOfManaSpent(payment: ManaPayment = ManaPayment.CAST): DynamicAmount =
+        DynamicAmount.DistinctColorsManaSpent(payment)
 
     /**
      * The number of distinct colors of mana spent to cast the spell that fired this trigger
@@ -431,6 +460,15 @@ object DynamicAmounts {
      */
     fun devotionTo(vararg colors: Color): DynamicAmount =
         DynamicAmount.DevotionTo(colors.toList())
+
+    /**
+     * Your devotion to the color chosen earlier in this resolution ("your devotion to that color") —
+     * the amount of Nykthos, Shrine to Nyx's and Nyx Lotus's "Choose a color. Add an amount of mana
+     * of that color equal to your devotion to that color", fed to `Effects.AddManaOfChoice`. See
+     * [DynamicAmount.DevotionTo.ofChosenColor].
+     */
+    fun devotionToChosenColor(): DynamicAmount =
+        DynamicAmount.DevotionTo(emptyList(), ofChosenColor = true)
 
     /**
      * The number of colors in your commanders' color identity (War Room) — 0 for a colorless
@@ -697,9 +735,13 @@ object DynamicAmounts {
     /**
      * The total damage dealt to the source this turn, captured as last-known information when it
      * left the battlefield — "where X is the amount of damage dealt to it this turn" (Tangled
-     * Colony). See [DynamicAmount.LastKnownDamageDealtToSource].
+     * Colony). [sourceFilter] / [excludeSelf] narrow it to damage from matching sources — "by other
+     * sources named Blazing Effigy". See [DynamicAmount.LastKnownDamageDealtToSource].
      */
-    fun lastKnownDamageDealtToSource(): DynamicAmount = DynamicAmount.LastKnownDamageDealtToSource
+    fun lastKnownDamageDealtToSource(
+        sourceFilter: GameObjectFilter? = null,
+        excludeSelf: Boolean = false
+    ): DynamicAmount = DynamicAmount.LastKnownDamageDealtToSource(sourceFilter, excludeSelf)
 
     // =========================================================================
     // Spell-cast trigger values
@@ -759,8 +801,30 @@ object DynamicAmounts {
     fun damageReceivedFromArtifactsThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.DAMAGE_RECEIVED_FROM_ARTIFACTS)
 
+    /**
+     * Damage this ability's source has dealt to [player] this turn (combat and noncombat) —
+     * "if it has dealt 10 or more damage to that player this turn" (Vessel of the All-Consuming).
+     */
+    fun damageDealtBySourceThisTurn(player: Player = Player.TriggeringPlayer): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.DAMAGE_RECEIVED_FROM_SOURCE)
+
     fun nonTokenCreaturesDiedThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.NONTOKEN_CREATURES_DIED)
+
+    /**
+     * "The number of nontoken creatures [player] had enter the battlefield under their control this
+     * turn" — counted per entry, still counted after they leave (Gyome, Master Chef).
+     */
+    fun nonTokenCreaturesEnteredThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.NONTOKEN_CREATURES_ENTERED_UNDER_CONTROL)
+
+    /**
+     * "The number of tokens [player] created this turn" — every kind of token, still counted after it
+     * leaves or changes controller; a resolved permanent-spell copy wasn't created and isn't counted
+     * (Thalisse, Reverent Medium).
+     */
+    fun tokensCreatedThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.TOKENS_CREATED)
 
     fun creaturesDiedThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.CREATURES_DIED)
@@ -791,6 +855,22 @@ object DynamicAmounts {
     /** The damage [player] has been dealt this turn. */
     fun damageReceivedThisTurn(player: Player = Player.You): DynamicAmount =
         DynamicAmount.TurnTracking(player, TurnTracker.DAMAGE_RECEIVED)
+
+    /**
+     * The noncombat damage [player] has been dealt this turn, from any source. Over the default
+     * `Player.EachOpponent` it is "the total amount of noncombat damage dealt to your opponents this
+     * turn" (Chandra's Incinerator), counting opponents who have since lost the game.
+     */
+    fun noncombatDamageReceivedThisTurn(player: Player = Player.EachOpponent): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.NONCOMBAT_DAMAGE_RECEIVED)
+
+    /**
+     * "The number of opponents [players] dealt damage this way" — the distinct players a "deal combat
+     * damage to one or more players/opponents" batch trigger hit (Hordewing Skaab), read from the
+     * collection the trigger seeds (`IterationSpace.TRIGGER_DAMAGED_PLAYERS`).
+     */
+    fun playersDealtDamageThisWay(): DynamicAmount =
+        DynamicAmount.VariableReference("${IterationSpace.TRIGGER_DAMAGED_PLAYERS}_count")
 
     /** The number of creatures that left the battlefield under [player]'s control this turn. */
     fun creaturesLeftBattlefieldThisTurn(player: Player = Player.You): DynamicAmount =
@@ -930,6 +1010,15 @@ object DynamicAmounts {
         DynamicAmount.TurnTracking(player, TurnTracker.CARDS_PUT_INTO_GRAVEYARD_FROM_LIBRARY)
 
     /**
+     * "The number of cards that were put into [player]'s graveyard from their hand this turn" —
+     * discards and every other hand → graveyard move; see
+     * [TurnTracker.CARDS_PUT_INTO_GRAVEYARD_FROM_HAND]. "From your hand or library" (Welcome the
+     * Dead) is `cardsPutIntoGraveyardFromHandThisTurn() + cardsPutIntoGraveyardFromLibraryThisTurn()`.
+     */
+    fun cardsPutIntoGraveyardFromHandThisTurn(player: Player = Player.You): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.CARDS_PUT_INTO_GRAVEYARD_FROM_HAND)
+
+    /**
      * "The number of cards put into [player]'s graveyard from anywhere this turn" (Fraying Sanity,
      * with `Player.EnchantedPlayer`). Every origin zone counts, tokens don't; see
      * [TurnTracker.CARDS_PUT_INTO_GRAVEYARD].
@@ -985,6 +1074,14 @@ object DynamicAmounts {
     /** The total number of spells cast during the immediately preceding turn. */
     fun spellsCastLastTurn(): DynamicAmount = DynamicAmount.SpellsCastLastTurn
 
+    /** Spells [player] cast during their own last turn (Arboria). */
+    fun spellsCastDuringTheirLastTurn(player: Player): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.SPELLS_CAST_DURING_THEIR_LAST_TURN)
+
+    /** Nontoken permanents [player] put onto the battlefield during their own last turn (Arboria). */
+    fun nontokenPermanentsPutDuringTheirLastTurn(player: Player): DynamicAmount =
+        DynamicAmount.TurnTracking(player, TurnTracker.NONTOKEN_PERMANENTS_PUT_DURING_THEIR_LAST_TURN)
+
     /** The starting life total of a player (20 in standard, 40 in commander). */
     fun startingLifeTotal(player: Player = Player.You): DynamicAmount =
         DynamicAmount.StartingLifeTotal(player)
@@ -998,9 +1095,14 @@ object DynamicAmounts {
     /**
      * How many dungeons [player] has completed this game (CR 309.7) — of the dungeon named [dungeon]
      * only, when it's given. "If you've completed a dungeon" is `Conditions.YouCompletedADungeon`.
+     * [distinctNames] counts each dungeon name once — "for each differently named dungeon you've
+     * completed".
      */
-    fun dungeonsCompleted(player: Player = Player.You, dungeon: String? = null): DynamicAmount =
-        DynamicAmount.DungeonsCompleted(player, dungeon)
+    fun dungeonsCompleted(
+        player: Player = Player.You,
+        dungeon: String? = null,
+        distinctNames: Boolean = false
+    ): DynamicAmount = DynamicAmount.DungeonsCompleted(player, dungeon, distinctNames)
 
     /**
      * How many counters of [counterType] a player currently has (CR 122.1 — counters placed on a
@@ -1036,6 +1138,13 @@ object DynamicAmounts {
     /** Number of enlist costs this object paid in the current combat, including repeated instances. */
     fun enlistmentsThisCombat(entity: EffectTarget.SingleEntity): DynamicAmount =
         propertyOf(entity, EntityNumericProperty.EnlistmentsThisCombat)
+
+    /**
+     * How many times this permanent's counted ability has resolved this turn, this resolution
+     * included once the ability has run `IncrementAbilityResolutionCountEffect` (Bronze Cudgels).
+     */
+    fun abilityResolutionsThisTurn(): DynamicAmount =
+        propertyOf(EffectTarget.Self, EntityNumericProperty.AbilityResolutionsThisTurn)
 
     /** [entity]'s power (a target handle, `EffectTarget.TriggeringEntity`, `IterationEntity`, …). */
     fun powerOf(entity: EffectTarget.SingleEntity): DynamicAmount = propertyOf(entity, EntityNumericProperty.Power)
@@ -1157,6 +1266,19 @@ object DynamicAmounts {
         DynamicAmount.EntityProperty(
             EffectTarget.Self,
             EntityNumericProperty.AttachmentCount(AttachmentKind.AURA)
+        )
+
+    /**
+     * Number of Curses attached to the player the source Curse enchants — "draw cards equal to the
+     * number of Curses attached to that player" (Curse of Surveillance). Includes the source itself.
+     * Players hold their Auras' attachment links like permanents do, and
+     * [EffectTarget.EnchantedPermanent] names whatever the source is attached to, so this is
+     * `AttachmentCount(CURSE)` read off that host.
+     */
+    fun cursesAttachedToEnchantedPlayer(): DynamicAmount =
+        DynamicAmount.EntityProperty(
+            EffectTarget.EnchantedPermanent,
+            EntityNumericProperty.AttachmentCount(AttachmentKind.CURSE)
         )
 
     /** Number of Equipment attached to the source (Shagrat, Loot Bearer's amass amount). */

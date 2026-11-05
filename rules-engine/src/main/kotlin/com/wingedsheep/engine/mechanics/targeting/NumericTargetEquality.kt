@@ -1,6 +1,7 @@
 package com.wingedsheep.engine.mechanics.targeting
 
 import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.mechanics.ManaValues
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -18,8 +19,9 @@ object NumericTargetEquality {
                 else amounts.offBattlefieldStat(state, id, true, projected)
             CardNumericProperty.TOUGHNESS -> if (id in state.getBattlefield()) projected.getToughness(id)
                 else amounts.offBattlefieldStat(state, id, false, projected)
-            CardNumericProperty.MANA_VALUE -> if (projected.isFaceDown(id)) 0 else card.manaValue
+            CardNumericProperty.MANA_VALUE -> if (projected.isFaceDown(id)) 0 else ManaValues.of(state, id, card)
             CardNumericProperty.COUNTERS -> state.getEntity(id)?.get<CountersComponent>()?.counters?.values?.sum() ?: 0
+            CardNumericProperty.COLOR_COUNT -> projected.colorsOf(id).size
         }
     }
 
@@ -27,6 +29,12 @@ object NumericTargetEquality {
         if (ids.size < 2) return true
         val first = value(state, ids.first(), property) ?: return false
         return ids.drop(1).all { value(state, it, property) == first }
+    }
+
+    /** "… with different mana values": no two of [ids] share a value of [property]. */
+    fun isDistinct(state: GameState, ids: List<EntityId>, property: CardNumericProperty): Boolean {
+        val values = ids.map { value(state, it, property) ?: return false }
+        return values.size == values.toSet().size
     }
 
     fun eligible(state: GameState, ids: List<EntityId>, requirement: com.wingedsheep.sdk.scripting.targets.TargetRequirement,
