@@ -7,6 +7,7 @@ import com.wingedsheep.engine.core.ActivateAbilityControllerTargetContinuation
 import com.wingedsheep.engine.core.ActivateAbilityExileFromGraveyardContinuation
 import com.wingedsheep.engine.core.ActivateAbilityVariablePermanentsContinuation
 import com.wingedsheep.engine.core.ActivateAbilityExileXFromGraveyardContinuation
+import com.wingedsheep.engine.core.ActivateAbilityDiscardXContinuation
 import com.wingedsheep.engine.core.ActivateAbilitySacrificeContinuation
 import com.wingedsheep.engine.core.ActivateAbilityPutOnLibraryContinuation
 import com.wingedsheep.engine.core.ActivateAbilityTapXTargetsContinuation
@@ -55,10 +56,12 @@ class ActivateAbilityXCostContinuationResumer(
         resumer(ActivateAbilityChooseXContinuation::class, ::resumeChooseX),
         resumer(ActivateAbilityChooseManaXContinuation::class, ::resumeChooseManaX),
         resumer(ActivateAbilityExileXFromGraveyardContinuation::class, ::resumeExileXFromGraveyard),
+        resumer(ActivateAbilityDiscardXContinuation::class, ::resumeDiscardX),
         resumer(ActivateAbilityTapXTargetsContinuation::class, ::resumeTapXTargets),
         resumer(ActivateAbilityExileFromGraveyardContinuation::class, ::resumeExileFromGraveyard),
         resumer(ActivateAbilitySacrificeContinuation::class, ::resumeSacrifice),
         resumer(ActivateAbilityPutOnLibraryContinuation::class, ::resumePutOnLibrary),
+        resumer(com.wingedsheep.engine.core.ActivateAbilityMillOrderContinuation::class, ::resumeMillOrder),
         resumer(ActivateAbilityVariablePermanentsContinuation::class, ::resumeVariablePermanents),
         resumer(ActivateAbilityControllerTargetContinuation::class, ::resumeControllerTargets)
     )
@@ -207,6 +210,37 @@ class ActivateAbilityXCostContinuationResumer(
     }
 
     /**
+     * Resume after the player picks the hand cards for a `DiscardX` cost. Like
+     * [resumeExileXFromGraveyard], X *is* the size of the selection unless a `{X}` mana symbol
+     * already fixed it.
+     */
+    private fun resumeDiscardX(
+        state: GameState,
+        continuation: ActivateAbilityDiscardXContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response !is CardsSelectedResponse) {
+            return ExecutionResult.error(state, "Expected card-selection response for ActivateAbility DiscardX")
+        }
+        val selected = response.selectedCards
+        if (selected.any { it !in continuation.discardCandidates } || selected.distinct().size != selected.size) {
+            return ExecutionResult.error(state, "Selected card is not in the list of valid discard candidates")
+        }
+        val fixedCount = continuation.fixedCount
+        if (fixedCount != null && selected.size != fixedCount) {
+            return ExecutionResult.error(state, "Expected $fixedCount cards to discard, got ${selected.size}")
+        }
+        val action = continuation.action
+        val replay = action.copy(
+            xValue = fixedCount ?: selected.size,
+            costPayment = (action.costPayment ?: AdditionalCostPayment())
+                .copy(discardedCards = selected)
+        )
+        return reenter(handler.execute(state, replay), checkForMore)
+    }
+
+    /**
      * Resume after the player picks which permanents to sacrifice for a `Sacrifice` activated-ability
      * cost (Sage of Lat-Nam etc.). Re-enters the handler with the chosen permanents filled into
      * `costPayment.sacrificedPermanents`; CostHandler then sacrifices exactly those.
@@ -239,10 +273,14 @@ class ActivateAbilityXCostContinuationResumer(
             }
         }
 
+        // Appended, not replaced: a joint sacrifice cost ("Sacrifice a Swamp and a Forest") asks
+        // atom by atom, and each answer is the next ordered segment of the one list. A single
+        // sacrifice atom pauses only with nothing chosen yet, so for it this is the whole list.
         val action = continuation.action
+        val prior = action.costPayment?.sacrificedPermanents ?: emptyList()
         val replay = action.copy(
             costPayment = (action.costPayment ?: AdditionalCostPayment())
-                .copy(sacrificedPermanents = response.selectedCards)
+                .copy(sacrificedPermanents = prior + response.selectedCards)
         )
         return reenter(handler.execute(state, replay), checkForMore)
     }
@@ -281,6 +319,32 @@ class ActivateAbilityXCostContinuationResumer(
     }
 
     /**
+     * Resume after the controller picks the order of the mill replacements their mill cost runs
+     * through (CR 616.1) — i.e. how many cards it mills. Fills `costPayment.millCount` and re-enters
+     * the handler to pay. A cancel backs out cleanly — nothing has been paid yet.
+     */
+    private fun resumeMillOrder(
+        state: GameState,
+        continuation: com.wingedsheep.engine.core.ActivateAbilityMillOrderContinuation,
+        response: DecisionResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        if (response is CancelDecisionResponse) {
+            return ExecutionResult.success(state.withPriority(continuation.action.playerId))
+        }
+        if (response !is com.wingedsheep.engine.core.OptionChosenResponse ||
+            response.optionIndex !in continuation.counts.indices) {
+            return ExecutionResult.error(state, "Expected a mill replacement-order choice")
+        }
+        val action = continuation.action
+        val replay = action.copy(
+            costPayment = (action.costPayment ?: AdditionalCostPayment())
+                .copy(millCount = continuation.counts[response.optionIndex])
+        )
+        return reenter(handler.execute(state, replay), checkForMore)
+    }
+
+    /**
      * Resume after the controller picks which permanents pay a variable-count
      * `CostAtom.VariablePermanents` cost — "Exile one or more other [filter] you control with total
      * mana value X" (Fabrication Foundry) or "Sacrifice one or more [filter]" (Radiant Lotus).
@@ -306,6 +370,10 @@ class ActivateAbilityXCostContinuationResumer(
                 state,
                 "Must choose at least ${continuation.minCount} permanent(s), got ${selected.size}"
             )
+        }
+        val maxCount = continuation.maxCount
+        if (maxCount != null && selected.size > maxCount) {
+            return ExecutionResult.error(state, "Must choose at most $maxCount permanent(s), got ${selected.size}")
         }
         if (selected.toSet().size != selected.size) {
             return ExecutionResult.error(state, "Cannot choose the same permanent twice for one cost")
@@ -348,7 +416,12 @@ class ActivateAbilityXCostContinuationResumer(
         if (chosen.size < expectedMin) {
             return ExecutionResult.error(state, "Not enough targets chosen")
         }
-        val replay = continuation.action.copy(targets = chosen)
+        // The response is keyed by requirement, so it knows each group's size; inference can't
+        // always recover it (two optional groups with the same filter).
+        val replay = continuation.action.copy(
+            targets = chosen,
+            targetGroupCounts = continuation.requirements.indices.map { response.selectedTargets[it]?.size ?: 0 },
+        )
         return reenter(handler.execute(state, replay), checkForMore)
     }
 

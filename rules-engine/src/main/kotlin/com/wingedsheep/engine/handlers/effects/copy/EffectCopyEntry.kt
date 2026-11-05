@@ -21,7 +21,11 @@ data class EntryCopyChoice(
     val replacement: EntersAsCopy,
     val copiedCard: CardComponent? = null,
     val copiedEntity: EntityId? = null,
-)
+) {
+    /** Whether [other] copies the same object under the same copy effect (identity values aside). */
+    fun sameCopyAs(other: EntryCopyChoice): Boolean =
+        copiedEntity == other.copiedEntity && replacement == other.replacement
+}
 
 /** Prepare all choices against the pre-entry battlefield, then replay just the move instruction. */
 object EffectCopyEntry {
@@ -36,9 +40,12 @@ object EffectCopyEntry {
         val playerOrder = state.apnapOrder.withIndex().associate { it.value to it.index }
         for ((id, controller) in entrants.entries.sortedBy { playerOrder[it.value] ?: Int.MAX_VALUE }) {
             if (id in context.entryCopies || id in state.getBattlefield()) continue
+            // A granted copy of a bound object (Mystic Reflection) supersedes the entrant's own
+            // choice; the transition installs it, asking for an order between grants by replay.
+            if (GrantedEntryCopy.find(state, id, evaluator) != null) continue
             val card = state.getEntity(id)?.get<CardComponent>() ?: continue
             val replacement = registry.getCard(card.cardDefinitionId)?.script?.replacementEffects
-                ?.filterIsInstance<EntersAsCopy>()?.firstOrNull() ?: continue
+                ?.filterIsInstance<EntersAsCopy>()?.firstOrNull { it.copyOf == null } ?: continue
             val candidates = PermanentEntryReplacements.entersAsCopyCandidates(
                 state, id, controller, replacement, evaluator
             ).filter { candidate ->
@@ -64,17 +71,24 @@ object EffectCopyEntry {
     fun apply(state: GameState, id: EntityId, choice: EntryCopyChoice): GameState {
         val target = choice.copiedCard ?: return state
         val original = state.getEntity(id)?.get<CardComponent>() ?: return state
+        val copied = copiedIdentity(original, choice) ?: return state
+        return state.updateEntity(id) { tagCopyDuration(it.with(copied).with(CopyOfComponent(
+            originalCardDefinitionId = original.cardDefinitionId,
+            copiedCardDefinitionId = target.cardDefinitionId, originalCardComponent = original)), choice.replacement.duration) }
+    }
+
+    /** [original] as a copy of [choice]'s copied object, its "except …" riders applied (CR 707.9b). */
+    fun copiedIdentity(original: CardComponent, choice: EntryCopyChoice): CardComponent? {
+        val target = choice.copiedCard ?: return null
         val r = choice.replacement
         val exceptions = r.exceptions.over(com.wingedsheep.sdk.scripting.effects.CopyExceptions(
             nameOverride = r.nameOverride, addedKeywords = r.additionalKeywords.toSet(),
             addedSubtypes = r.additionalSubtypes.map { com.wingedsheep.sdk.core.Subtype(it) }.toSet(),
             addedColors = r.additionalColors, powerOverride = r.powerOverride, toughnessOverride = r.toughnessOverride,
         ))
-        val copied = CopyExceptionApplier.apply(target.copy(ownerId = original.ownerId,
-            isDoubleFaced = original.isDoubleFaced), exceptions)
-        return state.updateEntity(id) { tagCopyDuration(it.with(copied).with(CopyOfComponent(
-            originalCardDefinitionId = original.cardDefinitionId,
-            copiedCardDefinitionId = target.cardDefinitionId, originalCardComponent = original)), r.duration) }
+        return CopyExceptionApplier.apply(target.copy(ownerId = original.ownerId,
+            isDoubleFaced = original.isDoubleFaced), exceptions,
+            copierColors = original.colors, copierStats = original.baseStats)
     }
 
     /**

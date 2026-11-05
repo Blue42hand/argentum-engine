@@ -47,24 +47,42 @@ data class EvaluationWeights(
         discountedRaceClock: Boolean = false,
         creatureValuation: CreatureValuation = CreatureValuation.LEGACY,
         priceLandsInHandAsMana: Boolean = false,
+        evasionAfterAttacking: Boolean = false,
+        pendingLandDropIsMana: Boolean = false,
+        surplusAwareLands: Boolean = false,
+        libraryClock: Boolean = false,
+        surplusLandsReadTheHand: Boolean = false,
+        oneShotManaIsMana: Boolean = false,
+        payoffsReadTheirFuel: Boolean = false,
+        finishersEndTheGame: Boolean = false,
+        marksBeforeTheSweep: Boolean = false,
     ): BoardEvaluator = CompositeBoardEvaluator(
-        listOf(
+        listOfNotNull(
             life to LifeDifferential,
-            boardPresence to BoardFeature { state, projected, playerId ->
-                BoardPresence.score(
-                    state, projected, playerId, intents, sequenceLandsByUsableMana, creatureValuation,
-                )
-            },
-            cardAdvantage to BoardFeature { state, projected, playerId ->
-                CardAdvantage.score(
-                    state, projected, playerId, topdeckPenalty, landDropIsNotCardLoss,
-                    priceLandsInHandAsMana,
-                )
-            },
+            boardPresence to BoardPresence.Bound(
+                intents, sequenceLandsByUsableMana, creatureValuation, pendingLandDropIsMana, surplusAwareLands,
+            ),
+            cardAdvantage to CardAdvantage.Bound(
+                topdeckPenalty, landDropIsNotCardLoss, priceLandsInHandAsMana, surplusAwareLands,
+                surplusLandsReadTheHand = surplusLandsReadTheHand,
+            ),
             threatAssessment to BoardFeature { state, projected, playerId ->
-                ThreatAssessment.score(state, projected, playerId, discountedRaceClock)
+                ThreatAssessment.score(
+                    state, projected, playerId, discountedRaceClock, evasionAfterAttacking,
+                    creatureValuation.expiringStatsNeedAFight,
+                )
             },
             tempo to Tempo,
+            // In life units, so on [life]'s weight: an empty library is a near-loss like 0 life.
+            if (libraryClock) life to LibraryClock.Bound(intents) else null,
+            // In land drops, so on [tempo]'s weight: a Treasure is a share of the next land.
+            if (oneShotManaIsMana) tempo to OneShotMana(intents) else null,
+            // In board-value units, so on [boardPresence]'s weight: an engine is part of the board.
+            if (payoffsReadTheirFuel) boardPresence to SynergyPresence(intents) else null,
+            // In life units, so on [life]'s weight: a connecting strike is the game.
+            if (finishersEndTheGame) life to FinisherStrike(intents) else null,
+            // In board-value units, so on [boardPresence]'s weight: a marked creature is mostly gone.
+            if (marksBeforeTheSweep) boardPresence to MarkedForRemoval(intents) else null,
         )
     )
 
@@ -132,9 +150,11 @@ object EvalWeights {
 
     /**
      * [landDropIsNotCardLoss], [sequenceLandsByUsableMana], [discountedRaceClock],
-     * [creatureValuation] and [priceLandsInHandAsMana] reach only the composite fallback: the raw Phase 9 vectors price
-     * `myHandSize` linearly, so a land drop already costs them one fitted coefficient with no cliff
-     * to step off, and changing what any of them count would silently invalidate the fit.
+     * [creatureValuation], [priceLandsInHandAsMana], [evasionAfterAttacking], [pendingLandDropIsMana],
+     * [surplusAwareLands] and [surplusLandsReadTheHand] reach only the composite fallback: the raw
+     * Phase 9 vectors price `myHandSize` linearly, so a land drop already costs them one fitted
+     * coefficient with no cliff to step off, and changing what any of them count would silently
+     * invalidate the fit.
      */
     fun resolveEvaluator(
         id: String,
@@ -144,12 +164,23 @@ object EvalWeights {
         discountedRaceClock: Boolean = false,
         creatureValuation: CreatureValuation = CreatureValuation.LEGACY,
         priceLandsInHandAsMana: Boolean = false,
+        evasionAfterAttacking: Boolean = false,
+        pendingLandDropIsMana: Boolean = false,
+        surplusAwareLands: Boolean = false,
+        libraryClock: Boolean = false,
+        surplusLandsReadTheHand: Boolean = false,
+        oneShotManaIsMana: Boolean = false,
+        payoffsReadTheirFuel: Boolean = false,
+        finishersEndTheGame: Boolean = false,
+        marksBeforeTheSweep: Boolean = false,
     ): BoardEvaluator =
         apprenticeWeights[id]?.takeIf(RawEvaluationWeights::isValid)?.toEvaluator(intents)
             ?: rawResourceWeights[id]?.takeIf(RawEvaluationWeights::isValid)?.toEvaluator(intents)
             ?: resolve(id).toEvaluator(
                 intents, landDropIsNotCardLoss, sequenceLandsByUsableMana, discountedRaceClock,
-                creatureValuation, priceLandsInHandAsMana,
+                creatureValuation, priceLandsInHandAsMana, evasionAfterAttacking, pendingLandDropIsMana,
+                surplusAwareLands, libraryClock, surplusLandsReadTheHand, oneShotManaIsMana,
+                payoffsReadTheirFuel, finishersEndTheGame, marksBeforeTheSweep,
             )
 
     /** Whether [id] selects a complete, finite raw vector rather than the composite fallback. */

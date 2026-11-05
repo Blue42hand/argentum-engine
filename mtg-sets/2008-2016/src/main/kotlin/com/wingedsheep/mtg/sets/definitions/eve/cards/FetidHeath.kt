@@ -7,10 +7,16 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.TimingRule
 
-/** Fetid Heath — Eventide #176. */
+/**
+ * Fetid Heath
+ * Land
+ * {T}: Add {C}.
+ * {W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}.
+ */
 val FetidHeath = card("Fetid Heath") {
-    typeLine = "Land"
+    manaCost = ""
     colorIdentity = "WB"
+    typeLine = "Land"
     oracleText = "{T}: Add {C}.\n{W/B}, {T}: Add {W}{W}, {W}{B}, or {B}{B}."
 
     activatedAbility {
@@ -24,22 +30,18 @@ val FetidHeath = card("Fetid Heath") {
         effect = Effects.AddMana(Color.WHITE, 2)
         manaAbility = true
         timing = TimingRule.ManaAbility
-        description = "Add {W}{W}."
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W/B}"), Costs.Tap)
-        effect = (Effects.AddMana(Color.WHITE) then
-            Effects.AddMana(Color.BLACK))
+        effect = Effects.AddMana(Color.WHITE) then Effects.AddMana(Color.BLACK)
         manaAbility = true
         timing = TimingRule.ManaAbility
-        description = "Add {W}{B}."
     }
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{W/B}"), Costs.Tap)
         effect = Effects.AddMana(Color.BLACK, 2)
         manaAbility = true
         timing = TimingRule.ManaAbility
-        description = "Add {B}{B}."
     }
 
     metadata {

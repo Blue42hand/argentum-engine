@@ -188,7 +188,11 @@
         "replacementEffects": [
             {
                 "type": "EntersAsCopy",
-                "additionalCounters": "XValue"
+                "entersWithCounters": [
+                    {
+                        "count": "XValue"
+                    }
+                ]
             }
         ],
         "cantBeCountered": true
@@ -1268,6 +1272,162 @@
     ]
 }
 
+// Choked Estuary
+{
+    "name": "Choked Estuary",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "As this land enters, you may reveal an Island or Swamp card from your hand. If you don't, this land enters tapped.\n{T}: Add {U} or {B}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Choked Estuary:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Choked Estuary:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "OnEnterRunEffect",
+                "effect": {
+                    "type": "MayRevealCardFromHand",
+                    "filter": "land Island|Swamp",
+                    "otherwise": "EnterTapped"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "270",
+        "rarity": "RARE",
+        "artist": "Vincent Proce",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/995d44ca-626d-4c95-97af-ee53fa8baaf0.jpg?1783937700",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "Lands don't have a subtype just because they can produce mana of the corresponding color. Choked Estuary itself is neither an Island nor a Swamp, even though it produces blue and black mana, so you can't reveal one to satisfy the ability of another."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "If an effect instructs you to put Choked Estuary onto the battlefield tapped, it will still enter the battlefield tapped even if you reveal a land card from your hand."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "You may reveal any land card with either or both of the appropriate subtypes. It doesn't have to be a basic land. For example, you could reveal Prairie Stream from the Battle for Zendikar set to satisfy the ability of Choked Estuary."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "If an Island or Swamp is entering the battlefield from your hand at the same time as Choked Estuary, you may reveal the other land to have Choked Estuary enter untapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
+}
+
+// Crawling Sensation
+{
+    "name": "Crawling Sensation",
+    "manaCost": "{2}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of your upkeep, you may mill two cards. (You may put the top two cards of your library into your graveyard.)\nWhenever one or more land cards are put into your graveyard from anywhere for the first time each turn, create a 1/1 green Insect creature token.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Crawling Sensation:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "TopOfLibrary",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 2
+                                    },
+                                    "isMill": true
+                                },
+                                "storeAs": "milled"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "milled",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                }
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, you may mill two cards."
+            },
+            {
+                "id": "Crawling Sensation:2",
+                "trigger": {
+                    "type": "CardsPutIntoGraveyardEvent",
+                    "filter": "land",
+                    "firstTimeEachTurn": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Insect"
+                    ]
+                },
+                "descriptionOverride": "Whenever one or more land cards are put into your graveyard from anywhere for the first time each turn, create a 1/1 green Insect creature token."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "199",
+        "rarity": "UNCOMMON",
+        "artist": "Christopher Moeller",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/f/7f6d5abe-22b5-4ef1-ad74-af3e75e22a07.jpg?1783937733",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "If multiple land cards are put into your graveyard at once, Crawling Sensation's last ability triggers only once. This could happen because an effect (such as that of Crawling Sensation's first ability) put them there from your library at once, or because they were destroyed at the same time (such as two land creatures that were dealt lethal combat damage)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Crow of Dark Tidings
 {
     "name": "Crow of Dark Tidings",
@@ -1395,6 +1555,68 @@
     ]
 }
 
+// Dance with Devils
+{
+    "name": "Dance with Devils",
+    "manaCost": "{3}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Create two 1/1 red Devil creature tokens. They have \"When this token dies, it deals 1 damage to any target.\"",
+    "script": {
+        "spellEffect": {
+            "type": "CreateToken",
+            "count": {
+                "type": "Fixed",
+                "amount": 2
+            },
+            "power": 1,
+            "toughness": 1,
+            "colors": [
+                "RED"
+            ],
+            "creatureTypes": [
+                "Devil"
+            ],
+            "imageUri": "https://cards.scryfall.io/normal/front/3/e/3e78c4b8-371b-43d7-a315-fb299704aa60.jpg?1783937682",
+            "triggeredAbilities": [
+                {
+                    "id": "Dance with Devils:1",
+                    "trigger": {
+                        "type": "ZoneChangeEvent",
+                        "from": "Battlefield",
+                        "to": "Graveyard"
+                    },
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "targetRequirement": {
+                        "type": "AnyTarget",
+                        "id": "t0"
+                    },
+                    "descriptionOverride": "When this token dies, it deals 1 damage to any target."
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "UNCOMMON",
+        "artist": "Wayne England",
+        "flavorText": "Devils sow chaos and reap panic.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f1112ebe-2a42-48b9-b0e5-f708305d088a.jpg?1783937757"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Dauntless Cathar
 {
     "name": "Dauntless Cathar",
@@ -1472,6 +1694,79 @@
     ]
 }
 
+// Diregraf Colossus
+{
+    "name": "Diregraf Colossus",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Zombie Giant",
+    "oracleText": "This creature enters with a +1/+1 counter on it for each Zombie card in your graveyard.\nWhenever you cast a Zombie spell, create a tapped 2/2 black Zombie creature token.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Diregraf Colossus:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Zombie"
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Zombie"
+                    ],
+                    "tapped": true
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithDynamicCounters",
+                "count": {
+                    "type": "Count",
+                    "player": "You",
+                    "zone": "Graveyard",
+                    "filter": "Zombie"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "107",
+        "rarity": "RARE",
+        "artist": "Vincent Proce",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/9039e8f6-5513-4307-a1b5-07209dc8e1c8.jpg?1783937777",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "If Diregraf Colossus enters the battlefield from your graveyard, its first ability will count itself among the Zombie cards in your graveyard. Similarly, if it enters the battlefield at the same time as another Zombie card enters the battlefield from your graveyard, the ability will count that other Zombie."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "Diregraf Colossus's last ability won't trigger when you cast it because it's not on the battlefield yet."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Drogskol Cavalry
 {
     "name": "Drogskol Cavalry",
@@ -1540,6 +1835,36 @@
     "colorIdentityOverride": [
         "WHITE"
     ]
+}
+
+// Drownyard Explorers
+{
+    "name": "Drownyard Explorers",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "When this creature enters, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Drownyard Explorers:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": "Investigate"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "56",
+        "artist": "Anthony Palumbo",
+        "flavorText": "\"Angels and inquisitors terrorize villages, but no one seems to notice the stirring out at sea.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/7/3714713f-deb4-4b1c-8764-35287293ca18.jpg?1783937802"
+    }
 }
 
 // Drownyard Temple
@@ -1663,6 +1988,57 @@
     "colorIdentityOverride": [
         "BLUE",
         "BLACK"
+    ]
+}
+
+// Dual Shot
+{
+    "name": "Dual Shot",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "oracleText": "Dual Shot deals 1 damage to each of up to two target creatures.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": "IterationSpace.Targets",
+            "body": {
+                "type": "DealDamage",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": 1
+                },
+                "target": {
+                    "type": "ContextTarget",
+                    "index": 0
+                }
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "count": 2,
+                "optional": true,
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "153",
+        "artist": "Joseph Meehan",
+        "flavorText": "There is an eagerness among the Quiver of Kessig to prove they are the equal of the other cathar orders.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7ac4fa4-4a03-41a9-b7e4-c3a6da89472f.jpg?1783937755",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "You can’t target the same creature twice to have Dual Shot deal 2 damage to it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -2184,6 +2560,167 @@
     ]
 }
 
+// Fevered Visions
+{
+    "name": "Fevered Visions",
+    "manaCost": "{1}{U}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of each player's end step, that player draws a card. If the player is your opponent and has four or more cards in hand, this enchantment deals 2 damage to that player.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Fevered Visions:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "Each"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "TriggeringPlayer"
+                            }
+                        },
+                        {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.WhenCondition",
+                                "condition": {
+                                    "type": "All",
+                                    "conditions": [
+                                        "IsOpponentsTurn",
+                                        {
+                                            "type": "Compare",
+                                            "left": {
+                                                "type": "Count",
+                                                "player": "TriggeringPlayer",
+                                                "zone": "Hand"
+                                            },
+                                            "operator": "GTE",
+                                            "right": {
+                                                "type": "Fixed",
+                                                "amount": 4
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "then": {
+                                "type": "DealDamage",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                },
+                                "target": {
+                                    "type": "PlayerRef",
+                                    "player": "TriggeringPlayer"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "244",
+        "rarity": "RARE",
+        "artist": "Steven Belledin",
+        "flavorText": "The mind can only expand so far before it flies apart.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/e/3ee3fc2b-c2e4-421d-ac1d-6a111bb44f44.jpg?1783937715",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "No player may take any action in between the two steps of Fevered Visions's triggered ability, so if your opponent has four or more cards in hand after drawing a card, Fevered Visions will deal 2 damage to that player."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
+    ]
+}
+
+// Foreboding Ruins
+{
+    "name": "Foreboding Ruins",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "As this land enters, you may reveal a Swamp or Mountain card from your hand. If you don't, this land enters tapped.\n{T}: Add {B} or {R}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Foreboding Ruins:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Foreboding Ruins:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "RED"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "OnEnterRunEffect",
+                "effect": {
+                    "type": "MayRevealCardFromHand",
+                    "filter": "land Swamp|Mountain",
+                    "otherwise": "EnterTapped"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "272",
+        "rarity": "RARE",
+        "artist": "Adam Paquette",
+        "flavorText": "Sent to find Sorin, Jace ventured to the vampire's ancestral home, only to find evidence of a deeper mystery.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/c/3c26ee31-7e2a-4eed-b448-04989fb57523.jpg?1783937700",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "Lands don't have a subtype just because they can produce mana of the corresponding color. Foreboding Ruins itself is neither a Swamp nor a Mountain, even though it produces black and red mana, so you can't reveal one to satisfy the ability of another."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "If an effect instructs you to put Foreboding Ruins onto the battlefield tapped, it will still enter the battlefield tapped even if you reveal a land card from your hand."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "You may reveal any land card with either or both of the appropriate subtypes. It doesn't have to be a basic land. For example, you could reveal Sunken Hollow from the Battle for Zendikar set to satisfy the ability of Foreboding Ruins."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "If a Swamp or Mountain is entering the battlefield from your hand at the same time as Foreboding Ruins, you may reveal the other land to have Foreboding Ruins enter untapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Forsaken Sanctuary
 {
     "name": "Forsaken Sanctuary",
@@ -2311,10 +2848,7 @@
                 "effect": {
                     "type": "MayRevealCardFromHand",
                     "filter": "land Mountain|Forest",
-                    "otherwise": {
-                        "type": "TapUntap",
-                        "target": "Self"
-                    }
+                    "otherwise": "EnterTapped"
                 }
             }
         ]
@@ -2640,12 +3174,11 @@
                     }
                 },
                 "effect": {
-                    "type": "MoveToZone",
+                    "type": "ReturnSelfToBattlefieldAttached",
                     "target": {
                         "type": "BoundVariable",
                         "name": "t0"
-                    },
-                    "destination": "Battlefield"
+                    }
                 },
                 "targetRequirements": [
                     {
@@ -2657,7 +3190,8 @@
                     }
                 ],
                 "timing": "SorcerySpeed",
-                "activateFromZone": "Graveyard"
+                "activateFromZone": "Graveyard",
+                "descriptionOverride": "Return this card from your graveyard to the battlefield attached to target creature. Activate only as a sorcery."
             }
         ],
         "staticAbilities": [
@@ -2708,7 +3242,10 @@
                     "from": "Battlefield",
                     "to": "Graveyard"
                 },
-                "effect": "ReturnSelfFromZoneTransformed",
+                "effect": {
+                    "type": "ReturnSelfFromZoneTransformed",
+                    "controllerOverride": "Controller"
+                },
                 "descriptionOverride": "When Harvest Hand dies, return it to the battlefield transformed under your control."
             }
         ]
@@ -3328,6 +3865,61 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Jace's Scrutiny
+{
+    "name": "Jace's Scrutiny",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gets -4/-0 until end of turn.\nInvestigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": -4
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "Investigate"
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "70",
+        "artist": "Slawomir Maniak",
+        "flavorText": "\"Just a collage of images: cryptoliths, the sea, a tangle of shipwrecks.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/d/3d0eea0d-c790-4d91-962f-f05b22d0c8fa.jpg?1783937795",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "You can't cast a spell without choosing legal targets. If all of those targets become illegal, the spell doesn't resolve and you won't investigate."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -4114,6 +4706,84 @@
     ]
 }
 
+// Not Forgotten
+{
+    "name": "Not Forgotten",
+    "manaCost": "{1}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Put target card from a graveyard on your choice of the top or bottom of its owner's library. Create a 1/1 white Spirit creature token with flying.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ChooseAction",
+                    "choices": [
+                        {
+                            "label": "Put it on top of its owner's library",
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "destination": "Library",
+                                "placement": "Top"
+                            }
+                        },
+                        {
+                            "label": "Put it on the bottom of its owner's library",
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "destination": "Library",
+                                "placement": "Bottom"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Spirit"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ]
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Graveyard"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "30",
+        "rarity": "UNCOMMON",
+        "artist": "Darek Zabrocki",
+        "flavorText": "Visit the dead, and they may return the favor.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/6/66ecdadf-56f7-4dfb-9c3c-7d240ba19b00.jpg?1783937815"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Odric, Lunarch Marshal
 {
     "name": "Odric, Lunarch Marshal",
@@ -4448,6 +5118,23 @@
                                     "target": "IterationEntity"
                                 }
                             }
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Group",
+                                "filter": {
+                                    "baseFilter": "creature ctrl:you"
+                                }
+                            },
+                            "body": {
+                                "type": "GrantKeywordVariantsSharedByGroup",
+                                "keyword": "HEXPROOF",
+                                "group": {
+                                    "baseFilter": "creature ctrl:you"
+                                },
+                                "target": "IterationEntity"
+                            }
                         }
                     ],
                     "descriptionOverride": "Creatures you control gain first strike until end of turn if a creature you control has first strike. The same is true for flying, deathtouch, double strike, haste, hexproof, indestructible, lifelink, menace, reach, trample, and vigilance."
@@ -4574,7 +5261,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for an Aura enchantment card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -4694,6 +5383,132 @@
     ]
 }
 
+// Port Town
+{
+    "name": "Port Town",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "As this land enters, you may reveal a Plains or Island card from your hand. If you don't, this land enters tapped.\n{T}: Add {W} or {U}.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Port Town:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "WHITE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Port Town:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "OnEnterRunEffect",
+                "effect": {
+                    "type": "MayRevealCardFromHand",
+                    "filter": "land Plains|Island",
+                    "otherwise": "EnterTapped"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "278",
+        "rarity": "RARE",
+        "artist": "Noah Bradley",
+        "flavorText": "A haunted fog known as the Nebelgast shrouds the cities along Nephalia's coast.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b866712a-c3ef-4a43-ac0f-146c7836f0d6.jpg?1783937697",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "If an effect instructs you to put Port Town onto the battlefield tapped, it will still enter the battlefield tapped even if you reveal a land card from your hand."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "Lands don't have a subtype just because they can produce mana of the corresponding color. Port Town itself is neither a Plains nor an Island, even though it produces white and blue mana, so you can't reveal one to satisfy the ability of another."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "You may reveal any land card with either or both of the appropriate subtypes. It doesn't have to be a basic land. For example, you could reveal Canopy Vista from the Battle for Zendikar set to satisfy the ability of Port Town."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "If a Plains or Island is entering the battlefield from your hand at the same time as Port Town, you may reveal the other land to have Port Town enter untapped."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE"
+    ]
+}
+
+// Press for Answers
+{
+    "name": "Press for Answers",
+    "manaCost": "{1}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Tap target creature. It doesn't untap during its controller's next untap step.\nInvestigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "DOESNT_UNTAP",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "duration": "UntilAfterAffectedControllersNextUntap"
+                },
+                "Investigate"
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "80",
+        "artist": "Steve Prescott",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/e/5ec8b8bf-7b02-4f5e-bbd3-9560f9888192.jpg?1783937790",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "You can't cast a spell without choosing legal targets. If all of those targets become illegal, the spell doesn't resolve and you won't investigate."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Pyre Hound
 {
     "name": "Pyre Hound",
@@ -4793,6 +5608,60 @@
     ]
 }
 
+// Rabid Bite
+{
+    "name": "Rabid Bite",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target creature you control deals damage equal to its power to target creature you don't control.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "EntityProperty",
+                "entity": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                },
+                "numericProperty": "Power"
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t1"
+            },
+            "damageSource": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:opponent"
+                },
+                "id": "t1"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "223",
+        "artist": "Karl Kopinski",
+        "flavorText": "\"You should have seen the look on *both* their faces.\"\n—Morkamp, Lambholt innkeeper",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/f/2f573622-877b-4d21-adfc-40a32b7c2e6d.jpg?1783937725"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Ravenous Bloodseeker
 {
     "name": "Ravenous Bloodseeker",
@@ -4835,6 +5704,162 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Reduce to Ashes
+{
+    "name": "Reduce to Ashes",
+    "manaCost": "{4}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Reduce to Ashes deals 5 damage to target creature. If that creature would die this turn, exile it instead.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MarkExileOnDeath",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "176",
+        "artist": "Jason A. Engle",
+        "flavorText": "Previously the training center for cathars, the Elgaud Grounds are now used by the Lunarch Inquisition to punish those considered to be heretics.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/2/a2e23215-ced7-4c44-8595-dd9df3d8227b.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Relentless Dead
+{
+    "name": "Relentless Dead",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Zombie",
+    "oracleText": "Menace (This creature can't be blocked except by two or more creatures.)\nWhen this creature dies, you may pay {B}. If you do, return it to its owner's hand.\nWhen this creature dies, you may pay {X}. If you do, return another target Zombie creature card with mana value X from your graveyard to the battlefield.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Relentless Dead:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{B}"
+                        }
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": "Self",
+                        "destination": "Hand",
+                        "fromZone": "Graveyard"
+                    }
+                }
+            },
+            {
+                "id": "Relentless Dead:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayDynamicManaCost",
+                            "amount": {
+                                "type": "EntityProperty",
+                                "entity": {
+                                    "type": "ContextTarget",
+                                    "index": 0
+                                },
+                                "numericProperty": "ManaValue"
+                            }
+                        }
+                    },
+                    "then": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Battlefield",
+                        "fromZone": "Graveyard"
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature Zombie own:you",
+                        "zone": "Graveyard",
+                        "excludeSelf": true
+                    },
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "rarity": "MYTHIC",
+        "artist": "Ryan Yee",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/a/2a0d7998-2f3d-43b8-a0be-6ff7e5c83223.jpg?1783937766",
+        "rulings": [
+            {
+                "date": "2016-04-08",
+                "text": "Relentless Dead's last two abilities trigger at the same time and can be put on the stack in either order. The ability put on the stack first will be the last to resolve."
+            },
+            {
+                "date": "2016-04-08",
+                "text": "You decide whether to pay for each triggered ability as it resolves. If you do, the rest of that ability's effect happens before any player may take actions."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -5342,7 +6367,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         },
                         {
@@ -5386,6 +6414,50 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Sleep Paralysis
+{
+    "name": "Sleep Paralysis",
+    "manaCost": "{3}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nWhen this Aura enters, tap enchanted creature.\nEnchanted creature doesn't untap during its controller's untap step.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sleep Paralysis:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "TapUntap",
+                    "target": "EnchantedCreature"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "DOESNT_UNTAP"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "87",
+        "artist": "Josu Hernaiz",
+        "flavorText": "Sleep doesn't always mean rest.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/0/f010e4f4-f1a3-4062-834c-eec5f1f443d6.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -5984,7 +7056,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -6049,7 +7123,7 @@
             {
                 "id": "The Gitrog Monster:2",
                 "trigger": {
-                    "type": "CardsPutIntoYourGraveyardEvent",
+                    "type": "CardsPutIntoGraveyardEvent",
                     "filter": "land"
                 },
                 "binding": "ANY",
@@ -6543,7 +7617,9 @@
                                 "amount": 1
                             }
                         },
-                        "storeSelected": "found"
+                        "storeSelected": "found",
+                        "prompt": "Search your library for a creature or land card to put into your hand",
+                        "selectedLabel": "Put into your hand"
                     },
                     {
                         "type": "MoveCollection",
@@ -6581,7 +7657,9 @@
                                 "amount": 1
                             }
                         },
-                        "storeSelected": "found"
+                        "storeSelected": "found",
+                        "prompt": "Search your library for a basic land card to put into your hand",
+                        "selectedLabel": "Put into your hand"
                     },
                     {
                         "type": "MoveCollection",
@@ -7498,7 +8576,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -7563,7 +8643,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -7740,7 +8823,9 @@
                                     "amount": 2
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for up to two basic land cards to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",

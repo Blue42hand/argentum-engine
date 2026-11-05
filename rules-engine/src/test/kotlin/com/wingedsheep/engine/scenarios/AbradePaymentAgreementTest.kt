@@ -24,7 +24,7 @@ import com.wingedsheep.mtg.sets.definitions.shm.cards.GleefulSabotage
 import com.wingedsheep.mtg.sets.definitions.snc.cards.RobTheArchives
 import com.wingedsheep.mtg.sets.definitions.ori.cards.PyromancersGoggles
 import com.wingedsheep.mtg.sets.definitions.mh3.cards.HerigastEruptingNullkite
-import com.wingedsheep.mtg.sets.definitions.otj.cards.TerrorOfThePeaks
+import com.wingedsheep.mtg.sets.definitions.m21.cards.TerrorOfThePeaks
 import com.wingedsheep.mtg.sets.definitions.usg.cards.SkirgeFamiliar
 import com.wingedsheep.mtg.sets.definitions.chk.cards.DesperateRitual
 import com.wingedsheep.mtg.sets.definitions.chk.cards.LavaSpike
@@ -341,7 +341,7 @@ class AbradePaymentAgreementTest : FunSpec({
         (card in game.state.getGraveyard(caster)) shouldBe true
     }
 
-    test("Treasure is activated directly instead of offered as a cast-window selection") {
+    test("an offered Treasure can still be activated directly inside the cast window") {
         val game = GameTestDriver()
         game.registerCards(TestCards.all + listOf(Abrade, PredefinedTokens.Treasure))
         game.initMirrorMatch(Deck.of("Forest" to 40))
@@ -357,7 +357,8 @@ class AbradePaymentAgreementTest : FunSpec({
         game.submit(CastSpell(caster, card, targets = listOf(target), chosenModes = listOf(1),
             modeTargetsOrdered = listOf(listOf(target)))).isPaused shouldBe true
         val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
-        window.availableSources.none { it.entityId == treasure } shouldBe true
+        window.availableSources.single { it.entityId == treasure }.requiresSacrifice shouldBe true
+        window.canAutoPayNow shouldBe false
         game.submit(ActivateAbility(caster, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,
             manaColorChoice = Color.BLUE)).error shouldBe null
         val refreshed = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()

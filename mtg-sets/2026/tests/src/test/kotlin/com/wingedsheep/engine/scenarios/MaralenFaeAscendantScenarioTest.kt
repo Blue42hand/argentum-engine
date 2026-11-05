@@ -188,7 +188,10 @@ class MaralenFaeAscendantScenarioTest : ScenarioTestBase() {
                 val cheapCast = legalActions.find { it.description == "Cast Cheap Filler" }
                 cheapCast shouldNotBe null
                 cheapCast!!.isAffordable shouldBe true
-                cheapCast.manaCostString shouldBe "0"
+                com.wingedsheep.sdk.core.ManaCost.parse(cheapCast.manaCostString!!).let { cost ->
+                    cost.cmc shouldBe 0
+                    cost.hasX shouldBe false
+                }
                 cheapCast.sourceZone shouldBe "EXILE"
 
                 // Beefy Filler ({4}) exceeds the dynamic cap (1 Elf/Faerie on board) — must
@@ -228,7 +231,10 @@ class MaralenFaeAscendantScenarioTest : ScenarioTestBase() {
                 val cheapCast = legalActions.find { it.description == "Cast Cheap Filler" }
                 cheapCast shouldNotBe null
                 cheapCast!!.isAffordable shouldBe true
-                cheapCast.manaCostString shouldBe "0"
+                com.wingedsheep.sdk.core.ManaCost.parse(cheapCast.manaCostString!!).let { cost ->
+                    cost.cmc shouldBe 0
+                    cost.hasX shouldBe false
+                }
             }
 
             test("once per turn — second cast attempt is rejected") {

@@ -2,6 +2,7 @@
  * Shared types for store slices.
  */
 import type { StateCreator } from 'zustand'
+import type { ServerRestartState } from './serverRestart'
 import type {
   EntityId,
   ClientGameState,
@@ -34,9 +35,16 @@ import type {
   AiDeckSpec,
   DeckFormat,
   YieldKind,
+  MatchmakingMode,
+  MatchmakingStatusMessage,
+  MatchFoundMessage,
+  MatchmakingQueueCount,
+  FlipTable,
+  FlipLanding,
 } from '@/types'
 import type { ConnectionStatus } from '@/network/websocket.ts'
-import type { CounterRemovalCreatureInfo, SpectatorCombatState, SpectatorDecisionStatus, UpdateLobbySettingsMessage } from '@/types/messages.ts'
+import type { AssistUndo, DeckSnapshot } from './assistDeck'
+import type { CounterRemovalCreatureInfo, PlayerSeatInfo, SpectatorCombatState, SpectatorDecisionStatus, UpdateLobbySettingsMessage } from '@/types/messages.ts'
 
 /**
  * Every field of the omnibus lobby-settings message except its discriminator.
@@ -77,6 +85,13 @@ export interface MulliganState {
  * Targeting state when selecting targets for a spell/ability.
  */
 export interface TargetingState {
+  /** Original pool, preserved while selections narrow the highlighted choices. */
+  selectionPool?: readonly EntityId[]
+  /** Server-approved pools whose members may be selected together. */
+  selectionGroups?: readonly (readonly EntityId[])[] | null
+  exclusiveGroups?: readonly (readonly EntityId[])[] | null
+  /** Each candidate's claimable categories; picks must each claim a different one ("of each color"). */
+  distinctCategories?: Readonly<Record<EntityId, readonly string[]>> | null
   action: GameAction
   validTargets: readonly EntityId[]
   selectedTargets: readonly EntityId[]
@@ -178,8 +193,8 @@ export interface CombatState {
   /**
    * The seat this declaration is being made for, from the legal action's
    * `playerId`. Matters in multiplayer: a hotseat connection declares for the
-   * acting seat, and a defender's blocks are scoped to the attackers attacking
-   * *them* (CR 509.1b). Null when unknown (legacy 2-player fallbacks apply).
+   * acting seat. The server provides the defending player's or shared team's
+   * eligible blockers and attackers. Null when unknown.
    */
   actingSeat: EntityId | null
   /**
@@ -195,12 +210,24 @@ export interface CombatState {
   attackerTargets: Readonly<Record<EntityId, EntityId>>
   /** Planeswalker IDs that can be attacked */
   validAttackTargets: readonly EntityId[]
+  /**
+   * Server-sent per-attacker narrowing of `validAttackTargets` (sparse): an attacker listed here
+   * may attack only these targets. Read it through `attackTargetsFor`.
+   */
+  attackTargetsByAttacker: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Blocker assignments: blocker ID -> attacker IDs (supports blocking multiple attackers) */
   blockerAssignments: Record<EntityId, EntityId[]>
+  /** Previously submitted team choices: shown as arrows but never included in this seat's input. */
+  proposedBlockerAssignments?: Readonly<Record<EntityId, readonly EntityId[]>>
   /** Valid creatures that can participate (attackers or blockers depending on mode) */
   validCreatures: readonly EntityId[]
   /** Creatures that must attack this combat (from MustAttack, Taunt, etc.) */
   mandatoryAttackers: readonly EntityId[]
+  /**
+   * Valid attackers that can only attack alone (Master of Cruelties) — the server's list. Picking
+   * one clears the rest of the selection; picking another creature drops it.
+   */
+  loneAttackers?: readonly EntityId[]
   /** For blockers mode: creatures that are attacking */
   attackingCreatures: readonly EntityId[]
   /** For blockers mode: attackers that must be blocked by all creatures able to block them */
@@ -234,12 +261,22 @@ export interface GameOverState {
    * of the game) alongside the exit buttons.
    */
   eliminated?: boolean
+  /** The ante settlement (CR 407) when the game was played for ante. */
+  ante?: import('../../types').AnteResult | null
 }
 
 /**
  * Decision selection state for SelectCardsDecision with useTargetingUI=true.
  */
 export interface DecisionSelectionState {
+  selectionLimits?: Readonly<Record<EntityId, number>> | null
+  /** Original pool, preserved while selections narrow the highlighted choices. */
+  selectionPool?: readonly EntityId[]
+  /** Server-approved pools whose members may be selected together. */
+  selectionGroups?: readonly (readonly EntityId[])[] | null
+  exclusiveGroups?: readonly (readonly EntityId[])[] | null
+  /** Each candidate's claimable categories; picks must each claim a different one ("of each color"). */
+  distinctCategories?: Readonly<Record<EntityId, readonly string[]>> | null
   /** The pending decision this selection is for */
   decisionId: string
   /** Valid card IDs that can be selected */
@@ -255,6 +292,16 @@ export interface DecisionSelectionState {
   /** Transient warning shown when the user tries an illegal toggle (e.g. clicking past max
    * on a multi-select step). Cleared on the next successful toggle. */
   warning?: string | null
+  /** "... with total mana value / power N or less": for each cap, the picks' summed value may not
+   * exceed `cap`; `values` holds each option's value and `label` names it ("mana value", "power"). */
+  totalCaps?: readonly SelectionTotalCap[] | null
+}
+
+/** One aggregate cap on a decision selection — see [DecisionSelectionState.totalCaps]. */
+export interface SelectionTotalCap {
+  readonly label: string
+  readonly cap: number
+  readonly values: Readonly<Record<EntityId, number>>
 }
 
 /**
@@ -349,6 +396,8 @@ export interface DamageDistributionState {
   totalDamage: number
   /** Minimum damage per target (usually 1 per MTG rules) */
   minPerTarget: number
+  /** What is divided when it isn't damage — "+1/+1 counter". Absent means damage. */
+  unit?: string
   /** Current distribution (targetId -> damage amount) */
   distribution: Record<EntityId, number>
 }
@@ -569,21 +618,26 @@ export interface DeckBuildingState {
   landCounts: Record<string, number>
   opponentReady: boolean
   /**
-   * Card names highlighted by the LLM deckbuilding assistant. When non-null,
-   * these replace any archetype-driven highlights in the pool view.
-   */
-  llmHighlightedCards: readonly string[] | null
-  /**
    * Selected commander name for Commander Draft / Sealed lobbies. Null when no commander
    * is chosen yet, or when the lobby format isn't commander-shape. The card MUST exist in
    * [cardPool] (the deckbuilder UI gates the picker to eligible pool cards).
    */
   commander: string | null
   /**
+   * The second commander of a partner pair (CR 702.124) for Commander Draft / Sealed. Null
+   * without [commander] or when only one is designated; like it, the card MUST be in [deck].
+   */
+  secondCommander: string | null
+  /**
    * Cube Pool Play: [cardPool] is the entire cube and copies are unlimited (bounded only by the
    * usual 4-of cap), so adding a card must not remove it from the pool view.
    */
   poolPlay: boolean
+  /**
+   * Per-card copy cap (basic lands exempt), or null when the pool's own copy count is the only
+   * limit. Sent by the server, which enforces the same cap on submit.
+   */
+  maxCopiesPerCard: number | null
 }
 
 /**
@@ -653,6 +707,7 @@ export interface GridDraftState {
  * Lobby state for tournament lobbies (sealed, draft, Winston draft, or grid draft).
  */
 export interface LobbyState {
+  jumpstart?: import('@/types/messages').JumpstartState | null
   lobbyId: string
   state: 'WAITING_FOR_PLAYERS' | 'DRAFTING' | 'DECK_BUILDING' | 'TOURNAMENT_ACTIVE' | 'TOURNAMENT_COMPLETE'
   players: readonly LobbyPlayerInfo[]
@@ -736,6 +791,22 @@ export interface SpectatingState {
   decisionStatus: SpectatorDecisionStatus | null
   /** When true, `ReplayPlayer` handles its own UI — SpectatorGameBoard should not render */
   isReplay?: boolean
+  /**
+   * Set when the server reports the watched game has ended. The board stays up behind a result
+   * banner until the spectator goes back to the overview (or the banner's auto-return fires).
+   */
+  gameOver?: SpectatorGameOver | null
+}
+
+/** How a spectated game ended — the public `gameOver` payload, seen from outside the game. */
+export interface SpectatorGameOver {
+  /** Every seat that won (the whole team in Two-Headed Giant). Empty for a draw. */
+  winnerIds: readonly EntityId[]
+  reason: GameOverReason
+  /** Server-written end-of-game text (e.g. a stalled game's explanation), preferred when present. */
+  message: string | null
+  /** The ante settlement (CR 407) when the game was played for ante. */
+  ante?: import('../../types').AnteResult | null
 }
 
 /**
@@ -746,10 +817,40 @@ export interface MatchIntro {
   opponentName: string
   /** Every opponent's name in seat order (length > 1 in a multiplayer game). */
   opponentNames: string[]
+  /** Account avatars from the seat roster — yours, then each opponent's in `opponentNames` order. */
+  playerAvatar?: string | null
+  opponentAvatars?: (string | null)[]
   round?: number
   playerRecord?: string
   opponentRecord?: string
 }
+
+/**
+ * The interstitial shown as a Magic subgame (Shahrazad, CR 729) begins or ends: the table is about
+ * to become a different game, and the players should see that happen rather than find it.
+ */
+export type SubgameTransition =
+  | {
+      kind: 'start'
+      /** 1 for a subgame of the main game, 2 for one within it. */
+      depth: number
+      sourceName: string | null
+      sourceImageUri: string | null
+      /** The randomly chosen first player: "You" or their name. */
+      firstPlayerName: string
+      youGoFirst: boolean
+    }
+  | {
+      kind: 'end'
+      depth: number
+      sourceName: string | null
+      sourceImageUri: string | null
+      /** Empty for a draw. */
+      winnerNames: string[]
+      youWon: boolean
+      /** The players who didn't win — what the spell does to them next, it says itself. */
+      nonWinnerNames: string[]
+    }
 
 /**
  * A log entry for the game log panel.
@@ -784,6 +885,31 @@ export interface RevealAnimation {
   imageUri: string | null
   isOpponent: boolean
   startTime: number
+}
+
+/**
+ * A dexterity flip (Chaos Orb) in the air or just landed. The thrower's client creates it the
+ * moment they let go (so the flight starts with no network wait); the server's
+ * `cardFlippedOntoBattlefield` event then supplies [result] — and creates it outright on every
+ * other client.
+ */
+export interface FlipShow {
+  id: string
+  table: FlipTable
+  sourceName: string
+  sourceImageUri: string | null
+  flipperId: EntityId
+  /** True on the thrower's own client. */
+  isYours: boolean
+  /** The thrower's intent, known only on their client before the result arrives. */
+  aim: { x: number; y: number } | null
+  result: {
+    landing: FlipLanding
+    turnedOver: boolean
+    touched: readonly EntityId[]
+    affected: readonly EntityId[]
+  } | null
+  startedAt: number
 }
 
 /**
@@ -840,6 +966,7 @@ export interface DamageAnimation {
  * A phase in the action pipeline. Computed up front by computePhases().
  */
 export type PipelinePhase =
+  | { type: 'castCostQuote'; rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false }
   | { type: 'modalModes' }
   | { type: 'counterDistribution' }
   | { type: 'xSelection' }
@@ -851,7 +978,11 @@ export type PipelinePhase =
   | { type: 'tapForGeneric' }
   | { type: 'harmonize' }
   | { type: 'manaSource' }
-  | { type: 'costPayment' }
+  /**
+   * Pays one additional cost. `costIndex` picks it out of `[additionalCostInfo, ...alsoRequired]`
+   * for a spell with several selection costs; absent means the first.
+   */
+  | { type: 'costPayment'; costIndex?: number }
   /**
    * Non-mana escalate (CR 702.120a): pay the escalate cost once for each mode chosen beyond the
    * first. Its own phase rather than a plain `costPayment` because the cost and its count come
@@ -869,6 +1000,7 @@ export type PipelinePhase =
  * Result reported by a phase's confirm handler.
  */
 export type PhaseResult =
+  | { type: 'castCostQuote'; quote: import('../../types/messages').CastCostQuoteMessage; rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false }
   | { type: 'modalModes'; chosenModes: number[] }
   | {
       type: 'counterDistribution'
@@ -888,13 +1020,20 @@ export type PhaseResult =
   | { type: 'blightVariable'; blightAmount: number }
   | { type: 'payXLife'; payXLifeAmount: number }
   | { type: 'manaColorChoice'; color: string }
-  | { type: 'targeting'; selectedTargets: EntityId[] }
+  | { type: 'targeting'; selectedTargets: EntityId[]; targetGroupCounts?: number[] }
   | { type: 'damageDistribution'; distribution: Record<EntityId, number> }
 
 /**
  * Pipeline coordinator state: tracks the action being built and remaining phases.
  */
 export interface ActionPipelineState {
+  /** Preserve the user's explicit manual choice through asynchronous quotes. */
+  autoTapEnabled?: boolean
+  requiresNativeCostQuote?: boolean
+  manaCostQuoted?: boolean
+  costQuote?: import('../../types/messages').CastCostQuoteMessage
+  pendingCostQuote?: { requestId: string; stateVersion: number; rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false }
+
   interactionEpoch: string
   actionInfo: import('../../types').LegalActionInfo
   accumulatedAction: import('../../types').GameAction
@@ -923,8 +1062,15 @@ export type GameStore = {
   onlinePlayers: number | null
   /** True when another tab/device took over this identity; auto-reconnect is stopped. */
   sessionReplaced: boolean
+  /** Set while the server is restarting (see `serverRestart.ts`). */
+  serverRestart: ServerRestartState | null
+  /** Epoch ms the server came back after a restart; drives the brief "back online" notice. */
+  serverBackAt: number | null
+  /** Epoch ms an established connection dropped, until it is re-established. */
+  connectionLostAt: number | null
   connect: (playerName: string, options?: { spectator?: boolean }) => void
   disconnect: () => void
+  retryConnection: () => void
   setPendingTournamentId: (lobbyId: string | null) => void
   setPendingSpectateGameId: (gameSessionId: string | null) => void
 
@@ -954,6 +1100,17 @@ export type GameStore = {
   spectatorCount: number
   /** Names of currently-active spectators (for hover display on the badge). */
   spectatorNames: readonly string[]
+  /** The last forced question this client answered for the player, shown as a brief notice. */
+  autoAnswerNotice: import('./handlers/autoAnswer').AutoAnswerNotice | null
+  dismissAutoAnswerNotice: () => void
+  /**
+   * Automatic ordering just put several of the player's triggers on the stack in an order they
+   * could have chosen — a tip shown once, the first time it happens.
+   */
+  triggerOrderNotice: { key: number; count: number } | null
+  dismissTriggerOrderNotice: () => void
+  /** A forced question is waiting to be answered for the player (see `autoAnswer.ts`). */
+  autoAnswerPending: boolean
   createGame: (deckList: Record<string, number>, setCode?: string) => void
   createAiGame: (deckList: Record<string, number>, setCode?: string) => void
   joinGame: (sessionId: string, deckList: Record<string, number>) => void
@@ -962,12 +1119,15 @@ export type GameStore = {
   submitDecision: (decisionId: string, selectedCards: readonly EntityId[]) => void
   submitTargetsDecision: (decisionId: string, selectedTargets: Record<number, readonly EntityId[]>) => void
   submitOrderedDecision: (decisionId: string, orderedObjects: readonly EntityId[]) => void
+  /** Answer an OrderTriggersDecision: the decision's trigger indices, first-to-resolve first. */
+  submitTriggerOrder: (decisionId: string, resolutionOrder: readonly number[]) => void
   submitYesNoDecision: (decisionId: string, choice: boolean) => void
   submitBatchYesNoDecision: (decisionId: string, choice: boolean, applyToAll: boolean) => void
   submitNumberDecision: (decisionId: string, number: number) => void
   submitOptionDecision: (decisionId: string, optionIndex: number) => void
   submitReplacementDecision: (decisionId: string, fromIndex: number, toIndex: number) => void
   submitBudgetModalDecision: (decisionId: string, selectedModeIndices: readonly number[]) => void
+  submitFlipThrow: (decisionId: string, velocityX: number, velocityY: number, spin: number) => void
   submitDistributeDecision: (decisionId: string, distribution: Record<EntityId, number>) => void
   submitDamageAssignmentDecision: (decisionId: string, assignments: Record<EntityId, number>) => void
   submitCombatResolutionDecision: (decisionId: string, edges: ReadonlyArray<{ edgeId: string; amount: number }>) => void
@@ -985,7 +1145,11 @@ export type GameStore = {
   mulligan: () => void
   chooseBottomCards: (cardIds: readonly EntityId[]) => void
   toggleMulliganCard: (cardId: EntityId) => void
-  concede: () => void
+  /**
+   * Concede. During a Magic subgame (CR 729), `subgameOnly` concedes just the subgame — the main
+   * game then resumes — instead of the main game as well.
+   */
+  concede: (subgameOnly?: boolean) => void
   requestUndo: () => void
   toggleAutoTap: () => void
   cancelGame: () => void
@@ -1005,7 +1169,7 @@ export type GameStore = {
   tournamentState: TournamentState | null
   ffaState: FfaState | null
   spectatingState: SpectatingState | null
-  createTournamentLobby: (setCodes: string[], format?: TournamentFormat, boosterCount?: number, maxPlayers?: number, pickTimeSeconds?: number, isPublic?: boolean, gameMode?: LobbyGameMode, rules?: GameRules) => void
+  createTournamentLobby: (setCodes: string[], format?: TournamentFormat, boosterCount?: number, maxPlayers?: number, pickTimeSeconds?: number, isPublic?: boolean, gameMode?: LobbyGameMode, rules?: GameRules, playingForAnte?: boolean) => void
   joinLobby: (lobbyId: string) => void
   startLobby: () => void
   leaveLobby: () => void
@@ -1014,6 +1178,7 @@ export type GameStore = {
   /** Host picks what one AI seat plays (premade-decks lobbies — elsewhere it builds from its pool). */
   setLobbyAiDeck: (playerId: string, spec: AiDeckSpec) => void
   stopLobby: () => void
+  pickJumpstartPacks: (firstPackId: string, secondPackId: string) => void
   updateLobbySettings: (settings: LobbySettingsUpdate) => void
   /** Disconnected tournament players: playerId -> info */
   disconnectedPlayers: Record<string, { playerName: string; secondsRemaining: number; disconnectedAt: number }>
@@ -1030,12 +1195,16 @@ export type GameStore = {
     deckList: Record<string, number>,
     commander?: string | null,
     sideboard?: Record<string, number>,
+    /** The second commander of a partner pair; ignored without `commander`. */
+    secondCommander?: string | null,
+    /** The deck's companion (CR 702.139), a sideboard card; null for none. */
+    companion?: string | null,
   ) => void
   unsubmitLobbyDeck: () => void
 
   // Quick Game Lobby slice
   quickGameLobbyState: QuickGameLobbyStateMessage | null
-  createQuickGameLobby: (vsAi?: boolean, setCode?: string, isPublic?: boolean, format?: DeckFormat, momirBasic?: boolean, ranked?: boolean) => void
+  createQuickGameLobby: (vsAi?: boolean, setCode?: string, isPublic?: boolean, format?: DeckFormat, momirBasic?: boolean, ranked?: boolean, playingForAnte?: boolean) => void
   addQuickGameAi: () => void
   removeQuickGameAi: () => void
   joinQuickGameLobby: (lobbyId: string) => void
@@ -1044,14 +1213,33 @@ export type GameStore = {
     deckList: Record<string, number>,
     commander?: string | null,
     sideboard?: Record<string, number>,
+    /** The second commander of a partner pair; ignored without `commander`. */
+    secondCommander?: string | null,
+    /** The deck's companion (CR 702.139), a sideboard card; null for none. */
+    companion?: string | null,
+    /** The format the deck was built for, or null; see `SubmitQuickGameLobbyDeckMessage.deckFormat`. */
+    deckFormat?: string | null,
   ) => void
   setQuickGameLobbyReady: (ready: boolean) => void
   setQuickGameLobbySetCode: (setCodes: readonly string[]) => void
   setQuickGameLobbyPublic: (isPublic: boolean) => void
   setQuickGameLobbyRanked: (ranked: boolean) => void
+  setQuickGameLobbyAnte: (playingForAnte: boolean) => void
   setQuickGameLobbyFormat: (format: DeckFormat | null, momirBasic?: boolean) => void
   /** Host-only: choose what the AI opponent plays (auto / built from sets / an exact list). */
   setQuickGameAiDeck: (spec: AiDeckSpec) => void
+
+  // Matchmaking (lives in the quick-game slice: a confirmed match becomes a quick-game lobby)
+  /** The server's last matchmaking status for this player; null before any. */
+  matchmaking: MatchmakingStatusMessage | null
+  /** An open "match found" prompt, stamped with its arrival time for the local countdown. */
+  matchOffer: (MatchFoundMessage & { readonly receivedAt: number }) | null
+  /** Searching players per queue; null until first loaded. */
+  matchmakingQueues: readonly MatchmakingQueueCount[] | null
+  joinMatchmaking: (mode: MatchmakingMode, format: DeckFormat | null, ranked: boolean) => void
+  leaveMatchmaking: () => void
+  respondToMatch: (accept: boolean) => void
+  dismissMatchmakingNotice: () => void
 
   // Draft slice
   deckBuildingState: DeckBuildingState | null
@@ -1063,10 +1251,11 @@ export type GameStore = {
   setLandCount: (landType: string, count: number) => void
   /** Replace the entire deck (non-basic cards as a flat list) and basic land counts. */
   setDeck: (deck: readonly string[], landCounts: Record<string, number>) => void
-  /** Set or clear the commander for Commander Draft / Sealed lobbies. */
-  setCommander: (cardName: string | null) => void
-  /** Set the LLM-driven highlight set. Pass null to clear. */
-  setLlmHighlights: (cardNames: readonly string[] | null) => void
+  /**
+   * Set the commander designation for Commander Draft / Sealed lobbies: none, one, or a partner
+   * pair (CR 702.124). Further names are ignored.
+   */
+  setCommanders: (cardNames: readonly string[]) => void
   submitSealedDeck: () => void
   unsubmitDeck: () => void
   makePick: (cardNames: string[]) => void
@@ -1089,6 +1278,13 @@ export type GameStore = {
   deckCardScores: Readonly<Record<string, PickScore>> | null
   scoreDeckCards: (advisorId?: string) => Promise<void>
   clearDeckCardScores: () => void
+  deckCardScoresContext: DeckSnapshot | null
+  deckAssistTask: 'build' | 'score' | null
+  assistUndo: AssistUndo | null
+  applyAssistDeck: (deck: readonly string[], landCounts: Record<string, number>) => void
+  undoAssistDeck: () => void
+  clearAutoBuildResult: () => void
+  clearAiAssistError: () => void
   suggestPick: (advisorId?: string) => Promise<void>
   clearPickSuggestion: () => void
   autoBuildDeck: (advisorId?: string) => Promise<void>
@@ -1102,6 +1298,8 @@ export type GameStore = {
     options?: { forceManualTap?: boolean },
   ) => void
   advancePipeline: (result: PhaseResult) => void
+  requestCastCostQuote: (rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false) => void
+  receiveCastCostQuote: (quote: import('../../types/messages').CastCostQuoteMessage) => void
   cancelPipeline: () => void
 
   // Board view slice (multiplayer viewed-opponent board + follow-the-action camera)
@@ -1117,6 +1315,7 @@ export type GameStore = {
   teamByPlayerId: Readonly<Record<EntityId, number>>
   teamSharedLife: boolean
   teamSharedTurns: boolean
+  avatarByPlayerId: Readonly<Record<EntityId, string>>
   viewOpponent: (playerId: EntityId, opts?: { pin?: boolean }) => void
   unpinView: () => void
   toggleFollowAction: () => void
@@ -1132,6 +1331,7 @@ export type GameStore = {
     sharedLife?: boolean,
     sharedTurns?: boolean,
   ) => void
+  setSeatAvatars: (players: readonly PlayerSeatInfo[]) => void
   resetBoardView: () => void
 
   // UI slice
@@ -1156,7 +1356,6 @@ export type GameStore = {
   autoTapPreview: readonly EntityId[] | null
   draggingBlockerId: EntityId | null
   draggingAttackerId: EntityId | null
-  draggingAttackerHasBanding: boolean | null
   draggingCardId: EntityId | null
   revealedHandCardIds: readonly EntityId[] | null
   revealedCardsInfo: {
@@ -1189,6 +1388,7 @@ export type GameStore = {
   damageAnimations: readonly DamageAnimation[]
   revealAnimations: readonly RevealAnimation[]
   coinFlipAnimations: readonly CoinFlipAnimation[]
+  flipShow: FlipShow | null
   targetReselectedAnimations: readonly TargetReselectedAnimation[]
   /**
    * Battlefield card ids currently pulsing after being beheld, along with the
@@ -1215,7 +1415,7 @@ export type GameStore = {
   clearBlockerAssignments: () => void
   startDraggingBlocker: (blockerId: EntityId) => void
   stopDraggingBlocker: () => void
-  startDraggingAttacker: (attackerId: EntityId, hasBanding?: boolean) => void
+  startDraggingAttacker: (attackerId: EntityId) => void
   stopDraggingAttacker: () => void
   setAttackTarget: (attackerId: EntityId, targetId: EntityId) => void
   assignDefenderToSelectedAttackers: (defenderId: EntityId) => void
@@ -1273,6 +1473,9 @@ export type GameStore = {
   cancelManaColorSelection: (interactionEpoch: string | null) => void
   startDecisionSelection: (state: DecisionSelectionState) => void
   toggleDecisionSelection: (cardId: EntityId) => void
+  decrementDecisionSelection: (cardId: EntityId) => void
+  /** Replace the whole pick at once (quick-select "All" / "Recommended" / "Clear"). Ids outside the pool are dropped. */
+  setDecisionSelection: (cardIds: readonly EntityId[]) => void
   cancelDecisionSelection: (decisionId: string) => void
   confirmDecisionSelection: (decisionId: string) => void
   startDamageDistribution: (state: DamageDistributionState) => void
@@ -1310,6 +1513,7 @@ export type GameStore = {
   removeRevealAnimation: (id: string) => void
   addCoinFlipAnimation: (animation: CoinFlipAnimation) => void
   removeCoinFlipAnimation: (id: string) => void
+  setFlipShow: (show: FlipShow | null) => void
   addTargetReselectedAnimation: (animation: TargetReselectedAnimation) => void
   removeTargetReselectedAnimation: (id: string) => void
   addBeholdPulse: (cardId: EntityId, sourceName: string) => void
@@ -1318,4 +1522,6 @@ export type GameStore = {
   matchIntro: MatchIntro | null
   setMatchIntro: (intro: MatchIntro) => void
   clearMatchIntro: () => void
+  subgameTransition: SubgameTransition | null
+  clearSubgameTransition: () => void
 }

@@ -29,6 +29,141 @@
     "colorIdentityOverride": []
 }
 
+// Beast Within
+{
+    "name": "Beast Within",
+    "manaCost": "{2}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target permanent. Its controller creates a 3/3 green Beast creature token.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "CreateToken",
+                    "power": 3,
+                    "toughness": 3,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Beast"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/d/9/d93d0098-2147-4e84-af15-91dec8b98d21.jpg?1721427669",
+                    "controller": "TargetController"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "permanent"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "103",
+        "rarity": "UNCOMMON",
+        "artist": "Dave Allsop",
+        "flavorText": "\"Kill the weak so they can't drag the strong down to their level. This is true compassion.\"\n—Benzir, archdruid of Temple Might",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce5b6d19-22e3-4f57-8f4d-a17e982286c7.jpg?1783941304"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Blade Splicer
+{
+    "name": "Blade Splicer",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Phyrexian Human Artificer",
+    "oracleText": "When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.\nGolems you control have first strike.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Blade Splicer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 3,
+                    "toughness": 3,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Phyrexian",
+                        "Golem"
+                    ],
+                    "artifactToken": true
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantKeyword",
+                "keyword": "FIRST_STRIKE",
+                "filter": {
+                    "baseFilter": "permanent Golem ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "4",
+        "rarity": "RARE",
+        "artist": "Greg Staples",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b8e56a28-713b-4a13-a601-1128cf117539.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Blighted Agent
+{
+    "name": "Blighted Agent",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Phyrexian Human Rogue",
+    "oracleText": "Infect (This creature deals damage to creatures in the form of -1/-1 counters and to players in the form of poison counters.)\nThis creature can't be blocked.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "INFECT"
+    ],
+    "flags": [
+        "CANT_BE_BLOCKED"
+    ],
+    "metadata": {
+        "collectorNumber": "29",
+        "artist": "Anthony Francisco",
+        "flavorText": "\"Urabrask may suspect our surveillance, but he cannot stop it.\"\n—Avaricta, Gitaxian sective",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/d/cddaebde-a060-4510-8c97-68432d931987.jpg?1783941323"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Deceiver Exarch
 {
     "name": "Deceiver Exarch",
@@ -227,6 +362,55 @@
                 "text": "If you control three or more artifacts when Dispatch resolves, you'll tap the creature, then exile it."
             }
         ]
+    }
+}
+
+// Elesh Norn, Grand Cenobite
+{
+    "name": "Elesh Norn, Grand Cenobite",
+    "manaCost": "{5}{W}{W}",
+    "typeLine": "Legendary Creature — Phyrexian Praetor",
+    "oracleText": "Vigilance\nOther creatures you control get +2/+2.\nCreatures your opponents control get -2/-2.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 7
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 2,
+                "filter": {
+                    "baseFilter": "creature ctrl:you",
+                    "excludeSelf": true
+                }
+            },
+            {
+                "type": "ModifyStats",
+                "powerBonus": -2,
+                "toughnessBonus": -2,
+                "filter": {
+                    "baseFilter": "creature ctrl:opponent"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "9",
+        "rarity": "MYTHIC",
+        "artist": "Igor Kieryluk",
+        "flavorText": "\"The Gitaxians whisper among themselves of other worlds. If they exist, we must bring Phyrexia's magnificence to them.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/6/b66390d6-1649-4bfa-92d3-77664650d552.jpg?1783941327",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "If a second Elesh Norn, Grand Cenobite comes under your control, you'll put one into its owner's graveyard due to the \"legend rule\" at the same time that any of your opponents' creatures getting -4/-4 are put into their owner's graveyard for having 0 or less toughness."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "WHITE"
@@ -253,6 +437,408 @@
     ]
 }
 
+// Forced Worship
+{
+    "name": "Forced Worship",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature can't attack.\n{2}{W}: Return this Aura to its owner's hand.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Forced Worship:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{2}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand"
+                },
+                "descriptionOverride": "{2}{W}: Return this Aura to its owner's hand."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "CantAttack",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "11",
+        "artist": "Karl Kopinski",
+        "flavorText": "Imprisonment teaches revenge. Hobbling teaches resignation.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e050701d-4609-470d-85ff-4b7638893c6a.jpg?1783941326",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "Forced Worship's activated ability may only be activated if Forced Worship is on the battlefield. If it's no longer on the battlefield when the ability resolves, the ability has no effect."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Gitaxian Probe
+{
+    "name": "Gitaxian Probe",
+    "manaCost": "{U/P}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at target player's hand.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "LookAtTargetHand",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "35",
+        "artist": "Chippy",
+        "flavorText": "\"My flesh holds no secrets, monster. The spirit of Mirrodin will fight on.\"\n—Vy Covalt, Mirran resistance",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/995486ce-58bb-4753-a812-0ca73ef1a235.jpg?1783941320",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "To calculate the mana value of a card with Phyrexian mana symbols in its cost, count each Phyrexian mana symbol as 1."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If you're at 1 life or less, you can't pay 2 life."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "The targeted player may have no cards in their hand. You'll still draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Gut Shot
+{
+    "name": "Gut Shot",
+    "manaCost": "{R/P}",
+    "typeLine": "Instant",
+    "oracleText": "Gut Shot deals 1 damage to any target.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 1
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "86",
+        "rarity": "UNCOMMON",
+        "artist": "Greg Staples",
+        "flavorText": "\"Down here, we have a more pointed version of the scriptures.\"\n—Urabrask's enforcer",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/5/a54a2a30-b96a-49c7-9151-1f4b0d4a4413.jpg?1783941308",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "A card with Phyrexian mana symbols in its mana cost is each color that appears in that mana cost, regardless of how that cost may have been paid."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "To calculate the mana value of a card with Phyrexian mana symbols in its cost, count each Phyrexian mana symbol as 1."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If you're at 1 life or less, you can't pay 2 life."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Jin-Gitaxias, Core Augur
+{
+    "name": "Jin-Gitaxias, Core Augur",
+    "manaCost": "{8}{U}{U}",
+    "typeLine": "Legendary Creature — Phyrexian Praetor",
+    "oracleText": "Flash\nAt the beginning of your end step, draw seven cards.\nEach opponent's maximum hand size is reduced by seven.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLASH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Jin-Gitaxias, Core Augur:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyMaximumHandSize",
+                "player": "EachOpponent",
+                "amount": {
+                    "type": "Fixed",
+                    "amount": -7
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "rarity": "MYTHIC",
+        "artist": "Eric Deschamps",
+        "flavorText": "\"It is not a goal, but a process—the process of creating the perfect Phyrexia.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/d/bd46fc9f-5b92-44d7-8940-2f39b0962b8f.jpg?1783941319"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Karn Liberated
+{
+    "name": "Karn Liberated",
+    "manaCost": "{7}",
+    "typeLine": "Legendary Planeswalker — Karn",
+    "oracleText": "+4: Target player exiles a card from their hand.\n−3: Exile target permanent.\n−14: Restart the game, leaving in exile all non-Aura permanent cards exiled with Karn. Then put those cards onto the battlefield under your control.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Karn Liberated:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 4
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "chooser": "TargetPlayer",
+                            "storeSelected": "selected1",
+                            "prompt": "Choose a card to exile"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "linkToSource": true
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetPlayer",
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Karn Liberated:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    },
+                    "destination": "Exile",
+                    "linkToSource": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent"
+                        },
+                        "id": "t1"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Karn Liberated:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -14
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": "FromLinkedExile",
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "FilterCollection",
+                            "from": "gathered0",
+                            "filter": {
+                                "cardPredicates": [
+                                    "IsPermanent",
+                                    {
+                                        "type": "NotSubtype",
+                                        "subtype": "Aura"
+                                    }
+                                ]
+                            },
+                            "storeMatching": "matching1"
+                        },
+                        {
+                            "type": "RestartGame",
+                            "exempt": "matching1",
+                            "afterRestart": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "matching1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "MYTHIC",
+        "artist": "Jason Chan",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/9/f9287151-95df-4f5a-b32a-4b0aea825452.jpg?1783941329",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "The player who controlled the ability that restarted the game is the starting player in the new game. The new game starts like a game normally does: Each player shuffles their deck (except the cards left in exile by Karn's ability). Each player's life total becomes 20 (or the starting life total for whatever format you're playing). Players draw a hand of seven cards. Players may take mulligans. Players may take actions based on cards in their opening hands, such as those of Leylines."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "Karn's first and third abilities are linked. Similarly, Karn's second and third abilities are linked. Only non-Aura permanent cards exiled by either of Karn's first two abilities will remain in exile when the game restarts."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "After the pregame procedure is complete but before the new game's first turn, Karn's ability finishes resolving and the cards left in exile are put onto the battlefield. If this causes any triggered abilities to trigger, those abilities are put onto the stack at the beginning of the first upkeep step."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "Permanents put onto the battlefield due to Karn's ability will have been under the starting controller's control continuously since the beginning of that player's first turn. Creatures among them can attack and their activated abilities with {T} in the cost can be activated."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "No actions taken in the game that was restarted apply to the new game. For example, if you were dealt damage by Stigma Lasher in the original game, the effect that states you can't gain life doesn't carry over to the new game."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "Players won't have any counters or emblems they had in the original game."
+            }
+        ]
+    },
+    "startingLoyalty": 6
+}
+
 // Loxodon Convert
 {
     "name": "Loxodon Convert",
@@ -273,6 +859,263 @@
     ]
 }
 
+// Master Splicer
+{
+    "name": "Master Splicer",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Phyrexian Human Artificer",
+    "oracleText": "When this creature enters, create a 3/3 colorless Phyrexian Golem artifact creature token.\nGolems you control get +1/+1.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Master Splicer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 3,
+                    "toughness": 3,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Phyrexian",
+                        "Golem"
+                    ],
+                    "artifactToken": true
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "permanent Golem ctrl:you"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "16",
+        "rarity": "UNCOMMON",
+        "artist": "Chippy",
+        "flavorText": "With Phyrexia's victory at hand, each sect began perfecting its vision.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/5/859d2b91-63af-4700-8ca5-b1756aa6639b.jpg"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Mental Misstep
+{
+    "name": "Mental Misstep",
+    "manaCost": "{U/P}",
+    "typeLine": "Instant",
+    "oracleText": "Counter target spell with mana value 1.",
+    "script": {
+        "spellEffect": "Counter",
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "mv=1",
+                    "zone": "Stack"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "38",
+        "rarity": "UNCOMMON",
+        "artist": "Erica Yang",
+        "flavorText": "\"Your first mistake was thinking I would let you live long enough to make a second.\"\n—Sarnvax, Gitaxian sective",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/1/61e9c6df-1c84-4eab-9076-a4feb6347c10.jpg?1783941319",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "Each Phyrexian mana symbol in a spell's mana cost contributes 1 to that spell's mana value. For example, Mental Misstep's mana value is 1, regardless of how its cost was paid."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If you're at 1 life or less, you can't pay 2 life."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If a spell has {X} in its mana cost, X is considered to be the value chosen for it while that spell is on the stack."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Mindcrank
+{
+    "name": "Mindcrank",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "Whenever an opponent loses life, that player mills that many cards. (Damage causes loss of life.)",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Mindcrank:1",
+                "trigger": {
+                    "type": "LifeLossEvent",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "ContextProperty",
+                                    "key": "TRIGGER_LIFE_LOST"
+                                },
+                                "player": "TriggeringPlayer",
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": "TriggeringPlayer"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever an opponent loses life, that player mills that many cards."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "144",
+        "rarity": "UNCOMMON",
+        "artist": "Chris Rahn",
+        "flavorText": "\"Let go of your memories and be reborn.\"\n—Argent Etchings, plate 106, passage 27",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/1/d13a5ae0-d76a-4430-98c1-47a19e615e2c.jpg?1783941294",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "Damage dealt to an opponent usually causes that opponent to lose life. An opponent paying life also causes loss of life."
+            }
+        ]
+    }
+}
+
+// Noxious Revival
+{
+    "name": "Noxious Revival",
+    "manaCost": "{G/P}",
+    "typeLine": "Instant",
+    "oracleText": "({G/P} can be paid with either {G} or 2 life.)\nPut target card from a graveyard on top of its owner's library.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Library",
+            "placement": "Top"
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {},
+                    "zone": "Graveyard"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "118",
+        "rarity": "UNCOMMON",
+        "artist": "Matt Stewart",
+        "flavorText": "\"Dead or alive, my creations are stronger than Jin-Gitaxias's septic minions.\"\n—Vorinclex, Voice of Hunger",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1bdd1243-1d14-496a-9b7a-0c5b34461361.jpg?1783941300"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Phyrexian Metamorph
+{
+    "name": "Phyrexian Metamorph",
+    "manaCost": "{3}{U/P}",
+    "typeLine": "Artifact Creature — Phyrexian Shapeshifter",
+    "oracleText": "({U/P} can be paid with either {U} or 2 life.)\nYou may have this creature enter as a copy of any artifact or creature on the battlefield, except it's an artifact in addition to its other types.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersAsCopy",
+                "copyFilter": {
+                    "cardPredicates": [
+                        {
+                            "type": "Or",
+                            "predicates": [
+                                "IsCreature",
+                                "IsArtifact"
+                            ]
+                        }
+                    ]
+                },
+                "exceptions": {
+                    "addedCardTypes": [
+                        "ARTIFACT"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "42",
+        "rarity": "RARE",
+        "artist": "Jana Schirmer & Johannes Voss",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/2/d2e27911-87cb-49a0-a34f-6afe4bddd592.jpg?1783941318",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "If Phyrexian Metamorph copies a noncreature artifact, it is no longer a creature."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If the chosen creature is copying something else (for example, if the chosen creature is a Clone), then your Phyrexian Metamorph enters as whatever the chosen creature copied, except it's also an artifact."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "You can choose not to copy anything. In that case, Phyrexian Metamorph simply enters as a 0/0 artifact creature and is put into its owner's graveyard as a state-based action (unless something else is raising its toughness)."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Phyrexian Obliterator
 {
     "name": "Phyrexian Obliterator",
@@ -290,7 +1133,10 @@
         "triggeredAbilities": [
             {
                 "id": "Phyrexian Obliterator:1",
-                "trigger": "DamageReceivedEvent",
+                "trigger": {
+                    "type": "DamageReceivedEvent",
+                    "source": {}
+                },
                 "effect": {
                     "type": "ForceSacrifice",
                     "filter": {},
@@ -375,6 +1221,104 @@
     "colorIdentityOverride": []
 }
 
+// Puresteel Paladin
+{
+    "name": "Puresteel Paladin",
+    "manaCost": "{W}{W}",
+    "typeLine": "Creature — Human Knight",
+    "oracleText": "Whenever an Equipment you control enters, you may draw a card.\nMetalcraft — Equipment you control have equip {0} as long as you control three or more artifacts.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Puresteel Paladin:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "artifact Equipment ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "descriptionOverride": "Whenever an Equipment you control enters, you may draw a card."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantActivatedAbility",
+                    "ability": {
+                        "id": "Puresteel Paladin:2",
+                        "cost": {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{0}"
+                            }
+                        },
+                        "effect": {
+                            "type": "AttachEquipment",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "creature you control"
+                            }
+                        },
+                        "targetRequirements": [
+                            {
+                                "type": "TargetObject",
+                                "filter": {
+                                    "baseFilter": "creature ctrl:you"
+                                },
+                                "id": "creature you control"
+                            }
+                        ],
+                        "timing": "SorcerySpeed",
+                        "isEquipAbility": true
+                    },
+                    "filter": {
+                        "baseFilter": "artifact Equipment ctrl:you"
+                    }
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "artifact"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "20",
+        "rarity": "RARE",
+        "artist": "Jason Chan",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/ca100248-fcd6-41ed-8d75-bcb473845edd.jpg?1783941324"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Rotted Hystrix
 {
     "name": "Rotted Hystrix",
@@ -395,6 +1339,278 @@
     ]
 }
 
+// Sheoldred, Whispering One
+{
+    "name": "Sheoldred, Whispering One",
+    "manaCost": "{5}{B}{B}",
+    "typeLine": "Legendary Creature — Phyrexian Praetor",
+    "oracleText": "Swampwalk (This creature can't be blocked as long as defending player controls a Swamp.)\nAt the beginning of your upkeep, return target creature card from your graveyard to the battlefield.\nAt the beginning of each opponent's upkeep, that player sacrifices a creature of their choice.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "SWAMPWALK"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sheoldred, Whispering One:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Battlefield",
+                    "fromZone": "Graveyard"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "t0"
+                }
+            },
+            {
+                "id": "Sheoldred, Whispering One:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForceSacrifice",
+                    "filter": "creature",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "rarity": "MYTHIC",
+        "artist": "Jana Schirmer & Johannes Voss",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3bb8347b-8663-40b8-bdfb-411236d2efc8.jpg?1783941310",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "The opponent whose upkeep it is chooses a creature to sacrifice when Sheoldred's second triggered ability resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Spellskite
+{
+    "name": "Spellskite",
+    "manaCost": "{2}",
+    "typeLine": "Artifact Creature — Phyrexian Horror",
+    "oracleText": "{U/P}: Change a target of target spell or ability to this creature. ({U/P} can be paid with either {U} or 2 life.)",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 4
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Spellskite:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{U/P}"
+                    }
+                },
+                "effect": {
+                    "type": "ChangeTarget",
+                    "newTarget": "Self"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "anyOf": [
+                                    {},
+                                    {
+                                        "cardPredicates": [
+                                            "IsActivatedOrTriggeredAbility"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "zone": "Stack"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "RARE",
+        "artist": "Chippy",
+        "flavorText": "\"Let's show Vorinclex that progress doesn't always need teeth or claws.\"\n—Malcator, Executor of Synthesis",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/a/1a84bada-ed6a-4e97-8a0c-05b7cb32d66f.jpg?1783941290",
+        "rulings": [
+            {
+                "date": "2020-08-07",
+                "text": "You can activate Spellskite's ability even if Spellskite isn't a legal target for the target spell or ability—or even if that spell or ability has no targets. In this case, no targets are changed."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If Spellskite leaves the battlefield before its ability resolves or otherwise becomes an illegal target for the target spell or ability before its ability resolves, no targets are changed."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If changing one target of a spell or ability to Spellskite would make other targets of that spell or ability illegal, that target can't be changed to Spellskite."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If the spell or ability has multiple instances of the word \"target,\" you choose which one target you're changing to Spellskite as Spellskite's ability resolves."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If a spell or ability has multiple targets but doesn't use the word \"target\" multiple times, such as the ability of Deepglow Skate, you can only change one of the targets to Spellskite."
+            },
+            {
+                "date": "2020-08-07",
+                "text": "If a spell or ability has a variable number of targets, you can't change the number of targets."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Suture Priest
+{
+    "name": "Suture Priest",
+    "manaCost": "{1}{W}",
+    "typeLine": "Creature — Phyrexian Cleric",
+    "oracleText": "Whenever another creature you control enters, you may gain 1 life.\nWhenever a creature an opponent controls enters, you may have that player lose 1 life.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Suture Priest:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "GainLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "descriptionOverride": "Whenever another creature you control enters, you may gain 1 life."
+                },
+                "descriptionOverride": "Whenever another creature you control enters, you may gain 1 life."
+            },
+            {
+                "id": "Suture Priest:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature ctrl:opponent",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "LoseLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "ControllerOfTriggeringEntity"
+                    },
+                    "descriptionOverride": "Whenever a creature an opponent controls enters, you may have that player lose 1 life."
+                },
+                "descriptionOverride": "Whenever a creature an opponent controls enters, you may have that player lose 1 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "25",
+        "artist": "Igor Kieryluk",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/31432e98-86cd-42ea-ad37-eb4383dc6a81.jpg?1783941323"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Tezzeret's Gambit
+{
+    "name": "Tezzeret's Gambit",
+    "manaCost": "{3}{U/P}",
+    "typeLine": "Sorcery",
+    "oracleText": "({U/P} can be paid with either {U} or 2 life.)\nDraw two cards, then proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "Proliferate"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "47",
+        "rarity": "UNCOMMON",
+        "artist": "Karl Kopinski",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/f/fff5a09e-9276-44b8-b374-4b84aebd47cc.jpg?1783941318",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "To calculate the mana value of a card with Phyrexian mana symbols in its cost, count each Phyrexian mana symbol as 1."
+            },
+            {
+                "date": "2011-06-01",
+                "text": "If you're at 1 life or less, you can't pay 2 life."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Torpor Orb
 {
     "name": "Torpor Orb",
@@ -403,7 +1619,7 @@
     "oracleText": "Creatures entering don't cause abilities to trigger.",
     "script": {
         "staticAbilities": [
-            "SuppressEntersTriggers"
+            "SuppressZoneChangeTriggers"
         ]
     },
     "metadata": {
@@ -413,6 +1629,91 @@
         "flavorText": "\"Phyrexia is certainly dangerous, but I have to admire some of its innovations.\"\n—Tezzeret",
         "imageUri": "https://cards.scryfall.io/normal/front/9/5/953610f6-ea96-4e71-969f-50ecac09c091.jpg?1722108794"
     }
+}
+
+// Triumph of the Hordes
+{
+    "name": "Triumph of the Hordes",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Until end of turn, creatures you control get +1/+1 and gain trample and infect. (Creatures with infect deal damage to creatures in the form of -1/-1 counters and to players in the form of poison counters.)",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            },
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "IterationEntity"
+                    },
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "TRAMPLE",
+                        "target": "IterationEntity"
+                    },
+                    {
+                        "type": "GrantKeyword",
+                        "keyword": "INFECT",
+                        "target": "IterationEntity"
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "rarity": "UNCOMMON",
+        "artist": "Izzy",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/1/c16b90ff-d256-4ac6-b687-3430b8c80dd7.jpg?1783941300",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "Multiple instances of infect are redundant."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Unwinding Clock
+{
+    "name": "Unwinding Clock",
+    "manaCost": "{4}",
+    "typeLine": "Artifact",
+    "oracleText": "Untap all artifacts you control during each other player's untap step.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "UntapFilteredDuringOtherUntapSteps",
+                "filter": "artifact"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "164",
+        "rarity": "RARE",
+        "artist": "Mike Bierek",
+        "flavorText": "\"The partisans have unearthed a strange artifact. None know its origin, but it gives them hope of a life beyond.\"\n—Elspeth's journal",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/495d520b-7560-4ecb-ae62-143eeec5682f.jpg?1783941289"
+    },
+    "colorIdentityOverride": []
 }
 
 // Volt Charge
@@ -459,5 +1760,46 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// War Report
+{
+    "name": "War Report",
+    "manaCost": "{3}{W}",
+    "typeLine": "Instant",
+    "oracleText": "You gain life equal to the number of creatures on the battlefield plus the number of artifacts on the battlefield.",
+    "script": {
+        "spellEffect": {
+            "type": "GainLife",
+            "amount": {
+                "type": "Add",
+                "left": {
+                    "type": "AggregateBattlefield",
+                    "player": "Each",
+                    "filter": "creature"
+                },
+                "right": {
+                    "type": "AggregateBattlefield",
+                    "player": "Each",
+                    "filter": "artifact"
+                }
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "26",
+        "artist": "Mike Bierek",
+        "flavorText": "Underling Ethu's 263rd report read simply \"Yes, my lord. Overwhelmingly, my lord.\" This marked the end of the Mirran-Phyrexian War.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6d837262-cd5d-4fc9-96dd-39ed04166883.jpg?1783941322",
+        "rulings": [
+            {
+                "date": "2011-06-01",
+                "text": "Each artifact creature on the battlefield is counted twice."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }

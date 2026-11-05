@@ -1,6 +1,9 @@
 package com.wingedsheep.engine.mechanics.mana
 
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
+import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.engine.state.components.player.ManaSourceTag
+import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
 import com.wingedsheep.engine.core.Suspension
 import com.wingedsheep.engine.core.restoreSuspension
 import com.wingedsheep.engine.core.ExecutionResult
@@ -13,7 +16,11 @@ import com.wingedsheep.engine.core.SelectManaSourcesDecision
 import com.wingedsheep.engine.core.GameEvent
 import com.wingedsheep.engine.core.ManaActionPaymentContinuation
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.ZoneKey
+import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -54,6 +61,32 @@ object ManaPaymentWindow {
         val decision = state.pendingDecision as? SelectManaSourcesDecision ?: return null
         return decision.takeIf { state.actorFor(it.playerId) == actorId }
     }
+
+    /**
+     * The zones other than the battlefield whose cards can carry a mana ability that functions there
+     * (CR 113.6m; still mana abilities, CR 605.1a): the hand (Simian Spirit Guide's "Exile this card from your hand") and the
+     * graveyard (Jack-o'-Lantern's "Exile this card from your graveyard"). Both spend the card, so
+     * auto-pay never activates them; the player does, at priority or inside this window.
+     */
+    val OFF_BATTLEFIELD_MANA_ZONES: List<Zone> = listOf(Zone.HAND, Zone.GRAVEYARD)
+
+    /**
+     * Whether [playerId] can produce mana that auto-pay deliberately never spends: a life-funded
+     * mana action (Channel) or a mana ability that functions from the hand or graveyard (Simian
+     * Spirit Guide, Jack-o'-Lantern — CR 113.6m, its cost spends the card). A cast or activation
+     * auto-pay can't cover then opens this window instead of failing, so the player produces that
+     * mana themselves (CR 605.3a).
+     */
+    fun hasManualOnlyMana(state: GameState, playerId: EntityId, cardRegistry: CardRegistry): Boolean =
+        state.playerActionPermissions.any {
+            it.playerId == playerId && it.action.timing == com.wingedsheep.sdk.scripting.effects.PlayerActionTiming.ManaAbility
+        } || OFF_BATTLEFIELD_MANA_ZONES.any { zone ->
+            state.getZone(ZoneKey(playerId, zone)).any { cardId ->
+                val card = state.getEntity(cardId)?.get<CardComponent>() ?: return@any false
+                cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities
+                    ?.any { it.isManaAbility && it.activateFromZone == zone } == true
+            }
+        }
 
     /**
      * Builds a mana-payment window for [cost] — the source menu, the auto-pay suggestion, and the
@@ -163,10 +196,20 @@ object ManaPaymentWindow {
         var current = state
         val events = mutableListOf<GameEvent>()
         var produced = ManaPool()
+        // What produced each floated unit, snapshotted before the source is tapped or sacrificed,
+        // so the floated mana remembers its source like mana from an activated ability does
+        // ("mana from a Treasure", "spend only mana produced by Treasures").
+        val unitTags = mutableListOf<ManaUnit>()
+        val restrictedTags = mutableListOf<ManaSourceTag>()
+        fun record(tag: ManaSourceTag, color: Color?, amount: Int, restricted: Boolean) {
+            if (restricted) repeat(amount) { restrictedTags.add(tag) }
+            else repeat(amount) { unitTags.add(ManaUnit(color, tag)) }
+        }
 
         if (response.autoPay) {
             val solution = services.manaSolver.solve(current, playerId, remaining, excludeSources = excludeSources, spellContext = paymentContext)
                 ?: return FloatResult(state, emptyList(), paid = false)
+            val tags = solution.manaProduced.keys.associateWith { ManaProvenanceTracker.sourceTag(current, it) }
             val (afterTaps, tapEvents) = services.manaAbilitySideEffectExecutor
                 .tapSourcesWithSideEffects(current, solution, playerId)
             current = afterTaps
@@ -174,36 +217,95 @@ object ManaPaymentWindow {
             for ((sourceId, p) in solution.manaProduced) {
                 val source = solution.sources.firstOrNull { it.entityId == sourceId }
                 val restriction = p.color?.let { source?.colorRestrictions?.get(it) } ?: source?.restriction
-                produced = if (restriction != null) produced.addRestricted(p.color, if (p.color != null) p.amount else p.colorless, restriction)
-                    else produced.addProduction(p)
+                val amount = if (p.color != null) p.amount else p.colorless
+                produced = if (restriction != null) produced.addRestricted(p.color, amount, restriction)
+                    else produced.addProduction(p.copy(extraColors = emptyMap()))
+                record(tags.getValue(sourceId), p.color, amount, restriction != null)
+                // The other colors of a "two mana of different colors" tap.
+                for ((extra, extraAmount) in p.extraColors) {
+                    produced = if (restriction != null) produced.addRestricted(extra, extraAmount, restriction)
+                        else produced.add(extra, extraAmount)
+                    record(tags.getValue(sourceId), extra, extraAmount, restriction != null)
+                }
             }
             // Bonus mana from mana auras / "whenever you tap for mana" riders isn't in
             // manaProduced; credit it or the cost comes up short (mirrors CostPaymentService.payMana).
             for (source in solution.sources) {
-                val bonusColor = source.bonusManaColor
-                if (source.bonusManaPerTap > 0 && bonusColor != null) {
-                    produced = produced.add(bonusColor, source.bonusManaPerTap)
-                }
+                for ((color, amount) in source.fixedBonusMana) produced = produced.add(color, amount)
             }
+            produced = produced.withReservedSnowBonus(solution)
         } else {
+            // The part of the cost the mana floated so far hasn't covered, so a source that can
+            // make several colors (a Treasure) makes the one the cost still needs.
+            var stillNeeded = remaining
             for (sourceId in response.selectedSources) {
                 val source = byId[sourceId] ?: return FloatResult(state, emptyList(), paid = false)
                 val actual = actualSources[sourceId] ?: return FloatResult(state, emptyList(), paid = false)
-                val tapped = tapOrSacrifice(zones, current, sourceId, source, playerId)
+                if (actual.restriction?.isSatisfiedBy(paymentContext) == false) return FloatResult(state, emptyList(), paid = false)
+                val tag = ManaProvenanceTracker.sourceTag(current, sourceId)
+                val tapped = tapOrSacrifice(zones, current, sourceId, source, playerId,
+                    producedAmount = source.manaAmount + actual.compositeBonusMana.values.sum())
                 current = tapped.first
                 events.addAll(tapped.second)
-                val color = source.producesColors.firstOrNull()
+                val color = neededColor(source.producesColors, source.manaAmount, stillNeeded, spellContext)
                 val restriction = color?.let { actual.colorRestrictions[it] } ?: actual.restriction
+                if (actual.differentColors && color != null && source.manaAmount > 1) {
+                    // "Two mana of different colors": each unit a color the cost still wants, none twice.
+                    val made = mutableListOf(color)
+                    stillNeeded = ManaPool().add(color).payPartial(stillNeeded, spellContext).remainingCost
+                    repeat(source.manaAmount - 1) {
+                        val next = neededColor(source.producesColors - made.toSet(), 1, stillNeeded, spellContext)
+                            ?: return@repeat
+                        made += next
+                        stillNeeded = ManaPool().add(next).payPartial(stillNeeded, spellContext).remainingCost
+                    }
+                    for (unitColor in made) {
+                        produced = if (restriction != null) produced.addRestricted(unitColor, 1, restriction)
+                            else produced.add(unitColor, 1)
+                        record(tag, unitColor, 1, restriction != null)
+                    }
+                    continue
+                }
+                val unit = when {
+                    color != null -> ManaPool().add(color, source.manaAmount)
+                    source.producesColorless -> ManaPool().addColorless(source.manaAmount)
+                    else -> ManaPool()
+                }
+                stillNeeded = unit.payPartial(stillNeeded, spellContext).remainingCost
                 produced = when {
                     restriction != null -> produced.addRestricted(color, source.manaAmount, restriction)
                     color != null -> produced.add(color, source.manaAmount)
                     source.producesColorless -> produced.addColorless(source.manaAmount)
                     else -> produced
                 }.let { if (actual.isSnow && restriction == null) it.markSnow(color, source.manaAmount) else it }
+                if (color != null || source.producesColorless) record(tag, color, source.manaAmount, restriction != null)
+                // A composite tap ("{T}: Add {W}{U}{B}{R}{G}") adds its extra fixed colors too.
+                for ((extraColor, amount) in actual.compositeBonusMana) {
+                    val extraRestriction = actual.colorRestrictions[extraColor] ?: actual.restriction
+                    produced = if (extraRestriction != null) produced.addRestricted(extraColor, amount, extraRestriction)
+                        else produced.add(extraColor, amount)
+                    record(tag, extraColor, amount, extraRestriction != null)
+                }
             }
         }
 
-        return FloatResult(current.addToManaPool(playerId, produced), events, paid = true)
+        return FloatResult(current.addToManaPool(playerId, produced, unitTags, restrictedTags), events, paid = true)
+    }
+
+    /**
+     * The color a source able to make any of [colors] makes for this payment: the first one that
+     * pays the most of [stillNeeded], falling back to the first color it can make.
+     */
+    private fun neededColor(
+        colors: Set<Color>,
+        amount: Int,
+        stillNeeded: com.wingedsheep.sdk.core.ManaCost,
+        spellContext: SpellPaymentContext?,
+    ): Color? {
+        if (colors.size <= 1) return colors.firstOrNull()
+        return colors.minByOrNull { color ->
+            ManaPool().add(color, amount).payPartial(stillNeeded, spellContext).remainingCost.cmc
+        }
     }
 
     /**
@@ -216,10 +318,12 @@ object ManaPaymentWindow {
         state: GameState,
         sourceId: EntityId,
         source: ManaSourceOption,
-        fallbackControllerId: EntityId
+        fallbackControllerId: EntityId,
+        producedAmount: Int,
     ): Pair<GameState, List<GameEvent>> {
         if (!source.requiresSacrifice) {
-            return com.wingedsheep.engine.core.tapForMana(state, sourceId, fallbackControllerId)
+            return ManaAbilityLifeCost.tapForManaPayingLife(zones, state, sourceId, fallbackControllerId,
+                ManaAbilityLifeCost.creditedProduction(source.producesColors, producedAmount))
         }
         val controller = state.getEntity(sourceId)
             ?.get<com.wingedsheep.engine.state.components.identity.ControllerComponent>()?.playerId
@@ -253,23 +357,37 @@ object ManaPaymentWindow {
             .payPartial(cost, spellContext ?: SpellPaymentContext()).remainingCost
     }
 
-    /** Adds [produced] to [playerId]'s pool, preserving restricted mana and provenance. */
-    private fun GameState.addToManaPool(playerId: EntityId, produced: ManaPool): GameState =
+    /**
+     * Adds [produced] to [playerId]'s pool, preserving restricted mana and provenance: [units] are
+     * the floated unrestricted units with their sources, [restrictedTags] the sources of the floated
+     * restricted entries in the order they were added.
+     */
+    private fun GameState.addToManaPool(
+        playerId: EntityId,
+        produced: ManaPool,
+        units: List<ManaUnit> = emptyList(),
+        restrictedTags: List<ManaSourceTag> = emptyList(),
+    ): GameState =
         updateEntity(playerId) { container ->
             val pool = container.get<com.wingedsheep.engine.state.components.player.ManaPoolComponent>()
                 ?: com.wingedsheep.engine.state.components.player.ManaPoolComponent()
+            val taggedRestricted = produced.restrictedMana.mapIndexed { i, entry ->
+                restrictedTags.getOrNull(i)?.let { entry.copy(source = it) } ?: entry
+            }
+            val withProvenance = units.fold(pool) { acc, unit -> acc.withProvenance(unit.source, 1) }
             container.with(
-                pool.copy(
+                withProvenance.copy(
                     white = pool.white + produced.white,
                     blue = pool.blue + produced.blue,
                     black = pool.black + produced.black,
                     red = pool.red + produced.red,
                     green = pool.green + produced.green,
                     colorless = pool.colorless + produced.colorless,
-                    restrictedMana = pool.restrictedMana + produced.restrictedMana,
+                    restrictedMana = pool.restrictedMana + taggedRestricted,
                     snowMana = (pool.snowMana.keys + produced.snowMana.keys).associateWith {
                         (pool.snowMana[it] ?: 0) + (produced.snowMana[it] ?: 0)
                     },
+                    manaUnits = pool.manaUnits + units,
                     snowColorless = pool.snowColorless + produced.snowColorless
                 )
             )

@@ -1,6 +1,12 @@
 package com.wingedsheep.ai.engine.knowledge
 
+import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.handlers.PredicateEvaluator
+import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
+import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.RoomComponent
@@ -9,9 +15,11 @@ import com.wingedsheep.engine.state.components.stack.AbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.ActivatedAbilityOnStackComponent
 import com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent
 import com.wingedsheep.sdk.model.CardDefinition
+import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 
 /**
  * Card-name → [CardIntent] lookup, and the switch that turns Phase 6 on.
@@ -35,6 +43,40 @@ class IntentCatalog private constructor(private val registry: CardRegistry?) {
     val isEnabled: Boolean get() = registry != null
 
     /**
+     * A predicate evaluator over this catalog's registry, for the readers that must match a filter
+     * against real cards ([DeadSearch]). Null for [NONE], like every other answer here.
+     */
+    val predicates: PredicateEvaluator? by lazy { registry?.let(::PredicateEvaluator) }
+
+    /**
+     * The simulator behind [com.wingedsheep.ai.engine.evaluation.CreatureValuation.growthPotential]:
+     * what a permanent's recurring +1/+1-counter triggers will still add. Null for [NONE].
+     */
+    val growth: com.wingedsheep.ai.engine.evaluation.GrowthPotential? by lazy {
+        registry?.let { com.wingedsheep.ai.engine.evaluation.GrowthPotential.of(it) }
+    }
+
+    private val manaSolver: ManaSolver? by lazy {
+        val registry = registry ?: return@lazy null
+        predicates?.let { ManaSolver(registry, it) }
+    }
+
+    /**
+     * The mana [playerId] could produce right now — floating mana plus untapped sources, as the
+     * engine's own solver counts it. Null for [NONE]. Read by [AmbushWindow]'s mana-contention
+     * release.
+     */
+    fun availableMana(state: GameState, playerId: EntityId): Int? =
+        manaSolver?.getAvailableManaCount(state, playerId)
+
+    /**
+     * The definition of the card called [name], for a reader that needs the script itself rather
+     * than its [CardIntent] ([TargetlessEntry]). Null when the catalog is off or the name is not a
+     * real card — "no information", as everywhere here.
+     */
+    fun definition(name: String): CardDefinition? = registry?.getCard(name)
+
+    /**
      * The intent of the card called [name], or null when the catalog is off or the name is not a
      * real card (a token, or a card from a set this registry never loaded).
      *
@@ -43,6 +85,21 @@ class IntentCatalog private constructor(private val registry: CardRegistry?) {
      */
     fun forName(name: String): CardIntent? {
         val definition = registry?.getCard(name) ?: return null
+        return CardIntentAnalyzer.analyze(definition)
+    }
+
+    /**
+     * The intent of casting the card called [cardName] the way [cast] does: for a modal spell with
+     * its modes chosen, what *those* modes do ([CardIntentAnalyzer.analyzeModes]); otherwise the
+     * card's own reading, exactly [forName]. The reading every "is this the window?" question about
+     * a materialized cast should ask — a charm's union of modes answers "what is it worth in hand",
+     * not "what does this cast do".
+     */
+    fun forCast(cardName: String, cast: CastSpell): CardIntent? {
+        val definition = registry?.getCard(cardName) ?: return null
+        if (cast.faceIndex == null && !cast.castFused) {
+            CardIntentAnalyzer.analyzeModes(definition, cast.chosenModes)?.let { return it }
+        }
         return CardIntentAnalyzer.analyze(definition)
     }
 
@@ -78,10 +135,18 @@ class IntentCatalog private constructor(private val registry: CardRegistry?) {
      * [com.wingedsheep.engine.state.components.identity.RoomFaceStatics] tests it — by [RoomFaceId]
      * against the card definition's faces — so the two cannot drift on which door is open.
      */
-    fun forPermanent(container: ComponentContainer, cardName: String): List<CardIntent> {
+    fun forPermanent(
+        container: ComponentContainer,
+        cardName: String,
+        /** Leave out its "when this enters" triggers — see [CardIntentAnalyzer.analyzeInPlay]. */
+        entrySpent: Boolean = false,
+    ): List<CardIntent> {
         val definition = registry?.getCard(cardName) ?: return emptyList()
         val room = container.get<RoomComponent>()
-            ?: return listOf(CardIntentAnalyzer.analyzeSelf(definition))
+            ?: return listOf(
+                if (entrySpent) CardIntentAnalyzer.analyzeInPlay(definition)
+                else CardIntentAnalyzer.analyzeSelf(definition),
+            )
         return definition.cardFaces
             .filter { RoomFaceId(it.name) in room.unlocked }
             .map { CardIntentAnalyzer.analyzeFace(definition, it) }
@@ -133,6 +198,162 @@ class IntentCatalog private constructor(private val registry: CardRegistry?) {
             face.script.activatedAbilities.find { it.id == abilityId }
         }
     }
+
+    /**
+     * Whether the planeswalker called [cardName] can only *spend* loyalty: it prints at least one
+     * loyalty ability and every one of them costs −N or −X. The empower-Jace token
+     * ("−1: Surveil 1. −3: Draw a card.") is the shape. Such a walker's loyalty is nothing but a
+     * budget of activations, so a counter it does not spend this turn is not saved for anything a
+     * later turn could not also spend it on.
+     *
+     * Printed abilities only, like [activatedAbility]: a "+1" granted by another permanent is not
+     * seen, and false (no information) is the answer for anything the catalog cannot read. The
+     * `(state, permanentId)` overload reads the granted ones too.
+     */
+    fun loyaltyIsOnlyFuel(cardName: String): Boolean {
+        val definition = registry?.getCard(cardName) ?: return false
+        return onlySpendsLoyalty(definition.script.activatedAbilities.filter { it.isPlaneswalkerAbility })
+    }
+
+    /**
+     * [loyaltyIsOnlyFuel] for the permanent [permanentId] as it stands in [state]: over every
+     * loyalty ability it has there ([loyaltyAbilities]), granted ones included. A Jace token under
+     * Way of the Pyromancer ("Planeswalkers you control have '[+1]: Add {R}.'") refuels; under Way
+     * of the Healer (a granted −2) it still only spends.
+     */
+    fun loyaltyIsOnlyFuel(state: GameState, permanentId: EntityId): Boolean =
+        onlySpendsLoyalty(loyaltyAbilities(state, permanentId))
+
+    /**
+     * Every loyalty ability [permanentId] has in [state]: the ones printed on it, plus the ones
+     * another permanent's `GrantActivatedAbility` or an emblem hands it — read through the engine's
+     * own grant lookup, so the filter ("planeswalkers you control") is matched exactly as the
+     * activation itself would be. Empty when the catalog is off or nothing can be read.
+     */
+    fun loyaltyAbilities(state: GameState, permanentId: EntityId): List<ActivatedAbility> {
+        val grants = grants ?: return emptyList()
+        val name = state.getEntity(permanentId)?.get<CardComponent>()?.name ?: return emptyList()
+        val printed = registry?.getCard(name)?.script?.activatedAbilities.orEmpty()
+        val granted = grants.getStaticGrantedActivatedAbilities(permanentId, state) +
+            grants.getEmblemGrantedActivatedAbilities(permanentId, state)
+        return (printed + granted).filter { it.isPlaneswalkerAbility }
+    }
+
+    private val grants: CastPermissionUtils? by lazy {
+        val registry = registry ?: return@lazy null
+        predicates?.let { CastPermissionUtils(registry, it, it.conditions) }
+    }
+
+    private fun onlySpendsLoyalty(loyalty: List<ActivatedAbility>): Boolean =
+        loyalty.isNotEmpty() && loyalty.all { ability ->
+            when (val cost = ability.cost) {
+                is AbilityCost.Loyalty -> cost.change < 0
+                AbilityCost.LoyaltyX -> true
+                else -> false
+            }
+        }
+
+    /**
+     * [TargetPolarity] of each target slot of the card called [cardName] cast as a spell, in
+     * requirement order. Empty when the catalog is off, the name is not a real card, or the card's
+     * targeting cannot be read — callers treat every missing slot as [TargetPolarity.UNKNOWN].
+     *
+     * [transformed] reads the card's **back face** — the face a disturb, modal-back-face or
+     * cast-transformed cast puts on the stack, whose targets are its own (Catlike Curiosity's
+     * "enchant creature", not Mischievous Catgeist's none).
+     */
+    fun spellTargetPolarities(cardName: String, transformed: Boolean = false, faceIndex: Int? = null, castFused: Boolean = false): List<TargetPolarity> {
+        val printed = registry?.getCard(cardName) ?: return emptyList()
+        if (castFused) return printed.cardFaces.flatMap { face ->
+            TargetPolarityAnalyzer.forSpell(printed.copy(name = face.name, script = face.script, cardFaces = emptyList()), ::tokenDefinition)
+        }
+        val definition = if (transformed) printed.backFace ?: return emptyList()
+            else faceIndex?.let { printed.cardFaces.getOrNull(it)?.let { face -> printed.copy(name = face.name, script = face.script, cardFaces = emptyList()) } } ?: printed
+        return TargetPolarityAnalyzer.forSpell(definition, ::tokenDefinition)
+    }
+
+    /**
+     * [TargetPolarity] of each target slot of the modes [modeIndices] of the modal spell called
+     * [cardName] — a choose-one spell is offered once per mode, so its slots are the chosen
+     * mode's, not the card's (which has none). Empty under the same conditions as
+     * [spellTargetPolarities], or when the card is not a plain modal spell.
+     */
+    fun spellModeTargetPolarities(
+        cardName: String,
+        modeIndices: List<Int>,
+        transformed: Boolean = false,
+    ): List<TargetPolarity> {
+        val printed = registry?.getCard(cardName) ?: return emptyList()
+        val definition = if (transformed) printed.backFace ?: return emptyList() else printed
+        return TargetPolarityAnalyzer.forSpellModes(definition, modeIndices, ::tokenDefinition)
+    }
+
+    /**
+     * [TargetPolarity] of each of [requirements], read off [effect] — a triggered ability being put
+     * on the stack, whose effect and requirements travel on its continuation rather than on a card
+     * the catalog can look up. Empty when the catalog is off.
+     *
+     * [sourceName] names the permanent the ability comes from, when known: Embercleave's "attach it
+     * to target creature you control" is read off what that Equipment does to the creature it equips.
+     */
+    fun effectTargetPolarities(
+        effect: Effect,
+        requirements: List<TargetRequirement>,
+        sourceName: String? = null,
+    ): List<TargetPolarity> =
+        if (!isEnabled) emptyList()
+        else TargetPolarityAnalyzer.forRequirements(
+            effect, requirements, ::tokenDefinition, source = sourceName?.let(::tokenDefinition),
+        )
+
+    /**
+     * [TargetPolarity] of each target slot of the printed activated ability [abilityId] on the card
+     * called [cardName]. Empty under the same conditions as [activatedAbility] answers null.
+     */
+    fun abilityTargetPolarities(cardName: String, abilityId: AbilityId): List<TargetPolarity> {
+        val definition = registry?.getCard(cardName) ?: return emptyList()
+        val ability = activatedAbility(cardName, abilityId) ?: return emptyList()
+        return TargetPolarityAnalyzer.forAbility(definition, ability, ::tokenDefinition)
+    }
+
+    /**
+     * The target slots of the card called [cardName] cast as a spell whose graveyard card ends up
+     * under our control whoever owns it — see [TargetPolarityAnalyzer.takenSlots]. Empty when the
+     * catalog is off or the name is not a real card.
+     */
+    fun spellTakenSlots(cardName: String): Set<Int> =
+        registry?.getCard(cardName)?.let(TargetPolarityAnalyzer::takenSlotsForSpell).orEmpty()
+
+    /** [spellTakenSlots] for the printed activated ability [abilityId] on the card called [cardName]. */
+    fun abilityTakenSlots(cardName: String, abilityId: AbilityId): Set<Int> =
+        activatedAbility(cardName, abilityId)
+            ?.let { TargetPolarityAnalyzer.takenSlots(it.effect, it.targetRequirements) }.orEmpty()
+
+    /** [spellTakenSlots] for [effect] over [requirements] — a triggered ability being put on the stack. */
+    fun effectTakenSlots(effect: Effect, requirements: List<TargetRequirement>): Set<Int> =
+        if (!isEnabled) emptySet() else TargetPolarityAnalyzer.takenSlots(effect, requirements)
+
+    /**
+     * The per-candidate side of the Aura called [cardName] when what it does turns on the
+     * creature type of what it enchants (Sea Legs) — see [HostSplit]. Null for every other card.
+     */
+    fun spellHostSplit(cardName: String): HostSplit? =
+        registry?.getCard(cardName)?.let { TargetPolarityAnalyzer.hostSplit(it, ::tokenDefinition) }
+
+    /**
+     * What the printed activated ability [abilityId] on the card called [cardName] does to the
+     * permanent that card is attached to — Strands of Undeath's "{B}: Regenerate enchanted
+     * creature" is [TargetPolarity.BENEFICIAL] to whoever controls the creature it enchants.
+     * [TargetPolarity.UNKNOWN] when the catalog is off, the ability cannot be found, or it does
+     * nothing readable to the host.
+     */
+    fun abilityHostPolarity(cardName: String, abilityId: AbilityId): TargetPolarity {
+        val ability = activatedAbility(cardName, abilityId) ?: return TargetPolarity.UNKNOWN
+        return TargetPolarityAnalyzer.forAttachedHost(ability.effect, ::tokenDefinition)
+    }
+
+    /** A definition the polarity reader needs by name — a Role token a card creates. */
+    private fun tokenDefinition(name: String): CardDefinition? = registry?.getCard(name)
 
     /**
      * The intent of one ability's [effect] — what a triggered or activated ability sitting on the

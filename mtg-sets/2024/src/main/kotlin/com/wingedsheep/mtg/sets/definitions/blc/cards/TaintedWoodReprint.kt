@@ -3,6 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.blc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Tainted Wood reprint in BLC. Canonical CardDefinition lives in its earliest set.
+ */
 val TaintedWoodReprint = Printing(
     oracleId = "fa6d05a1-3df4-4751-b1a0-8d9693faec73",
     name = "Tainted Wood",

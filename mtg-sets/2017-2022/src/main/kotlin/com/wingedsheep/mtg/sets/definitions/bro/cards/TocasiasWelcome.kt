@@ -5,25 +5,25 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
 
 /**
  * Tocasia's Welcome
  * {2}{W}
  * Enchantment
+ * Whenever one or more creatures you control with mana value 3 or less enter, draw a card.
+ * This ability triggers only once each turn.
  *
- * Whenever one or more creatures you control with mana value 3 or less enter, draw a card. This
- * ability triggers only once each turn.
+ * The batching `Triggers.oneOrMore(filter).enter()` (Caretaker's Talent shape) with
+ * `oncePerTurn` for "triggers only once each turn".
  */
 val TocasiasWelcome = card("Tocasia's Welcome") {
     manaCost = "{2}{W}"
     colorIdentity = "W"
     typeLine = "Enchantment"
-    oracleText = "Whenever one or more creatures you control with mana value 3 or less enter, draw " +
-        "a card. This ability triggers only once each turn."
+    oracleText = "Whenever one or more creatures you control with mana value 3 or less enter, draw a card. This ability triggers only once each turn."
 
     triggeredAbility {
-        trigger = Triggers.a(GameObjectFilter.Creature.manaValueAtMost(3).youControl()).enters()
+        trigger = Triggers.oneOrMore(GameObjectFilter.Creature.manaValueAtMost(3).youControl()).enter()
         oncePerTurn = true
         effect = Effects.DrawCards(1)
     }

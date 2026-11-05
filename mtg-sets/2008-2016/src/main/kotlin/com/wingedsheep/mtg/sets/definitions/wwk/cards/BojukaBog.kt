@@ -23,6 +23,8 @@ import com.wingedsheep.sdk.scripting.references.Player
  * This land enters tapped.
  * When this land enters, exile target player's graveyard.
  * {T}: Add {B}.
+ *
+ * The graveyard exile is Tormod's Crypt's pipeline, carried on an enters trigger.
  */
 val BojukaBog = card("Bojuka Bog") {
     manaCost = ""
@@ -36,10 +38,10 @@ val BojukaBog = card("Bojuka Bog") {
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        target(Targets.Player)
+        val player = target(Targets.Player)
         effect = Effects.Pipeline {
-            val graveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.TargetPlayer))
-            move(graveyard, CardDestination.ToZone(Zone.EXILE))
+            val graveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, player.asPlayer))
+            exile(graveyard, player.asPlayer)
         }
     }
 

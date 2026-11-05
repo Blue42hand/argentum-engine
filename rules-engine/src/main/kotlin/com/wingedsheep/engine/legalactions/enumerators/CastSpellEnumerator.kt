@@ -1,10 +1,11 @@
 package com.wingedsheep.engine.legalactions.enumerators
 
+import com.wingedsheep.engine.mechanics.cost.spell.AnyNumberForCostReductionCostKind
 import com.wingedsheep.engine.legalactions.surfacedRequirements
-import com.wingedsheep.engine.mechanics.cost.PlayerCounterPayment
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.AlternativeCostType
 import com.wingedsheep.engine.core.CastSpell
+import com.wingedsheep.engine.mechanics.AftermathCasts
 import com.wingedsheep.engine.legalactions.ActionEnumerator
 import com.wingedsheep.engine.legalactions.AdditionalCostData
 import com.wingedsheep.engine.legalactions.EnumerationContext
@@ -15,6 +16,7 @@ import com.wingedsheep.engine.legalactions.TapForGenericPermanentData
 import com.wingedsheep.engine.legalactions.TapForPowerCreatureData
 import com.wingedsheep.engine.legalactions.TargetInfo
 import com.wingedsheep.engine.handlers.actions.spell.chosenKickersLabel
+import com.wingedsheep.engine.handlers.actions.spell.MAX_OPTIONAL_COST_REPEATS
 import com.wingedsheep.engine.handlers.actions.spell.optionalCostDeclarations
 import com.wingedsheep.engine.handlers.actions.spell.optionalCostsAdditionalPaid
 import com.wingedsheep.engine.handlers.actions.spell.optionalCostsManaPaid
@@ -22,12 +24,14 @@ import com.wingedsheep.engine.handlers.actions.spell.repeatableOptionalCostLimit
 import com.wingedsheep.engine.handlers.actions.spell.maxAffordableOptionalCostTimes
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCostEnumeration
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCostOffer
+import com.wingedsheep.engine.mechanics.cost.spell.PutCountersOnPermanentCostKind
 import com.wingedsheep.engine.mechanics.cost.spell.SpellCosts
 import com.wingedsheep.engine.mechanics.cost.spell.VariablePermanentsCostKind
 import com.wingedsheep.engine.legalactions.utils.TargetEnumerationUtils
 import com.wingedsheep.engine.mechanics.cost.VariablePermanentsCost
 import com.wingedsheep.engine.mechanics.EscalateCosts
 import com.wingedsheep.engine.mechanics.ModalChooseCounts
+import com.wingedsheep.engine.mechanics.CastCharacteristics
 import com.wingedsheep.engine.mechanics.ModalDfcCasts
 import com.wingedsheep.engine.mechanics.SpliceCasts
 import com.wingedsheep.engine.state.GameState
@@ -41,15 +45,15 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.model.CardDefinition
-import com.wingedsheep.sdk.model.CardFace
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCost
+import com.wingedsheep.sdk.scripting.CardCostAction
+import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.ChoiceSlot
 import com.wingedsheep.sdk.scripting.KeywordAbility
-import com.wingedsheep.sdk.scripting.ModifySpellCost
-import com.wingedsheep.sdk.scripting.SpellCostTarget
 import com.wingedsheep.sdk.dsl.giftKeyword
+import com.wingedsheep.engine.handlers.effects.AnnouncedDivision
 import com.wingedsheep.sdk.scripting.effects.DividedDamageEffect
 import com.wingedsheep.sdk.scripting.effects.Mode
 import com.wingedsheep.sdk.scripting.effects.ModalEffect
@@ -87,6 +91,7 @@ class CastSpellEnumerator(
             "CastWithCasualty",
             "CastWithConspire",
         )
+
 
     }
 
@@ -151,7 +156,8 @@ class CastSpellEnumerator(
             }
 
             // Skip this spell if the player can't cast it — a blanket lock, Mana Maze color
-            // sharing, or a PlayersCantCastSpells restriction (all routed through one chokepoint).
+            // sharing, or a blanket PlayersCantCastSpells (all routed through one chokepoint; a
+            // filtered one reads the cast face, so it prunes the final offers instead).
             if (context.cantCastSpell(cardId)) continue
 
             // Look up card definition for target requirements and cast restrictions
@@ -196,7 +202,7 @@ class CastSpellEnumerator(
                 // costs are ignored here; a false negative just means we don't surface a
                 // grayed-out secondary face in those rare cases). Used by enumerateSecondaryFace
                 // to decide whether an unaffordable secondary face is still worth showing.
-                val primaryFaceCost = context.costCalculator.calculateMinPossibleCost(state, cardDef, playerId)
+                val primaryFaceCost = context.costCalculator.calculateMinPossibleCost(state, cardDef, playerId, cardId)
                 val primaryFaceAffordable = context.manaSolver.canPay(
                     state, playerId, primaryFaceCost, precomputedSources = context.availableManaSources
                 )
@@ -218,7 +224,24 @@ class CastSpellEnumerator(
 
             if (cardDef.layout == com.wingedsheep.sdk.model.CardLayout.SPLIT && cardDef.cardFaces.isNotEmpty()) {
                 cardDef.cardFaces.forEachIndexed { faceIndex, face ->
-                    enumerateSplitFace(context, cardId, cardDef, faceIndex, face, result)
+                    // An aftermath half can't be cast from hand (CR 702.127a) — it is offered from
+                    // the graveyard by CastFromZoneEnumerator instead.
+                    if (!AftermathCasts.isAftermath(face)) {
+                        SplitFaceCastOffers.offer(context, cardId, cardDef, faceIndex, face, result)
+                    }
+                }
+                if (com.wingedsheep.engine.mechanics.SplitSpellCasts.hasFuse(cardDef)) {
+                    val fused = com.wingedsheep.engine.mechanics.SplitSpellCasts.fusedDefinition(cardDef)
+                    val face = cardDef.cardFaces.first().copy(name = "${cardDef.name} (fused)",
+                        manaCost = fused.manaCost, typeLine = fused.typeLine, script = fused.script,
+                        keywords = fused.keywords, oracleText = fused.oracleText)
+                    SplitFaceCastOffers.offer(context, cardId, fused, null, face, result, castFused = true)
+                    // Judge the free-cast source's filter against the fused spell, as the validator does.
+                    if (context.costCalculator.hasFreeCastPermission(context.state, context.playerId, fused, com.wingedsheep.sdk.core.Zone.HAND)) {
+                        SplitFaceCastOffers.offer(context, cardId, fused, null, face, result,
+                            descriptionSuffix = " without paying its mana cost", castFused = true,
+                            useWithoutPayingManaCost = true)
+                    }
                 }
                 continue
             }
@@ -237,7 +260,7 @@ class CastSpellEnumerator(
             // Check timing - sorcery-speed spells need main phase, empty stack, your turn
             val isInstant = cardComponent.typeLine.isInstant
             val hasFlash = cardDef.keywords.contains(Keyword.FLASH)
-            val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId)
+            val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId, context.playerId)
             // The granted alternative cost that would price this card (the first covering grant —
             // the one the cast handler charges). Its flash rider times only its own cast.
             val coveringAltGrant = context.alternativeCastingCosts.firstOrNull { grant ->
@@ -260,27 +283,40 @@ class CastSpellEnumerator(
 
             // Calculate effective cost after reductions (e.g., Goblin Warchief).
             // Uses minimum possible cost so target-conditional reductions (e.g., Dire Downdraft)
-            // mark the spell as castable when a valid discounted target exists on the battlefield.
-            val sacrificeReduction = offer.variableSacrificeTargets.size * offer.variableSacrificeReduction
-            fun priceBase(base: ManaCost): ManaCost = context.costCalculator
-                .calculateMinPossibleCost(state, cardDef, playerId, baseCost = base)
-                .reduceGeneric(sacrificeReduction)
-            var rawBaseCost = cardDef.manaCost
-            var effectiveCost = priceBase(rawBaseCost)
+            // mark the spell as castable when a valid discounted target exists.
+            var mainPricing = context.costCalculator.priceByTargets(
+                state, cardDef, playerId, cardId, withTable = !context.skipAutoTapPreview,
+            )
+            var effectiveCost = mainPricing.min
+            // Generic reduction the printed generic can't absorb pays the announced X instead
+            // (CR 601.2f) — Spectral Denial's discounts raise its X ceiling.
+            var xCredit = 0
 
-            // Save base cost for blight path, then add extra mana for the "pay" path
-            val blightBaseCost = effectiveCost
-            val blightRawBaseCost = rawBaseCost
-            if (blightOrPayCost != null) {
-                rawBaseCost += ManaCost.parse(blightOrPayCost.alternativeManaCost)
-                effectiveCost = priceBase(rawBaseCost)
+            // The largest "costs {N} less for each … this way" discount, for the affordability check.
+            // A candidate that is itself a counted mana source (a mana dork tapped or sacrificed for
+            // the discount) can't also make its mana, so it is worth N − 1 over the sources already
+            // counted, not N. What the printed generic can't absorb pays the announced X instead
+            // (CR 601.2f), so it raises the X ceiling below — a March with two white cards to exile
+            // reaches X + 4.
+            val reducingCost = offer.reducingCost
+            var reducingXCredit = 0
+            var offerReduction = 0
+            if (reducingCost != null && offer.reducingCandidates.isNotEmpty()) {
+                val maxReduction = maxOfferReduction(context, offer)
+                val genericBefore = effectiveCost.genericAmount
+                offerReduction = maxReduction
+                effectiveCost = effectiveCost.reduceGeneric(maxReduction)
+                if (effectiveCost.hasX) {
+                    reducingXCredit = maxReduction - (genericBefore - effectiveCost.genericAmount)
+                }
             }
-
-            // Save base cost for the or-pay leg path, then add extra mana for the "pay" path
-            val orPayBaseCost = effectiveCost
-            if (orPayCost != null) {
-                rawBaseCost += ManaCost.parse(orPayCost.alternativeManaCost)
-                effectiveCost = priceBase(rawBaseCost)
+            var rawBaseCost = cardDef.manaCost
+            val sacrificeReduction = offerReduction
+            fun priceBase(base: ManaCost): ManaCost {
+                mainPricing = context.costCalculator.priceByTargets(
+                    state, cardDef, playerId, cardId, baseCost = base, withTable = !context.skipAutoTapPreview,
+                )
+                return mainPricing.min.reduceGeneric(offerReduction)
             }
 
             // Spell-level waterbend additional cost (Avatar: The Last Airbender). A *mandatory*
@@ -302,6 +338,26 @@ class CastSpellEnumerator(
                 effectiveCost = priceBase(rawBaseCost)
             }
 
+            // Save base cost for blight path, then add extra mana for the "pay" path
+            val blightBaseCost = effectiveCost
+            val blightRawBaseCost = rawBaseCost
+            if (blightOrPayCost != null) {
+                rawBaseCost += ManaCost.parse(blightOrPayCost.alternativeManaCost)
+                effectiveCost = priceBase(rawBaseCost)
+            }
+
+            // Save base cost for the or-pay leg path, then add extra mana for the "pay" path
+            val orPayBaseCost = effectiveCost
+            if (orPayCost != null) {
+                rawBaseCost += ManaCost.parse(orPayCost.alternativeManaCost)
+                effectiveCost = priceBase(rawBaseCost)
+            }
+
+            xCredit = context.costCalculator.minPossibleXCredit(
+                state, cardDef, playerId, cardId, mainPricing.min, baseCost = rawBaseCost
+            )
+            reducingXCredit = if (effectiveCost.hasX) (offerReduction - mainPricing.min.genericAmount).coerceAtLeast(0) else 0
+
             // Check mana affordability (including Convoke/Delve if available).
             // Convoke and Delve can be printed on the card or granted at runtime by a
             // battlefield permanent (e.g., Eirdu's "Creature spells you cast have convoke.").
@@ -313,7 +369,7 @@ class CastSpellEnumerator(
             // Build spell context for conditional mana restriction awareness. Every affordability
             // check below takes it, so eligible restricted floating mana (Ashling, Rimebound's
             // MV4+ mana) counts — including on the convoke/delve/waterbend tap-to-help paths.
-            val spellContext = spellPaymentContextFor(cardComponent)
+            val spellContext = spellPaymentContextFor(cardComponent, colors = state.projectedState.colorSetOf(cardId))
 
             // Improvise (CR 702.126) — printed, or granted at runtime by a battlefield permanent
             // (Ironheart, Clever Champion: "Noncreature spells you cast have improvise"). Unlike
@@ -402,8 +458,8 @@ class CastSpellEnumerator(
             // halves of the grant must be payable — a `{0}` mana half is trivially affordable, so
             // the non-mana half is the whole gate for a purely non-mana grant.
             val grantedAltCost = coveringAltGrant?.takeIf { grant ->
-                val altEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, grant.manaCost, playerId)
-                context.manaSolver.canPay(state, playerId, altEffective, precomputedSources = cachedSources) &&
+                val altEffective = context.declaredCastPricing(CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.GRANTED), cardDef)?.min
+                altEffective != null && context.manaSolver.canPay(state, playerId, altEffective, precomputedSources = cachedSources) &&
                     grant.additionalCosts.all { cost ->
                         canPayAdditionalCostForAlternative(context, state, playerId, cardId, cost)
                     }
@@ -425,10 +481,20 @@ class CastSpellEnumerator(
                         )
                     )
                 }
+            // "Spend only mana produced by <sources> to cast it this way" (Security Rhox): judge the
+            // mana half — and its auto-tap preview below — inside the same restricted view the
+            // handler validates and pays in (CastCostPayer.manaSourceRestriction).
+            val selfAltPayState = selfAltCost?.manaSources?.let { sources ->
+                com.wingedsheep.engine.mechanics.mana.ManaSourceRestrictedPayment.open(
+                    state, playerId, sources,
+                    com.wingedsheep.engine.handlers.EffectContext(sourceId = cardId, controllerId = playerId),
+                    context.predicateEvaluator,
+                ).state
+            } ?: state
             val canAffordSelfAlternative = if (selfAltCost != null) {
                 val selfAltMana = selfAltCost.manaCost
-                val selfAltEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, selfAltMana, playerId)
-                val canPayMana = context.manaSolver.canPay(state, playerId, selfAltEffective, precomputedSources = cachedSources)
+                val selfAltEffective = context.declaredCastPricing(CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.SELF_ALTERNATIVE), cardDef)?.min
+                val canPayMana = selfAltEffective != null && context.manaSolver.canPay(selfAltPayState, playerId, selfAltEffective, precomputedSources = cachedSources)
                 val canPayAdditional = selfAltCost.additionalCosts.all { cost ->
                     canPayAdditionalCostForAlternative(context, state, playerId, cardId, cost)
                 }
@@ -438,30 +504,39 @@ class CastSpellEnumerator(
             // Check evoke cost (alternative cost from Evoke keyword)
             val evokeAbility = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Evoke>().firstOrNull()
             val canAffordEvoke = if (evokeAbility != null) {
-                val evokeMana = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, evokeAbility.cost, playerId)
-                context.manaSolver.canPay(state, playerId, evokeMana, precomputedSources = cachedSources)
+                val evokeMana = context.declaredCastPricing(CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.EVOKE), cardDef)?.min
+                evokeMana != null && context.manaSolver.canPay(state, playerId, evokeMana, precomputedSources = cachedSources) &&
+                    evokeAbility.additionalCost.let { cost ->
+                        cost == null || canPayAdditionalCostForAlternative(context, state, playerId, cardId, cost)
+                    }
             } else false
 
             // Check impending cost (alternative cost from Impending keyword)
             val impendingAbility = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Impending>().firstOrNull()
             val canAffordImpending = if (impendingAbility != null) {
-                val impendingMana = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, impendingAbility.cost, playerId)
-                context.manaSolver.canPay(state, playerId, impendingMana, precomputedSources = cachedSources)
+                val impendingMana = context.declaredCastPricing(CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.IMPENDING), cardDef)?.min
+                impendingMana != null && context.manaSolver.canPay(state, playerId, impendingMana, precomputedSources = cachedSources)
             } else false
 
             // Check cleave cost (CR 702.148 — alternative cost from the Cleave keyword). Emitted as
             // its own legal action below since paying it swaps in the brackets-removed target set.
             val cleaveAbility = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Cleave>().firstOrNull()
             val canAffordCleave = if (cleaveAbility != null) {
-                val cleaveMana = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, cleaveAbility.cost, playerId)
-                context.manaSolver.canPay(state, playerId, cleaveMana, precomputedSources = cachedSources)
+                val cleaveMana = context.declaredCastPricing(
+                    CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.CLEAVE),
+                    cardDef, requirements = cardDef.script.cleaveTargetRequirements.ifEmpty { cardDef.script.targetRequirements } + listOfNotNull(cardDef.script.castAuraTarget)
+                )?.min
+                cleaveMana != null && context.manaSolver.canPay(state, playerId, cleaveMana, precomputedSources = cachedSources)
             } else false
 
             // Overload (CR 702.96) — likewise its own legal action below (untargeted).
             val overloadAbility = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.Overload>().firstOrNull()
             val canAffordOverload = if (overloadAbility != null) {
-                val overloadMana = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, overloadAbility.cost, playerId)
-                context.manaSolver.canPay(state, playerId, overloadMana, precomputedSources = cachedSources)
+                val overloadMana = context.declaredCastPricing(
+                    CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.OVERLOAD),
+                    cardDef, requirements = listOfNotNull(cardDef.script.castAuraTarget)
+                )?.min
+                overloadMana != null && context.manaSolver.canPay(state, playerId, overloadMana, precomputedSources = cachedSources)
             } else false
 
             // Check blight path affordability (base cost without the extra mana, but needs a creature)
@@ -481,10 +556,14 @@ class CastSpellEnumerator(
             // A `MayCastWithoutPayingManaCost` battlefield permission (e.g. Weftwalking) makes the
             // spell affordable for {0} when its gates are open. Emitted by its own branch below;
             // don't continue out before reaching it.
-            val freeCost = if (context.freeCastPermissionFor(cardId)) {
-                context.declaredCastCost(CastSpell(playerId, cardId, useWithoutPayingManaCost = true))
+            val freeCastPricing = if (context.freeCastPermissionFor(cardId)) {
+                context.declaredCastPricing(CastSpell(playerId, cardId, useWithoutPayingManaCost = true), cardDef)
             } else null
-            val canAffordFreeCast = freeCost != null && canAffordMana(freeCost)
+            val freeCastCost = freeCastPricing?.min
+            val freePayableCost = freeCastCost?.let {
+                context.castPermissionUtils.relaxSpellCostColorsIfAny(state, playerId, cardId, it)
+            }
+            val canAffordFreeCast = freePayableCost != null && canAffordMana(freePayableCost)
             if (!canAfford && !canAffordAlternative && !canAffordSelfAlternative && !canAffordEvoke && !canAffordImpending && !canAffordCleave && !canAffordOverload && !canAffordBlightPath && !canAffordOrPayPath && !canAffordFreeCast) {
                 // The primary face can't be paid for by any path. Normally we skip it entirely.
                 // But if this is an Adventure/Omen/modal-DFC card whose *secondary* face is
@@ -532,9 +611,20 @@ class CastSpellEnumerator(
 
             // Compute the "… or pay {N}" cast paths — one extra legal action each, carrying the
             // base cost (without the alternative mana) plus that leg's own selection prompt.
-            fun orPayPath(label: String, baseCost: ManaCost, legCostInfo: AdditionalCostData) = OrPayPath(
+            fun orPayPath(
+                label: String,
+                baseCost: ManaCost,
+                legCostInfo: AdditionalCostData,
+                surcharge: ManaCost? = null,
+            ) = OrPayPath(
                 label = label,
                 manaCostString = baseCost.toString(),
+                // The leg's base is the main path's before the surcharges it declines.
+                manaCostByTargetCount = context.costCalculator.priceByTargets(
+                    state, cardDef, playerId, cardId,
+                    baseCost = blightRawBaseCost + (surcharge ?: ManaCost.ZERO),
+                    withTable = !context.skipAutoTapPreview,
+                ).byCount?.mapValues { (_, cost) -> cost.reduceGeneric(offerReduction).toString() },
                 autoTapPreview = if (context.skipAutoTapPreview) null else {
                     context.manaSolver.solve(state, playerId, baseCost, precomputedSources = cachedSources)
                         ?.sources?.map { it.entityId }
@@ -560,7 +650,10 @@ class CastSpellEnumerator(
             // drive the exact same selection UI.
             val orPayPathInfo = if (canAffordOrPayPath && orPayCost != null) {
                 SpellCosts.present(costEnv, orPayCost.cost, offer.orPayTargets)?.let { (label, legCostInfo) ->
-                    orPayPath(label = label, baseCost = orPayBaseCost, legCostInfo = legCostInfo)
+                    orPayPath(
+                        label = label, baseCost = orPayBaseCost, legCostInfo = legCostInfo,
+                        surcharge = blightOrPayCost?.let { ManaCost.parse(it.alternativeManaCost) },
+                    )
                 }
             } else null
 
@@ -570,7 +663,7 @@ class CastSpellEnumerator(
 
             // Calculate X cost info if the spell has X in its cost (printed, or the waterbend {X}
             // folded in above).
-            val counterMaxX = PlayerCounterPayment.spellMaxX(state, playerId, additionalCosts)
+            val counterMaxX = SpellCosts.additionalCostMaxX(state, playerId, additionalCosts, context.predicateEvaluator)
             val hasXCost = effectiveCost.hasX || counterMaxX != null
             val manaMaxX: Int? = if (effectiveCost.hasX) {
                 // Pass the spell context so floating restricted mana this spell may spend
@@ -615,23 +708,37 @@ class CastSpellEnumerator(
                         precomputedSources = cachedSources, spellContext = spellContext,
                         xManaRestriction = cardDef.script.xManaRestriction)
                 } else {
-                    ((availableSources + genericCredit - fixedCost) / xSymbolCount).coerceAtLeast(0)
+                // A modifier keyed to mana value starts or stops matching as the X grows (CR
+                // 202.3e) — Spectacle Mage's discount reaches an X the X-blind price can't.
+                context.costCalculator.maxAffordableX(
+                    state, cardDef, playerId, cardId, xCount = xSymbolCount,
+                    payable = availableSources + delveAvailable + waterbendAvailable + convokeAvailable + improviseAvailable + xCredit + reducingXCredit - fixedCost,
+                )
                 }
             } else null
 
-            val maxAffordableX = listOfNotNull(manaMaxX, counterMaxX).minOrNull()
+            val affordableX = listOfNotNull(manaMaxX, counterMaxX).minOrNull()
+            // Outside a sorcery-speed window, a flash that hangs on the announced X ("as though it
+            // had flash if X is 3 or less", Silver Scrutiny) caps the X the offer may carry — the
+            // cast-time re-check rejects anything above it.
+            val instantSpeedViaOwnCondition = !isInstant && !hasFlash && !context.canPlaySorcerySpeed &&
+                cardDef.script.conditionalFlash != null && grantedAltFlashOnly?.first != cardId
+            val maxAffordableX = if (instantSpeedViaOwnCondition && affordableX != null) {
+                context.castPermissionUtils.maxFlashX(state, cardId, playerId, affordableX) ?: continue
+            } else affordableX
 
             // Always include mana cost string for cast actions
             val manaCostString = effectiveCost.toString()
 
-            // "This spell costs {W}{U} more to cast for each target beyond the first" (Officious
-            // Interrogation): `effectiveCost` above is priced with no targets chosen, so it is the
-            // one-target minimum. Flag it so the client settles targeting before offering a manual
-            // mana-source pick — the same reason an X cost forces its `xSelection` phase first.
-            val manaCostPerExtraTarget = cardDef?.script?.staticAbilities
-                ?.filterIsInstance<ModifySpellCost>()
-                ?.filter { it.target == SpellCostTarget.SelfCast }
-                ?.firstNotNullOfOrNull { context.costCalculator.perExtraTargetCost(it.modification) }
+            // A spell priced per target — "costs {W}{U} more for each target beyond the first"
+            // (Officious Interrogation), "spells you cast cost {1} less for each target" (Hinata,
+            // Dawn-Crowned): `effectiveCost` above is only the cheapest reachable target count.
+            // Price every count, with this offer's own adjustments, so the client settles targeting
+            // before a manual mana-source pick and charges the count actually chosen — the same
+            // reason an X cost forces its `xSelection` phase first.
+            val manaCostByTargetCount = mainPricing.byCount?.mapValues { (_, cost) ->
+                cost.reduceGeneric(offerReduction).toString()
+            }
 
             // Compute auto-tap preview for UI highlighting (skipped in ACTIONS_ONLY mode).
             //
@@ -656,28 +763,37 @@ class CastSpellEnumerator(
                     ?.sources?.map { it.entityId }
             }
 
-            // Check for DividedDamageEffect to flag damage distribution requirement
+            // The division the spell announces as it is cast (CR 601.2d) — divided damage, or a
+            // counter division. A board-derived total is known now (a cast-time capture reads its own
+            // amount); one that reads X is re-priced per offer once X is fixed
+            // ([expandSacrificeDefinedX]). A counter pool that reads a mana-paid X can't be priced
+            // before X is chosen, so it isn't offered here and divides at resolution instead.
             val spellEffect = cardDef.script.spellEffect
-            val dividedDamageEffect = spellEffect as? DividedDamageEffect
-            val requiresDamageDistribution = dividedDamageEffect != null
-            // A board-derived `dynamicTotal` is known now; one that reads X is re-priced per offer
-            // once X is fixed ([expandSacrificeDefinedX]).
-            val totalDamageToDistribute = dividedDamageEffect?.let { effect ->
-                effect.dynamicTotal?.let { amount ->
-                    context.predicateEvaluator.amounts.evaluate(
-                        state, amount,
-                        com.wingedsheep.engine.handlers.EffectContext(sourceId = cardId, controllerId = playerId)
-                    ).coerceAtLeast(0)
-                } ?: effect.totalDamage
+            val division = AnnouncedDivision.ofSpell(spellEffect)
+            val totalDamageToDistribute = division?.let {
+                AnnouncedDivision.total(
+                    state, it,
+                    com.wingedsheep.engine.handlers.EffectContext(sourceId = cardId, controllerId = playerId),
+                    context.predicateEvaluator.amounts,
+                    cardDef.script.castTimeCaptures
+                )
             }
-            val minDamagePerTarget = if (dividedDamageEffect != null) 1 else null
+            val requiresDamageDistribution = division is DividedDamageEffect ||
+                (division != null && !cardDef.manaCost.hasX && (totalDamageToDistribute ?: 0) > 0)
+            val minDamagePerTarget = division?.takeIf { requiresDamageDistribution }?.let(AnnouncedDivision::minPerTarget)
+            val distributionUnit = division?.takeIf { requiresDamageDistribution }?.let(AnnouncedDivision::counterUnit)
+            val distributionTargetGroup = division?.takeIf { requiresDamageDistribution }
+                ?.let { AnnouncedDivision.groupIndex(it, cardDef.script.targetRequirements) }
 
             // Compute alternative cost info for this spell (Jodah-style GrantAlternativeCastingCost).
             // The grant picked above is the affordable one, so its non-mana half is payable too and
             // rides along as the client's picker payload — the same [SelfAltCostResult] shape the
             // card's own alternative cost uses, so the two paths emit one kind of cast action.
             val altCostInfo = if (grantedAltCost != null) {
-                val altEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, grantedAltCost.manaCost, playerId)
+                val altEffectivePricing = context.declaredCastPricing(
+                CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.GRANTED), cardDef
+            ) ?: continue
+                val altEffective = altEffectivePricing.min
                 val altPreview = if (context.skipAutoTapPreview) null else {
                     context.manaSolver.solve(state, playerId, altEffective, precomputedSources = cachedSources)
                         ?.sources?.map { it.entityId }
@@ -687,6 +803,7 @@ class CastSpellEnumerator(
                 }
                 SelfAltCostResult(
                     manaCostString = altEffective.toString(),
+                    manaCostByTargetCount = altEffectivePricing.byCountStrings(),
                     autoTapPreview = altPreview,
                     additionalCostInfo = altAddlCostInfo
                 )
@@ -706,9 +823,12 @@ class CastSpellEnumerator(
             // Compute self-alternative cost info (e.g., Zahid)
             val selfAltCostResult = if (canAffordSelfAlternative && selfAltCost != null) {
                 val selfAltMana = selfAltCost.manaCost
-                val selfAltEffective = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, selfAltMana, playerId)
+                val selfAltEffectivePricing = context.declaredCastPricing(
+                CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.SELF_ALTERNATIVE), cardDef
+            ) ?: continue
+                val selfAltEffective = selfAltEffectivePricing.min
                 val selfAltPreview = if (context.skipAutoTapPreview) null else {
-                    context.manaSolver.solve(state, playerId, selfAltEffective, precomputedSources = cachedSources)
+                    context.manaSolver.solve(selfAltPayState, playerId, selfAltEffective, precomputedSources = cachedSources)
                         ?.sources?.map { it.entityId }
                 }
                 val addlCostInfo = selfAltCost.additionalCosts.firstNotNullOfOrNull { cost ->
@@ -716,62 +836,61 @@ class CastSpellEnumerator(
                 }
                 SelfAltCostResult(
                     manaCostString = selfAltEffective.toString(),
+                    manaCostByTargetCount = selfAltEffectivePricing.byCountStrings(),
                     autoTapPreview = selfAltPreview,
-                    additionalCostInfo = addlCostInfo
+                    additionalCostInfo = addlCostInfo,
+                    // A free alternative whose non-mana half has no picker to show it ("pay 4 life",
+                    // "have an opponent gain 3 life") names that half instead of reading "{0}".
+                    label = selfAltCost.manaSources?.let { "$selfAltEffective, ${it.description} mana only" }
+                        ?: selfAltCost.additionalCosts
+                            .takeIf { it.isNotEmpty() && addlCostInfo == null && selfAltEffective.cmc == 0 && !selfAltEffective.hasX }
+                            ?.joinToString(", ") { it.description.replaceFirstChar { c -> c.lowercaseChar() } }
+                        ?: selfAltEffective.toString(),
                 )
             } else null
 
             // Compute evoke cost info
             val evokeCostResult = if (canAffordEvoke && evokeAbility != null) {
-                val evokeMana = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, evokeAbility.cost, playerId)
+                val evokeManaPricing = context.declaredCastPricing(
+                CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.EVOKE), cardDef
+            ) ?: continue
+                val evokeMana = evokeManaPricing.min
                 val evokePreview = if (context.skipAutoTapPreview) null else {
                     context.manaSolver.solve(state, playerId, evokeMana, precomputedSources = cachedSources)
                         ?.sources?.map { it.entityId }
                 }
+                val evokeExtra = evokeAbility.additionalCost
                 SelfAltCostResult(
                     manaCostString = evokeMana.toString(),
+                    manaCostByTargetCount = evokeManaPricing.byCountStrings(),
                     autoTapPreview = evokePreview,
-                    additionalCostInfo = null
+                    additionalCostInfo = evokeExtra?.let { additionalCostInfoForAlternative(context, state, playerId, cardId, it) },
+                    // A purely non-mana evoke cost names the cost ("exile a green card from your
+                    // hand") rather than a meaningless "{0}".
+                    label = when {
+                        evokeExtra == null -> evokeMana.toString()
+                        evokeMana.cmc == 0 && !evokeMana.hasX -> evokeExtra.description.replaceFirstChar { it.lowercaseChar() }
+                        else -> "$evokeMana, ${evokeExtra.description.replaceFirstChar { it.lowercaseChar() }}"
+                    },
                 )
             } else null
 
             // Compute impending cost info
             val impendingCostResult = if (canAffordImpending && impendingAbility != null) {
-                val impendingMana = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, impendingAbility.cost, playerId)
+                val impendingManaPricing = context.declaredCastPricing(
+                CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.IMPENDING), cardDef
+            ) ?: continue
+                val impendingMana = impendingManaPricing.min
                 val impendingPreview = if (context.skipAutoTapPreview) null else {
                     context.manaSolver.solve(state, playerId, impendingMana, precomputedSources = cachedSources)
                         ?.sources?.map { it.entityId }
                 }
                 SelfAltCostResult(
                     manaCostString = impendingMana.toString(),
+                    manaCostByTargetCount = impendingManaPricing.byCountStrings(),
                     autoTapPreview = impendingPreview,
                     additionalCostInfo = null
                 )
-            } else null
-
-            // Compute miracle cost info (CR 702.94). Only offered while this card carries an open
-            // miracle window (it was the first card drawn this turn and has miracle, printed or
-            // granted in hand). The window component is set by the draw flow and cleared at cleanup.
-            val miracleWindowOpen = state.getEntity(cardId)
-                ?.has<com.wingedsheep.engine.state.components.identity.MiracleWindowComponent>() == true
-            val miracleAbility = if (miracleWindowOpen) {
-                com.wingedsheep.engine.mechanics.MiracleGrants.effectiveMiracle(
-                    state, cardId, cardDef, playerId, context.cardRegistry, context.predicateEvaluator
-                )
-            } else null
-            val miracleCostResult = if (miracleAbility != null) {
-                val miracleMana = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, miracleAbility.cost, playerId)
-                if (context.manaSolver.canPay(state, playerId, miracleMana, precomputedSources = cachedSources)) {
-                    val miraclePreview = if (context.skipAutoTapPreview) null else {
-                        context.manaSolver.solve(state, playerId, miracleMana, precomputedSources = cachedSources)
-                            ?.sources?.map { it.entityId }
-                    }
-                    SelfAltCostResult(
-                        manaCostString = miracleMana.toString(),
-                        autoTapPreview = miraclePreview,
-                        additionalCostInfo = null
-                    )
-                } else null
             } else null
 
             // Free cast via `MayCastWithoutPayingManaCost` (e.g. Weftwalking) — its own variant,
@@ -780,11 +899,12 @@ class CastSpellEnumerator(
             // evoke, impending) when both are legal (CR 118.9a — only one alternative cost may
             // apply to a cast, and which one is the player's choice). Routes through
             // [CastSpell.useWithoutPayingManaCost].
-            val freeCastResult = if (canAffordFreeCast && freeCost != null) {
+            val freeCastResult = if (freeCastCost != null && canAffordFreeCast) {
                 SelfAltCostResult(
-                    manaCostString = freeCost.toString().ifEmpty { "{0}" },
-                    autoTapPreview = if (context.skipAutoTapPreview) null else context.manaSolver
-                        .solve(state, playerId, freeCost, precomputedSources = cachedSources)?.sources?.map { it.entityId },
+                    manaCostString = freeCastCost.toString().ifEmpty { "{0}" },
+                    autoTapPreview = if (context.skipAutoTapPreview) null else if (freeCastCost.isEmpty()) emptyList() else
+                        context.manaSolver.solve(state, playerId, freePayableCost ?: freeCastCost, spellContext = spellContext, precomputedSources = cachedSources)
+                            ?.sources?.map { it.entityId },
                     additionalCostInfo = null
                 )
             } else null
@@ -864,7 +984,8 @@ class CastSpellEnumerator(
                         cardLevelAdditionalCostInfo = variant.additionalCostInfo,
                         baseAutoTapPreview = variant.autoTapPreview,
                         spellContext = spellContext,
-                        cachedSources = cachedSources
+                        cachedSources = cachedSources,
+                        priceModeByTargets = variantEffect.chooseCount == 1,
                     )
                 }
 
@@ -906,6 +1027,7 @@ class CastSpellEnumerator(
                                     delveCards = delveCards,
                                     minDelveNeeded = minDelveNeeded,
                                     manaCostString = modeEnum.manaCostString,
+                                    manaCostByTargetCount = modeEnum.manaCostByTargetCount,
                                     autoTapPreview = modeEnum.autoTapPreview
                                 ))
                             } else {
@@ -923,6 +1045,7 @@ class CastSpellEnumerator(
                                     xConstrainsTargetManaValueExactly = firstInfo.xConstrainsManaValueExactly,
                                     xConstrainsTargetPower = firstInfo.xConstrainsPower,
                                     xConstrainsTargetCount = firstInfo.xConstrainsCount,
+                                    xConstrainsTargetCountExactly = firstInfo.xConstrainsCountExactly,
                                     hasXCost = hasXCost,
                                     maxAffordableX = maxAffordableX,
                                     additionalCostInfo = modeEnum.additionalCostInfo,
@@ -932,6 +1055,7 @@ class CastSpellEnumerator(
                                     delveCards = delveCards,
                                     minDelveNeeded = minDelveNeeded,
                                     manaCostString = modeEnum.manaCostString,
+                                    manaCostByTargetCount = modeEnum.manaCostByTargetCount,
                                     autoTapPreview = modeEnum.autoTapPreview
                                 ))
                             }
@@ -1056,9 +1180,12 @@ class CastSpellEnumerator(
                                 delveCards = delveCards,
                                 minDelveNeeded = minDelveNeeded,
                                 manaCostString = manaCostString,
+                                manaCostByTargetCount = manaCostByTargetCount,
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = autoTapPreview
                             ))
                         }
@@ -1068,32 +1195,40 @@ class CastSpellEnumerator(
                                 description = "Cast ${cardComponent.name} ($altCostLabel)",
                                 action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), useAlternativeCost = true, alternativeCostType = AlternativeCostType.GRANTED),
                                 manaCostString = altCostInfo.manaCostString,
+                                manaCostByTargetCount = altCostInfo.manaCostByTargetCount,
                                 additionalCostInfo = altCostInfo.additionalCostInfo,
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = altCostInfo.autoTapPreview
                             ))
                         }
                         if (selfAltCostResult != null) {
                             result.add(LegalAction(
                                 actionType = "CastWithAlternativeCost",
-                                description = "Cast ${cardComponent.name} (${selfAltCostResult.manaCostString})",
+                                description = "Cast ${cardComponent.name} (${selfAltCostResult.label})",
                                 action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), useAlternativeCost = true, alternativeCostType = AlternativeCostType.SELF_ALTERNATIVE),
                                 manaCostString = selfAltCostResult.manaCostString,
+                                manaCostByTargetCount = selfAltCostResult.manaCostByTargetCount,
                                 additionalCostInfo = selfAltCostResult.additionalCostInfo,
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = selfAltCostResult.autoTapPreview
                             ))
                         }
                         if (evokeCostResult != null) {
                             result.add(LegalAction(
                                 actionType = "CastWithAlternativeCost",
-                                description = "Evoke ${cardComponent.name} (${evokeCostResult.manaCostString})",
+                                description = "Evoke ${cardComponent.name} (${evokeCostResult.label})",
                                 action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), useAlternativeCost = true, alternativeCostType = AlternativeCostType.EVOKE),
                                 manaCostString = evokeCostResult.manaCostString,
+                                manaCostByTargetCount = evokeCostResult.manaCostByTargetCount,
+                                additionalCostInfo = evokeCostResult.additionalCostInfo,
                                 autoTapPreview = evokeCostResult.autoTapPreview
                             ))
                         }
@@ -1103,16 +1238,8 @@ class CastSpellEnumerator(
                                 description = "Impending ${cardComponent.name} (${impendingCostResult.manaCostString})",
                                 action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), useAlternativeCost = true, alternativeCostType = AlternativeCostType.IMPENDING),
                                 manaCostString = impendingCostResult.manaCostString,
+                                manaCostByTargetCount = impendingCostResult.manaCostByTargetCount,
                                 autoTapPreview = impendingCostResult.autoTapPreview
-                            ))
-                        }
-                        if (miracleCostResult != null) {
-                            result.add(LegalAction(
-                                actionType = "CastWithAlternativeCost",
-                                description = "Miracle ${cardComponent.name} (${miracleCostResult.manaCostString})",
-                                action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), useAlternativeCost = true, alternativeCostType = AlternativeCostType.MIRACLE),
-                                manaCostString = miracleCostResult.manaCostString,
-                                autoTapPreview = miracleCostResult.autoTapPreview
                             ))
                         }
                         if (freeCastResult != null) {
@@ -1121,6 +1248,7 @@ class CastSpellEnumerator(
                                 description = "Cast ${cardComponent.name} (Free)",
                                 action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), useWithoutPayingManaCost = true),
                                 manaCostString = freeCastResult.manaCostString,
+                                manaCostByTargetCount = freeCastPricing?.byCountStrings(),
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
@@ -1128,6 +1256,8 @@ class CastSpellEnumerator(
                                 convokeCreatures = convokeCreatures,
                                 hasDelve = hasDelve,
                                 delveCards = delveCards,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = freeCastResult.autoTapPreview
                             ))
                         }
@@ -1138,9 +1268,12 @@ class CastSpellEnumerator(
                                 action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget)),
                                 additionalCostInfo = path.costInfo,
                                 manaCostString = path.manaCostString,
+                                manaCostByTargetCount = path.manaCostByTargetCount,
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = path.autoTapPreview
                             ))
                         }
@@ -1160,6 +1293,7 @@ class CastSpellEnumerator(
                                 xConstrainsTargetManaValueExactly = firstReqInfo.xConstrainsManaValueExactly,
                                 xConstrainsTargetPower = firstReqInfo.xConstrainsPower,
                                 xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
+                                xConstrainsTargetCountExactly = firstReqInfo.xConstrainsCountExactly,
                                 hasXCost = hasXCost,
                                 maxAffordableX = maxAffordableX,
                                 additionalCostInfo = costInfo,
@@ -1169,10 +1303,12 @@ class CastSpellEnumerator(
                                 delveCards = delveCards,
                                 minDelveNeeded = minDelveNeeded,
                                 manaCostString = manaCostString,
-                                manaCostPerExtraTarget = manaCostPerExtraTarget,
+                                manaCostByTargetCount = manaCostByTargetCount,
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = autoTapPreview
                             ))
                         }
@@ -1191,18 +1327,22 @@ class CastSpellEnumerator(
                                 xConstrainsTargetManaValueExactly = firstReqInfo.xConstrainsManaValueExactly,
                                 xConstrainsTargetPower = firstReqInfo.xConstrainsPower,
                                 xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
+                                xConstrainsTargetCountExactly = firstReqInfo.xConstrainsCountExactly,
                                 manaCostString = altCostInfo.manaCostString,
+                                manaCostByTargetCount = altCostInfo.manaCostByTargetCount,
                                 additionalCostInfo = altCostInfo.additionalCostInfo,
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = altCostInfo.autoTapPreview
                             ))
                         }
                         if (selfAltCostResult != null) {
                             result.add(LegalAction(
                                 actionType = "CastWithAlternativeCost",
-                                description = "Cast ${cardComponent.name} (${selfAltCostResult.manaCostString})",
+                                description = "Cast ${cardComponent.name} (${selfAltCostResult.label})",
                                 action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.SELF_ALTERNATIVE),
                                 validTargets = firstReqInfo.validTargets,
                                 requiresTargets = true,
@@ -1214,18 +1354,22 @@ class CastSpellEnumerator(
                                 xConstrainsTargetManaValueExactly = firstReqInfo.xConstrainsManaValueExactly,
                                 xConstrainsTargetPower = firstReqInfo.xConstrainsPower,
                                 xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
+                                xConstrainsTargetCountExactly = firstReqInfo.xConstrainsCountExactly,
                                 manaCostString = selfAltCostResult.manaCostString,
+                                manaCostByTargetCount = selfAltCostResult.manaCostByTargetCount,
                                 additionalCostInfo = selfAltCostResult.additionalCostInfo,
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = selfAltCostResult.autoTapPreview
                             ))
                         }
                         if (evokeCostResult != null) {
                             result.add(LegalAction(
                                 actionType = "CastWithAlternativeCost",
-                                description = "Evoke ${cardComponent.name} (${evokeCostResult.manaCostString})",
+                                description = "Evoke ${cardComponent.name} (${evokeCostResult.label})",
                                 action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.EVOKE),
                                 validTargets = firstReqInfo.validTargets,
                                 requiresTargets = true,
@@ -1237,7 +1381,10 @@ class CastSpellEnumerator(
                                 xConstrainsTargetManaValueExactly = firstReqInfo.xConstrainsManaValueExactly,
                                 xConstrainsTargetPower = firstReqInfo.xConstrainsPower,
                                 xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
+                                xConstrainsTargetCountExactly = firstReqInfo.xConstrainsCountExactly,
                                 manaCostString = evokeCostResult.manaCostString,
+                                manaCostByTargetCount = evokeCostResult.manaCostByTargetCount,
+                                additionalCostInfo = evokeCostResult.additionalCostInfo,
                                 autoTapPreview = evokeCostResult.autoTapPreview
                             ))
                         }
@@ -1256,27 +1403,10 @@ class CastSpellEnumerator(
                                 xConstrainsTargetManaValueExactly = firstReqInfo.xConstrainsManaValueExactly,
                                 xConstrainsTargetPower = firstReqInfo.xConstrainsPower,
                                 xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
+                                xConstrainsTargetCountExactly = firstReqInfo.xConstrainsCountExactly,
                                 manaCostString = impendingCostResult.manaCostString,
+                                manaCostByTargetCount = impendingCostResult.manaCostByTargetCount,
                                 autoTapPreview = impendingCostResult.autoTapPreview
-                            ))
-                        }
-                        if (miracleCostResult != null) {
-                            result.add(LegalAction(
-                                actionType = "CastWithAlternativeCost",
-                                description = "Miracle ${cardComponent.name} (${miracleCostResult.manaCostString})",
-                                action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.MIRACLE),
-                                validTargets = firstReqInfo.validTargets,
-                                requiresTargets = true,
-                                targetCount = firstReqInfo.maxTargets,
-                                minTargets = firstReq.effectiveMinCount,
-                                targetDescription = firstReq.description,
-                                targetRequirements = targetReqInfos.surfacedRequirements(),
-                                xConstrainsTargetManaValue = firstReqInfo.xConstrainsManaValue,
-                                xConstrainsTargetManaValueExactly = firstReqInfo.xConstrainsManaValueExactly,
-                                xConstrainsTargetPower = firstReqInfo.xConstrainsPower,
-                                xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
-                                manaCostString = miracleCostResult.manaCostString,
-                                autoTapPreview = miracleCostResult.autoTapPreview
                             ))
                         }
                         if (freeCastResult != null) {
@@ -1294,7 +1424,9 @@ class CastSpellEnumerator(
                                 xConstrainsTargetManaValueExactly = firstReqInfo.xConstrainsManaValueExactly,
                                 xConstrainsTargetPower = firstReqInfo.xConstrainsPower,
                                 xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
+                                xConstrainsTargetCountExactly = firstReqInfo.xConstrainsCountExactly,
                                 manaCostString = freeCastResult.manaCostString,
+                                manaCostByTargetCount = freeCastPricing?.byCountStrings(),
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
@@ -1302,6 +1434,8 @@ class CastSpellEnumerator(
                                 convokeCreatures = convokeCreatures,
                                 hasDelve = hasDelve,
                                 delveCards = delveCards,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = freeCastResult.autoTapPreview
                             ))
                         }
@@ -1320,11 +1454,15 @@ class CastSpellEnumerator(
                                 xConstrainsTargetManaValueExactly = firstReqInfo.xConstrainsManaValueExactly,
                                 xConstrainsTargetPower = firstReqInfo.xConstrainsPower,
                                 xConstrainsTargetCount = firstReqInfo.xConstrainsCount,
+                                xConstrainsTargetCountExactly = firstReqInfo.xConstrainsCountExactly,
                                 additionalCostInfo = path.costInfo,
                                 manaCostString = path.manaCostString,
+                                manaCostByTargetCount = path.manaCostByTargetCount,
                                 requiresDamageDistribution = requiresDamageDistribution,
                                 totalDamageToDistribute = totalDamageToDistribute,
                                 minDamagePerTarget = minDamagePerTarget,
+                                distributionUnit = distributionUnit,
+                                distributionTargetGroup = distributionTargetGroup,
                                 autoTapPreview = path.autoTapPreview
                             ))
                         }
@@ -1355,6 +1493,7 @@ class CastSpellEnumerator(
                         description = "Cast ${cardComponent.name} ($altCostLabel)",
                         action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.GRANTED),
                         manaCostString = altCostInfo.manaCostString,
+                        manaCostByTargetCount = altCostInfo.manaCostByTargetCount,
                         additionalCostInfo = altCostInfo.additionalCostInfo,
                         autoTapPreview = altCostInfo.autoTapPreview
                     ))
@@ -1362,9 +1501,10 @@ class CastSpellEnumerator(
                 if (selfAltCostResult != null) {
                     result.add(LegalAction(
                         actionType = "CastWithAlternativeCost",
-                        description = "Cast ${cardComponent.name} (${selfAltCostResult.manaCostString})",
+                        description = "Cast ${cardComponent.name} (${selfAltCostResult.label})",
                         action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.SELF_ALTERNATIVE),
                         manaCostString = selfAltCostResult.manaCostString,
+                        manaCostByTargetCount = selfAltCostResult.manaCostByTargetCount,
                         additionalCostInfo = selfAltCostResult.additionalCostInfo,
                         autoTapPreview = selfAltCostResult.autoTapPreview
                     ))
@@ -1372,9 +1512,11 @@ class CastSpellEnumerator(
                 if (evokeCostResult != null) {
                     result.add(LegalAction(
                         actionType = "CastWithAlternativeCost",
-                        description = "Evoke ${cardComponent.name} (${evokeCostResult.manaCostString})",
+                        description = "Evoke ${cardComponent.name} (${evokeCostResult.label})",
                         action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.EVOKE),
                         manaCostString = evokeCostResult.manaCostString,
+                        manaCostByTargetCount = evokeCostResult.manaCostByTargetCount,
+                        additionalCostInfo = evokeCostResult.additionalCostInfo,
                         autoTapPreview = evokeCostResult.autoTapPreview
                     ))
                 }
@@ -1384,16 +1526,8 @@ class CastSpellEnumerator(
                         description = "Impending ${cardComponent.name} (${impendingCostResult.manaCostString})",
                         action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.IMPENDING),
                         manaCostString = impendingCostResult.manaCostString,
+                        manaCostByTargetCount = impendingCostResult.manaCostByTargetCount,
                         autoTapPreview = impendingCostResult.autoTapPreview
-                    ))
-                }
-                if (miracleCostResult != null) {
-                    result.add(LegalAction(
-                        actionType = "CastWithAlternativeCost",
-                        description = "Miracle ${cardComponent.name} (${miracleCostResult.manaCostString})",
-                        action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = AlternativeCostType.MIRACLE),
-                        manaCostString = miracleCostResult.manaCostString,
-                        autoTapPreview = miracleCostResult.autoTapPreview
                     ))
                 }
                 if (freeCastResult != null) {
@@ -1402,6 +1536,7 @@ class CastSpellEnumerator(
                         description = "Cast ${cardComponent.name} (Free)",
                         action = CastSpell(playerId, cardId, useWithoutPayingManaCost = true),
                         manaCostString = freeCastResult.manaCostString,
+                                manaCostByTargetCount = freeCastPricing?.byCountStrings(),
                         hasConvoke = hasConvoke,
                         convokeCreatures = convokeCreatures,
                         hasDelve = hasDelve,
@@ -1416,6 +1551,7 @@ class CastSpellEnumerator(
                         action = CastSpell(playerId, cardId),
                         additionalCostInfo = path.costInfo,
                         manaCostString = path.manaCostString,
+                        manaCostByTargetCount = path.manaCostByTargetCount,
                         autoTapPreview = path.autoTapPreview
                     ))
                 }
@@ -1441,16 +1577,62 @@ class CastSpellEnumerator(
         // --- Casualty ---
         enumerateCasualty(context, hand, result)
 
-        return expandGiftPromise(
+        return expandLifeGainRecipient(context, expandGiftPromise(
             context,
             applyImproviseMetadata(
                 context,
                 applySpellWaterbendMetadata(
                     context,
-                    expandSacrificeDefinedX(context, expandChoiceAdditionalCosts(context, result))
+                    priceDivisionByX(context, expandSacrificeDefinedX(context, expandChoiceAdditionalCosts(context, result)))
                 )
             )
-        )
+        ))
+    }
+
+    /**
+     * Post-process: a card's own alternative cost "have **an opponent** gain N life" (Invigorate)
+     * makes the caster name the opponent as the cost is paid (CR 601.2h). With one opponent who can gain
+     * life the cast stands as it is and the handler pays that opponent; with several, each
+     * self-alternative cast is *replaced* by one twin per such opponent, pre-filling
+     * [AdditionalCostPayment.lifeGainRecipient] — the gift pattern, so the pick needs no new client
+     * prompt. Replaced rather than kept so no cast reaches the handler without a recipient.
+     */
+    private fun expandLifeGainRecipient(
+        context: EnumerationContext,
+        actions: List<LegalAction>
+    ): List<LegalAction> {
+        val state = context.state
+        val out = mutableListOf<LegalAction>()
+        for (la in actions) {
+            val cs = la.action as? CastSpell
+            val cost = cs?.takeIf { it.useAlternativeCost && it.alternativeCostType == AlternativeCostType.SELF_ALTERNATIVE }
+                ?.let { state.getEntity(it.cardId)?.get<CardComponent>()?.name }
+                ?.let { context.cardRegistry.getCard(it) }
+                ?.script?.selfAlternativeCost?.additionalCosts
+                ?.firstNotNullOfOrNull { (it as? AdditionalCost.OthersGainLife)?.takeIf { c -> !c.eachOtherPlayer } }
+            val opponents = cost?.let {
+                com.wingedsheep.engine.mechanics.cost.spell.OthersGainLifeCostKind.eligibleOpponents(state, cs.playerId)
+            }
+            if (cs == null || opponents == null || opponents.size < 2 || cs.additionalCostPayment?.lifeGainRecipient != null) {
+                out.add(la)
+                continue
+            }
+            for (opponentId in opponents) {
+                val opponentName = state.getEntity(opponentId)
+                    ?.get<com.wingedsheep.engine.state.components.identity.PlayerComponent>()?.name ?: "opponent"
+                val payment = (cs.additionalCostPayment ?: AdditionalCostPayment.NONE).copy(lifeGainRecipient = opponentId)
+                // The label names the cost only for a free alternative; a taxed one reads "({1})",
+                // so the opponent is appended there rather than substituted.
+                val generic = cost.description.replaceFirstChar { it.lowercaseChar() }
+                val named = "have $opponentName gain ${cost.amount} life"
+                out.add(la.copy(
+                    description = if (generic in la.description) la.description.replace(generic, named)
+                        else "${la.description} ($named)",
+                    action = cs.copy(additionalCostPayment = payment)
+                ))
+            }
+        }
+        return out
     }
 
     /**
@@ -1530,7 +1712,8 @@ class CastSpellEnumerator(
             val cs = la.action as? CastSpell
             val choice = if (cs != null && la.actionType == "CastSpell" && la.affordable) {
                 val name = state.getEntity(cs.cardId)?.get<CardComponent>()?.name
-                name?.let { context.cardRegistry.getCard(it) }?.script?.additionalCosts
+                name?.let { context.cardRegistry.getCard(it) }
+                    ?.let { CastCharacteristics.scriptForCast(it, cs).additionalCosts }
                     ?.filterIsInstance<AdditionalCost.Choice>()?.firstOrNull()
             } else null
             if (cs == null || choice == null) {
@@ -1576,7 +1759,9 @@ class CastSpellEnumerator(
             val cardDef = if (cs != null && sacInfo != null && cs.xValue == null) {
                 state.getEntity(cs.cardId)?.get<CardComponent>()?.name?.let { context.cardRegistry.getCard(it) }
             } else null
-            val sacCost = cardDef?.takeIf { !it.manaCost.hasX }?.script?.additionalCosts
+            val castManaCost = cs?.faceIndex?.let { cardDef?.cardFaces?.getOrNull(it)?.manaCost } ?: cardDef?.manaCost
+            val sacCost = cardDef?.takeIf { castManaCost?.hasX == false }
+                ?.let { CastCharacteristics.scriptForCast(it, cs!!).additionalCosts }
                 ?.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.Sacrifice }
                 ?.takeIf { TargetEnumerationUtils.filterUsesManaValueEqualsX(it.filter) }
             if (cs == null || sacInfo == null || cardDef == null || sacCost == null) {
@@ -1603,11 +1788,18 @@ class CastSpellEnumerator(
                     } ?: effect.totalDamage
                 }
                 val requirements = la.targetRequirements?.map { info ->
-                    if (info.xConstrainsCount) info.copy(maxTargets = minOf(info.validTargets.size, x), xConstrainsCount = false)
+                    if (info.xConstrainsCount) info.copy(
+                        maxTargets = minOf(info.validTargets.size, x),
+                        minTargets = if (info.xConstrainsCountExactly) x else info.minTargets,
+                        xConstrainsCount = false,
+                        xConstrainsCountExactly = false,
+                    )
                     else info
                 }
                 val capped = la.xConstrainsTargetCount
                 val validTargetCount = la.validTargets?.size ?: la.targetCount
+                // "X target …" needs X distinct legal targets (CR 601.2c); this X can't be cast.
+                if (la.xConstrainsTargetCountExactly && validTargetCount < x) continue
                 out.add(la.copy(
                     description = "${la.description} (X=$x)",
                     action = cs.copy(xValue = x),
@@ -1615,12 +1807,52 @@ class CastSpellEnumerator(
                     totalDamageToDistribute = total ?: la.totalDamageToDistribute,
                     targetRequirements = requirements,
                     targetCount = if (capped) minOf(validTargetCount, x) else la.targetCount,
-                    minTargets = if (capped) minOf(la.minTargets, x) else la.minTargets,
+                    minTargets = when {
+                        la.xConstrainsTargetCountExactly -> x
+                        capped -> minOf(la.minTargets, x)
+                        else -> la.minTargets
+                    },
                     xConstrainsTargetCount = false,
+                    xConstrainsTargetCountExactly = false,
                 ))
             }
         }
         return out
+    }
+
+    /**
+     * Post-process: a spell with `{X}` in its mana cost whose announced division reads that X —
+     * "X damage divided as you choose among up to two target creatures and/or planeswalkers. If X
+     * is 6 or more, … twice X damage divided … instead" (Shatterskull Smashing). The caster
+     * announces X before choosing targets and dividing (CR 601.2b, 601.2d), so no single total can
+     * be offered up front: each offer carries [LegalAction.totalDamageByX], the total for every X
+     * from its `minX` to its `maxAffordableX`, and the client divides the entry for the X it chose.
+     * A total that doesn't move with X (Meteor Swarm's 8) gets no table. The validator evaluates
+     * the same amount with the announced X ([CastValidator]).
+     */
+    private fun priceDivisionByX(
+        context: EnumerationContext,
+        actions: List<LegalAction>
+    ): List<LegalAction> = actions.map { la ->
+        val cs = la.action as? CastSpell
+        val maxX = la.maxAffordableX
+        if (cs == null || !la.hasXCost || !la.requiresDamageDistribution || maxX == null || cs.xValue != null) {
+            return@map la
+        }
+        val cardDef = context.state.getEntity(cs.cardId)?.get<CardComponent>()?.name
+            ?.let { context.cardRegistry.getCard(it) } ?: return@map la
+        val script = CastCharacteristics.scriptForCast(cardDef, cs)
+        val spellEffect = script.kickerSpellEffect?.takeIf { cs.declaredCostSlot != null } ?: script.spellEffect
+        val division = AnnouncedDivision.ofSpell(spellEffect) ?: return@map la
+        val byX = (la.minX..maxX).associateWith { x ->
+            AnnouncedDivision.total(
+                context.state, division,
+                com.wingedsheep.engine.handlers.EffectContext(sourceId = cs.cardId, controllerId = cs.playerId, xValue = x),
+                context.predicateEvaluator.amounts,
+                script.castTimeCaptures
+            )
+        }
+        if (byX.values.distinct().size <= 1) la else la.copy(totalDamageByX = byX)
     }
 
     /**
@@ -1673,7 +1905,7 @@ class CastSpellEnumerator(
                     precomputedSources = context.availableManaSources,
                     // Eligible conditional floating mana counts toward the paid variant too.
                     spellContext = state.getEntity(cs.cardId)?.get<CardComponent>()
-                        ?.let { spellPaymentContextFor(it) }
+                        ?.let { spellPaymentContextFor(it, colors = state.projectedState.colorSetOf(cs.cardId)) }
                 )
                 if (!affordablePaid) continue
                 out.add(la.copy(
@@ -1719,17 +1951,17 @@ class CastSpellEnumerator(
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
             if (!context.grantedKeywordResolver.hasKeyword(state, playerId, cardDef, Keyword.CONSPIRE, cardId)) continue
-            // A per-spell restriction (e.g. PlayersCantCastSpells with a filter) removes the
-            // conspire variant for this card even though the blanket check above passed.
+            // A per-spell restriction (e.g. Mana Maze) removes the conspire variant for this card
+            // even though the blanket check above passed.
             if (context.cantCastSpell(cardId)) continue
 
-            val spellColors = cardDef.colors
+            val spellColors = state.projectedState.spellColors(playerId, cardDef.colors, cardId)
             if (spellColors.isEmpty()) continue
 
             // Check timing (same rules as normal cast)
             val isInstant = cardComponent.typeLine.isInstant
             val hasFlash = cardDef.keywords.contains(Keyword.FLASH)
-            val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId)
+            val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId, context.playerId)
             if (!isInstant && !grantedFlash && !context.canPlaySorcerySpeed) continue
 
             val castRestrictions = cardDef.script.castRestrictions
@@ -1747,8 +1979,12 @@ class CastSpellEnumerator(
             }
             if (eligibleTapTargets.size < 2) continue
 
-            val baseCost = context.costCalculator.calculateEffectiveCost(state, cardDef, playerId)
-            val spellContext = spellPaymentContextFor(cardComponent)
+            val pricing = context.costCalculator.priceByTargets(
+                state, cardDef, playerId, cardId, withTable = !context.skipAutoTapPreview,
+            )
+            val baseCost = pricing.min
+            val costByTargetCount = pricing.byCountStrings()
+            val spellContext = spellPaymentContextFor(cardComponent, colors = state.projectedState.colorSetOf(cardId))
             val canAfford = context.manaSolver.canPay(state, playerId, baseCost, spellContext = spellContext, precomputedSources = context.availableManaSources)
             val autoTapPreview = if (context.skipAutoTapPreview) null else {
                 context.manaSolver.solve(state, playerId, baseCost, spellContext = spellContext, precomputedSources = context.availableManaSources)
@@ -1785,6 +2021,7 @@ class CastSpellEnumerator(
                     targetRequirements = targetReqInfos.surfacedRequirements(),
                     affordable = canAfford,
                     manaCostString = baseCost.toString(),
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview,
                     additionalCostInfo = conspireCostInfo
                 ))
@@ -1795,6 +2032,7 @@ class CastSpellEnumerator(
                     action = CastSpell(playerId, cardId),
                     affordable = canAfford,
                     manaCostString = baseCost.toString(),
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview,
                     additionalCostInfo = conspireCostInfo
                 ))
@@ -1825,13 +2063,15 @@ class CastSpellEnumerator(
             if (cardComponent.typeLine.isLand) continue
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
-            val threshold = context.grantedKeywordResolver.casualtyThreshold(state, playerId, cardDef, cardId) ?: continue
+            val casualty = context.grantedKeywordResolver.casualty(state, playerId, cardDef, cardId) ?: continue
+            // Casualty X: any creature whose power is at least 0 can pay for some X.
+            val threshold = casualty.threshold ?: 0
             if (context.cantCastSpell(cardId)) continue
 
             // Timing (same rules as a normal cast).
             val isInstant = cardComponent.typeLine.isInstant
             val hasFlash = cardDef.keywords.contains(Keyword.FLASH)
-            val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId)
+            val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId, context.playerId)
             if (!isInstant && !grantedFlash && !context.canPlaySorcerySpeed) continue
 
             val castRestrictions = cardDef.script.castRestrictions
@@ -1843,12 +2083,17 @@ class CastSpellEnumerator(
                 if (projected.getController(permId) != playerId) continue
                 if (!projected.isCreature(permId)) continue
                 if ((projected.getPower(permId) ?: 0) < threshold) continue
+                if (!com.wingedsheep.engine.mechanics.cost.SacrificeCostLegality.canSacrificeForCost(state, permId)) continue
                 eligibleSacrifices.add(permId)
             }
             if (eligibleSacrifices.isEmpty()) continue
 
-            val baseCost = context.costCalculator.calculateEffectiveCost(state, cardDef, playerId)
-            val spellContext = spellPaymentContextFor(cardComponent)
+            val pricing = context.costCalculator.priceByTargets(
+                state, cardDef, playerId, cardId, withTable = !context.skipAutoTapPreview,
+            )
+            val baseCost = pricing.min
+            val costByTargetCount = pricing.byCountStrings()
+            val spellContext = spellPaymentContextFor(cardComponent, colors = state.projectedState.colorSetOf(cardId))
             val canAfford = context.manaSolver.canPay(state, playerId, baseCost, spellContext = spellContext, precomputedSources = context.availableManaSources)
             val autoTapPreview = if (context.skipAutoTapPreview) null else {
                 context.manaSolver.solve(state, playerId, baseCost, spellContext = spellContext, precomputedSources = context.availableManaSources)
@@ -1860,12 +2105,19 @@ class CastSpellEnumerator(
                 cardDef.script.castAuraTarget?.let { add(it) }
             }
 
+            val thresholdText = casualty.threshold?.toString() ?: "X"
             val casualtyCostInfo = AdditionalCostData(
-                description = "Sacrifice a creature with power $threshold or greater",
+                description = "Sacrifice a creature with power $thresholdText or greater",
                 costType = "Casualty",
                 validSacrificeTargets = eligibleSacrifices,
-                sacrificeCount = 1
+                sacrificeCount = 1,
+                sacrificeMinPowerIsX = casualty.isVariable
             )
+            // Casualty X announces X with the cast (CR 601.2b); the largest X any eligible
+            // creature pays for is the cap, and the sacrifice picker narrows to power >= X.
+            val maxCasualtyX = if (casualty.isVariable) {
+                eligibleSacrifices.maxOf { projected.getPower(it) ?: 0 }
+            } else null
 
             if (targetReqs.isNotEmpty()) {
                 val targetReqInfos = context.targetUtils.buildSpellTargetInfos(state, playerId, targetReqs, cardId)
@@ -1874,7 +2126,7 @@ class CastSpellEnumerator(
                 val firstReqInfo = targetReqInfos.first()
                 result.add(LegalAction(
                     actionType = "CastWithCasualty",
-                    description = "Cast ${cardComponent.name} (Casualty $threshold)",
+                    description = "Cast ${cardComponent.name} (Casualty $thresholdText)",
                     action = CastSpell(playerId, cardId),
                     validTargets = firstReqInfo.validTargets,
                     requiresTargets = true,
@@ -1884,18 +2136,24 @@ class CastSpellEnumerator(
                     targetRequirements = targetReqInfos.surfacedRequirements(),
                     affordable = canAfford,
                     manaCostString = baseCost.toString(),
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview,
-                    additionalCostInfo = casualtyCostInfo
+                    additionalCostInfo = casualtyCostInfo,
+                    hasXCost = maxCasualtyX != null,
+                    maxAffordableX = maxCasualtyX
                 ))
             } else {
                 result.add(LegalAction(
                     actionType = "CastWithCasualty",
-                    description = "Cast ${cardComponent.name} (Casualty $threshold)",
+                    description = "Cast ${cardComponent.name} (Casualty $thresholdText)",
                     action = CastSpell(playerId, cardId),
                     affordable = canAfford,
                     manaCostString = baseCost.toString(),
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview,
-                    additionalCostInfo = casualtyCostInfo
+                    additionalCostInfo = casualtyCostInfo,
+                    hasXCost = maxCasualtyX != null,
+                    maxAffordableX = maxCasualtyX
                 ))
             }
         }
@@ -1941,13 +2199,13 @@ class CastSpellEnumerator(
             if (context.cantCastSpell(cardId)) continue
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
-            val spellSubtypes = cardDef.typeLine.subtypes.map { it.value }
+            val spellSubtypes = cardDef.characteristicTypeLine.subtypes.map { it.value }
             if (spellSubtypes.isEmpty()) continue
 
             // Splice grants no timing permission of its own — the spell is cast at its normal timing.
             val isInstant = cardComponent.typeLine.isInstant
             val grantedFlash = cardDef.keywords.contains(Keyword.FLASH) ||
-                context.castPermissionUtils.hasGrantedFlash(state, cardId)
+                context.castPermissionUtils.hasGrantedFlash(state, cardId, context.playerId)
             if (!isInstant && !grantedFlash && !context.canPlaySorcerySpeed) continue
 
             val castRestrictions = cardDef.script.castRestrictions
@@ -1960,13 +2218,23 @@ class CastSpellEnumerator(
             )
             if (candidates.isEmpty()) continue
 
-            val baseCost = context.costCalculator.calculateEffectiveCost(state, cardDef, playerId)
-            val spellContext = spellPaymentContextFor(cardComponent)
+            val spellContext = spellPaymentContextFor(cardComponent, colors = state.projectedState.colorSetOf(cardId))
 
             for (candidate in candidates) {
-                val splicedCost = context.costCalculator.calculateEffectiveCost(
-                    state, cardDef, playerId, baseCost = cardDef.manaCost + candidate.splice.cost,
+                // The main spell's own requirements first, then the spliced text's (CR 702.47d) — the
+                // same order the cast handler and the stack resolver slice the flat target list by.
+                val targetReqs = buildList {
+                    addAll(cardDef.script.targetRequirements)
+                    cardDef.script.castAuraTarget?.let { add(it) }
+                    addAll(candidate.definition.script.targetRequirements)
+                }
+                // Priced by target count over the spliced spell's whole target set.
+                val pricing = context.costCalculator.priceByTargets(
+                    state, cardDef, playerId, cardId, requirements = targetReqs.ifEmpty { null },
+                    withTable = !context.skipAutoTapPreview, baseCost = cardDef.manaCost + candidate.splice.cost,
                 )
+                val splicedCost = pricing.min
+                val costByTargetCount = pricing.byCount?.mapValues { it.value.toString() }
                 val canAfford = context.manaSolver.canPay(
                     state, playerId, splicedCost,
                     spellContext = spellContext,
@@ -1980,13 +2248,6 @@ class CastSpellEnumerator(
                     )?.sources?.map { it.entityId }
                 }
 
-                // The main spell's own requirements first, then the spliced text's (CR 702.47d) — the
-                // same order the cast handler and the stack resolver slice the flat target list by.
-                val targetReqs = buildList {
-                    addAll(cardDef.script.targetRequirements)
-                    cardDef.script.castAuraTarget?.let { add(it) }
-                    addAll(candidate.definition.script.targetRequirements)
-                }
                 val description = "Cast ${cardComponent.name} (Splice ${candidate.name})"
                 val spliceAction = CastSpell(
                     playerId, cardId, splicedCardIds = listOf(candidate.cardId)
@@ -1999,6 +2260,7 @@ class CastSpellEnumerator(
                         action = spliceAction,
                         affordable = canAfford,
                         manaCostString = splicedCost.toString(),
+                        manaCostByTargetCount = costByTargetCount,
                         autoTapPreview = autoTapPreview
                     ))
                     continue
@@ -2022,6 +2284,7 @@ class CastSpellEnumerator(
                     targetRequirements = targetReqInfos.surfacedRequirements(),
                     affordable = canAfford,
                     manaCostString = splicedCost.toString(),
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview
                 ))
             }
@@ -2035,6 +2298,7 @@ class CastSpellEnumerator(
     ) {
         val state = context.state
         val playerId = context.playerId
+        val offspringGrants = com.wingedsheep.engine.mechanics.OffspringGrants.grants(state, playerId, context.cardRegistry, context.predicateEvaluator)
 
         for (cardId in hand) {
             val cardComponent = state.getEntity(cardId)?.get<CardComponent>() ?: continue
@@ -2042,7 +2306,9 @@ class CastSpellEnumerator(
             if (context.cantCastSpell(cardId)) continue
 
             val cardDef = context.cardRegistry.getCard(cardComponent.name) ?: continue
-            val optionalCosts = cardDef.keywordAbilities.filterIsInstance<KeywordAbility.OptionalAdditionalCost>()
+            val optionalCosts = com.wingedsheep.engine.mechanics.OffspringGrants.effectiveOptionalCosts(
+                state, cardId, cardDef, playerId, context.cardRegistry, context.predicateEvaluator, offspringGrants
+            )
             if (optionalCosts.isEmpty()) continue
 
             // Card-level gates, checked before the per-slot loop so an unplayable card is skipped
@@ -2050,7 +2316,7 @@ class CastSpellEnumerator(
             // advertise a cast the timing rules forbid outright.
             val isInstant = cardComponent.typeLine.isInstant
             val hasFlash = cardDef.keywords.contains(Keyword.FLASH)
-            val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId)
+            val grantedFlash = hasFlash || context.castPermissionUtils.hasGrantedFlash(state, cardId, context.playerId)
             if (!isInstant && !grantedFlash && optionalCosts.none { it.grantsFlashTiming } &&
                 !context.canPlaySorcerySpeed
             ) continue
@@ -2073,7 +2339,7 @@ class CastSpellEnumerator(
                 val repeatable = kickers.any { it.multi }
                 val repeatLimit = if (repeatable) {
                     val paymentContext = spellPaymentContextFor(
-                        cardComponent, isKicked = declaredSlot == ChoiceSlot.KICKED
+                        cardComponent, colors = state.projectedState.colorSetOf(cardId), isKicked = declaredSlot == ChoiceSlot.KICKED
                     )
                     val mana = context.manaSolver.getAvailableManaCount(
                         state, playerId, precomputedSources = context.availableManaSources,
@@ -2083,7 +2349,7 @@ class CastSpellEnumerator(
                 } else 1
                 val maxRepeat = if (repeatLimit > 32) {
                     val paymentContext = spellPaymentContextFor(
-                        cardComponent, isKicked = declaredSlot == ChoiceSlot.KICKED
+                        cardComponent, colors = state.projectedState.colorSetOf(cardId), isKicked = declaredSlot == ChoiceSlot.KICKED
                     )
                     maxAffordableOptionalCostTimes(repeatLimit) { count ->
                         val addedMana = optionalCostsManaPaid(kickers.filter { it.manaCost != null }, count)
@@ -2119,14 +2385,20 @@ class CastSpellEnumerator(
                     // Calculate kicked/offspring cost. The base cost is priced *for this branch*: a
                     // "costs {2} less to cast if it's bargained" reduction (Hamlet Glutton) is gated on the
                     // declaration, so it only applies to the variant that declares it.
+                    // Priced by target count against the kicked spell's own requirements.
                     val kickedManaCost = optionalCostsManaPaid(
                         kickers.filter { it.manaCost != null && it.keyword != Keyword.OFFSPRING }, times
                     ) ?: offspringAbility?.manaCost
-                    val kickedRawCost = cardDef.manaCost + (kickedManaCost ?: ManaCost.ZERO)
-                    val kickedCost = context.costCalculator.calculateEffectiveCost(
-                        state, cardDef, playerId, declaredCostSlot = declaredSlot, baseCost = kickedRawCost,
+                    val kickedPricing = priceKickedCast(
+                        context, cardId, cardDef, declaredSlot, kickedManaCost,
+                        fromZone = null, actionTemplate = CastSpell(playerId, cardId,
+                            declaredCostSlot = declaredSlot, declaredCostIndices = declaredIndices, declaredCostTimes = times),
                     )
-                    val kickedSpellContext = spellPaymentContextFor(cardComponent, isKicked = declaredSlot == ChoiceSlot.KICKED)
+                    val targetReqs = kickedPricing.targetRequirements
+                    val kickedCost = kickedPricing.cost
+                    val kickedCostByTargetCount = kickedPricing.costByTargetCount
+                    val kickedSpellContext = spellPaymentContextFor(cardComponent, colors = state.projectedState.colorSetOf(cardId), isKicked = declaredSlot == ChoiceSlot.KICKED)
+                    val kickedRawCost = cardDef.manaCost + (kickedManaCost ?: ManaCost.ZERO)
                     val canAffordKickedMana = context.manaSolver.canPay(state, playerId, kickedCost, spellContext = kickedSpellContext, precomputedSources = context.availableManaSources)
                     val kickedCostString = kickedCost.toString()
                     val kickedAutoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -2141,10 +2413,16 @@ class CastSpellEnumerator(
                     val kickedHasXCost = kickedCost.hasX
                     val kickedMaxAffordableX: Int? = if (kickedHasXCost) {
                         val availableSources = context.manaSolver.getAvailableManaCount(state, playerId, precomputedSources = context.availableManaSources, spellContext = kickedSpellContext)
-                        val fixedCost = kickedCost.cmc  // X contributes 0 to CMC
-                        val xSymbolCount = kickedCost.xCount.coerceAtLeast(1)
-                        ((availableSources - fixedCost) / xSymbolCount).coerceAtLeast(0)
+                        // The kicker adds to the cost, never to the mana value: only a printed {X}
+                        // moves a mana-value modifier (CR 202.3e).
+                        context.costCalculator.maxAffordableX(
+                            state, cardDef, playerId, cardId,
+                            payable = availableSources - kickedCost.cmc, xCount = kickedCost.xCount,  // X contributes 0 to CMC
+                        )
                     } else null
+                    // "Kicker {X}. X can't be 0" (Thieving Skydiver): the kicked cast floors X, so a
+                    // variant whose ceiling is below the floor can't be cast.
+                    val kickedMinX = if (kickedHasXCost) kickers.maxOf { it.minimumXValue } else 0
 
                     // Check additional cost payability (e.g., sacrifice a creature)
                     var kickerCostInfo: AdditionalCostData? = null
@@ -2181,35 +2459,30 @@ class CastSpellEnumerator(
                             // since its pool is the whole graveyard), presented the way it would be alone.
                             else -> {
                                 val env = SpellCostEnumeration(context, cardId)
-                                val candidates = SpellCosts.candidates(env, kickerAdditionalCost)
-                                if (!SpellCosts.canPayFrom(env, kickerAdditionalCost, candidates)) {
-                                    canPayKickerAdditionalCost = false
-                                } else {
-                                    kickerCostInfo = SpellCosts.present(env, kickerAdditionalCost, candidates)?.second
-                                }
+                                val (payable, costInfo) = optionalAdditionalCostPresentation(env, kickerAdditionalCost)
+                                canPayKickerAdditionalCost = payable
+                                kickerCostInfo = costInfo
                             }
                         }
                     }
 
                     val canAffordKicked = canAffordKickedMana && canPayKickerAdditionalCost
                     if (times > 1 && !canAffordKicked) break
+                    val canAffordKickedX = canAffordKicked && (!kickedHasXCost || (kickedMaxAffordableX ?: 0) >= kickedMinX)
 
                     // Build target info — use kickerTargetRequirements if available
-                    val kickerBaseReqs = if (cardDef.script.kickerTargetRequirements.isNotEmpty()) {
-                        cardDef.script.kickerTargetRequirements
-                    } else {
-                        cardDef.script.targetRequirements
-                    }
-                    val targetReqs = buildList {
-                        addAll(kickerBaseReqs)
-                        cardDef.script.castAuraTarget?.let { add(it) }
-                    }
 
                     // The printed name of what's being paid — "Bargained" for bargain, "Offspring" /
                     // "with Flash" / "Kicked" for the kicker family. The client shows this verbatim.
                     val kickLabel = when {
                         declaredSlot == ChoiceSlot.BARGAINED -> "Bargained"
+                        declaredSlot == ChoiceSlot.BOUGHT_BACK -> "Buyback"
+                        // An unnamed optional additional cost names what it pays ("Sacrifice an artifact").
+                        declaredSlot == ChoiceSlot.ADDITIONAL_COST_PAID ->
+                            additionalCostKicker?.additionalCost?.description?.replaceFirstChar { it.uppercase() }
+                                ?: "Additional cost"
                         declaredSlot == ChoiceSlot.REPLICATED -> "Replicate"
+                        declaredSlot == ChoiceSlot.SQUAD -> "Squad"
                         // Collect evidence names the amount, because the amount is the whole choice —
                         // "Collect evidence 6" reads the way the card is printed, where a bare
                         // "Evidence" would not (CR 701.59).
@@ -2266,7 +2539,8 @@ class CastSpellEnumerator(
                                 cardLevelAdditionalCostInfo = kickerCostInfo,
                                 baseAutoTapPreview = kickedAutoTapPreview,
                                 spellContext = kickedSpellContext,
-                                cachedSources = context.availableManaSources
+                                cachedSources = context.availableManaSources,
+                                priceModeByTargets = kickerModalEffect.chooseCount == 1,
                             )
                         }
                         // The declaration is what moves the mode count, so evaluate it with *this* slot
@@ -2289,12 +2563,14 @@ class CastSpellEnumerator(
                             actionType = "CastSpellModal",
                             description = "Cast ${cardComponent.name} ($castLabel)",
                             action = CastSpell(playerId, cardId, declaredCostSlot = declaredSlot, declaredCostTimes = times, declaredCostIndices = declaredIndices),
-                            affordable = canAffordKicked,
+                            affordable = canAffordKickedX,
                             manaCostString = kickedCostString,
+                            manaCostByTargetCount = kickedCostByTargetCount,
                             autoTapPreview = kickedAutoTapPreview,
                             additionalCostInfo = kickerCostInfo,
                             hasXCost = kickedHasXCost,
                             maxAffordableX = kickedMaxAffordableX,
+                            minX = kickedMinX,
                             modalEnumeration = ModalLegalEnumeration(
                                 chooseCount = kickerCounts.last,
                                 minChooseCount = kickerCounts.first,
@@ -2333,12 +2609,14 @@ class CastSpellEnumerator(
                                     actionType = "CastWithKicker",
                                     description = "Cast ${cardComponent.name} ($castLabel)",
                                     action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), declaredCostSlot = declaredSlot, declaredCostTimes = times, declaredCostIndices = declaredIndices),
-                                    affordable = canAffordKicked,
+                                    affordable = canAffordKickedX,
                                     manaCostString = kickedCostString,
+                                    manaCostByTargetCount = kickedCostByTargetCount,
                                     autoTapPreview = kickedAutoTapPreview,
                                     additionalCostInfo = kickerCostInfo,
                                     hasXCost = kickedHasXCost,
                                     maxAffordableX = kickedMaxAffordableX,
+                                    minX = kickedMinX,
                                     requiresDamageDistribution = kickerRequiresDamageDistribution,
                                     totalDamageToDistribute = kickerTotalDamage,
                                     minDamagePerTarget = kickerMinDamagePerTarget
@@ -2354,12 +2632,14 @@ class CastSpellEnumerator(
                                     minTargets = firstReq.effectiveMinCount,
                                     targetDescription = firstReq.description,
                                     targetRequirements = targetReqInfos.surfacedRequirements(),
-                                    affordable = canAffordKicked,
+                                    affordable = canAffordKickedX,
                                     manaCostString = kickedCostString,
+                                    manaCostByTargetCount = kickedCostByTargetCount,
                                     autoTapPreview = kickedAutoTapPreview,
                                     additionalCostInfo = kickerCostInfo,
                                     hasXCost = kickedHasXCost,
                                     maxAffordableX = kickedMaxAffordableX,
+                                    minX = kickedMinX,
                                     requiresDamageDistribution = kickerRequiresDamageDistribution,
                                     totalDamageToDistribute = kickerTotalDamage,
                                     minDamagePerTarget = kickerMinDamagePerTarget
@@ -2371,12 +2651,14 @@ class CastSpellEnumerator(
                             actionType = "CastWithKicker",
                             description = "Cast ${cardComponent.name} ($castLabel)",
                             action = CastSpell(playerId, cardId, declaredCostSlot = declaredSlot, declaredCostTimes = times, declaredCostIndices = declaredIndices),
-                            affordable = canAffordKicked,
+                            affordable = canAffordKickedX,
                             manaCostString = kickedCostString,
+                            manaCostByTargetCount = kickedCostByTargetCount,
                             autoTapPreview = kickedAutoTapPreview,
                             additionalCostInfo = kickerCostInfo,
                             hasXCost = kickedHasXCost,
-                            maxAffordableX = kickedMaxAffordableX
+                            maxAffordableX = kickedMaxAffordableX,
+                            minX = kickedMinX
                         ))
                     }
                     if (times == 1) firstRepeatActions.addAll(result.subList(beforeCount, result.size))
@@ -2398,14 +2680,18 @@ class CastSpellEnumerator(
             // If normal cast is not affordable but the optional-cost cast is (unlikely), ensure the
             // normal cast still shows as unaffordable. Priced with no declaration, so a
             // "costs less if it's bargained" reduction doesn't leak into the plain cast.
-            val undeclaredCost = context.costCalculator.calculateEffectiveCost(state, cardDef, playerId)
+            val undeclaredPricing = context.costCalculator.priceByTargets(
+                state, cardDef, playerId, cardId, withTable = !context.skipAutoTapPreview,
+            )
+            val undeclaredCost = undeclaredPricing.min
             if (!context.manaSolver.canPay(state, playerId, undeclaredCost, precomputedSources = context.availableManaSources)) {
                 result.add(LegalAction(
                     actionType = "CastSpell",
                     description = "Cast ${cardComponent.name}",
                     action = CastSpell(playerId, cardId),
                     affordable = false,
-                    manaCostString = undeclaredCost.toString()
+                    manaCostString = undeclaredCost.toString(),
+                    manaCostByTargetCount = undeclaredPricing.byCountStrings(),
                 ))
             }
         }
@@ -2477,7 +2763,7 @@ class CastSpellEnumerator(
             // Timing — the alternative cost doesn't change when the spell can be cast; instants keep flash timing,
             // sorceries stay sorcery-speed.
             val isInstant = cardComponent.typeLine.isInstant
-            val grantedFlash = cardDef.keywords.contains(Keyword.FLASH) || context.castPermissionUtils.hasGrantedFlash(state, cardId)
+            val grantedFlash = cardDef.keywords.contains(Keyword.FLASH) || context.castPermissionUtils.hasGrantedFlash(state, cardId, context.playerId)
             if (!isInstant && !grantedFlash && !context.canPlaySorcerySpeed) continue
 
             // Check cast restrictions
@@ -2486,7 +2772,16 @@ class CastSpellEnumerator(
 
             // Alternative mana cost (CR 118.9c — mana value is still computed from the printed cost,
             // not this one; only affordability uses it).
-            val altCost = context.costCalculator.calculateEffectiveCostWithAlternativeBase(state, cardDef, variantCost, playerId)
+            // Target requirements for the text-changed variant — and what it's priced per target by.
+            val targetReqs = buildList {
+                addAll(targetRequirementsOf(cardDef))
+                cardDef.script.castAuraTarget?.let { add(it) }
+            }
+            val variantPricing = context.declaredCastPricing(
+                CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = type), cardDef , requirements = targetReqs
+            ) ?: continue
+            val altCost = variantPricing.min
+            val variantCostByTargetCount = variantPricing.byCountStrings()
             val canAffordVariant = context.manaSolver.canPay(state, playerId, altCost, precomputedSources = context.availableManaSources)
             val variantCostString = altCost.toString()
             val variantAutoTapPreview = if (context.skipAutoTapPreview) null else {
@@ -2502,7 +2797,7 @@ class CastSpellEnumerator(
             // unchanged, so the resolving effect's `DynamicAmount.XValue` reads the chosen X.
             val variantHasX = altCost.hasX
             val variantMaxAffordableX: Int? = if (variantHasX) {
-                val spellContext = spellPaymentContextFor(cardComponent).copy(hasXInCost = altCost.hasX)
+                val spellContext = spellPaymentContextFor(cardComponent, colors = state.projectedState.colorSetOf(cardId)).copy(hasXInCost = altCost.hasX)
                 val availableSources = context.manaSolver.getAvailableManaCount(
                     state, playerId, precomputedSources = context.availableManaSources, spellContext = spellContext
                 )
@@ -2510,12 +2805,6 @@ class CastSpellEnumerator(
                 val xSymbolCount = altCost.xCount.coerceAtLeast(1)
                 ((availableSources - fixedCost) / xSymbolCount).coerceAtLeast(0)
             } else null
-
-            // Target requirements for the text-changed variant.
-            val targetReqs = buildList {
-                addAll(targetRequirementsOf(cardDef))
-                cardDef.script.castAuraTarget?.let { add(it) }
-            }
 
             if (targetReqs.isNotEmpty()) {
                 val targetReqInfos = context.targetUtils.buildSpellTargetInfos(state, playerId, targetReqs, cardId)
@@ -2534,6 +2823,7 @@ class CastSpellEnumerator(
                         action = CastSpell(playerId, cardId, targets = listOf(autoSelectedTarget), useAlternativeCost = true, alternativeCostType = type),
                         affordable = canAffordVariant,
                         manaCostString = variantCostString,
+                        manaCostByTargetCount = variantCostByTargetCount,
                         hasXCost = variantHasX,
                         maxAffordableX = variantMaxAffordableX,
                         autoTapPreview = variantAutoTapPreview
@@ -2551,6 +2841,7 @@ class CastSpellEnumerator(
                         targetRequirements = targetReqInfos.surfacedRequirements(),
                         affordable = canAffordVariant,
                         manaCostString = variantCostString,
+                        manaCostByTargetCount = variantCostByTargetCount,
                         hasXCost = variantHasX,
                         maxAffordableX = variantMaxAffordableX,
                         autoTapPreview = variantAutoTapPreview
@@ -2563,6 +2854,7 @@ class CastSpellEnumerator(
                     action = CastSpell(playerId, cardId, useAlternativeCost = true, alternativeCostType = type),
                     affordable = canAffordVariant,
                     manaCostString = variantCostString,
+                    manaCostByTargetCount = variantCostByTargetCount,
                     hasXCost = variantHasX,
                     maxAffordableX = variantMaxAffordableX,
                     autoTapPreview = variantAutoTapPreview
@@ -2675,85 +2967,98 @@ class CastSpellEnumerator(
         if (variablePermanentsCost != null && offer.variablePermanentsTargets.isNotEmpty()) {
             return VariablePermanentsCostKind.sacrificeVariableData(variablePermanentsCost, offer.variablePermanentsTargets)
         }
-        return if (offer.variableSacrificeTargets.isNotEmpty()) {
-            val varSacCost = additionalCosts.filterIsInstance<AdditionalCost.SacrificeCreaturesForCostReduction>().firstOrNull()
-            AdditionalCostData(
-                description = varSacCost?.description ?: "You may sacrifice any number of creatures",
-                costType = "SacrificeForCostReduction",
-                validSacrificeTargets = offer.variableSacrificeTargets,
-                sacrificeCount = 0 // min 0 — sacrifice is optional
-            )
-        } else if (offer.sacrificeTargets.isNotEmpty()) {
-            val sacCost = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.Sacrifice }
-            AdditionalCostData(
-                description = sacCost?.description?.replaceFirstChar { it.uppercase() } ?: "Sacrifice a creature",
-                costType = "SacrificePermanent",
-                validSacrificeTargets = offer.sacrificeTargets,
-                sacrificeCount = sacCost?.count ?: 1
-            )
-        } else if (offer.exileTargets.isNotEmpty()) {
-            val exileCostDesc = additionalCosts
-                .filterIsInstance<AdditionalCost.ExileVariableCards>()
-                .firstOrNull()?.description
-                ?: additionalCosts
-                    .firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.ExileFrom }
-                    ?.description?.replaceFirstChar { it.uppercase() }
-                ?: "Exile cards from your graveyard"
-            AdditionalCostData(
-                description = exileCostDesc,
-                costType = "ExileFromGraveyard",
-                validExileTargets = offer.exileTargets,
-                exileMinCount = offer.exileMinCount,
-                exileMaxCount = offer.exileTargets.size
-            )
-        } else if (offer.discardTargets.isNotEmpty()) {
-            val discardCost = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.Discard }
-            AdditionalCostData(
-                description = discardCost?.description?.replaceFirstChar { it.uppercase() } ?: "Discard a card",
-                costType = "DiscardCard",
-                validDiscardTargets = offer.discardTargets,
-                discardCount = offer.discardCount
-            )
-        } else if (offer.bounceTargets.isNotEmpty()) {
-            val bounceCost = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.ReturnToHand }
-            AdditionalCostData(
-                description = bounceCost?.description?.replaceFirstChar { it.uppercase() } ?: "Return a permanent you control to its owner's hand",
-                // "BouncePermanent" is the bounce picker's costType everywhere else (activated
-                // abilities, Sneak, Web-slinging); "ReturnToHand" matches no client phase.
-                costType = "BouncePermanent",
-                validBounceTargets = offer.bounceTargets,
-                bounceCount = offer.bounceCount
-            )
-        } else if (offer.tapTargets.isNotEmpty()) {
-            val tapCostAtom = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.TapPermanents }
-            AdditionalCostData(
-                description = tapCostAtom?.description?.replaceFirstChar { it.uppercase() } ?: "Tap permanents you control",
-                costType = "TapPermanents",
-                validTapTargets = offer.tapTargets,
-                tapCount = offer.tapCount
-            )
-        } else if (offer.revealTargets.isNotEmpty()) {
-            val revealCostAtom = additionalCosts.firstNotNullOfOrNull {
-                (it as? AdditionalCost.Atom)?.atom as? CostAtom.RevealFromHand
+        // Every selection cost the spell carries is offered — "discard a card and sacrifice a
+        // creature" asks for both (CR 601.2h). The first leads; the rest ride in `alsoRequired`.
+        val selections = buildList {
+            val reducingCost = offer.reducingCost
+            if (reducingCost != null && offer.reducingCandidates.isNotEmpty()) {
+                add(AnyNumberForCostReductionCostKind.data(reducingCost, offer.reducingCandidates))
             }
-            AdditionalCostData(
-                description = revealCostAtom?.description?.replaceFirstChar { it.uppercase() }
-                    ?: "Reveal a card from your hand",
-                costType = "RevealCard",
-                validRevealTargets = offer.revealTargets,
-                revealCount = offer.revealCount
-            )
-        } else if (offer.beholdTargets.isNotEmpty()) {
-            val flatCosts = additionalCosts.flatMap { if (it is AdditionalCost.Composite) it.steps else listOf(it) }
-            val beholdCost = flatCosts.filterIsInstance<AdditionalCost.Behold>().firstOrNull()
-            val chooseCost = flatCosts.filterIsInstance<AdditionalCost.ChooseEntity>().firstOrNull()
-            AdditionalCostData(
-                description = chooseCost?.description ?: beholdCost?.description ?: "Behold a card",
-                costType = if (chooseCost != null) "ChooseEntity" else "Behold",
-                validBeholdTargets = offer.beholdTargets,
-                beholdCount = offer.beholdCount
-            )
-        } else null
+            if (offer.sacrificeTargets.isNotEmpty()) {
+                val sacCost = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.Sacrifice }
+                add(AdditionalCostData(
+                    description = sacCost?.description?.replaceFirstChar { it.uppercase() } ?: "Sacrifice a creature",
+                    costType = "SacrificePermanent",
+                    validSacrificeTargets = offer.sacrificeTargets,
+                    sacrificeCount = sacCost?.count ?: 1
+                ))
+            }
+            if (offer.exileTargets.isNotEmpty()) {
+                val exileCostDesc = additionalCosts
+                    .filterIsInstance<AdditionalCost.VariableCards>()
+                    .firstOrNull { it.action == CardCostAction.EXILE }?.description
+                    ?: additionalCosts
+                        .firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.ExileFrom }
+                        ?.description?.replaceFirstChar { it.uppercase() }
+                    ?: "Exile cards from your graveyard"
+                add(AdditionalCostData(
+                    description = exileCostDesc,
+                    costType = "ExileFromGraveyard",
+                    validExileTargets = offer.exileTargets,
+                    exileMinCount = offer.exileMinCount,
+                    exileMaxCount = offer.exileTargets.size
+                ))
+            }
+            if (offer.discardTargets.isNotEmpty()) {
+                val discardCost = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.Discard }
+                add(AdditionalCostData(
+                    description = offer.discardDescription
+                        ?: discardCost?.description?.replaceFirstChar { it.uppercase() } ?: "Discard a card",
+                    costType = "DiscardCard",
+                    validDiscardTargets = offer.discardTargets,
+                    discardCount = offer.discardCount,
+                    discardMaxCount = offer.discardMaxCount,
+                ))
+            }
+            if (offer.bounceTargets.isNotEmpty()) {
+                val bounceCost = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.ReturnToHand }
+                add(AdditionalCostData(
+                    description = bounceCost?.description?.replaceFirstChar { it.uppercase() } ?: "Return a permanent you control to its owner's hand",
+                    // "BouncePermanent" is the bounce picker's costType everywhere else (activated
+                    // abilities, Sneak, Web-slinging); "ReturnToHand" matches no client phase.
+                    costType = "BouncePermanent",
+                    validBounceTargets = offer.bounceTargets,
+                    bounceCount = offer.bounceCount
+                ))
+            }
+            if (offer.tapTargets.isNotEmpty()) {
+                val tapCostAtom = additionalCosts.firstNotNullOfOrNull { (it as? AdditionalCost.Atom)?.atom as? CostAtom.TapPermanents }
+                add(AdditionalCostData(
+                    description = tapCostAtom?.description?.replaceFirstChar { it.uppercase() } ?: "Tap permanents you control",
+                    costType = "TapPermanents",
+                    validTapTargets = offer.tapTargets,
+                    tapCount = offer.tapCount
+                ))
+            }
+            if (offer.revealTargets.isNotEmpty()) {
+                val revealCostAtom = additionalCosts.firstNotNullOfOrNull {
+                    (it as? AdditionalCost.Atom)?.atom as? CostAtom.RevealFromHand
+                }
+                add(AdditionalCostData(
+                    description = revealCostAtom?.description?.replaceFirstChar { it.uppercase() }
+                        ?: "Reveal a card from your hand",
+                    costType = "RevealCard",
+                    validRevealTargets = offer.revealTargets,
+                    revealCount = offer.revealCount
+                ))
+            }
+            val counterPlacementCost = offer.counterPlacementCost
+            if (counterPlacementCost != null && offer.counterPlacementTargets.isNotEmpty()) {
+                add(PutCountersOnPermanentCostKind.data(counterPlacementCost, offer.counterPlacementTargets))
+            }
+            if (offer.beholdTargets.isNotEmpty()) {
+                val flatCosts = additionalCosts.flatMap { if (it is AdditionalCost.Composite) it.steps else listOf(it) }
+                val beholdCost = flatCosts.filterIsInstance<AdditionalCost.Behold>().firstOrNull()
+                val chooseCost = flatCosts.filterIsInstance<AdditionalCost.ChooseEntity>().firstOrNull()
+                add(AdditionalCostData(
+                    description = chooseCost?.description ?: beholdCost?.description ?: "Behold a card",
+                    costType = if (chooseCost != null) "ChooseEntity" else "Behold",
+                    validBeholdTargets = offer.beholdTargets,
+                    beholdCount = offer.beholdCount
+                ))
+            }
+        }
+        return selections.firstOrNull()?.copy(alsoRequired = selections.drop(1))
     }
 
     /**
@@ -2768,6 +3073,7 @@ class CastSpellEnumerator(
     private data class OrPayPath(
         val label: String,
         val manaCostString: String,
+        val manaCostByTargetCount: Map<Int, String>?,
         val autoTapPreview: List<EntityId>?,
         val costInfo: AdditionalCostData,
     )
@@ -2778,7 +3084,11 @@ class CastSpellEnumerator(
     private data class SelfAltCostResult(
         val manaCostString: String,
         val autoTapPreview: List<EntityId>?,
-        val additionalCostInfo: AdditionalCostData?
+        val additionalCostInfo: AdditionalCostData?,
+        /** The alternative cost per number of different targets, when a modifier counts them. */
+        val manaCostByTargetCount: Map<Int, String>? = null,
+        /** Button text: the cost, plus whose mana pays it when the alternative restricts that. */
+        val label: String = manaCostString,
     )
 
     /**
@@ -2837,6 +3147,7 @@ class CastSpellEnumerator(
         val mode: Mode,
         val effectiveCost: ManaCost,
         val manaCostString: String,
+        val manaCostByTargetCount: Map<Int, String>?,
         val canAffordMana: Boolean,
         val canPayAdditionalCosts: Boolean,
         val additionalCostInfo: AdditionalCostData?,
@@ -2871,21 +3182,27 @@ class CastSpellEnumerator(
         cardLevelAdditionalCostInfo: AdditionalCostData?,
         baseAutoTapPreview: List<EntityId>?,
         spellContext: SpellPaymentContext,
-        cachedSources: List<ManaSource>
+        cachedSources: List<ManaSource>,
+        // A choose-one mode is the whole selection, so a per-target modifier prices it by its own
+        // targets. A choose-N mode is only part of one: [baseEffectiveCost] is already the cheapest
+        // reachable combination, and the combination's targets are priced at cast time.
+        priceModeByTargets: Boolean = true,
     ): ModeEnumeration {
         val state = context.state
 
         val modeExtraManaCost = mode.additionalManaCost
-        val modeEffectiveCost = if (modeExtraManaCost != null) {
-            context.costCalculator.calculateMinPossibleCost(
-                state, cardDef, playerId,
-                baseCost = rawBaseCost + ManaCost.parse(modeExtraManaCost),
-                declaredCostSlot = declaredCostSlot,
-            ).reduceGeneric(genericReduction)
-        } else {
-            baseEffectiveCost
+        val modePricing = context.costCalculator.priceByTargets(
+            state, cardDef, playerId, cardId,
+            baseCost = rawBaseCost + (modeExtraManaCost?.let { ManaCost.parse(it) } ?: ManaCost.ZERO),
+            requirements = if (priceModeByTargets) mode.targetRequirements else null,
+            withTable = !context.skipAutoTapPreview && priceModeByTargets,
+            declaredCostSlot = declaredCostSlot,
+        )
+        val modeEffectiveCost = modePricing.min.reduceGeneric(genericReduction)
+        val modeCostByTargetCount = modePricing.byCount?.mapValues { (_, cost) ->
+            cost.reduceGeneric(genericReduction).toString()
         }
-        val canAffordMana = if (modeExtraManaCost != null) {
+        val canAffordMana = if (modeExtraManaCost != null || modeEffectiveCost != baseEffectiveCost) {
             context.manaSolver.canPay(
                 state, playerId, modeEffectiveCost,
                 spellContext = spellContext,
@@ -2917,7 +3234,7 @@ class CastSpellEnumerator(
 
         val modeManaCostString = modeEffectiveCost.toString()
         val modeAutoTapPreview = if (context.skipAutoTapPreview) null
-        else if (modeExtraManaCost != null) {
+        else if (modeExtraManaCost != null || modeEffectiveCost != baseEffectiveCost) {
             context.manaSolver.solve(state, playerId, modeEffectiveCost, precomputedSources = cachedSources)
                 ?.sources?.map { it.entityId }
         } else {
@@ -2938,6 +3255,7 @@ class CastSpellEnumerator(
             mode = mode,
             effectiveCost = modeEffectiveCost,
             manaCostString = modeManaCostString,
+            manaCostByTargetCount = modeCostByTargetCount,
             canAffordMana = canAffordMana,
             canPayAdditionalCosts = canPayAdditionalCosts,
             additionalCostInfo = modeCostInfo,
@@ -2951,99 +3269,6 @@ class CastSpellEnumerator(
     // Split face (CR 709)
     // =========================================================================
 
-    /**
-     * Emit a [LegalAction] for casting one face of a split-layout card from hand (CR 709.4 —
-     * only the chosen half goes on the stack and is evaluated for legality).
-     *
-     * Each face has its own mana cost, type line (so timing is per-face), and — crucially —
-     * its own `targetRequirements`. Reading the face's targets here is what makes targeted
-     * split halves (Pain // Suffering, Stand // Deliver, Wax // Wane) actually offer their
-     * targets to the client; without it the cast surfaces with no valid targets even though
-     * the validation layer ([CastSpellHandler]) reads from the face script and expects them.
-     *
-     * Modal effects, alternative costs, blight, behold, kicker, and convoke on a split half
-     * are not yet wired up — cards that need them can extend this method later.
-     */
-    private fun enumerateSplitFace(
-        context: EnumerationContext,
-        cardId: EntityId,
-        cardDef: CardDefinition,
-        faceIndex: Int,
-        face: CardFace,
-        result: MutableList<LegalAction>,
-    ) {
-        val state = context.state
-        val playerId = context.playerId
-
-        // Per-face timing: the chosen half's own type line governs sorcery-speed restriction.
-        if (!face.typeLine.isInstant && !context.canPlaySorcerySpeed) return
-
-        val cachedSources = context.availableManaSources
-        val effectiveCost = context.costCalculator
-            .calculateFaceCost(state, cardDef, face, playerId, fromZone = Zone.HAND)
-        if (!context.manaSolver.canPay(state, playerId, effectiveCost, precomputedSources = cachedSources)) return
-
-        val autoTapPreview = if (context.skipAutoTapPreview) null else {
-            context.manaSolver
-                .solve(state, playerId, effectiveCost, precomputedSources = cachedSources)
-                ?.sources?.map { it.entityId }
-        }
-        val manaCostString = effectiveCost.toString()
-
-        val targetReqs = face.script.targetRequirements
-        if (targetReqs.isEmpty()) {
-            result.add(
-                LegalAction(
-                    actionType = "CastSpell",
-                    description = "Cast ${face.name}",
-                    action = CastSpell(playerId, cardId, faceIndex = faceIndex),
-                    manaCostString = manaCostString,
-                    autoTapPreview = autoTapPreview,
-                )
-            )
-            return
-        }
-
-        val targetInfos = context.targetUtils.buildSpellTargetInfos(state, playerId, targetReqs, cardId)
-        if (!context.targetUtils.allRequirementsSatisfied(targetInfos)) return
-        val firstReq = targetReqs.first()
-        val firstInfo = targetInfos.first()
-
-        // Auto-select a sole legal player target (e.g. "target player" in a 2-player game where
-        // only one player is legal), matching the normal cast path's UX.
-        val canAutoSelect = targetReqs.size == 1 &&
-            TargetEnumerationUtils.shouldAutoSelectPlayerTarget(firstReq, firstInfo.validTargets)
-        if (canAutoSelect) {
-            val autoTarget = ChosenTarget.Player(firstInfo.validTargets.first())
-            result.add(
-                LegalAction(
-                    actionType = "CastSpell",
-                    description = "Cast ${face.name}",
-                    action = CastSpell(playerId, cardId, faceIndex = faceIndex, targets = listOf(autoTarget)),
-                    manaCostString = manaCostString,
-                    autoTapPreview = autoTapPreview,
-                )
-            )
-            return
-        }
-
-        result.add(
-            LegalAction(
-                actionType = "CastSpell",
-                description = "Cast ${face.name}",
-                action = CastSpell(playerId, cardId, faceIndex = faceIndex),
-                validTargets = firstInfo.validTargets,
-                requiresTargets = true,
-                targetCount = firstInfo.maxTargets,
-                minTargets = firstReq.effectiveMinCount,
-                targetDescription = firstReq.description,
-                targetRequirements = targetInfos.surfacedRequirements(),
-                manaCostString = manaCostString,
-                autoTapPreview = autoTapPreview,
-            )
-        )
-    }
-
     // =========================================================================
     // Secondary spell face (Adventure CR 715 / modal DFC CR 712)
     // =========================================================================
@@ -3055,9 +3280,9 @@ class CastSpellEnumerator(
      * [CastSpell.faceIndex] = 0.
      *
      * Supports mana cost (including an {X} in the face's own cost), instant/sorcery timing, and
-     * per-face target requirements. Additional costs declared on the face's script are honoured
-     * for affordability but the full additional-cost UX (sacrifice picker, blight, etc.) is not
-     * yet wired for these faces — cards that need that can extend this method later.
+     * per-face target requirements. The face's own additional costs (Allure of Power's "sacrifice
+     * a creature") gate the offer and ride on it as the same [AdditionalCostData] picker the
+     * primary cast publishes — only the face is evaluated (CR 715.3a / 720.3a).
      *
      * @param primaryFaceAffordable Whether the card's primary (creature) face is affordable.
      *        When the secondary face is unaffordable but the primary is affordable, a grayed-out
@@ -3099,7 +3324,7 @@ class CastSpellEnumerator(
         val playerId = context.playerId
 
         val hasFlash = back.keywords.contains(Keyword.FLASH) ||
-            context.castPermissionUtils.hasGrantedFlash(state, cardId)
+            context.castPermissionUtils.hasGrantedFlash(state, cardId, context.playerId)
         if (!back.typeLine.isInstant && !hasFlash && !context.canPlaySorcerySpeed) return
 
         val description = "Cast ${back.name}"
@@ -3109,10 +3334,13 @@ class CastSpellEnumerator(
             alternativeCostType = AlternativeCostType.MODAL_BACK_FACE
         )
 
-        val effectiveCost = context.costCalculator.calculateEffectiveCostWithAlternativeBase(
-            state, back, back.manaCost, playerId, fromZone = Zone.HAND
-        )
+        // Only the back face is evaluated (CR 712.11c), so modifiers judge the back, not the front.
+        val pricing = context.declaredCastPricing(
+                backAction, cardDef
+            ) ?: return
+        val effectiveCost = pricing.min
         val costString = effectiveCost.toString()
+        val costByTargetCount = pricing.byCountStrings()
 
         val canAfford = context.manaSolver.canPay(
             state, playerId, effectiveCost, precomputedSources = context.availableManaSources
@@ -3127,6 +3355,7 @@ class CastSpellEnumerator(
                     action = backAction,
                     affordable = false,
                     manaCostString = costString,
+                    manaCostByTargetCount = costByTargetCount,
                     sourceZone = "HAND"
                 )
             )
@@ -3150,6 +3379,7 @@ class CastSpellEnumerator(
                     description = description,
                     action = backAction,
                     manaCostString = costString,
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview,
                     sourceZone = "HAND"
                 )
@@ -3173,10 +3403,25 @@ class CastSpellEnumerator(
                 targetDescription = firstReq.description,
                 targetRequirements = targetInfos.surfacedRequirements(),
                 manaCostString = costString,
+                manaCostByTargetCount = costByTargetCount,
                 autoTapPreview = autoTapPreview,
                 sourceZone = "HAND"
             )
         )
+    }
+
+    /**
+     * The largest generic discount [offer]'s "costs {N} less for each … this way" cost can give.
+     * A candidate that is itself a counted mana source (a mana dork tapped or sacrificed for the
+     * discount) can't also make its mana, so it is worth N − 1 over the sources already counted.
+     */
+    private fun maxOfferReduction(context: EnumerationContext, offer: SpellCostOffer): Int {
+        val reducingCost = offer.reducingCost ?: return 0
+        if (offer.reducingCandidates.isEmpty()) return 0
+        val manaSourceIds = context.availableManaSources.mapTo(HashSet()) { it.entityId }
+        val sourceCandidates = offer.reducingCandidates.count { it in manaSourceIds }
+        return (offer.reducingCandidates.size - sourceCandidates) * reducingCost.reductionPerUnit +
+            sourceCandidates * (reducingCost.reductionPerUnit - 1).coerceAtLeast(0)
     }
 
     private fun enumerateSecondaryFace(
@@ -3195,14 +3440,29 @@ class CastSpellEnumerator(
         val isInstantAdventure = face.typeLine.isInstant
         if (!isInstantAdventure && !context.canPlaySorcerySpeed) return false
 
-        val effectiveCost = context.costCalculator
-            .calculateFaceCost(state, cardDef, face, playerId, fromZone = Zone.HAND)
+        // Priced as the face alone (CR 715.3b), by the face's own target count.
+        val pricing = context.declaredCastPricing(
+                CastSpell(playerId, cardId, faceIndex = 0), cardDef , requirements = face.script.targetRequirements + listOfNotNull(face.script.castAuraTarget)
+            ) ?: return false
         val cachedSources = context.availableManaSources
+        // The face's own additional costs, enumerated like the primary cast's: an unpayable one
+        // makes the face uncastable, a payable one publishes its picker on the offer.
+        val faceCosts = face.script.additionalCosts
+        val costOffer = SpellCostOffer()
+        val costsPayable = SpellCosts.enumerateAll(SpellCostEnumeration(context, cardId), faceCosts, costOffer)
+        // The face's own "costs {N} less for each … this way" discount (Awaken the Blood Avatar),
+        // at its largest — the same affordability bound the primary cast uses.
+        val offerReduction = maxOfferReduction(context, costOffer)
+        val effectiveCost = pricing.min.reduceGeneric(offerReduction)
+        val costByTargetCount = pricing.byCount?.mapValues { it.value.reduceGeneric(offerReduction).toString() }
+        val costInfo = if (costsPayable && faceCosts.isNotEmpty()) {
+            buildAdditionalCostData(faceCosts, costOffer, state = state, payerId = playerId, castCardId = cardId)
+        } else null
         // Same payment context `CastSpellHandler.validatePayment` builds for this cast, so
         // conditional mana ("spend only to cast …") is judged identically on both sides and the
         // X ceiling below can never offer more than validation will accept.
-        val spellContext = spellPaymentContextFor(cardComponent)
-        val canAfford = context.manaSolver
+        val spellContext = spellPaymentContextFor(cardComponent, colors = state.projectedState.colorSetOf(cardId))
+        val canAfford = costsPayable && context.manaSolver
             .canPay(state, playerId, effectiveCost, precomputedSources = cachedSources, spellContext = spellContext)
         if (!canAfford) {
             // Secondary face is unaffordable. If the primary face is affordable, still surface
@@ -3216,6 +3476,7 @@ class CastSpellEnumerator(
                         action = CastSpell(playerId, cardId, faceIndex = 0),
                         affordable = false,
                         manaCostString = effectiveCost.toString(),
+                        manaCostByTargetCount = costByTargetCount,
                     )
                 )
             }
@@ -3240,9 +3501,10 @@ class CastSpellEnumerator(
             val availableSources = context.manaSolver.getAvailableManaCount(
                 state, playerId, precomputedSources = cachedSources, spellContext = spellContext
             )
-            val fixedCost = effectiveCost.cmc // X contributes 0 to CMC
-            val xSymbolCount = effectiveCost.xCount.coerceAtLeast(1)
-            ((availableSources - fixedCost) / xSymbolCount).coerceAtLeast(0)
+            context.costCalculator.maxAffordableX(
+                state, context.costCalculator.faceCharacteristics(cardDef, face), playerId, cardId,
+                payable = availableSources - effectiveCost.cmc, xCount = effectiveCost.xCount, // X contributes 0 to CMC
+            )
         } else null
 
         if (targetReqs.isEmpty()) {
@@ -3254,7 +3516,9 @@ class CastSpellEnumerator(
                     hasXCost = hasXCost,
                     maxAffordableX = maxAffordableX,
                     manaCostString = manaCostString,
+                    manaCostByTargetCount = costByTargetCount,
                     autoTapPreview = autoTapPreview,
+                    additionalCostInfo = costInfo,
                 )
             )
             return true
@@ -3279,12 +3543,77 @@ class CastSpellEnumerator(
                 xConstrainsTargetManaValueExactly = firstInfo.xConstrainsManaValueExactly,
                 xConstrainsTargetPower = firstInfo.xConstrainsPower,
                 xConstrainsTargetCount = firstInfo.xConstrainsCount,
+                xConstrainsTargetCountExactly = firstInfo.xConstrainsCountExactly,
                 hasXCost = hasXCost,
                 maxAffordableX = maxAffordableX,
                 manaCostString = manaCostString,
+                manaCostByTargetCount = costByTargetCount,
                 autoTapPreview = autoTapPreview,
+                additionalCostInfo = costInfo,
             )
         )
         return true
     }
+}
+
+/** A kicked (or otherwise optional-cost-declared) cast's price, by target count. */
+internal class KickedCastPricing(
+    val cost: ManaCost,
+    val costByTargetCount: Map<Int, String>?,
+    /** The kicked spell's target requirements — its kicker targets when it has them, plus an Aura target. */
+    val targetRequirements: List<com.wingedsheep.sdk.scripting.targets.TargetRequirement>,
+)
+
+/**
+ * Price a cast that declares [declaredSlot] (kicker, bargain, offspring, …) against the kicked
+ * spell's own target requirements: the base is priced for this declaration (a "costs {2} less if
+ * it's bargained" reduction applies only here), then [kickedManaCost] and any elected optional
+ * payments land on each target count's price. Shared by the hand and other-zone kicker offers.
+ */
+internal fun priceKickedCast(
+    context: EnumerationContext,
+    cardId: EntityId,
+    cardDef: CardDefinition,
+    declaredSlot: ChoiceSlot?,
+    kickedManaCost: ManaCost?,
+    fromZone: com.wingedsheep.sdk.core.Zone? = null,
+    actionTemplate: CastSpell? = null,
+): KickedCastPricing {
+    val state = context.state
+    val playerId = context.playerId
+    val script = cardDef.script
+    val targetReqs = script.kickerTargetRequirements.ifEmpty { script.targetRequirements } +
+        listOfNotNull(script.castAuraTarget)
+    if (actionTemplate != null) {
+        val pricing = checkNotNull(context.declaredCastPricing(actionTemplate, cardDef, targetReqs.ifEmpty { null }))
+        return KickedCastPricing(pricing.min, pricing.byCountStrings(), targetReqs)
+    }
+    val basePricing = context.costCalculator.withOptionalPayments(emptyList()).priceByTargets(
+        state, cardDef, playerId, cardId, requirements = targetReqs.ifEmpty { null },
+        withTable = !context.skipAutoTapPreview, fromZone = fromZone, declaredCostSlot = declaredSlot,
+        baseCost = cardDef.manaCost + (kickedManaCost ?: ManaCost.ZERO),
+    )
+    fun kicked(baseCost: ManaCost): ManaCost = context.costCalculator.applyOptionalPayments(
+        state, cardDef, playerId, baseCost,
+        declaredCostSlot = declaredSlot,
+    )
+    return KickedCastPricing(
+        kicked(basePricing.min), basePricing.byCount?.mapValues { kicked(it.value).toString() }, targetReqs,
+    )
+}
+
+/** Every leaf of a combined optional cost has its own selection channel and affordability gate. */
+internal fun optionalAdditionalCostPresentation(
+    env: SpellCostEnumeration,
+    cost: AdditionalCost,
+): Pair<Boolean, AdditionalCostData?> {
+    val leaves = SpellCosts.flattenComposites(listOf(cost))
+    // Enumeration aggregates life and player-counter payments across the complete cost.
+    var payable = SpellCosts.enumerateAll(env, leaves, SpellCostOffer())
+    val selections = leaves.mapNotNull { leaf ->
+        val candidates = SpellCosts.candidates(env, leaf)
+        if (!SpellCosts.canPayFrom(env, leaf, candidates)) payable = false
+        SpellCosts.present(env, leaf, candidates)?.second
+    }
+    return payable to selections.firstOrNull()?.copy(alsoRequired = selections.drop(1))
 }

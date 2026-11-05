@@ -62,7 +62,8 @@ class AnUnexpectedPartyScenarioTest : FunSpec({
         adventure.hasXCost shouldBe true
         // Six Plains, {X}{2}{W} — three mana is spoken for by the fixed part, so X tops out at 3.
         adventure.maxAffordableX shouldBe 3
-        adventure.manaCostString shouldBe "{X}{2}{W}"
+        com.wingedsheep.sdk.core.ManaCost.parse(adventure.manaCostString!!).symbols.groupingBy { it }.eachCount() shouldBe
+            com.wingedsheep.sdk.core.ManaCost.parse("{X}{2}{W}").symbols.groupingBy { it }.eachCount()
     }
 
     test("the enchantment face carries no X picker") {

@@ -700,7 +700,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -3951,7 +3954,8 @@
                                 },
                                 "descriptionOverride": "Whenever you cast a red spell, this emblem deals X damage to any target, where X is the amount of mana spent to cast that spell."
                             },
-                            "descriptionOverride": "Whenever you cast a red spell, this emblem deals X damage to any target, where X is the amount of mana spent to cast that spell."
+                            "descriptionOverride": "Whenever you cast a red spell, this emblem deals X damage to any target, where X is the amount of mana spent to cast that spell.",
+                            "emblem": true
                         }
                     ]
                 },
@@ -4359,7 +4363,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -4861,7 +4868,7 @@
             {
                 "id": "Crawling Infestation:2",
                 "trigger": {
-                    "type": "CardsPutIntoYourGraveyardEvent",
+                    "type": "CardsPutIntoGraveyardEvent",
                     "filter": "creature"
                 },
                 "binding": "ANY",
@@ -5195,7 +5202,7 @@
                         {
                             "type": "GrantMayPlayFromExile",
                             "from": "gathered0",
-                            "withAnyManaType": true,
+                            "withAnyManaColor": true,
                             "recipient": "ControllerOfTriggeringEntity"
                         }
                     ]
@@ -5505,7 +5512,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -5637,7 +5646,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a basic land card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -5674,7 +5685,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -8588,7 +8601,8 @@
                                     "type": "Fixed",
                                     "amount": 3
                                 }
-                            }
+                            },
+                            "description": "You gain 3 life"
                         }
                     ]
                 }
@@ -8848,7 +8862,11 @@
                     "target": "TriggeringEntity",
                     "destination": "Exile",
                     "fromZone": "Graveyard",
-                    "addCounterType": "CROAK"
+                    "entryCounters": [
+                        {
+                            "counterType": "CROAK"
+                        }
+                    ]
                 }
             }
         ],
@@ -9042,7 +9060,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -9093,7 +9114,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -9919,7 +9943,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card that doesn't share a land type with land you control to put onto the battlefield",
+                                "selectedLabel": "Put onto the battlefield"
                             },
                             {
                                 "type": "MoveCollection",
@@ -10199,7 +10225,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -14732,7 +14761,16 @@
                         {
                             "type": "TargetObject",
                             "filter": {
-                                "baseFilter": {},
+                                "baseFilter": {
+                                    "anyOf": [
+                                        {},
+                                        {
+                                            "cardPredicates": [
+                                                "IsActivatedOrTriggeredAbility"
+                                            ]
+                                        }
+                                    ]
+                                },
                                 "zone": "Stack"
                             }
                         }
@@ -15082,7 +15120,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -16561,7 +16602,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -16754,7 +16798,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -19011,7 +19058,10 @@
                             "count": 1,
                             "target": "Self"
                         },
-                        "EmitTrainedEvent"
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "TRAINING"
+                        }
                     ]
                 },
                 "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -19061,7 +19111,10 @@
                                         "count": 1,
                                         "target": "Self"
                                     },
-                                    "EmitTrainedEvent"
+                                    {
+                                        "type": "EmitKeywordCounterEvent",
+                                        "keyword": "TRAINING"
+                                    }
                                 ]
                             },
                             "descriptionOverride": "Training (Whenever this creature attacks with another creature with greater power, put a +1/+1 counter on this creature.)"
@@ -20575,7 +20628,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -20897,8 +20953,8 @@
                             {
                                 "type": "StateNot",
                                 "predicate": {
-                                    "type": "WasCastFromZone",
-                                    "zone": "Hand"
+                                    "type": "WasCast",
+                                    "fromZone": "Hand"
                                 }
                             }
                         ]
@@ -21865,7 +21921,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a card named Wretched Throng to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",

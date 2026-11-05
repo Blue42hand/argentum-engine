@@ -1,5 +1,6 @@
 package com.wingedsheep.assay.grammar
 
+import com.wingedsheep.assay.normalize.Normalizer
 import com.wingedsheep.assay.syntax.Bindings
 import com.wingedsheep.assay.syntax.Phrase
 import com.wingedsheep.assay.syntax.alternate
@@ -10,13 +11,18 @@ import com.wingedsheep.assay.syntax.phrase
 import com.wingedsheep.assay.syntax.separated
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.core.Supertype
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.CardScript
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
+import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.TurnTracker
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
@@ -250,6 +256,31 @@ object Tokens {
     )
 
     /**
+     * Who the clause says creates the token: the imperative's "you", or the third-person "its
+     * controller" of the target an earlier sentence chose.
+     *
+     * "Destroy target creature. **Its controller creates** a 3/3 green Frog Lizard creature token."
+     * (Pongify, Beast Within, Crib Swap, Get Lost) is the same token clause with a subject and a
+     * conjugated verb, and the SDK holds it as the same effect with one field set —
+     * `controller = EffectTarget.TargetController`, which nine hand-written cards write. So it is an
+     * axis of [createToken] and [createPredefined] rather than a second copy of either: the verb and
+     * the controller travel together, and the default row's `null` is what keeps the imperative
+     * from reading a token that goes to someone else.
+     *
+     * The third-person rows are **not** in [clauses]: "its controller" points back at a target, so
+     * they are offered only from a later clause position ([Continuations]), and `Steps.renumbered`
+     * refuses them unless the line declared exactly one permanent target.
+     */
+    private class Creator(val verb: String, val controller: EffectTarget?, val name: String)
+
+    private val you = Creator("create", controller = null, name = "create")
+    private val targetController = Creator(
+        "its controller creates",
+        controller = EffectTarget.TargetController,
+        name = "its controller creates",
+    )
+
+    /**
      * The shape: "create <count> P/T <colours> <type> creature token(s)[ with <keywords>]".
      *
      * The keyword rider builds the same list [Keywords.keywordRun] does everywhere else, into
@@ -257,15 +288,9 @@ object Tokens {
      * trample" and "token with flying and trample", which is the whole reason that run is a shared
      * phrase rather than a rule inside one family.
      *
-     * **Finding: `CreateTokenEffect.keywords` does not realize Decayed.** "Create a 2/2 black Zombie
-     * creature token with decayed" reads into `keywords = [DECAYED]`, which is what CR 702.147 says
-     * the token has — but the engine grants Decayed's "can't block" and its attack-sacrifice trigger
-     * only off `CounterType.DECAYED` (`StateProjector`, `TriggerDetector`), so the keyword alone is
-     * inert. Ghoulish Procession therefore writes `initialCounters = {decayed: 1}` and stands as the
-     * differential's one divergence here. The card is the reading that *works* and the grammar is
-     * the reading the text states; neither is wrong to change unilaterally, so the rule keeps saying
-     * what the card says and the gap is reported. Fixing it is engine work: realize the keyword on a
-     * created token the way the counter is realized.
+     * "Create a 2/2 black Zombie creature token with decayed" reads into `keywords = [DECAYED]`,
+     * which is what CR 702.147 says the token has; the engine realizes Decayed off the projected
+     * keyword, so the token keyword is the whole spelling (Ghoulish Procession, Falcon Abomination).
      */
     private fun createToken(
         count: Count,
@@ -274,12 +299,13 @@ object Tokens {
         suffix: String = "",
         suffixName: String = "",
         tally: Amounts.Scope? = null,
+        creator: Creator = you,
     ): Phrase<CardScript> {
         val noun = if (count.plural) "{kind} tokens" else "{kind} token"
         val rider = if (keywords) " with {kws}" else ""
         val entry = if (tapped) "tapped " else ""
         val counted = if (tally == null) "" else " for each {filter}${tally.surface}"
-        val name = "create " + (if (count.plural) "tokens" else "a token") +
+        val name = "${creator.name} " + (if (count.plural) "tokens" else "a token") +
             (if (tapped) " tapped" else "") +
             (if (keywords) " with keywords" else "") + suffixName +
             (if (tally == null) "" else " per ${tally.where}")
@@ -300,13 +326,17 @@ object Tokens {
                 colors = colours,
                 creatureTypes = types.map { it.value }.toSet(),
                 keywords = granted,
+                controller = creator.controller,
                 tapped = tapped,
                 artifactToken = kind.artifact,
                 enchantmentToken = kind.enchantment,
             )
         )
 
-        return phrase("create ${count.surface} $entry{p}/{t} {color} {types} $noun$rider$counted$suffix", name = name) {
+        return phrase(
+            "${creator.verb} ${count.surface} $entry{p}/{t} {color} {types} $noun$rider$counted$suffix",
+            name = name,
+        ) {
             if (count.words != null) slot("n", count.words)
             slot("p", Primitives.cardinal)
             slot("t", Primitives.cardinal)
@@ -411,32 +441,54 @@ object Tokens {
      */
     private class Predefined(
         val tokenType: String,
-        val fixed: (Int) -> Effect,
-        val dynamic: ((DynamicAmount) -> Effect)? = null,
+        val fixed: (Int, EffectTarget?) -> Effect,
+        val dynamic: ((DynamicAmount, EffectTarget?) -> Effect?)? = null,
     )
 
     private val PREDEFINED: List<Predefined> = listOf(
-        Predefined("Treasure", { Effects.CreateTreasure(count = it) }, { Effects.CreateTreasure(count = it) }),
-        Predefined("Food", { Effects.CreateFood(count = it) }, { Effects.CreateFood(count = it) }),
-        Predefined("Clue", { Effects.CreateClue(count = it) }, { Effects.CreateClue(count = it) }),
-        Predefined("Blood", { Effects.CreateBlood(count = it) }, { Effects.CreateBlood(count = it) }),
-        Predefined("Map", { Effects.CreateMapToken(count = it) }, { Effects.CreateMapToken(count = it) }),
-        Predefined("Lander", { Effects.CreateLander(count = it) }),
-        Predefined("Shard", { Effects.CreateShard(count = it) }),
+        Predefined(
+            "Treasure",
+            { n, c -> Effects.CreateTreasure(count = n, controller = c) },
+            // The dynamic overload takes no controller, so only the imperative reaches it.
+            { n, c -> if (c == null) Effects.CreateTreasure(count = n) else null },
+        ),
+        Predefined(
+            "Food",
+            { n, c -> Effects.CreateFood(count = n, controller = c) },
+            { n, c -> Effects.CreateFood(count = n, controller = c) },
+        ),
+        Predefined(
+            "Clue",
+            { n, c -> Effects.CreateClue(count = n, controller = c) },
+            { n, c -> Effects.CreateClue(count = n, controller = c) },
+        ),
+        Predefined(
+            "Blood",
+            { n, c -> Effects.CreateBlood(count = n, controller = c) },
+            { n, c -> Effects.CreateBlood(count = n, controller = c) },
+        ),
+        Predefined(
+            "Map",
+            { n, c -> Effects.CreateMapToken(count = n, controller = c) },
+            // The dynamic overload takes no controller, so only the imperative reaches it.
+            { n, c -> if (c == null) Effects.CreateMapToken(count = n) else null },
+        ),
+        Predefined("Lander", { n, c -> Effects.CreateLander(count = n, controller = c) }),
+        Predefined("Shard", { n, c -> Effects.CreateShard(count = n, controller = c) }),
     )
 
-    private fun createPredefined(count: Count, token: Predefined): Phrase<CardScript> {
+    private fun createPredefined(count: Count, token: Predefined, creator: Creator = you): Phrase<CardScript> {
         val noun = if (count.plural) "tokens" else "token"
         fun scriptFor(amount: DynamicAmount): CardScript? {
             val effect = when (amount) {
-                is DynamicAmount.Fixed -> token.fixed(amount.amount)
-                else -> token.dynamic?.invoke(amount) ?: return null
+                is DynamicAmount.Fixed -> token.fixed(amount.amount, creator.controller)
+                else -> token.dynamic?.invoke(amount, creator.controller) ?: return null
             }
             return CardScript(spellEffect = effect)
         }
         return phrase(
-            "create ${count.surface} ${token.tokenType} $noun",
-            name = "create " +
+            "${creator.verb} ${count.surface} ${token.tokenType} $noun",
+            name = "${creator.name} " +
                 if (count.plural) "${token.tokenType} tokens" else "a ${token.tokenType} token",
         ) {
             if (count.words != null) slot("n", count.words)
@@ -468,10 +520,142 @@ object Tokens {
             }
         }
 
-    /** One token clause, for the sentences that wrap it — see [Granted]. */
-    val clause: Phrase<CardScript> get() = oneOf("a token clause", clauses)
+    /**
+     * Token copies of an existing permanent, rather than tokens with a newly
+     * specified body.
+     */
+    private val copyOfSelf: Phrase<CardScript> = constant(
+        "create a token that's a copy of ${Normalizer.SELF}",
+        CardScript(spellEffect = Effects.CreateTokenCopyOfSelf()),
+    )
 
-    val clauses: List<Phrase<CardScript>> =
+    private val copyOfTarget: Phrase<CardScript> =
+        phrase(
+            "create a token that's a copy of target {filter}",
+            name = "create a token copy of a target permanent",
+        ) {
+            slot("filter", Filters.filter)
+
+            fun scriptFor(filter: GameObjectFilter) = CardScript(
+                spellEffect = Effects.CreateTokenCopyOfTarget(
+                    target = Targets.bound(),
+                ),
+                targetRequirements = listOf(Targets.permanent(filter)),
+            )
+
+            build { bindings ->
+                scriptFor(bindings.value("filter"))
+            }
+
+            match { script ->
+                val requirement = script.targetRequirements.singleOrNull()
+                    ?: return@match null
+                val filter = Targets.permanentFilter(requirement)
+                    ?: return@match null
+
+                if (script != scriptFor(filter)) return@match null
+
+                bind("filter" to filter)
+            }
+        }
+
+    /**
+     * "Create a token that's a copy of target creature you control,
+     * except it isn't legendary."
+     *
+     * Removing legendary is a change to copiable characteristics, not an
+     * effect applied after token creation.
+     */
+    private val copyOfTargetNonlegendary: Phrase<CardScript> =
+        phrase(
+            "create a token that's a copy of target {filter}, except it isn't legendary",
+            name = "create a nonlegendary token copy of a target",
+        ) {
+            slot("filter", Filters.filter)
+
+            fun scriptFor(filter: GameObjectFilter) = CardScript(
+                spellEffect = Effects.CreateTokenCopyOfTarget(
+                    target = Targets.bound(),
+                    removedSupertypes = setOf(Supertype.LEGENDARY),
+                ),
+                targetRequirements = listOf(Targets.permanent(filter)),
+            )
+
+            build { scriptFor(it.value("filter")) }
+
+            match { script ->
+                val requirement = script.targetRequirements.singleOrNull()
+                    ?: return@match null
+                val filter = Targets.permanentFilter(requirement)
+                    ?: return@match null
+
+                if (script != scriptFor(filter)) return@match null
+                bind("filter" to filter)
+            }
+        }
+
+    /**
+     * "Create a token that's a copy of target creature, except it's 1/1."
+     *
+     * Power and toughness are stored as overrides on the token-copy effect.
+     * Both numbers must be present to reconstruct this printed sentence.
+     */
+    private val copyOfTargetWithStats: Phrase<CardScript> =
+        phrase(
+            "create a token that's a copy of target {filter}, except it's {p}/{t}",
+            name = "create a token copy with overridden power and toughness",
+        ) {
+            slot("filter", Filters.filter)
+            slot("p", Primitives.cardinal)
+            slot("t", Primitives.cardinal)
+
+            fun scriptFor(
+                filter: GameObjectFilter,
+                power: Int,
+                toughness: Int,
+            ) = CardScript(
+                spellEffect = Effects.CreateTokenCopyOfTarget(
+                    target = Targets.bound(),
+                    overridePower = power,
+                    overrideToughness = toughness,
+                ),
+                targetRequirements = listOf(Targets.permanent(filter)),
+            )
+
+            build { bindings ->
+                scriptFor(
+                    bindings.value("filter"),
+                    bindings.int("p"),
+                    bindings.int("t"),
+                )
+            }
+
+            match { script ->
+                val effect = script.spellEffect as? CreateTokenCopyOfTargetEffect
+                    ?: return@match null
+                val requirement = script.targetRequirements.singleOrNull()
+                    ?: return@match null
+                val filter = Targets.permanentFilter(requirement)
+                    ?: return@match null
+
+                val power = effect.overridePower ?: return@match null
+                val toughness = effect.overrideToughness ?: return@match null
+
+                if (script != scriptFor(filter, power, toughness)) return@match null
+
+                bind(
+                    "filter" to filter,
+                    "p" to power,
+                    "t" to toughness,
+                )
+            }
+        }
+
+    /** One token clause, for the sentences that wrap it — see [Granted]. */
+    val clause: Phrase<CardScript> get() = oneOf("a token clause", bodies)
+
+    /** The clauses that create tokens, before any cleanup sentence — what [endStepCleanup] wraps. */
+    private val bodies: List<Phrase<CardScript>> =
         counts.flatMap { count ->
             listOf(false, true).flatMap { tapped ->
                 listOf(
@@ -513,7 +697,83 @@ object Tokens {
             PREDEFINED.flatMap { token ->
                 counts.dropLast(1).map { createPredefined(it, token) }
             } +
-            investigate
+            investigate +
+            listOf(copyOfSelf, copyOfTarget, copyOfTargetNonlegendary, copyOfTargetWithStats)
+
+    /**
+     * "Create a 1/1 red Pirate creature token with menace and haste. **Exile it at the beginning of
+     * the next end step.**" — Daring Piracy; "Create a token that's a copy of target creature you
+     * control. **Sacrifice it at the beginning of the next end step.**" — The Fire Crystal.
+     *
+     * Two printed sentences and one rule, for Skirk Alarmist's reason (see [Morph]): the "it" of the
+     * second sentence is the token the first one made, and no clause standing after it can name
+     * that token — read on its own, "it" is the source, which would exile Daring Piracy itself. The
+     * SDK spells the cleanup as a field of the token effect (`exileAtStep` / `sacrificeAtStep`), so
+     * the rule reads the second sentence into that field. Single tokens only: "it" is one object,
+     * and the counted rows would print "create two … tokens. exile it".
+     */
+    private enum class Cleanup(val verb: String) { EXILE("exile"), SACRIFICE("sacrifice") }
+
+    private fun cleanupStep(effect: Effect, cleanup: Cleanup): Step? = when (effect) {
+        is CreateTokenEffect -> if (cleanup == Cleanup.EXILE) effect.exileAtStep else effect.sacrificeAtStep
+        is CreateTokenCopyOfTargetEffect -> if (cleanup == Cleanup.EXILE) effect.exileAtStep else effect.sacrificeAtStep
+        else -> null
+    }
+
+    private fun withCleanup(effect: Effect, cleanup: Cleanup, step: Step?): Effect? = when (effect) {
+        is CreateTokenEffect -> when {
+            effect.count != DynamicAmount.Fixed(1) -> null
+            cleanup == Cleanup.EXILE -> effect.copy(exileAtStep = step)
+            else -> effect.copy(sacrificeAtStep = step)
+        }
+        is CreateTokenCopyOfTargetEffect -> when {
+            effect.count != DynamicAmount.Fixed(1) -> null
+            cleanup == Cleanup.EXILE -> effect.copy(exileAtStep = step)
+            else -> effect.copy(sacrificeAtStep = step)
+        }
+        else -> null
+    }
+
+    private fun endStepCleanup(cleanup: Cleanup): Phrase<CardScript> = phrase(
+        "{token}. ${cleanup.verb} it at the beginning of the next end step",
+        name = "create a token and ${cleanup.verb} it at the next end step",
+    ) {
+        slot("token", oneOf("a token clause to clean up", bodies))
+        fun scriptFor(inner: CardScript): CardScript? {
+            val effect = inner.spellEffect ?: return null
+            if (inner != CardScript(spellEffect = effect, targetRequirements = inner.targetRequirements)) return null
+            if (Cleanup.entries.any { cleanupStep(effect, it) != null }) return null
+            val cleaned = withCleanup(effect, cleanup, Step.END) ?: return null
+            return CardScript(spellEffect = cleaned, targetRequirements = inner.targetRequirements)
+        }
+        build { scriptFor(it.value("token")) }
+        match { script ->
+            val effect = script.spellEffect ?: return@match null
+            if (cleanupStep(effect, cleanup) != Step.END) return@match null
+            val bare = withCleanup(effect, cleanup, null) ?: return@match null
+            val inner = CardScript(spellEffect = bare, targetRequirements = script.targetRequirements)
+            if (scriptFor(inner) != script) return@match null
+            bind("token" to inner)
+        }
+    }
+
+    val clauses: List<Phrase<CardScript>> = bodies + Cleanup.entries.map(::endStepCleanup)
+
+    /**
+     * "Its controller creates a 3/3 green Ape creature token." / "Its controller creates two Treasure
+     * tokens." — the [Creator] axis's third-person rows, for [Continuations] to offer after the
+     * sentence that chose the target. The counted, tallied and X rows are left out: no printed
+     * "its controller creates" line takes them, and a row written against nothing is a guess.
+     */
+    val targetControllerClauses: List<Phrase<CardScript>> =
+        counts.dropLast(1).flatMap { count ->
+            listOf(
+                createToken(count, keywords = false, creator = targetController),
+                createToken(count, keywords = true, creator = targetController),
+            )
+        } + PREDEFINED.flatMap { token ->
+            counts.dropLast(1).map { createPredefined(it, token, targetController) }
+        }
 
     /**
      * "Create that many Blood tokens." — Olivia's Attendants; "…create that many 1/1 green Elf

@@ -1,42 +1,52 @@
 package com.wingedsheep.mtg.sets.definitions.snc.cards
 
+import com.wingedsheep.sdk.core.Subtype
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.scripting.effects.SearchDestination
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
-private const val CABARETTI_COURTYARD_ORACLE =
-    "When this land enters, sacrifice it. When you do, search your library for a" +
-        " basic Mountain, Forest, or Plains card, put it onto the battlefield tapped, then shuffle and you gain 1 life."
-
 /**
- * Cabaretti Courtyard — Streets of New Capenna #249.
- * Its sacrifice must succeed before the reflexive library search is created.
+ * Cabaretti Courtyard — Streets of New Capenna #249. One of SNC's family fetch lands.
+ *
+ * When this land enters, sacrifice it. When you do, search your library for a basic Mountain,
+ * Forest, or Plains card, put it onto the battlefield tapped, then shuffle and you gain 1 life.
+ *
+ * The sacrifice is gated on the land still being on the battlefield: if it left before the
+ * enters trigger resolved, it can't be sacrificed, so the reflexive "when you do" never triggers.
  */
 val CabarettiCourtyard = card("Cabaretti Courtyard") {
     colorIdentity = ""
     typeLine = "Land"
-    oracleText = CABARETTI_COURTYARD_ORACLE
+    oracleText = "When this land enters, sacrifice it. When you do, search your library for a basic " +
+        "Mountain, Forest, or Plains card, put it onto the battlefield tapped, then shuffle and you gain 1 life."
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.ReflexiveTrigger(
-            action = Effects.SacrificeTarget(EffectTarget.Self),
-            optional = false,
-            reflexiveEffect = (Patterns.Library.searchLibrary(
-                    filter = GameObjectFilter.BasicLand.withAnySubtype("Mountain", "Forest", "Plains"),
+        effect = Effects.If(
+            condition = Conditions.SourceInZone(Zone.BATTLEFIELD),
+            then = Effects.ReflexiveTrigger(
+                action = Effects.SacrificeTarget(EffectTarget.Self),
+                optional = false,
+                reflexiveEffect = Patterns.Library.searchLibrary(
+                    filter = GameObjectFilter.BasicLand.withAnyOfSubtypes(
+                        listOf(Subtype.MOUNTAIN, Subtype.FOREST, Subtype.PLAINS)
+                    ),
+                    count = 1,
                     destination = SearchDestination.BATTLEFIELD,
                     entersTapped = true,
-                ) then
-                Effects.GainLife(1)),
-            descriptionOverride = "Sacrifice this land. When you do, search your library for a basic Mountain, Forest, or Plains card, put it onto the battlefield tapped, then shuffle and you gain 1 life.",
+                    shuffleAfter = true
+                ) then Effects.GainLife(1),
+                descriptionOverride = "Sacrifice this land. When you do, search your library for a basic " +
+                    "Mountain, Forest, or Plains card, put it onto the battlefield tapped, then shuffle and you gain 1 life."
+            )
         )
-        description = CABARETTI_COURTYARD_ORACLE
     }
 
     metadata {

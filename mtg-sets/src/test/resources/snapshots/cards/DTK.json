@@ -113,6 +113,82 @@
     ]
 }
 
+// Ancestral Statue
+{
+    "name": "Ancestral Statue",
+    "manaCost": "{4}",
+    "typeLine": "Artifact Creature — Golem",
+    "oracleText": "When this creature enters, return a nonland permanent you control to its owner's hand.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ancestral Statue:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "nonland permanent",
+                                "player": "You"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Choose a nonland permanent you control to return to its owner's hand",
+                            "useTargetingUI": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "234",
+        "artist": "Tomasz Jedruszek",
+        "flavorText": "The mage awakened the statue in hopes of learning the lost lore of her clan, but the statue was interested only in war.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/7/c7124a6f-b690-4326-93b5-036a8c520c1f.jpg?1783938569",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "Ancestral Statue's ability is mandatory. If Ancestral Statue is the only nonland permanent you control when its ability resolves, you must return it to its owner's hand."
+            },
+            {
+                "date": "2015-02-25",
+                "text": "The triggered ability doesn't target any permanent. You choose which one to return as the ability resolves. No player can respond to this choice once the ability starts resolving."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Ancient Carp
 {
     "name": "Ancient Carp",
@@ -910,6 +986,151 @@
     "colorIdentityOverride": []
 }
 
+// Damnable Pact
+{
+    "name": "Damnable Pact",
+    "manaCost": "{X}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target player draws X cards and loses X life.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": "XValue",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "LoseLife",
+                    "amount": "XValue",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetPlayer",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "93",
+        "rarity": "RARE",
+        "artist": "Zack Stella",
+        "flavorText": "\"Silumgar's mind is a dark labyrinth, full of grim secrets and subtle traps.\"\n—Siara, the Dragon's Mouth",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/6/f65bcf62-48c3-4e4d-b129-8e03b3635326.jpg?1783938599"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Deathbringer Regent
+{
+    "name": "Deathbringer Regent",
+    "manaCost": "{5}{B}{B}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhen this creature enters, if you cast it from your hand and there are five or more other creatures on the battlefield, destroy all other creatures.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 6
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Deathbringer Regent:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        {
+                                            "type": "StateNot",
+                                            "predicate": "IsSource"
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "destroyAll_gathered"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "destroyAll_gathered",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Destroy"
+                        }
+                    ]
+                },
+                "interveningIf": {
+                    "type": "All",
+                    "conditions": [
+                        "WasCastFromHand",
+                        {
+                            "type": "Compare",
+                            "left": {
+                                "type": "AggregateBattlefield",
+                                "player": "Each",
+                                "filter": "creature",
+                                "excludeSelf": true
+                            },
+                            "operator": "GTE",
+                            "right": {
+                                "type": "Fixed",
+                                "amount": 5
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When this creature enters, if you cast it from your hand and there are five or more other creatures on the battlefield, destroy all other creatures."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "96",
+        "rarity": "RARE",
+        "artist": "Adam Paquette",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/5/75cad378-129f-41da-8db2-065fc45c76eb.jpg?1783938598",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "If you cast a creature spell that enters the battlefield as a copy of Deathbringer Regent, the enters-the-battlefield ability will trigger (assuming the \"five or more other creatures\" requirement is also met)."
+            },
+            {
+                "date": "2015-02-25",
+                "text": "Deathbringer Regent's last ability destroys all creatures except Deathbringer Regent, including the five other creatures required for the ability to have an effect."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Defeat
 {
     "name": "Defeat",
@@ -943,6 +1164,81 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Dragon Tempest
+{
+    "name": "Dragon Tempest",
+    "manaCost": "{1}{R}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever a creature you control with flying enters, it gains haste until end of turn.\nWhenever a Dragon you control enters, it deals X damage to any target, where X is the number of Dragons you control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Dragon Tempest:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature kw:flying ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "HASTE",
+                    "target": "TriggeringEntity"
+                }
+            },
+            {
+                "id": "Dragon Tempest:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Dragon ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "permanent Dragon"
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "damageSource": "TriggeringEntity"
+                },
+                "targetRequirement": {
+                    "type": "AnyTarget",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "136",
+        "rarity": "RARE",
+        "artist": "Willian Murai",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/cefac283-8491-4d11-9a40-0e90cbeac19f.jpg?1783938589",
+        "rulings": [
+            {
+                "date": "2017-11-17",
+                "text": "The amount of damage dealt by the Dragon that entered the battlefield is based on the number of Dragons you control when the ability resolves."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "If a Dragon entering the battlefield causes Dragon Tempest's second ability to trigger but leaves the battlefield before that ability resolves, that Dragon still deals damage."
+            },
+            {
+                "date": "2017-11-17",
+                "text": "The two abilities aren't mutually exclusive. If a Dragon with flying (which is most of them) enters the battlefield under your control, both abilities will trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -1044,6 +1340,106 @@
         "imageUri": "https://cards.scryfall.io/normal/front/c/7/c7463c18-5bef-42a0-a37e-6112809ebc78.jpg?1783938569"
     },
     "colorIdentityOverride": []
+}
+
+// Dragonlord Atarka
+{
+    "name": "Dragonlord Atarka",
+    "manaCost": "{5}{R}{G}",
+    "typeLine": "Legendary Creature — Elder Dragon",
+    "oracleText": "Flying, trample\nWhen Dragonlord Atarka enters, it deals 5 damage divided as you choose among any number of target creatures and/or planeswalkers your opponents control.",
+    "creatureStats": {
+        "power": 8,
+        "toughness": 8
+    },
+    "keywords": [
+        "FLYING",
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Dragonlord Atarka:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DividedDamage",
+                    "totalDamage": 5,
+                    "minTargets": 0,
+                    "maxTargets": 5
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "count": 5,
+                    "minCount": 0,
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature|planeswalker ctrl:opponent"
+                    },
+                    "id": "target creatures and/or planeswalkers your opponents control"
+                },
+                "descriptionOverride": "When Dragonlord Atarka enters, it deals 5 damage divided as you choose among any number of target creatures and/or planeswalkers your opponents control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "216",
+        "rarity": "MYTHIC",
+        "artist": "Karl Kopinski",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/e/ce0c3b45-cf1d-4d85-9fe3-fb26b4b15dfd.jpg?1783938573",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "You choose how many targets the ability has and how the damage is divided as you put the ability on the stack. Each target must receive at least 1 damage."
+            },
+            {
+                "date": "2015-02-25",
+                "text": "If some of the targets are illegal targets as the ability tries to resolve, the original division of damage still applies but no damage is dealt to the illegal targets. If all targets are illegal, the ability doesn't resolve."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
+// Dragonlord Dromoka
+{
+    "name": "Dragonlord Dromoka",
+    "manaCost": "{4}{G}{W}",
+    "typeLine": "Legendary Creature — Elder Dragon",
+    "oracleText": "This spell can't be countered.\nFlying, lifelink\nYour opponents can't cast spells during your turn.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 7
+    },
+    "keywords": [
+        "FLYING",
+        "LIFELINK"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "PlayersCantCastSpells",
+                "condition": "IsYourTurn"
+            }
+        ],
+        "cantBeCountered": true
+    },
+    "metadata": {
+        "collectorNumber": "217",
+        "rarity": "MYTHIC",
+        "artist": "Eric Deschamps",
+        "flavorText": "Dromoka's followers forsake blood ties so that they may join a greater family.",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/908042f3-0d03-4edf-816a-ec846a1e315f.jpg?1783938573"
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
 }
 
 // Dragonlord's Servant
@@ -1164,6 +1560,80 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Epic Confrontation
+{
+    "name": "Epic Confrontation",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Target creature you control gets +1/+2 until end of turn. It fights target creature you don't control. (Each deals damage equal to its power to the other.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "Fight",
+                    "target1": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "target2": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "controllerPredicate": {
+                            "type": "ControllerNot",
+                            "predicate": "ControlledByYou"
+                        }
+                    }
+                },
+                "id": "t1"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "185",
+        "artist": "Wayne Reynolds",
+        "flavorText": "No matter the timeline, some legends will endure.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f587436e-51ff-4c9c-a6ce-e2768844a71a.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -1421,6 +1891,124 @@
     "colorIdentityOverride": [
         "BLACK"
     ]
+}
+
+// Haven of the Spirit Dragon
+{
+    "name": "Haven of the Spirit Dragon",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{T}: Add one mana of any color. Spend this mana only to cast a Dragon creature spell.\n{2}, {T}, Sacrifice this land: Return target Dragon creature card or Ugin planeswalker card from your graveyard to your hand.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Haven of the Spirit Dragon:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Haven of the Spirit Dragon:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "restriction": {
+                        "type": "SubtypeSpellsOrAbilitiesOnly",
+                        "subtype": "Dragon",
+                        "creatureOnly": true
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add one mana of any color. Spend this mana only to cast a Dragon creature spell."
+            },
+            {
+                "id": "Haven of the Spirit Dragon:3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap",
+                        "CostSacrificeSelf"
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            {
+                                                "type": "And",
+                                                "predicates": [
+                                                    "IsCreature",
+                                                    {
+                                                        "type": "HasSubtype",
+                                                        "subtype": "Dragon"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "type": "And",
+                                                "predicates": [
+                                                    "IsPlaneswalker",
+                                                    {
+                                                        "type": "HasSubtype",
+                                                        "subtype": "Ugin"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "controllerPredicate": "OwnedByYou"
+                            },
+                            "zone": "Graveyard"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{2}, {T}, Sacrifice this land: Return target Dragon creature card or Ugin planeswalker card from your graveyard to your hand."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "249",
+        "rarity": "RARE",
+        "artist": "Raymond Swanland",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/9/9910042e-091f-47da-ad29-8f76c9d3b8c1.jpg?1783938567",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "The mana produced by Haven of the Spirit Dragon's second ability can be used to pay for any additional or alternative costs (such as dash costs) involved in casting a Dragon creature spell."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Herald of Dromoka
@@ -1999,7 +2587,8 @@
                             "type": "Fixed",
                             "amount": 4
                         }
-                    }
+                    },
+                    "description": "You gain 4 life"
                 },
                 {
                     "effect": "Counter",
@@ -2022,7 +2611,8 @@
                             "type": "Fixed",
                             "amount": 1
                         }
-                    }
+                    },
+                    "description": "Draw a card"
                 }
             ],
             "chooseCount": 2
@@ -2477,6 +3067,185 @@
     ]
 }
 
+// Sarkhan Unbroken
+{
+    "name": "Sarkhan Unbroken",
+    "manaCost": "{2}{G}{U}{R}",
+    "typeLine": "Legendary Planeswalker — Sarkhan",
+    "oracleText": "+1: Draw a card, then add one mana of any color.\n−2: Create a 4/4 red Dragon creature token with flying.\n−8: Search your library for any number of Dragon creature cards, put them onto the battlefield, then shuffle.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Sarkhan Unbroken:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        "AddManaOfChoice"
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Sarkhan Unbroken:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -2
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 4,
+                    "toughness": 4,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Dragon"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/1/e/1ee0725f-8562-49c2-83fa-11a702e5c78d.jpg?1783938561"
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Sarkhan Unbroken:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -8
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "creature Dragon"
+                            },
+                            "storeAs": "gathered0",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": "ChooseAnyNumber",
+                            "storeSelected": "selected1",
+                            "prompt": "Search your library for any number of Dragon creature cards"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "230",
+        "rarity": "MYTHIC",
+        "artist": "Aleksi Briclot",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/9/192452f8-93c2-4a20-a52b-0093741a9e45.jpg?1783938570"
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE",
+        "RED"
+    ]
+}
+
+// Sarkhan's Rage
+{
+    "name": "Sarkhan's Rage",
+    "manaCost": "{4}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Sarkhan's Rage deals 5 damage to any target. If you control no Dragons, Sarkhan's Rage deals 2 damage to you.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 5
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "permanent Dragon",
+                            "negate": true
+                        }
+                    },
+                    "then": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": "Controller"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "153",
+        "artist": "Chris Rahn",
+        "flavorText": "The people of Tarkir speak of an ancient legend, of the dragon-man called Sarkhan who was greatest of all khans.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/4787924f-3186-4e18-b53c-dd67c5f42220.jpg?1783938586",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "Sarkhan's Rage checks whether you control a Dragon as it resolves."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Sarkhan's Triumph
 {
     "name": "Sarkhan's Triumph",
@@ -2507,7 +3276,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a Dragon creature card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",
@@ -3324,6 +4095,62 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Thunderbreak Regent
+{
+    "name": "Thunderbreak Regent",
+    "manaCost": "{2}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying\nWhenever a Dragon you control becomes the target of a spell or ability an opponent controls, this creature deals 3 damage to that player.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Thunderbreak Regent:1",
+                "trigger": {
+                    "type": "BecomesTargetEvent",
+                    "targetFilter": "permanent Dragon ctrl:you",
+                    "byOpponent": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "ControllerOfCause"
+                    }
+                },
+                "descriptionOverride": "Whenever a Dragon you control becomes the target of a spell or ability an opponent controls, this creature deals 3 damage to that player."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "162",
+        "rarity": "RARE",
+        "artist": "Ryan Pancoast",
+        "flavorText": "Attracting a dragon's attention may be the last mistake you make.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/2/a2b9cf2b-efe3-4815-be18-c3b69ee762f2.jpg?1783938585",
+        "rulings": [
+            {
+                "date": "2015-02-25",
+                "text": "Thunderbreak Regent's ability will resolve before the spell or ability that caused it to trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 

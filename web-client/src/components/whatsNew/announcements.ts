@@ -30,6 +30,414 @@ export interface Announcement {
 
 export const ANNOUNCEMENTS: readonly Announcement[] = [
   {
+    id: 'set-hou',
+    date: '2026-11-05',
+    kind: 'set',
+    setCode: 'HOU',
+    title: 'Hour of Devastation is complete',
+    body: 'The God-Pharaoh returns to Amonkhet and the Hours bring ruin. Afflict punishes every block, aftermath spells get cast twice, exert and eternalize turn your creatures into relentless attackers, and Deserts reward the decks that play them, across ten two-colour decks from exert aggro to -1/-1 counters.',
+    tryIf: 'aggressive creature decks and squeezing two spells out of one card',
+  },
+  {
+    id: 'set-xln',
+    date: '2026-11-05',
+    kind: 'set',
+    setCode: 'XLN',
+    title: 'Ixalan is complete',
+    body: 'Sail for the hidden golden city as Pirates, Dinosaurs, Merfolk and Vampires race to claim it. Explore grows your creatures while it digs for lands, raid pays off attacking every turn, enrage Dinosaurs punish every block, and Treasure fuels the Pirates\' biggest plays across ten two-colour decks.',
+    tryIf: 'tribal decks and attacking every turn',
+  },
+  {
+    id: 'set-rix',
+    date: '2026-11-04',
+    kind: 'set',
+    setCode: 'RIX',
+    title: 'Rivals of Ixalan is complete',
+    body: 'Race Pirates, Dinosaurs, Merfolk and Vampires to the golden city of Orazca. Ascend rewards a wide board with the city\'s blessing, enrage Dinosaurs punish every block, and its four tribes spread across the ten two-colour decks.',
+    tryIf: 'tribal decks and building a wide board',
+  },
+  {
+    id: 'set-trk',
+    date: '2026-11-03',
+    kind: 'set',
+    setCode: 'TRK',
+    title: 'Star Trek is complete',
+    body:
+      "Star Trek puts the Federation, Klingons, Borg and more on the battlefield: crew and station Spacecraft, face dilemmas with modal spells, assimilate cards into a Borg collective and explore strange new worlds with Planet tokens. Each colour pair has a plan, from hasty Klingon Warriors in black-red to +1/+1 counter medics in green-white, and every pack's land slot can open a Planet dual.",
+    tryIf: 'modal-spell value, Spacecraft and go-wide artifact armies',
+  },
+  {
+    id: 'set-m19',
+    date: '2026-11-03',
+    kind: 'set',
+    setCode: 'M19',
+    title: 'Core Set 2019 is complete',
+    body:
+      "Core Set 2019 follows Nicol Bolas's return with Dragons, elder-dragon bombs and five planeswalkers, built from clean, classic Magic rather than set mechanics. Each colour pair has its own plan: artifacts in white-blue, spells-matter Enigma Drakes in blue-red, lifegain Vampires in white-black, sacrifice aggro in black-red and Dragon ramp in red-green, with a dual land in a third of packs.",
+    tryIf: 'straightforward, back-to-basics Limited with Dragons and planeswalkers',
+  },
+  {
+    id: 'set-grn',
+    date: '2026-11-02',
+    kind: 'set',
+    setCode: 'GRN',
+    title: 'Guilds of Ravnica is complete',
+    body:
+      'Guilds of Ravnica opens the return to the city-plane with five guilds: Boros mentor grows smaller attackers, Dimir surveil sculpts your draws, Golgari undergrowth feeds off creatures in your graveyard, Izzet jump-start casts spells twice, and Selesnya convoke taps a wide board to cast big spells early. Every pack opens a Guildgate, so splashing a third colour is easy.',
+    tryIf: 'guild-based two-colour Limited, graveyard value and spells-matter tempo',
+  },
+  {
+    id: 'set-rna',
+    date: '2026-11-02',
+    kind: 'set',
+    setCode: 'RNA',
+    title: 'Ravnica Allegiance is complete',
+    body:
+      'Ravnica Allegiance brings back five guilds, each with its own mechanic: Azorius addendum rewards main-phase instants, Orzhov afterlife leaves flying Spirits behind, Rakdos spectacle discounts spells once the opponent is bleeding, Gruul riot hands out haste or counters, and Simic adapt grows its creatures. Every pack opens a Guildgate, so dipping into a third colour is easy.',
+    tryIf: 'guild-based two-colour Limited and aggressive or counters-driven decks',
+  },
+  {
+    id: 'set-war',
+    date: '2026-11-01',
+    kind: 'set',
+    setCode: 'WAR',
+    title: 'War of the Spark is complete',
+    body:
+      "War of the Spark is the Ravnica finale: Bolas's Dreadhorde invades, and every pack holds a planeswalker, from uncommon walkers with a static ability to the mythic bombs. Amass builds a growing Zombie Army, proliferate pumps counters and loyalty alike, and every colour pair has a plan, from wide teams of soldiers to an ever-growing undead army.",
+    tryIf: 'planeswalker-heavy Limited, counters and proliferate',
+  },
+  {
+    id: 'set-m20',
+    date: '2026-10-31',
+    kind: 'set',
+    setCode: 'M20',
+    title: 'Core Set 2020 is complete',
+    body:
+      "Core Set 2020 is a classic core set with a tribal twist: Elementals swarm in blue, red and green, ramping lands onto the battlefield with Risen Reef or trampling in behind Creeping Trailblazer. Every colour pair has a straightforward plan, from white-blue fliers and black-white life drain to black-green value from creatures dying, while the Cavaliers and Chandra headline the bombs.",
+    tryIf: 'clean, classic Limited and Elemental tribal decks',
+  },
+  {
+    id: 'set-eld',
+    date: '2026-10-31',
+    kind: 'set',
+    setCode: 'ELD',
+    title: 'Throne of Eldraine is complete',
+    body:
+      "Throne of Eldraine is a fairy-tale world of five castles and the enchanted wilds beyond: Adventure cards let you cast a spell first and the creature later, so one card does two jobs. Knights race for the throne in red, white and black, Food decks bake their way to a long game, blue-black mills both libraries for Drown in the Loch, and adamant rewards going nearly mono-coloured.",
+    tryIf: 'two-for-one Adventure cards, Knight aggro and Food value',
+  },
+  {
+    id: 'set-iko',
+    date: '2026-10-31',
+    kind: 'set',
+    setCode: 'IKO',
+    title: 'Ikoria: Lair of Behemoths is complete',
+    body:
+      "Ikoria is a world of colossal monsters: mutate one creature onto another to build a single towering threat that collects every ability underneath, while Humans bond with beasts by handing out flying, menace, trample and vigilance counters. Cycling keeps every hand smooth and feeds payoffs like Zenith Flare, and each two-colour pair has its own plan, from Sprite Dragon spells to Boneyard Lurker graveyard mutate.",
+    tryIf: 'building one huge monster, keyword counters and cycling',
+  },
+  {
+    id: 'set-thb',
+    date: '2026-10-31',
+    kind: 'set',
+    setCode: 'THB',
+    title: 'Theros Beyond Death is complete',
+    body:
+      "Descend into the Underworld of Theros, where the gods reward devotion: stack your colour's mana symbols to wake Heliod, Thassa or Purphoros, chain enchantments for constellation triggers, and give your heroes Auras that pay off every time they're targeted. Escape lets graveyard cards come back by exiling others, so long games turn on Uro, Kroxa and recurring Underworld creatures, while Sagas play out their story over several turns.",
+    tryIf: 'enchantments, Aura-boosted heroes and graveyard recursion',
+  },
+  {
+    id: 'feature-set-guide',
+    date: '2026-10-30',
+    kind: 'feature',
+    title: 'The Set guide: find a set to play',
+    body:
+      'Set guide, in the top bar, is a guide to every set you can draft or play sealed: what each is about, how its games play, and power, speed and complexity ratings. Filter for easy-to-learn or fast formats, see every set on one speed-by-complexity map, or put up to four side by side. The lobby’s set picker shows the same summary for whichever set you point at, and the play screen shows it under the set you chose.',
+  },
+  {
+    id: 'set-m21',
+    date: '2026-10-30',
+    kind: 'set',
+    setCode: 'M21',
+    title: 'Core Set 2021 is complete',
+    body:
+      "Teferi, Basri, Chandra, Liliana and Garruk headline a straightforward core set where every two-colour pair has a clear plan: Watcher of the Spheres fliers, Conclave Mentor counters, Indulging Patrician life drain, Dire Fleet Warmonger sacrifice aggro and Leafkin Avenger's big creatures. Removal is plentiful and the bombs are huge, so games swing on who draws Terror of the Peaks first.",
+    tryIf: 'classic two-colour Limited, big dragons and planeswalkers',
+  },
+  {
+    id: 'mode-highlander',
+    date: '2026-10-29',
+    kind: 'mode',
+    title: 'Highlander and Canadian Highlander',
+    body:
+      'Two new constructed formats: 100-card singleton decks over the Vintage card pool, no commander, 20 life. Canadian Highlander adds its points list, so you can play Black Lotus or Sol Ring as long as the deck stays within 10 points. Pick either in the deckbuilder, as a lobby’s deck restriction, or as a Constructed format in matchmaking.',
+  },
+  {
+    id: 'set-znr',
+    date: '2026-10-28',
+    kind: 'set',
+    setCode: 'ZNR',
+    title: 'Zendikar Rising is complete',
+    body:
+      "Return to Zendikar's adventure world: gather a party of Clerics, Rogues, Warriors and Wizards to power party payoffs, kick spells for bigger effects, and trigger landfall with every land drop. Every pack opens a modal double-faced card that is a spell or a land as you need it, so decks rarely flood or screw while they race, mill or ramp.",
+    tryIf: 'landfall, kicker and building a party of adventurers',
+  },
+  {
+    id: 'set-khm',
+    date: '2026-10-27',
+    kind: 'set',
+    setCode: 'KHM',
+    title: 'Kaldheim is complete',
+    body:
+      'Raid the Norse-inspired realms of Kaldheim: foretell spells into exile to cast them cheaply later, boast with creatures that attacked, and play snow lands to power snow payoffs. Double-faced Gods pair a creature with a spell or artifact, Sagas unfold chapter by chapter, and tribes of Elves, Giants, Berserkers and Zombies give each colour pair its own clan.',
+    tryIf: 'tribal clans, snow mana and planning turns ahead with foretell',
+  },
+  {
+    id: 'set-afr',
+    date: '2026-10-25',
+    kind: 'set',
+    setCode: 'AFR',
+    title: 'Adventures in the Forgotten Realms is complete',
+    body:
+      "Grab your party and head into Dungeons & Dragons: venture into dungeons room by room, roll a d20 for spells with tiered results, and gain levels in Classes that grow stronger as the game goes on. Pack tactics rewards big attacks, Treasure fuels splashy spells, and Equipment and life gain decks give every colour pair its own adventure.",
+    tryIf: 'dice rolling, dungeon crawling and Dungeons & Dragons flavour',
+  },
+  {
+    id: 'set-stx',
+    date: '2026-10-25',
+    kind: 'set',
+    setCode: 'STX',
+    title: 'Strixhaven: School of Mages is complete',
+    body:
+      "Enrol at Strixhaven, where five colleges each pair two colours: Silverquill's inkling wordsmiths, Prismari's elemental artists, Witherbloom's Pest-draining alchemists, Lorehold's spirited historians and Quandrix's fractal mathematicians. Magecraft rewards every instant and sorcery you cast or copy, learn fetches Lessons from outside the game, and ward, Masteries and the five Elder Dragon founders round out a set built for spell-heavy decks.",
+    tryIf: 'instants and sorceries, two-colour college decks and value from every spell you cast',
+  },
+  {
+    id: 'set-mid',
+    date: '2026-10-23',
+    kind: 'set',
+    setCode: 'MID',
+    title: 'Innistrad: Midnight Hunt is complete',
+    body:
+      "Survive the longest night on Innistrad: day and night flip Werewolves between human and beast, flashback and disturb bring spells and Spirits back from the graveyard, and coven rewards Humans for banding together against decayed Zombie hordes and Vampires out for blood. Every pack opens two double-faced cards, and decks reward planning around the graveyard and the time of day.",
+    tryIf: 'graveyard value, flashback spells and Werewolves that transform with the time of day',
+  },
+  {
+    id: 'set-mat',
+    date: '2026-10-21',
+    kind: 'set',
+    setCode: 'MAT',
+    title: 'March of the Machine: The Aftermath is complete',
+    body:
+      "The epilogue to the Phyrexian invasion: 50 cards built around legends of the multiverse picking up the pieces, most of them multicolour, from Nahiri and Sarkhan to a five-colour Niv-Mizzet. Its 5-card Epilogue Boosters mix into March of the Machine or any other set, adding a rare-heavy layer of legends, recursion and death-and-counters payoffs to a draft.",
+    tryIf: 'multicolour legends and a rare-rich bonus pack mixed into another set',
+  },
+  {
+    id: 'set-leg',
+    date: '2026-10-21',
+    kind: 'set',
+    setCode: 'LEG',
+    title: 'Legends is complete',
+    body:
+      "Magic's first big expansion of all-new cards brought the original legendary creatures: gold heroes and villains like Nicol Bolas and the Elder Dragons, alongside rampaging beasts, banding armies and world enchantments that rewrite the rules for every player. Decks lean on two or three colours and one game-changing legend at the top of the curve.",
+    tryIf: 'old-school Magic, multicolour legends and rules-bending enchantments',
+  },
+  {
+    id: 'set-neo',
+    date: '2026-10-20',
+    kind: 'set',
+    setCode: 'NEO',
+    title: 'Kamigawa: Neon Dynasty is complete',
+    body:
+      'Return to a Kamigawa of neon cities and ancient kami: Ninjas slip in with ninjutsu, Samurai and Warriors strike alone, pilots crew mechs, and modified creatures grow with counters, Equipment and Auras. Flipping Sagas, channel lands and artifacts-meet-enchantments decks round out a draft full of tempo and tricks.',
+    tryIf: 'tempo tricks, Vehicles and Equipment, and decks that mix artifacts with enchantments',
+  },
+  {
+    id: 'feature-order-your-triggers',
+    date: '2026-10-19',
+    kind: 'feature',
+    title: 'Order your own triggers',
+    body:
+      'When several of your abilities trigger at once you can now choose the order they go on the stack — scry before the draw, make the token before the anthem trigger counts. Turn off Order my triggers automatically in Preferences → Gameplay, and the game asks whenever the order can matter, with a list you drag into place.',
+  },
+  {
+    id: 'set-snc',
+    date: '2026-10-17',
+    kind: 'set',
+    setCode: 'SNC',
+    title: 'Streets of New Capenna is complete',
+    body:
+      'Pick a crime family and run the streets of an art-deco city of demons and angels: the Brokers guard their creatures with shield counters, the Obscura connive, the Maestros cast spells with casualty, the Riveteers blitz in hasty bruisers, and the Cabaretti throw Citizen parties. Three-colour decks are the norm, held together by tri-lands and Treasure.',
+    tryIf: 'three-colour decks, sacrifice-for-value and go-wide token swarms',
+  },
+  {
+    id: 'feature-playing-for-ante',
+    date: '2026-10-17',
+    kind: 'feature',
+    title: 'Play for ante',
+    body:
+      'Raise the stakes the old-fashioned way. Turn on Play for ante in a lobby and each player antes a random card from their deck before the opening draw — the winner takes the pile. In a sealed or draft tournament the cards you win join your pool for the rest of the event; anywhere else they go up as trophies in the new Spoils panel on your profile. It also unlocks the ante cards: Contract from Below, Darkpact, Demonic Attorney, Jeweled Bird and Bronze Tablet. Ranked games never play for ante.',
+  },
+  {
+    id: 'set-pip',
+    date: '2026-10-17',
+    kind: 'set',
+    setCode: 'PIP',
+    title: 'Fallout is complete',
+    body:
+      'All four Fallout Commander decks are playable in the Wasteland: rad counters mill players and drain their life, Junk tokens dig for one more card, energy fuels Science! decks, and Vault locations and V.A.T.S. spells reward you for the long game. Dogmeat suits up Auras and Equipment, Caesar marches out a legion of tokens, and the Wise Mothman feeds mutants off the rads.',
+    tryIf: 'Commander precons, rad-counter mill and Aura-and-Equipment voltron',
+  },
+  {
+    id: 'feature-card-browser',
+    date: '2026-10-14',
+    kind: 'feature',
+    title: 'Browse every card',
+    body:
+      'Cards, in the top bar, is a card browser with nothing to build: every card you can play, with the deckbuilder’s search and filters and bigger tiles. Click a card to see it up close — its Oracle text, every printing’s art, the formats it is legal in — and step through the results with the arrow keys. Click its type or set to search for more like it, or start a deck (or a Commander deck) around it in one click.',
+  },
+  {
+    id: 'set-dmu',
+    date: '2026-10-13',
+    kind: 'set',
+    setCode: 'DMU',
+    title: 'Dominaria United is complete',
+    body:
+      'Dominaria’s coalition makes its stand against the Phyrexian invasion, and every card is playable: domain rewards you for gathering basic land types, kicker lets spells scale up late, enlist taps a creature to power up an attacker, and read ahead lets you start a Saga on any chapter. Every draft pack opens a legendary creature, and the ten two-colour signposts range from Soldier swarms to spell-slinging Wizards and five-colour domain ramp.',
+    tryIf: 'legendary creatures, multicolour domain decks and flexible kicker spells',
+  },
+  {
+    id: 'set-bro',
+    date: '2026-10-13',
+    kind: 'set',
+    setCode: 'BRO',
+    title: 'The Brothers’ War is complete',
+    body:
+      'Urza and Mishra’s war over Dominaria is fully playable: artifact creatures you can prototype cheap early or cast full-size late, unearth to drag Mishra’s war machines back for one last attack, Powerstones that only fuel artifacts, and two meld pairs that fuse into Urza, Planeswalker and Mishra, Lost to Phyrexia. Decks lean hard on artifacts and reward building a war machine turn by turn.',
+    tryIf: 'artifact synergies, flexible-cost threats and graveyard recursion',
+  },
+  {
+    id: 'feature-dungeons-initiative',
+    date: '2026-10-12',
+    kind: 'feature',
+    title: 'Dungeons and the initiative',
+    body:
+      'Venture into the dungeon: pick Lost Mine of Phandelver, Dungeon of the Mad Mage or Tomb of Annihilation, then choose your path room by room on the dungeon map. The initiative is here too — take it and you venture into Undercity every upkeep, until someone hits you in combat and steals it. Each player’s dungeon shows in their command zone, and 🗝️ marks who has the initiative. White Plume Adventurer, Seasoned Dungeoneer, Nadaar and friends are ready for your Commander decks.',
+  },
+  {
+    id: 'feature-companions',
+    date: '2026-10-12',
+    kind: 'feature',
+    title: 'Companions',
+    body:
+      'Companions work in every format, Commander included. Put a card with Companion — Zirda, Kaheera, Keruga — on your sideboard and mark it as your companion; the deckbuilder checks its condition against your deck. In the game it waits face up beside your command zone, and once per game, at sorcery speed, you can pay {3} to put it into your hand. Imported lists with a Companion section set it for you.',
+  },
+  {
+    id: 'feature-partner-commanders',
+    date: '2026-10-12',
+    kind: 'feature',
+    title: 'Partner commanders',
+    body:
+      'Commander decks can now have two commanders: Partner, Partner—Friends forever and the other “Partner—” pairs, “Partner with”, Choose a Background and Doctor’s companion. Crown both in the deckbuilder, and imported lists with two commanders keep both. The deck is 100 cards including the pair, its colour identity is theirs combined, and each commander has its own tax and its own commander damage.',
+  },
+  {
+    id: 'set-blc',
+    date: '2026-10-12',
+    kind: 'set',
+    setCode: 'BLC',
+    title: 'Bloomburrow Commander is complete',
+    body:
+      'All four Bloomburrow Commander decks are playable: Bello animates an army of artifacts and enchantments, Zinnia gives your creature spells offspring, Ms. Bumbleflower hands out gifts to the whole table, and Hazel’s Squirrels go wide on Food and forage. Big multiplayer turns with a cozy woodland cast.',
+    tryIf: 'Commander precons, token swarms and table-wide politics',
+  },
+  {
+    id: 'feature-cubes-page',
+    date: '2026-10-11',
+    kind: 'feature',
+    title: 'Cubes, set cubes and share links',
+    body:
+      'The deckbuilder now builds cubes too — flip Decks | Cubes at the top and browse cards just as you would for a deck. Start a cube from a whole set — each card at its printed rarity — extend it with any other cards, and draft it as real Play or Draft Boosters with mythics one pack in eight: all of Bloomburrow plus Bloomburrow Commander’s new cards is a few clicks. Share a cube by link so friends can view it, keep a copy, or open a lobby with it in one click.',
+  },
+  {
+    id: 'feature-avatars',
+    date: '2026-10-09',
+    kind: 'feature',
+    title: 'Avatars',
+    body:
+      'Give your account a face: choose from 56 painted portraits, or frame any part of any card’s art — any printing — as your own. Click your avatar on your profile to choose; it shows in the account menu, to friends and in messages, and in your life orb at the table.',
+  },
+  {
+    id: 'feature-preferences',
+    date: '2026-10-09',
+    kind: 'feature',
+    title: 'Preferences',
+    body:
+      'Set the table up your way from the gear on the home screen, or mid-game beside the fullscreen button: the priority mode games start in, standing stops for both turns, when identical lands, creatures and other permanents stack and how big a stack gets, auto-tap, reduced motion and the hover preview. Signed in, they follow you to every device.',
+  },
+  {
+    id: 'feature-messages',
+    date: '2026-10-09',
+    kind: 'feature',
+    title: 'Messages',
+    body:
+      'Message other players from Messages in the account menu, or from a friend’s row or any player’s profile. Friends can talk freely; a message from someone you haven’t friended arrives as a request you can accept, delete or block.',
+  },
+  {
+    id: 'mode-matchmaking',
+    date: '2026-10-08',
+    kind: 'mode',
+    title: 'Matchmaking',
+    body:
+      'Find an opponent without an invite. Pick a mode on the home screen — Random deck, Jump In, Momir Basic or a Constructed format — then search; ranked pairs you with someone close to your rating. Queues with players already waiting are shown, so you can join one and start at once.',
+  },
+  {
+    id: 'set-leb',
+    date: '2026-10-08',
+    kind: 'set',
+    setCode: 'LEB',
+    title: 'Limited Edition Beta is complete',
+    body:
+      'The second printing of Magic’s first set, two months after Alpha: the same Power Nine and dual lands, plus the two cards Alpha left out, Circle of Protection: Black and Volcanic Island.',
+    tryIf: 'Magic history and the most iconic cards ever printed',
+  },
+  {
+    id: 'set-lea',
+    date: '2026-10-07',
+    kind: 'set',
+    setCode: 'LEA',
+    title: 'Limited Edition Alpha is complete',
+    body:
+      'Where Magic began, in 1993: Black Lotus, the original dual lands, Shivan Dragon, Lord of the Pit and Wrath of God. Five colours of raw, unbalanced power from before anyone knew what a fair card looked like.',
+    tryIf: 'Magic history and the most iconic cards ever printed',
+  },
+  {
+    id: 'set-j22',
+    date: '2026-10-07',
+    kind: 'set',
+    setCode: 'J22',
+    title: 'Jumpstart 2022 is complete',
+    body:
+      'Mix and match themes from across Magic: Goblins, snow creatures, blink tricks, giant monsters and more. Combine two themed packs for a ready-to-play deck, or explore the full set in Limited.',
+    tryIf: 'surprising theme combinations and quick games without deckbuilding',
+  },
+  {
+    id: 'mode-jump-in',
+    date: '2026-10-07',
+    kind: 'mode',
+    title: 'Jump In / Jumpstart',
+    body: 'Choose two themed 20-card packs and play their combined deck, lands included. No deckbuilding needed. Play with friends or AI, starting with Jumpstart 2022 or the original Jumpstart set. Find Jump In under Play → What are you playing with?',
+  },
+  {
+    id: 'set-om1',
+    date: '2026-10-05',
+    kind: 'set',
+    setCode: 'OM1',
+    title: 'Through the Omenpaths is complete',
+    body:
+      'Marvel’s Spider-Man retold on Magic’s own planes: the same cards and draft as Spider-Man, with new names and art for every hero and villain. Pick its printings in the deckbuilder or draft it as its own set.',
+    tryIf: 'the Spider-Man draft without leaving the Multiverse',
+  },
+  {
     id: 'set-mh3',
     date: '2026-10-04',
     kind: 'set',
@@ -47,6 +455,26 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body: 'Export any game as a compact replay file, and upload one to watch it back.',
   },
   {
+    id: 'set-one',
+    date: '2026-10-02',
+    kind: 'set',
+    setCode: 'ONE',
+    title: 'Phyrexia: All Will Be One is complete',
+    body:
+      'The Phyrexians’ metal home plane. Toxic creatures poison opponents toward ten counters, oil counters fuel Phyrexian machines, and corrupted cards turn deadly once a foe has three poison.',
+    tryIf: 'an alternate way to win and aggressive poison decks',
+  },
+  {
+    id: 'set-s99',
+    date: '2026-09-30',
+    kind: 'set',
+    setCode: 'S99',
+    title: 'Starter 1999 is complete',
+    body:
+      'A 1999 set made to teach the game: honest creatures, simple removal and card draw, and no complicated rules.',
+    tryIf: 'learning the basics, or a relaxed old-school game',
+  },
+  {
     id: 'set-ptk',
     date: '2026-09-29',
     kind: 'set',
@@ -55,6 +483,36 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'Portal’s retelling of China’s Three Kingdoms era. Beginner-friendly cards with almost no instants, and horsemanship: evasion only other horsemen can block.',
     tryIf: 'plain creature combat at an old-school pace',
+  },
+  {
+    id: 'set-mom',
+    date: '2026-09-29',
+    kind: 'set',
+    setCode: 'MOM',
+    title: 'March of the Machine is complete',
+    body:
+      'The Phyrexian invasion of the Multiverse. Battles are a new card type you attack to flip, incubate builds Phyrexian armies, and backup passes abilities across your team.',
+    tryIf: 'big multiverse battles and transforming cards',
+  },
+  {
+    id: 'set-p02',
+    date: '2026-09-28',
+    kind: 'set',
+    setCode: 'P02',
+    title: 'Portal Second Age is complete',
+    body:
+      'The 1998 follow-up to Portal: beginner-friendly cards, sorcery-speed tricks and straightforward creature battles.',
+    tryIf: 'simple, readable games at a slower pace',
+  },
+  {
+    id: 'set-chk',
+    date: '2026-09-27',
+    kind: 'set',
+    setCode: 'CHK',
+    title: 'Champions of Kamigawa is complete',
+    body:
+      'Mortals at war with the kami of a feudal-Japan-inspired world. Spirits and Arcane spells feed splice and soulshift, Samurai fight with bushido, and legendary heroes flip into stronger forms.',
+    tryIf: 'Spirits, legends and Japanese-inspired flavour',
   },
   {
     id: 'set-fra',
@@ -104,6 +562,26 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body: 'Five coached games against the AI that teach Magic and the table from scratch.',
   },
   {
+    id: 'set-arn',
+    date: '2026-08-24',
+    kind: 'set',
+    setCode: 'ARN',
+    title: 'Arabian Nights is complete',
+    body:
+      'Magic’s first expansion, from 1993, drawn from the Thousand and One Nights: djinn, efreet, flying carpets and the original City of Brass.',
+    tryIf: 'Magic history and classic old-school cards',
+  },
+  {
+    id: 'set-ddq',
+    date: '2026-08-24',
+    kind: 'set',
+    setCode: 'DDQ',
+    title: 'Duel Decks: Blessed vs. Cursed is complete',
+    body:
+      'Two ready-made Innistrad decks built to face each other: Humans and holy Spirits against Zombies and the curses of the night.',
+    tryIf: 'an evenly matched duel with no deckbuilding',
+  },
+  {
     id: 'set-fem',
     date: '2026-08-23',
     kind: 'set',
@@ -144,6 +622,16 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     tryIf: 'artifacts and fast, explosive starts',
   },
   {
+    id: 'set-msh',
+    date: '2026-08-17',
+    kind: 'set',
+    setCode: 'MSH',
+    title: 'Marvel Super Heroes is complete',
+    body:
+      'Marvel’s heroes and villains assemble. Power-up gives each hero a one-time boost that’s cheaper the turn it arrives, and teamwork lets you tap your creatures to supercharge a spell.',
+    tryIf: 'comic-book flavour and building a team',
+  },
+  {
     id: 'set-hob',
     date: '2026-08-15',
     kind: 'set',
@@ -172,6 +660,16 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'Marvel’s Spider-Man: heroes and villains of New York trade blows, with web-slinging and plenty of rogues’-gallery legends.',
     tryIf: 'comic-book flavour and legendary characters',
+  },
+  {
+    id: 'set-dft',
+    date: '2026-08-03',
+    kind: 'set',
+    setCode: 'DFT',
+    title: 'Aetherdrift is complete',
+    body:
+      'A death race across the Multiverse. Start your engines and build speed toward max-speed bonuses, crew Vehicles and saddle Mounts, and cash in exhaust abilities for one big burst.',
+    tryIf: 'fast, aggressive decks and Vehicles',
   },
   {
     id: 'set-woe',
@@ -210,6 +708,26 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     kind: 'mode',
     title: 'Cube Draft',
     body: 'Build and edit your own cubes, then draft them or play straight from a cube pool.',
+  },
+  {
+    id: 'set-fdn',
+    date: '2026-07-27',
+    kind: 'set',
+    setCode: 'FDN',
+    title: 'Foundations is complete',
+    body:
+      'Magic’s long-running core set: clean, evergreen mechanics and familiar staples, designed as the best place to start.',
+    tryIf: 'a clean, classic draft, or learning the game',
+  },
+  {
+    id: 'set-atq',
+    date: '2026-07-27',
+    kind: 'set',
+    setCode: 'ATQ',
+    title: 'Antiquities is complete',
+    body:
+      'The 1994 story of the brothers Urza and Mishra: an all-artifact arms race of golems, war machines and the original Urza lands.',
+    tryIf: 'artifacts and Magic history',
   },
   {
     id: 'feature-new-menu',
@@ -310,13 +828,23 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     tryIf: 'instants and sorceries, and decks built around spells',
   },
   {
+    id: 'set-big',
+    date: '2026-06-18',
+    kind: 'set',
+    setCode: 'BIG',
+    title: 'The Big Score is complete',
+    body:
+      'Thunder Junction’s bonus sheet of heist loot: powerful artifacts and legendary treasures that turn up in Outlaws boosters.',
+    tryIf: 'flashy artifacts in your Thunder Junction drafts',
+  },
+  {
     id: 'set-otj',
     date: '2026-06-15',
     kind: 'set',
     setCode: 'OTJ',
     title: 'Outlaws of Thunder Junction is complete',
     body:
-      'A wild-west heist. Commit crimes by targeting opponents, plot cards to cast them free later, saddle Mounts, and hire Mercenaries — with The Big Score’s treasures alongside.',
+      'A wild-west heist. Commit crimes by targeting opponents, plot cards to cast them free later, saddle Mounts, and hire Mercenaries.',
     tryIf: 'outlaws, heists and flexible timing',
   },
   {
@@ -339,6 +867,13 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     kind: 'mode',
     title: 'Free-for-All multiplayer',
     body: 'Three or four players at one table, with spectators welcome.',
+  },
+  {
+    id: 'feature-set-completion',
+    date: '2026-06-13',
+    kind: 'feature',
+    title: 'Set Completion',
+    body: 'See exactly which cards of every set are playable, set by set, before you pick one to draft.',
   },
   {
     id: 'feature-draft-assist',
@@ -366,6 +901,13 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'Dragons return to Tarkir, and the five three-colour clans — Abzan, Jeskai, Sultai, Mardu and Temur — each fight their own way. Mana fixing is generous, so go big on colours.',
     tryIf: 'three-colour decks and dragons',
+  },
+  {
+    id: 'feature-deck-share-links',
+    date: '2026-06-05',
+    kind: 'feature',
+    title: 'Shareable deck links',
+    body: 'Send a deck to a friend as a single link that opens straight in the deckbuilder.',
   },
   {
     id: 'set-inv',
@@ -405,6 +947,27 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     tryIf: 'tribal synergies and flash-speed tricks',
   },
   {
+    id: 'mode-commander',
+    date: '2026-05-08',
+    kind: 'mode',
+    title: 'Commander',
+    body: 'Build a 100-card singleton deck around your commander and play it, with deck-list import and export.',
+  },
+  {
+    id: 'mode-premade-tournaments',
+    date: '2026-05-08',
+    kind: 'mode',
+    title: 'Premade Decks tournaments',
+    body: 'Run a tournament where everyone brings their own constructed deck instead of opening boosters.',
+  },
+  {
+    id: 'feature-deckbuilder',
+    date: '2026-05-01',
+    kind: 'feature',
+    title: 'Deckbuilder',
+    body: 'Build and save constructed decks from every playable card, with filters for keywords, power and toughness, and sets.',
+  },
+  {
     id: 'set-blb',
     date: '2026-04-04',
     kind: 'set',
@@ -413,6 +976,40 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     body:
       'A woodland of animal folk. Every two-colour pair is a creature type — Bats, Otters, Frogs, Lizards, Squirrels, Rabbits, Birds, Mice and Raccoons — with forage, offspring and gift.',
     tryIf: 'cute creatures and clear, synergy-driven archetypes',
+  },
+  {
+    id: 'feature-ai-drafters',
+    date: '2026-04-02',
+    kind: 'feature',
+    title: 'AI drafters',
+    body: 'Fill empty seats at a draft with AI players, in Booster, Winston and Grid Draft.',
+  },
+  {
+    id: 'mode-vs-ai',
+    date: '2026-03-20',
+    kind: 'mode',
+    title: 'Play against the AI',
+    body: 'Nobody online? A built-in AI opponent plays full games against you, any time.',
+  },
+  {
+    id: 'set-ktk',
+    date: '2026-03-11',
+    kind: 'set',
+    setCode: 'KTK',
+    title: 'Khans of Tarkir is complete',
+    body:
+      'Five warring clans, each in three colours: Abzan outlast, Jeskai prowess, Sultai delve, Mardu raid and Temur ferocious, with morph creatures hiding everywhere.',
+    tryIf: 'three-colour decks and a classic, beloved draft',
+  },
+  {
+    id: 'set-lgn',
+    date: '2026-03-04',
+    kind: 'set',
+    setCode: 'LGN',
+    title: 'Legions is complete',
+    body:
+      'The only set made entirely of creatures: Slivers share their abilities with each other, morph hides every threat face down, and provoke forces blocks.',
+    tryIf: 'creature-heavy tribal battles',
   },
   {
     id: 'set-scg',
@@ -454,6 +1051,13 @@ export const ANNOUNCEMENTS: readonly Announcement[] = [
     kind: 'mode',
     title: 'Booster Draft',
     body: 'Draft with friends, build from your picks, and play it out as a tournament.',
+  },
+  {
+    id: 'feature-spectating',
+    date: '2026-01-30',
+    kind: 'feature',
+    title: 'Spectate live games',
+    body: 'Watch any game in progress, targeting arrows and all.',
   },
   {
     id: 'mode-sealed',

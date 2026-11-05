@@ -1,5 +1,6 @@
 package com.wingedsheep.ai.engine
 
+import com.wingedsheep.ai.arena.harnessRegistry
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.legalactions.LegalActionEnumerator
 import com.wingedsheep.engine.registry.CardRegistry
@@ -34,10 +35,7 @@ class RandomActionBenchmark : FunSpec({
 
     test("benchmark: $numGames random-action games in parallel ($setCode)").config(enabled = benchmarkEnabled) {
         val set = MtgSetCatalog.requireByCode(setCode)
-        val registry = CardRegistry().apply {
-            register(set.cards)
-            register(set.basicLands)
-        }
+        val registry = harnessRegistry(set)
         val allCards = set.cards
         val cores = Runtime.getRuntime().availableProcessors()
         val pool = Executors.newFixedThreadPool(cores)
@@ -246,6 +244,14 @@ internal fun randomDecisionResponse(decision: PendingDecision, rng: Random): Dec
 
         is YesNoDecision -> YesNoResponse(decision.id, rng.nextBoolean())
 
+        is FlipOntoBattlefieldDecision -> FlipThrowResponse.toward(
+            decision.id,
+            decision.table,
+            rng.nextDouble() * decision.table.width,
+            rng.nextDouble() * decision.table.height,
+            rng.nextDouble() * 6.0,
+        )
+
         is BatchYesNoDecision -> BatchYesNoResponse(decision.id, choice = rng.nextBoolean(), applyToAll = true)
 
         is ChooseReplacementDecision -> {
@@ -288,6 +294,9 @@ internal fun randomDecisionResponse(decision: PendingDecision, rng: Random): Dec
 
         is OrderObjectsDecision ->
             OrderedResponse(decision.id, decision.objects.shuffled(rng))
+
+        is OrderTriggersDecision ->
+            TriggerOrderResponse(decision.id, decision.triggers.indices.shuffled(rng))
 
         is SplitPilesDecision -> {
             val shuffled = decision.cards.shuffled(rng)

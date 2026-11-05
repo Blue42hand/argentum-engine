@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.ncc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Gavony Township reprint in New Capenna Commander. */
 val GavonyTownshipReprint = Printing(
     oracleId = "8a44e4e7-dfa2-427b-bbff-11c398fa60bb",
     name = "Gavony Township",

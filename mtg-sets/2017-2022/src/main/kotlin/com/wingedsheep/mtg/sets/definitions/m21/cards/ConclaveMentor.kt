@@ -7,14 +7,27 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyCounterPlacement
 
-/** Conclave Mentor — Core Set 2021 #216. */
+/**
+ * Conclave Mentor
+ * {G}{W}
+ * Creature — Centaur Cleric
+ * 2/2
+ *
+ * If one or more +1/+1 counters would be put on a creature you control, that many plus one +1/+1
+ * counters are put on that creature instead.
+ * When this creature dies, you gain life equal to its power.
+ *
+ * The replacement is Hardened Scales' (default `ModifyCounterPlacement` recipient: a creature you
+ * control, whoever places the counters). The dies trigger reads the Mentor's last-known power.
+ */
 val ConclaveMentor = card("Conclave Mentor") {
     manaCost = "{G}{W}"
     colorIdentity = "GW"
     typeLine = "Creature — Centaur Cleric"
     power = 2
     toughness = 2
-    oracleText = "If one or more +1/+1 counters would be put on a creature you control, that many plus one +1/+1 counters are put on that creature instead.\n" +
+    oracleText = "If one or more +1/+1 counters would be put on a creature you control, that many plus one " +
+        "+1/+1 counters are put on that creature instead.\n" +
         "When this creature dies, you gain life equal to its power."
 
     replacementEffect(ModifyCounterPlacement(modifier = 1))
@@ -22,6 +35,7 @@ val ConclaveMentor = card("Conclave Mentor") {
     triggeredAbility {
         trigger = Triggers.self.dies()
         effect = Effects.GainLife(DynamicAmounts.sourcePower())
+        description = "When this creature dies, you gain life equal to its power."
     }
 
     metadata {

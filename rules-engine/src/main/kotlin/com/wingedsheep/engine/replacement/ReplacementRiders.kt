@@ -6,6 +6,7 @@ import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.event.TriggerContext
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.PipelineState
+import com.wingedsheep.engine.handlers.effects.EnteringAttackChoice
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.ExileCounteredSpellInstead
@@ -15,25 +16,45 @@ import kotlinx.serialization.Serializable
 /**
  * The owed rest of one application of a replacement effect whose printed text goes on to *do*
  * something — [com.wingedsheep.sdk.scripting.PreventDamage.onPrevented] ("You gain life equal to
- * the damage prevented this way") and [ExileCounteredSpellInstead.then] ("and you may play that
+ * the damage prevented this way"), [com.wingedsheep.sdk.scripting.PreventDamageByRemovingCounter.onRemoved]
+ * ("then give each player a rad counter for each +1/+1 counter removed this way") and
+ * [ExileCounteredSpellInstead.then] ("and you may play that
  * card without paying its mana cost").
  *
- * @property effect the rest of the replacement
  * @property hostId the permanent whose ability applied — the effect's source
  * @property controllerId that permanent's controller when it applied — "you"
  * @property subjectId what the replacement acted on: the permanent or player the damage would have
  *   been dealt to ("that creature"), or the card exiled instead of countered ("that card")
  * @property amount how much damage this application prevented; 0 where nothing is counted
+ * @property countersRemoved how many counters this application removed
+ *   ([com.wingedsheep.sdk.scripting.PreventDamageByRemovingCounter.onRemoved]); 0 elsewhere
+ * @property replacesLifeReduction this rider is a [com.wingedsheep.sdk.scripting.ReplaceLifeReductionToZero]
+ *   application whose [subjectId] is the player whose life total was protected; while it is pending,
+ *   further reductions of that total are part of the same replaced event
+ * @property effect the rest of the replacement as a card effect; `null` exactly when the rest is
+ *   engine-side ([chooseEnteringAttackTarget])
+ * @property chooseEnteringAttackTarget the rest is CR 508.4's choice of what [subjectId], a creature
+ *   that just entered tapped and attacking through a global replacement, is attacking
+ *   ([com.wingedsheep.engine.handlers.effects.EnteringAttackChoice]); asked of [controllerId]
  */
 @Serializable
 data class PendingReplacementRider(
-    val effect: Effect,
+    val effect: Effect?,
     val hostId: EntityId,
     val controllerId: EntityId,
     val subjectId: EntityId,
     val amount: Int = 0,
-    val replacementChain: Set<ReplacementEffectIdentity>? = null
-)
+    val countersRemoved: Int = 0,
+    val replacesLifeReduction: Boolean = false,
+    val replacementChain: Set<ReplacementEffectIdentity>? = null,
+    val chooseEnteringAttackTarget: Boolean = false,
+) {
+    init {
+        require((effect == null) == chooseEnteringAttackTarget) {
+            "A replacement rider carries either a card effect or the engine-side entering-attack choice"
+        }
+    }
+}
 
 /**
  * Runs the replacement results queued on [GameState.pendingReplacementRiders].
@@ -66,8 +87,10 @@ object ReplacementRiders {
             if (remaining.isNotEmpty()) current = current.pushContinuation(
                 com.wingedsheep.engine.core.ReplacementRidersContinuation(remaining))
             val previousChain = current.activeReplacementChain
-            val result = execute(current.copy(activeReplacementChain = rider.replacementChain ?: previousChain),
-                rider.effect, contextFor(current, rider))
+            val result = if (rider.chooseEnteringAttackTarget) {
+                EnteringAttackChoice.ask(current, rider.subjectId, rider.controllerId)
+            } else execute(current.copy(activeReplacementChain = rider.replacementChain ?: previousChain),
+                checkNotNull(rider.effect), contextFor(current, rider))
             events += result.events
             current = result.state
             if (result.outcome is Outcome.Paused) return EffectResult.propagatePause(current, events)
@@ -91,11 +114,13 @@ object ReplacementRiders {
             triggeringPlayerId = rider.subjectId.takeIf { subjectIsPlayer },
             triggerContext = TriggerContext(
                 triggeringEntityId = rider.subjectId,
-                damageAmount = rider.amount
+                damageAmount = rider.amount,
+                counterCount = rider.countersRemoved.takeIf { it > 0 }
             ),
             pipeline = PipelineState(
                 storedCollections = mapOf(ExileCounteredSpellInstead.EXILED_CARD to listOf(rider.subjectId))
-            )
+            ),
+            programOrigin = com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(ReplacementRiders::class),
         )
     }
 }

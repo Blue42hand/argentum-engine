@@ -14,6 +14,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
  * {1}{R}{R}
  * Creature — Goblin
  * 2/2
+ *
  * Haste
  * Other Goblin creatures you control get +1/+1 and have haste.
  */
@@ -25,6 +26,7 @@ val GoblinChieftain = card("Goblin Chieftain") {
         "Other Goblin creatures you control get +1/+1 and have haste."
     power = 2
     toughness = 2
+
     keywords(Keyword.HASTE)
 
     staticAbility {
@@ -33,17 +35,18 @@ val GoblinChieftain = card("Goblin Chieftain") {
             toughnessBonus = 1,
             filter = GroupFilter(
                 GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN).youControl(),
-                excludeSelf = true
-            )
+                excludeSelf = true,
+            ),
         )
     }
+
     staticAbility {
         ability = GrantKeyword(
             Keyword.HASTE,
             GroupFilter(
                 GameObjectFilter.Creature.withSubtype(Subtype.GOBLIN).youControl(),
-                excludeSelf = true
-            )
+                excludeSelf = true,
+            ),
         )
     }
 

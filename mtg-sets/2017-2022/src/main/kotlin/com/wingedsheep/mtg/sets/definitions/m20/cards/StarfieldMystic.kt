@@ -1,7 +1,6 @@
 package com.wingedsheep.mtg.sets.definitions.m20.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
@@ -10,18 +9,17 @@ import com.wingedsheep.sdk.scripting.CostModification
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.ModifySpellCost
 import com.wingedsheep.sdk.scripting.SpellCostTarget
-import com.wingedsheep.sdk.scripting.TriggerBinding
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
- * Starfield Mystic
- * {1}{W}
- * Creature — Human Cleric
- * 2/2
+ * Starfield Mystic (M20 #39)
+ * {1}{W}  Creature — Human Cleric  2/2
  *
  * Enchantment spells you cast cost {1} less to cast.
  * Whenever an enchantment you control is put into a graveyard from the battlefield, put a +1/+1
  * counter on this creature.
+ *
+ * The reduction only touches generic mana, so a coloured-only enchantment costs the same.
  */
 val StarfieldMystic = card("Starfield Mystic") {
     manaCost = "{1}{W}"

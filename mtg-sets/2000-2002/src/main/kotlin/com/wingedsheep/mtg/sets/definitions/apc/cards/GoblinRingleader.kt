@@ -4,37 +4,42 @@ import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.Triggers
-import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardOrder
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
 /**
- * Goblin Ringleader — Apocalypse #62
+ * Goblin Ringleader
+ * {3}{R}
+ * Creature — Goblin
+ * 2/2
  *
- * This is the Goblin counterpart of Sylvan Messenger: reveal four, automatically move every
- * Goblin card to hand, then let the controller order the remainder on the library bottom.
+ * Haste
+ * When this creature enters, reveal the top four cards of your library. Put all Goblin cards
+ * revealed this way into your hand and the rest on the bottom of your library in any order.
+ *
+ * Sylvan Messenger's shape: [Patterns.Library.revealTopPutAllMatchingToHand] with the printed
+ * "in any order" as [CardOrder.ControllerChooses].
  */
 val GoblinRingleader = card("Goblin Ringleader") {
     manaCost = "{3}{R}"
     colorIdentity = "R"
     typeLine = "Creature — Goblin"
+    oracleText = "Haste (This creature can attack and {T} as soon as it comes under your control.)\n" +
+        "When this creature enters, reveal the top four cards of your library. Put all Goblin cards " +
+        "revealed this way into your hand and the rest on the bottom of your library in any order."
     power = 2
     toughness = 2
-    oracleText = "Haste (This creature can attack and {T} as soon as it comes under your control.)\n" +
-        "When this creature enters, reveal the top four cards of your library. Put all Goblin " +
-        "cards revealed this way into your hand and the rest on the bottom of your library in any order."
 
     keywords(Keyword.HASTE)
 
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Patterns.Library.revealTopPutAllMatchingToHand(
-            count = DynamicAmounts.fixed(4),
+            count = 4,
             filter = GameObjectFilter.Any.withSubtype(Subtype.GOBLIN),
-            restOrder = CardOrder.ControllerChooses,
+            restOrder = CardOrder.ControllerChooses
         )
     }
 

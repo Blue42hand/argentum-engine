@@ -3,7 +3,6 @@ package com.wingedsheep.mtg.sets.definitions.tle.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Return of the Wildspeaker reprint in TLE; canonical definition is in ELD. */
 val ReturnOfTheWildspeakerReprint = Printing(
     oracleId = "2b76f9e9-cd28-4eaf-8674-215c34263f96",
     name = "Return of the Wildspeaker",

@@ -1,7 +1,6 @@
 package com.wingedsheep.sdk.tooling
 
 import com.wingedsheep.sdk.core.Keyword
-import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.core.TypeLine
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.model.CardDefinition
@@ -91,12 +90,6 @@ object CardLinter {
     /** `Scope.AttachedTo`'s serial name. */
     private const val ATTACHED_TO = "AttachedTo"
 
-    /**
-     * Fortifications attach to lands (CR 301.6-adjacent; the Fortify keyword). No card in the
-     * corpus uses one yet and there is no `Subtype` constant, but they are an attachment type, so
-     * the attachability check honors the subtype rather than mis-flagging the first one added.
-     */
-    private val FORTIFICATION = Subtype("Fortification")
 
     fun lint(card: CardDefinition): List<CardValidationError> {
         val findings = mutableListOf<CardValidationError>()
@@ -112,10 +105,16 @@ object CardLinter {
         if (Keyword.CONVOKE in card.keywords || card.cardFaces.any { Keyword.CONVOKE in it.keywords }) {
             slots.declared.add("CONVOKED_CREATURES")
         }
+        // A card's own alternative cost (CR 118.9) is a script field, not a node: paying it stamps
+        // SELF_ALTERNATIVE_COST_PAID (see PermanentEntry / ConditionEvaluator).
+        if (card.script.selfAlternativeCost != null || card.cardFaces.any { it.script.selfAlternativeCost != null }) {
+            slots.declared.add("SELF_ALTERNATIVE_COST_PAID")
+        }
 
         lintDefinition(card.name, fullTree, explicitTree, slots, findings)
         checkSlots(card.name, slots, findings)
         checkOpponentChoosers(card.name, explicitTree, withinActivatedAbility = false, findings)
+        checkDynamicTargetCounts(card.name, explicitTree, findings)
         checkAttachedScope(card, findings)
         checkProwessTrigger(card, findings)
         checkManaAbilityClassification(card.name, fullTree, findings)
@@ -128,7 +127,6 @@ object CardLinter {
         "AddColorlessMana",
         "AddManaOfChoice",
         "AddDynamicMana",
-        "AddAnyColorManaSpendOnChosenType",
         "AddOneManaOfEachColorAmong",
     )
 
@@ -360,7 +358,6 @@ object CardLinter {
             else (tree["type"] as? JsonPrimitive)?.contentOrNull in names ||
                 tree.values.any { ownEffectContains(it, names) }
         is JsonArray -> tree.any { ownEffectContains(it, names) }
-        else -> false
     }
 
     /** A serialized ability or card definition rather than a step of the effect being scanned. */
@@ -478,7 +475,7 @@ object CardLinter {
     /** True if any face of the physical card can host an attachment. */
     private fun canEverBeAttached(card: CardDefinition): Boolean {
         fun attaches(typeLine: TypeLine, script: CardScript) =
-            typeLine.isAura || typeLine.isEquipment || typeLine.hasSubtype(FORTIFICATION) ||
+            typeLine.isAura || typeLine.isEquipment || typeLine.isFortification ||
                 // A card can carry the target/cost without the subtype; CardValidator reports that
                 // mismatch on its own, and this check has no business double-reporting it.
                 script.auraTarget != null
@@ -592,11 +589,73 @@ object CardLinter {
     }
 
     /**
+     * A [com.wingedsheep.sdk.scripting.targets.TargetObject] whose dynamic target count says
+     * something no Oracle text does. "X target creatures" is exactly X (`dynamicMinCount` and
+     * `dynamicMaxCount` both X — the DSL's `targets(filter, exactly = X)`); "up to X target
+     * creatures" is `dynamicMaxCount` with `optional = true`; "any number of …" with a cap is
+     * `dynamicMaxCount` with `unlimited = true`. Three other shapes are rejected:
+     *
+     * - `dynamicMaxCount` alone, neither optional nor unlimited — a floor of the static `minCount`
+     *   (one) under a dynamic cap, "one to X targets", which no card prints. It is what "X target"
+     *   used to be approximated as, and it made X = 0 uncastable.
+     * - `dynamicMinCount` without `dynamicMaxCount` — a floor with no cap.
+     * - `dynamicMinCount` with `optional` or `unlimited` — a floor the flag then waives.
+     */
+    private fun checkDynamicTargetCounts(
+        cardName: String,
+        element: JsonElement,
+        findings: MutableList<CardValidationError>,
+    ) {
+        when (element) {
+            is JsonObject -> {
+                if ((element["type"] as? JsonPrimitive)?.contentOrNull in DYNAMIC_COUNT_TARGET_TYPES) {
+                    fun present(field: String) = element[field]?.takeIf { it !is JsonNull } != null
+                    fun flag(field: String) = (element[field] as? JsonPrimitive)?.contentOrNull == "true"
+                    val max = present("dynamicMaxCount")
+                    val min = present("dynamicMinCount")
+                    val waived = flag("optional") || flag("unlimited")
+                    val ownerCountConflict = present("ownerDistribution") &&
+                        (max || min || waived ||
+                            (element["count"] as? JsonPrimitive)?.contentOrNull?.let { it != "1" } == true ||
+                            (element["minCount"] as? JsonPrimitive)?.contentOrNull?.let { it != "1" } == true)
+                    val problem = when {
+                        ownerCountConflict -> "ownerDistribution alongside another target-count input"
+                        min && !max -> "a dynamicMinCount without a dynamicMaxCount"
+                        min && waived -> "a dynamicMinCount alongside optional/unlimited, which waive it"
+                        max && !min && !waived ->
+                            "a dynamicMaxCount that is neither exact nor optional (\"one to X targets\")"
+                        else -> null
+                    }
+                    if (problem != null) {
+                        findings.add(
+                            CardValidationError.AmbiguousDynamicTargetCount(
+                                cardName = cardName,
+                                message = if (ownerCountConflict) {
+                                    "'$cardName' has ownerDistribution alongside another count input. " +
+                                        "ownerDistribution is the whole count; use UP_TO_ONE for optional per-owner targets."
+                                } else "'$cardName' has a target requirement with $problem. Spell " +
+                                    "\"X target …\" as targets(filter, exactly = X) and \"up to X target …\" " +
+                                    "as optional = true with dynamicMaxCount = X."
+                            )
+                        )
+                    }
+                }
+                element.values.forEach { checkDynamicTargetCounts(cardName, it, findings) }
+            }
+            is JsonArray -> element.forEach { checkDynamicTargetCounts(cardName, it, findings) }
+            else -> {}
+        }
+    }
+
+    /**
      * The [com.wingedsheep.sdk.scripting.targets.TargetRequirement] type discriminators that carry
      * a `chooser` field. Keep in step with the SDK: a requirement that gains a `chooser` and is
      * missing here is silently exempt from [checkOpponentChoosers].
      */
     private val CHOOSER_BEARING_TARGET_TYPES = setOf("AnyTarget", "TargetObject")
+
+    /** Target requirements that carry a dynamic count (`dynamicMaxCount`) in their serialized form. */
+    private val DYNAMIC_COUNT_TARGET_TYPES = setOf("AnyTarget", "TargetObject")
 
     // =========================================================================================
     // Namespaces and registries
@@ -608,7 +667,7 @@ object CardLinter {
         CHOSEN("chosen value"),
         STRING_LIST("stored string list"),
         SUBTYPE_GROUPS("stored subtype groups"),
-        CAST_FLAG("cast-time flag"),
+        CAST_CAPTURE("cast-time capture"),
     }
 
     private enum class Kind { READ, WRITE, IGNORE }
@@ -622,11 +681,14 @@ object CardLinter {
     /**
      * `(type discriminator | null, field name)` → how that field participates in dataflow.
      * A `null` type matches any node (for fields on non-polymorphic classes, which carry no
-     * discriminator — e.g. `CastTimeCapture.flag`, `GroupFilter.chosenSubtypeKey`). Type-keyed
+     * discriminator — e.g. `CastTimeCapture.captureName`, `GroupFilter.chosenSubtypeKey`). Type-keyed
      * entries win over field-keyed ones.
      */
     private val dataflowFields: Map<Pair<String?, String>, Classification> = buildMap {
+        put("EmitScriedEvent" to "gatherCollection", read(Space.COLLECTION))
+        put("EmitScriedEvent" to "bottomCollection", read(Space.COLLECTION))
         // --- Writers -------------------------------------------------------------------------
+        put("SecretEntityChoice" to "storeMostChosen", write(Space.COLLECTION))
         put("GatherCards" to "storeAs", write(Space.COLLECTION))
         put("CaptureControllers" to "storeAs", write(Space.COLLECTION))
         put("StorePlayer" to "storeAs", write(Space.COLLECTION))
@@ -639,9 +701,13 @@ object CardLinter {
         put("ChoosePile" to "storeOtherAs", write(Space.COLLECTION))
         put("MoveCollection" to "storeMovedAs", write(Space.COLLECTION))
         put("SelectTarget" to "storeAs", write(Space.COLLECTION))
+        put("FlipOntoBattlefield" to "storeTouchedAs", write(Space.COLLECTION))
         put("FilterCollection" to "storeMatching", write(Space.COLLECTION))
         put("FilterCollection" to "storeNonMatching", write(Space.COLLECTION))
         put("ExileLibraryUntilManaValue" to "storeAs", write(Space.COLLECTION))
+        // A subgame (CR 729) publishes the players who didn't win it for its `afterSubgame` text
+        // (Shahrazad's "each player who doesn't win the subgame loses half their life").
+        put("PlaySubgame" to "nonWinners", write(Space.COLLECTION))
         // The contest publishes the winning *player* as a one-entry collection and every card it
         // exiled, in every round, as another.
         put("ExileTopCardContest" to "storeWinnerAs", write(Space.COLLECTION))
@@ -656,38 +722,46 @@ object CardLinter {
         put("CopyCollectionIntoCollection" to "storeAs", write(Space.COLLECTION))
         put("ForcePlay" to "storePlayedTo", write(Space.COLLECTION))
         put("CastFromCollectionWithoutPayingCost" to "storeCastTo", write(Space.COLLECTION))
+        put("CastAnyNumberFromCollectionWithoutPayingCost" to "storeCastTo", write(Space.COLLECTION))
         put("CounterAllOnStack" to "storeCountAs", write(Space.COLLECTION))
         put("Behold" to "storeAs", write(Space.COLLECTION))
         put("ChooseEntity" to "storeAs", write(Space.COLLECTION))
         put("ChooseOnePerCategory" to "storeAs", write(Space.COLLECTION))
+        // Permanents proliferate gave a counter to (Ripples of Potential).
+        put("Proliferate" to "storeAs", write(Space.COLLECTION))
         put("StoreNumber" to "name", write(Space.NUMBER))
         put("FlipCoins" to "storeHeadsAs", write(Space.NUMBER))
         put("FlipCoinsUntilLoss" to "storeWinsAs", write(Space.NUMBER))
+        put("RollDice" to "storeTotalAs", write(Space.NUMBER))
         put("PlayerGuessesConditionEffect" to "storeGuessedRightAs", write(Space.NUMBER))
         put("ForEachCapturedController" to "countVariable", write(Space.NUMBER))
         put("DrawUpTo" to "storeNotDrawnAs", write(Space.NUMBER))
         put("Fight" to "excessDamageVariable", write(Space.NUMBER))
         put("DealDamage" to "excessDamageVariable", write(Space.NUMBER))
+        put("DealDamage" to "damageDealtVariable", write(Space.NUMBER))
+        put("DividedDamage" to "storeDamagedAs", write(Space.COLLECTION))
         put("PayCounters" to "storeAmountAs", write(Space.NUMBER))
+        put("RemoveCountersFromAmong" to "storeAmountAs", write(Space.NUMBER))
         put("CollectEvidenceChosenAmount" to "storeAmountAs", write(Space.NUMBER))
+        put("ChooseSpellCastThisTurn" to "storeDamageDealtAs", write(Space.NUMBER))
         put("PayManaCostRepeatedly" to "storeCountAs", write(Space.NUMBER))
         put("ChooseOption" to "storeAs", write(Space.CHOSEN))
         put("NoteCreatureType" to "storeAs", write(Space.CHOSEN))
         put("StoreCardName" to "storeAs", write(Space.CHOSEN))
         put("EachPlayerChoosesCreatureType" to "storeAs", write(Space.STRING_LIST))
-        put(null to "flag", write(Space.CAST_FLAG)) // CastTimeCapture (no discriminator)
+        put(null to "captureName", write(Space.CAST_CAPTURE)) // CastTimeCapture (no discriminator)
 
         // --- Readers -------------------------------------------------------------------------
         for (type in listOf(
-            "CaptureControllers", "GatherSubtypes", "RevealCollection", "SelectFromCollection",
+            "SecretEntityChoice", "CaptureControllers", "GatherSubtypes", "RevealCollection", "SelectFromCollection",
             "ChoosePile", "MoveCollection", "GrantMayPlayFromExile", "GrantPlayWithoutPayingCost",
             "MakePlotted",
             "GrantPlayWithAdditionalCost", "GrantPlayWithCostIncrease", "FilterCollection",
             "ChooseOnePerCategory",
             "StoreCardName", "ForcePlay", "CastFromCollectionWithoutPayingCost", "PlayFromCollectionWithoutPayingCost",
             "CastAnyNumberFromCollectionWithoutPayingCost", "ExileFromStorage",
-            "CopyCollectionIntoCollection", "RecordChosenLinkedExile", "RecordSourceObjects",
-            "PairWithSource", "EmitChampionedEvent",
+            "CopyCollectionIntoCollection", "RecordChosenLinkedExile", "LinkCollectionToPermanent", "RecordSourceObjects",
+            "PairWithSource", "EmitChampionedEvent", "EnchantPutOntoBattlefield",
         )) put(type to "from", read(Space.COLLECTION))
         put("GrantCantBeBlockedExceptByCollection" to "collection", read(Space.COLLECTION))
         put("ChoosePile" to "pileA", read(Space.COLLECTION))
@@ -716,13 +790,14 @@ object CardLinter {
         put("ExcludeOtherCollection" to "otherCollectionName", read(Space.COLLECTION))
         put("VariableReference" to "variableName", read(Space.NUMBER))
         put("NameEqualsChosen" to "variableName", read(Space.CHOSEN))
+        put("CardTypeEqualsChosen" to "variableName", read(Space.CHOSEN))
         put("HasSubtypeFromVariable" to "variableName", read(Space.CHOSEN))
         put("YouControlMostOfChosenType" to "chosenValueKey", read(Space.CHOSEN))
         put(null to "chosenSubtypeKey", read(Space.CHOSEN)) // GroupFilter (no discriminator)
         put("HasSubtypeInStoredList" to "listName", read(Space.STRING_LIST))
         put("ExcludeSubtypesFromStored" to "storedKey", read(Space.STRING_LIST))
         put("HasSubtypeInEachStoredGroup" to "groupName", read(Space.SUBTYPE_GROUPS))
-        put("CastTimeFlagSet" to "flag", read(Space.CAST_FLAG))
+        put("CapturedAtCast" to "captureName", read(Space.CAST_CAPTURE))
         // "becomes the chosen type/color" effects reading a ChooseOption result.
         for (type in listOf("SetCreatureSubtypes", "AddCreatureType", "AddSubtype", "SetLandType")) {
             put(type to "fromChosenValueKey", read(Space.CHOSEN))
@@ -739,7 +814,7 @@ object CardLinter {
         "from", "collection", "collectionName", "collections", "originalCollection",
         "controllerSnapshot", "pileA", "pileB", "variableName", "otherCollectionName",
         "storedKey", "groupName", "listName", "chosenValueKey", "chosenSubtypeKey",
-        "countVariable", "flag",
+        "countVariable", "flag", "captureName",
     )
 
     private fun isStoreField(field: String) =
@@ -754,6 +829,10 @@ object CardLinter {
     /** Implicit accesses keyed by node type — participation not visible as a string field. */
     private fun implicitAccesses(type: String?, obj: JsonObject): List<Pair<Kind, Pair<Space, String>>> =
         when {
+            type == "RollDice" ->
+                (obj["resultCounts"] as? JsonObject)?.keys.orEmpty().map { Kind.WRITE to (Space.NUMBER to it) }
+            type == "Vote" ->
+                (obj["voteCounts"] as? JsonObject)?.keys.orEmpty().map { Kind.WRITE to (Space.NUMBER to it) }
             type == "ChooseCreatureType" ->
                 listOf(Kind.WRITE to (Space.CHOSEN to "chosenCreatureType"))
             // Paying "Reveal the creature type you chose" publishes the source's secret note into
@@ -839,6 +918,9 @@ object CardLinter {
         "Mayhem" to listOf("MAYHEM_CAST"),
         // Escape (CR 702.138b): an escape-cast permanent is stamped "escaped" (see PermanentEntry).
         "Escape" to listOf("ESCAPED"),
+        // Foretell (CR 702.143c): a spell cast from exile as a foretold card is stamped "foretold"
+        // (see CastSpellHandler.foretoldChoice), read back by Conditions.WasForetold.
+        "Foretell" to listOf("FORETOLD"),
         "BlightVariable" to listOf("BLIGHT_AMOUNT"),
         "BlightOrPay" to listOf("BLIGHT_AMOUNT"),
         // Resolution-time color choices: ChooseColorThen sets EffectContext.chosenColor for its
@@ -859,6 +941,7 @@ object CardLinter {
         "COLOR" to "COLOR",
         "CREATURE_TYPE" to "CREATURE_TYPE",
         "CARD_TYPE" to "CARD_TYPE",
+        "PLANESWALKER_TYPE" to "PLANESWALKER_TYPE",
         "BASIC_LAND_TYPE" to "LAND_TYPE",
         "MODE" to "MODE",
         "CREATURE_ON_BATTLEFIELD" to "CREATURE",
@@ -882,6 +965,15 @@ object CardLinter {
         "SourceChosenModeIs" to "MODE",
         "CardTypeEqualsChosenComponent" to "CARD_TYPE",
         "ConvokedSource" to "CONVOKED_CREATURES",
+        "ChosenBySource" to "CREATURE",
+    )
+
+    /**
+     * Fallback slots a [slotReaders] node also accepts: `GrantChosenSubtype` reads the chosen
+     * creature type, or failing that the chosen basic land type (Thran Portal).
+     */
+    private val slotReaderFallbacks: Map<String, Set<String>> = mapOf(
+        "GrantChosenSubtype" to setOf("LAND_TYPE"),
     )
 
     /** Node types whose `slot` field names the slot they read. */
@@ -890,9 +982,16 @@ object CardLinter {
     /**
      * Node types whose `slot` field names the slot they *declare* (write durably on the source).
      * [com.wingedsheep.sdk.scripting.effects.ChooseNumberForSourceEffect] records a number under the
-     * named slot (e.g. `CHOSEN_NUMBER` for Shapeshifter), which a `CastChoice` read then resolves.
+     * named slot (e.g. `CHOSEN_NUMBER` for Shapeshifter), and
+     * [com.wingedsheep.sdk.scripting.effects.NoteNumberForSourceEffect] a noted one (`NOTED_NUMBER`
+     * for Sigarda's Splendor), which a `CastChoice` read then resolves. Each maps to the slot it
+     * writes when the `slot` field is left at its default.
      */
-    private val slotFieldDeclarers = setOf("ChooseNumberForSource", "ChooseCardTypeForSource")
+    private val slotFieldDeclarers = mapOf(
+        "ChooseNumberForSource" to "CHOSEN_NUMBER",
+        "NoteNumberForSource" to "NOTED_NUMBER",
+        "ChooseCardTypeForSource" to "CARD_TYPE",
+    )
 
     private class SlotUsage {
         val declared = mutableSetOf<String>()
@@ -917,14 +1016,18 @@ object CardLinter {
                             ?.let { slots.declaredModeIds.add(it) }
                     }
                 }
-                slotReaders[type]?.let { slots.reads.add(it to type.orEmpty()) }
+                // A reader with an explicit `slot` field (the default is omitted from the JSON) reads
+                // that slot instead — Stenn's CardTypeEqualsChosenComponent(MODE).
+                slotReaders[type]?.let {
+                    val slot = (element["slot"] as? JsonPrimitive)?.contentOrNull ?: it
+                    slots.reads.add(slot to type.orEmpty())
+                }
                 if (type in slotFieldReaders) {
                     (element["slot"] as? JsonPrimitive)?.contentOrNull
                         ?.let { slots.reads.add(it to type.orEmpty()) }
                 }
-                if (type in slotFieldDeclarers) {
-                    (element["slot"] as? JsonPrimitive)?.contentOrNull
-                        ?.let { slots.declared.add(it) }
+                slotFieldDeclarers[type]?.let { defaultSlot ->
+                    slots.declared.add((element["slot"] as? JsonPrimitive)?.contentOrNull ?: defaultSlot)
                 }
                 // The optional-additional-cost keyword (serial name "Kicker") declares whichever
                 // slot its own mechanic uses: KICKED for kicker/multikicker/offspring, BARGAINED
@@ -1323,6 +1426,10 @@ object CardLinter {
                 ?.let { scope.targetRefs.add(TargetRef(type, it, null)) }
             "BoundVariable" -> (obj["name"] as? JsonPrimitive)?.contentOrNull
                 ?.let { scope.targetRefs.add(TargetRef(type, null, it)) }
+            // `ForEachTargetOf` names a whole declaration; recorded as a slot read so the
+            // unknown-binding check applies but the bare-multi-slot one doesn't.
+            "IterationSpace.TargetsOf" -> (obj["group"] as? JsonPrimitive)?.contentOrNull
+                ?.let { scope.targetRefs.add(TargetRef(type, null, "$it[*]")) }
             "EntityMatches" -> {
                 val role = when (val entity = obj["entity"]) {
                     is JsonPrimitive -> entity.contentOrNull
@@ -1400,20 +1507,34 @@ object CardLinter {
          * The default `chosenCreatureType` key doubles as the read path for the CREATURE_TYPE
          * choice slot: statics like Cover of Darkness pair `EntersWithChoice(CREATURE_TYPE)` with
          * a `chosenSubtypeKey = "chosenCreatureType"` group filter, no pipeline write involved.
+         * A planeswalker-type choice reads back the same way under `chosenPlaneswalkerType`
+         * (Deification).
          */
         fun satisfiedBySlot(read: Access): Boolean =
-            read.space == Space.CHOSEN && read.name == "chosenCreatureType" &&
-                "CREATURE_TYPE" in slots.declared
+            read.space == Space.CHOSEN && (
+                (read.name == "chosenCreatureType" && "CREATURE_TYPE" in slots.declared) ||
+                    (read.name == "chosenPlaneswalkerType" && "PLANESWALKER_TYPE" in slots.declared)
+                )
 
         /**
          * Collections the engine seeds for the ability before its effect runs, so a read with no
          * in-card writer is correct, not a silent no-op. `trigger.captured` is the batch-trigger
          * capture (the matching members of a `PermanentsEnteredEvent` batch — Kambal); the engine
-         * populates it when the triggered ability resolves.
+         * populates it when the triggered ability resolves. `trigger.damagedPlayers` is the players a
+         * "deal combat damage to one or more players" batch hit, usually read as its `_count`
+         * (Hordewing Skaab).
          */
-        fun engineSeeded(read: Access): Boolean =
-            read.space == Space.COLLECTION &&
-                read.name == com.wingedsheep.sdk.scripting.effects.IterationSpace.TRIGGER_CAPTURED_COLLECTION
+        fun engineSeeded(read: Access): Boolean {
+            val seeded = listOf(
+                com.wingedsheep.sdk.scripting.effects.IterationSpace.TRIGGER_CAPTURED_COLLECTION,
+                com.wingedsheep.sdk.scripting.effects.IterationSpace.TRIGGER_DAMAGED_PLAYERS,
+            )
+            return when (read.space) {
+                Space.COLLECTION -> read.name in seeded
+                Space.NUMBER -> seeded.any { read.name == "${it}_count" }
+                else -> false
+            }
+        }
 
         for (scope in state.scopes) {
             if (scope.collectionParent != null) continue // merged into parent already
@@ -1546,7 +1667,8 @@ object CardLinter {
 
     private fun checkSlots(cardName: String, slots: SlotUsage, findings: MutableList<CardValidationError>) {
         for ((slot, nodeType) in slots.reads) {
-            if (slot !in slots.declared) {
+            val fallbacks = slotReaderFallbacks[nodeType].orEmpty()
+            if (slot !in slots.declared && fallbacks.none { it in slots.declared }) {
                 findings.add(
                     CardValidationError.UndeclaredChoiceSlotRead(
                         cardName = cardName,

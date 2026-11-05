@@ -31,6 +31,18 @@ data class Printing(
     val frameEffects: List<String> = emptyList(),
     /** Scryfall `border_color` (e.g. "black", "white", "borderless"). Null when unknown. */
     val borderColor: String? = null,
+    /**
+     * Scryfall `printed_name` — the name printed on this card when it differs from the oracle
+     * [name], e.g. Through the Omenpaths' in-universe names for Marvel's Spider-Man cards.
+     * Presentation only: rules identity stays [name]. Null when the printing uses the oracle name.
+     */
+    val printedName: String? = null,
+    /**
+     * Scryfall `booster` — false when this printing is not opened from the set's own packs (a
+     * Planeswalker Deck exclusive, a Brawl/Commander deck card), so it stays out of that set's
+     * booster pool even though its canonical card is a booster card elsewhere.
+     */
+    val inBooster: Boolean = true,
 ) {
     /** Reference form for decks and lookup APIs. */
     val ref: PrintingRef get() = PrintingRef(setCode, collectorNumber)

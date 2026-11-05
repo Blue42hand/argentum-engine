@@ -10,7 +10,7 @@ internal class JevDecisions(private val q: JevChoices, private val label: (Entit
 
     fun answer(d: PendingDecision): DecisionResponse = when (d) {
         is PlayCardDecision -> PlayCardResponse(d.id, requireNotNull(playCard)(d))
-        is YesNoDecision -> YesNoResponse(d.id, q.pick(d.prompt, listOf(true, false)) { if (it) d.yesText else d.noText })
+        is YesNoDecision -> YesNoResponse(d.id, q.pick(d.prompt, listOfNotNull(true.takeIf { d.yesAvailable }, false)) { if (it) d.yesText else d.noText })
         is BatchYesNoDecision -> BatchYesNoResponse(d.id,
             q.pick(d.prompt, listOf(true, false)) { if (it) d.yesText else d.noText }, applyToAll = false)
         is ChooseOptionDecision -> OptionChosenResponse(d.id, q.pick(d.prompt, d.options.indices.toList()) { d.options[it] })
@@ -18,12 +18,19 @@ internal class JevDecisions(private val q: JevChoices, private val label: (Entit
         is ChooseColorDecision -> ColorChosenResponse(d.id, q.pick(d.prompt, d.availableColors.toList()))
         is ChooseModeDecision -> ModesChosenResponse(d.id,
             q.select(d.prompt, d.modes.filter { it.available }, d.minModes, d.maxModes) { it.text }.map { it.index })
-        is SelectCardsDecision -> CardsSelectedResponse(d.id, cards(d.prompt, d.options, d.minSelections, d.maxSelections))
+        is SelectCardsDecision -> if (d.selectionLimits != null) {
+            val full = com.wingedsheep.ai.engine.CounterAllocation.fullPayment(d)
+            val selected = if (full == null) emptyList() else if (d.minSelections > 0) full else
+                q.pick(d.prompt, listOf(full, emptyList())) { if (it.isEmpty()) "Don't pay" else "Pay the full counter cost" }
+            CardsSelectedResponse(d.id, selected)
+        } else CardsSelectedResponse(d.id, cards(d.prompt, d.options, d.minSelections, d.maxSelections))
         is SearchLibraryDecision -> CardsSelectedResponse(d.id, cards(d.prompt, d.options, d.minSelections, d.maxSelections))
-        is ChooseTargetsDecision -> TargetsResponse(d.id, d.targetRequirements.associate { r ->
-            r.index to cards("${d.prompt}: ${r.description}", d.legalTargets[r.index].orEmpty(), r.minTargets, r.maxTargets)
+        is ChooseTargetsDecision -> TargetsResponse(d.id, d.targetRequirements.fold(emptyMap()) { chosen, r ->
+            chosen + (r.index to cards("${d.prompt}: ${r.description}", d.legalTargetsFor(r.index, chosen), r.minTargets, r.maxTargets))
         })
         is OrderObjectsDecision -> OrderedResponse(d.id, cards("${d.prompt}: choose next in order", d.objects, d.objects.size, d.objects.size))
+        is OrderTriggersDecision -> TriggerOrderResponse(d.id, q.select("${d.prompt}: choose next to resolve",
+            d.triggers.indices.toList(), d.triggers.size, d.triggers.size) { "${d.triggers[it].sourceName}: ${d.triggers[it].text}" })
         is ReorderLibraryDecision -> OrderedResponse(d.id, cards("${d.prompt}: top first", d.cards, d.cards.size, d.cards.size))
         is SplitPilesDecision -> if (d.suggestedPiles != null) PilesSplitResponse(d.id, d.suggestedPiles!!) else {
             val piles = List(d.numberOfPiles) { mutableListOf<EntityId>() }
@@ -41,6 +48,13 @@ internal class JevDecisions(private val q: JevChoices, private val label: (Entit
                 d.toOptions[it]
             }
             ReplacementChosenResponse(d.id, from, to)
+        }
+        is FlipOntoBattlefieldDecision -> {
+            // Flick cleanly at a permanent's centre, or throw it off the table.
+            val aims = d.table.cards.filter { it.eligible }
+            val aim = q.pick("${d.prompt}: aim at", aims + listOf(null)) { it?.let { c -> c.name ?: "a face-down permanent" } ?: "Off the table" }
+            if (aim == null) FlipThrowResponse.toward(d.id, d.table, d.table.width / 2, -2 * d.table.height)
+            else FlipThrowResponse.toward(d.id, d.table, aim.x, aim.y)
         }
         is BudgetModalDecision -> {
             var budget = d.budget

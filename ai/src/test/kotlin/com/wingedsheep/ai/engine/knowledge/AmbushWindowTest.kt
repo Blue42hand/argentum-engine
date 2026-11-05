@@ -17,8 +17,9 @@ import io.kotest.matchers.shouldBe
  *     before any window reasoning runs.
  *  2. The window is **our whole turn, and theirs until attackers are known**. That is the entire
  *     behaviour: hold on ours, hold through their upkeep, release once they have committed.
- *  3. The **four payoffs** each decline it — haste, a stack object, an ETB that changes a combat,
- *     an ETB that hands us something to spend.
+ *  3. The **four payoffs** each decline it — haste, an opponent's stack object, an ETB that changes
+ *     a combat, an ETB that hands us something to spend. Our own stack objects do not — see
+ *     `AmbushOwnTriggerTest`.
  *  4. It **ends**, by [Patience]'s releases rather than by any of its own.
  *
  * Where the claim is about the policy's shape the intent is synthesized, so the test says what it
@@ -76,23 +77,30 @@ class AmbushWindowTest : ScenarioTestBase() {
         // ── 1. Scope ──
 
         test("Restoration Angel reads as a flash body that only ever touches our own board") {
-            // The card that started this, read by the real analyzer. Three things are load-bearing
-            // for the puzzles, and the third is the surprising one:
-            //
-            //  - `flashPermanent` is what gets it into the policy at all.
-            //  - It carries none of the tags that pay off before the ambush.
-            //  - It IS tagged REMOVAL/EXILE_REMOVAL, for blinking a creature *we control* — the
-            //    `hitsAnotherPermanent` fail-open that [CardIntent.targetsOnlyOurPermanents]
-            //    exists to work around. Pinned here so the workaround's premise is visible: if a
-            //    later analyzer change makes the tag honest, this assertion fails and the field
-            //    can be deleted rather than quietly kept forever.
+            // A blink now reads honestly as protection. Unlike a granted combat shield, it
+            // pays off by responding to removal; without that response window the body waits.
             val angel = intentFor("Restoration Angel")
             angel.flashPermanent shouldBe true
             angel.hasHaste shouldBe false
             angel.speed shouldBe Speed.INSTANT
-            angel.tags.filter { it in PAYS_OFF_BEFORE_THE_AMBUSH }.shouldBeEmpty()
-            angel.tags.filter { it in ANSWERS_THEIR_BOARD }.shouldNotBeEmpty()
+            (IntentTag.PROTECTION in angel.tags) shouldBe true
+            angel.protectionOnlyFromBlink shouldBe true
+            angel.tags.filter { it in ANSWERS_THEIR_BOARD }.shouldBeEmpty()
             angel.targetsOnlyOurPermanents shouldBe true
+        }
+
+        test("a flash body whose only combat payoff is untapping our team keeps waiting") {
+            // Village Bell-Ringer: "When this creature enters, untap all creatures you control."
+            // Flashed in on our main phase it untaps nothing; it pays off once our creatures tap.
+            val bellRinger = intentFor("Village Bell-Ringer")
+            (IntentTag.COMBAT_ENHANCEMENT in bellRinger.tags) shouldBe true
+            bellRinger.combatEnhancementOnlyFromUntap shouldBe true
+            position().floors(bellRinger, step = Step.PRECOMBAT_MAIN, activeSeat = 1) shouldBe true
+        }
+
+        test("a real protection shield still releases the floor before combat") {
+            val angelWithShield = intentFor("Restoration Angel").copy(protectionOnlyFromBlink = false)
+            position().floors(angelWithShield, step = Step.PRECOMBAT_MAIN, activeSeat = 1) shouldBe false
         }
 
         test("an instant and an ordinary creature are out of scope") {
@@ -146,7 +154,7 @@ class AmbushWindowTest : ScenarioTestBase() {
             position().floors(kavu) shouldBe false
         }
 
-        test("something on the stack declines the floor") {
+        test("an opponent's spell on the stack declines the floor") {
             // Seat 2 needs priority to put the spell there, which is why this position hands them
             // the turn. `floors` overwrites the active player on the state it tests either way, so
             // the assertions below are about the stack and nothing else.

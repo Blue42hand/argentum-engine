@@ -87,8 +87,16 @@ class PlayoutPolicy(
         // Combat declaration is never optional — the enumerator offers exactly one of these and the
         // engine will not move on until it is answered.
         legalActions.firstOrNull { it.actionType == "DeclareAttackers" }?.let { action ->
-            val seed = CombatSeed.attackers(state, state.projectedState, action, playerId, cardRegistry)
-            return DeclareAttackers(playerId, seed.attackers) to rng
+            // Aimed at walkers exactly as the real decision's seed is, so a playout does not leave
+            // an opposing planeswalker alone that the AI would actually attack.
+            val seed = CombatSeed.attackers(
+                state, state.projectedState, action, playerId, cardRegistry,
+                aimAtPlaneswalkers = combatAdvisor.attackPlaneswalkers,
+                walkerEngines = combatAdvisor.walkerEngines,
+                minimalLethalInPods = combatAdvisor.minimalLethalInPods,
+                threatAwareDefender = combatAdvisor.threatAwareDefender,
+            )
+            return DeclareAttackers(playerId, CombatSeed.obeyLoneAttackers(action, seed.attackers)) to rng
         }
         legalActions.firstOrNull { it.actionType == "DeclareBlockers" }?.let { action ->
             return combatAdvisor.chooseBlockers(

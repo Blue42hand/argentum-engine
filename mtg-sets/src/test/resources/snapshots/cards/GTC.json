@@ -75,6 +75,77 @@
     ]
 }
 
+// Assemble the Legion
+{
+    "name": "Assemble the Legion",
+    "manaCost": "{3}{R}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "At the beginning of your upkeep, put a muster counter on this enchantment. Then create a 1/1 red and white Soldier creature token with haste for each muster counter on this enchantment.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Assemble the Legion:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "MUSTER",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "CreateToken",
+                            "count": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": "MUSTER"
+                                }
+                            },
+                            "power": 1,
+                            "toughness": 1,
+                            "colors": [
+                                "RED",
+                                "WHITE"
+                            ],
+                            "creatureTypes": [
+                                "Soldier"
+                            ],
+                            "keywords": [
+                                "HASTE"
+                            ],
+                            "imageUri": "https://cards.scryfall.io/normal/front/a/8/a8a5a5a5-a8ae-41ed-9af5-b99d80ce0b35.jpg?1783940147"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "142",
+        "rarity": "RARE",
+        "artist": "Eric Deschamps",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/3/43675ed7-ece1-4414-965e-9ebadcbf3dfb.jpg?1783940113",
+        "rulings": [
+            {
+                "date": "2024-01-12",
+                "text": "If Assemble the Legion isn't on the battlefield when its ability resolves, use the number of muster counters it had when it was last on the battlefield to determine how many Soldier tokens to create."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "WHITE"
+    ]
+}
+
 // Aurelia, the Warleader
 {
     "name": "Aurelia, the Warleader",
@@ -133,6 +204,126 @@
     "colorIdentityOverride": [
         "WHITE",
         "RED"
+    ]
+}
+
+// Biomass Mutation
+{
+    "name": "Biomass Mutation",
+    "manaCost": "{X}{G/U}{G/U}",
+    "typeLine": "Instant",
+    "oracleText": "Creatures you control have base power and toughness X/X until end of turn.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Group",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                }
+            },
+            "body": {
+                "type": "SetBaseStats",
+                "target": "IterationEntity",
+                "power": "XValue",
+                "toughness": "XValue",
+                "duration": "EndOfTurn"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "213",
+        "rarity": "RARE",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "\"A regression to ancient forms? A glimpse of future evolutions? Or a fleeting alteration of the present?\"\n—Vorel of the Hull Clade",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/b/fbe0a11d-0390-437e-8ece-3229863c76db.jpg?1783940096",
+        "rulings": [
+            {
+                "date": "2013-01-24",
+                "text": "Choosing 0 as the value for X will likely cause creatures you control to become 0/0 and be put into the graveyard."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "Biomass Mutation overwrites any effects that set the power and/or toughness of a creature you control to a specific value. Effects that modify power and/or toughness but don't set them to a specific value (like the one created by Giant Growth), power/toughness changes from counters, and effects that switch a creature's power and toughness will continue to apply."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "GREEN"
+    ]
+}
+
+// Blind Obedience
+{
+    "name": "Blind Obedience",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment",
+    "oracleText": "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)\nArtifacts and creatures your opponents control enter tapped.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Blind Obedience:1",
+                "trigger": "SpellCastEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{W/B}"
+                        }
+                    },
+                    "then": {
+                        "type": "DrainLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "descriptionOverride": "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)"
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "PermanentsEnterTapped",
+                "appliesTo": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature|artifact ctrl:opponent",
+                    "to": "Battlefield"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "6",
+        "rarity": "RARE",
+        "artist": "Seb McKinnon",
+        "flavorText": "\"By the time your knees have worn through your robe, you may have begun to learn your place.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/7/07c3e78d-d917-4552-842f-feff99c059e0.jpg?1783940144",
+        "rulings": [
+            {
+                "date": "2024-01-12",
+                "text": "You may pay {W/B} a maximum of one time for each extort triggered ability. You decide whether to pay when the ability resolves."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "The amount of life you gain from extort is based on the total amount of life lost, not necessarily the number of opponents you have."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "The extort ability doesn't target any player."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "The extort ability resolves before the spell that caused it to trigger. The ability resolves even if that spell is countered."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -388,6 +579,79 @@
     ]
 }
 
+// Crypt Ghast
+{
+    "name": "Crypt Ghast",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Spirit",
+    "oracleText": "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)\nWhenever you tap a Swamp for mana, add an additional {B}.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Crypt Ghast:1",
+                "trigger": "SpellCastEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayPay",
+                        "cost": {
+                            "type": "PayManaCost",
+                            "cost": "{W/B}"
+                        }
+                    },
+                    "then": {
+                        "type": "DrainLife",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    }
+                },
+                "descriptionOverride": "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)"
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "AdditionalManaOnSourceTap",
+                "sourceFilter": "land Swamp ctrl:you",
+                "color": "BLACK"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "61",
+        "rarity": "RARE",
+        "artist": "Chris Rahn",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/7/3795a4e7-646f-4bb7-b154-2610eb740e8d.jpg?1783940132",
+        "rulings": [
+            {
+                "date": "2024-01-12",
+                "text": "You may pay {W/B} a maximum of one time for each extort triggered ability. You decide whether to pay when the ability resolves."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "The amount of life you gain from extort is based on the total amount of life lost, not necessarily the number of opponents you have."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "The extort ability doesn't target any player."
+            },
+            {
+                "date": "2024-01-12",
+                "text": "The extort ability resolves before the spell that caused it to trigger. The ability resolves even if that spell is countered."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Dimir Guildgate
 {
     "name": "Dimir Guildgate",
@@ -480,6 +744,147 @@
     ]
 }
 
+// Gideon, Champion of Justice
+{
+    "name": "Gideon, Champion of Justice",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Legendary Planeswalker — Gideon",
+    "oracleText": "+1: Put a loyalty counter on Gideon for each creature target opponent controls.\n0: Until end of turn, Gideon becomes a Human Soldier creature with power and toughness each equal to the number of loyalty counters on him and gains indestructible. He's still a planeswalker. Prevent all damage that would be dealt to him this turn.\n−15: Exile all other permanents.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Gideon, Champion of Justice:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "AddDynamicCounters",
+                    "counterType": "LOYALTY",
+                    "amount": {
+                        "type": "AggregateBattlefield",
+                        "player": "TargetOpponent",
+                        "filter": "creature"
+                    },
+                    "target": "Self"
+                },
+                "targetRequirements": [
+                    "TargetOpponent"
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Gideon, Champion of Justice:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 0
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "BecomeCreature",
+                            "power": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": "LOYALTY"
+                                }
+                            },
+                            "toughness": {
+                                "type": "EntityProperty",
+                                "entity": "Self",
+                                "numericProperty": {
+                                    "type": "CounterCount",
+                                    "counterType": "LOYALTY"
+                                }
+                            },
+                            "keywords": [
+                                "INDESTRUCTIBLE"
+                            ],
+                            "creatureTypes": [
+                                "Human",
+                                "Soldier"
+                            ]
+                        },
+                        {
+                            "type": "PreventDamageShield",
+                            "target": "Self"
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Gideon, Champion of Justice:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -15
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "permanent",
+                                "excludeSelf": true
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "13",
+        "rarity": "MYTHIC",
+        "artist": "David Rapoza",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/3/93d0509a-a863-4d9c-b39f-625a8cc1a547.jpg?1783940143",
+        "rulings": [
+            {
+                "date": "2013-07-01",
+                "text": "If damage that can't be prevented is dealt to Gideon, Champion of Justice after his second ability has resolved, that damage will have all applicable results: specifically, the damage is marked on Gideon (since he's a creature) and that damage causes that many loyalty counters to be removed from him (since he's a planeswalker). Even though he has indestructible, if Gideon, Champion of Justice has no loyalty counters on him, he's put into his owner's graveyard as a state-based action."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "If the first ability doesn't resolve (perhaps because the target opponent is an illegal target when the ability tries to resolve), you won't put any additional loyalty counters on Gideon, although the loyalty counter you put on him to activate the ability will remain."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "Gideon, Champion of Justice's power and toughness are set to the number of loyalty counters on him when his second ability resolves. They won't change later in the turn if the number of loyalty counters on him changes."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "Gideon, Champion of Justice's second ability causes him to become a creature with the creature types Human and Soldier. He remains a planeswalker with the planeswalker type Gideon. (He also retains any other card types or subtypes he may have had.) Each subtype is correlated to the proper card type: Gideon is just a planeswalker type (not a creature type), and Human and Soldier are just creature types (not planeswalker types)."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "If Gideon, Champion of Justice becomes a creature the same turn he enters, you can't attack with him or use any of his {T} abilities (if he gains any)."
+            }
+        ]
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Gruul Guildgate
 {
     "name": "Gruul Guildgate",
@@ -569,10 +974,19 @@
                 },
                 "binding": "ANY",
                 "effect": {
-                    "type": "AddCounters",
-                    "counterType": "PLUS_ONE_PLUS_ONE",
-                    "count": 1,
-                    "target": "Self"
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "PLUS_ONE_PLUS_ONE",
+                            "count": 1,
+                            "target": "Self"
+                        },
+                        {
+                            "type": "EmitKeywordCounterEvent",
+                            "keyword": "EVOLVE"
+                        }
+                    ]
                 },
                 "interveningIf": {
                     "type": "Any",
@@ -627,7 +1041,8 @@
                     }
                 },
                 "timing": "ManaAbility",
-                "isManaAbility": true
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add {G} for each +1/+1 counter on this creature."
             }
         ]
     },
@@ -669,6 +1084,92 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Hellkite Tyrant
+{
+    "name": "Hellkite Tyrant",
+    "manaCost": "{4}{R}{R}",
+    "typeLine": "Creature — Dragon",
+    "oracleText": "Flying, trample\nWhenever this creature deals combat damage to a player, gain control of all artifacts that player controls.\nAt the beginning of your upkeep, if you control twenty or more artifacts, you win the game.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 5
+    },
+    "keywords": [
+        "FLYING",
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hellkite Tyrant:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "artifact ctrl:triggering-player"
+                        }
+                    },
+                    "body": {
+                        "type": "GainControl",
+                        "target": "IterationEntity"
+                    }
+                },
+                "descriptionOverride": "Whenever this creature deals combat damage to a player, gain control of all artifacts that player controls."
+            },
+            {
+                "id": "Hellkite Tyrant:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "WinGame",
+                    "message": "Hellkite Tyrant: twenty or more artifacts."
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "artifact"
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 20
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, if you control twenty or more artifacts, you win the game."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "94",
+        "rarity": "MYTHIC",
+        "artist": "Aleksi Briclot",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/b/0bc3401f-935b-45ce-b1e6-300a5d9dfd4f.jpg?1783940124",
+        "rulings": [
+            {
+                "date": "2013-01-24",
+                "text": "If you don't control twenty or more artifacts at the beginning of your upkeep, Hellkite Tyrant's last ability won't trigger. If it does trigger, it will check again when it tries to resolve. If you don't control twenty or more artifacts at that time, the ability will do nothing."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -774,6 +1275,100 @@
     ]
 }
 
+// Lord of the Void
+{
+    "name": "Lord of the Void",
+    "manaCost": "{4}{B}{B}{B}",
+    "typeLine": "Creature — Demon",
+    "oracleText": "Flying\nWhenever this creature deals combat damage to a player, exile the top seven cards of that player's library, then put a creature card from among them onto the battlefield under your control.",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 7
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Lord of the Void:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 7
+                                },
+                                "player": "TriggeringPlayer"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile",
+                                "player": "TriggeringPlayer"
+                            }
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "creature",
+                            "storeSelected": "selected2",
+                            "prompt": "Put a creature card onto the battlefield under your control",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "selected2",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "71",
+        "rarity": "MYTHIC",
+        "artist": "Chris Rahn",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/5/75b83fe5-fd00-4532-bc67-07836abfc99c.jpg?1783940130",
+        "rulings": [
+            {
+                "date": "2013-01-24",
+                "text": "Lord of the Void's ability isn't optional. If there is a creature card among the seven cards you exiled, you must put one onto the battlefield under your control."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Massive Raid
 {
     "name": "Massive Raid",
@@ -814,6 +1409,115 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Metropolis Sprite
+{
+    "name": "Metropolis Sprite",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Faerie Rogue",
+    "oracleText": "Flying\n{U}: This creature gets +1/-1 until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Metropolis Sprite:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{U}"
+                    }
+                },
+                "effect": {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": -1
+                    },
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "42",
+        "artist": "Scott Chou",
+        "flavorText": "\"Well, if that goblin didn't want his tongue pierced, he shouldn't have stuck it out at me.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/f/5f349013-0846-4bec-bdf9-47a3706d9989.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Murder Investigation
+{
+    "name": "Murder Investigation",
+    "manaCost": "{1}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature you control\nWhen enchanted creature dies, create X 1/1 white Soldier creature tokens, where X is its power.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Murder Investigation:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ATTACHED",
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "EntityProperty",
+                        "entity": "TriggeringEntity",
+                        "numericProperty": "Power"
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Soldier"
+                    ]
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature ctrl:you"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "21",
+        "rarity": "UNCOMMON",
+        "artist": "Igor Kieryluk",
+        "flavorText": "\"Every death has a web of consequences. Our job is to find the spider.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/f/1f3bb284-d10e-4265-92a4-8dcaf118f3c8.jpg?1783940141",
+        "rulings": [
+            {
+                "date": "2013-01-24",
+                "text": "To determine how many Soldier tokens are created, use the power of the enchanted creature as it last existed on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -988,6 +1692,80 @@
     ]
 }
 
+// Rapid Hybridization
+{
+    "name": "Rapid Hybridization",
+    "manaCost": "{U}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target creature. It can't be regenerated. That creature's controller creates a 3/3 green Frog Lizard creature token.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "CantBeRegenerated",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Graveyard",
+                    "byDestruction": true
+                },
+                {
+                    "type": "CreateToken",
+                    "power": 3,
+                    "toughness": 3,
+                    "colors": [
+                        "GREEN"
+                    ],
+                    "creatureTypes": [
+                        "Frog",
+                        "Lizard"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/9/b938d2e0-7e90-4f57-b363-5c68a6207d6c.jpg?1783940147",
+                    "controller": "TargetController"
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "44",
+        "rarity": "UNCOMMON",
+        "artist": "Jack Wang",
+        "flavorText": "\"We've merged your life essence with that of several creatures at once. You're welcome.\"\n—Speaker Trifon",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/3/83557f55-f1ab-4995-9cc1-37be895a59db.jpg?1783940136",
+        "rulings": [
+            {
+                "date": "2013-07-01",
+                "text": "If Rapid Hybridization resolves and the creature isn't destroyed (perhaps because it has indestructible), its controller will still get the Frog Lizard token."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "If the creature is an illegal target when Rapid Hybridization tries to resolve, it won't resolve and none of its effects will happen. No Frog Lizard token will be created."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Ripscale Predator
 {
     "name": "Ripscale Predator",
@@ -1034,6 +1812,77 @@
     ]
 }
 
+// Sage's Row Denizen
+{
+    "name": "Sage's Row Denizen",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Vedalken Wizard",
+    "oracleText": "Whenever another blue creature you control enters, target player mills two cards.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sage's Row Denizen:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature blue ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                },
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard",
+                                "player": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetPlayer",
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "46",
+        "artist": "Svetlin Velinov",
+        "flavorText": "\"I offer you wisdom untainted by false loyalty, learning free of any guild's agenda.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/6/063e6df9-2287-485a-ab46-fa4a38783884.jpg"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Simic Guildgate
 {
     "name": "Simic Guildgate",
@@ -1077,6 +1926,92 @@
         "BLUE",
         "GREEN"
     ]
+}
+
+// Thespian's Stage
+{
+    "name": "Thespian's Stage",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "{T}: Add {C}.\n{2}, {T}: This land becomes a copy of target land, except it has this ability.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Thespian's Stage:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Thespian's Stage:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "EachPermanentBecomesCopyOfTarget",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "affected": "Self",
+                    "retainActivatingAbility": true
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "land"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{2}, {T}: This land becomes a copy of target land, except it has this ability."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "248",
+        "rarity": "RARE",
+        "artist": "John Avon",
+        "flavorText": "Amid rumors of war, the third act of *The Absolution of the Guildpact* was quickly rewritten as a tragedy.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/6/b6f27909-e5cd-44c0-91c4-21624f692fd9.jpg?1783940087",
+        "rulings": [
+            {
+                "date": "2018-12-07",
+                "text": "The copy effect created by the last activated ability doesn't have a duration. It will last until Thespian's Stage leaves the battlefield or another copy effect overwrites it. The permanent will no longer have the first ability of Thespian's Stage."
+            },
+            {
+                "date": "2018-12-07",
+                "text": "A land's copiable values are those printed on it, as modified by other copy effects. Counters and other effects aren't copied. Notably, if you copy a land that is also a creature because of a temporary effect (such as Celestial Colonnade), Thespian's Stage will become just the \"unanimated\" land."
+            },
+            {
+                "date": "2018-12-07",
+                "text": "Thespian's Stage doesn't become untapped when it becomes a copy, even if the target land is untapped."
+            },
+            {
+                "date": "2018-12-07",
+                "text": "No enters-the-battlefield abilities of the land Thespian's Stage is copying will trigger. Thespian's Stage was already on the battlefield. Similarly, no \"as this land enters the battlefield\" or \"this land enters the battlefield with\" effects, such as that of Dark Depths, will apply."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
 }
 
 // Totally Lost
@@ -1164,5 +2099,134 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Whispering Madness
+{
+    "name": "Whispering Madness",
+    "manaCost": "{2}{U}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player discards their hand, then draws cards equal to the greatest number of cards a player discarded this way.\nCipher (Then you may exile this spell card encoded on a creature you control. Whenever that creature deals combat damage to a player, its controller may cast a copy of the encoded card without paying its mana cost.)",
+    "keywords": [
+        "CIPHER"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "StoreNumber",
+                    "name": "whisperingMadnessGreatestDiscard",
+                    "amount": {
+                        "type": "GreatestAmongPlayers",
+                        "inner": {
+                            "type": "Count",
+                            "player": "You",
+                            "zone": "Hand"
+                        }
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "discardedHand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discardedHand",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "VariableReference",
+                            "variableName": "whisperingMadnessGreatestDiscard"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "207",
+        "rarity": "RARE",
+        "artist": "Clint Cearley",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/4/64e4b0cc-e611-4a4b-8392-b37bfc3a77e1.jpg?1783940098",
+        "rulings": [
+            {
+                "date": "2013-04-15",
+                "text": "If a creature with an encoded card deals combat damage to more than one player simultaneously (perhaps because some of the combat damage was redirected), the triggered ability will trigger once for each player it deals combat damage to. Each ability will create a copy of the exiled card and allow you to cast it."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "The exiled card with cipher grants a triggered ability to the creature it's encoded on. If that creature loses that ability and subsequently deals combat damage to a player, the triggered ability won't trigger. However, the exiled card will continue to be encoded on that creature."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "If another player gains control of the creature, that player will control the triggered ability. That player will create a copy of the encoded card and may cast it."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "The spell with cipher is encoded on the creature as part of that spell's resolution, just after the spell's other effects. That card goes directly from the stack to exile. It never goes to the graveyard."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "You choose the creature as the spell resolves. The cipher ability doesn't target that creature, although the spell with cipher may target that creature (or a different creature) because of its other abilities."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "If the spell with cipher doesn't resolve, none of its effects will happen, including cipher. The card will go to its owner's graveyard and won't be encoded on a creature."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "If the creature leaves the battlefield, the exiled card will no longer be encoded on any creature. It will stay exiled."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "The copy of the card with cipher is created in and cast from exile."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "You cast the copy of the card with cipher during the resolution of the triggered ability. Ignore timing restrictions based on the card's type."
+            },
+            {
+                "date": "2013-04-15",
+                "text": "If you choose not to cast the copy, or you can't cast it (perhaps because there are no legal targets available), the copy will cease to exist the next time state-based actions are performed. You won't get a chance to cast the copy at a later time."
+            },
+            {
+                "date": "2013-01-24",
+                "text": "You'll draw cards before deciding which creature (if any) Whispering Madness will be encoded on."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
     ]
 }

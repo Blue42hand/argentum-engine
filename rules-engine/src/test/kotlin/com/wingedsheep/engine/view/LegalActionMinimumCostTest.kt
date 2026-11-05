@@ -147,7 +147,7 @@ class LegalActionMinimumCostTest : FunSpec({
             .single().maxDelveCards shouldBe 3
         for (dynamic in listOf(
             fixed.copy(hasXCost = true),
-            fixed.copy(manaCostPerExtraTarget = "{1}"),
+            fixed.copy(manaCostByTargetCount = mapOf(1 to "{6}{U}", 2 to "{7}{U}")),
             fixed.copy(manaCostString = "{X}{U}"),
             fixed.copy(action = (fixed.action as CastSpell).copy(
                 modeTargetsOrdered = listOf(listOf(ChosenTarget.Player(driver.player2))),

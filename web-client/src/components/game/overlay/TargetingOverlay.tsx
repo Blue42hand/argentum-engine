@@ -1,5 +1,6 @@
 import React from 'react'
 import { useGameStore } from '@/store/gameStore.ts'
+import { selectIsMultiplayerGame } from '@/store/selectors.ts'
 import type { ClientCard, EntityId } from '@/types'
 import type { ResponsiveSizes } from '@/hooks/useResponsive.ts'
 import { calculateFittingCardWidth } from '@/hooks/useResponsive.ts'
@@ -135,7 +136,7 @@ function ZoneCardTargetingOverlay({
 
   const getGroupLabel = (groupKey: string): string => {
     const [ownerId, zoneType = 'Graveyard'] = groupKey.split('|')
-    const zoneLabel = zoneType === 'Exile' ? 'Exile' : 'Graveyard'
+    const zoneLabel = zoneType === 'Exile' ? 'Exile' : zoneType === 'Ante' ? 'Ante' : 'Graveyard'
     if (ownerId === viewingPlayerId) return `Your ${zoneLabel}`
     const player = gameState?.players.find((p) => p.playerId === ownerId)
     return player ? `${player.name}'s ${zoneLabel}` : `Opponent's ${zoneLabel}`
@@ -521,6 +522,7 @@ export function TargetingOverlay() {
   const goBackTargeting = useGameStore((state) => state.goBackTargeting)
   const responsive = useResponsiveContext()
   const draggable = useDraggable()
+  const isMultiplayer = useGameStore(selectIsMultiplayerGame)
 
   const gameState = useGameStore((state) => state.gameState)
   const addTarget = useGameStore((state) => state.addTarget)
@@ -569,6 +571,8 @@ export function TargetingOverlay() {
   const isDiscard = targetingState.isDiscardSelection
   const isReveal = targetingState.isRevealSelection
   const isBehold = targetingState.isBeholdSelection
+  // A cost paid from hand ("exile a green card from your hand") is a card pick, not a permanent.
+  const isHandPick = targetingState.targetZone === 'Hand'
 
   // Split the server's valid targets by how the player can physically reach them: a graveyard or
   // exile pile isn't individually clickable on the board, so those cards need the cross-zone
@@ -646,13 +650,17 @@ export function TargetingOverlay() {
   const promptText = isBehold
     ? `${targetingState.targetDescription ?? 'Behold a card'} (${targetDisplay})`
     : isDiscard
-      ? `Select card to discard (${targetDisplay})`
+      ? // A variable discard ("Discard X cards") names its range rather than a fixed count.
+        targetingState.targetDescription && minTargets !== maxTargets
+        ? `${targetingState.targetDescription}: choose ${minTargets}–${maxTargets} (${selectedCount} selected)`
+        : `Select card to discard (${targetDisplay})`
       : isReveal
         ? `Select card to reveal (${targetDisplay})`
         : isTapPermanent
           ? // The server already sends the cost description sentence-cased ("Tap any number of
-            // creatures you control with total power 2 or more"), so it is shown verbatim.
-            requiredTotalPower > 0 && targetingState.targetDescription
+            // creatures you control with total power 2 or more", "Untap two tapped creatures you
+            // control"), so it is shown verbatim.
+            targetingState.targetDescription
             ? `${targetingState.targetDescription} (${targetDisplay})`
             : `Select permanents to tap (${targetDisplay})`
           : isBounce
@@ -682,7 +690,7 @@ export function TargetingOverlay() {
     ? isBehold ? 'Card selected' : isDiscard ? 'Card selected' : isReveal ? 'Card selected' : isTapPermanent ? 'Permanents selected' : isBounce ? 'Creature selected' : isSacrifice ? 'Selected' : 'Maximum targets selected'
     : hasEnoughTargets
       ? 'Click Confirm or select more'
-      : isBehold ? `Click a highlighted card on the battlefield or in your hand` : isDiscard ? 'Click a card in your hand' : isReveal ? 'Click a card in your hand' : isTapPermanent ? 'Click a highlighted permanent' : isBounce ? 'Click an attacking creature you control' : isSacrifice ? 'Click a highlighted permanent you control' : 'Click a highlighted target'
+      : isBehold ? `Click a highlighted card on the battlefield or in your hand` : isDiscard ? 'Click a card in your hand' : isReveal ? 'Click a card in your hand' : isTapPermanent ? 'Click a highlighted permanent' : isBounce ? 'Click a highlighted permanent to return' : isHandPick ? 'Click a highlighted card in your hand' : isSacrifice ? 'Click a highlighted permanent you control' : 'Click a highlighted target'
   // On a mixed union the board is only half the answer — say so, since the other half lives
   // behind the button below and there is nothing on the board to hint at it.
   const hintText = isMixedZoneTargeting && !hasMaxTargets
@@ -694,6 +702,16 @@ export function TargetingOverlay() {
       ref={draggable.ref}
       style={{
         ...styles.targetingOverlay,
+        // 2-player: dead centre is the life-orb / step-strip HUD, and "any target" spells need
+        // both orbs visible and clickable — so park the prompt at the top, over the opponent's
+        // face-down hand, which is never a target. (Phones drop it below the Concede row.)
+        ...(isMultiplayer ? null : {
+          top: responsive.isMobile ? 46 : 12,
+          transform: 'translateX(-50%)',
+          maxWidth: 'calc(100vw - 32px)',
+          // Tighter than the centred card: up here every pixel of height is opponent's board.
+          gap: 6,
+        }),
         ...draggable.style,
         padding: responsive.isMobile ? '12px 16px' : '16px 24px',
         borderColor: TARGET_COLOR,
@@ -743,6 +761,11 @@ export function TargetingOverlay() {
       }}>
         {promptText}
       </div>
+      {targetingState.sourceCardName && (
+        <div style={{ color: '#ccc', fontSize: responsive.fontSize.small, fontStyle: 'italic', marginTop: 2 }}>
+          for {targetingState.sourceCardName}
+        </div>
+      )}
       <div style={{ color: '#aaa', fontSize: responsive.fontSize.small, marginTop: 4 }}>
         {hintText}
       </div>

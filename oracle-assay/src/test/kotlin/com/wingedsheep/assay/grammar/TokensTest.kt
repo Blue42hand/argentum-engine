@@ -5,10 +5,14 @@ import com.wingedsheep.assay.syntax.parseLine
 import com.wingedsheep.assay.syntax.printLine
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.effects.CreatePredefinedTokenEffect
+import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.CreateTokenCopyOfTargetEffect
 import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.values.ContextPropertyKey
 import com.wingedsheep.sdk.scripting.values.DynamicAmount
 import io.kotest.core.spec.style.StringSpec
@@ -200,5 +204,98 @@ class TokensTest : StringSpec({
             .shouldBeInstanceOf<ParseOutcome.Declined>()
         Grammar.abilityLine.parseLine("Whenever ~ attacks, create that many Treasure tokens.")
             .shouldBeInstanceOf<ParseOutcome.Declined>()
+    }
+
+    // Beast Within, Pongify, Crib Swap, Get Lost — "its controller" is the controller of the
+    // permanent the first sentence chose, and the token clause carries it as its `controller`.
+    "its controller creates a token after a sentence that chose one permanent" {
+        val effects = (fragment("Destroy target permanent. Its controller creates a 3/3 green Beast creature token.")
+            .script.spellEffect as CompositeEffect).effects
+        effects[1] shouldBe Effects.CreateToken(
+            power = 3,
+            toughness = 3,
+            colors = setOf(Color.GREEN),
+            creatureTypes = setOf("Beast"),
+            controller = EffectTarget.TargetController,
+        )
+        (fragment("Destroy target creature. Its controller creates two Map tokens.").script.spellEffect as CompositeEffect)
+            .effects[1] shouldBe Effects.CreateMapToken(count = 2, controller = EffectTarget.TargetController)
+
+        roundTrips("Destroy target permanent. Its controller creates a 3/3 green Beast creature token.")
+        roundTrips("Destroy target creature. Its controller creates a 1/1 white and black Inkling creature token with flying.")
+        roundTrips("Exile target creature. Its controller creates a 1/1 colorless Shapeshifter creature token with changeling.")
+        roundTrips("Destroy target nonland permanent. Its controller creates a Lander token.")
+        roundTrips("Destroy target creature. It can't be regenerated. Its controller creates a 3/3 green Ape creature token.")
+    }
+
+    "the imperative and the third person do not print each other" {
+        val theirs = CardFragment(
+            script = CardScript(spellEffect = Effects.CreateTreasure(count = 2, controller = EffectTarget.TargetController))
+        )
+        Grammar.abilityLine.printLine(theirs) shouldBe null
+        // With nothing — or a player — for "its" to name, the third-person clause has no referent.
+        Grammar.abilityLine.parseLine("Draw a card. Its controller creates a Food token.")
+            .shouldBeInstanceOf<ParseOutcome.Declined>()
+        Grammar.abilityLine.parseLine("Target player draws a card. Its controller creates a Food token.")
+            .shouldBeInstanceOf<ParseOutcome.Declined>()
+    }
+
+    "plain token copies retain their source and targeting" {
+        fragment("Create a token that's a copy of ~.")
+            .script.spellEffect shouldBe Effects.CreateTokenCopyOfSelf()
+
+        val targeted = fragment(
+            "Create a token that's a copy of target creature you control."
+        ).script
+
+        targeted.spellEffect shouldBe Effects.CreateTokenCopyOfTarget(
+            target = Targets.bound(),
+        )
+
+        roundTrips("Create a token that's a copy of ~.")
+        roundTrips("Create a token that's a copy of target artifact.")
+        roundTrips("Create a token that's a copy of target creature you control.")
+        roundTrips("Create a token that's a copy of target permanent you control.")
+    }
+
+    "token-copy exceptions preserve their meaning" {
+        roundTrips(
+            "Create a token that's a copy of target creature you control, " +
+                "except it isn't legendary."
+        )
+
+        roundTrips(
+            "Create a token that's a copy of target creature, except it's 1/1."
+        )
+
+        roundTrips(
+            "Create a token that's a copy of target artifact, except it's 4/4."
+        )
+    }
+
+    // Daring Piracy and The Fire Crystal: "it" in the second sentence is the token, not the source.
+    "an end-step cleanup sentence is the token's own field" {
+        val pirate = "Create a 1/1 red Pirate creature token with menace and haste. " +
+            "Exile it at the beginning of the next end step."
+        fragment(pirate).script.spellEffect shouldBe Effects.CreateToken(
+            power = 1,
+            toughness = 1,
+            colors = setOf(Color.RED),
+            creatureTypes = setOf("Pirate"),
+            keywords = setOf(Keyword.MENACE, Keyword.HASTE),
+        ).copy(exileAtStep = Step.END)
+        roundTrips(pirate)
+
+        val copy = "Create a token that's a copy of target creature you control. " +
+            "Sacrifice it at the beginning of the next end step."
+        fragment(copy).script.spellEffect shouldBe
+            CreateTokenCopyOfTargetEffect(target = Targets.bound(), sacrificeAtStep = Step.END)
+        roundTrips(copy)
+    }
+
+    "an end-step cleanup needs a single token for its pronoun" {
+        Grammar.abilityLine.parseLine(
+            "Create two 1/1 red Goblin creature tokens. Exile it at the beginning of the next end step."
+        ).shouldBeInstanceOf<ParseOutcome.Declined>()
     }
 })

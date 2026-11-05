@@ -127,7 +127,7 @@ object SelfSteps {
                 Effects.GrantKeyword(
                     AbilityFlag.DOESNT_UNTAP,
                     target,
-                    Duration.UntilAfterAffectedControllersNextUntap,
+                    Duration.UntilAfterAffectedControllersNextUntap(),
                 ),
                 subject,
             ),
@@ -149,6 +149,13 @@ object SelfSteps {
             // that moves with the position exactly as untap's and regenerate's do — unlike
             // `SacrificeSelfEffect`, which the SDK models as a verb with no object at all.
             move("transform {self}", "transform$tag", TransformEffect(target), subject),
+            // "When ~ enters, it explores." (CR 701.44) and "Whenever ~ attacks, it connives."
+            // (CR 701.50) — the two keyword actions a creature performs on itself, said with the
+            // creature as the sentence's subject rather than its object. The SDK names the actor
+            // and nothing else (`ExploreEffect(target)`, `ConniveEffect` around its pipeline), so
+            // each is a row whose subject moves with the position exactly as untap's does.
+            move("{self} explores", "explores$tag", Effects.Explore(target), subject),
+            move("{self} connives", "connives$tag", Effects.Connive(target), subject),
             // The four zone verbs the pronoun used to be frozen into. "Exile ~." is the standalone
             // sentence twenty-nine spells print about themselves and "exile it" is what the same
             // verb looks like after a clause has already named the source; one rule, one model, and
@@ -579,6 +586,21 @@ object SelfSteps {
         val script = CardScript(spellEffect = SacrificeSelfEffect)
         phrase("sacrifice {self}", name = "sacrifice the source") {
             slot("self", Primitives.self)
+            build { script }
+            match { if (it == script) bind("self" to Unit) else null }
+        }
+    }
+
+    /**
+     * "Sacrifice ~" by name only — [sacrificeSelf] for a *later* clause, where "it" is no longer the
+     * source. "{R}: ~ gets +1/+0 until end of turn. Sacrifice ~ at the beginning of the next end
+     * step." — Pyric Salamander, Varchild's Crusader. Offered to [Steps]' later delayed rider and
+     * nowhere a first clause can reach, so [sacrificeSelf] and this never read one text together.
+     */
+    val sacrificeNamed: Phrase<CardScript> = run {
+        val script = CardScript(spellEffect = SacrificeSelfEffect)
+        phrase("sacrifice {self}", name = "sacrifice the named source") {
+            slot("self", Primitives.selfNamed)
             build { script }
             match { if (it == script) bind("self" to Unit) else null }
         }

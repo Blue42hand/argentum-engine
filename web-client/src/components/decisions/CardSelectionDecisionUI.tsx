@@ -4,6 +4,7 @@ import type { EntityId, SelectCardsDecision } from '@/types'
 import { calculateFittingCardWidth, type ResponsiveSizes } from '@/hooks/useResponsive.ts'
 import { getCardImageUrl } from '@/utils/cardImages.ts'
 import { DecisionCard, DecisionCardPreview } from './DecisionComponents'
+import { CardPoolBrowser, LARGE_POOL_THRESHOLD, type PoolCard } from './CardPoolBrowser'
 import styles from './DecisionUI.module.css'
 
 /** Known MTG card types used for OnePerCardType restriction enforcement. */
@@ -126,7 +127,9 @@ export function CardSelectionDecision({
   // Calculate card size that fits all cards
   const availableWidth = responsive.viewportWidth - responsive.containerPadding * 2 - 32
   const gap = responsive.isMobile ? 4 : 8
-  const maxCardWidth = responsive.isMobile ? 90 : 130
+  // Height caps it too: on a landscape phone a 130px card plus the source banner pushed the
+  // confirm buttons off the bottom of the screen.
+  const maxCardWidth = Math.min(responsive.isMobile ? 90 : 130, Math.floor((responsive.viewportHeight * 0.32) / 1.4))
   const nonSelectableOptions = decision.nonSelectableOptions ?? []
   const totalCardCount = decision.options.length + nonSelectableOptions.length
   const cardWidth = calculateFittingCardWidth(
@@ -136,6 +139,11 @@ export function CardSelectionDecision({
     maxCardWidth,
     45
   )
+
+  // A big pool (a sideboard, "a card from outside the game") can't fit one screen at a readable
+  // size, so it gets a scrolling, searchable browser instead of ever-shrinking cards.
+  const isLargePool = totalCardCount > LARGE_POOL_THRESHOLD
+  const poolCardWidth = responsive.isMobile ? 76 : 118
 
   /** A card's card types, from the decision's card info (hidden zones) or gameState. */
   const cardTypesFor = (cardId: EntityId): string[] =>
@@ -283,14 +291,20 @@ export function CardSelectionDecision({
     return false
   }
 
+  const hasRestrictions =
+    decision.onePerCardType || decision.onePerCardName || decision.onePerColor ||
+    decision.onePerBasicLandType || decision.onePerPower ||
+    decision.maxTotalManaValue != null || decision.maxTotalPower != null
+
   const toggleCard = (cardId: EntityId) => {
     setSelectedCards((prev) => {
       if (prev.includes(cardId)) {
         return prev.filter((id) => id !== cardId)
       }
-      // Don't allow selecting more than max
+      // Don't allow selecting more than max — except a single pick, where clicking another card
+      // swaps it in (restrictions are judged against the current pick, so they keep the old rule).
       if (prev.length >= decision.maxSelections) {
-        return prev
+        return decision.maxSelections === 1 && !hasRestrictions ? [cardId] : prev
       }
       // Block cards an active restriction (e.g. OnePerCardType) rules out
       if (isCardDisabled(cardId)) {
@@ -299,6 +313,15 @@ export function CardSelectionDecision({
       return [...prev, cardId]
     })
   }
+
+  const poolCardFor = (cardId: EntityId, nonSelectable: boolean): PoolCard => ({
+    id: cardId,
+    name: nameForCard(cardId) ?? 'Unknown Card',
+    typeLine: decision.cardInfo?.[cardId]?.typeLine ?? gameState?.cards[cardId]?.typeLine ?? '',
+    imageUri: decision.cardInfo?.[cardId]?.imageUri || gameState?.cards[cardId]?.imageUri,
+    manaValue: manaValueForCard(cardId),
+    nonSelectable,
+  })
 
   const handleConfirm = () => {
     submitDecision(decision.id, selectedCards)
@@ -328,7 +351,7 @@ export function CardSelectionDecision({
         <img
           src={sourceCardImageUrl}
           alt={`Source: ${sourceCardName ?? 'card'}`}
-          className={styles.bannerCardImage}
+          className={isLargePool ? styles.bannerCardImageSmall : styles.bannerCardImage}
           onMouseEnter={() => setIsHoveringSource(true)}
           onMouseLeave={() => setIsHoveringSource(false)}
         />
@@ -350,7 +373,7 @@ export function CardSelectionDecision({
           : conditionalMinimums.length > 0
           ? `Selected: ${selectedCards.length} / ${requiredMinimum}; fewer is allowed if the selection matches the requirement`
           : decision.minSelections === 0
-          ? `Select up to ${decision.maxSelections}`
+          ? `Selected: ${selectedCards.length} / ${decision.maxSelections}`
           : `Selected: ${selectedCards.length} / ${decision.minSelections}${decision.minSelections !== decision.maxSelections ? ` - ${decision.maxSelections}` : ''}`
         }
       </p>
@@ -459,6 +482,21 @@ export function CardSelectionDecision({
       )}
 
       {/* Card options */}
+      {isLargePool ? (
+        <CardPoolBrowser
+          cards={[
+            ...decision.options.map((id) => poolCardFor(id, false)),
+            ...nonSelectableOptions.map((id) => poolCardFor(id, true)),
+          ]}
+          selectedCards={selectedCards}
+          isDisabled={isCardDisabled}
+          onAdd={toggleCard}
+          onRemove={(id) => setSelectedCards((prev) => prev.filter((c) => c !== id))}
+          cardWidth={poolCardWidth}
+          isMobile={responsive.isMobile}
+          onHover={setHoveredCardId}
+        />
+      ) : (
       <div className={styles.cardContainer} style={{ gap }}>
         {decision.options.map((cardId) => {
           // For hidden cards (e.g., opponent's library), use cardInfo from decision
@@ -504,6 +542,7 @@ export function CardSelectionDecision({
           )
         })}
       </div>
+      )}
 
       {/* Action buttons */}
       <div className={styles.optionButtonRow}>
@@ -519,7 +558,7 @@ export function CardSelectionDecision({
           className={styles.confirmButton}
         >
           {decision.minSelections === 0 && selectedCards.length === 0
-            ? 'Select None'
+            ? (decision.declineLabel ?? 'Select None')
             : 'Confirm Selection'}
         </button>
       </div>

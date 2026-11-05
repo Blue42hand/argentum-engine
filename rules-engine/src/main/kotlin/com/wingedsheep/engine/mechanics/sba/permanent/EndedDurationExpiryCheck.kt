@@ -12,6 +12,8 @@ import com.wingedsheep.engine.mechanics.sba.StateBasedActionCheck
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.CountersComponent
+import com.wingedsheep.engine.state.components.battlefield.PhaseInLock
+import com.wingedsheep.engine.state.components.battlefield.PhasedOutComponent
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
@@ -82,7 +84,9 @@ class EndedDurationExpiryCheck : StateBasedActionCheck {
         // A cast-from-exile permission granted "for as long as you control this [permanent]"
         // (Taster of Wares) has no floating-effect representation either, so it needs the same
         // one-way latch: revoke it the moment its source leaves the battlefield or changes hands.
-        val prunedState = pruneEndedMayPlayPermissions(pruneEndedGrants(state))
+        // A phased-out permanent that "can't phase in for as long as you control" its source
+        // (The Phasing of Zhalfir) carries the same window as a lock on its PhasedOutComponent.
+        val prunedState = pruneEndedPhaseInLocks(pruneEndedMayPlayPermissions(pruneEndedGrants(state)))
 
         if (prunedState.floatingEffects.isEmpty()) {
             return if (prunedState === state) ExecutionResult.success(state)
@@ -138,15 +142,20 @@ class EndedDurationExpiryCheck : StateBasedActionCheck {
             // for the attachment gate, of which permanent it is attached to). Shared with the
             // granted-ability path via [sourceGateHolds]; filtering per affected entity is
             // equivalent to all-or-nothing for the two gates that ignore the affected object.
-            is Duration.WhileSourceTapped,
+            // "for as long as <source> remains tapped" also reads the untap clock the effect was
+            // stamped with, so an untap between activation and resolution ends it (CR 611.2b).
+            is Duration.WhileSourceTapped ->
+                if (GrantDurationGate.sourceTapped(state, floating)) all else emptySet()
+
             is Duration.WhileSourceOnBattlefield,
-            Duration.WhileSourceAttachedToAffected ->
+            Duration.WhileSourceAttachedToAffected,
+            Duration.WhileAffectedAttachedToSource ->
                 all.filterTo(LinkedHashSet()) {
                     sourceGateHolds(state, floating.duration, floating.sourceId, it)
                 }
 
             is Duration.WhileSourceTappedAndAffectedPowerAtMostSource -> {
-                if (!sourceTapped(state, floating.sourceId)) {
+                if (!GrantDurationGate.sourceTapped(state, floating)) {
                     emptySet()
                 } else {
                     val sourcePower = projected.getPower(floating.sourceId!!) ?: return all
@@ -175,7 +184,7 @@ class EndedDurationExpiryCheck : StateBasedActionCheck {
             is Duration.WhileYouControlSourceAndSourceTapped -> {
                 val sourceId = floating.sourceId
                 if (sourceId == null || !state.getBattlefield().contains(sourceId)) emptySet()
-                else if (!sourceTapped(state, sourceId)) emptySet()
+                else if (!GrantDurationGate.sourceTapped(state, floating)) emptySet()
                 else if (projected.getController(sourceId) != floating.controllerId) emptySet()
                 else all
             }
@@ -315,6 +324,33 @@ class EndedDurationExpiryCheck : StateBasedActionCheck {
     }
 
     /**
+     * Release every [PhaseInLock.WhileControlsSource] whose window has closed: its source left the battlefield (or is
+     * itself phased out, so no one controls it) or its projected controller is no longer the
+     * player who locked it. Release only clears the lock — the permanent stays phased out until its
+     * controller's next untap step. One-way like the other latches: regaining control of the
+     * source later does not re-lock it. Returns the same instance when nothing changed.
+     */
+    private fun pruneEndedPhaseInLocks(state: GameState): GameState {
+        val locked = state.allBattlefieldEntities().filter {
+            state.getEntity(it)?.get<PhasedOutComponent>()?.phaseInLock is PhaseInLock.WhileControlsSource
+        }
+        if (locked.isEmpty()) return state
+        val projected = state.projectedState
+        val battlefield = state.getBattlefield()
+        var current = state
+        for (entityId in locked) {
+            val phased = current.getEntity(entityId)?.get<PhasedOutComponent>() ?: continue
+            val lock = phased.phaseInLock as? PhaseInLock.WhileControlsSource ?: continue
+            val holds = battlefield.contains(lock.sourceId) &&
+                projected.getController(lock.sourceId) == lock.controllerId
+            if (!holds) {
+                current = current.updateEntity(entityId) { it.with(phased.copy(phaseInLock = null)) }
+            }
+        }
+        return current
+    }
+
+    /**
      * True when [duration] is a conditional "for as long as …" duration whose condition no longer
      * holds for the grant on [entityId] made by [sourceId]. False for every other duration
      * (unconditional grants are never pruned here).
@@ -343,9 +379,6 @@ class EndedDurationExpiryCheck : StateBasedActionCheck {
         sourceId: EntityId?,
         affectedId: EntityId
     ): Boolean = GrantDurationGate.sourceGateHolds(state, duration, sourceId, affectedId)
-
-    private fun sourceTapped(state: GameState, sourceId: EntityId?): Boolean =
-        GrantDurationGate.sourceTapped(state, sourceId)
 
     /**
      * Emit a [ControlChangedEvent] for each dropped entity of a control effect, reverting from the

@@ -123,6 +123,89 @@
     ]
 }
 
+// Augur of Bolas
+{
+    "name": "Augur of Bolas",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Merfolk Wizard",
+    "oracleText": "When this creature enters, look at the top three cards of your library. You may reveal an instant or sorcery card from among them and put it into your hand. Put the rest on the bottom of your library in any order.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Augur of Bolas:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "looked",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": "instant|sorcery",
+                            "storeSelected": "kept",
+                            "storeRemainder": "rest",
+                            "prompt": "You may reveal an instant or sorcery card from among them and put it into your hand",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "kept",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "rest",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "ControllerChooses"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "43",
+        "rarity": "UNCOMMON",
+        "artist": "Slawomir Maniak",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/e/2e6ec8a6-ad88-45c9-ab4b-dd7de2418bb7.jpg?1783940510"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Bloodhunter Bat
 {
     "name": "Bloodhunter Bat",
@@ -402,6 +485,37 @@
     ]
 }
 
+// Flames of the Firebrand
+{
+    "name": "Flames of the Firebrand",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Flames of the Firebrand deals 3 damage divided as you choose among one, two, or three targets.",
+    "script": {
+        "spellEffect": {
+            "type": "DividedDamage",
+            "totalDamage": 3
+        },
+        "targetRequirements": [
+            {
+                "type": "AnyTarget",
+                "count": 3,
+                "minCount": 1
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "132",
+        "rarity": "UNCOMMON",
+        "artist": "Steve Argyle",
+        "flavorText": "\"You're in luck. I brought enough to share.\"\n—Chandra Nalaar",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/c/aca215b1-7b98-49ce-afae-eeb61058125a.jpg?1783940483"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Griffin Protector
 {
     "name": "Griffin Protector",
@@ -575,6 +689,191 @@
     ]
 }
 
+// Liliana of the Dark Realms
+{
+    "name": "Liliana of the Dark Realms",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Legendary Planeswalker — Liliana",
+    "oracleText": "+1: Search your library for a Swamp card, reveal it, put it into your hand, then shuffle.\n−3: Target creature gets +X/+X or -X/-X until end of turn, where X is the number of Swamps you control.\n−6: You get an emblem with \"Swamps you control have '{T}: Add {B}{B}{B}{B}.'\"",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Liliana of the Dark Realms:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": "land Swamp"
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Swamp land card to put into your hand",
+                            "selectedLabel": "Put into your hand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Liliana of the Dark Realms:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "ChooseAction",
+                    "choices": [
+                        {
+                            "label": "+X/+X",
+                            "effect": {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "AggregateBattlefield",
+                                    "player": "You",
+                                    "filter": "land Swamp"
+                                },
+                                "toughnessModifier": {
+                                    "type": "AggregateBattlefield",
+                                    "player": "You",
+                                    "filter": "land Swamp"
+                                },
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            }
+                        },
+                        {
+                            "label": "-X/-X",
+                            "effect": {
+                                "type": "ModifyStats",
+                                "powerModifier": {
+                                    "type": "Multiply",
+                                    "amount": {
+                                        "type": "AggregateBattlefield",
+                                        "player": "You",
+                                        "filter": "land Swamp"
+                                    },
+                                    "multiplier": -1
+                                },
+                                "toughnessModifier": {
+                                    "type": "Multiply",
+                                    "amount": {
+                                        "type": "AggregateBattlefield",
+                                        "player": "You",
+                                        "filter": "land Swamp"
+                                    },
+                                    "multiplier": -1
+                                },
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Liliana of the Dark Realms:4",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -6
+                },
+                "effect": {
+                    "type": "CreatePermanentEmblem",
+                    "groupFilter": {
+                        "baseFilter": "land Swamp ctrl:you"
+                    },
+                    "grantedActivatedAbilities": [
+                        {
+                            "id": "Liliana of the Dark Realms:1",
+                            "cost": "CostTap",
+                            "effect": {
+                                "type": "AddMana",
+                                "color": "BLACK",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 4
+                                }
+                            },
+                            "timing": "ManaAbility",
+                            "isManaAbility": true,
+                            "descriptionOverride": "{T}: Add {B}{B}{B}{B}."
+                        }
+                    ],
+                    "emblemDescription": "Swamps you control have '{T}: Add {B}{B}{B}{B}.'"
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "97",
+        "rarity": "MYTHIC",
+        "artist": "D. Alexander Gregory",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/c/2cd2d81e-1388-4f34-9917-2289971cf8da.jpg?1783940493",
+        "rulings": [
+            {
+                "date": "2012-07-01",
+                "text": "You choose whether the creature gets +X/+X or -X/-X as the second ability resolves."
+            },
+            {
+                "date": "2012-07-01",
+                "text": "The number of Swamps you control is counted when the second ability resolves."
+            }
+        ]
+    },
+    "startingLoyalty": 3,
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Mark of the Vampire
 {
     "name": "Mark of the Vampire",
@@ -658,7 +957,9 @@
             {
                 "type": "MayCastWithoutPayingManaCost",
                 "controllerOnly": true,
-                "fromHandOnly": true
+                "fromZones": [
+                    "Hand"
+                ]
             }
         ]
     },
@@ -685,6 +986,46 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Rhox Faithmender
+{
+    "name": "Rhox Faithmender",
+    "manaCost": "{3}{W}",
+    "typeLine": "Creature — Rhino Monk",
+    "oracleText": "Lifelink (Damage dealt by this creature also causes you to gain that much life.)\nIf you would gain life, you gain twice that much life instead.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 5
+    },
+    "keywords": [
+        "LIFELINK"
+    ],
+    "script": {
+        "replacementEffects": [
+            "ModifyLifeGain"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "29",
+        "rarity": "RARE",
+        "artist": "Wesley Burt",
+        "flavorText": "Rhoxes who live long enough to retire from war lend support with their extensive knowledge of combat injuries.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/5/85ea185a-7b38-49f3-be73-be8180fb6295.jpg?1783940514",
+        "rulings": [
+            {
+                "date": "2012-07-01",
+                "text": "If you control two Rhox Faithmenders, life you gain will be multiplied by four. Three Rhox Faithmenders will multiply any life gain by eight, and so on."
+            },
+            {
+                "date": "2012-07-01",
+                "text": "If an effect sets your life total to a specific number, and that number is higher than your current life total, the effect will cause you to gain life equal to the difference. Rhox Faithmender will then double that number. For example, if you have 3 life and an effect says that your life total \"becomes 10,\" your life total will actually become 17."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
     ]
 }
 
@@ -840,6 +1181,108 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Smelt
+{
+    "name": "Smelt",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "oracleText": "Destroy target artifact.",
+    "script": {
+        "spellEffect": {
+            "type": "MoveToZone",
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "destination": "Graveyard",
+            "byDestruction": true
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "artifact"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "artist": "Zoltan Boros",
+        "flavorText": "\"Looks like that wasn't darksteel after all.\"\n—Koth of the Hammer",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/723cb7e3-3f48-41fa-aa08-bdc59225e44f.jpg?1783940478"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Switcheroo
+{
+    "name": "Switcheroo",
+    "manaCost": "{4}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Exchange control of two target creatures.",
+    "script": {
+        "spellEffect": {
+            "type": "ExchangeControl",
+            "target1": {
+                "type": "BoundVariable",
+                "name": "t0"
+            },
+            "target2": {
+                "type": "BoundVariable",
+                "name": "t1"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t1"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "71",
+        "rarity": "UNCOMMON",
+        "artist": "Kev Walker",
+        "flavorText": "Say hello to your new friend.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/d/7d62aaf3-0fd4-44ba-8eeb-18ac759dfe84.jpg?1783940501",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If one of the target creatures is an illegal target when Switcheroo resolves, the exchange won't happen."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "You don't have to control either target."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "If the same player controls both creatures when Switcheroo resolves, nothing happens."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "Gaining control of a creature doesn't cause you to gain control of any Auras or Equipment attached to it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -1051,7 +1494,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]

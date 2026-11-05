@@ -351,6 +351,30 @@ class CardLinterTest : DescribeSpec({
                 .message shouldContain "KICKED"
         }
 
+        it("reads a chosen-card-type predicate from its explicit slot") {
+            val card = card("Mode-Typed Reducer") {
+                manaCost = "{W}{U}"
+                typeLine = "Creature — Human Wizard"
+                power = 2
+                toughness = 2
+                replacementEffect(
+                    com.wingedsheep.sdk.scripting.EntersWithChoice(
+                        choiceType = com.wingedsheep.sdk.scripting.ChoiceType.MODE,
+                        modeOptions = listOf(com.wingedsheep.sdk.scripting.ModeOption(id = "Sorcery", label = "Sorcery")),
+                    )
+                )
+                staticAbility {
+                    ability = com.wingedsheep.sdk.scripting.ModifySpellCost(
+                        target = com.wingedsheep.sdk.scripting.SpellCostTarget.YouCast(
+                            GameObjectFilter.Any.ofChosenCardTypeComponent(ChoiceSlot.MODE)
+                        ),
+                        modification = com.wingedsheep.sdk.scripting.CostModification.ReduceGeneric(1),
+                    )
+                }
+            }
+            CardLinter.lint(card).shouldBeEmpty()
+        }
+
         it("accepts a KICKED read when a kicker effect is declared") {
             val card = instant(
                 "Kicked",
@@ -364,6 +388,64 @@ class CardLinterTest : DescribeSpec({
                 ),
             )
             CardLinter.lint(card).shouldBeEmpty()
+        }
+    }
+
+    describe("dynamic target counts") {
+        fun tapEach(requirement: TargetObject) = instant(
+            "Dynamic Count Probe",
+            CardScript(
+                spellEffect = Effects.TapEachTarget(),
+                targetRequirements = listOf(requirement),
+            ),
+        )
+
+        it("accepts \"X target\" (exact) and \"up to X target\" (optional cap)") {
+            val x = DynamicAmount.XValue
+            CardLinter.lint(tapEach(TargetObject(filter = TargetFilter.Creature, dynamicMaxCount = x, dynamicMinCount = x)))
+                .filterIsInstance<CardValidationError.AmbiguousDynamicTargetCount>().shouldBeEmpty()
+            CardLinter.lint(tapEach(TargetObject(filter = TargetFilter.Creature, optional = true, dynamicMaxCount = x)))
+                .filterIsInstance<CardValidationError.AmbiguousDynamicTargetCount>().shouldBeEmpty()
+        }
+
+        it("flags a dynamic cap that is neither exact nor optional — \"one to X targets\" is printed nowhere") {
+            val findings = CardLinter.lint(tapEach(TargetObject(filter = TargetFilter.Creature, dynamicMaxCount = DynamicAmount.XValue)))
+                .filterIsInstance<CardValidationError.AmbiguousDynamicTargetCount>()
+            findings.shouldHaveSize(1)
+            findings[0].message shouldContain "exactly = X"
+        }
+
+        it("holds AnyTarget to the same rule: \"up to X targets\" must be optional") {
+            fun lint(requirement: AnyTarget) = CardLinter.lint(instant("Dynamic Any Probe",
+                CardScript(spellEffect = Effects.ForEachTarget(DealDamageEffect(DynamicAmount.Fixed(1), EffectTarget.ContextTarget(0))),
+                    targetRequirements = listOf(requirement))))
+                .filterIsInstance<CardValidationError.AmbiguousDynamicTargetCount>()
+            lint(AnyTarget(optional = true, dynamicMaxCount = DynamicAmount.XValue)).shouldBeEmpty()
+            lint(AnyTarget(dynamicMaxCount = DynamicAmount.XValue)).shouldHaveSize(1)
+        }
+
+        it("flags a dynamic floor that optional waives") {
+            val x = DynamicAmount.XValue
+            CardLinter.lint(tapEach(TargetObject(filter = TargetFilter.Creature, optional = true, dynamicMaxCount = x, dynamicMinCount = x)))
+                .filterIsInstance<CardValidationError.AmbiguousDynamicTargetCount>().shouldHaveSize(1)
+        }
+    }
+
+
+    describe("owner-distribution counts") {
+        it("rejects conflicting raw serialized shapes and accepts both whole-count modes") {
+            val base = TargetObject(filter = TargetFilter.Creature,
+                ownerDistribution = com.wingedsheep.sdk.scripting.targets.OwnerDistribution.EXACTLY_ONE)
+            fun lint(requirement: TargetObject) = CardLinter.lint(instant("Owner Count Probe",
+                CardScript(spellEffect = Effects.TapEachTarget(), targetRequirements = listOf(requirement))))
+                .filterIsInstance<CardValidationError.AmbiguousDynamicTargetCount>()
+            lint(base).shouldBeEmpty()
+            lint(base.copy(ownerDistribution = com.wingedsheep.sdk.scripting.targets.OwnerDistribution.UP_TO_ONE)).shouldBeEmpty()
+            listOf(base.copy(count = 2, minCount = 2), base.copy(minCount = 0), base.copy(optional = true),
+                base.copy(unlimited = true), base.copy(dynamicMaxCount = DynamicAmount.XValue),
+                base.copy(dynamicMinCount = DynamicAmount.XValue, dynamicMaxCount = DynamicAmount.XValue)).forEach {
+                lint(it).shouldHaveSize(1)
+            }
         }
     }
 

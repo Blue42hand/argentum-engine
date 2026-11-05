@@ -414,8 +414,7 @@ played rather than what it does. Nearly everything else was rows in those lists.
 coverage went from 3,004 cards to 4,287 in the same change, which is the argument for picking a set
 as the target rather than picking the number.
 
-Nothing here changes `:mtgish-tooling`, which stays authoritative until a per-set cutover replaces it
-(Phase 5). Assay is **not a runtime card loader** and never will be — with one carved-out exception,
+Assay has superseded `:mtgish-tooling`, which is deprecated. Assay is **not a runtime card loader** and never will be — with one carved-out exception,
 the [custom-card sandbox](#the-compiler-and-the-custom-card-sandbox), which compiles a *pasted* card
 for a dev-gated Scenario Builder session and never touches the corpus.
 
@@ -478,6 +477,10 @@ compile/    a whole reading as a CardDefinition — the custom-card sandbox's en
 explore/    the browser UI — a loopback HTTP server over the live grammar and both gates
 cli/        assay parse | explain | compile | gate | report | differential | explore | corpus
 ```
+
+`syntax/`, `grammar/`, `normalize/` and `compile/` (plus `mtg-sdk` and the card validator) are also
+compiled to Kotlin/Wasm by the standalone browser checker in [`browser/`](browser/README.md). Keep
+them free of JVM-only APIs; the `assay-wasm` CI job fails when one slips in.
 
 ## The three things that make this different
 
@@ -1110,7 +1113,7 @@ control** this turn" (Denethor, Faramir, Sméagol, Barrensteppe Siege). Each pri
 whole condition with a facade of its own, so the band is two `constant` rows beside the life-state
 conditions, and every position that slots `Conditions` read them at once: intervening-ifs, "Activate
 only if", "… instead if", and "This spell costs {3} less to cast if". The subtype-filtered spellings
-("if a Zombie died this turn") build `CreatureWithSubtypeDiedThisTurn` and stay out of this band.
+("if a Zombie died this turn") build `CreatureDiedThisTurnMatching` and stay out of this band.
 
 ### What the differential found
 
@@ -1806,7 +1809,7 @@ families behind four cards are worth a hundred and forty.
 
 **Mill was not in the grammar at all.** `Patterns.Library.mill` had a reader in `Amounts` for
 Dreamborn Muse's "that player mills X cards, where X is …" and `Costs` knew it as a cost atom, but
-the plain effect clause — "Mill two cards." — had no rule, so 93 cards were blocked on CR 701.13's
+the plain effect clause — "Mill two cards." — had no rule, so 93 cards were blocked on CR 701.17's
 one-word verb. It is this file's pipeline with the middle taken out (a gather and one move, no
 selection and no second pile), which is why it reads as a family beside the look/keep/rest layers
 rather than a row inside them; the miller is a template per row for `Hand`'s reason, and
@@ -1853,7 +1856,7 @@ Sandbender Scavengers, plus Unlucky Cabbage Merchant and Lightless Evangel that 
 outside the compared set. CR 603.2c makes the singular wording per-permanent: sacrificing two Blood
 tokens to one cost is two triggers and two life, and the batch spec paid once. The other three:
 Falkenrath Forebear's "return this card **from your graveyard**" had lost its `fromZone` guard,
-Mysterio's Phantasm hand-built the mill pipeline and lost `isMill` with it (so CR 701.13's "mills
+Mysterio's Phantasm hand-built the mill pipeline and lost `isMill` with it (so CR 701.17's "mills
 that many plus four instead" could not see it), and Angel's Tomb wrote `addTypes = CREATURE` — a
 type `BecomeCreature` adds anyway — where the printed word is "artifact".
 
@@ -3194,7 +3197,8 @@ token with decayed" is a keyword on the token per CR 702.147, so the grammar rea
 attack-sacrifice trigger only off `CounterType.DECAYED`, so the keyword alone is inert and the card
 writes `initialCounters = {decayed: 1}`. The card's spelling is the one that *works* and the
 grammar's is the one the text states; neither is right to change on its own, so the gap is reported.
-Same shape as the display-only keywords the report's bottom table already ranks.
+Same shape as the display-only keywords the report's bottom table already ranks. *(Closed since: the engine now
+realizes Decayed off the projected keyword, and the card writes `keywords = [DECAYED]`.)*
 
 ## The fronted duration
 
@@ -3537,7 +3541,7 @@ So the quantifier is a **row**, a rule that uses it is a *family* of rules, and
 The rows are exhaustive over the *printed* forms rather than over the SDK's fields. "One or two target
 creatures" is a `minCount` below its `count` and is a seventh row nobody has needed yet
 (`Combat.returnOneOrTwoTargets` still spells it whole); "target creature an opponent controls" is a
-filter, not a quantifier; a `sameController` or a `totalManaValueAtMost` is a rider on the noun phrase
+filter, not a quantifier; a `sameController` or a `totalAtMost` is a rider on the noun phrase
 and belongs to a layer above the list, exactly as `Filters`' controller clause does.
 
 ### `plural` is one column with two consequences
@@ -4054,7 +4058,7 @@ The riders are rows with a genuinely **empty** surface, which is the whole point
 as required template text is precisely the shape that put 19 bare "…to the battlefield." lines in
 [the final period](#the-final-period). The counter rider is the corpus's spelling and not the SDK's
 shorter one — eight cards write `Composite(move, AddCounters(…, Self))` and none writes
-`MoveToZoneEffect.addCounterType`, which holds one counter where the sentence can print several.
+`MoveToZoneEffect.entryCounters` for this sentence.
 
 And a row **declares which riders it takes**. "To your hand" is never printed tapped and never lands
 with counters, so it is offered neither; the library row fixes its own `ZonePlacement.Top` instead.
@@ -5071,9 +5075,9 @@ the corpus's 205 restriction sentences**. What blocks the rest is mostly not thi
 - **contexts with no SDK atom** — "on costs that contain {X}" (4 lines, and Rosheen Meanderer is a
   card people play), "a multicolored spell" (4 cards), "a colorless spell", "spells from your
   graveyard", "your commander";
-- **the chosen type** (5 lines) — a different *effect*, `AddAnyColorManaSpendOnChosenTypeEffect`, which
-  mints its restriction at resolution from the source's `CastChoicesComponent`, so the whole two-sentence
-  span is one rule rather than a restriction slot;
+- **the chosen type** (5 lines) — now a restriction atom, `ManaRestriction.OfChosenType(creatureOnly)`,
+  that the engine binds to the source's chosen type when the mana is made, so it can fill the ordinary
+  restriction slot (and an `AnyOf`) — no grammar rule reads it yet;
 - **`creatureOnly` on a printed subtype** — "cast Dragon creature spells", "an Elf creature spell". The
   field exists on `SubtypeSpellsOrAbilitiesOnly`, but every hand-written user of it is a chosen-type
   card whose printed wording is "a creature spell of the chosen type", so reading a *named* subtype onto
@@ -5513,6 +5517,328 @@ previously confirmed card moved. The other three were cards: **Headhunter** and 
 two-player and wrong in multiplayer — and **Unnerve [USG]** discarded one card where it prints two.
 All three are fixed; divergent is back to 76.
 
+## The tutor's "put that card"
+
+"Search your library for a card, **put that card into your hand**, then shuffle." (Demonic Tutor,
+Diabolic Tutor, Planar Portal) and "…**put that card into your graveyard**, then shuffle." (Entomb,
+Vile Entomber). Tail key ", put that …". `Library.search` already had a row per destination with the
+anaphor as an `alternate` for the battlefield and the reveal clause; the hand had only the pronoun,
+and the graveyard had no row at all. Three rows over `Patterns.Library.searchLibrary`: "put that card
+into your hand" as the alternate of "put it" (Oracle prints the pronoun 372 times to 20), and the
+graveyard destination in both spellings — split 7 to 6 in Oracle, so the pronoun stays canonical for
+agreement with every other destination.
+
+### What it moved
+
+Probe 19 lines / 11 whole cards corpus-wide. Over the implemented population delivered **+7**
+(7,847 → 7,854), compared 7,432 → 7,439. Gamble's "…put that card into your hand, discard a card at
+random, then shuffle" is a different sentence and stays declined.
+
+### What the differential found
+
+Two new divergences. **Diabolic Intent [PLS]** searched for a *creature* card where it prints "a
+card"; fixed. **Grim Tutor [S99]** is a standing SDK finding, and the card is the right half of it:
+it chooses exactly one card where `searchLibrary` always chooses up to one. CR 701.23b lets a player
+fail to find only when the search names a stated quality, so an unqualified "search for a card" must
+find one if the library has one — every `searchLibrary(filter = Any)` tutor, Demonic Tutor included,
+can currently fail to find. Divergent 76 → 77.
+
+## Your second card each turn
+
+"**Whenever you draw your second card each turn**, put a +1/+1 counter on ~." (Knights of Dol Amroth,
+Erudite Wizard, Tiger-Seal, Thopter Fabricator). Tail key "you draw your …". `Triggers` already read
+the ordinal *cast* trigger — `nthCastRule`, the caster baked into each row with its possessive and
+`Cardinals.ordinal` as the one slot — and the draw trigger is the same shape over
+`Triggers.<player>.drawsNth(n)`: three rows ("you draw your", "an opponent draws their", "a player draws
+their") into `NthCardDrawnEvent`. The one difference is the payoff's cascade. A draw event binds no
+object, so "it" in the effect can only be the source and the rule slots `Steps.step`, as the expend
+trigger does, rather than the triggered-object cascade the cast rule needs. Lady Octopus's "your first
+**or** second card" is one ability over two events and stays declined.
+
+### What it moved
+
+The ledger's first probe said 58 lines and **0** cards, because it substituted "you draw a card" — a
+trigger the grammar does not read either. Re-probed with a prefix it does read, the family measured
+30 lines / 15 whole cards over the implemented population, and delivered exactly that: **+15**
+(7,854 → 7,869), compared 7,439 → 7,454. A probe whose stand-in is itself unreadable measures nothing.
+
+### What the differential found
+
+One new divergence, a card. **Private Eye [MKM]** targeted a *creature* Detective where it prints
+"target Detective" — a bare subtype names a permanent (CR 109.2), the same finding as Diregraf
+Captain's and Sygg's. Fixed; divergent back to 77.
+
+## Entering with a counter, if
+
+"~ enters with a +1/+1 counter on it **if you attacked this turn**." (raid, morbid, the Myojin's "if
+you cast it from your hand"). Tail key "counter on it …". `Replacements` already read the bare
+sentence into `EntersWithCounters(selfOnly = true)` and refused any value with a `condition`; the
+conditional form is the same two rules with a trailing `{cond}` slot, so a null condition prints bare
+and a non-null one trails — disjoint halves of one field. The slot is `Conditions.condition` plus two
+rows whose "it" is the entering permanent ("you cast it", "you cast it from your hand"), kept out of
+the shared vocabulary because the pronoun is positional: The Sibsig Ceremony's "Whenever a creature
+you control enters, if you cast it" is `TriggeringEntityWasCast`. `WasKicked` (fronted by the kicker
+sentence) and `WasBargained` (a cost-position tense) are refused as trailing clauses. One row joins
+`Conditions` itself — "you've cast {n} or more spells this turn", `YouCastSpellsThisTurn(n)` from two
+up — which every position slotting the vocabulary picks up.
+
+### What it moved
+
+Probe 29 lines / 16 whole cards corpus-wide by dropping the clause, which overstated: revolt ("a
+permanent left the battlefield under your control"), "if you control a modified creature" and
+Epochrasite's next line still decline. Over the implemented population delivered **+13** (7,869 →
+7,882), compared 7,454 → 7,467; the baked ledger moved 10,948 → 10,969, with Loan Shark and Xerex
+Strobe-Knight finished by the spell-count row in their own positions. Six Myojin now stop on "~ has
+indestructible as long as it has a divinity counter on it.", the family's next row.
+
+### What the differential found
+
+One new divergence and no card bug. **Brightspear Zealot [EOE]** holds its "+2/+0 as long as" as
+`GrantDynamicStats` over two fixed amounts where the grammar reads `ModifyStats` — the fixed-bonus
+`GrantDynamicStats` spelling the gate has already recorded as one concept with two spellings, neither
+broken. Divergent 77 → 78.
+
+## When you control no Islands
+
+"**When you control no Islands**, sacrifice ~." (Dandân, Pirate Ship, Sea Serpent, Vodalian Knights)
+and Drop of Honey's "When there are no creatures on the battlefield, sacrifice ~." Tail key "When you
+control …". A state trigger (CR 603.8) is not an event trigger and the SDK does not pretend it is:
+`StateTriggeredAbility(condition, effect)` lives in `CardScript.stateTriggeredAbilities`, a list the
+grammar had never filled. So the band is a new fragment slot — `CardFragment.merge`, the
+differential's modelled slots and its id canonicalization, and the compiler's id re-mint all widened
+together — and one template, `StateTriggers.line`, "when {condition}, {effect}" over the shared
+`Conditions` and `Steps.step`. Two rows join `Conditions`: "you control no {plural}" and "there are no
+{plural} on the battlefield", both the `negate` flag on `YouControl` / `AnyPlayerControls` because that
+is how 55 goldens spell it against 6 `Not` wrappers. "Whenever" (Homarid's tide counters) and a
+targeted payoff decline: the first has nothing in the model to choose its word, the second has no
+requirement field to land in.
+
+### What it moved
+
+Probe 28 lines / 18 whole cards corpus-wide by replacing the whole line, which overstated because the
+conditions vary (phylactery counters, the chosen player's colour). Over the implemented population
+delivered **+8** (7,882 → 7,890), compared 7,467 → 7,475.
+
+### What the differential found
+
+Seven new readings to classify. **Goblins of the Flarg [DRK]** watched for a *creature* Dwarf where it
+prints "a Dwarf"; a bare subtype names a permanent (CR 109.2), fixed. The other six, Goblins
+included, are one standing SDK finding: the cards spell the sacrifice `SacrificeTarget(Self)` (58 card
+sources) where the grammar reads "sacrifice ~" as `SacrificeSelfEffect` (201). They are not the same
+value to the engine either — `SacrificeTargetExecutor` honours `CANT_BE_SACRIFICED`, Sigarda's
+immunity and the projected controller, and `SacrificeSelfExecutor` does none of that — so the cards
+were left as written rather than moved onto the weaker executor. Divergent 78 → 84.
+
+## Whenever you draw a card
+
+"**Whenever you draw a card**, put a +1/+1 counter on ~." (Clinquant Skymage, Ravenhill Flock,
+Hoofprints of the Stag), "Whenever an opponent draws a card, you may draw two cards." (Consecrated
+Sphinx) and "Whenever a player draws a card, ~ deals 1 damage to that player." (Spiteful Visions).
+Tail keys "you draw a …" and "opponent draws a …". The grammar read the ordinal draw trigger and not
+the every-draw one it is the sibling of: `Triggers.<player>.draws()` is `DrawEvent`, the drawer is a
+row for the reason it is one in the ordinal rule, and the payoff is the same source cascade because a
+draw names no object (CR 121.2). Orcish Bowmasters' "except the first one they draw in each of their
+draw steps" is the event's `firstInDrawStep = EXCLUDED` scope and its own row, since only the opponent's
+surface prints it. One row joins the life vocabulary — "that player loses {n} life", the drawer as
+`Player.TriggeringPlayer`, as the hand-written cards spell it.
+
+### What it moved
+
+Probe 46 + 16 lines / 15 + 4 whole cards corpus-wide by swapping the prefix for "Whenever ~ attacks".
+Over the implemented population delivered **+5** (7,890 → 7,895), compared 7,475 → 7,480. "They lose
+2 life" (Sheoldred) and "~ deals 1 damage to them" (Razorkin Needlehead) still decline on the pronoun.
+
+### What the differential found
+
+No new divergence and no card bug. The new life row found a parser bug first: the "ends in a scoped
+clause" fold (`appendClause`) lacked `merge`'s guard against "that player" beside a declared target,
+so Scroll of Griselbrand's "Target opponent discards a card. If you control a Demon, that player loses
+3 life." read the target as the triggering player and failed to print. The fold now refuses it, as
+`merge` does. Divergent 84 → 84.
+
+## Its controller creates
+
+"Destroy target permanent. **Its controller creates** a 3/3 green Beast creature token." (Beast
+Within, Pongify, Rapid Hybridization, Crib Swap, Get Lost, Emergency Eject). Tail key "s controller
+creates …". The SDK holds the sentence as the token clause it already read with one field set —
+`controller = EffectTarget.TargetController` on `CreateToken` or the predefined-token facade, which
+nine hand-written cards write — so the band is an axis of `Tokens.createToken` and
+`createPredefined` rather than a copy of them: a `Creator` that carries the verb ("create" / "its
+controller creates") and the controller together, with the imperative's `null` keeping the existing
+rows from reading a token that goes to someone else. The third-person rows join `Continuations`, the
+later-clause position, and `Steps.renumbered` refuses them unless the line declared exactly one
+permanent target: `TargetController` names no slot, so the pronoun guard cannot see it, and
+after a player, two targets or a spell there is no one permanent whose controller it means. That last
+case is An Offer You Can't Refuse, which creates the Treasures *before* countering so the spell's
+controller is still on the stack to read — a different model from the printed order, left declined.
+
+### What it moved
+
+Probe 28 lines / 23 whole cards corpus-wide by dropping the sentence. Over the implemented population
+delivered **+8** (7,895 → 7,903), compared 7,480 → 7,488.
+
+### What the differential found
+
+Two new divergences, both card spellings, fixed. **Bovine Intervention [OTJ]** wrote
+`CreatureOrArtifact` for printed "artifact or creature", the finding the artifact/creature band fixed
+on eighteen others. **Zuko's Exile [TLA]** selected its target inside a pipeline and gave the Clue to
+`ControllerOfPipelineTarget` — which chose the target as the spell *resolved*, where CR 601.2c chooses
+it as the spell is cast. It is now the cast-time target and `TargetController` every other card in the
+family uses, with a scenario test; a gym-trainer search test that had borrowed it as its one
+resolution-time targeting fixture now declares that fixture inline. Divergent 84 → 84.
+
+## Explores and connives
+
+"When ~ enters, **it explores**." (River Herald Scout, Cenote Scout), "Whenever ~
+attacks, **it connives**." (the SNC and Marvel villains) and "Target creature you control explores."
+(Enter the Unknown, Twists and Turns). Tail keys "explores." and "connives.". CR 701.44 and 701.50
+are keyword actions a permanent performs, and the SDK names the actor and nothing else —
+`Effects.Explore(target)`, `Effects.Connive(target)` — so the band is two rows of
+`SelfSteps.retargetable`, whose subject already moves with the position ("~", the filtered trigger's
+"it", the later clause's "it", enchanted creature), and two of `quantifiedPermanentSteps` for the
+cast-time target as subject. Singular rows only, and connive refuses "up to one" as well:
+`ConniveEffectExecutor` still draws and discards when its subject does not resolve (the CR 701.50b
+last-known-information path), so an empty optional target would loot anyway.
+
+### What it moved
+
+Probe 23 + 23 lines / 21 + 17 whole cards corpus-wide by swapping the verb for "gets +1/+1 until
+end of turn". Over the implemented population delivered **+16** (7,903 → 7,919), compared 7,488 →
+7,504. Endure ("it endures 3", 8 cards) is the same subject shape over a `May` with a token
+`otherwise`, left for its own band.
+
+### What the differential found
+
+Three new readings. **Path of Discovery [RIX]** wrote `Triggers.another` for printed "a creature you
+control" — the card is an enchantment, so the "other" exclusion was a word the text never printed;
+fixed to `Triggers.a`. **Prowler, Clawed Thief [SPM]** watched for a *creature* Villain where it
+prints "another Villain"; a bare subtype names a permanent (CR 109.2), fixed to the
+`Permanent.withSubtype` Flying Octobot already uses. **Unstable Experiment [SPM]** was a parser bug:
+its "up to one target creature you control connives" is gated on the target existing because of the
+executor behaviour above, and the grammar read it as a bare connive — the optional connive rows were
+withdrawn. Divergent 84 → 84.
+
+## The exploit payoff
+
+"When ~ exploits a creature, each opponent sacrifices a creature of their choice." Tail key "~
+exploits a …". CR 702.110b says a creature exploits a creature when its exploit ability's controller
+sacrifices one as that ability resolves, and `CardBuilder.exploit` takes the rule at its word: the
+payoff is the *reflexive* half of the one enters trigger exploit lowers to, not a trigger of its own.
+So the printed "Exploit" line stays the bare keyword `keywordLine` already read, and the payoff line
+carries the whole lowered ability — `Grammar.exploitPayoffLine`, soulshift's shape, calling the DSL
+method inside a throwaway `card { }` and matching by rebuilding from the reflexive half. A card with
+exploit and no payoff (Skull Skaab) still holds an ability no line prints, and the lowered-keyword
+guard keeps setting it aside. The payoff's targets are the reflexive trigger's, chosen after the
+sacrifice, so the differential learned `reflexiveTargetRequirements` as a slot owner — the cards name
+the slot `t0`, the grammar `target`.
+
+The probe (→ "When ~ enters") said 20 lines and 14 whole cards corpus-wide, and the verdict ledger
+moved by exactly 14 (11,079 → 11,093) — ten of them unimplemented cards, mostly Dragons of Tarkir, now
+Assay-ready. Over the hand-written corpus the band delivered **4 whole cards (7,919 →
+7,923)** — Graf Reaver, Repository Skaab, Rot-Tide Gargantua and Stitched Assistant. The
+other five exploit payoffs decline on their payload: "draws two cards and loses 2 life", "exiles a
+card from their hand", a counter over spells *and* abilities, the owner's top-or-bottom choice, and
+a gain-control run.
+
+### What the differential found
+
+All four newly compared cards agree with their goldens; compared 7,504 → 7,508, divergent 84 → 84.
+
+## Its controller loses life
+
+"Destroy target creature. **Its controller loses 2 life.**" (Bitter Downfall, Despoil, Death Bomb,
+Inevitable Defeat). Tail key "s controller loses …". The second third-person recipient after "its
+controller creates": `lifeChanges`' loss row over `EffectTarget.TargetController`, built by the same
+`countedStepPair` so "…loses life equal to …" comes with it. It is offered only in the later-clause
+position `targetLifeByProperty` already occupies, and `Steps.renumbered`'s existing guard — exactly
+one permanent target on the line — is what keeps "Counter target spell. Its controller loses 3 life."
+(Undermine, Punish Ignorance) declined: a spell's controller is a different value the cards spell
+differently.
+
+### What it moved
+
+Probe 26 lines / 17 whole cards corpus-wide by rewriting the subject to "You lose". Over the
+implemented population delivered **+4** (7,923 → 7,927), compared 7,508 → 7,512. The rest of the
+implemented family is triggered ("Whenever enchanted land becomes tapped, its controller loses 2
+life" — Ragged Veins), names a spell, or declines elsewhere on the card.
+
+### What the differential found
+
+Three new divergences, all card spellings, all fixed. **Death Bomb [PLS]** *gained* 2 life for the
+destroyed creature — `GainLife(2, t)` where the text says its controller loses it. **Despoil [PCY]**
+aimed `LoseLife` at the land itself, a permanent rather than a player, so nobody lost life. Both now
+write `TargetController` and have their first scenario tests. **Inevitable Defeat [TDM]** ran the
+life change before the exile on the stated belief that `TargetController` cannot read a permanent
+that has left the battlefield; the zone-transition service has since stashed a last-known snapshot
+the resolver reads, so it now takes the printed order and its existing test still passes. Divergent
+84 → 84.
+
+## Granted ward
+
+"Enchanted creature gets +3/+3 and **has ward {2}**." (Crystal Carapace, Chains of Custody), "…has
+trample and ward {1}." (Super Strength, Lavaspur Boots), "Other Frogs you control **have ward {1}**."
+(Long River Lurker, Shelob). Tail key "ward {§}.". Ward is a parameterized keyword, so
+`Keywords.keyword` could not name it — and its KDoc said the line declined because the SDK had
+nowhere to hold the cost, which stopped being true when `GrantWard(cost, filter)` landed. That is the
+tapped-entry band's lesson again: a write-off that names a missing dependency has an expiry date.
+The band is `Keywords.wardedRun` — `keywordRun`'s three list sizes with ward as the last member,
+where every granted ward in the corpus prints it — slotted into the four grant sentences that
+already carried a keyword run: the attachment, the attachment with a pump, and the two `lordStatic`
+shapes. Each denotes the pump if printed, one `GrantKeyword` per plain keyword, then the
+`GrantWard`, and rebuilds that list to compare, so ward first or a ward under a different group
+refuses to print. Only the mana cost: the em-dash costs print quoted when granted ("have
+"Ward—Pay 2 life.""), a different shape. The effect-side run ("gains ward {2} until end of turn")
+stays declined; nothing grants ward as an effect.
+
+### What it moved
+
+Probe 26 lines / 12 whole cards corpus-wide by swapping "ward {N}" for "flying". Over the
+implemented population delivered **+7** (7,934 → 7,941), compared 7,517 → 7,524. Paladin's Arms
+("has ward {1}, and is a Knight"), Hardlight Containment ("Enchanted permanent"), Flowering of the
+White Tree (the "Legendary creatures" noun) and the conditional forms (Combat Research, Thorin,
+Yuna) decline elsewhere.
+
+### What the differential found
+
+One new divergence, a card spelling, fixed. **Dwarven Mattock [HOB]** targeted a Dwarf *creature*
+for "attach it to target Dwarf you control"; a bare subtype names a permanent (CR 109.2), so it now
+writes `TargetFilter.PermanentYouControl.withSubtype` and has its first scenario test. Divergent 84
+→ 84.
+
+## This spell was kicked
+
+"Return target nonland permanent to its owner's hand. **If this spell was kicked**, draw a card."
+(Into the Roil, Whoosh!, Blink of an Eye, Dismantling Blow, Tolarian Geyser). Tail key "this spell
+was …". The condition is `WasKicked`, which `Conditions` already read as the permanents' "if it was
+kicked" — and Oracle splits the two spellings exactly by position: 110 lines on instants and
+sorceries say "this spell", 98 on permanents say "it". One model, two surfaces, chosen by where the
+sentence stands, so it is neither an `alternate` (which would print the pronoun on every spell) nor
+a second row (two printers for one model). It is the anaphors' shape: `Conditions.kicked(subject)`
+instantiated as `condition` and `spellCondition`, and `Steps.Cascade` taking its condition
+vocabulary as a parameter, so the spell line slots a fifth cascade, `Steps.spellStep`, that differs
+from the source cascade in that one row. Cinderclasm, the one spell still printing "if it was
+kicked" about itself, declines.
+
+### What it moved
+
+Probe 108 lines / 12 whole cards corpus-wide by rewriting the subject to "it". Over the implemented
+population delivered **+4** (7,941 → 7,945), compared 7,524 → 7,528; the bake moved 11,119 → 11,129.
+The rest of the family prints "…instead" (Burst Lightning's `If(…, then, otherwise)`), splits the
+spell into the SDK's `kickerEffect` branch (Goblin Barrage, Fight with Fire), or declines on the
+payload ("they get +1/+1").
+
+### What the differential found
+
+One new divergence, and it was the reading that was wrong. Probe ("If this spell was kicked, target
+player discards two cards") read as `Effects.If(WasKicked)` over an ordinary target — chosen on
+every cast — where CR 702.33g says a target in the kicked part of a spell is chosen only if it was
+kicked. The SDK spells that with `kickerTarget` / `kickerEffect`, which no rule builds yet, so the
+spell cascade now **declines** a kicked consequence that declares a target; a permanent's "if it was
+kicked" keeps them, being an intervening-if whose trigger never reaches the stack to choose. The card
+was wrong too, in a different way: an optional target under the gate, so a kicked Probe could be
+cast with nobody to discard. It now uses the kicker branch, as its comment claimed the SDK could not,
+and has its first scenario test. Divergent 84 → 84.
+
 ## The differential gate
 
 `just assay-differential` diffs Assay's reading of a card against the `CardDefinition` a human wrote
@@ -5728,7 +6054,7 @@ of them was added after the gate was caught claiming a check nobody had performe
 | The text is the **same text** | A golden carries the wording it was authored from; if that is not what Scryfall serves, Assay is reading one card and diffing another. Compared normalized, so inconsistently-included reminder text is not a difference. |
 | The definition uses only **modelled slots** | A keyword the SDK lowers to a triggered ability at authoring time leaves content the grammar cannot produce. Confirming it would claim a check nobody performed. |
 | The lines **fold into one card** | A `CardScript` has one `spellEffect`; a card printing two effect paragraphs means a sequence the grammar has no rule for. Neither keeping the first nor concatenating them is honest, so it is counted. |
-| The card has no **unread abilities** | A keyword the SDK lowers at authoring time puts an ability in the script that no text line prints — prowess, provoke, rampage, training and mobilize become triggers; cycling, equip, morph and level up become activated abilities. A card carrying more of either than Assay read is carrying content nobody printed. One-directional: *Assay* having more would mean the grammar invented an ability, and that must diverge loudly. |
+| The card has no **unread abilities** | A keyword the SDK lowers at authoring time puts an ability in the script that no text line prints — prowess, provoke, training and mobilize become triggers; cycling, equip, morph and level up become activated abilities. A card carrying more of either than Assay read is carrying content nobody printed. One-directional: *Assay* having more would mean the grammar invented an ability, and that must diverge loudly. |
 
 A divergence never fails the build — it is a finding to classify as **parser bug**, **card bug**, or
 **fold**. Only an undecodable golden exits non-zero. The fold list lives in `gate/Differential.kt`
@@ -6088,6 +6414,41 @@ on the *first request*, so a server nobody opens it on fetches nothing. Where `~
 does not exist, that first sweep downloads the bulk; where it cannot, the page stays up with its
 live parser and rule tree and reports the failure. The differential needs `mtg-sets` test resources
 and so answers "no goldens found" off a bootJar — one page degraded, the rest intact.
+
+### What the engine AI reads
+
+Inside the app, each card page also has an **AI reading** panel: what the engine AI's static card
+readers (target polarity, card intent, combat reach, end-of-turn timing, the escalate picker)
+understand of each of the card's abilities — the corpus audit of
+[`docs/ai/reading-audit.md`](../docs/ai/reading-audit.md), placed. Each spell, triggered and
+activated ability is a row marked read (✓) or with gaps (✕); each finding names its reader, the
+target slot or the step of the effect it is about, a plain-English reason ("target 1: can't tell if
+this helps or hurts"), and the SDK effect type for a developer. A chip beside the card's title sums
+it up ("AI reads 3/4 abilities") and jumps to the panel. The card list gains an AI column and an
+**AI gaps** filter.
+
+Which definition is read: the engine's own (the live registry), else the hand-written golden, else —
+for a card nobody has implemented — Assay's whole-card [`CardCompiler`] output, labelled a
+**preview** of what the AI would understand if the card were written the way Assay reads it.
+
+This module cannot compute any of that: the readers live in `:ai`, which depends on the engine, and
+`:oracle-assay` depends on the SDK alone. So `explore/AiReading.kt` declares an
+`AiReadingProvider` interface and the views the page renders, `ExploreApi` takes one optionally, and
+`game-server` passes its implementation (`AiReadingService`) when it mounts the explorer. Standalone
+`just assay-explore` passes none, and the panel says the AI reading needs the game server.
+
+Beside it, **How the AI rates it** draws the numbers the AI puts on the card, from the same provider
+(`AiReadingProvider.rate`, answered by `AiCardRating` in `:ai`):
+
+- **Draft & deckbuilding** — the 0–5 limited pick rating on a gauge banded by the scorer's cutoffs,
+  where it came from (17Lands, a pick table, or the effect heuristic — called out as "No draft rating"
+  when nothing rates the card), the draft scorer's starting number per set the card is in, and the
+  heuristic as a waterfall: base, each keyword, each ability, rarity and curve.
+- **In play** — the evaluator's board value on an empty battlefield, on a scale ticked with familiar
+  cards, broken into stats and keywords (a creature) or the prior rung that priced it (any other
+  permanent), and the intent tags the AI's timing and targeting policies read.
+
+`just ai-card "<name>|<name>"` prints both panels' answers in the terminal.
 
 ## The verdict ledger
 

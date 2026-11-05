@@ -11,6 +11,7 @@ import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.model.CardScript
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
+import com.wingedsheep.sdk.scripting.effects.DelayedTriggerTiming
 import com.wingedsheep.sdk.scripting.effects.ForEachTargetEffect
 import com.wingedsheep.sdk.scripting.effects.SacrificeSelfEffect
 import com.wingedsheep.sdk.scripting.effects.SuccessCriterion
@@ -722,6 +723,44 @@ class StepsTest : StringSpec({
         // The bare clause and the deferred one are different models, so neither prints the other.
         roundTrips("Sacrifice ~.")
     }
+    // Similar.
+    "delayed clauses preserve their scheduling semantics" {
+        val endCombat =
+            "Draw a card at end of combat."
+        val nextEndStep =
+            "Draw a card at the beginning of the next end step."
+        val nextUpkeep =
+            "Draw a card at the beginning of the next turn's upkeep."
+
+        val combat = fragment(endCombat).script.spellEffect
+            .shouldBeInstanceOf<CreateDelayedTriggerEffect>()
+        combat.step shouldBe Step.END_COMBAT
+        combat.timing shouldBe DelayedTriggerTiming.CURRENT_TURN_OR_LATER
+
+        val end = fragment(nextEndStep).script.spellEffect
+            .shouldBeInstanceOf<CreateDelayedTriggerEffect>()
+        end.step shouldBe Step.END
+        end.timing shouldBe DelayedTriggerTiming.CURRENT_TURN_OR_LATER
+
+        val upkeep = fragment(nextUpkeep).script.spellEffect
+            .shouldBeInstanceOf<CreateDelayedTriggerEffect>()
+        upkeep.step shouldBe Step.UPKEEP
+        upkeep.timing shouldBe DelayedTriggerTiming.NEXT_TURN
+
+        listOf(endCombat, nextEndStep, nextUpkeep).forEach {
+            roundTrips(it)
+        }
+    }
+
+    // Later in a line "it" is whatever the earlier clause made, so a delayed rider there has no
+    // source pronoun to read. First in a line, "it" is still the source.
+    "a delayed rider after another clause doesn't read it as the source" {
+        Grammar.abilityLine.parseLine(
+            "Create a 1/1 red Goblin creature token. Exile it at the beginning of the next turn's upkeep."
+        ).shouldBeInstanceOf<ParseOutcome.Declined>()
+        fragment("Exile ~ at the beginning of the next end step.").script.spellEffect
+            .shouldBeInstanceOf<CreateDelayedTriggerEffect>()
+    }
 
     // "If you do" gates the second clause on the first having happened, not on the choice: an empty
     // hand still "may discard", and must not draw. So it is `May(IfYouDo(…))`, never `May(A then B)`.
@@ -786,6 +825,28 @@ class StepsTest : StringSpec({
             )
         roundTrips("Defending player loses 1 life.")
         roundTrips("Whenever ~ attacks, defending player loses 2 life.")
+    }
+
+    // Bitter Downfall, Despoil, Death Bomb — the third-person recipient is the controller of the
+    // permanent the first sentence chose, the same `TargetController` "its controller creates" sets.
+    "its controller loses life after a sentence that chose one permanent" {
+        val effects = (fragment("Destroy target creature. Its controller loses 2 life.").script.spellEffect
+            as com.wingedsheep.sdk.scripting.effects.CompositeEffect).effects
+        effects[1] shouldBe Effects.LoseLife(2, EffectTarget.TargetController)
+
+        roundTrips("Destroy target creature. Its controller loses 2 life.")
+        roundTrips("Destroy target land. Its controller loses 2 life.")
+        roundTrips("Return target permanent to its owner's hand. Its controller loses 3 life.")
+        // The drain's " and " join is the run's alternate spelling of the full stop, as elsewhere.
+        fragment("Destroy target creature. Its controller loses 2 life and you gain 2 life.") shouldBe
+            fragment("Destroy target creature. Its controller loses 2 life. You gain 2 life.")
+        // A first clause has nothing for "its" to name, nor does a spell or a player target.
+        Grammar.abilityLine.parseLine("Its controller loses 2 life.")
+            .shouldBeInstanceOf<ParseOutcome.Declined>()
+        Grammar.abilityLine.parseLine("Counter target spell. Its controller loses 3 life.")
+            .shouldBeInstanceOf<ParseOutcome.Declined>()
+        Grammar.abilityLine.parseLine("Target player draws a card. Its controller loses 1 life.")
+            .shouldBeInstanceOf<ParseOutcome.Declined>()
     }
 
     // "You draw three cards" is the same model as "Draw three cards", so the subject cannot be

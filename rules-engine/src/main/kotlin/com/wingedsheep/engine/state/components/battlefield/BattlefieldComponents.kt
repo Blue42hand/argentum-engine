@@ -2,13 +2,16 @@ package com.wingedsheep.engine.state.components.battlefield
 
 import com.wingedsheep.engine.mechanics.layers.AffectsFilter
 import com.wingedsheep.engine.state.Component
+import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.sdk.core.CounterType
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityId
 import com.wingedsheep.sdk.scripting.ProtectionScope
 import com.wingedsheep.sdk.scripting.ReplacementEffect
 import com.wingedsheep.sdk.scripting.conditions.Condition
+import com.wingedsheep.sdk.scripting.events.DamageType
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -48,8 +51,47 @@ data class PhasedOutComponent(
      */
     val phaseInOnSourceLeaves: EntityId? = null,
     /** Tap this permanent when it phases back in (Oubliette: "Tap that creature as it phases in"). */
-    val tapOnPhaseIn: Boolean = false
+    val tapOnPhaseIn: Boolean = false,
+    /**
+     * When non-null, this permanent can't phase in until the lock is released (The Phasing of
+     * Zhalfir, Teferi, Timeless Voyager). The untap step skips it while the lock is present.
+     * Releasing the lock does not phase the permanent in — it phases in at its controller's next
+     * untap step like any other. See [PhaseInLock] for when each kind is released.
+     */
+    val phaseInLock: PhaseInLock? = null
 ) : Component
+
+/** A window during which a [PhasedOutComponent]'s permanent can't phase in. */
+@Serializable
+sealed interface PhaseInLock {
+    /** The player whose effect created the lock. */
+    val controllerId: EntityId
+
+    /**
+     * "Can't phase in for as long as [controllerId] controls [sourceId]" (The Phasing of
+     * Zhalfir). `EndedDurationExpiryCheck` releases it one-way (CR 611.2b) the moment the source
+     * leaves the battlefield or changes controller.
+     */
+    @Serializable
+    @SerialName("WhileControlsSource")
+    data class WhileControlsSource(
+        val sourceId: EntityId,
+        override val controllerId: EntityId
+    ) : PhaseInLock
+
+    /**
+     * "Until the end of your next turn, it can't phase in" (Teferi, Timeless Voyager). Released at
+     * the cleanup step of the first turn of [controllerId]'s at or after [expiresAfterTurn] — the
+     * `Duration.EndOfYourNextTurn` floor-plus-controller window — or as soon as that player's turn
+     * would have begun if they left the game (CR 800.4m).
+     */
+    @Serializable
+    @SerialName("UntilEndOfControllersNextTurn")
+    data class UntilEndOfControllersNextTurn(
+        override val controllerId: EntityId,
+        val expiresAfterTurn: Int
+    ) : PhaseInLock
+}
 
 /**
  * Marks a permanent as having been cast from its controller's hand.
@@ -58,6 +100,14 @@ data class PhasedOutComponent(
  */
 @Serializable
 data object CastFromHandComponent : Component
+
+/**
+ * Marks a permanent that entered the battlefield by resolving as a cast spell, from whatever zone
+ * it was cast — including the command zone, which has no zone-specific marker. "If you cast it" /
+ * "if it wasn't cast" (Preston, the Vanisher) read this rather than OR-ing the per-zone markers.
+ */
+@Serializable
+data object WasCastComponent : Component
 
 /**
  * Marks a permanent as having been cast from a graveyard (e.g., flashback, encore,
@@ -78,13 +128,18 @@ data object CastFromGraveyardComponent : Component
 data object CastFromLibraryComponent : Component
 
 /**
- * Marks a permanent that entered the battlefield directly from a graveyard via a
- * reanimation effect (not via casting). Added in the battlefield-entry path when
- * the zone transition's fromZone is GRAVEYARD. Used by triggers that care whether
- * an entering creature was reanimated (e.g., Twilight Diviner).
+ * Marks a permanent that entered the battlefield directly from [zone] — any way other than
+ * resolving as a spell: a reanimation (graveyard), a blink or "put an exiled card onto the
+ * battlefield" effect (exile), a "put it onto the battlefield" search or reveal (library), a
+ * "put it from your hand" effect (hand), or a land played from any of those zones. Added in the
+ * battlefield-entry paths ([com.wingedsheep.engine.handlers.effects.ZoneTransitionService] and the
+ * land-play handler); a resolving permanent spell carries its cast-origin marker
+ * ([CastFromGraveyardComponent], [CastFromExileComponent], [CastFromLibraryComponent],
+ * [CastFromHandComponent]) instead. Read by the "if it entered from [zone] or was cast from [zone]"
+ * conditions — Twilight Diviner, Extraordinary Journey, Fblthp, the Lost.
  */
 @Serializable
-data object EnteredFromGraveyardComponent : Component
+data class EnteredFromZoneComponent(val zone: com.wingedsheep.sdk.core.Zone) : Component
 
 /**
  * Marks a permanent as having been cast from exile — an impulse-draw permission, a plotted or
@@ -94,15 +149,6 @@ data object EnteredFromGraveyardComponent : Component
  */
 @Serializable
 data object CastFromExileComponent : Component
-
-/**
- * Marks a permanent that entered the battlefield directly from exile (not via casting) — a blink
- * effect returning it, or any "put an exiled card onto the battlefield" effect. Added in the
- * battlefield-entry path when the zone transition's fromZone is EXILE. The exile twin of
- * [EnteredFromGraveyardComponent] (Extraordinary Journey).
- */
-@Serializable
-data object EnteredFromExileComponent : Component
 
 /**
  * Marks a permanent as having been cast for its warp cost.
@@ -126,6 +172,18 @@ data object WarpedComponent : Component
  */
 @Serializable
 data object DashedComponent : Component
+
+/**
+ * Marks a permanent whose blitz cost was paid (CR 702.152a). Added when a blitzed spell resolves.
+ * While present, the permanent has haste (StateProjector seeds it off this marker, like
+ * [DashedComponent]) and the synthesized [com.wingedsheep.sdk.scripting.Blitz.diesDrawAbility]
+ * (TriggerAbilityResolver; frozen onto the exit snapshot as `wasBlitzed` so the dies trigger can look
+ * back, CR 603.10a). Both are abilities of the permanent, so "loses all abilities" switches them off.
+ * A delayed trigger created on entry sacrifices it at the beginning of the next end step. Stripped by
+ * ZoneMovementUtils when the permanent leaves the battlefield (CR 400.7).
+ */
+@Serializable
+data object BlitzedComponent : Component
 
 /**
  * Marks a permanent as having been cast for its evoke cost.
@@ -206,9 +264,14 @@ data object MonstrousComponent : Component
  *    persist even after a contributor leaves the battlefield, so the count includes creatures no
  *    longer present as the ability resolves (per the Luxurious Locomotive ruling).
  *
+ *  - gather, via [com.wingedsheep.sdk.scripting.effects.CardSource.CreaturesThatCrewedOrSaddledSource],
+ *    for "exile each creature that crewed it this turn" (Golden Argosy, Fortune, Loyal Steed).
+ *
  * Transient: the union across every crew/saddle activation this turn (saddle may be activated
- * repeatedly), cleared in [CleanupPhaseManager.cleanupEndOfTurn] and naturally gone if this
- * permanent itself leaves the battlefield (a fresh entity has no battlefield components).
+ * repeatedly), cleared in [CleanupPhaseManager.cleanupEndOfTurn]. Last-known information: it is
+ * deliberately *not* stripped when the permanent leaves the battlefield, so an attack trigger that
+ * resolves after its Vehicle is gone still knows who crewed it. It is stripped when the card
+ * re-enters the battlefield, because that is a new object that was never crewed (CR 400.7).
  */
 @Serializable
 data class CrewSaddleContributorsComponent(
@@ -218,7 +281,13 @@ data class CrewSaddleContributorsComponent(
      * enforce a "Crew N. Activate only once each turn." cap (Luxurious Locomotive). Saddle
      * activations don't increment it. Reset with the rest of the component at end of turn.
      */
-    val crewActivations: Int = 0
+    val crewActivations: Int = 0,
+    /**
+     * How many of this permanent's crew abilities have *resolved* this turn — the Vehicle
+     * "becomes crewed" on each resolution (CR 702.122e). Backs the "becomes crewed for the first
+     * time each turn" rider; reset with the rest of the component at end of turn.
+     */
+    val crewResolutions: Int = 0
 ) : Component
 
 /**
@@ -255,9 +324,10 @@ data object EnduringReturnComponent : Component
  * this component (the creature stops being prepared).
  *
  * Transient engine state, not a copiable value (a copy of a prepared creature is not prepared).
- * Naturally gone when the permanent leaves the battlefield (a fresh entity has no battlefield
- * components); the linked exile copy is cleaned up by [com.wingedsheep.engine.core.StateBasedActionChecker]-adjacent
- * cleanup when the source leaves.
+ * Stripped when the permanent leaves the battlefield
+ * ([com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.stripBattlefieldComponents]), so a
+ * returning card can become prepared again; the linked exile copy is removed by
+ * [com.wingedsheep.engine.mechanics.sba.zone.PhantomCardCopiesCheck] once the source has left.
  */
 @Serializable
 data class PreparedComponent(
@@ -283,8 +353,9 @@ data class PreparedSpellCopyComponent(
  * abilities — is what the engine keys on, so an arbitrary card with no printed suspend can
  * be suspended (e.g. Taigam, Master Opportunist exiles the spell you cast and grants it
  * suspend). While present on an exiled card, [com.wingedsheep.engine.event.TriggerAbilityResolver]
- * grants it [com.wingedsheep.sdk.scripting.Suspend.countdownAbility] — the owner's-upkeep
- * countdown that removes a time counter and plays the card for free when the last is gone.
+ * grants it [com.wingedsheep.sdk.scripting.Suspend.exileAbilities] — the owner's-upkeep
+ * countdown that removes a time counter, and the trigger that plays the card for free when the
+ * last is gone.
  *
  * Stripped when the card leaves exile by a non-cast path and when it leaves the battlefield.
  */
@@ -303,6 +374,24 @@ data object SuspendedComponent : Component
  */
 @Serializable
 data object ParadigmComponent : Component
+
+/**
+ * Cipher (CR 702.99b): this exiled card is encoded on [creatureId]. [cardObject] is the card's own
+ * object as it entered exile, so the encoding ends the moment the card leaves exile — even if it
+ * later comes back to exile under the same entity id, it is a new object (CR 400.7) and the stale
+ * marker no longer matches. The creature leaving the battlefield ends it through the grant store:
+ * its granted cipher trigger is dropped with the creature's other object grants.
+ *
+ * Written by the spell-resolution path when a cipher spell finishes resolving with a chosen
+ * creature ([com.wingedsheep.engine.state.components.stack.CipherEncodeChoiceComponent]); read by
+ * [com.wingedsheep.engine.mechanics.durations.GrantDurationGate] for
+ * [com.wingedsheep.sdk.scripting.Duration.WhileSourceEncodedOnAffected].
+ */
+@Serializable
+data class EncodedOnComponent(
+    val creatureId: EntityId,
+    val cardObject: com.wingedsheep.engine.state.ObjectRef
+) : Component
 
 /**
  * Records the mana colors spent to cast this permanent.
@@ -513,6 +602,52 @@ data class AttachedToComponent(
 ) : Component
 
 /**
+ * A permanent that has just transformed into a face with
+ * [com.wingedsheep.sdk.scripting.AttachToPlayerAsTransforms] ("As this permanent transforms into
+ * Curse of Leeches, attach it to a player") and is waiting for its controller to choose that player.
+ * The choice belongs to the transform itself (CR 712.20), so it is made before anything else can see
+ * the Aura unattached: at the end of the untap step for a day/night transform, or by the first
+ * state-based action pass otherwise — both through
+ * `com.wingedsheep.engine.handlers.effects.permanent.attachments.TransformAttachToPlayer`. The CR
+ * 704.5m check leaves an Aura carrying it alone. Set and cleared by `flipDfcInPlace`; stripped when
+ * the permanent leaves the battlefield.
+ */
+@Serializable
+data object PendingTransformAttachComponent : Component
+
+/**
+ * A permanent that has just transformed into a face with
+ * [com.wingedsheep.sdk.scripting.BecomesCopyAsTransforms] ("As this creature transforms into Olag,
+ * Ludevic's Hubris, it becomes a copy of a creature card exiled with it …") and is waiting for the
+ * copy to be made. The copy belongs to the transform itself (CR 712.20); it is made by the first
+ * state-based action pass after the flip, through
+ * `com.wingedsheep.engine.handlers.effects.permanent.types.TransformCopy`. Set and cleared by
+ * `flipDfcInPlace`; stripped when the permanent leaves the battlefield.
+ */
+@Serializable
+data object PendingTransformCopyComponent : Component
+
+/**
+ * The enchant ability an Aura *gained* in place of its printed one — "it loses 'enchant creature
+ * card in a graveyard' and gains 'enchant creature put onto the battlefield with this Aura'"
+ * (Animate Dead), set by `EnchantPutOntoBattlefieldEffect`. While present it is the Aura's whole
+ * enchant restriction (CR 303.4c): the Aura may enchant only one of [hosts] — each pinned to the
+ * object it was when it was put onto the battlefield, so one that leaves and returns is a new object
+ * it can't enchant (CR 400.7) — and only while that object matches [filter]. The printed
+ * `auraTarget` is no longer consulted. A battlefield-scoped characteristic of this object, so it is
+ * stripped when the Aura leaves the battlefield.
+ *
+ * [hosts] null is an enchant ability naming no particular objects — "It's an Aura enchantment with
+ * enchant Forest you control" (`PutOntoBattlefieldAsAuraEffect`, Harold and Bob): any permanent
+ * matching [filter] may be enchanted.
+ */
+@Serializable
+data class GainedEnchantRestrictionComponent(
+    val filter: com.wingedsheep.sdk.scripting.GameObjectFilter,
+    val hosts: Set<com.wingedsheep.engine.state.ObjectRef>? = null
+) : Component
+
+/**
  * Tracks what is attached to this permanent.
  */
 @Serializable
@@ -584,6 +719,15 @@ data object EnteredThisTurnComponent : Component
 data object ExertedComponent : Component
 
 /**
+ * Permanent was exerted at some point this turn (CR 701.43a), by any means — an attack's exert
+ * (CR 701.43d) or an activated ability's exert cost. Unlike [ExertedComponent], which lives until
+ * its controller's next untap step, this is cleared at cleanup. Backs the "If this creature hasn't
+ * been exerted this turn" gate of [com.wingedsheep.sdk.scripting.ExertAsItAttacks] (Combat Celebrant).
+ */
+@Serializable
+data object ExertedThisTurnComponent : Component
+
+/**
  * Stores replacement effects on a permanent (e.g., Daunting Defender's damage prevention).
  * These are static replacement effects that are continuously active while the permanent
  * is on the battlefield, as opposed to one-shot floating effect shields.
@@ -594,15 +738,15 @@ data class ReplacementEffectSourceComponent(
 ) : Component
 
 /**
- * Timestamp for ordering continuous effects in the layer system (Rule 613.7).
- *
- * Currently never stamped — [com.wingedsheep.engine.mechanics.layers.StateProjector]
- * falls back to the current [com.wingedsheep.engine.state.GameState.timestamp] when it
- * is absent. Conceptually this is the same moment as
- * [BattlefieldEntryTimestampComponent] (both are "when the permanent entered the
- * battlefield"), but the two stay separate: stamping this one on every entry would
- * change layer ordering engine-wide, while the entry stamp is a pure identity marker
- * with no projection impact.
+ * The permanent's layer-system timestamp (CR 613.7d): the continuous effects its static
+ * abilities generate sort by it (CR 613.7a). Stamped on battlefield entry together with
+ * [BattlefieldEntryTimestampComponent] and renewed by
+ * [com.wingedsheep.engine.mechanics.layers.LayerTimestamps] when the permanent becomes attached,
+ * turns face up or down, or transforms (CR 613.7e–g); stripped on leave. The two stay separate
+ * because the entry stamp identifies the battlefield *object* (CR 400.7) and must not move on
+ * those renewals. [com.wingedsheep.engine.mechanics.layers.StateProjector] falls back to the
+ * current [com.wingedsheep.engine.state.GameState.timestamp] for a permanent that never went
+ * through an entry (a test fixture placing it directly).
  */
 @Serializable
 data class TimestampComponent(
@@ -619,10 +763,16 @@ data class TimestampComponent(
  * every battlefield entry (which then ticks the global timestamp, so every entry stamp
  * is unique); stripped on leave. Sibling of [TimestampComponent] — see its note on why
  * the two aren't unified.
+ *
+ * [simultaneousEntryGroup] is the opaque group shared by every permanent that entered in the
+ * same simultaneous event (a mass return or batch put-onto-battlefield); `null` for a lone entry.
+ * The stamps still differ inside a group, so it is the only way to tell that those permanents
+ * have been on the battlefield for the same amount of time (the world rule's tie, CR 704.5k).
  */
 @Serializable
 data class BattlefieldEntryTimestampComponent(
-    val timestamp: Long
+    val timestamp: Long,
+    val simultaneousEntryGroup: String? = null
 ) : Component
 
 /**
@@ -678,15 +828,24 @@ data class AbilityActivatedThisTurnComponent(
 
     /**
      * The effective per-turn loyalty allowance: the larger of the controller-wide maximum
-     * [playerMax] (Oath of Teferi) and this permanent's own [loyaltyActivationLimit]. The two
-     * don't stack — each says "twice rather than only once".
+     * (Oath of Teferi) and this permanent's own [loyaltyActivationLimit] — the two don't stack,
+     * each says "twice rather than only once" — plus the allowance's additive extra activations
+     * (The Chain Veil), which do.
      */
-    fun effectiveLoyaltyLimit(playerMax: Int): Int = maxOf(playerMax, loyaltyActivationLimit)
+    fun effectiveLoyaltyLimit(allowance: LoyaltyAllowance): Int =
+        maxOf(allowance.maximum, loyaltyActivationLimit) + allowance.additional
 
-    /** @return true if the loyalty activation limit has been reached for the given player max. */
-    fun hasReachedLoyaltyLimit(playerMax: Int): Boolean =
-        loyaltyActivationCount >= effectiveLoyaltyLimit(playerMax)
+    /** @return true if the loyalty activation limit has been reached under [allowance]. */
+    fun hasReachedLoyaltyLimit(allowance: LoyaltyAllowance): Boolean =
+        loyaltyActivationCount >= effectiveLoyaltyLimit(allowance)
 }
+
+/**
+ * The loyalty activations a controller's permissions allow one planeswalker this turn (CR 606.3):
+ * [maximum] is the largest "N times rather than only once" allowance (never summed), [additional]
+ * the sum of "one more time" grants (The Chain Veil) added on top of it.
+ */
+data class LoyaltyAllowance(val maximum: Int = 1, val additional: Int = 0)
 
 /**
  * Tracks which activated abilities have been activated ever (not cleared at end of turn).
@@ -738,7 +897,7 @@ data class AbilityActivatedEverComponent(
  *
  * NOT cleared at end of turn — the memory persists for as long as the permanent
  * remains the same object on the battlefield (it resets when the permanent leaves
- * and returns as a new object, per CR 700.4 / object identity).
+ * and returns as a new object).
  */
 @Serializable
 data class ChosenModesEverComponent(
@@ -758,7 +917,7 @@ data class ChosenModesEverComponent(
  *
  * The turn-scoped sibling of [ChosenModesEverComponent]: cleared at end of turn by
  * CleanupPhaseManager, so every mode becomes available again next turn. Keyed to the source
- * object, so two copies of the same source track their chosen modes independently (CR 700.4).
+ * object, so two copies of the same source track their chosen modes independently.
  */
 @Serializable
 data class ChosenModesThisTurnComponent(
@@ -912,21 +1071,80 @@ data class DamageDealtToCreaturesThisTurnComponent(
 
 /**
  * Last-known snapshot of a source that dealt damage to the bearer this turn — captured at the
- * moment the damage was dealt (CR 608.2h / 603.10a). Holds just what observer-style death triggers
- * need to evaluate a source filter ("dealt damage by a Spider you controlled"): the source's
- * controller and creature-subtypes as they were when it dealt the damage. Stored on the *damaged*
- * creature so it survives a source that died in the same combat.
+ * moment the damage was dealt (CR 608.2i / 603.10a). Holds just what a look-back source filter
+ * needs ("dealt damage by a Spider you controlled", "a Giant, Wizard, or spell you controlled dealt
+ * damage to it this turn"): the source's controller, card types, subtypes and name as they were
+ * when it dealt the damage. Stored on the *damaged* creature or planeswalker so it survives a
+ * source that died in the same combat.
+ *
+ * [sourceId] names the damaging object itself, so a "dealt damage by this creature" trigger on a
+ * source that left the battlefield alongside its victim can still look back and find it (CR 603.10a).
  */
 @Serializable
 data class DamageSourceLki(
     val sourceControllerId: EntityId,
+    val sourceId: EntityId? = null,
     val sourceSubtypes: Set<com.wingedsheep.sdk.core.Subtype> = emptySet(),
     val sourceWasCreature: Boolean = true,
-)
+    /**
+     * The source's card types when it dealt the damage — for a resolving spell, the types it has on
+     * the stack, so "a spell you controlled" (`InstantOrSorcery.youControl()`, the house reading of a
+     * spell that deals damage) can be asked of the record (Aegar, the Freezing Flame).
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val sourceCardTypes: Set<com.wingedsheep.sdk.core.CardType> = emptySet(),
+    /** The source's name when it dealt the damage; null for a nameless (face-down) source. */
+    val sourceName: String? = null,
+    /**
+     * Whether the source was legendary when it dealt the damage — "dealt combat damage by a legendary
+     * creature this turn" (Blitzball) asks it of a player's combat-damage-source record.
+     */
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val sourceWasLegendary: Boolean = false,
+    /**
+     * Total damage this source dealt to the bearer this turn — summed across hits by
+     * [DamagedBySourcesThisTurnComponent.adding], read by `DynamicAmount.LastKnownDamageDealtToSource`.
+     */
+    val amount: Int = 0,
+) {
+    /**
+     * Does this source, as it stood when it dealt the damage, match [filter]? "You" is [youId]. The
+     * snapshot holds only controller, creature-ness, instant/sorcery-ness, legendary-ness, subtypes and name, so a
+     * filter asking for anything else fails closed rather than matching every source.
+     */
+    fun matches(filter: com.wingedsheep.sdk.scripting.GameObjectFilter, youId: EntityId): Boolean {
+        if (filter.statePredicates.isNotEmpty()) return false
+        if (filter.anyOf.isNotEmpty() && filter.anyOf.none { matches(it, youId) }) return false
+        if (!filter.cardPredicates.all(::matchesCard)) return false
+        return when (filter.controllerPredicate) {
+            null -> true
+            com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByYou -> sourceControllerId == youId
+            com.wingedsheep.sdk.scripting.predicates.ControllerPredicate.ControlledByOpponent -> sourceControllerId != youId
+            else -> false
+        }
+    }
+
+    private fun matchesCard(predicate: com.wingedsheep.sdk.scripting.predicates.CardPredicate): Boolean = when (predicate) {
+        com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsCreature -> sourceWasCreature
+        com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsLegendary -> sourceWasLegendary
+        com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsInstant ->
+            com.wingedsheep.sdk.core.CardType.INSTANT in sourceCardTypes
+        com.wingedsheep.sdk.scripting.predicates.CardPredicate.IsSorcery ->
+            com.wingedsheep.sdk.core.CardType.SORCERY in sourceCardTypes
+        is com.wingedsheep.sdk.scripting.predicates.CardPredicate.Or -> predicate.predicates.any(::matchesCard)
+        // `or` wraps a multi-predicate branch (Creature.withSubtype(...)) in an And.
+        is com.wingedsheep.sdk.scripting.predicates.CardPredicate.And -> predicate.predicates.all(::matchesCard)
+        is com.wingedsheep.sdk.scripting.predicates.CardPredicate.HasSubtype -> predicate.subtype in sourceSubtypes
+        is com.wingedsheep.sdk.scripting.predicates.CardPredicate.NameEquals -> predicate.name == sourceName
+        else -> false
+    }
+}
 
 /**
- * Tracks the last-known snapshots of all sources that dealt damage to this creature this turn.
- * Read by observer death triggers of the form "whenever another creature dealt damage this turn by
+ * Tracks the last-known snapshots of all sources that dealt damage to this creature or
+ * planeswalker this turn. Read by observer death triggers of the form "whenever another creature dealt damage this turn by
  * [a source matching a filter] dies" (Shelob, Child of Ungoliant). Captured as last-known info on
  * the [com.wingedsheep.engine.core.ZoneChangeEvent] when the bearer leaves the battlefield, and
  * cleared at end of turn by [com.wingedsheep.engine.core.CleanupPhaseManager].
@@ -935,8 +1153,20 @@ data class DamageSourceLki(
 data class DamagedBySourcesThisTurnComponent(
     val sources: Set<DamageSourceLki> = emptySet()
 ) : Component {
-    fun adding(source: DamageSourceLki): DamagedBySourcesThisTurnComponent =
-        copy(sources = sources + source)
+    /**
+     * Record a hit. A source already on record (same snapshot, any amount) has [source]'s amount
+     * added to its tally rather than gaining a second entry.
+     */
+    fun adding(source: DamageSourceLki): DamagedBySourcesThisTurnComponent {
+        val key = source.copy(amount = 0)
+        val existing = sources.firstOrNull { it.copy(amount = 0) == key }
+            ?: return copy(sources = sources + source)
+        return copy(sources = sources - existing + existing.copy(amount = existing.amount + source.amount))
+    }
+
+    /** Whether any recorded source matches [filter], "you" being [youId]. See [DamageSourceLki.matches]. */
+    fun matchesAny(filter: com.wingedsheep.sdk.scripting.GameObjectFilter, youId: EntityId): Boolean =
+        sources.any { it.matches(filter, youId) }
 }
 
 /**
@@ -1070,10 +1300,11 @@ data class ProtectionGrant(
 
 /**
  * Marks a permanent as granting "spells and abilities your opponents control can't cause you to
- * sacrifice permanents" to its controller (Sigarda, Host of Herons).
+ * sacrifice permanents" to its controller (Sigarda, Host of Herons; Tamiyo, Collector of Tales).
  *
- * Stamped from [com.wingedsheep.sdk.scripting.OpponentsCantMakeYouSacrifice] and read by
- * [com.wingedsheep.engine.mechanics.SacrificeImmunity], which every sacrifice site consults
+ * Stamped from [com.wingedsheep.sdk.scripting.OpponentsCantCauseYouTo] naming
+ * [com.wingedsheep.sdk.scripting.CompelledAction.SACRIFICE] and read by
+ * [com.wingedsheep.engine.mechanics.CompelledActionImmunity], which every sacrifice site consults
  * before moving a permanent to the graveyard. When the permanent leaves the battlefield the
  * component goes with it — no cleanup needed.
  *
@@ -1081,6 +1312,18 @@ data class ProtectionGrant(
  */
 @Serializable
 data class GrantsSacrificeImmunityComponent(
+    override val condition: Condition? = null
+) : Component, ControllerGrantMarker
+
+/**
+ * The discard twin of [GrantsSacrificeImmunityComponent]: "spells and abilities your opponents
+ * control can't cause you to discard cards" (Tamiyo, Collector of Tales). Stamped from
+ * [com.wingedsheep.sdk.scripting.OpponentsCantCauseYouTo] naming
+ * [com.wingedsheep.sdk.scripting.CompelledAction.DISCARD]; read by
+ * [com.wingedsheep.engine.mechanics.CompelledActionImmunity] at every effect-driven discard.
+ */
+@Serializable
+data class GrantsDiscardImmunityComponent(
     override val condition: Condition? = null
 ) : Component, ControllerGrantMarker
 
@@ -1124,6 +1367,68 @@ data class GrantsOpponentsCantWinGameComponent(
 data class GrantsCantLoseGameFromLifeComponent(
     override val condition: Condition? = null
 ) : Component, ControllerGrantMarker
+
+/**
+ * Marks a permanent whose static ability forbids every player from paying life as a cost of casting
+ * a spell or activating an ability — [com.wingedsheep.sdk.scripting.PlayersCantPayLifeForCosts]
+ * (Karn's Sylex). Read through [com.wingedsheep.engine.state.GameState.canPayLife] with a
+ * [com.wingedsheep.engine.state.LifePaymentPurpose]; leaves with the permanent, and is ignored
+ * while the permanent has lost its abilities.
+ *
+ * Unconditional by construction: the reader sits on `GameState`, which can't evaluate a
+ * condition, so `StaticAbilityHandler` stamps only the bare ability.
+ */
+@Serializable
+data class ForbidsLifePaymentForCostsComponent(
+    val excludeManaAbilities: Boolean = false
+) : Component
+
+/**
+ * Marks a permanent whose static abilities forbid players to search libraries —
+ * [com.wingedsheep.sdk.scripting.PlayersCantSearchLibraries] (Stranglehold, Ashiok, Dream Render).
+ * Read through [com.wingedsheep.engine.handlers.effects.library.LibrarySearchRestrictions]; leaves
+ * with the permanent, and is ignored while the permanent has lost its abilities.
+ *
+ * Unconditional by construction, as [ForbidsLifePaymentForCostsComponent] is: `StaticAbilityHandler`
+ * stamps only the bare abilities.
+ */
+@Serializable
+data class ForbidsLibrarySearchComponent(
+    val prohibitions: List<com.wingedsheep.sdk.scripting.PlayersCantSearchLibraries>
+) : Component
+
+/**
+ * Marks a permanent whose static abilities forbid players to get counters —
+ * [com.wingedsheep.sdk.scripting.PlayersCantGetCounters] (Solemnity). Read through
+ * [com.wingedsheep.engine.state.GameState.cantGetCounters]; leaves with the permanent, and is
+ * ignored while the permanent has lost its abilities.
+ *
+ * Unconditional by construction, as [ForbidsLibrarySearchComponent] is: `StaticAbilityHandler`
+ * stamps only the bare abilities.
+ */
+@Serializable
+data class ForbidsPlayerCountersComponent(
+    val prohibitions: List<com.wingedsheep.sdk.scripting.PlayersCantGetCounters>
+) : Component
+
+/**
+ * Marks a permanent whose static abilities take over its controller's opponents' library searches —
+ * [com.wingedsheep.sdk.scripting.ControlOpponentsLibrarySearches] (Opposition Agent). Read through
+ * [com.wingedsheep.engine.handlers.effects.library.LibrarySearchControl]; leaves with the permanent,
+ * and is ignored while the permanent has lost its abilities.
+ */
+@Serializable
+data object ControlsOpponentsLibrarySearchesComponent : Component
+
+/**
+ * Marks a permanent whose static abilities raise its controller's devotion to each color and each
+ * combination of colors by [amount] — [com.wingedsheep.sdk.scripting.ModifyDevotion] (Altar of the
+ * Pantheon). Read where devotion is counted (`DynamicAmountEvaluator`, `DynamicAmount.DevotionTo`);
+ * leaves with the permanent and is ignored while it is face down. Losing its abilities doesn't stop
+ * it: the Altar's ruling (2020-01-24) keeps the bonus, as it applies before any ability-removing effect.
+ */
+@Serializable
+data class IncreasesDevotionComponent(val amount: Int) : Component
 
 /**
  * Marks a permanent as granting the Station-using-toughness effect to creatures its
@@ -1175,17 +1480,19 @@ data class CantBeBlockedWhilePropertyAtMostComponent(
 ) : Component
 
 /**
- * Marks a permanent as suppressing hexproof for creatures matching any of [filters].
+ * Marks a permanent as suppressing hexproof for permanents matching any of [filters] and for the
+ * players any of [players] names.
  *
- * Stores one filter per [SuppressHexproofForGroup] static ability on the permanent so
- * multiple such abilities stack correctly. Each filter is evaluated with the permanent's
- * controller as the "you" context.
+ * Stores one filter (and at most one player reference) per [SuppressHexproofForGroup] static
+ * ability on the permanent so multiple such abilities stack correctly. Each is evaluated with the
+ * permanent's controller as the "you" context.
  *
  * Created by [StaticAbilityHandler] from [SuppressHexproofForGroup] static abilities.
  */
 @Serializable
 data class SuppressesHexproofForGroupComponent(
-    val filters: List<GroupFilter>
+    val filters: List<GroupFilter>,
+    val players: List<com.wingedsheep.sdk.scripting.references.Player> = emptyList()
 ) : Component
 
 /**
@@ -1273,12 +1580,31 @@ data class CraftedFromExiledComponent(
 ) : Component
 
 /**
- * Marks a permanent or player as having been dealt damage this turn.
- * Cleared at end of turn by CleanupPhaseManager.
- * Used for StatePredicate.WasDealtDamageThisTurn.
+ * Marks a permanent or player as having been dealt damage this turn, recording which kinds —
+ * [combat], [noncombat] or both — so `StatePredicate.WasDealtDamageThisTurn(damageType)` answers
+ * every window from one marker. Cleared at end of turn by CleanupPhaseManager.
  */
 @Serializable
-data object WasDealtDamageThisTurnComponent : Component
+data class WasDealtDamageThisTurnComponent(
+    val combat: Boolean = false,
+    val noncombat: Boolean = false
+) : Component {
+    fun matches(damageType: DamageType): Boolean = when (damageType) {
+        DamageType.Any -> combat || noncombat
+        DamageType.Combat -> combat
+        DamageType.NonCombat -> noncombat
+    }
+
+    companion object {
+        /** [container] with the marker set, adding [isCombatDamage]'s kind to any already recorded. */
+        fun markedOn(container: ComponentContainer, isCombatDamage: Boolean): ComponentContainer {
+            val existing = container.get<WasDealtDamageThisTurnComponent>() ?: WasDealtDamageThisTurnComponent()
+            return container.with(
+                if (isCombatDamage) existing.copy(combat = true) else existing.copy(noncombat = true)
+            )
+        }
+    }
+}
 
 /**
  * Damage dealt to this permanent for the rest of the turn can't be prevented, and can't be dealt to
@@ -1353,18 +1679,32 @@ data class DamageDealtThisTurnComponent(
  *
  * Both combat and noncombat damage count, and it records planeswalkers alongside players; the
  * consumer filters to what the card asks for.
+ *
+ * [damageOnLastTurnByRecipient] carries the *amount* dealt to each recipient on its stamped turn —
+ * "if it has dealt 10 or more damage to that player this turn" (Vessel of the All-Consuming). It
+ * restarts from zero whenever the stamp moves to a new turn, so like the stamp it never needs
+ * clearing.
  */
 @Serializable
 data class DealtDamageToThisGameComponent(
-    val lastDamageTurnByRecipient: Map<EntityId, Int> = emptyMap()
+    val lastDamageTurnByRecipient: Map<EntityId, Int> = emptyMap(),
+    val damageOnLastTurnByRecipient: Map<EntityId, Int> = emptyMap()
 ) : Component {
     val recipientIds: Set<EntityId> get() = lastDamageTurnByRecipient.keys
 
     fun dealtDamageToOnTurn(recipientId: EntityId, turnNumber: Int): Boolean =
         lastDamageTurnByRecipient[recipientId] == turnNumber
 
-    fun withDamageTo(recipientId: EntityId, turnNumber: Int): DealtDamageToThisGameComponent =
-        copy(lastDamageTurnByRecipient = lastDamageTurnByRecipient + (recipientId to turnNumber))
+    /** Total damage dealt to [recipientId] during [turnNumber]; 0 when its stamp is another turn. */
+    fun damageDealtToOnTurn(recipientId: EntityId, turnNumber: Int): Int =
+        if (dealtDamageToOnTurn(recipientId, turnNumber)) damageOnLastTurnByRecipient[recipientId] ?: 0 else 0
+
+    fun withDamageTo(recipientId: EntityId, turnNumber: Int, amount: Int): DealtDamageToThisGameComponent =
+        copy(
+            lastDamageTurnByRecipient = lastDamageTurnByRecipient + (recipientId to turnNumber),
+            damageOnLastTurnByRecipient = damageOnLastTurnByRecipient +
+                (recipientId to damageDealtToOnTurn(recipientId, turnNumber) + amount)
+        )
 }
 
 /**
@@ -1431,6 +1771,38 @@ data class HasBecomeTappedComponent(
 ) : Component
 
 /**
+ * Whether this permanent **entered the battlefield tapped** — frozen the first time its tap state
+ * changes during this battlefield visit, so "whenever a permanent you control enters tapped"
+ * (Amulet of Vigor) reads how it entered rather than how it is now.
+ *
+ * Every entry path sets [TappedComponent] directly as the permanent enters (taplands, "put onto
+ * the battlefield tapped", tokens created tapped, an `OnEnterRun` "enters tapped" rider), and every
+ * later change of tap state goes through the [com.wingedsheep.engine.core.tap] /
+ * [com.wingedsheep.engine.core.untapOrConsumeStun] atoms. So the atoms stamp this component with the
+ * tap state *just before* the first transition they make, which is exactly the entry state; until
+ * then the live [TappedComponent] still is. Read it through
+ * [com.wingedsheep.engine.core.enteredBattlefieldTapped], which applies that fallback. A permanent
+ * that enters untapped and is tapped afterwards therefore did not enter tapped (Amulet of Vigor
+ * ruling). Stripped as the permanent leaves the battlefield: what returns is a new object
+ * (CR 400.7).
+ */
+@Serializable
+data class EntryTapStateComponent(val enteredTapped: Boolean) : Component
+
+/**
+ * How many times this permanent has become untapped during this battlefield visit — the clock
+ * behind "for as long as <source> remains tapped" (CR 611.2b). An activated ability records its
+ * source's count as it goes on the stack; an effect it creates with a source-tapped
+ * [com.wingedsheep.sdk.scripting.Duration] holds only while the count still matches, so a source
+ * that untaps before the ability resolves leaves the effect inert even if it is tapped again by
+ * then (Entrancing Lyre ruling). Absent means zero. Bumped only by the
+ * [com.wingedsheep.engine.core.untapOrConsumeStun] atom; stripped as the permanent leaves the
+ * battlefield, since what returns is a new object (CR 400.7).
+ */
+@Serializable
+data class UntapCountComponent(val count: Int) : Component
+
+/**
  * Marks a permanent as having dealt combat damage to a player since entering the battlefield.
  * NOT cleared at end of turn — persists for the permanent's lifetime on the battlefield.
  * Used for StatePredicate.HasDealtCombatDamageToPlayer and SourceHasDealtCombatDamageToPlayer condition.
@@ -1481,6 +1853,10 @@ data class ExileEntryTurnComponent(
  * to a kind of play: Hauken's Insight reads "Once during each of your turns, you may play a land
  * **or** cast a spell from among the cards exiled with this permanent". One marker is what makes
  * the "or" exclusive.
+ *
+ * The same marker spends a [com.wingedsheep.sdk.scripting.MayPlayCardsFromExile] `oncePerTurn`
+ * allowance (Evelyn, the Covetous) — the filter-defined sibling of the linked-exile grant, whose
+ * allowance likewise belongs to the granting permanent. No card carries both kinds of grant.
  */
 @Serializable
 data object MayCastFromLinkedExileUsedThisTurnComponent : Component

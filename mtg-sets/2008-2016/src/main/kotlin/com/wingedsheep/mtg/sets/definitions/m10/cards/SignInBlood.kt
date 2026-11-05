@@ -4,9 +4,13 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.targets.TargetPlayer
 
-/** Sign in Blood — Magic 2010 #112. */
+/**
+ * Sign in Blood
+ * {B}{B}
+ * Sorcery
+ * Target player draws two cards and loses 2 life.
+ */
 val SignInBlood = card("Sign in Blood") {
     manaCost = "{B}{B}"
     colorIdentity = "B"
@@ -15,8 +19,7 @@ val SignInBlood = card("Sign in Blood") {
 
     spell {
         val player = target(Targets.Player)
-        effect = (Effects.DrawCards(2, player) then
-            Effects.LoseLife(2, player))
+        effect = Effects.DrawCards(2, player) then Effects.LoseLife(2, player)
     }
 
     metadata {

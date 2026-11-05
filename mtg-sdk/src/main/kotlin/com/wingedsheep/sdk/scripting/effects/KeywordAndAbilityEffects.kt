@@ -56,8 +56,11 @@ data class GrantKeywordEffect(
 
     override val description: String = buildString {
         if (condition != null) append("${condition.description.replaceFirstChar { it.uppercase() }}, ")
-        append("${target.description} gains ${keyword.lowercase().replace('_', ' ')}")
-        if (duration.description.isNotEmpty()) append(" ${duration.description}")
+        val grant = com.wingedsheep.sdk.scripting.util.describeKeywordGrant(target.description, keyword)
+        append(grant)
+        // "assigns no combat damage this turn" already carries its own end-of-turn duration
+        val durationSaid = duration == Duration.EndOfTurn && grant.endsWith(" this turn")
+        if (duration.description.isNotEmpty() && !durationSaid) append(" ${duration.description}")
     }
 }
 
@@ -93,7 +96,7 @@ data class RemoveKeywordEffect(
         this(keyword.name, target, duration)
 
     override val description: String = buildString {
-        append("${target.description} loses ${keyword.lowercase().replace('_', ' ')}")
+        append(com.wingedsheep.sdk.scripting.util.describeKeywordLoss(target.description, keyword))
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
     }
 }
@@ -320,6 +323,44 @@ data class GrantFlashbackEffect(
         append("${target.description} gains flashback")
         append(if (cost != null) " $cost" else " (the flashback cost is equal to its mana cost)")
         if (duration.description.isNotEmpty()) append(" ${duration.description}")
+    }
+}
+
+/**
+ * Grant Escape (CR 702.138) to a target card in a graveyard.
+ * "Target creature card in your graveyard that's an artifact or that has mana value 3 or less
+ * gains escape until end of turn. The escape cost is equal to its mana cost plus exile two other
+ * cards from your graveyard." — Desdemona, Freedom's Edge.
+ *
+ * The two closest grants are [GrantFlashbackEffect] and [GrantHarmonizeEffect], which each
+ * grant an exile-on-resolution mechanic. Escape instead returns resolved spells to the ordinary
+ * destination and carries an additional payment. Its distinct mechanic uses the existing granted
+ * keyword store and cast pipeline, matching the static [com.wingedsheep.sdk.scripting.GraveyardCardsHaveEscape].
+ *
+ * @property target The card (in a graveyard) gaining escape
+ * @property cost The escape mana cost. `null` (the default) means "equal to its mana cost"; a card
+ *   with no mana cost then has an unpayable escape cost and gains nothing.
+ * @property additionalCost The non-mana half of the escape cost, e.g.
+ *   `Costs.additional.ExileOtherCards(2)` for "exile two other cards from your graveyard".
+ * @property duration How long the grant lasts (until end of turn for Desdemona)
+ */
+@SerialName("GrantEscape")
+@Serializable
+data class GrantEscapeEffect(
+    val target: EffectTarget,
+    val cost: ManaCost? = null,
+    val additionalCost: com.wingedsheep.sdk.scripting.AdditionalCost? = null,
+    val duration: Duration = Duration.EndOfTurn
+) : Effect {
+    override val description: String = buildString {
+        append("${target.description} gains escape")
+        if (duration.description.isNotEmpty()) append(" ${duration.description}")
+        when {
+            cost != null && additionalCost != null -> append(". The escape cost is $cost plus ${additionalCost.description.replaceFirstChar { it.lowercase() }}")
+            cost != null -> append(". The escape cost is $cost")
+            additionalCost != null -> append(". The escape cost is equal to its mana cost plus ${additionalCost.description.replaceFirstChar { it.lowercase() }}")
+            else -> append(". The escape cost is equal to its mana cost")
+        }
     }
 }
 

@@ -56,13 +56,23 @@ class RiveteersOverlookScenarioTest : FunSpec({
         game.getLifeTotal(you) shouldBe 21
     }
 
-    test("a library with no matching basic still gains life without putting a land onto the battlefield") {
+    test("a library with no matching basic permits private fail-to-find and then gains life") {
         val game = driver(Deck.of("Plains" to 40))
         val you = game.player1
         val overlook = game.putCardInHand(you, "Riveteers Overlook")
         game.playLand(you, overlook).error shouldBe null
         game.bothPass() // Sacrifice and create the reflexive trigger.
-        game.bothPass() // Search has no eligible cards, then gain life.
+        game.bothPass() // Resolve the reflexive trigger through its private search.
+
+        // An empty private pool still asks, so question timing does not expose library contents.
+        val decision = game.pendingDecision.shouldBeInstanceOf<SelectCardsDecision>()
+        decision.librarySearch shouldBe true
+        decision.options shouldBe emptyList()
+        decision.minSelections shouldBe 0
+        decision.maxSelections shouldBe 0
+        game.getLifeTotal(you) shouldBe 20
+        game.submitCardSelection(you, emptyList()).error shouldBe null
+        while (game.state.stack.isNotEmpty() && !game.isPaused) game.bothPass()
 
         game.pendingDecision shouldBe null
         game.findPermanent(you, "Riveteers Overlook") shouldBe null

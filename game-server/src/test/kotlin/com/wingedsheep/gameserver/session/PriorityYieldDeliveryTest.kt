@@ -55,7 +55,7 @@ class PriorityYieldDeliveryTest : ScenarioTestBase() {
             gameProperties = mockk(relaxed = true), replayService = mockk(relaxed = true),
             replayCheckpointFlusher = mockk(relaxed = true), engineVersion = mockk(relaxed = true),
             aiGameManager = mockk(relaxed = true), matchResultSink = mockk(relaxed = true),
-            rankedResultSink = mockk(relaxed = true), deckProfiler = mockk(relaxed = true),
+            rankedResultSink = mockk(relaxed = true), deckProfiler = mockk(relaxed = true), anteSpoilsSink = mockk(relaxed = true),
         )
         return Fixture(game, p1, handler, sender, repository)
     }

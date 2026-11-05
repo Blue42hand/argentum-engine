@@ -88,7 +88,9 @@ object TokenFromDefinition {
         cardRegistry: CardRegistry,
         staticAbilityHandler: StaticAbilityHandler? = null,
         devourCounters: Int? = null,
-        predicateEvaluator: PredicateEvaluator
+        predicateEvaluator: PredicateEvaluator,
+        entrySourceState: GameState? = null,
+        tokenCreatorId: EntityId = controllerId
     ): EffectResult {
         // As-enters: Devour (CR 702.82) and its variants, raised before the token is minted — see
         // [devourCounters]. Skipped when the controller has nothing to sacrifice; devour then just
@@ -119,7 +121,9 @@ object TokenFromDefinition {
                     cardDefinitionId = cardDef.name,
                     controllerId = controllerId,
                     multiplier = devour.multiplier,
-                    counterType = devour.counterType
+                    counterType = devour.counterType,
+                    entrySourceState = entrySourceState,
+                    tokenCreatorId = tokenCreatorId
                 )
 
                 return EffectResult.from(state.suspendForDecision(decision, continuation, emptyList()))
@@ -150,15 +154,22 @@ object TokenFromDefinition {
         }
 
         var newState = stateWithId.withEntity(tokenId, container)
-        newState = BattlefieldEntry.place(newState, controllerId, tokenId, tokenCreatorId = controllerId)
+        newState = com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.applyBeforeEntry(newState, tokenId, cardRegistry, predicateEvaluator)
+        newState = BattlefieldEntry.place(newState, controllerId, tokenId, tokenCreatorId = tokenCreatorId)
 
-        // As-enters: enters tapped (CR 614). The payLifeCost (shock-land) form is land-only.
-        val entersTapped = cardDef.script.replacementEffects.filterIsInstance<EntersTapped>().firstOrNull()
+        // As-enters: enters tapped (CR 614). The payLifeCost (shock-land) form is land-only. Read from
+        // the identity the token entered with — a granted entry copy replaced the minted definition.
+        val enteringDef = newState.getEntity(tokenId)?.get<CardComponent>()
+            ?.let { cardRegistry.getCard(it.cardDefinitionId) } ?: cardDef
+        val entersTapped = enteringDef.script.replacementEffects.filterIsInstance<EntersTapped>().firstOrNull()
         var enteredTapped = false
         if (entersTapped != null && entersTapped.payLifeCost == null) {
             val shouldEnterTapped = entersTapped.unlessCondition?.let { condition ->
                 !predicateEvaluator.conditions.evaluate(
-                    newState, condition, EffectContext(sourceId = tokenId, controllerId = controllerId)
+                    newState, condition, EffectContext(sourceId = tokenId, controllerId = controllerId),
+                    entryViews = com.wingedsheep.engine.handlers.effects.entryEvaluationViews(
+                        newState, tokenId, controllerId, entrySourceState ?: state
+                    )
                 )
             } ?: true
             if (shouldEnterTapped) {
@@ -172,13 +183,13 @@ object TokenFromDefinition {
         // enters-tapped result lets an "enters untapped" replacement override it per CR 614.
         newState = EnterTappedReplacements.applyCreatedTokenEntryTap(
             newState, tokenId, controllerId, definedTapped = enteredTapped,
-            predicateEvaluator = predicateEvaluator, replacementSourceState = state
+            predicateEvaluator = predicateEvaluator, replacementSourceState = entrySourceState ?: state
         )
 
         // As-enters: the token's own + global "enters with counters" (CR 614).
         val (stateWithCounters, entersWithEvents) = EntersWithReplacements.applyOnEntry(
             newState, tokenId, controllerId, cardRegistry,
-            predicateEvaluator = predicateEvaluator, replacementSourceState = state
+            predicateEvaluator = predicateEvaluator, replacementSourceState = entrySourceState ?: state
         )
         newState = stateWithCounters
         val counterEvents = entersWithEvents.toMutableList()
@@ -189,7 +200,7 @@ object TokenFromDefinition {
         if (devour != null && devourCounters != null && devourCounters > 0) {
             val (devourState, devourEvents) = EntersWithReplacements.placeEntryCounters(
                 newState, tokenId, devour.counterType, devourCounters, controllerId, cardDef.name,
-                predicateEvaluator = predicateEvaluator, replacementSourceState = state
+                predicateEvaluator = predicateEvaluator, replacementSourceState = entrySourceState ?: state
             )
             newState = devourState
             counterEvents.addAll(devourEvents)
@@ -204,7 +215,7 @@ object TokenFromDefinition {
         // you control have riot" — CR 702.136b, each granted instance is a separate choice). Computed
         // by the shared helper so a minted token and a token copy resolve as-enters choices the same
         // way.
-        val choicePlan = TokenEntryReplacements.firstEntersWithChoice(newState, tokenId, cardRegistry, predicateEvaluator = predicateEvaluator)
+        val choicePlan = TokenEntryReplacements.firstEntersWithChoice(newState, tokenId, cardRegistry, predicateEvaluator = predicateEvaluator, replacementSourceState = entrySourceState ?: state)
         if (choicePlan != null) {
             val cardComponent = newState.getEntity(tokenId)?.get<CardComponent>()
             if (cardComponent != null) {
@@ -218,6 +229,8 @@ object TokenFromDefinition {
                     carryEvents = counterEvents,
                     syntheticRiot = choicePlan.syntheticRiot,
                     syntheticRiotRemaining = choicePlan.syntheticRiotRemaining,
+                    replacementSourceState = entrySourceState ?: state,
+                    pendingEntryChoices = choicePlan.pendingEntryChoices,
                 )
                 if (paused != null) return EffectResult.from(paused)
             }
@@ -226,14 +239,14 @@ object TokenFromDefinition {
         // counter (chapter I then triggers). BattlefieldEntry.place is the ad-hoc insertion path
         // and intentionally skips enters-with-counters setup, so apply the shared Saga-entry
         // helper here — the same one the standard moveToZone pipeline uses. No-op for non-Sagas.
-        val (sagaState, sagaEvents) = ZoneMovementUtils.applySagaEntryIfNeeded(newState, tokenId)
+        val (sagaState, sagaEvents) = ZoneMovementUtils.applySagaEntryIfNeeded(newState, tokenId, predicateEvaluator, replacementSourceState = entrySourceState)
         newState = sagaState
 
         // CR 306.5b: same for a minted planeswalker — it enters with its printed loyalty counters,
         // or state-based actions (CR 704.5i) bin it on arrival. No-op for non-planeswalkers.
         val (entryCounterState, entryCounterEvents) = ZoneMovementUtils.applyIntrinsicEntryCountersIfNeeded(
             newState, tokenId, controllerId, cardRegistry,
-            predicateEvaluator = predicateEvaluator, replacementSourceState = state
+            predicateEvaluator = predicateEvaluator, replacementSourceState = entrySourceState ?: state
         )
         newState = entryCounterState
 

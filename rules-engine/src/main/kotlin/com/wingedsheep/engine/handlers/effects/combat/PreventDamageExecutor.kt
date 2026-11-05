@@ -15,7 +15,7 @@ import com.wingedsheep.engine.mechanics.layers.Layer
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.mechanics.layers.addFloatingEffect
 import com.wingedsheep.engine.state.GameState
-import com.wingedsheep.engine.state.components.battlefield.chosenCreatureType
+import com.wingedsheep.engine.state.components.battlefield.chosenSubtype
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.model.EntityId
@@ -61,6 +61,86 @@ class PreventDamageExecutor(
             }
         }
         PreventionSourceFilter.AnySource -> createFloatingEffect(state, effect, sourceFilter = null, context)
+        PreventionSourceFilter.ThisSource -> handleThisSource(state, effect, context)
+        PreventionSourceFilter.TargetingRecipient -> handleTargetingRecipient(state, effect, context)
+    }
+
+    /**
+     * "If a spell or ability that targets that creature would cause a source to deal damage to
+     * that creature this turn, prevent that damage" (Silhouette): an all-damage shield on one
+     * recipient that only fires while the damage's cause — the innermost resolving spell or
+     * ability — targets that recipient. Only the single-recipient, prevent-all shape lowers.
+     */
+    private fun handleTargetingRecipient(
+        state: GameState,
+        effect: PreventDamageEffect,
+        context: EffectContext
+    ): EffectResult {
+        if (effect.direction != PreventionDirection.ToTarget || effect.amount != null ||
+            effect.recipientGroup != null || effect.recipientGroupIncludesController ||
+            effect.onPrevented != null || effect.gainLifeFromPrevented || effect.gainLifeFromColors.isNotEmpty() ||
+            effect.toPlayersOnly || !effect.preventDamage || effect.halvePreventedDamage ||
+            effect.nextInstanceOnly || effect.scope != PreventionScope.AllDamage
+        ) {
+            return EffectResult.error(
+                state,
+                "PreventDamageEffect with TargetingRecipient supports only a prevent-all shield on one recipient"
+            )
+        }
+        val targetId = context.resolveTarget(effect.target, state) ?: return EffectResult.success(state)
+        state.getEntity(targetId) ?: return EffectResult.success(state)
+        val newState = state.addFloatingEffect(
+            layer = Layer.ABILITY,
+            modification = SerializableModification.PreventAllDamageTo(onlyCausedByObjectTargetingIt = true),
+            affectedEntities = setOf(targetId),
+            duration = effect.duration,
+            context = context,
+            timestamp = state.timestamp
+        )
+        return EffectResult.success(newState)
+    }
+
+    /**
+     * "~ deals 2 damage to that player. Prevent X of that damage" (Power Leak): a single-instance
+     * shield on the recipient covering only damage from this effect's own source, capped at
+     * [PreventDamageEffect.amount] when one is given. Only the next-instance, single-recipient,
+     * prevent-only shape has a lowering; anything else fails rather than guess a scope.
+     */
+    private fun handleThisSource(
+        state: GameState,
+        effect: PreventDamageEffect,
+        context: EffectContext
+    ): EffectResult {
+        if (!effect.nextInstanceOnly || effect.direction != PreventionDirection.ToTarget ||
+            effect.recipientGroup != null || effect.recipientGroupIncludesController ||
+            effect.onPrevented != null || effect.gainLifeFromPrevented || effect.gainLifeFromColors.isNotEmpty() ||
+            effect.toPlayersOnly || !effect.preventDamage || effect.halvePreventedDamage ||
+            effect.scope != PreventionScope.AllDamage
+        ) {
+            return EffectResult.error(
+                state,
+                "PreventDamageEffect with ThisSource supports only a next-instance shield on one recipient"
+            )
+        }
+        val sourceId = context.sourceId
+            ?: return EffectResult.error(state, "PreventDamageEffect with ThisSource has no source")
+        val targetId = context.resolveTarget(effect.target, state)
+            ?: return EffectResult.success(state)
+        val amount = effect.amount?.let { amountEvaluator.evaluate(state, it, context) }
+        if (amount != null && amount <= 0) return EffectResult.success(state)
+
+        val newState = state.addFloatingEffect(
+            layer = Layer.ABILITY,
+            modification = SerializableModification.PreventNextDamageInstanceFromSource(
+                damageSourceId = sourceId,
+                maxAmount = amount
+            ),
+            affectedEntities = setOf(targetId),
+            duration = effect.duration,
+            context = context,
+            timestamp = state.timestamp
+        )
+        return EffectResult.success(newState)
     }
 
     /**
@@ -75,7 +155,7 @@ class PreventDamageExecutor(
         context: EffectContext
     ): GameObjectFilter? {
         if (CardPredicate.HasChosenSubtype !in filter.cardPredicates) return filter
-        val chosenType = context.sourceId?.let { state.getEntity(it) }?.chosenCreatureType() ?: return null
+        val chosenType = context.sourceId?.let { state.getEntity(it) }?.chosenSubtype() ?: return null
         return filter.copy(
             cardPredicates = filter.cardPredicates.map {
                 if (it == CardPredicate.HasChosenSubtype) CardPredicate.HasSubtype(Subtype(chosenType)) else it
@@ -315,7 +395,8 @@ class PreventDamageExecutor(
             }
 
             // Amount-based prevention (prevent next N damage to target), optionally gaining the
-            // controller life for what it prevents (Candles' Glow).
+            // controller life for what it prevents (Candles' Glow), optionally combat-only
+            // (Decorated Griffin).
             effect.amount != null -> {
                 val targetId = context.resolveTarget(effect.target)
                     ?: return EffectResult.success(state)
@@ -325,7 +406,8 @@ class PreventDamageExecutor(
                 affectedEntities = setOf(targetId)
                 modification = SerializableModification.PreventNextDamage(
                     amount,
-                    controllerGainsLife = effect.gainLifeFromPrevented
+                    controllerGainsLife = effect.gainLifeFromPrevented,
+                    combatOnly = effect.scope == PreventionScope.CombatOnly
                 )
             }
 

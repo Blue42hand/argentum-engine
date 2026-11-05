@@ -121,6 +121,7 @@ object Keywords {
         simple(Keyword.MOUNTAINWALK),
         simple(Keyword.PLAINSWALK),
         simple(Keyword.DESERTWALK),
+        simple(Keyword.LEGENDARY_LANDWALK),
         // Combat
         simple(Keyword.FIRST_STRIKE),
         simple(Keyword.DOUBLE_STRIKE),
@@ -172,9 +173,9 @@ object Keywords {
      * of having one ("Enchanted creature has flying.", `GrantKeyword(Keyword.FLYING)`).
      *
      * Only the parameterless keywords are here, and that is the honest boundary rather than an
-     * omission: a parameterized keyword names a value the SDK's granted-keyword statics have nowhere
-     * to put, since they carry a keyword and not a `KeywordAbility`. "Enchanted creature has ward
-     * {2}." therefore declines, which is the correct answer until the SDK can hold the parameter.
+     * omission: a parameterized keyword names a value `GrantKeyword` has nowhere to put, since it
+     * carries a keyword and not a `KeywordAbility`. Where the SDK grants one through a static of its
+     * own — ward, as `GrantWard` — the grant sentences read it through [wardedRun] instead.
      */
     val keyword: Phrase<Keyword> =
         oneOf("a keyword", SIMPLE_KEYWORDS.map { (keyword, surface) -> constant(surface, keyword) })
@@ -234,6 +235,55 @@ object Keywords {
      */
     val severalKeywords: Phrase<List<Keyword>> =
         oneOf("two or more keywords", keywordPair, keywordSeries)
+
+    /**
+     * What a grant clause hands out when its last member is ward: the plain keywords before it, and
+     * the ward's mana cost. See [wardedRun].
+     */
+    data class WardedRun(val keywords: List<Keyword>, val cost: WardCost.Mana)
+
+    private val grantedWardCost: Phrase<WardCost.Mana> = phrase("ward {cost}", name = "ward <cost>") {
+        slot("cost", Primitives.manaCost)
+        build { WardCost.Mana(it.value<ManaCost>("cost").toString()) }
+        match { cost ->
+            if (cost.waterbend) return@match null
+            runCatching { ManaCost.parse(cost.manaCost) }.getOrNull()?.let { bind("cost" to it) }
+        }
+    }
+
+    /**
+     * "ward {2}", "trample and ward {1}", "flying, vigilance, and ward {1}" — [keywordRun]'s three
+     * list sizes with ward as the final member, which is where every granted ward in the corpus
+     * prints it.
+     *
+     * Its own run rather than a member of [keyword] because the SDK grants the two differently:
+     * a parameterless keyword is `GrantKeyword(keyword)`, but ward carries a cost and is
+     * `GrantWard(cost)` — a separate static the engine reads for both the keyword display and the
+     * ward trigger. A grant rule over this run therefore denotes the keyword grants in printed order
+     * and the ward grant last, which is how all the hand-written cards that print it order them.
+     * Only the mana form is here: the life and other em-dash costs are full sentences that print
+     * inside quotation marks when granted ("have "Ward—Pay 2 life.""), a different shape.
+     */
+    val wardedRun: Phrase<WardedRun> = oneOf(
+        "keywords ending in ward",
+        phrase("{ward}", name = "ward alone") {
+            slot("ward", grantedWardCost)
+            build { WardedRun(emptyList(), it.value("ward")) }
+            match { run -> if (run.keywords.isEmpty()) bind("ward" to run.cost) else null }
+        },
+        phrase("{one} and {ward}", name = "a keyword and ward") {
+            slot("one", keyword)
+            slot("ward", grantedWardCost)
+            build { WardedRun(listOf(it.value<Keyword>("one")), it.value("ward")) }
+            match { run -> run.keywords.singleOrNull()?.let { bind("one" to it, "ward" to run.cost) } }
+        },
+        phrase("{most}, and {ward}", name = "keywords and ward") {
+            slot("most", separated("keywords", keyword, ", ", min = 2))
+            slot("ward", grantedWardCost)
+            build { WardedRun(it.value("most"), it.value("ward")) }
+            match { run -> if (run.keywords.size >= 2) bind("most" to run.keywords, "ward" to run.cost) else null }
+        },
+    )
 
     /**
      * Keywords the SDK models as their own object rather than as [KeywordAbility.Simple].
@@ -393,7 +443,9 @@ object Keywords {
         costKeyword("foretell", { KeywordAbility.foretell(it.toString()) }) { (it as? KeywordAbility.Foretell)?.cost },
         costKeyword("plot", { KeywordAbility.plot(it.toString()) }) { (it as? KeywordAbility.Plot)?.cost },
         costKeyword("disturb", { KeywordAbility.disturb(it.toString()) }) { (it as? KeywordAbility.Disturb)?.cost },
-        costKeyword("evoke", { KeywordAbility.evoke(it.toString()) }) { (it as? KeywordAbility.Evoke)?.cost },
+        costKeyword("evoke", { KeywordAbility.evoke(it.toString()) }) {
+            (it as? KeywordAbility.Evoke)?.takeIf { it.additionalCost == null }?.cost
+        },
         costKeyword("emerge", { KeywordAbility.emerge(it.toString()) }) { (it as? KeywordAbility.Emerge)?.cost },
         costKeyword("miracle", { KeywordAbility.miracle(it.toString()) }) { (it as? KeywordAbility.Miracle)?.cost },
         costKeyword("dash", { KeywordAbility.dash(it.toString()) }) { (it as? KeywordAbility.Dash)?.cost },
@@ -401,7 +453,10 @@ object Keywords {
         costKeyword("cleave", { KeywordAbility.cleave(it.toString()) }) { (it as? KeywordAbility.Cleave)?.cost },
         costKeyword("harmonize", { KeywordAbility.harmonize(it.toString()) }) { (it as? KeywordAbility.Harmonize)?.cost },
         costKeyword("mayhem", { KeywordAbility.mayhem(it.toString()) }) { (it as? KeywordAbility.Mayhem)?.cost },
-        costKeyword("ninjutsu", { KeywordAbility.ninjutsu(it.toString()) }) { (it as? KeywordAbility.Ninjutsu)?.cost },
+        // No "ninjutsu {cost}" rule: ninjutsu is a hand-activated ability (CR 702.49a) — the
+        // `ninjutsu(cost)` DSL helper pairs the display-only KeywordAbility.Ninjutsu with
+        // `ninjutsuAbility(cost)`. A keyword-line rule would emit only the marker, a ninja that
+        // can't ninjutsu, so the line declines until a band teaches Assay the activated ability.
         costKeyword("sneak", { KeywordAbility.sneak(it.toString()) }) { (it as? KeywordAbility.Sneak)?.cost },
         costKeyword("web-slinging", { KeywordAbility.webSlinging(it.toString()) }) {
             (it as? KeywordAbility.WebSlinging)?.cost
@@ -453,7 +508,10 @@ object Keywords {
     private val casualty: Phrase<KeywordAbility> = phrase("casualty {n}", name = "casualty") {
         slot("n", Primitives.cardinal)
         build { KeywordAbility.casualty(it.int("n")) }
-        match { (it as? KeywordAbility.Casualty)?.let { c -> bind("n" to c.threshold) } }
+        match {
+            (it as? KeywordAbility.Casualty)?.takeIf { c -> !c.isVariable && !c.hasCopyRiders }
+                ?.let { c -> bind("n" to c.threshold!!) }
+        }
     }
 
     private val devour: Phrase<KeywordAbility> = phrase("devour {n}", name = "devour") {

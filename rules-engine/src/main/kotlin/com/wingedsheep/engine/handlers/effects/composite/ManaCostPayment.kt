@@ -1,5 +1,7 @@
 package com.wingedsheep.engine.handlers.effects.composite
 
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
+import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.core.EffectResult
@@ -38,7 +40,7 @@ fun payManaCostFromPool(
     val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
         ?: return EffectResult.error(state, "Player has no mana pool")
 
-    val manaPool = manaPoolComponent.toManaPool()
+    val manaPool = manaPoolComponent.toManaPool().withSpendingColors(state, player)
 
     val partialResult = manaPool.payPartial(cost, SpellPaymentContext())
     val remainingCost = partialResult.remainingCost
@@ -52,7 +54,23 @@ fun payManaCostFromPool(
             ?: return EffectResult.error(state, "Cannot pay mana cost")
 
         for (source in solution.sources) {
-            val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, player)
+            val production = solution.manaProduced[source.entityId]
+            val (tappedState, tapEvents) = tapForMana(
+                currentState, source.entityId, player,
+                production?.producedColors.orEmpty(),
+                producedAmount = production?.total ?: 1,
+            )
+                .let { (tapped, tapEvents) ->
+                    // The mana ability's life cost (Mana Confluence's printed "Pay 1 life", Thran
+                    // Portal's tax). Only a life-costing source needs the zone service (for a
+                    // life-payment replacement), so it is built only then.
+                    val ability = ManaAbilityLifeCost.activatedManaAbility(
+                        cardRegistry, tapped, source.entityId, solution.manaProduced[source.entityId], player, predicateEvaluator
+                    )
+                    if (tapEvents.isEmpty() || ManaAbilityLifeCost.total(tapped, source.entityId, ability, player, predicateEvaluator) <= 0) tapped to tapEvents
+                    else ManaAbilityLifeCost.pay(ZoneTransitionService(cardRegistry, predicateEvaluator), tapped, source.entityId, player, ability)
+                        .let { (paid, lifeEvents) -> paid to (tapEvents + lifeEvents) }
+                }
             currentState = tappedState
             events.addAll(tapEvents)
         }
@@ -97,7 +115,7 @@ fun canAutoPayManaCost(
 ): Boolean {
     val manaPoolComponent = state.getEntity(player)?.get<ManaPoolComponent>() ?: return false
 
-    val manaPool = manaPoolComponent.toManaPool()
+    val manaPool = manaPoolComponent.toManaPool().withSpendingColors(state, player)
 
     val remainingCost = manaPool.payPartial(cost, SpellPaymentContext()).remainingCost
     if (remainingCost.isEmpty()) return true

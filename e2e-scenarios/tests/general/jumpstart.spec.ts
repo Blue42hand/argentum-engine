@@ -1,0 +1,61 @@
+import { test, expect, type Page } from '@playwright/test'
+import { createLobby, enterName, GROUP_SEALED } from '../../helpers/homeScreen'
+
+test.use({ channel: 'chrome' })
+
+async function selectJumpstart(page: Page) {
+  await enterName(page, 'Jumpstart Host')
+  await createLobby(page, GROUP_SEALED)
+  await page.getByRole('button', { name: 'Remove Lorwyn Eclipsed', exact: true }).click()
+  await page.getByRole('button', { name: 'Choose sets', exact: true }).click()
+  await page.getByPlaceholder('Search sets by name or code…').fill('JMP')
+  await page.getByText('Jumpstart', { exact: true }).click()
+  await page.getByRole('button', { name: '×', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Choose themed packs', exact: true })).toHaveAttribute('aria-pressed', 'true')
+}
+
+test('Jumpstart defaults on only for the single set and preserves a traditional-format preference', async ({ page }) => {
+  await selectJumpstart(page)
+  await page.getByRole('button', { name: 'Traditional sealed', exact: true }).click()
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Traditional sealed', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByTestId('axis-choice-draft').click()
+  await expect(page.getByRole('button', { name: 'Traditional draft', exact: true })).toHaveAttribute('aria-pressed', 'true')
+  await page.getByRole('button', { name: 'Choose themed packs', exact: true }).click()
+  await page.getByRole('button', { name: '+ Add set', exact: true }).click()
+  await page.getByPlaceholder('Search sets by name or code…').fill('M21')
+  await page.getByText('Core Set 2021', { exact: true }).click()
+  await page.getByRole('button', { name: '×', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Choose themed packs', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Remove Core Set 2021', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Choose themed packs', exact: true })).toHaveAttribute('aria-pressed', 'true')
+})
+
+test('choose one pack from each row, reconnect mid-choice, and play against the AI', async ({ page }) => {
+  await selectJumpstart(page)
+  await page.getByRole('button', { name: '+ Add AI', exact: true }).click()
+  await page.getByRole('button', { name: 'Start Game', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Choose two themes', exact: true })).toBeVisible()
+  const firstRow = page.getByRole('region', { name: 'First pack' })
+  const secondRow = page.getByRole('region', { name: 'Second pack' })
+  await expect(firstRow.getByText('Explore this pack')).toHaveCount(3)
+  await expect(secondRow.getByText('Explore this pack')).toHaveCount(3)
+  await firstRow.getByText('Explore this pack').first().click()
+  await expect(page.getByRole('dialog').locator('img')).not.toHaveCount(0)
+  await page.keyboard.press('Escape')
+  const confirm = page.getByRole('button', { name: /^(Play .+ \+ .+|Choose both packs)$/ })
+  await expect(confirm).toBeDisabled()
+  await firstRow.getByRole('button', { name: /^Choose / }).first().click()
+  await expect(confirm).toBeDisabled()
+  // Offers survive a reload; an unconfirmed choice is local and starts over.
+  const offered = await secondRow.locator('h2').allTextContents()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Choose two themes', exact: true })).toBeVisible()
+  await expect(secondRow.locator('h2')).toHaveText(offered)
+  await firstRow.getByRole('button', { name: /^Choose / }).first().click()
+  await secondRow.getByRole('button', { name: /^Choose / }).last().click()
+  await expect(confirm).toBeEnabled()
+  await confirm.click()
+  await expect(page.getByRole('button', { name: 'Keep Hand', exact: true })).toBeVisible({ timeout: 30000 })
+  await expect(page.getByRole('button', { name: 'Submit Deck', exact: true })).toHaveCount(0)
+})

@@ -21,7 +21,10 @@ class TokenBundleContinuationResumer(private val services: EngineServices) :
         resumer(TokenBundleReplacementContinuation::class) { state, frame, response, checkForMore ->
             val planner = planner()
             val optional = frame.optional
-            val result = if (optional != null) {
+            val result = if (frame.substitution != null) {
+                if (response !is OptionChosenResponse) return@resumer ExecutionResult.error(state, "Expected token choice")
+                planner.chooseSubstitution(state, frame.bundle, frame.substitution, response.optionIndex)
+            } else if (optional != null) {
                 if (response !is YesNoResponse) return@resumer ExecutionResult.error(state, "Expected yes/no")
                 val bundle = if (response.choice) planner.apply(state, frame.bundle, optional)
                     else frame.bundle.copy(applied = frame.bundle.applied + optional.identity)
@@ -37,6 +40,23 @@ class TokenBundleContinuationResumer(private val services: EngineServices) :
     )
 
     override fun autoResumers(): List<AutoResumer<*>> = listOf(
+        autoResumer(GenericTokenMaterializationContinuation::class) { state, frame, events, checkForMore ->
+            val executor = com.wingedsheep.engine.handlers.effects.token.CreateTokenExecutor(
+                services.dynamicAmountEvaluator, com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry),
+                services.cardRegistry)
+            val result = executor.resumeMaterialization(state, frame)
+            complete(com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.stamp(result,
+                com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.group(frame.context)), events, checkForMore)
+        },
+        autoResumer(PredefinedTokenMaterializationContinuation::class) { state, frame, events, checkForMore ->
+            val executor = com.wingedsheep.engine.handlers.effects.token.CreatePredefinedTokenExecutor(
+                services.cardRegistry, com.wingedsheep.engine.mechanics.layers.StaticAbilityHandler(services.cardRegistry),
+                services.dynamicAmountEvaluator)
+            val result = executor.createTokens(state, frame.effect, frame.context, frame.controllerId,
+                frame.remaining, frame.createdTokenIds, frame.entrySourceState, frame.resolvedImageUris)
+            complete(com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.stamp(result,
+                com.wingedsheep.engine.handlers.effects.token.TokenEntryGroups.group(frame.context)), events, checkForMore)
+        },
         autoResumer(TokenBundleMaterializationContinuation::class) { state, frame, events, checkForMore ->
             complete(planner().resumeMaterialization(state, frame), events, checkForMore)
         },

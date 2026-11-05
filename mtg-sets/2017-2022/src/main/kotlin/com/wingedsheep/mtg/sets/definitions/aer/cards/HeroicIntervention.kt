@@ -9,6 +9,16 @@ import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
+/**
+ * Heroic Intervention — Aether Revolt #109 (canonical printing)
+ * {1}{G} · Instant
+ *
+ * Permanents you control gain hexproof and indestructible until end of turn.
+ *
+ * The affected set is locked in as the spell resolves (CR 611.2c): [Effects.ForEachInGroup] grants
+ * each keyword to the permanents you control right then, so permanents you gain control of later in
+ * the turn get nothing.
+ */
 val HeroicIntervention = card("Heroic Intervention") {
     manaCost = "{1}{G}"
     colorIdentity = "G"

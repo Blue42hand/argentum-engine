@@ -5,6 +5,7 @@ import com.wingedsheep.ai.engine.advisor.CardAdvisorRegistry
 import com.wingedsheep.ai.engine.evaluation.*
 import com.wingedsheep.ai.engine.knowledge.IntentCatalog
 import com.wingedsheep.ai.engine.hidden.Determinizer
+import com.wingedsheep.ai.engine.hidden.OpponentKnowledge
 import com.wingedsheep.ai.engine.hidden.OpponentModel
 import com.wingedsheep.ai.insight.AiInsightSink
 import com.wingedsheep.ai.engine.rollout.CandidateEvaluator
@@ -51,7 +52,20 @@ class AIPlayer(
      * [MeaningfulActionFilter.canAutoPassWithoutEnumerating] can decide from the state alone.
      */
     private val useMeaningfulFilter: Boolean = false,
+    /**
+     * What this seat knows of its opponents' decklists — the [Determinizer]'s sampling models and
+     * the unseen cards removal patience reads. Empty unless a caller teaches it ([learnOpponentDecklist]).
+     */
+    val opponentKnowledge: OpponentKnowledge? = null,
 ) {
+    /**
+     * Tell this AI [opponentId]'s registered decklist (card name → copies). Live games hand the AI
+     * every opponent's full list by design; see [OpponentKnowledge].
+     */
+    fun learnOpponentDecklist(opponentId: EntityId, cards: Map<String, Int>) {
+        opponentKnowledge?.learnDecklist(opponentId, cards)
+    }
+
     init {
         responder.forcedPlayPicker = { state, seat ->
             val plays = simulator.getLegalActions(state, seat)
@@ -70,12 +84,21 @@ class AIPlayer(
      * ~20-30 windows it crosses.
      */
     fun chooseAction(state: GameState): GameAction {
-        if (useMeaningfulFilter && MeaningfulActionFilter.canAutoPassWithoutEnumerating(state, playerId)) {
+        if (useMeaningfulFilter && MeaningfulActionFilter.canAutoPassWithoutEnumerating(state, playerId) &&
+            !wantsWindowItWouldAutoPass(state)
+        ) {
             return PassPriority(playerId)
         }
         val legalActions = simulator.getLegalActions(state, playerId)
         return chooseFrom(state, legalActions).action
     }
+
+    /**
+     * Whether this seat wants a priority window that smart auto-pass skips without asking — the
+     * opponent's upkeep while we hold an instant-speed cast ban ([Strategist.wantsWindowForABan]).
+     * Read by [chooseAction]'s shortcut here and by the game server's auto-pass loop for AI seats.
+     */
+    fun wantsWindowItWouldAutoPass(state: GameState): Boolean = strategist.wantsWindowForABan(state, playerId)
 
     /**
      * Choose the best [LegalAction] from the given list.
@@ -133,9 +156,12 @@ class AIPlayer(
                         // — opponents plus their planeswalkers, minus anyone this creature can't
                         // attack). Guessing "the other player in turn order" instead is wrong the
                         // moment there is more than one, and a teammate is never a legal defender.
-                        val opponentId = attackAction?.validAttackTargets?.firstOrNull()
-                        val attackerMap = if (mandatory.isNotEmpty() && opponentId != null) {
-                            mandatory.associateWith { opponentId }
+                        // Each attacker takes a defender the engine lists for *it* — a per-defender
+                        // restriction (Goblin Rock Sled, Blazing Archon) can rule out the first one.
+                        val attackerMap = if (attackAction != null) {
+                            mandatory.mapNotNull { attacker ->
+                                attackAction.attackTargetsFor(attacker).firstOrNull()?.let { attacker to it }
+                            }.toMap()
                         } else emptyMap()
                         DeclareAttackers(playerId, attackerMap)
                     }
@@ -160,9 +186,8 @@ class AIPlayer(
                     val attackAction = simulator.getLegalActions(current, playerId)
                         .find { it.actionType == "DeclareAttackers" }
                     val extra = attackAction?.validAttackers.orEmpty().filter { it !in fallback.attackers }
-                    val defenders = attackAction?.validAttackTargets.orEmpty()
                     fallbackResult = extra.asSequence()
-                        .flatMap { attacker -> defenders.asSequence().map { attacker to it } }
+                        .flatMap { attacker -> attackAction?.attackTargetsFor(attacker).orEmpty().asSequence().map { attacker to it } }
                         .map { (attacker, defender) ->
                             processor.process(
                                 current, DeclareAttackers(playerId, fallback.attackers + (attacker to defender))
@@ -257,6 +282,7 @@ class AIPlayer(
             val intents = if (profile.useCardIntent) IntentCatalog.of(cardRegistry) else IntentCatalog.NONE
 
             val simulator = newSimulator()
+            val opponentKnowledge = OpponentKnowledge(cardRegistry, opponentModels)
             // Raw Phase 9 vectors contain CardIntent-derived facts even when the surrounding
             // legacy-based arena profile deliberately keeps Phase 6 timing/targeting behavior off.
             // Give only the evaluator the full catalog so the fitted training schema and runtime
@@ -272,19 +298,63 @@ class AIPlayer(
                 landDropIsNotCardLoss = profile.landDropIsNotCardLoss,
                 sequenceLandsByUsableMana = profile.sequenceLandsByUsableMana,
                 discountedRaceClock = profile.discountedRaceClock,
-                creatureValuation = profile.creatureValuation,
+                creatureValuation = profile.creatureValuation.copy(
+                    walkersFaceTheNextAttack = profile.defendPlaneswalkers,
+                    grantedLoyaltyAbilities = profile.spendFuelWalkers,
+                    walkersAsEngines = profile.walkersPricedAsEngines,
+                ),
                 priceLandsInHandAsMana = profile.priceLandsInHandAsMana,
+                evasionAfterAttacking = profile.evasionAfterAttacking,
+                pendingLandDropIsMana = profile.pendingLandDropIsMana,
+                surplusAwareLands = profile.surplusAwareLands,
+                libraryClock = profile.libraryClock,
+                surplusLandsReadTheHand = profile.surplusLandsReadTheHand,
+                oneShotManaIsMana = profile.oneShotManaIsMana,
+                payoffsReadTheirFuel = profile.payoffsReadTheirFuel,
+                finishersEndTheGame = profile.finishersEndTheGame,
+                marksBeforeTheSweep = profile.marksBeforeTheSweep,
             )
             val combatAdvisor = CombatAdvisor(
                 simulator, evaluator, cardRegistry, advisorRegistry,
                 priceCrackBackAsLife = profile.priceCrackBackAsLife,
+                crackBackWithoutChumps = profile.crackBackWithoutChumps,
                 lifeWeight = EvalWeights.resolve(profile.evalWeightsId).life,
+                chumpOnlyWhenInDanger = profile.chumpOnlyWhenInDanger,
+                attackPlaneswalkers = profile.attackPlaneswalkers,
+                defendPlaneswalkers = profile.defendPlaneswalkers,
+                chumpForTheClock = profile.chumpForTheClock,
+                walkerEngines = if (profile.walkersPricedAsEngines) IntentCatalog.of(cardRegistry) else null,
+                stackChumpsOnTramplers = profile.stackChumpsOnTramplers,
+                freeGangBlocks = profile.freeGangBlocks,
+                attacksReadTheRace = profile.attacksReadTheRace,
+                borrowedCreaturesGoHome = profile.borrowedCreaturesGoHome,
+                raceWeight = EvalWeights.resolve(profile.evalWeightsId).threatAssessment,
+                pressWhenAhead = profile.pressWhenAhead,
+                anticipateCombatResponses = profile.anticipateCombatResponses,
+                minimalLethalInPods = profile.minimalLethalInPods,
+                threatAwareDefender = profile.threatAwareDefender,
+                blockTriggersKill = profile.blockTriggersKill,
+                stressCrackBack = profile.stressCrackBack,
+                crackBackAfterCleanup = profile.crackBackAfterCleanup,
+                soundBlockMath = profile.soundBlockMath,
+                blockSearchTriesSwaps = profile.blockSearchTriesSwaps,
             )
             val responder = DecisionResponder(
                 simulator, evaluator,
                 advisorRegistry = advisorRegistry,
                 budgetPolicy = profile.budgetPolicy,
                 intents = intents,
+                castabilityAwareCardSelection = profile.castabilityAwareCardSelection,
+                informedChoices = profile.informedChoiceDecisions,
+                fillUpToMaxTargets = profile.fillUpToMaxTargets,
+                selectionCountsByValue = profile.selectionCountsByValue,
+                holdUnusablePumps = profile.holdUnusablePumps,
+                combatAdvisor = combatAdvisor.takeIf { profile.pumpsNeedAPlannedAttack },
+                surplusAwareLands = profile.surplusAwareLands,
+                targetPolarityFromEffect = profile.targetPolarityFromEffect,
+                selectionSeesWhoseCards = profile.selectionSeesWhoseCards,
+                topOrBottomWeighsTheDraw = profile.topOrBottomWeighsTheDraw,
+                lookDigsForLand = profile.lookDigsForLand,
             )
 
             // Wire up the decision resolver so simulations can resolve non-trivial
@@ -307,10 +377,42 @@ class AIPlayer(
                     intents = intents,
                     combatTricksWaitForBlocks = profile.combatTricksWaitForBlocks,
                     holdRemovalForBetterTargets = profile.holdRemovalForBetterTargets,
+                    payoffsReadTheirFuel = profile.payoffsReadTheirFuel,
+                    removalWorthReadsGrowth = profile.creatureValuation.growthPotential,
                     holdCountersForBetterSpells = profile.holdCountersForBetterSpells,
                     cashCantripsInTheEndStep = profile.cashCantripsInTheEndStep,
                     holdFlashPermanentsForAmbush = profile.holdFlashPermanentsForAmbush,
                     holdExpiringGrantsForCombat = profile.holdExpiringGrantsForCombat,
+                    refuseUnspendableGrants = profile.refuseUnspendableGrants,
+                    refuseDeadSearches = profile.refuseDeadSearches,
+                    refuseEmptyPayoffs = profile.refuseEmptyPayoffs,
+                    drawWithIdleMana = profile.drawWithIdleMana,
+                    holdUnusablePumps = profile.holdUnusablePumps,
+                    targetPolarityFromEffect = profile.targetPolarityFromEffect,
+                    permanentCastIsNotCardLoss = profile.permanentCastIsNotCardLoss,
+                    fuelLoyaltyIsNotBoardValue = profile.fuelLoyaltyIsNotBoardValue,
+                    defendPlaneswalkers = profile.defendPlaneswalkers,
+                    spendFuelWalkers = profile.spendFuelWalkers,
+                    landDropUnlocksSpells = profile.landDropUnlocksSpells,
+                    libraryClock = profile.libraryClock,
+                    activatedPumpsNeedAPlannedAttack = profile.activatedPumpsNeedAPlannedAttack,
+                    enablersFirst = profile.enablersFirst,
+                    setupFromHandFirst = profile.marksBeforeTheSweep,
+                    fetchedLandDropFollowUp = profile.fetchedLandDropFollowUp,
+                    recastBouncedPermanents = profile.recastBouncedPermanents,
+                    anticipateTargetResponses = profile.anticipateTargetResponses,
+                    precombatPumpsForThePlan = profile.precombatPumpsForThePlan,
+                    holdInstantSpeedDeploys = profile.holdInstantSpeedDeploys,
+                    taxCountersReadTheirMana = profile.taxCountersReadTheirMana,
+                    refuseWastedPayoffs = profile.refuseWastedPayoffs,
+                    lifelinkWaitsForBlocks = profile.lifelinkWaitsForBlocks,
+                    tapToGrowAtTheirEndStep = profile.tapToGrowAtTheirEndStep,
+                    tapToPingAtTheirEndStep = profile.tapToPingAtTheirEndStep,
+                    borrowedCreaturesGoHome = profile.borrowedCreaturesGoHome,
+                    castBansDenyTheirTurn = profile.castBansDenyTheirTurn,
+                    forcedAttacksOnTheirTurn = profile.forcedAttacksOnTheirTurn,
+                    holdXSpellsForBiggerX = profile.holdXSpellsForBiggerX,
+                    convokeLandsFirst = profile.convokeLandsFirst,
                     // Same seam as `CombatAdvisor`'s `lifeWeight`: a raw Phase 9 profile resolves
                     // to the compiled fallback here, which is the right answer for a policy that
                     // only needs to know what a point of board value trades against.
@@ -322,16 +424,18 @@ class AIPlayer(
                     stateSampler = if (profile.determinizeHiddenInformation) {
                         val determinizer = Determinizer(cardRegistry)
                         val sampler: (GameState, EntityId) -> GameState = { state, viewer ->
-                            determinizer.sampleForSearch(state, viewer, opponentModels)
+                            determinizer.sampleForSearch(state, viewer, opponentKnowledge.models)
                         }
                         sampler
                     } else {
                         null
                     },
                     insightSink = insightSink,
+                    opponentKnowledge = opponentKnowledge.takeIf { profile.holdRemovalForUnseenThreats },
                 ),
                 responder = responder,
                 useMeaningfulFilter = profile.useMeaningfulFilter,
+                opponentKnowledge = opponentKnowledge,
             )
         }
 

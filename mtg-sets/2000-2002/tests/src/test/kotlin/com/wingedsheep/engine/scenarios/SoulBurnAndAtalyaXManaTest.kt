@@ -129,7 +129,7 @@ class SoulBurnAndAtalyaXManaTest : FunSpec({
                 PlayerActionTiming.ManaAbility, "Life mana"), EffectContext(null, me)).state)
 
         d.submit(ActivateAbility(me, atalya, AtalyaSamiteMaster.activatedAbilities.single().id,
-            xValue = 1)).error shouldBe null
+            xValue = 1, chosenModes = listOf(1), modeTargetsOrdered = listOf(emptyList()))).error shouldBe null
         d.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>().canAutoPayNow shouldBe null
 
         d.submit(ActivateAbility(me, treasure, PredefinedTokens.Treasure.activatedAbilities.single().id,

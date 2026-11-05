@@ -57,7 +57,26 @@ data class PendingTrigger(
      *
      * Null on every other trigger, which is every trigger without an opponent chooser.
      */
-    val opponentTargetChooserId: EntityId? = null
+    val opponentTargetChooserId: EntityId? = null,
+    /**
+     * True when this `Triggers.or(...)` ([com.wingedsheep.sdk.scripting.EventPattern.AnyOf])
+     * trigger fired through its enters-the-battlefield atom — "when this enters or is turned face
+     * up" triggered by the entry, not the face-up turn. Set at detection, where the matched event
+     * is known; read through [isEntryCaused]. A bare enters-shaped pattern needs no flag.
+     */
+    val enteredViaAnyOfAtom: Boolean = false,
+    /**
+     * The objects whose move into a graveyard caused this *batched* graveyard trigger ("one or more
+     * creatures you control die", "one or more cards are put into your graveyard"), stamped at
+     * detection. A batch trigger keeps no per-object triggering entity, so this is how a
+     * [com.wingedsheep.sdk.scripting.SuppressZoneChangeTriggers] dying lock (Hushbringer) tells
+     * which deaths caused it. Null on every other trigger.
+     */
+    val graveyardBatchCauseIds: List<EntityId>? = null,
+    /** Frozen before stack-placement rewrites such as unwrapping a consent gate. */
+    val rulesText: TriggeredAbility = ability,
+    /** Provisional declaration taps; removed if their attack-tax payment is cancelled. */
+    val attackDeclarationId: String? = null
 )
 
 /**
@@ -72,3 +91,11 @@ data class SagaChapterInfo(
 ) {
     val isFinalChapter: Boolean get() = chapterNumber >= finalChapterNumber
 }
+
+/**
+ * Whether a permanent entering the battlefield caused [this] trigger: its pattern is enters-shaped,
+ * or it is a disjunction that fired through its enters atom. Torpor Orb's suppression and the
+ * Strict Proctor cause stamp both read this, so "caused by entering" means one thing.
+ */
+internal fun PendingTrigger.isEntryCaused(): Boolean =
+    enteredViaAnyOfAtom || isEntersBattlefieldTrigger(ability.trigger)

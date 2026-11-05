@@ -1,3 +1,152 @@
+// Bone Miser
+{
+    "name": "Bone Miser",
+    "manaCost": "{4}{B}",
+    "typeLine": "Creature — Zombie Wizard",
+    "oracleText": "Whenever you discard a creature card, create a 2/2 black Zombie creature token.\nWhenever you discard a land card, add {B}{B}.\nWhenever you discard a noncreature, nonland card, draw a card.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Bone Miser:1",
+                "trigger": {
+                    "type": "DiscardEvent",
+                    "cardFilter": "creature"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 2,
+                    "colors": [
+                        "BLACK"
+                    ],
+                    "creatureTypes": [
+                        "Zombie"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/5/9/59bad855-ff86-4f98-bf18-0982c7aea9c5.jpg?1783932829"
+                },
+                "descriptionOverride": "Create a 2/2 black Zombie creature token."
+            },
+            {
+                "id": "Bone Miser:2",
+                "trigger": {
+                    "type": "DiscardEvent",
+                    "cardFilter": "land"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLACK",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "descriptionOverride": "Add {B}{B}."
+            },
+            {
+                "id": "Bone Miser:3",
+                "trigger": {
+                    "type": "DiscardEvent",
+                    "cardFilter": "noncreature nonland"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Draw a card."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "15",
+        "rarity": "RARE",
+        "artist": "Antonio José Manzanedo",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/7/a7fa6901-e74f-448c-9d26-99a692092512.jpg?1783932810"
+    }
+}
+
+// Chainer, Nightmare Adept
+{
+    "name": "Chainer, Nightmare Adept",
+    "manaCost": "{2}{B}{R}",
+    "typeLine": "Legendary Creature — Human Minion",
+    "oracleText": "Discard a card: You may cast a creature spell from your graveyard this turn. Activate only once each turn.\nWhenever a nontoken creature you control enters, if you didn't cast it from your hand, it gains haste until your next turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Chainer, Nightmare Adept:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature nontoken ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "HASTE",
+                    "target": "TriggeringEntity",
+                    "duration": "UntilYourNextTurn"
+                },
+                "interveningIf": {
+                    "type": "Not",
+                    "condition": {
+                        "type": "TriggeringEntityWasCast",
+                        "zone": "Hand"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Chainer, Nightmare Adept:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": "AtomDiscard"
+                },
+                "effect": {
+                    "type": "GrantStaticAbility",
+                    "ability": {
+                        "type": "MayCastFromGraveyard",
+                        "filter": "creature"
+                    },
+                    "target": "Controller",
+                    "duration": {
+                        "type": "NextUse",
+                        "sourceDescription": "you cast a creature spell from your graveyard"
+                    }
+                },
+                "restrictions": [
+                    "OncePerTurn"
+                ],
+                "descriptionOverride": "Discard a card: You may cast a creature spell from your graveyard this turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "39",
+        "rarity": "MYTHIC",
+        "artist": "Steve Prescott",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/7/d7b0a8f8-d368-45e6-a546-984e7b1913e0.jpg?1783932800"
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
+    ]
+}
+
 // Empowered Autogenerator
 {
     "name": "Empowered Autogenerator",
@@ -140,6 +289,86 @@
     "colorIdentityOverride": []
 }
 
+// Ignite the Future
+{
+    "name": "Ignite the Future",
+    "manaCost": "{3}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Exile the top three cards of your library. Until the end of your next turn, you may play those cards. If this spell was cast from a graveyard, you may play cards this way without paying their mana costs.\nFlashback {7}{R} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{7}{R}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 3
+                        }
+                    },
+                    "storeAs": "impulseExiled"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "impulseExiled",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Exile"
+                    }
+                },
+                {
+                    "type": "GrantMayPlayFromExile",
+                    "from": "impulseExiled",
+                    "expiry": {
+                        "type": "UntilControllerStep",
+                        "step": "CLEANUP",
+                        "includeCurrentTurn": false
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "WasCastFromZone",
+                            "zone": "Graveyard"
+                        }
+                    },
+                    "then": {
+                        "type": "GrantPlayWithoutPayingCost",
+                        "from": "impulseExiled",
+                        "expiry": {
+                            "type": "UntilControllerStep",
+                            "step": "CLEANUP",
+                            "includeCurrentTurn": false
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "27",
+        "rarity": "RARE",
+        "artist": "Alex Konstad",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/a/5a9472e0-1a6d-47f7-91eb-9bdb000e1f1b.jpg?1783932806"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // K'rrik, Son of Yawgmoth
 {
     "name": "K'rrik, Son of Yawgmoth",
@@ -192,6 +421,95 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Marisi, Breaker of the Coil
+{
+    "name": "Marisi, Breaker of the Coil",
+    "manaCost": "{1}{R}{G}{W}",
+    "typeLine": "Legendary Creature — Cat Warrior",
+    "oracleText": "Your opponents can't cast spells during combat.\nWhenever a creature you control deals combat damage to a player, goad each creature that player controls. (Until your next turn, those creatures attack each combat if able and attack a player other than you if able.)",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Marisi, Breaker of the Coil:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
+                    "sourceFilter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:triggering-player"
+                        }
+                    },
+                    "body": {
+                        "type": "Goad",
+                        "target": "IterationEntity"
+                    }
+                },
+                "descriptionOverride": "Whenever a creature you control deals combat damage to a player, goad each creature that player controls."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "PlayersCantCastSpells",
+                "condition": {
+                    "type": "IsInPhase",
+                    "phases": [
+                        "COMBAT"
+                    ],
+                    "yoursOnly": false
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "46",
+        "rarity": "MYTHIC",
+        "artist": "Rudy Siswanto",
+        "flavorText": "\"Cast off the law! Awaken your rage!\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/3/c366e1c0-f62d-41ce-baec-de11dbc1c5f4.jpg?1783932798",
+        "rulings": [
+            {
+                "date": "2019-08-23",
+                "text": "If an effect allows or instructs an opponent to cast a spell during a combat phase, they can't do so. Marisi's restriction takes precedence over that permission."
+            },
+            {
+                "date": "2019-08-23",
+                "text": "Opponents can still activate abilities during combat."
+            },
+            {
+                "date": "2019-08-23",
+                "text": "Creatures that enter the battlefield after Marisi's second ability resolves won't be goaded."
+            },
+            {
+                "date": "2019-08-23",
+                "text": "The goaded creatures remain goaded even if Marisi leaves the battlefield before your next turn."
+            },
+            {
+                "date": "2023-06-30",
+                "text": "Attacking with a goaded creature doesn't cause it to stop being goaded. If there is an additional combat phase that turn, or if another player gains control of it before it stops being goaded, it must attack again if able."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN",
+        "WHITE"
     ]
 }
 

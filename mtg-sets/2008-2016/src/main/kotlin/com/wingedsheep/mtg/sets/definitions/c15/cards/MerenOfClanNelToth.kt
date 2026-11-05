@@ -1,27 +1,33 @@
 package com.wingedsheep.mtg.sets.definitions.c15.cards
 
 import com.wingedsheep.sdk.core.CounterType
-import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.Conditions
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.conditions.ComparisonOperator
+import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
- * Meren of Clan Nel Toth — Commander 2015 #49.
+ * Meren of Clan Nel Toth
+ * {2}{B}{G}
+ * Legendary Creature — Human Shaman
+ * 3/4
  *
- * Experience is a player-scoped counter. The death trigger therefore targets the ability's
- * controller, while the end-step branch compares the targeted card's mana value with that player's
- * live experience total at resolution. The target is deliberately unrestricted by mana value when
- * the trigger goes on the stack: every creature card in the controller's graveyard is legal, and a
- * card above the threshold must go to hand rather than fizzle.
+ * Whenever another creature you control dies, you get an experience counter.
+ * At the beginning of your end step, choose target creature card in your graveyard. If that
+ * card's mana value is less than or equal to the number of experience counters you have, return
+ * it to the battlefield. Otherwise, put it into your hand.
+ *
+ * Canonical printing: Commander 2015, the card's earliest real printing. The mana-value check is
+ * made as the ability resolves (no choice for the player — ruling 2015-11-04), comparing the
+ * target card's mana value with the experience counters you have at that moment.
  */
 val MerenOfClanNelToth = card("Meren of Clan Nel Toth") {
     manaCost = "{2}{B}{G}"
@@ -30,32 +36,27 @@ val MerenOfClanNelToth = card("Meren of Clan Nel Toth") {
     power = 3
     toughness = 4
     oracleText = "Whenever another creature you control dies, you get an experience counter.\n" +
-        "At the beginning of your end step, choose target creature card in your graveyard. " +
-        "If that card's mana value is less than or equal to the number of experience counters " +
-        "you have, return it to the battlefield. Otherwise, put it into your hand."
+        "At the beginning of your end step, choose target creature card in your graveyard. If that card's mana " +
+        "value is less than or equal to the number of experience counters you have, return it to the " +
+        "battlefield. Otherwise, put it into your hand."
 
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).dies()
         effect = Effects.AddCounters(CounterType.EXPERIENCE, 1, EffectTarget.Controller)
-        description = "Whenever another creature you control dies, you get an experience counter."
     }
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
-        val creatureCard = target(TargetFilter.CreatureInYourGraveyard)
+        val t = target(TargetFilter.CreatureInYourGraveyard)
         effect = Effects.If(
             condition = Conditions.CompareAmounts(
                 DynamicAmounts.targetManaValue(),
                 ComparisonOperator.LTE,
                 DynamicAmounts.playerCounterCount(CounterType.EXPERIENCE),
             ),
-            then = Effects.PutOntoBattlefield(creatureCard),
-            otherwise = Effects.ReturnToHand(creatureCard),
+            then = Effects.Move(t, Zone.BATTLEFIELD, fromZone = Zone.GRAVEYARD),
+            otherwise = Effects.Move(t, Zone.HAND, fromZone = Zone.GRAVEYARD),
         )
-        description = "At the beginning of your end step, choose target creature card in your " +
-            "graveyard. If that card's mana value is less than or equal to the number of " +
-            "experience counters you have, return it to the battlefield. Otherwise, put it into " +
-            "your hand."
     }
 
     metadata {

@@ -566,7 +566,9 @@
                                     "amount": 2
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for up to two basic land cards to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -589,6 +591,75 @@
         "rarity": "UNCOMMON",
         "artist": "Jason Felix",
         "imageUri": "https://cards.scryfall.io/normal/front/7/5/7508d531-da52-41fb-a729-3f5704c9a194.jpg"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Blisterpod
+{
+    "name": "Blisterpod",
+    "manaCost": "{G}",
+    "typeLine": "Creature — Eldrazi Drone",
+    "oracleText": "Devoid (This card has no color.)\nWhen this creature dies, create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this token: Add {C}.\"",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "DEVOID"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Blisterpod:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Eldrazi",
+                        "Scion"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/b/abcdf03d-d237-4ceb-91fa-8f95341af369.jpg?1783938121",
+                    "activatedAbilities": [
+                        {
+                            "id": "Blisterpod:1",
+                            "cost": "CostSacrificeSelf",
+                            "effect": {
+                                "type": "AddColorlessMana",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "timing": "ManaAbility",
+                            "isManaAbility": true,
+                            "descriptionOverride": "Sacrifice this token: Add {C}."
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "163",
+        "artist": "Ryan Barger",
+        "flavorText": "A blisterpod's corpse is a scion's cradle.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/1/e16f1803-634a-41b0-ae21-484d6f914a0d.jpg?1783938190",
+        "rulings": [
+            {
+                "date": "2015-08-25",
+                "text": "Sacrificing an Eldrazi Scion creature token to add {C} is a mana ability. It doesn't use the stack and can't be responded to."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "GREEN"
@@ -629,6 +700,79 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Brood Monitor
+{
+    "name": "Brood Monitor",
+    "manaCost": "{4}{G}{G}",
+    "typeLine": "Creature — Eldrazi Drone",
+    "oracleText": "Devoid (This card has no color.)\nWhen this creature enters, create three 1/1 colorless Eldrazi Scion creature tokens. They have \"Sacrifice this token: Add {C}.\"",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEVOID"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Brood Monitor:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Eldrazi",
+                        "Scion"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/b/9/b999a0fe-d2d0-4367-9abb-6ce5f3764f19.jpg?1783938121",
+                    "activatedAbilities": [
+                        {
+                            "id": "Brood Monitor:1",
+                            "cost": "CostSacrificeSelf",
+                            "effect": {
+                                "type": "AddColorlessMana",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "timing": "ManaAbility",
+                            "isManaAbility": true,
+                            "descriptionOverride": "Sacrifice this token: Add {C}."
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "164",
+        "rarity": "UNCOMMON",
+        "artist": "Izzy",
+        "flavorText": "The tenderness of a mother. The pity of a mantis.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/a/ea7d4a49-8681-4f95-8718-96648bf73c39.jpg?1783938190",
+        "rulings": [
+            {
+                "date": "2015-08-25",
+                "text": "Sacrificing an Eldrazi Scion creature token to add {C} is a mana ability. It doesn't use the stack and can't be responded to."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -1133,6 +1277,72 @@
     ]
 }
 
+// Drana, Liberator of Malakir
+{
+    "name": "Drana, Liberator of Malakir",
+    "manaCost": "{1}{B}{B}",
+    "typeLine": "Legendary Creature — Vampire Ally",
+    "oracleText": "Flying, first strike\nWhenever Drana deals combat damage to a player, put a +1/+1 counter on each attacking creature you control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "keywords": [
+        "FLYING",
+        "FIRST_STRIKE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Drana, Liberator of Malakir:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature attacking ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 1,
+                        "target": "IterationEntity"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "109",
+        "rarity": "MYTHIC",
+        "artist": "Mike Bierek",
+        "flavorText": "\"I will not live as a slave. If you would be free, then fight alongside me.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/3/d3f6ed18-eb6f-4d07-8660-cf7c074c87cd.jpg?1783938202",
+        "rulings": [
+            {
+                "date": "2015-08-25",
+                "text": "Drana's last ability triggers after combat damage has been dealt, so only attacking creatures that survive the combat damage step in which Drana deals combat damage will have +1/+1 counters put on them."
+            },
+            {
+                "date": "2015-08-25",
+                "text": "The +1/+1 counter won't change how much damage Drana or any other attacking creature with first strike or double strike deals during that combat damage step. However, the +1/+1 counters that are put on attacking creatures without first strike will affect the damage those creatures deal during the regular combat damage step."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Eldrazi Devastator
 {
     "name": "Eldrazi Devastator",
@@ -1153,6 +1363,117 @@
         "imageUri": "https://cards.scryfall.io/normal/front/0/4/04b13e32-01b9-4a86-a3df-ca8b784c6a6c.jpg?1783938225"
     },
     "colorIdentityOverride": []
+}
+
+// Emeria Shepherd
+{
+    "name": "Emeria Shepherd",
+    "manaCost": "{5}{W}{W}",
+    "typeLine": "Creature — Angel",
+    "oracleText": "Flying\nLandfall — Whenever a land you control enters, you may return target nonland permanent card from your graveyard to your hand. If that land is a Plains, you may return that nonland permanent card to the battlefield instead.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Emeria Shepherd:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "EntityMatches",
+                            "entity": "TriggeringEntity",
+                            "filter": "land Plains"
+                        }
+                    },
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.MayDecide",
+                            "prompt": "Return the targeted card to the battlefield instead of your hand?"
+                        },
+                        "then": {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Battlefield",
+                            "fromZone": "Graveyard"
+                        },
+                        "otherwise": {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.MayDecide",
+                                "prompt": "Return the targeted card to your hand?"
+                            },
+                            "then": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "destination": "Hand",
+                                "fromZone": "Graveyard"
+                            }
+                        }
+                    },
+                    "otherwise": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.MayDecide",
+                            "prompt": "Return the targeted card to your hand?"
+                        },
+                        "then": {
+                            "type": "MoveToZone",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "destination": "Hand",
+                            "fromZone": "Graveyard"
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "nonland permanent own:you",
+                        "zone": "Graveyard"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, you may return target nonland permanent card from your graveyard to your hand. If that land is a Plains, you may return that nonland permanent card to the battlefield instead."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "22",
+        "rarity": "RARE",
+        "artist": "Cynthia Sheppard",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c366f25-93c7-4088-88a4-64d3ee18a89a.jpg?1783938221",
+        "rulings": [
+            {
+                "date": "2015-08-25",
+                "text": "If you return an Aura to the battlefield this way, you choose what it will enchant as it enters the battlefield. This doesn't target any player or permanent, so you could attach an Aura to a permanent with hexproof controlled by an opponent, for example. If there's nothing the Aura can legally enchant, it stays in the graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
 }
 
 // Endless One
@@ -2903,6 +3224,91 @@
     ]
 }
 
+// Retreat to Coralhelm
+{
+    "name": "Retreat to Coralhelm",
+    "manaCost": "{2}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "Landfall — Whenever a land you control enters, choose one —\n• You may tap or untap target creature.\n• Scry 1. (Look at the top card of your library. You may put that card on the bottom.)",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Retreat to Coralhelm:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "Gated",
+                                "gate": "Gate.MayDecide",
+                                "then": {
+                                    "type": "Modal",
+                                    "modes": [
+                                        {
+                                            "effect": {
+                                                "type": "TapUntap",
+                                                "target": {
+                                                    "type": "BoundVariable",
+                                                    "name": "t0"
+                                                }
+                                            },
+                                            "description": "Tap that creature"
+                                        },
+                                        {
+                                            "effect": {
+                                                "type": "TapUntap",
+                                                "target": {
+                                                    "type": "BoundVariable",
+                                                    "name": "t0"
+                                                },
+                                                "tap": false
+                                            },
+                                            "description": "Untap that creature"
+                                        }
+                                    ],
+                                    "countsAsModalSpell": false
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "creature"
+                                    },
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "You may tap or untap target creature"
+                        },
+                        {
+                            "effect": {
+                                "type": "Scry",
+                                "count": 1
+                            },
+                            "description": "Scry 1"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "82",
+        "rarity": "UNCOMMON",
+        "artist": "Kieran Yanner",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68684c8e-dc19-4a56-b511-4e21140b137f.jpg?1783938208"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Retreat to Hagra
 {
     "name": "Retreat to Hagra",
@@ -4152,6 +4558,77 @@
         ]
     },
     "colorIdentityOverride": []
+}
+
+// Unnatural Aggression
+{
+    "name": "Unnatural Aggression",
+    "manaCost": "{2}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Devoid (This card has no color.)\nTarget creature you control fights target creature an opponent controls. If the creature an opponent controls would die this turn, exile it instead.",
+    "keywords": [
+        "DEVOID"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MarkExileOnDeath",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    }
+                },
+                {
+                    "type": "Fight",
+                    "target1": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "target2": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:you"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature ctrl:opponent"
+                },
+                "id": "t1"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "168",
+        "artist": "James Ryman",
+        "flavorText": "The battle served as a grim reminder of what a final victory for the Eldrazi would mean.",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/8293c66d-9a9b-4817-9bc3-ffd57fda290c.jpg?1783938189",
+        "rulings": [
+            {
+                "date": "2015-08-25",
+                "text": "If the creature an opponent controls survives the fight but would die later in the turn for another reason, it will be exiled instead, whether your creature dealt it damage or not."
+            },
+            {
+                "date": "2015-08-25",
+                "text": "If the creature you control becomes an illegal target (perhaps due to being destroyed by another spell or ability), Unnatural Aggression will resolve, but the target creature an opponent controls will neither deal nor receive any damage. If that creature would die later in the turn for another reason, it will be exiled instead."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
 }
 
 // Valakut Invoker

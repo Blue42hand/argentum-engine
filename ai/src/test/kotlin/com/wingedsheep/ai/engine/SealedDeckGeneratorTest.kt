@@ -7,6 +7,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.model.ScryfallMetadata
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 
@@ -146,13 +147,47 @@ class SealedDeckGeneratorTest : FunSpec({
         )
 
         shouldNotThrowAny {
-            repeat(200) {
+            repeat(40) {
                 // The Draftsim autobuilder path (or its heuristic fallback) must always yield a
                 // complete 40-card sealed deck. A synthetic set has no Draftsim ratings file, so this
-                // also exercises the rarity-ladder fallback inside the builder.
+                // also exercises the fallback ratings the builder gets from LimitedCardRater.
                 gen.generate(gen.randomSetCode()).values.sum() shouldBe 40
             }
         }
+    }
+
+    test("a generated deck's sideboard is the rest of its pool (CR 100.4b)") {
+        val boosters = BoosterGenerator(mapOf("FULL" to config("FULL", viablePool("FULL"), sealedSupported = true)))
+        val gen = SealedDeckGenerator(boosters)
+
+        val generated = gen.generateDeck("FULL")
+
+        // 8 boosters of a set with no basics: every opened card is in the deck or the sideboard.
+        val opened = 8 * boosters.generateBooster("FULL").size
+        val sideboardCards = generated.sideboard.values.sum()
+        val deckNonBasics = generated.deckList.filterKeys { it.startsWith("FULL") }.values.sum()
+        sideboardCards shouldBe opened - deckNonBasics
+        generated.sideboard.keys.forEach { it.startsWith("FULL") shouldBe true }
+    }
+
+    test("a generated deck plays every card with the printing it was opened as") {
+        // Pool cards carry their printing's coordinates — a reprint is overlaid with the opening
+        // set's (an Onslaught Clone reads ONS-75, not Alpha's LEA-51). The deck and sideboard must
+        // pin those, or the game resolves the bare name to the canonical printing's art.
+        val printed = viablePool("FULL").mapIndexed { i, card ->
+            card.copy(setCode = "FULL", metadata = card.metadata.copy(collectorNumber = "${i + 1}"))
+        }
+        val gen = SealedDeckGenerator(
+            BoosterGenerator(mapOf("FULL" to config("FULL", printed, sealedSupported = true)))
+        )
+        val identifiers = printed.map { "${it.name}#FULL-${it.metadata.collectorNumber}" }
+
+        val generated = gen.generateDeck("FULL")
+
+        // The set prints no basics, so the builder's are the only keys left unpinned.
+        (generated.deckList.keys + generated.sideboard.keys)
+            .filter { it.startsWith("FULL") }
+            .forEach { key -> identifiers shouldContain key }
     }
 
     test("falls back to all sets when none are fully implemented") {

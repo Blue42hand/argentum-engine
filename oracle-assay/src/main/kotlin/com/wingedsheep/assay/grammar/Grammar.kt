@@ -18,8 +18,10 @@ import com.wingedsheep.sdk.scripting.ActivatedAbility
 import com.wingedsheep.sdk.scripting.EntersWithRevealCounters
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.scripting.effects.ReflexiveTriggerEffect
 import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
+import com.wingedsheep.sdk.dsl.exploit
 import com.wingedsheep.sdk.dsl.soulshift
 import com.wingedsheep.sdk.dsl.Triggers as SdkTriggers
 import com.wingedsheep.sdk.serialization.CardSerialization
@@ -151,7 +153,7 @@ object Grammar {
      * know nothing about where in a card they land.
      */
     private val spellLine: Phrase<CardFragment> = phrase("{step}", name = "a spell effect line") {
-        slot("step", Steps.step)
+        slot("step", Steps.spellStep)
         build { CardFragment.of(it.value<CardScript>("step")) }
         match { fragment ->
             if (fragment.keywordAbilities.isEmpty() && fragment.script != CardScript.EMPTY) {
@@ -390,6 +392,50 @@ object Grammar {
     }
 
     /**
+     * "When ~ exploits a creature, target player draws two cards and loses 2 life." — exploit's
+     * self-payoff, which the SDK does not store as a trigger of its own.
+     *
+     * CR 702.110b says a creature "exploits a creature" when its exploit ability's controller
+     * sacrifices one as that ability resolves, so the payoff is a reflexive "when you do" on the
+     * exploit trigger, and that is where `CardBuilder.exploit` bakes it: one enters ability whose
+     * reflexive half is this line's effect. The printed "Exploit" line stays the bare keyword, which
+     * is what [keywordLine] already reads, and *this* line carries the ability. That split is the
+     * lowering's own: a card with exploit and no payoff (Skull Skaab) holds an ability no line
+     * prints, and the differential's lowered-keyword guard already sets those aside.
+     *
+     * Built the way [soulshiftLine] is — the rule calls the DSL method every exploit card uses,
+     * inside a throwaway `card { }`, rather than reproducing it — and matched by rebuilding from the
+     * reflexive half and comparing the whole ability, so an exploit ability that is anything but
+     * the lowering refuses to print. The payoff clause is a [Steps.step], the same vocabulary any
+     * trigger's effect clause takes; its targets become the reflexive trigger's, chosen after the
+     * sacrifice, which is where the cards declare them.
+     */
+    private val exploitPayoffLine: Phrase<CardFragment> = run {
+        val exploitId = AbilityId("exploit")
+        fun fragmentFor(payoff: CardScript): CardFragment? {
+            val effect = payoff.spellEffect ?: return null
+            val lowered = card("Exploit") { exploit(onExploit = effect, onExploitTargets = payoff.targetRequirements) }
+            return CardFragment.of(
+                CardScript(triggeredAbilities = lowered.script.triggeredAbilities.map { it.copy(id = exploitId) }),
+            )
+        }
+        phrase("when ${Normalizer.SELF} exploits a creature, {effect}", name = "an exploit payoff") {
+            slot("effect", Steps.step)
+            build { fragmentFor(it.value("effect")) }
+            match { fragment ->
+                val ability = fragment.script.triggeredAbilities.singleOrNull() ?: return@match null
+                val reflexive = ability.effect as? ReflexiveTriggerEffect ?: return@match null
+                val payoff = CardScript(
+                    spellEffect = reflexive.reflexiveEffect,
+                    targetRequirements = reflexive.reflexiveTargetRequirements,
+                )
+                if (fragment != fragmentFor(payoff)) return@match null
+                bind("effect" to payoff)
+            }
+        }
+    }
+
+    /**
      * A line that is replacement effects and nothing else — "~ enters tapped.", and the kicker
      * sentence whose two halves are two effects ([Replacements.replacements]).
      */
@@ -401,6 +447,22 @@ object Grammar {
             if (fragment.keywordAbilities.isNotEmpty()) return@match null
             if (fragment.script != CardScript(replacementEffects = replacements)) return@match null
             bind("replacements" to replacements)
+        }
+    }
+
+    /**
+     * A line that is one state-triggered ability — "When you control no Islands, sacrifice ~." —
+     * landing in `CardScript.stateTriggeredAbilities`, the SDK's list for CR 603.8 beside the event
+     * triggers [triggerLine] fills. Wrapped here for the reason the other ability lines are:
+     * [StateTriggers] knows nothing about which of a card's slots its ability lands in.
+     */
+    private val stateTriggerLine: Phrase<CardFragment> = phrase("{trigger}", name = "a state-triggered ability line") {
+        slot("trigger", StateTriggers.line)
+        build { CardFragment.of(CardScript(stateTriggeredAbilities = listOf(it.value("trigger")))) }
+        match { fragment ->
+            val ability = fragment.script.stateTriggeredAbilities.singleOrNull() ?: return@match null
+            if (fragment != CardFragment.of(CardScript(stateTriggeredAbilities = listOf(ability)))) return@match null
+            bind("trigger" to ability)
         }
     }
 
@@ -619,8 +681,10 @@ object Grammar {
         amplifyLine,
         equipLine,
         soulshiftLine,
+        exploitPayoffLine,
         spellLine,
         triggerLine,
+        stateTriggerLine,
         activatedLine,
         replacementLine,
         enchantLine,

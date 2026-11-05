@@ -1,3 +1,175 @@
+// Bloodtracker
+{
+    "name": "Bloodtracker",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Vampire Wizard",
+    "oracleText": "Flying\n{B}, Pay 2 life: Put a +1/+1 counter on this creature.\nWhen this creature leaves the battlefield, draw a card for each +1/+1 counter on it.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Bloodtracker:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "ContextProperty",
+                        "key": "LAST_KNOWN_PLUS_ONE_COUNTER_COUNT"
+                    }
+                },
+                "descriptionOverride": "When this creature leaves the battlefield, draw a card for each +1/+1 counter on it."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Bloodtracker:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "descriptionOverride": "{B}, Pay 2 life: Put a +1/+1 counter on this creature."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "14",
+        "rarity": "RARE",
+        "artist": "Magali Villeneuve",
+        "flavorText": "\"Flee all you like. The further you run the more firmly I feel your heartbeat.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/ca3519c4-4d8c-4caf-bc93-6e6160a3d5b6.jpg?1783934340",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If enough -1/-1 counters are put on Bloodtracker at the same time to make its toughness 0 or less, the number of +1/+1 counters on it before it got any -1/-1 counters will be used to determine how many cards you draw. For example, if there are three +1/+1 counters on Bloodtracker and it gets six -1/-1 counters, you'll draw three cards. That's because Bloodtracker's triggered ability checks the creature's existence just before it leaves the battlefield, and it still has all those counters on it at that point."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Coveted Jewel
+{
+    "name": "Coveted Jewel",
+    "manaCost": "{6}",
+    "typeLine": "Artifact",
+    "oracleText": "When this artifact enters, draw three cards.\n{T}: Add three mana of any one color.\nWhenever one or more creatures an opponent controls attack you and aren't blocked, that player draws three cards and gains control of this artifact. Untap it.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Coveted Jewel:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                "descriptionOverride": "When this artifact enters, draw three cards."
+            },
+            {
+                "id": "Coveted Jewel:3",
+                "trigger": {
+                    "type": "CreaturesAttackYouEvent",
+                    "unblocked": true
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 3
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "TriggeringPlayer"
+                            }
+                        },
+                        {
+                            "type": "GiveControlToTargetPlayer",
+                            "permanent": "Self",
+                            "newController": {
+                                "type": "PlayerRef",
+                                "player": "TriggeringPlayer"
+                            }
+                        },
+                        {
+                            "type": "TapUntap",
+                            "target": "Self",
+                            "tap": false
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever one or more creatures an opponent controls attack you and aren't blocked, that player draws three cards and gains control of this artifact. Untap it."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Coveted Jewel:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddManaOfChoice",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true,
+                "descriptionOverride": "{T}: Add three mana of any one color."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "54",
+        "rarity": "RARE",
+        "artist": "Jason A. Engle",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/8/f83ed433-fae3-4fa5-acad-bb8a5b535ce3.jpg?1783934324"
+    },
+    "colorIdentityOverride": []
+}
+
 // Estrid's Invocation
 {
     "name": "Estrid's Invocation",
@@ -31,7 +203,10 @@
                                     "effects": [
                                         {
                                             "type": "GatherCards",
-                                            "source": "Self",
+                                            "source": {
+                                                "type": "Entity",
+                                                "entity": "Self"
+                                            },
                                             "storeAs": "gathered0"
                                         },
                                         {
@@ -93,4 +268,307 @@
             }
         ]
     }
+}
+
+// Loyal Apprentice
+{
+    "name": "Loyal Apprentice",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "Haste\nLieutenant — At the beginning of combat on your turn, if you control your commander, create a 1/1 colorless Thopter artifact creature token with flying. That token gains haste until end of turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "HASTE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Loyal Apprentice:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "BEGIN_COMBAT"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 1,
+                            "toughness": 1,
+                            "colors": [],
+                            "creatureTypes": [
+                                "Thopter"
+                            ],
+                            "keywords": [
+                                "FLYING"
+                            ],
+                            "artifactToken": true
+                        },
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "PipelineTarget",
+                                "collectionName": "createdTokens"
+                            }
+                        }
+                    ]
+                },
+                "interveningIf": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent"
+                        ],
+                        "statePredicates": [
+                            "IsCommander"
+                        ],
+                        "controllerPredicate": "OwnedByYou"
+                    }
+                },
+                "descriptionOverride": "Lieutenant — At the beginning of combat on your turn, if you control your commander, create a 1/1 colorless Thopter artifact creature token with flying. That token gains haste until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "23",
+        "rarity": "UNCOMMON",
+        "artist": "Joe Slucher",
+        "flavorText": "Those with knowledge are wise to listen to those with imagination.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/5/b5fef5fe-3e59-4fd6-8a88-7c1cee56892f.jpg?1783934336",
+        "rulings": [
+            {
+                "date": "2018-07-13",
+                "text": "If you don't control your commander as the lieutenant ability resolves, you won't get its effect."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "The lieutenant effect happens only once each combat, even if you somehow control multiple commanders (perhaps because you have two commanders with a partner ability from the Battlebond™ set)."
+            },
+            {
+                "date": "2018-07-13",
+                "text": "If you have multiple commanders, you need to control only one for the lieutenant effect to happen."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Windgrace's Judgment
+{
+    "name": "Windgrace's Judgment",
+    "manaCost": "{3}{B}{G}",
+    "typeLine": "Instant",
+    "oracleText": "For any number of opponents, destroy target nonland permanent that player controls.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": "IterationSpace.Targets",
+            "body": {
+                "type": "MoveToZone",
+                "target": {
+                    "type": "ContextTarget",
+                    "index": 0
+                },
+                "destination": "Graveyard",
+                "byDestruction": true
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "optional": true,
+                "filter": {
+                    "baseFilter": "nonland permanent ctrl:opponent"
+                },
+                "id": "t0",
+                "dynamicMaxCount": "PlayerCount",
+                "differentControllers": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "rarity": "RARE",
+        "artist": "Grzegorz Rutkowski",
+        "flavorText": "Not all who remember Urza do so with fondness.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/8/d8b8f56c-091f-4932-9216-af58f7ea4bd7.jpg?1783934329"
+    }
+}
+
+// Yuriko, the Tiger's Shadow
+{
+    "name": "Yuriko, the Tiger's Shadow",
+    "manaCost": "{1}{U}{B}",
+    "typeLine": "Legendary Creature — Human Ninja",
+    "oracleText": "Commander ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand or the command zone tapped and attacking.)\nWhenever a Ninja you control deals combat damage to a player, reveal the top card of your library and put that card into your hand. Each opponent loses life equal to that card's mana value.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "NINJUTSU"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ninjutsu",
+            "cost": "{U}{B}",
+            "commander": true
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Yuriko, the Tiger's Shadow:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    },
+                    "sourceFilter": "creature Ninja ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "StoredCardManaValue",
+                                "collectionName": "gathered0"
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "EachOpponent"
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ninjutsu_{U}{B}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{U}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Hand",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Hand",
+                "descriptionOverride": "Ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+                "keyword": "NINJUTSU"
+            },
+            {
+                "id": "commander_ninjutsu_{U}{B}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{U}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Command",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Command",
+                "descriptionOverride": "Commander ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from the command zone tapped and attacking.)",
+                "keyword": "NINJUTSU"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "52",
+        "rarity": "RARE",
+        "artist": "Yongjae Choi",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3bd81ae6-e628-447a-a36b-597e63ede295.jpg?1783934325"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
+    ]
 }

@@ -2,6 +2,7 @@ package com.wingedsheep.engine.mechanics.combat
 
 import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.handlers.EffectContext
+import com.wingedsheep.engine.mechanics.durations.GrantDurationGate
 import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.mechanics.layers.SerializableModification
 import com.wingedsheep.engine.registry.CardRegistry
@@ -14,6 +15,7 @@ import com.wingedsheep.sdk.scripting.AttackTax
 import com.wingedsheep.sdk.scripting.BlockTax
 import com.wingedsheep.engine.state.components.battlefield.AttachmentsComponent
 import com.wingedsheep.sdk.scripting.CantAttackOrBlockUnlessPay
+import com.wingedsheep.engine.state.components.identity.faceUpCardDefinition
 
 /**
  * What a proposed attack or block costs in generic mana before it may be declared — Ghostly Prison,
@@ -64,50 +66,55 @@ object CombatTaxes {
             }
         }
 
+        // One tax ability held on behalf of [you], the player it protects, with [holder] as its source.
+        fun taxFrom(ability: AttackTax, holder: EntityId, you: EntityId): Int {
+            val attackerCount = (attackersAtPlayer[you] ?: 0) +
+                if (ability.coversPlaneswalkers) attackersAtPlaneswalkers[you] ?: 0 else 0
+            if (attackerCount == 0) return 0
+            val ctx = EffectContext(sourceId = holder, controllerId = you)
+            // Gate on the source's state (e.g. Archangel of Tithes — only while untapped).
+            val condition = ability.condition
+            if (condition != null && !predicateEvaluator.conditions.evaluate(state, condition, ctx)) return 0
+            val taxPerAttacker =
+                maxOf(0, predicateEvaluator.amounts.evaluate(state, ability.amountPerAttacker, ctx, projected))
+            return taxPerAttacker * attackerCount
+        }
+
         var totalGenericTax = 0
         for (defenderId in attackersAtPlayer.keys + attackersAtPlaneswalkers.keys) {
             val defenderPermanents = projected.getBattlefieldControlledBy(defenderId)
             for (entityId in defenderPermanents) {
                 val container = state.getEntity(entityId) ?: continue
-                val cardComponent = container.get<CardComponent>() ?: continue
-                val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId) ?: continue
+                val cardDef = container.faceUpCardDefinition(cardRegistry) ?: continue
                 for (ability in cardDef.staticAbilities) {
                     if (ability !is AttackTax) continue
-                    val attackerCount = (attackersAtPlayer[defenderId] ?: 0) +
-                        if (ability.coversPlaneswalkers) attackersAtPlaneswalkers[defenderId] ?: 0 else 0
-                    if (attackerCount == 0) continue
-                    val ctx = EffectContext(sourceId = entityId, controllerId = defenderId)
-                    // Gate on the source's state (e.g. Archangel of Tithes — only while untapped).
-                    val condition = ability.condition
-                    if (condition != null && !predicateEvaluator.conditions.evaluate(state, condition, ctx)) {
-                        continue
-                    }
-                    val taxPerAttacker =
-                        maxOf(0, predicateEvaluator.amounts.evaluate(state, ability.amountPerAttacker, ctx, projected))
-                    totalGenericTax += taxPerAttacker * attackerCount
+                    totalGenericTax += taxFrom(ability, entityId, defenderId)
                 }
             }
         }
 
-        // A duration-scoped rule may be held by the defended player (e.g. a Saga chapter),
-        // or by one of their permanents. Read the existing grant store at the same price point
-        // used by declarations and AI/legal-action previews; do not snapshot future attackers.
+        // Player-held taxes are duration-scoped rules, and survive their source leaving.
+        // Permanent-held taxes are gained abilities and obey layer-6 grant/removal timestamps.
         for (grant in state.grantedStaticAbilities) {
             val ability = grant.ability as? AttackTax ?: continue
-            val defenderId = if (grant.entityId in state.turnOrder) grant.entityId else {
-                if (grant.entityId !in state.getBattlefield() || projected.hasLostAllAbilities(grant.entityId)) continue
-                projected.getController(grant.entityId) ?: continue
+            val holder = grant.entityId
+            val you = when {
+                holder in state.turnOrder -> holder
+                holder in state.getBattlefield() -> {
+                    val gainedAt = grant.layerTimestamp
+                    if (gainedAt != null) {
+                        if (projected.lostAllAbilitiesAfter(holder, gainedAt)) continue
+                    } else {
+                        if (projected.hasLostAllAbilities(holder)) continue
+                        if (grant.sourceId == null && grant.controllerId == null &&
+                            state.getEntity(holder)?.has<com.wingedsheep.engine.state.components.identity.FaceDownComponent>() == true) continue
+                    }
+                    projected.getController(holder) ?: continue
+                }
+                else -> continue
             }
-            if (!com.wingedsheep.engine.mechanics.durations.GrantDurationGate.holds(
-                    state, grant.entityId, grant.sourceId, grant.duration)) continue
-            val attackerCount = (attackersAtPlayer[defenderId] ?: 0) +
-                if (ability.coversPlaneswalkers) attackersAtPlaneswalkers[defenderId] ?: 0 else 0
-            if (attackerCount == 0) continue
-            val context = EffectContext(sourceId = grant.entityId, controllerId = defenderId)
-            val condition = ability.condition
-            if (condition != null && !predicateEvaluator.conditions.evaluate(state, condition, context)) continue
-            val perAttacker = maxOf(0, predicateEvaluator.amounts.evaluate(state, ability.amountPerAttacker, context, projected))
-            totalGenericTax += perAttacker * attackerCount
+            if (!GrantDurationGate.holds(state, holder, grant.sourceId, grant.duration)) continue
+            totalGenericTax += taxFrom(ability, holder, you)
         }
 
         return totalGenericTax + perCreatureTax(state, attackers.keys, projected) +
@@ -132,8 +139,7 @@ object CombatTaxes {
         var totalTax = 0
         for (entityId in state.getBattlefield()) {
             val container = state.getEntity(entityId) ?: continue
-            val cardComponent = container.get<CardComponent>() ?: continue
-            val cardDef = cardRegistry.getCard(cardComponent.cardDefinitionId) ?: continue
+            val cardDef = container.faceUpCardDefinition(cardRegistry) ?: continue
             for (ability in cardDef.staticAbilities) {
                 if (ability !is BlockTax) continue
                 val controllerId = projected.getController(entityId) ?: continue

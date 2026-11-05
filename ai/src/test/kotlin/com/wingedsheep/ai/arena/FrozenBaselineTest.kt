@@ -140,7 +140,45 @@ class FrozenBaselineTest : FunSpec({
          * **`LEGACY_V0` did not move.** With `", declaredCostIndices=[]"` stripped from the recorded
          * action text, this branch reproduces the previous golden `5abfc5a4162d88b6` exactly. Seat 1
          * still wins on turn 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-06 for target-group binding adding `CastSpell.targetGroupCounts`.
+         * **`LEGACY_V0` did not move.** With `", targetGroupCounts=null"` stripped from the recorded
+         * action text, this branch reproduces the previous golden `e42743d277e9ae6d` exactly. Seat 1
+         * still wins on turn 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-08 for the declare attackers step no longer being skipped when the
+         * active player has no creature able to attack (#2704; CR 508.8 skips only blockers and
+         * damage). An engine change, not a V0 one: those turns now hold the step's priority window
+         * (CR 508.2), so the stream gains a pass from each player there. With a vanilla deck and
+         * nothing castable at instant speed, a pass is the only legal action in that window. Seat 1
+         * still wins on turn 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-09 for optional life-funded cost reductions adding
+         * `CastSpell.optionalCostPayments`. **`LEGACY_V0` did not move.** With
+         * `", optionalCostPayments=[]"` stripped from the recorded action text, this branch
+         * reproduces the previous golden `bc675a46de11e5b2` exactly. Seat 1 still wins on turn
+         * 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-13 for fuse adding `CastSpell.castFused`, which only changes the
+         * recorded action text. **`LEGACY_V0` did not move.** Seat 1 still wins on turn 20 at
+         * life -8 / 16.
+         *
+         * Re-blessed 2026-10-13 for selected escape costs adding `CastSpell.escapeAbility`.
+         * **`LEGACY_V0` did not move.** With `", escapeAbility=null"` stripped from the recorded
+         * action text, this branch reproduces the previous golden `d5d18cc7f6eb856b` exactly.
+         * Seat 1 still wins on turn 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-19 for games with skipped mulligans beginning their first turn the way
+         * a kept game does (#3446): the runner now starts at turn 1's upkeep, since no player
+         * receives priority in the untap step (CR 502.4). An engine change, not a V0 one: the stream
+         * loses the two passes it used to open with in that step, where a pass was the only legal
+         * action. Seat 1 still wins on turn 20 at life -8 / 16.
+         *
+         * Re-blessed 2026-10-27 for beam me up adding `CastSpell.beamMeUpSource`, which only changes
+         * the recorded action text. **`LEGACY_V0` did not move.** With `", beamMeUpSource=null"`
+         * stripped from the recorded action text, this branch reproduces the previous golden
+         * `1f2cad605b93ae18` exactly. Seat 1 still wins on turn 20 at life -8 / 16.
          */
-        private const val GOLDEN_HASH = "e42743d277e9ae6d"
+        private const val GOLDEN_HASH = "94e1186d5a2372f8"
     }
 }

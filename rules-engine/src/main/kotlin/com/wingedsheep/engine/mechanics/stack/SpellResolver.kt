@@ -28,6 +28,7 @@ import com.wingedsheep.sdk.scripting.targets.*
  * by the type line of the face it was cast as.
  */
 internal class SpellResolver(
+    private val zones: com.wingedsheep.engine.handlers.effects.ZoneTransitionService,
     private val cardRegistry: CardRegistry,
     private val predicateEvaluator: PredicateEvaluator,
     private val targetValidator: ResolutionTargetValidator,
@@ -47,7 +48,7 @@ internal class SpellResolver(
         val targetsComponent = container.get<TargetsComponent>()
 
         // Validate targets if spell has any (including protection check - Rule 702.16)
-        val sourceColors = cardComponent?.colors ?: emptySet()
+        val sourceColors = if (cardComponent == null) emptySet() else state.projectedState.colorSetOf(spellId)
         val sourceSubtypes = cardComponent?.typeLine?.subtypes?.map { it.value }?.toSet() ?: emptySet()
         // `resolvedTargets` is the compacted (drop-illegal) list used as `context.targets`
         // — same shape every executor has always seen. `alignedResolvedTargets` is a parallel
@@ -81,6 +82,12 @@ internal class SpellResolver(
                         .updateEntity(spellId) { it.without<TargetsComponent>() }
                     return resolveSpell(restored, spellId, restored.getEntity(spellId)!!)
                 }
+                // CR 702.140b: a mutating spell whose target is illegal isn't countered — it stops
+                // being a mutating spell and resolves as the creature spell it is.
+                if (com.wingedsheep.engine.mechanics.MutateCasts.mutatingTarget(container) != null) {
+                    val plain = state.updateEntity(spellId) { it.without<TargetsComponent>() }
+                    return resolveSpell(plain, spellId, plain.getEntity(spellId)!!)
+                }
                 // All targets invalid - spell fizzles
                 return fizzleSpell(state, spellId, cardComponent, spellComponent)
             }
@@ -106,6 +113,21 @@ internal class SpellResolver(
         }
         val resolvedTypeLine = faceTypeLine ?: cardComponent?.typeLine
         val isPermanent = resolvedTypeLine?.isPermanent ?: false
+
+        // A mutating creature spell with a legal target doesn't enter the battlefield: its
+        // controller puts it over or under the creature first (CR 702.140c).
+        val mutateOnto = if (isPermanent) com.wingedsheep.engine.mechanics.MutateCasts.mutatingTarget(container) else null
+        if (mutateOnto != null) {
+            val spellName = cardComponent?.name ?: "Unknown"
+            val targetName = nameVisibleToAll(newState, mutateOnto, newState.getEntity(mutateOnto)?.get<CardComponent>()?.name ?: "the creature")
+            val paused = newState.suspendForDecision(
+                question = { id ->
+                    com.wingedsheep.engine.mechanics.MutateCasts.question(id, spellId, spellName, targetName, spellComponent.casterId)
+                },
+                answer = MutateMergeContinuation(spellId, mutateOnto, spellComponent.casterId),
+            )
+            return ExecutionResult.propagatePause(paused.state, events + paused.events)
+        }
 
         if (isPermanent) {
             // Put permanent on battlefield
@@ -174,13 +196,13 @@ internal class SpellResolver(
 
         val ownerId = cardComponent?.ownerId ?: spellComponent.casterId
         val cardDef = cardComponent?.let { cardRegistry.getCard(it.name) }
-        // Flashback (printed or granted — Archmage's Newt) or Harmonize (printed or granted —
-        // Songcrafter Mage): a graveyard cast exiles on resolution instead of returning to the
-        // graveyard. A spell cast *with* flashback is exiled even if a conditional flashback's
-        // condition has since lapsed (Viral Spawning), so the recorded alternative cost counts too.
-        val flashbackExile = spellComponent.castFromZone == Zone.GRAVEYARD &&
-            (spellComponent.alternativeCost == AlternativeCostType.FLASHBACK ||
-                FlashbackGrants.effectiveFlashback(
+        // A graveyard cast paid with flashback or beam me up (the recorded cost — see
+        // StackExitRider), or one with flashback (printed or granted — Archmage's Newt) or Harmonize
+        // (printed or granted — Songcrafter Mage), exiles on resolution instead of returning to the
+        // graveyard.
+        val flashbackExile = StackExitRider.paidGraveyardExileCost(spellComponent) ||
+            spellComponent.castFromZone == Zone.GRAVEYARD &&
+            (FlashbackGrants.effectiveFlashback(
                 state, spellId, cardDef, spellComponent.casterId, cardRegistry, predicateEvaluator
             ) != null ||
                 HarmonizeGrants.effectiveHarmonize(state, spellId, cardDef) != null)
@@ -210,15 +232,31 @@ internal class SpellResolver(
         // CR 712.8a — a fizzled card cast transformed is front face up again once off the stack.
         newState = restoreDfcFrontFace(newState, cardRegistry, spellId)
         newState = com.wingedsheep.engine.mechanics.PrototypeCasts.end(newState, spellId)
+        newState = com.wingedsheep.engine.mechanics.SplitSpellCasts.end(newState, spellId)
+        if (destZone == Zone.GRAVEYARD) {
+            newState = com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+                .recordSpellGraveyardArrival(newState, spellId, ownerId)
+        }
         val destinationObject = newState.objectRef(spellId)
         // A card-intrinsic redirect into the library shuffles the card in (Progenitus).
-        if (destZone == Zone.LIBRARY && fizzleRedirect.shuffleIntoLibrary) {
+        val shuffledIn = destZone == Zone.LIBRARY && fizzleRedirect.shuffleIntoLibrary
+        if (shuffledIn) {
             newState = SpellZoneMoves.shuffleOwnerLibrary(newState, ownerId)
         }
         if (destZone == Zone.EXILE && fizzleRedirect.linkSourceId != null) {
             newState = com.wingedsheep.engine.handlers.effects.ZoneMovementUtils
                 .linkExiledToSource(newState, spellId, fizzleRedirect.linkSourceId)
         }
+        // A RedirectZoneChangeWith rider (Dauthi Voidwalker's void counter) is part of the
+        // replacement, so a fizzled spell gets it like any other card headed for that graveyard.
+        val (afterRider, riderEvents) = fizzleRedirect.additionalEffect?.let { extra ->
+            com.wingedsheep.engine.handlers.effects.ZoneMovementUtils.applyReplacementAdditionalEffect(
+                zones, newState, extra, fizzleRedirect.effectControllerId, spellId,
+                sourceId = fizzleRedirect.effectSourceId,
+                riderTiming = fizzleRedirect.riderTiming
+            )
+        } ?: (newState to emptyList())
+        newState = afterRider
 
         return ExecutionResult.success(
             newState,
@@ -231,7 +269,7 @@ internal class SpellResolver(
                     destZone,
                     ownerId, oldObject = state.objectRef(spellId), newObject = destinationObject
                 )
-            )
+            ) + listOfNotNull(LibraryShuffledEvent(ownerId).takeIf { shuffledIn }) + riderEvents
         )
     }
 }

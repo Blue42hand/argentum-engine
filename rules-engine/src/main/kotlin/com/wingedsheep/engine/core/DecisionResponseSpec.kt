@@ -20,6 +20,7 @@ data class DecisionResponseSpec(
 enum class DecisionResponseFieldKind {
     BOOLEAN,
     INTEGER,
+    NUMBER,
     STRING,
     ENTITY_ID_ARRAY,
     INTEGER_ARRAY,
@@ -80,6 +81,10 @@ fun PendingDecision.responseSpec(): DecisionResponseSpec = when (this) {
         responseType = "OrderedResponse",
         requiredFields = mapOf("orderedObjects" to DecisionResponseFieldKind.ENTITY_ID_ARRAY),
     )
+    is OrderTriggersDecision -> DecisionResponseSpec(
+        responseType = "TriggerOrderResponse",
+        requiredFields = mapOf("resolutionOrder" to DecisionResponseFieldKind.INTEGER_ARRAY),
+    )
     is SplitPilesDecision -> DecisionResponseSpec(
         responseType = "PilesSplitResponse",
         requiredFields = mapOf("piles" to DecisionResponseFieldKind.ENTITY_ID_ARRAY_ARRAY),
@@ -99,6 +104,14 @@ fun PendingDecision.responseSpec(): DecisionResponseSpec = when (this) {
     is BudgetModalDecision -> DecisionResponseSpec(
         responseType = "BudgetModalResponse",
         requiredFields = mapOf("selectedModeIndices" to DecisionResponseFieldKind.INTEGER_ARRAY),
+    )
+    is FlipOntoBattlefieldDecision -> DecisionResponseSpec(
+        responseType = "FlipThrowResponse",
+        requiredFields = mapOf(
+            "velocityX" to DecisionResponseFieldKind.NUMBER,
+            "velocityY" to DecisionResponseFieldKind.NUMBER,
+            "spin" to DecisionResponseFieldKind.NUMBER,
+        ),
     )
     is AssignDamageDecision -> DecisionResponseSpec(
         responseType = "DamageAssignmentResponse",

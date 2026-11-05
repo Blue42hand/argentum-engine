@@ -3,6 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.blc.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Bident of Thassa reprint in BLC. Canonical CardDefinition lives in its earliest set.
+ */
 val BidentOfThassaReprint = Printing(
     oracleId = "e1afaef7-9fa3-4662-a95f-adfb0da9fd11",
     name = "Bident of Thassa",

@@ -9,21 +9,31 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
+/**
+ * Ingenious Smith
+ * {1}{W}
+ * Creature — Human Artificer
+ * 1/1
+ * When this creature enters, look at the top four cards of your library. You may reveal an artifact
+ * card from among them and put it into your hand. Put the rest on the bottom of your library in a
+ * random order.
+ * Whenever one or more artifacts you control enter, put a +1/+1 counter on this creature. This
+ * ability triggers only once each turn.
+ */
 val IngeniousSmith = card("Ingenious Smith") {
     manaCost = "{1}{W}"
     colorIdentity = "W"
     typeLine = "Creature — Human Artificer"
+    oracleText = "When this creature enters, look at the top four cards of your library. You may reveal an artifact card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.\nWhenever one or more artifacts you control enter, put a +1/+1 counter on this creature. This ability triggers only once each turn."
     power = 1
     toughness = 1
-    oracleText = "When this creature enters, look at the top four cards of your library. You may reveal an artifact card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.\n" +
-        "Whenever one or more artifacts you control enter, put a +1/+1 counter on this creature. This ability triggers only once each turn."
 
     triggeredAbility {
         trigger = Triggers.self.enters()
         effect = Patterns.Library.lookAtTopRevealMatchingToHand(
             count = 4,
             filter = GameObjectFilter.Artifact,
-            prompt = "You may reveal an artifact card from among them and put it into your hand",
+            prompt = "You may reveal an artifact card from among them and put it into your hand"
         )
     }
 

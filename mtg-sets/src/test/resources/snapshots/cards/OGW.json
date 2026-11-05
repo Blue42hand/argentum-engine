@@ -266,6 +266,222 @@
     ]
 }
 
+// Corpse Churn
+{
+    "name": "Corpse Churn",
+    "manaCost": "{1}{B}",
+    "typeLine": "Instant",
+    "oracleText": "Mill three cards, then you may return a creature card from your graveyard to your hand. (To mill three cards, put the top three cards of your library into your graveyard.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                },
+                                "isMill": true
+                            },
+                            "storeAs": "milled"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "milled",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Graveyard",
+                        "filter": "creature"
+                    },
+                    "storeAs": "gathered1"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered1",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected2",
+                    "prompt": "You may return a creature card from your graveyard to your hand",
+                    "selectedLabel": "Return to hand",
+                    "remainderLabel": "Leave in graveyard",
+                    "showAllCards": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "83",
+        "artist": "Magali Villeneuve",
+        "flavorText": "\"The distraction of your life has ended. Now your service begins.\"\n—Kalitas, thrall of Ulamog",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/b/6b7e6054-c6b8-4b29-83c5-a2e4e295bdf3.jpg?1783937912",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "Because Corpse Churn doesn't target the creature card in your graveyard, you may choose one of the three cards you put there from your library if applicable."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Endbringer
+{
+    "name": "Endbringer",
+    "manaCost": "{5}{C}",
+    "typeLine": "Creature — Eldrazi",
+    "oracleText": "Untap this creature during each other player's untap step.\n{T}: This creature deals 1 damage to any target.\n{C}, {T}: Target creature can't attack or block this turn.\n{C}{C}, {T}: Draw a card.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 5
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Endbringer:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "t0"
+                    }
+                ]
+            },
+            {
+                "id": "Endbringer:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{C}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CantAttack",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            }
+                        },
+                        {
+                            "type": "CantBlockTargetCreatures",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t1"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t1"
+                    }
+                ]
+            },
+            {
+                "id": "Endbringer:3",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{C}{C}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            "UntapSelfDuringOtherUntapSteps"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "3",
+        "rarity": "RARE",
+        "artist": "Vincent Proce",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/b/6bba7509-db77-414f-926f-1f28a4117831.jpg?1783937930",
+        "rulings": [
+            {
+                "date": "2016-01-22",
+                "text": "Endbringer untaps at the same time as the active player's permanents. You can't choose to not untap it at that time."
+            },
+            {
+                "date": "2016-01-22",
+                "text": "If an effect states that Endbringer doesn't untap during your untap step, that effect won't apply during another player's untap step."
+            },
+            {
+                "date": "2016-01-22",
+                "text": "Activating the second activated ability after a creature has legally been declared as an attacker or blocker won't change or undo that attack or block."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
 // Expedite
 {
     "name": "Expedite",
@@ -408,6 +624,383 @@
     "colorIdentityOverride": [
         "BLUE",
         "WHITE"
+    ]
+}
+
+// Mina and Denn, Wildborn
+{
+    "name": "Mina and Denn, Wildborn",
+    "manaCost": "{2}{R}{G}",
+    "typeLine": "Legendary Creature — Elf Ally",
+    "oracleText": "You may play an additional land on each of your turns.\n{R}{G}, Return a land you control to its owner's hand: Target creature gains trample until end of turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 4
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Mina and Denn, Wildborn:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{R}{G}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": "land"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "TRAMPLE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{R}{G}, Return a land you control to its owner's hand: Target creature gains trample until end of turn."
+            }
+        ],
+        "staticAbilities": [
+            "GrantAdditionalLandDrop"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "156",
+        "rarity": "RARE",
+        "artist": "Izzy",
+        "flavorText": "Greenweaver Mina and her twin brother Denn lead the last of the Mul Daya into an uncertain future.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/2/d27ff523-0ff3-480d-ae95-ff5e04483e40.jpg?1783937896",
+        "rulings": [
+            {
+                "date": "2016-01-22",
+                "text": "Once you announce that you're activating the last ability, it's too late for anyone to interrupt you by trying to remove the land you returned."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
+// Pulse of Murasa
+{
+    "name": "Pulse of Murasa",
+    "manaCost": "{2}{G}",
+    "typeLine": "Instant",
+    "oracleText": "Return target creature or land card from a graveyard to its owner's hand. You gain 6 life.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 6
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature|land",
+                    "zone": "Graveyard"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "141",
+        "artist": "Matt Stewart",
+        "flavorText": "\"Little flower twirl and bloom, arise from this your rocky tomb. Little warrior slash and brawl, be born again to free us all.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/0/c0c8057f-b45b-4f67-90cd-c808b5e9cbfa.jpg?1783937899",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "If the target card is an illegal target by the time Pulse of Murasa tries to resolve, the spell doesn't resolve. You won't gain 6 life."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Ruin in Their Wake
+{
+    "name": "Ruin in Their Wake",
+    "manaCost": "{1}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Devoid (This card has no color.)\nSearch your library for a basic land card and reveal it. You may put that card onto the battlefield tapped if you control a land named Wastes. Otherwise, put that card into your hand. Then shuffle.",
+    "keywords": [
+        "DEVOID"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "basicland"
+                    },
+                    "storeAs": "gathered0",
+                    "search": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered0",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "selected1",
+                    "prompt": "Search your library for a basic land card"
+                },
+                {
+                    "type": "RevealCollection",
+                    "from": "selected1",
+                    "fromZone": "Library"
+                },
+                {
+                    "type": "ConditionalOnCollection",
+                    "collection": "selected1",
+                    "ifNotEmpty": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.WhenCondition",
+                            "condition": {
+                                "type": "Exists",
+                                "player": "You",
+                                "zone": "Battlefield",
+                                "filter": "land name:Wastes"
+                            }
+                        },
+                        "then": {
+                            "type": "Gated",
+                            "gate": {
+                                "type": "Gate.MayDecide",
+                                "prompt": "Put the revealed basic land onto the battlefield tapped?"
+                            },
+                            "then": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "selected1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield",
+                                            "placement": "Tapped"
+                                        }
+                                    }
+                                ]
+                            },
+                            "otherwise": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "selected1",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Hand"
+                                        }
+                                    }
+                                ]
+                            }
+                        },
+                        "otherwise": {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "selected1",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Hand"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                },
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "UNCOMMON",
+        "artist": "Jason Felix",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/a/5a0ff591-e4d9-4b62-ac9c-7962fd815226.jpg?1783937903"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Scion Summoner
+{
+    "name": "Scion Summoner",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Eldrazi Drone",
+    "oracleText": "Devoid (This card has no color.)\nWhen this creature enters, create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this token: Add {C}.\" ({C} represents colorless mana.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "keywords": [
+        "DEVOID"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Scion Summoner:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Eldrazi",
+                        "Scion"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/0/a03edf14-3495-4f61-ad73-f16e9456472c.jpg?1783937863",
+                    "activatedAbilities": [
+                        {
+                            "id": "Scion Summoner:1",
+                            "cost": "CostSacrificeSelf",
+                            "effect": {
+                                "type": "AddColorlessMana",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "timing": "ManaAbility",
+                            "isManaAbility": true,
+                            "descriptionOverride": "Sacrifice this token: Add {C}."
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "artist": "Johann Bodin",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/2/826a882e-c4bd-4132-b797-9e1aa2d0bce4.jpg?1783937903"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Sifter of Skulls
+{
+    "name": "Sifter of Skulls",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Eldrazi",
+    "oracleText": "Devoid (This card has no color.)\nWhenever another nontoken creature you control dies, create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this token: Add {C}.\" ({C} represents colorless mana.)",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "keywords": [
+        "DEVOID"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sifter of Skulls:2",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature nontoken ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Eldrazi",
+                        "Scion"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/a/0/a03edf14-3495-4f61-ad73-f16e9456472c.jpg?1783937863",
+                    "activatedAbilities": [
+                        {
+                            "id": "Sifter of Skulls:1",
+                            "cost": "CostSacrificeSelf",
+                            "effect": {
+                                "type": "AddColorlessMana",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "timing": "ManaAbility",
+                            "isManaAbility": true,
+                            "descriptionOverride": "Sacrifice this token: Add {C}."
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "77",
+        "rarity": "RARE",
+        "artist": "Slawomir Maniak",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/e/be57a5aa-44f1-483f-9274-aa68f5a2bf1f.jpg?1783937914"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -883,4 +1476,90 @@
         "imageUri": "https://cards.scryfall.io/normal/front/c/7/c7f517b9-ac10-4710-8ef1-ced1253d5ecf.jpg?1783937928"
     },
     "colorIdentityOverride": []
+}
+
+// World Breaker
+{
+    "name": "World Breaker",
+    "manaCost": "{6}{G}",
+    "typeLine": "Creature — Eldrazi",
+    "oracleText": "Devoid (This card has no color.)\nWhen you cast this spell, exile target artifact, enchantment, or land.\nReach\n{2}{C}, Sacrifice a land: Return this card from your graveyard to your hand. ({C} represents colorless mana.)",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 7
+    },
+    "keywords": [
+        "DEVOID",
+        "REACH"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "World Breaker:1",
+                "trigger": "CastThisSpellEvent",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Exile"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "artifact|enchantment|land"
+                    },
+                    "id": "t0"
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "World Breaker:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{C}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "land"
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand",
+                    "fromZone": "Graveyard"
+                },
+                "activateFromZone": "Graveyard",
+                "descriptionOverride": "Return World Breaker from your graveyard to your hand"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "126",
+        "rarity": "MYTHIC",
+        "artist": "Jaime Jones",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/0/0020a124-ba76-4d40-84e9-9803268d9f16.jpg?1783937903",
+        "rulings": [
+            {
+                "date": "2016-01-22",
+                "text": "You can activate the last ability only if World Breaker is in your graveyard."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
 }

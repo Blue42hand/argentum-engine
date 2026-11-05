@@ -1,5 +1,6 @@
 package com.wingedsheep.gameserver.protocol
 
+import com.wingedsheep.engine.legalactions.OwnStackStop
 import com.wingedsheep.sdk.core.Step
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.model.PrintingRef
@@ -48,6 +49,12 @@ sealed interface ClientMessage {
          * in-game only by wish effects (Burning Wish, …). Empty for almost every deck.
          */
         val sideboard: Map<String, Int> = emptyMap(),
+        /**
+         * Optional companion (CR 702.139): a card from outside the game this deck reveals, which
+         * may be put into hand for {3} once per game. A sideboard card; added to [sideboard] when
+         * it isn't listed there. The deck validator checks its condition.
+         */
+        val companion: String? = null,
     ) : ClientMessage
 
     /**
@@ -62,6 +69,12 @@ sealed interface ClientMessage {
         val cardEntries: List<DeckEntryDTO>? = null,
         /** Constructed sideboard, card name → count. See [CreateGame.sideboard]. */
         val sideboard: Map<String, Int> = emptyMap(),
+        /**
+         * Optional companion (CR 702.139): a card from outside the game this deck reveals, which
+         * may be put into hand for {3} once per game. A sideboard card; added to [sideboard] when
+         * it isn't listed there. The deck validator checks its condition.
+         */
+        val companion: String? = null,
     ) : ClientMessage
 
     /**
@@ -75,12 +88,23 @@ sealed interface ClientMessage {
         val interactionEpoch: String? = null,
     ) : ClientMessage
 
+    /** Read-only cost calculation for one currently offered cast announcement. */
+    @Serializable
+    @SerialName("requestCastCostQuote")
+    data class RequestCastCostQuote(
+        val requestId: String,
+        val stateVersion: Long,
+        val interactionEpoch: String,
+        val action: GameAction,
+    ) : ClientMessage
+
     /**
-     * Concede the current game.
+     * Concede the current game. During a Magic subgame (CR 729), [subgameOnly] concedes just the
+     * subgame and the main game resumes; otherwise the player concedes the main game too.
      */
     @Serializable
     @SerialName("concede")
-    data object Concede : ClientMessage
+    data class Concede(val subgameOnly: Boolean = false) : ClientMessage
 
     /**
      * Cancel a game that hasn't started yet (waiting for opponent).
@@ -146,11 +170,25 @@ sealed interface ClientMessage {
         /** Optional pinned printing for [commander]. Ignored when [commander] is null. */
         val commanderPrinting: PrintingRef? = null,
         /**
+         * Optional second commander — the other half of a partner pair (CR 702.124). Honoured only
+         * alongside [commander], and, like it, MUST appear in [deckList]. Whether the two may be
+         * paired is the deck validator's call.
+         */
+        val secondCommander: String? = null,
+        /** Optional pinned printing for [secondCommander]. */
+        val secondCommanderPrinting: PrintingRef? = null,
+        /**
          * Constructed sideboard ("outside the game", CR 100.4a), card name → count. Used for
          * constructed/premade lobbies; ignored for Limited lobbies, which derive the sideboard as
          * pool − maindeck server-side (CR 100.4b).
          */
         val sideboard: Map<String, Int> = emptyMap(),
+        /**
+         * Optional companion (CR 702.139): a card from outside the game this deck reveals, which
+         * may be put into hand for {3} once per game. A sideboard card; added to [sideboard] when
+         * it isn't listed there. The deck validator checks its condition.
+         */
+        val companion: String? = null,
     ) : ClientMessage
 
     // =========================================================================
@@ -174,8 +212,11 @@ sealed interface ClientMessage {
         val aiAssistEnabled: Boolean = false,
         /** Lobby mode axis: "TOURNAMENT" (default) or "FREE_FOR_ALL" (one multiplayer game, 2-6 players). */
         val gameMode: String = "TOURNAMENT",
-        /** Free-for-All attack rule (CR 802/803): "MULTIPLE" (default), "LEFT", or "RIGHT". */
-        val attackMode: String = "MULTIPLE",
+        /**
+         * Free-for-All attack rule (CR 802/803): "LEFT", "RIGHT", or "MULTIPLE". Omitted, the lobby
+         * defaults it from its rules — any opponent under Commander, attack left otherwise.
+         */
+        val attackMode: String? = null,
         /**
          * Ranked toggle, defaulting on for a tournament bracket. Only honored for "TOURNAMENT" mode.
          * At start, if not every seat is a signed-in human the game still runs — just unranked.
@@ -187,6 +228,11 @@ sealed interface ClientMessage {
          * defaults to Commander rules.
          */
         val rules: String? = null,
+        /**
+         * Play the lobby's games for ante (CR 407). Ignored (forced off) when the lobby is ranked —
+         * ranked games are never played for ante.
+         */
+        val playingForAnte: Boolean = false,
     ) : ClientMessage
 
     /**
@@ -283,9 +329,15 @@ sealed interface ClientMessage {
     /**
      * Update lobby settings (host only).
      */
+    /** Choose both Jumpstart packs at once: one from the first offers, one from the second. */
+    @Serializable
+    @SerialName("pickJumpstartPacks")
+    data class PickJumpstartPacks(val firstPackId: String, val secondPackId: String) : ClientMessage
+
     @Serializable
     @SerialName("updateLobbySettings")
     data class UpdateLobbySettings(
+        val useJumpstart: Boolean? = null,
         val setCodes: List<String>? = null,
         val format: String? = null,           // "SEALED" / "DRAFT" / "COMMANDER_DRAFT" / "COMMANDER_SEALED" / etc.
         val boosterCount: Int? = null,
@@ -310,6 +362,8 @@ sealed interface ClientMessage {
         val deckSizeMin: Int? = null,
         /** Commander Draft/Sealed only — singleton toggle (default true = duplicates allowed). */
         val allowDuplicates: Boolean? = null,
+        /** Limited pools only — cap decks at 4 copies of any non-basic card (default false). */
+        val limitedCopyLimit: Boolean? = null,
         /** Commander Draft/Sealed only — "BRAWL" or "COMMANDER". */
         val commanderPreset: String? = null,
         /** Toggle Chaos boosters: each pack pulls from the union of selected sets. */
@@ -330,6 +384,16 @@ sealed interface ClientMessage {
         val packSize: Int? = null,
         val cubeBasicLandSetCode: String? = null,
         /**
+         * How the cube becomes packs — a `CubeBoosterStyle` name. Read only alongside [cubeCards];
+         * null means a classic shuffled cube.
+         */
+        val cubeBoosterStyle: String? = null,
+        /**
+         * Card name → rarity (`COMMON`…`MYTHIC`) for cube cards whose rarity in this cube differs from
+         * the card's own. Read only alongside [cubeCards]; what a booster-style cube prints them at.
+         */
+        val cubeRarities: Map<String, String>? = null,
+        /**
          * Cube Pool Play: skip the draft entirely and let every player deckbuild from the whole cube
          * with copies unlimited. Only honoured on a cube Sealed lobby. Null = unchanged.
          */
@@ -347,8 +411,10 @@ sealed interface ClientMessage {
          * sent each time (not a delta). Null leaves the current assignment unchanged.
          */
         val teamAssignments: Map<String, Int>? = null,
-        /** Toggle ranked play (TOURNAMENT mode only). Null = unchanged. */
+        /** Toggle ranked play (TOURNAMENT mode only). Null = unchanged. Turning it on clears [playingForAnte]. */
         val ranked: Boolean? = null,
+        /** Play for ante (CR 407). Null = unchanged. Rejected while the lobby is ranked. */
+        val playingForAnte: Boolean? = null,
     ) : ClientMessage
 
     /**
@@ -464,12 +530,15 @@ sealed interface ClientMessage {
     /**
      * Set per-step stop overrides for the current game.
      * When a stop is set for a step, auto-pass will not skip that step (even if it normally would).
+     * [ownStackStops] keeps priority over the player's own triggers / abilities / spells when they
+     * can respond, instead of auto-passing them (absent from older clients: none).
      */
     @Serializable
     @SerialName("setStopOverrides")
     data class SetStopOverrides(
         val myTurnStops: Set<Step>,
-        val opponentTurnStops: Set<Step>
+        val opponentTurnStops: Set<Step>,
+        val ownStackStops: Set<OwnStackStop> = emptySet()
     ) : ClientMessage
 
     /**
@@ -492,6 +561,15 @@ sealed interface ClientMessage {
         val cardDefinitionId: String,
         val abilityId: String
     ) : ClientMessage
+
+    /**
+     * Whether the player orders their own simultaneous triggered abilities (CR 603.3b). The client
+     * sends its "order my triggers automatically" preference at game start and whenever it changes;
+     * until then the engine orders them automatically.
+     */
+    @Serializable
+    @SerialName("setTriggerOrdering")
+    data class SetTriggerOrdering(val manual: Boolean) : ClientMessage
 
     /** Clear all of the player's yields (the "Clear yields" control; MTGO `5`). */
     @Serializable
@@ -521,6 +599,16 @@ sealed interface ClientMessage {
     @Serializable
     @SerialName("ping")
     data object Ping : ClientMessage
+
+    /**
+     * Which top-level page the client is showing (`home`, `deckbuilder`, `profile`, …), sent on
+     * every client-side route change. Admin-only telemetry for the admin Live overview: the server
+     * already knows when a player is in a game, lobby, or queue, but not when they're editing decks
+     * or reading the help. Never echoed to other players.
+     */
+    @Serializable
+    @SerialName("reportActivity")
+    data class ReportActivity(val page: String) : ClientMessage
 
     // =========================================================================
     // Quick Game Lobby Messages
@@ -561,6 +649,8 @@ sealed interface ClientMessage {
          * Only meaningful when [vsAi] is true.
          */
         val aiControllerSpec: com.wingedsheep.gameserver.ai.AiControllerSpec? = null,
+        /** Play for ante (CR 407). Forced off when the lobby ends up [ranked]. */
+        val playingForAnte: Boolean = false,
     ) : ClientMessage
 
     /**
@@ -617,6 +707,14 @@ sealed interface ClientMessage {
         /** Optional pinned printing for [commander]. Ignored when [commander] is null. */
         val commanderPrinting: PrintingRef? = null,
         /**
+         * Optional second commander — the other half of a partner pair (CR 702.124). Honoured only
+         * alongside [commander], and, like it, MUST appear in [deckList]. Whether the two may be
+         * paired is the deck validator's call.
+         */
+        val secondCommander: String? = null,
+        /** Optional pinned printing for [secondCommander]. */
+        val secondCommanderPrinting: PrintingRef? = null,
+        /**
          * Constructed sideboard ("outside the game", CR 400.11a), card name → count — the cards a
          * wish effect can fetch. Null / empty for a random pool, which has no constructed sideboard
          * (a Limited sideboard is derived from the pool instead; see `SideboardDerivation`).
@@ -624,6 +722,19 @@ sealed interface ClientMessage {
          * Names the card registry doesn't know are dropped on arrival — see `SideboardSanitizer`.
          */
         val sideboard: Map<String, Int>? = null,
+        /**
+         * Optional companion (CR 702.139): a card from outside the game this deck reveals, which
+         * may be put into hand for {3} once per game. A sideboard card; added to [sideboard] when
+         * it isn't listed there. The deck validator checks its condition.
+         */
+        val companion: String? = null,
+        /**
+         * The format the deck was built for — a saved deck's or an example's — as a
+         * [com.wingedsheep.sdk.core.DeckFormat] name. A client claim: kept only when the deck is
+         * legal there, and then what an AI seat on Auto builds its own deck for. A string rather
+         * than the enum so a saved deck's stale or free-form value is dropped, not a decode error.
+         */
+        val deckFormat: String? = null,
     ) : ClientMessage
 
     /** Toggle this player's ready flag. The server starts the game when both players are ready. */
@@ -661,6 +772,14 @@ sealed interface ClientMessage {
     data class SetQuickGameLobbyRanked(val ranked: Boolean) : ClientMessage
 
     /**
+     * Toggle playing for ante (CR 407) in the quick-game lobby (host-only). Rejected while the
+     * lobby is ranked. Turning it off un-readies anyone whose submitted deck holds an ante card.
+     */
+    @Serializable
+    @SerialName("setQuickGameLobbyAnte")
+    data class SetQuickGameLobbyAnte(val playingForAnte: Boolean) : ClientMessage
+
+    /**
      * Set the deck-format restriction for the lobby (host-only). Null = no restriction.
      * Re-validates every player's submitted deck and un-readies anyone who becomes invalid.
      *
@@ -674,4 +793,95 @@ sealed interface ClientMessage {
         val format: com.wingedsheep.sdk.core.DeckFormat?,
         val momirBasic: Boolean = false,
     ) : ClientMessage
+
+    /**
+     * Enter the matchmaking queue for [mode] — and, for a Constructed queue, [format]. [ranked] picks
+     * the ranked queue, which requires a signed-in account and a mode that has one. Joining again
+     * switches queues. A null [mode] (an older client) reads [format] as before: a format is
+     * Constructed, no format the Random deck queue.
+     */
+    @Serializable
+    @SerialName("joinMatchmaking")
+    data class JoinMatchmaking(
+        val mode: com.wingedsheep.gameserver.matchmaking.MatchmakingMode? = null,
+        val format: com.wingedsheep.sdk.core.DeckFormat? = null,
+        val ranked: Boolean = false,
+    ) : ClientMessage
+
+    /** Leave the matchmaking queue; while a match-found prompt is open this declines it. */
+    @Serializable
+    @SerialName("leaveMatchmaking")
+    data object LeaveMatchmaking : ClientMessage
+
+    /** Answer a [ServerMessage.MatchFound] prompt. */
+    @Serializable
+    @SerialName("respondToMatch")
+    data class RespondToMatch(val matchId: String, val accept: Boolean) : ClientMessage
+
+    // =========================================================================
+    // Table talk and after the game
+    // =========================================================================
+
+    /**
+     * Send one of the preset [Emote]s to the table of the game you are seated in. Rate-limited
+     * server-side; free text is deliberately not offered.
+     */
+    @Serializable
+    @SerialName("sendEmote")
+    data class SendEmote(val emote: Emote) : ClientMessage
+
+    /**
+     * After a human 1v1 game: ask for (or, with [want] false, withdraw) a rematch. When both seats
+     * want one, the server starts a new game with the same decks and settings.
+     */
+    @Serializable
+    @SerialName("postGameRematch")
+    data class PostGameRematch(val gameId: String, val want: Boolean = true) : ClientMessage
+
+    /** After a human 1v1 game: send your opponent a friend request, or accept theirs. */
+    @Serializable
+    @SerialName("postGameAddFriend")
+    data class PostGameAddFriend(val gameId: String) : ClientMessage
+
+    /**
+     * After a human 1v1 game: block (or, with [block] false, unblock) your opponent. A blocked player
+     * is never matched with you again, their emotes stop reaching you, and they can't send you a
+     * friend request or a rematch.
+     */
+    @Serializable
+    @SerialName("postGameBlock")
+    data class PostGameBlock(val gameId: String, val block: Boolean = true) : ClientMessage
+
+    /** You left the game-over screen; your opponent's rematch offer to you lapses. */
+    @Serializable
+    @SerialName("postGameLeave")
+    data class PostGameLeave(val gameId: String) : ClientMessage
+}
+
+/**
+ * The preset messages a player can send the table: the handful of things people actually say across a
+ * Magic table, from "good luck, have fun" to "where are my lands?". A closed set on purpose — quick,
+ * friendly, and nothing to moderate. The wording lives on the client; these are only the names.
+ */
+@Serializable
+enum class Emote {
+    // Hello & goodbye
+    HELLO,
+    GOOD_LUCK,
+    GOOD_GAME,
+    THANKS,
+
+    // Reactions
+    WELL_PLAYED,
+    NICE_DECK,
+    NICE_COMBO,
+    NICE_TOPDECK,
+    OUCH,
+    NO_WAY,
+
+    // Table talk
+    THINKING,
+    MY_BAD,
+    MANA_SCREW,
+    TAUNT,
 }

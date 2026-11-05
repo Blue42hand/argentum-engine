@@ -3,6 +3,7 @@ package com.wingedsheep.engine.multiplayer
 import com.wingedsheep.engine.core.GameConfig
 import com.wingedsheep.engine.core.GameInitializer
 import com.wingedsheep.engine.core.PlayerConfig
+import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.mechanics.combat.CombatDefenders
 import com.wingedsheep.engine.mechanics.combat.rules.AttackCheckContext
 import com.wingedsheep.engine.mechanics.combat.rules.AttackModeDefenderRule
@@ -16,6 +17,7 @@ import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.OwnerComponent
 import com.wingedsheep.engine.state.components.player.LossReason
 import com.wingedsheep.engine.state.components.player.PlayerLostComponent
+import com.wingedsheep.engine.view.ClientStateTransformer
 import com.wingedsheep.sdk.core.AttackMode
 import com.wingedsheep.sdk.core.CardType
 import com.wingedsheep.sdk.core.ManaCost
@@ -102,6 +104,30 @@ class AttackModeTest : FunSpec({
         CombatDefenders.legalDefendingPlayers(state, p[0]) shouldBe setOf(p[2])
     }
 
+    test("in a team game LEFT/RIGHT never point at a teammate (CR 803.1a / 803.1b)") {
+        for (mode in listOf(AttackMode.LEFT, AttackMode.RIGHT)) {
+            val deck = Deck(cards = List(40) { "Attack Mode Bear" })
+            val state = GameInitializer(registry()).initializeGame(
+                GameConfig(
+                    players = (1..4).map { PlayerConfig("Player $it", deck, 20) },
+                    skipMulligans = true,
+                    startingPlayerIndex = 0,
+                    attackMode = mode,
+                    teams = listOf(listOf(0, 1), listOf(2, 3))
+                )
+            ).state
+            var blocked = 0
+            for (player in state.turnOrder) {
+                val neighbour = if (mode == AttackMode.LEFT) state.getNextPlayer(player) else state.getPreviousPlayer(player)
+                val expected = if (neighbour in state.getOpponents(player)) setOf(neighbour) else emptySet()
+                CombatDefenders.legalDefendingPlayers(state, player) shouldBe expected
+                if (expected.isEmpty()) blocked++
+            }
+            // Teammates sit side by side, so half the table faces a teammate and can't attack.
+            blocked shouldBe 2
+        }
+    }
+
     test("in a two-player game every mode permits the sole opponent") {
         for (mode in AttackMode.entries) {
             val (state, p) = initGame(2, mode)
@@ -174,5 +200,17 @@ class AttackModeTest : FunSpec({
         ruleFor(state, atk, p[0], p[3]).shouldBeNull()       // D — to the right, allowed
         ruleFor(state, atk, p[0], p[1]).shouldNotBeNull()    // B — rejected
         ruleFor(state, atk, p[0], p[2]).shouldNotBeNull()    // C — rejected
+    }
+
+    test("the client state names a left/right restriction and omits unrestricted attacks") {
+        fun clientMode(mode: AttackMode): AttackMode? {
+            val (state, p) = initGame(4, mode)
+            val registry = registry()
+            return ClientStateTransformer(registry, predicateEvaluator = PredicateEvaluator(cardRegistry = registry))
+                .transform(state, p[0]).attackMode
+        }
+        clientMode(AttackMode.LEFT) shouldBe AttackMode.LEFT
+        clientMode(AttackMode.RIGHT) shouldBe AttackMode.RIGHT
+        clientMode(AttackMode.MULTIPLE).shouldBeNull()
     }
 })

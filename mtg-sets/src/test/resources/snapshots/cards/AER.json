@@ -1,3 +1,61 @@
+// Aerial Modification
+{
+    "name": "Aerial Modification",
+    "manaCost": "{4}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature or Vehicle\nAs long as enchanted permanent is a Vehicle, it's a creature in addition to its other types.\nEnchanted creature gets +2/+2 and has flying.",
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "GrantCardType",
+                    "cardType": "CREATURE",
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "AttachedTo"
+                    }
+                },
+                "condition": {
+                    "type": "EntityMatches",
+                    "entity": "EnchantedPermanent",
+                    "filter": "permanent Vehicle"
+                }
+            },
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 2
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "FLYING"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature|Vehicle"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "UNCOMMON",
+        "artist": "Jung Park",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/8/b89cab47-25fb-49ea-bb43-90a0089b6b20.jpg?1783936786",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "If Aerial Modification becomes unattached from a Vehicle that's attacking or blocking, that Vehicle will be removed from combat unless another effect (such as its crew ability) is also making it a creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Alley Strangler
 {
     "name": "Alley Strangler",
@@ -42,6 +100,209 @@
     ]
 }
 
+// Caught in the Brights
+{
+    "name": "Caught in the Brights",
+    "manaCost": "{2}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature can't attack or block.\nWhen a Vehicle you control attacks, exile enchanted creature.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Caught in the Brights:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "permanent Vehicle ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "EnchantedCreature",
+                    "destination": "Exile"
+                },
+                "descriptionOverride": "When a Vehicle you control attacks, exile enchanted creature."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "CantAttack",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            },
+            {
+                "type": "CantBlock",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "10",
+        "artist": "Kieran Yanner",
+        "flavorText": "While hunting aether, a gremlin may ignore other stimuli, including threats to its own life.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/d/4d5bea27-d825-4691-8ae0-c4831574ec53.jpg?1783936782",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "After the enchanted creature is exiled, Caught in the Brights is put into its owner's graveyard."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "If Caught in the Brights leaves the battlefield in response to its triggered ability, the resolving ability will exile the creature Caught in the Brights was enchanting as it left the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Cogwork Assembler
+{
+    "name": "Cogwork Assembler",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Assembly-Worker",
+    "oracleText": "{7}: Create a token that's a copy of target artifact. That token gains haste. Exile it at the beginning of the next end step.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Cogwork Assembler:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{7}"
+                    }
+                },
+                "effect": {
+                    "type": "CreateTokenCopyOfTarget",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "addedKeywords": [
+                        "HASTE"
+                    ],
+                    "exileAtStep": "END"
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "artifact"
+                        },
+                        "id": "t0"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "145",
+        "rarity": "UNCOMMON",
+        "artist": "Joseph Meehan",
+        "flavorText": "Duplication is neither thievery nor flattery. It is efficiency.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/d/6dddacdd-bbc4-4f9b-be1c-5f2c64be3cbc.jpg?1783936731",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "The token copies exactly what was printed on the original artifact and nothing else (unless that artifact is copying something else or is a token). It doesn't copy whether that artifact is tapped or untapped, whether it has any counters on it or Auras and Equipment attached to it, or any non-copy effects that have changed its power, toughness, types, color, or so on."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "If the copied artifact has {X} in its mana cost, X is considered to be 0."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "Any enters-the-battlefield abilities of the copied artifact will trigger when the token enters the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
+// Destructive Tampering
+{
+    "name": "Destructive Tampering",
+    "manaCost": "{2}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one —\n• Destroy target artifact.\n• Creatures without flying can't block this turn.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "artifact"
+                            },
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Destroy target artifact"
+                },
+                {
+                    "effect": {
+                        "type": "CantBlockGroup",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    {
+                                        "type": "NotKeyword",
+                                        "keyword": "FLYING"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "description": "Creatures without flying can't block this turn"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "78",
+        "artist": "Titus Lunter",
+        "flavorText": "\"I don't think they'll appreciate my . . . adjustments.\"\n—Karavin, renegade saboteur",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/0/00154b70-57d2-4c32-860f-1c36fc49b10c.jpg?1783936756",
+        "rulings": [
+            {
+                "date": "2020-06-23",
+                "text": "Because the effect of Destructive Tampering's second mode doesn't change the characteristics of any permanents, the set of creatures affected by it is constantly updated. Creatures without flying that enter the battlefield later in the turn won't be able to block."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Druid of the Cowl
 {
     "name": "Druid of the Cowl",
@@ -74,6 +335,60 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Efficient Construction
+{
+    "name": "Efficient Construction",
+    "manaCost": "{3}{U}",
+    "typeLine": "Enchantment",
+    "oracleText": "Whenever you cast an artifact spell, create a 1/1 colorless Thopter artifact creature token with flying.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Efficient Construction:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsArtifact"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Thopter"
+                    ],
+                    "keywords": [
+                        "FLYING"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/f/d/fd03a2b9-bfd7-4e1d-b660-e9f945699b78.jpg?1783937238",
+                    "artifactToken": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "33",
+        "rarity": "UNCOMMON",
+        "artist": "Jonas De Ro",
+        "flavorText": "For some of Ghirapur's aerowrights, building thopters is a byproduct of larger construction efforts.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/b/abfbe1d5-beb7-49b8-a504-f1cc47ee4731.jpg?1783936773",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "Efficient Construction's triggered ability resolves before the spell that caused it to trigger. The ability will resolve even if that spell is countered."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -161,6 +476,72 @@
     ]
 }
 
+// Hungry Flames
+{
+    "name": "Hungry Flames",
+    "manaCost": "{2}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Hungry Flames deals 3 damage to target creature and 2 damage to target player or planeswalker.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t1"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            },
+            {
+                "type": "TargetPlayerOrPlaneswalker",
+                "id": "t1"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "84",
+        "rarity": "UNCOMMON",
+        "artist": "Izzy",
+        "flavorText": "In the hold of the *Heart of Kiran*, Chandra answered Dovin Baan's sabotage with an explosive retort.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/c/4ca23676-f36f-4266-ba4f-5e9ebf3adb57.jpg?1783936754",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "You can't cast Hungry Flames unless you target both a creature and a player. If one target is illegal as Hungry Flames resolves, the spell deals damage to the remaining legal target."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Inspiring Statuary
 {
     "name": "Inspiring Statuary",
@@ -236,6 +617,63 @@
     "colorIdentityOverride": []
 }
 
+// Kari Zev, Skyship Raider
+{
+    "name": "Kari Zev, Skyship Raider",
+    "manaCost": "{1}{R}",
+    "typeLine": "Legendary Creature — Human Pirate",
+    "oracleText": "First strike, menace\nWhenever Kari Zev attacks, create Ragavan, a legendary 2/1 red Monkey creature token. Ragavan enters tapped and attacking. Exile that token at end of combat.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "keywords": [
+        "FIRST_STRIKE",
+        "MENACE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Kari Zev, Skyship Raider:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 2,
+                    "toughness": 1,
+                    "colors": [
+                        "RED"
+                    ],
+                    "creatureTypes": [
+                        "Monkey"
+                    ],
+                    "name": "Ragavan",
+                    "imageUri": "https://cards.scryfall.io/normal/front/1/e/1ebc91a9-23e0-4ca1-bc6d-e710ad2efb31.jpg?1783936712",
+                    "tapped": true,
+                    "attacking": true,
+                    "legendary": true,
+                    "exileAtStep": "END_COMBAT"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "87",
+        "rarity": "RARE",
+        "artist": "Brad Rigney",
+        "flavorText": "Aboard her ship, the *Dragon's Smile*, Kari follows no one's rules but her own.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/72495879-39ce-449d-ad2f-ef32ea46f3aa.jpg?1783936752",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "The delayed triggered ability that exiles Ragavan triggers at end of combat even if Kari Zev is no longer on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Lathnu Sailback
 {
     "name": "Lathnu Sailback",
@@ -253,6 +691,60 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Leave in the Dust
+{
+    "name": "Leave in the Dust",
+    "manaCost": "{3}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Return target nonland permanent to its owner's hand.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "nonland permanent"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "37",
+        "artist": "Vincent Proce",
+        "flavorText": "The daredevil racers of the Derby Crows, long at odds with the Consulate, were quick to join the renegades in open revolt.",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/c/3c01bd77-beb0-4a26-858d-022311e550bf.jpg?1783936771",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "If the target permanent becomes an illegal target, Leave in the Dust doesn’t resolve and none of its effects happen. You won’t draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -471,6 +963,86 @@
     "colorIdentityOverride": []
 }
 
+// Peacewalker Colossus
+{
+    "name": "Peacewalker Colossus",
+    "manaCost": "{3}",
+    "typeLine": "Artifact — Vehicle",
+    "oracleText": "{1}{W}: Another target Vehicle you control becomes an artifact creature until end of turn.\nCrew 4 (Tap any number of creatures you control with total power 4 or more: This Vehicle becomes an artifact creature until end of turn.)",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "CREW"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Numeric",
+            "keyword": "CREW",
+            "n": 4
+        }
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Peacewalker Colossus:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{W}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCardType",
+                            "cardType": "Artifact",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "EndOfTurn"
+                        },
+                        {
+                            "type": "AddCardType",
+                            "cardType": "Creature",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            },
+                            "duration": "EndOfTurn"
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent Vehicle ctrl:you",
+                            "excludeSelf": true
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "Another target Vehicle you control becomes an artifact creature until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "170",
+        "rarity": "RARE",
+        "artist": "Vincent Proce",
+        "flavorText": "\"Peace? Its sole purpose is fear.\"\n—Saheeli Rai",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/5/1599b545-6b8e-4350-980a-59349374400d.jpg?1783936720"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Pendulum of Patterns
 {
     "name": "Pendulum of Patterns",
@@ -550,6 +1122,249 @@
     "colorIdentityOverride": []
 }
 
+// Rishkar, Peema Renegade
+{
+    "name": "Rishkar, Peema Renegade",
+    "manaCost": "{2}{G}",
+    "typeLine": "Legendary Creature — Elf Druid",
+    "oracleText": "When Rishkar enters, put a +1/+1 counter on each of up to two target creatures.\nEach creature you control with a counter on it has \"{T}: Add {G}.\"",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Rishkar, Peema Renegade:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 1,
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        }
+                    }
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "count": 2,
+                    "optional": true,
+                    "filter": {
+                        "baseFilter": "creature"
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "When Rishkar enters, put a +1/+1 counter on each of up to two target creatures."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantActivatedAbility",
+                "ability": {
+                    "id": "Rishkar, Peema Renegade:2",
+                    "cost": "CostTap",
+                    "effect": {
+                        "type": "AddMana",
+                        "color": "GREEN"
+                    },
+                    "timing": "ManaAbility",
+                    "isManaAbility": true,
+                    "descriptionOverride": "{T}: Add {G}."
+                },
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            "HasAnyCounter"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "122",
+        "rarity": "RARE",
+        "artist": "Todd Lockwood",
+        "flavorText": "\"Aether is the soul of Kaladesh, and all souls should be free.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7cff0dc6-5455-4dea-940b-dff7fe88dc5d.jpg?1783936739"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Scrap Trawler
+{
+    "name": "Scrap Trawler",
+    "manaCost": "{3}",
+    "typeLine": "Artifact Creature — Construct",
+    "oracleText": "Whenever this creature dies or another artifact you control is put into a graveyard from the battlefield, return to your hand target artifact card in your graveyard with lesser mana value.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Scrap Trawler:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "artifact ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsArtifact",
+                                {
+                                    "type": "ManaValueAtMostDynamic",
+                                    "amount": {
+                                        "type": "Subtract",
+                                        "left": {
+                                            "type": "EntityProperty",
+                                            "entity": "TriggeringEntity",
+                                            "numericProperty": "ManaValue"
+                                        },
+                                        "right": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
+                                    }
+                                }
+                            ],
+                            "controllerPredicate": "OwnedByYou"
+                        },
+                        "zone": "Graveyard"
+                    },
+                    "id": "t0"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "175",
+        "rarity": "RARE",
+        "artist": "Daarken",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/8/68abc75f-596f-4169-96fc-ada941ef47ed.jpg?1783936719",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "If Scrap Trawler and another artifact you control are put into a graveyard at the same time, Scrap Trawler's ability triggers for each of them."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "The target artifact card must have a lesser mana value than the artifact that caused Scrap Trawler's ability to trigger by being put into a graveyard. Use the artifact's mana value as it last existed on the battlefield to determine what may be returned."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
+// Scrounging Bandar
+{
+    "name": "Scrounging Bandar",
+    "manaCost": "{1}{G}",
+    "typeLine": "Creature — Cat Monkey",
+    "oracleText": "This creature enters with two +1/+1 counters on it.\nAt the beginning of your upkeep, you may move any number of +1/+1 counters from this creature onto another target creature.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Scrounging Bandar:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ChooseNumberThen",
+                    "then": {
+                        "type": "MoveCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "amount": "XValue",
+                        "source": "Self",
+                        "destination": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "maxValue": {
+                        "type": "EntityProperty",
+                        "entity": "Self",
+                        "numericProperty": {
+                            "type": "CounterCount",
+                            "counterType": "PLUS_ONE_PLUS_ONE"
+                        }
+                    },
+                    "prompt": "Move how many +1/+1 counters from Scrounging Bandar?"
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature",
+                        "excludeSelf": true
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "At the beginning of your upkeep, you may move any number of +1/+1 counters from this creature onto another target creature."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 2,
+                "selfOnly": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "124",
+        "artist": "Shreya Shetty",
+        "flavorText": "\"It was right here a second ago . . .\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/6/761a11a7-175d-440d-b09d-918572c8e5d3.jpg?1783936737",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "You choose a target creature as Scrounging Bandar's triggered ability is put onto the stack. You choose how many counters to move (if any) as that ability resolves. If that creature becomes an illegal target or if Scrounging Bandar has left the battlefield, you can't move any counters."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "To move a counter from one creature to another, the counter is removed from the first creature and put onto the second. Any abilities that care about a counter being removed from or placed on a creature will apply."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Spire of Industry
 {
     "name": "Spire of Industry",
@@ -581,7 +1396,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -611,6 +1429,161 @@
         "imageUri": "https://cards.scryfall.io/normal/front/8/3/8331724d-6fab-454a-b06c-b06e499fa552.jpg?1783936719"
     },
     "colorIdentityOverride": []
+}
+
+// Sram, Senior Edificer
+{
+    "name": "Sram, Senior Edificer",
+    "manaCost": "{1}{W}",
+    "typeLine": "Legendary Creature — Dwarf Advisor",
+    "oracleText": "Whenever you cast an Aura, Equipment, or Vehicle spell, draw a card.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sram, Senior Edificer:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            {
+                                "type": "Or",
+                                "predicates": [
+                                    {
+                                        "type": "Or",
+                                        "predicates": [
+                                            {
+                                                "type": "HasSubtype",
+                                                "subtype": "Aura"
+                                            },
+                                            {
+                                                "type": "HasSubtype",
+                                                "subtype": "Equipment"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "HasSubtype",
+                                        "subtype": "Vehicle"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "23",
+        "rarity": "RARE",
+        "artist": "Chris Rahn",
+        "flavorText": "\"As this conflict grows, it gets harder to prevent the city from breaking down. How much longer can we keep this machinery balanced?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/b/1b323e2c-59dd-4d70-9a48-b10f807bb818.jpg?1783936777",
+        "rulings": [
+            {
+                "date": "2025-06-06",
+                "text": "Sram's ability resolves before the spell that caused it to trigger. It resolves even if that spell is countered or otherwise leaves the stack."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Trophy Mage
+{
+    "name": "Trophy Mage",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Human Wizard",
+    "oracleText": "When this creature enters, you may search your library for an artifact card with mana value 3, reveal it, put it into your hand, then shuffle.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Trophy Mage:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "artifact mv=3"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found",
+                                "prompt": "Search your library for an artifact card with mana value 3 to put into your hand",
+                                "selectedLabel": "Put into your hand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Hand"
+                                },
+                                "revealed": true
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent"
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "UNCOMMON",
+        "artist": "Anna Steinbauer",
+        "flavorText": "\"The tools of the past will help us forge the future.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/9/19754fe4-2f61-42a3-afa2-3a6a8257b81b.jpg?1783936768",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "Trophy Mage's ability finds an artifact card with mana value exactly 3."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // Universal Solvent
@@ -737,6 +1710,163 @@
         "artist": "Daniel Ljunggren",
         "imageUri": "https://cards.scryfall.io/normal/front/3/2/329a8738-3e17-403a-857a-0ba529ce8cd1.jpg?1783936718"
     }
+}
+
+// Whir of Invention
+{
+    "name": "Whir of Invention",
+    "manaCost": "{X}{U}{U}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Improvise (Your artifacts can help cast this spell. Each artifact you tap after you're done activating mana abilities pays for {1}.)\nSearch your library for an artifact card with mana value X or less, put it onto the battlefield, then shuffle.",
+    "keywords": [
+        "IMPROVISE"
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsArtifact",
+                                {
+                                    "type": "CompareNumericProperty",
+                                    "property": "MANA_VALUE",
+                                    "operator": "LTE",
+                                    "amount": "XValue"
+                                }
+                            ]
+                        }
+                    },
+                    "storeAs": "searchable",
+                    "search": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found",
+                    "prompt": "Search your library for an artifact card with mana value at most X to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "rarity": "RARE",
+        "artist": "Christine Choi",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/0279fd3c-9252-4958-9d7a-5f33aa25907e.jpg?1783936767",
+        "rulings": [
+            {
+                "date": "2017-02-09",
+                "text": "When using improvise to cast a spell with {X} in its mana cost, first choose the value for X. That choice, plus any cost increases or decreases, will determine the spell's total cost. Then you can tap artifacts you control to help pay that cost. For example, if you cast Whir of Invention (a spell with improvise and mana cost {X}{U}{U}{U}) and choose X to be 3, the total cost is {3}{U}{U}{U}. If you tap two artifacts, you'll have to pay {1}{U}{U}{U}."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "Improvise can't pay for {W}, {U}, {B}, {R}, {G}, or {C} mana symbols in a spell's total cost."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "Improvise doesn't change a spell's mana cost or mana value."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Winding Constrictor
+{
+    "name": "Winding Constrictor",
+    "manaCost": "{B}{G}",
+    "typeLine": "Creature — Snake",
+    "oracleText": "If one or more counters would be put on an artifact or creature you control, that many plus one of each of those kinds of counters are put on that permanent instead.\nIf you would get one or more counters, you get that many plus one of each of those kinds of counters instead.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 3
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "ModifyCounterPlacement",
+                "appliesTo": {
+                    "type": "CounterPlacementEvent",
+                    "recipient": {
+                        "type": "RecipientObject",
+                        "filter": "artifact|creature ctrl:you"
+                    }
+                }
+            },
+            {
+                "type": "ModifyCounterPlacement",
+                "appliesTo": {
+                    "type": "CounterPlacementEvent",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "You"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "140",
+        "rarity": "UNCOMMON",
+        "artist": "Izzy",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/0/107c8aa8-c8f8-4cbf-821b-bd2cb33354f0.jpg?1783936732",
+        "rulings": [
+            {
+                "date": "2017-09-29",
+                "text": "If a nonartifact, noncreature permanent (such as a planeswalker) would enter the battlefield with counters on it and become an artifact or a creature on the battlefield due to another card's effect (such as that of Mycosynth Lattice), Winding Constrictor's effect will give that permanent another of those counters."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "If an artifact or creature you control would enter the battlefield with a number of any kind of counters on it, it enters with that many plus one instead."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "If an effect includes multiple instructions to put one or more counters on an artifact or creature, such as Lifecrafter's Gift does, Winding Constrictor's effect applies to each of those instructions."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "If you control two Winding Constrictors, the number of counters placed on the artifact or creature is the original number plus two. Three Winding Constrictors adds three to the original number, and so on."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "If you would get counters of multiple kinds at the same time, Winding Constrictor increases the number of each of those kinds of counters by one. The same is true if counters of multiple kinds would be placed on an artifact or creature you control."
+            },
+            {
+                "date": "2017-02-09",
+                "text": "Winding Constrictor's effect can't apply to itself as it's entering the battlefield or to any other permanent entering the battlefield at the same time as it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "GREEN"
+    ]
 }
 
 // Yahenni, Undying Partisan

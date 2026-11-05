@@ -1,30 +1,59 @@
 package com.wingedsheep.mtg.sets.definitions.m20.cards
 
-import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.*
+import com.wingedsheep.sdk.core.Keyword
+import com.wingedsheep.sdk.core.ManaCost
+import com.wingedsheep.sdk.dsl.Costs
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.*
-import com.wingedsheep.sdk.scripting.effects.*
-import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.filters.unified.*
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.*
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.GrantKeyword
+import com.wingedsheep.sdk.scripting.SelfAlternativeCost
+import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 
+/**
+ * Sephara, Sky's Blade — Core Set 2020 #36 (canonical printing)
+ * {4}{W}{W}{W} · Legendary Creature — Angel 7/7
+ *
+ * You may pay {W} and tap four untapped creatures you control with flying rather than pay this
+ * spell's mana cost.
+ * Flying, lifelink
+ * Other creatures you control with flying have indestructible.
+ *
+ * The alternative cost is Zahid's shape: a `{W}` [SelfAlternativeCost] plus a tap-four additional
+ * cost over flying creatures. Summoning-sick flyers may be tapped for it (ruling) — it isn't `{T}`.
+ */
 val SepharaSkysBlade = card("Sephara, Sky's Blade") {
     manaCost = "{4}{W}{W}{W}"
     colorIdentity = "W"
     typeLine = "Legendary Creature — Angel"
-    oracleText = "You may pay {W} and tap four untapped creatures you control with flying rather than pay this spell's mana cost.\nFlying, lifelink\nOther creatures you control with flying have indestructible. (Damage and effects that say \"destroy\" don't destroy them.)"
     power = 7
     toughness = 7
+    oracleText = "You may pay {W} and tap four untapped creatures you control with flying rather than pay " +
+        "this spell's mana cost.\n" +
+        "Flying, lifelink\n" +
+        "Other creatures you control with flying have indestructible. (Damage and effects that say " +
+        "\"destroy\" don't destroy them.)"
 
-    keywords(Keyword.FLYING, Keyword.LIFELINK)
     selfAlternativeCost = SelfAlternativeCost(
         manaCost = ManaCost.parse("{W}"),
-        additionalCosts = listOf(Costs.additional.TapPermanents(count = 4, filter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING)))
+        additionalCosts = listOf(
+            Costs.additional.TapPermanents(
+                count = 4,
+                filter = GameObjectFilter.Creature.withKeyword(Keyword.FLYING)
+            )
+        )
     )
+
+    keywords(Keyword.FLYING, Keyword.LIFELINK)
+
     staticAbility {
-        ability = GrantKeyword(Keyword.INDESTRUCTIBLE, filter = GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING).youControl(), excludeSelf = true))
+        ability = GrantKeyword(
+            keyword = Keyword.INDESTRUCTIBLE,
+            filter = GroupFilter(
+                GameObjectFilter.Creature.withKeyword(Keyword.FLYING).youControl(),
+                excludeSelf = true
+            )
+        )
     }
 
     metadata {

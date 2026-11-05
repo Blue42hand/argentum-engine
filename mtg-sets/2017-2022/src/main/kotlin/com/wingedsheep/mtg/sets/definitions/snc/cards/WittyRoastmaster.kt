@@ -1,12 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.snc.cards
 
-import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.TriggerBinding
-import com.wingedsheep.sdk.scripting.effects.DealDamageEffect
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
@@ -14,8 +12,12 @@ import com.wingedsheep.sdk.scripting.targets.EffectTarget
  * Witty Roastmaster
  * {2}{R}
  * Creature — Devil Citizen
- * 3/2
- * Alliance — Whenever another creature you control enters, this creature deals 1 damage to each opponent.
+ * 3 / 2
+ * Alliance — Whenever another creature you control enters, this creature deals 1 damage to each
+ * opponent.
+ *
+ * "Alliance" is a pure ability word: the trigger is the plain OTHER-bound enters trigger over
+ * creatures you control.
  */
 val WittyRoastmaster = card("Witty Roastmaster") {
     manaCost = "{2}{R}"
@@ -28,6 +30,7 @@ val WittyRoastmaster = card("Witty Roastmaster") {
     triggeredAbility {
         trigger = Triggers.another(GameObjectFilter.Creature.youControl()).enters()
         effect = Effects.DealDamage(1, EffectTarget.PlayerRef(Player.EachOpponent))
+        description = "Alliance — Whenever another creature you control enters, this creature deals 1 damage to each opponent."
     }
 
     metadata {

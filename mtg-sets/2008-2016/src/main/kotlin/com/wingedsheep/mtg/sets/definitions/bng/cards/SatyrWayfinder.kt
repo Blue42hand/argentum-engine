@@ -1,46 +1,45 @@
 package com.wingedsheep.mtg.sets.definitions.bng.cards
 
-import com.wingedsheep.sdk.dsl.Effects
-import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.dsl.DynamicAmounts
+import com.wingedsheep.sdk.dsl.Patterns
+import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
-import com.wingedsheep.sdk.scripting.effects.CardSource
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
+import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.effects.CardOrder
 
-/** Satyr Wayfinder — Born of the Gods #136. */
+/**
+ * Satyr Wayfinder
+ * {1}{G}
+ * Creature — Satyr
+ * 1/1
+ *
+ * When this creature enters, reveal the top four cards of your library. You may put a land card
+ * from among them into your hand. Put the rest into your graveyard.
+ *
+ * Canonical printing: Born of the Gods, the card's earliest real printing.
+ */
 val SatyrWayfinder = card("Satyr Wayfinder") {
     manaCost = "{1}{G}"
     colorIdentity = "G"
     typeLine = "Creature — Satyr"
     power = 1
     toughness = 1
-    oracleText = "When this creature enters, reveal the top four cards of your library. You may " +
-        "put a land card from among them into your hand. Put the rest into your graveyard."
+    oracleText = "When this creature enters, reveal the top four cards of your library. You may put a land card " +
+        "from among them into your hand. Put the rest into your graveyard."
 
     triggeredAbility {
         trigger = Triggers.self.enters()
-        effect = Effects.Pipeline {
-            val revealed = gather(
-                CardSource.TopOfLibrary(DynamicAmounts.fixed(4)),
-                revealed = true,
-                name = "revealed",
-            )
-            val (land, rest) = chooseUpToSplit(
-                1,
-                from = revealed,
-                filter = GameObjectFilter.Land,
-                prompt = "You may put a land card into your hand",
-                selectedLabel = "Put in hand",
-                remainderLabel = "Put into graveyard",
-                showAllCards = true,
-                name = "land",
-                remainderName = "rest",
-            )
-            toHand(land)
-            toGraveyard(rest)
-        }
+        effect = Patterns.Library.lookAtTopAndTakeMatching(
+            count = DynamicAmounts.fixed(4),
+            filter = GameObjectFilter.Land,
+            prompt = "You may put a land card from among them into your hand",
+            revealed = true,
+            restDestination = CardDestination.ToZone(Zone.GRAVEYARD),
+            restOrder = CardOrder.Preserve,
+        )
     }
 
     metadata {

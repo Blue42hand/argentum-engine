@@ -3,14 +3,26 @@ package com.wingedsheep.mtg.sets.definitions.eld.cards
 import com.wingedsheep.sdk.core.Subtype
 import com.wingedsheep.sdk.dsl.DynamicAmounts
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
-/** Return of the Wildspeaker — Throne of Eldraine #172. */
+/**
+ * Return of the Wildspeaker — Throne of Eldraine #172
+ * {4}{G} · Instant
+ *
+ * Choose one —
+ * • Draw cards equal to the greatest power among non-Human creatures you control.
+ * • Non-Human creatures you control get +3/+3 until end of turn.
+ *
+ * Mode one reads the greatest power at resolution (Bouncer's Beatdown's `maxPower()` over a
+ * battlefield count, here narrowed to non-Humans); mode two is a group pump.
+ */
+private val nonHumanCreatures = GameObjectFilter.Creature.notSubtype(Subtype("Human"))
+
 val ReturnOfTheWildspeaker = card("Return of the Wildspeaker") {
     manaCost = "{4}{G}"
     colorIdentity = "G"
@@ -23,17 +35,11 @@ val ReturnOfTheWildspeaker = card("Return of the Wildspeaker") {
         modal(chooseCount = 1) {
             mode("Draw cards equal to the greatest power among non-Human creatures you control") {
                 effect = Effects.DrawCards(
-                    DynamicAmounts.battlefield(
-                        Player.You,
-                        GameObjectFilter.Creature.notSubtype(Subtype.HUMAN)
-                    ).maxPower()
+                    DynamicAmounts.battlefield(Player.You, nonHumanCreatures).maxPower()
                 )
             }
             mode("Non-Human creatures you control get +3/+3 until end of turn") {
-                effect = Effects.ForEachInGroup(
-                    filter = GroupFilter(GameObjectFilter.Creature.notSubtype(Subtype.HUMAN).youControl()),
-                    effect = Effects.ModifyStats(3, 3, EffectTarget.IterationEntity)
-                )
+                effect = Patterns.Group.modifyStatsForAll(3, 3, GroupFilter(nonHumanCreatures.youControl()))
             }
         }
     }

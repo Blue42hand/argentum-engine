@@ -29,6 +29,10 @@ import kotlinx.serialization.Serializable
  *   Disaster's "If they do, you create a Lander token"). The rider runs with
  *   [controllerId] as its controller — i.e. the controller of the counter effect, who
  *   is "you" in the rider text — not the spell's controller who paid.
+ * @property deferCounter True when this question is one object of a
+ *   [CounterEachUnlessPaysContinuation] batch: an unpaid object is recorded on that frame
+ *   (directly beneath this question) instead of being countered now, so the batch counters
+ *   every unpaid object at the same time once all controllers have decided.
  */
 @Serializable
 data class CounterUnlessPaysContinuation(
@@ -41,7 +45,35 @@ data class CounterUnlessPaysContinuation(
     val controllerId: EntityId? = null,
     val onPaid: Effect? = null,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
+    val deferCounter: Boolean = false,
 ) : AnswerContinuation
+
+/**
+ * The rest of a stack-wide "for each spell and ability … counter it unless its controller pays"
+ * ([com.wingedsheep.sdk.scripting.effects.CounterTargetSource.EachOnStack], Whirlwind Denial).
+ *
+ * Sits beneath each object's [CounterUnlessPaysContinuation] question (`deferCounter = true`).
+ * When resumed it asks about the next object in [remaining] — already sorted by controller in
+ * APNAP order — and once none are left it counters every object in [unpaid] together, so no
+ * object is countered before every controller has chosen and paid.
+ *
+ * @property remaining Stack objects still to ask about, in asking order
+ * @property unpaid Objects whose controller declined or couldn't pay
+ * @property target Which kind of stack object is being countered (dispatches spell vs ability)
+ * @property controllerId The controller of the counter effect (the counterer)
+ */
+@Serializable
+data class CounterEachUnlessPaysContinuation(
+    val remaining: List<EntityId>,
+    val unpaid: List<EntityId>,
+    val manaCost: ManaCost,
+    val target: com.wingedsheep.sdk.scripting.effects.CounterTarget,
+    val counterDestination: CounterDestination,
+    val controllerId: EntityId,
+    val sourceId: EntityId?,
+    val sourceName: String?,
+) : AutomaticContinuation
 
 /**
  * Resume after the controller decides whether to pay a mana cost for an optional
@@ -106,27 +138,39 @@ data class MayPayManaSelectionContinuation(
 ) : AnswerContinuation
 
 /**
- * Resume after the controller chooses an X value for "you may pay {X}" effects.
- * The player selects a number (0 to max affordable), and if > 0, we pay that mana
- * and execute the inner effect with the chosen X value.
+ * Resume a "you may pay {X}" gate ([com.wingedsheep.sdk.scripting.effects.Gate.MayPayX]) — two
+ * answers on one continuation. The first is the yes/no "Pay {X}?": no runs [otherwise]; yes asks
+ * for X from 0 to the most generic mana the payer can produce (re-pushing this continuation with
+ * [maxX] set), or pays X = 0 outright when they can produce none. The second is that number: X is
+ * auto-tapped and [effect] runs with X bound. X = 0 is a payment, not a decline (Isareth the
+ * Awakener returns a mana value 0 creature card).
  *
  * Example: Decree of Justice cycling trigger - "you may pay {X}. If you do,
  * create X 1/1 white Soldier creature tokens."
+ *
+ * @property additionalManaCost The gate's fixed part ("{R}" of "{X}{R}"), paid together with X — so
+ *   the ceiling is the largest X the payer can afford *on top of* it, and X = 0 still pays it.
+ * @property maxX Null while the yes/no is pending; the offered ceiling once the number is asked.
+ * @property decisionContext The context both prompts show (source, resolution phase); null only
+ *   on a continuation saved before it was recorded.
  */
 @Serializable
 data class MayPayXContinuation(
     val playerId: EntityId,
     val sourceName: String?,
+    val additionalManaCost: ManaCost = ManaCost.ZERO,
     val effect: Effect,
-    val maxX: Int,
+    val otherwise: Effect? = null,
+    val maxX: Int? = null,
+    val decisionContext: DecisionContext? = null,
     val effectContext: EffectContext
 ) : AnswerContinuation
 
 /**
  * Resume after the payer names how much life to pay for a "you may pay any amount of life" gate
  * ([com.wingedsheep.sdk.scripting.effects.Gate.MayPayAnyAmountOfLife], Necrodominance). The life
- * twin of [MayPayXContinuation]: X > 0 is paid and [effect] runs with X bound; 0 declines and runs
- * [otherwise], as does a payment that can no longer be made.
+ * counterpart of [MayPayXContinuation], but a single number prompt: X > 0 is paid and [effect]
+ * runs with X bound; 0 declines and runs [otherwise], as does a payment that can no longer be made.
  *
  * @property maxX The payable ceiling that was offered, re-checked on resume.
  */
@@ -220,6 +264,9 @@ data class CounterUnlessPaysManaSelectionContinuation(
      */
     val waterbend: Boolean = false,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null,
+    /** See [CounterUnlessPaysContinuation.deferCounter]. */
+    val deferCounter: Boolean = false,
 ) : AnswerContinuation
 
 /**
@@ -367,7 +414,8 @@ data class CounterUnlessCollectEvidenceContinuation(
  * No  → counter the spell.
  *
  * There is no can-pay re-check on resume, unlike the life / discard / sacrifice continuations: a
- * player can always get counters, so this cost never becomes unpayable between prompt and response.
+ * payer who can't get counters is countered before the prompt, and nothing between prompt and
+ * response can lock them, so this cost never becomes unpayable in between.
  *
  * Ward is the only producer of this frame, and a ward never counters to exile, so unlike its
  * siblings it carries no `exileOnCounter`.
@@ -447,42 +495,36 @@ data class ManaSourceOption(
 
 /**
  * Resume after the player picks which permanent to tap to satisfy the secondary
- * tap-permanents sub-cost of a mana ability selected during ward payment
- * (e.g. Springleaf Drum's "Tap an untapped creature you control").
+ * tap-permanents sub-cost of a mana source they hand-picked during a mana payment
+ * (Springleaf Drum's "Tap an untapped creature you control", Gene Pollinator's
+ * "Tap an untapped permanent you control").
  *
  * Pushed by [com.wingedsheep.engine.handlers.continuations.ManaPaymentContinuationResumer]
- * when the player's manual ward-payment selection contains one or more sources with
- * [ManaSourceOption.requiresTappingAnotherPermanent]. The resumer pre-tapped any
- * non-sub-cost sources before pushing this, so [currentPool]-style state already lives
- * on the player's mana pool component.
+ * when a manual selection contains one or more sources with
+ * [ManaSourceOption.requiresTappingAnotherPermanent]. The resumer already tapped the selection's
+ * other sources and floated their mana in the payer's pool before pushing this.
  *
- * Head of [pendingSubCostSources] is the source the current prompt is targeting; on
- * response, that source is tapped, the chosen creature is tapped, and its mana is added
- * to the pool. If more sub-cost sources remain, a new prompt is pushed; otherwise we
- * attempt to pay the ward cost and either resolve the spell or counter it.
+ * Head of [pendingSubCostSources] is the source the current prompt is for; on response, that
+ * source and the chosen permanent(s) are tapped and the source's mana is floated. When no
+ * sub-cost sources remain, [resume] — the payment-selection continuation that raised the
+ * prompt (ward / counter-unless, "you may pay", a targeted may-pay trigger) — is re-entered
+ * with an empty confirmation, so it spends the floated mana exactly as if the player had
+ * activated those mana abilities inside the payment window (CR 605.3a).
  */
 @Serializable
-data class WardTapPermanentsSubCostContinuation(
+data class TapPermanentsSubCostContinuation(
     val payingPlayerId: EntityId,
-    val spellEntityId: EntityId,
-    val manaCost: com.wingedsheep.sdk.core.ManaCost,
-    val counterDestination: CounterDestination,
-    val controllerId: EntityId?,
     /** Source IDs still to process. Head is the one the current prompt is for. */
     val pendingSubCostSources: List<EntityId>,
-    /** Original mana-source menu, kept for source-name lookups when emitting events. */
+    /** Original mana-source menu, kept for source-name and produced-mana lookups. */
     val availableSources: List<ManaSourceOption>,
-    /** See [CounterUnlessPaysContinuation.onPaid]. Carried so the rider fires after the
-     *  spell's controller finishes paying through a tap-permanents sub-cost source. */
-    val onPaid: Effect? = null,
-    /** See [CounterUnlessPaysContinuation.sourceId]. Carried for the rider's [EffectContext]. */
-    val sourceId: EntityId? = null,
-    /** See [CounterUnlessPaysManaSelectionContinuation.remainingWardParts] — the not-yet-paid
-     *  components of an enclosing composite ward cost, charged once this mana part is fully paid. */
-    val remainingWardParts: List<WardCost> = emptyList(),
-    /** See [CounterUnlessPaysManaSelectionContinuation.wardSourceId]. */
-    val wardSourceId: EntityId? = null,
-    val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    /**
+     * The payment-selection continuation to finish the payment with once every sub-cost is
+     * paid: a [CounterUnlessPaysManaSelectionContinuation], [MayPayManaSelectionContinuation]
+     * or [ManaSourceSelectionContinuation], with any waterbend reduction already applied to
+     * its cost.
+     */
+    val resume: AnswerContinuation,
 ) : AnswerContinuation
 
 /**
@@ -507,7 +549,10 @@ data class AddDynamicManaContinuation(
     val firstColor: Color,
     val secondColor: Color,
     val restriction: ManaRestriction? = null,
+    val expiry: com.wingedsheep.sdk.scripting.effects.ManaExpiry = com.wingedsheep.sdk.scripting.effects.ManaExpiry.END_OF_TURN,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    /** Mana each chosen unit becomes — see [com.wingedsheep.engine.handlers.EffectContext.manaUnitMultiplier]. */
+    val unitMultiplier: Int = 1,
 ) : AnswerContinuation
 
 /**
@@ -520,6 +565,7 @@ data class AddDynamicManaContinuation(
  *   (decrements by 1 per resume; the loop ends when this reaches 0)
  * @property allowedColors The palette the player chooses from for each pip
  * @property restriction Optional restriction stamped onto every pip added to the pool
+ * @property expiry When every pip added to the pool expires
  */
 @Serializable
 data class AddManaPipsContinuation(
@@ -529,7 +575,15 @@ data class AddManaPipsContinuation(
     val remainingPips: Int,
     val allowedColors: Set<Color>,
     val restriction: ManaRestriction? = null,
+    val expiry: com.wingedsheep.sdk.scripting.effects.ManaExpiry = com.wingedsheep.sdk.scripting.effects.ManaExpiry.END_OF_TURN,
     val objectReferences: com.wingedsheep.engine.handlers.ObjectReferenceEnvironment = com.wingedsheep.engine.handlers.ObjectReferenceEnvironment(),
+    /** Mana each chosen pip becomes — see [com.wingedsheep.engine.handlers.EffectContext.manaUnitMultiplier]. */
+    val unitMultiplier: Int = 1,
+    /**
+     * "Add two mana of different colors": each chosen color leaves [allowedColors] for the next
+     * pip — see [com.wingedsheep.sdk.scripting.effects.AddDynamicManaEffect.differentColors].
+     */
+    val differentColors: Boolean = false,
 ) : AnswerContinuation
 
 /**
@@ -545,3 +599,15 @@ data class AddManaPipsContinuation(
 data class ReopenManaPaymentDecisionContinuation(
     val suspension: Suspension
 ) : AutomaticContinuation
+
+/**
+ * Resume after the controller of [source] picks which of its mana abilities to activate for an
+ * instructed activation ([com.wingedsheep.sdk.scripting.effects.ActivateManaAbilityEffect]).
+ * [options] are the activatable abilities, aligned with the decision's options.
+ */
+@Serializable
+data class ActivateManaAbilityChoiceContinuation(
+    val playerId: EntityId,
+    val source: com.wingedsheep.engine.state.ObjectRef,
+    val options: List<ActivateAbility>,
+) : AnswerContinuation

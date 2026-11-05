@@ -12,4 +12,5 @@ val ProfessionalFaceBreakerReprint = Printing(
     imageUri = "https://cards.scryfall.io/normal/front/d/5/d5a53791-d4e9-49e9-9daf-c8b378925afe.jpg?1783906267",
     releaseDate = "2025-06-13",
     rarity = Rarity.RARE,
+    scryfallId = "d5a53791-d4e9-49e9-9daf-c8b378925afe",
 )

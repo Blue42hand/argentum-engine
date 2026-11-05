@@ -2,6 +2,7 @@ package com.wingedsheep.gym.server.config
 
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.mtg.sets.MtgSetCatalog
+import com.wingedsheep.mtg.sets.basicLandsFallback
 import com.wingedsheep.mtg.sets.tokens.PredefinedTokens
 import com.wingedsheep.sdk.model.CardDefinition
 

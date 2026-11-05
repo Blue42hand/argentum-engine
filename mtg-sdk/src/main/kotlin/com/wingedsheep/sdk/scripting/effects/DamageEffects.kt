@@ -52,7 +52,15 @@ data class DealDamageEffect(
      * prevented or the target is gone). Violent Echoes: "If excess damage was dealt to that
      * permanent this way, empower Jace X, where X is that excess damage."
      */
-    val excessDamageVariable: String? = null
+    val excessDamageVariable: String? = null,
+    /**
+     * When set, the total damage this effect actually dealt — summed over every recipient off the
+     * `DamageDealtEvent`s, so prevention and redirection are accounted for and the read survives
+     * the source leaving the battlefield — is stored into this pipeline number variable. 0 when
+     * nothing was dealt. "You gain life equal to the damage dealt this way" (Creeping Bloodsucker,
+     * Syphon Soul).
+     */
+    val damageDealtVariable: String? = null
 ) : Effect {
     /** Convenience constructor for fixed amounts */
     constructor(amount: Int, target: EffectTarget, cantBePrevented: Boolean = false, damageSource: EffectTarget? = null)
@@ -210,6 +218,17 @@ data class DamageToTargetCantBePreventedThisTurnEffect(
  * The set of targets among which the total is divided comes from the ability's target requirement
  * (e.g. `TargetObject(unlimited = true, filter = CreatureOrPlaneswalker opponent controls)`), so
  * "any number of target" forms divide the total only among the targets actually chosen.
+ *
+ * [among] scopes the division to one target requirement of a spell or ability that targets more
+ * than once — the binding id of that requirement (what the DSL's `targets(...)` mints). Magma Opus:
+ * "deals 4 damage divided as you choose among any number of targets. Tap two target permanents." —
+ * the 4 damage is divided among the first requirement's targets only, never the tapped permanents.
+ * Null divides among every target of the effect, the historical reading.
+ *
+ * [storeDamagedAs], when set, stores the permanents and players this effect actually dealt damage
+ * to (a share of at least 1 left after prevention and replacement) as a pipeline collection under
+ * that key — "creatures dealt damage this way" (Huatli, Warrior Poet: "… can't block this turn").
+ * A target whose share was wholly prevented, or that became illegal, is not in it.
  */
 @SerialName("DividedDamage")
 @Serializable
@@ -217,7 +236,9 @@ data class DividedDamageEffect(
     val totalDamage: Int,
     val minTargets: Int = 1,
     val maxTargets: Int = 3,
-    val dynamicTotal: com.wingedsheep.sdk.scripting.values.DynamicAmount? = null
+    val dynamicTotal: com.wingedsheep.sdk.scripting.values.DynamicAmount? = null,
+    val among: String? = null,
+    val storeDamagedAs: String? = null
 ) : Effect {
     override val description: String =
         if (dynamicTotal != null)

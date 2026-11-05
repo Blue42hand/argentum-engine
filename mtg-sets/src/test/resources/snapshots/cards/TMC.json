@@ -36,7 +36,7 @@
                     "isManaAbility": true
                 },
                 "filter": {
-                    "baseFilter": "Food ctrl:you"
+                    "baseFilter": "artifact Food ctrl:you"
                 }
             }
         ]

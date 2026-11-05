@@ -71,11 +71,37 @@ class FacadeBoundaryTest : FunSpec({
     val pipelineAllowlist: Map<String, String> = mapOf(
         "rav/cards/Flickerform.kt" to
             "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "grn/cards/MnemonicBetrayal.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
         "lgn/cards/PlanarGuide.kt" to
             "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
         "mh3/cards/GlimpseTheImpossible.kt" to
             "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
         "mh3/cards/PheliaExuberantShepherd.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "lea/cards/AnimateDead.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "m20/cards/ThunderkinAwakener.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "dmu/cards/GoldenArgosy.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "dmu/cards/JayaFieryNegotiator.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "mat/cards/NahirisResolve.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "neo/cards/GreasefangOkibaBoss.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "stx/cards/MilaCraftyCompanion.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "leg/cards/InfiniteAuthority.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "ice/cards/Necropotence.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "iko/cards/YorionSkyNomad.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "war/cards/UginTheIneffable.kt" to
+            "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
+        "thb/cards/StormHerald.kt" to
             "CreateDelayedTriggerEffect.carryCollections names the collections the delayed trigger remembers",
         "mh3/cards/WheelOfPotential.kt" to
             "the per-player May runs its own pipeline, so its tracked move names the slot the enclosing " +
@@ -83,6 +109,8 @@ class FacadeBoundaryTest : FunSpec({
         "dsk/cards/MonstrousEmergence.kt" to
             "the cost's ChooseEntity storeAs is read by the spell effect — a cost is not inside any pipeline",
         "eoe/cards/CloseEncounter.kt" to
+            "the cost's ChooseEntity storeAs is read by the spell effect — a cost is not inside any pipeline",
+        "afr/cards/DragonsFire.kt" to
             "the cost's ChooseEntity storeAs is read by the spell effect — a cost is not inside any pipeline",
     )
 

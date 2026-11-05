@@ -21,9 +21,12 @@ val LagomosHandOfHatred = card("Lagomos, Hand of Hatred") {
     manaCost = "{1}{B}{R}"
     colorIdentity = "BR"
     typeLine = "Legendary Creature — Human Shaman"
-    oracleText = "At the beginning of combat on your turn, create a 2/1 red Elemental creature token with trample and haste. Sacrifice it at the beginning of the next end step.\n{T}: Search your library for a card, put it into your hand, then shuffle. Activate only if five or more creatures died this turn."
     power = 1
     toughness = 3
+    oracleText = "At the beginning of combat on your turn, create a 2/1 red Elemental creature " +
+        "token with trample and haste. Sacrifice it at the beginning of the next end step.\n" +
+        "{T}: Search your library for a card, put it into your hand, then shuffle. Activate only " +
+        "if five or more creatures died this turn."
 
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.BEGIN_COMBAT)
@@ -34,8 +37,10 @@ val LagomosHandOfHatred = card("Lagomos, Hand of Hatred") {
             creatureTypes = setOf("Elemental"),
             keywords = setOf(Keyword.TRAMPLE, Keyword.HASTE),
             sacrificeAtStep = Step.END,
-            imageUri = "https://cards.scryfall.io/normal/front/c/6/c6b2ff6f-d55a-4fa2-86be-e2e012267de4.jpg?1783921129"
+            imageUri = "https://cards.scryfall.io/normal/front/c/6/c6b2ff6f-d55a-4fa2-86be-e2e012267de4.jpg?1783921129",
         )
+        description = "At the beginning of combat on your turn, create a 2/1 red Elemental " +
+            "creature token with trample and haste. Sacrifice it at the beginning of the next end step."
     }
 
     activatedAbility {

@@ -230,8 +230,8 @@ class ScopedManaChoicePlanningTest : FunSpec({
     test("choice resumption stops before unrelated caller effects") {
         val d = driver(); val p = d.activePlayer!!
         d.putLandOnBattlefield(p, pips.name)
-        val caller = EffectContinuation(listOf(Effects.GainLife(7), Effects.May(Effects.GainLife(1))),
-            EffectContext(sourceId = null, controllerId = p))
+        val caller = EffectProgram.queued(listOf(Effects.GainLife(7), Effects.May(Effects.GainLife(1))),
+            EffectContext(sourceId = null, controllerId = p), origin = com.wingedsheep.engine.core.ProgramOrigin.BuiltBy("Test", null))
         val initial = scoped(d).pushContinuation(caller)
         val plan = (ScopedManaActivationPlanner(d.services).plan(initial, p, ManaCost.parse("{W}{U}"), context) as ScopedManaPlanResult.Found).execution
         plan.state.continuationStack.last() shouldBe caller

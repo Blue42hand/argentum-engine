@@ -11,6 +11,7 @@ import com.wingedsheep.engine.state.components.identity.TextChanges
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.core.Color
+import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
@@ -39,37 +40,162 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
         state: GameState, player: EntityId, cost: ManaCost, context: SpellPaymentContext?,
         xAmount: Int = 0, xColors: Set<Color> = emptySet(), excludeSources: Set<EntityId> = emptySet(),
         reservedLife: Int = 0,
+    ): ScopedManaPlanResult = planInternal(state, player, cost, context, xAmount, xColors,
+        excludeSources, reservedLife, null)
+
+    /** Execute only source IDs the payer explicitly selected; never used by Auto-pay. */
+    fun planSelectedSources(
+        state: GameState, player: EntityId, cost: ManaCost, context: SpellPaymentContext?,
+        selectedSources: Set<EntityId>, xAmount: Int = 0, xColors: Set<Color> = emptySet(),
+        acceptResult: (GameState) -> Boolean = { true },
+    ): ScopedManaPlanResult = planInternal(state, player, cost, context, xAmount, xColors,
+        emptySet(), 0, null, selectedSources, acceptResult)
+
+    /** Verdict only: finish a manually started activation without consuming its enclosing payment. */
+    internal fun provePaymentPrefix(
+        state: GameState, player: EntityId, cost: ManaCost, context: SpellPaymentContext?,
+        continuationFloor: Int,
+    ): ScopedManaPlanResult = planInternal(state, player, cost, context, 0, emptySet(),
+        emptySet(), 0, continuationFloor)
+
+    private fun planInternal(
+        state: GameState, player: EntityId, cost: ManaCost, context: SpellPaymentContext?,
+        xAmount: Int, xColors: Set<Color>, excludeSources: Set<EntityId>, reservedLife: Int,
+        prefixFloor: Int?,
+        selectedSources: Set<EntityId>? = null,
+        acceptResult: (GameState) -> Boolean = { true },
     ): ScopedManaPlanResult {
         val limits = mutableSetOf<ScopedManaSearchLimit>()
-        if (state.activeManaSpendingScope(player) == null)
+        if (selectedSources == null && state.activeManaSpendingScope(player) == null)
             return ScopedManaPlanResult.Unknown(setOf(ScopedManaSearchLimit.NO_SPENDING_SCOPE))
         fun complete(current: GameState): Boolean {
             if (reservedLife > 0 && current.lifeTotal(player) < reservedLife) return false
             val component = current.getEntity(player)?.get<ManaPoolComponent>() ?: return false
             val pool = ManaPool(component.white, component.blue, component.black, component.red,
                 component.green, component.colorless, restrictedMana = component.restrictedMana,
-                snowMana = component.snowMana, snowColorless = component.snowColorless)
+                snowMana = component.snowMana, manaUnits = component.manaUnits, snowColorless = component.snowColorless)
                 .withSpendingColors(current, player)
             val allocation = pool.allocateFloating(cost, context, xAmount, xColors) ?: return false
             val required = current.continuationStack.filterIsInstance<ManaSpendingObligationsContinuation>()
                 .filter { it.playerId == player }.flatMap { it.pendingIds }.toSet()
-            return allocation.pool.dischargedObligations.containsAll(required)
+            return allocation.pool.dischargedObligations.containsAll(required) && acceptResult(current)
         }
-        data class Prefix(val state: GameState, val events: List<GameEvent>)
+        // Explicit selections can contain many interchangeable Treasures. Prefer branches that
+        // cover more of the actual bill rather than enumerating every same-depth color/order.
+        // This is only search ordering: complete() still proves the exact final allocation.
+        fun unpaidUnits(current: GameState): Int {
+            val pool = (current.getEntity(player)?.get<ManaPoolComponent>() ?: ManaPoolComponent())
+                .toManaPool().withSpendingColors(current, player)
+            val partial = pool.payPartial(cost, context)
+            return partial.remainingCost.cmc +
+                (xAmount - partial.newPool.xCoverage(xAmount, xColors, context)).coerceAtLeast(0)
+        }
+        data class Prefix(val state: GameState, val events: List<GameEvent>, val usedSources: Set<EntityId> = emptySet())
+        fun settled(current: GameState, floor: Int) =
+            current.pendingDecision == null && current.continuationStack.size == floor
+        // Finish one activation's production questions, preferring the color the guide wanted.
+        fun finish(prefix: Prefix, floor: Int, wanted: Color?): Prefix? {
+            var (current, events) = prefix
+            repeat(GUIDED_ANSWER_LIMIT) {
+                if (current.pendingDecision == null) return Prefix(current, events).takeIf { settled(current, floor) }
+                val decision = current.pendingDecision!!
+                val responses = activationResponses(current, player)?.toList() ?: return null
+                val ordered = responses.sortedByDescending { (it as? ColorChosenResponse)?.color == wanted }
+                val response = ordered.firstOrNull { DecisionValidators.validate(decision, it, current) == null }
+                    ?: return null
+                val result = services.continuationHandler.resumeWithin(current, response, floor)
+                if (result.error != null || result.state.gameOver) return null
+                events = events + DecisionSubmittedEvent(decision.id, player) + result.events
+                current = result.state
+            }
+            return null
+        }
+        // The ordinary solver picks a minimal source set; each tap then runs through the real
+        // activation handler. Only the complete exact allocation below certifies the result, so a
+        // misleading guide merely falls through to the exhaustive search.
+        fun guided(initial: GameState, floor: Int): Prefix? {
+            val component = initial.getEntity(player)?.get<ManaPoolComponent>() ?: ManaPoolComponent()
+            val partial = ManaPool(component.white, component.blue, component.black, component.red,
+                component.green, component.colorless, restrictedMana = component.restrictedMana,
+                snowMana = component.snowMana, manaUnits = component.manaUnits, snowColorless = component.snowColorless)
+                .withSpendingColors(initial, player).payPartial(cost, context)
+            val xRemaining = (xAmount - partial.newPool.xCoverage(xAmount, xColors, context)).coerceAtLeast(0)
+            val solution = if (selectedSources == null) services.manaSolver.solve(
+                initial, player, partial.remainingCost, xRemaining, excludeSources, context,
+                xManaRestriction = xColors) ?: return null else null
+            val sourceIds = selectedSources?.toList() ?: solution!!.manaProduced.keys.toList()
+            if (sourceIds.size >= nodeLimit) return null
+            var prefix = Prefix(initial, emptyList())
+            var selectedAttempts = 0
+            for (sourceId in sourceIds) {
+                if (complete(prefix.state)) return prefix
+                val wanted = solution?.manaProduced?.get(sourceId) ?: run {
+                    val source = services.manaSolver.findAvailableManaSources(prefix.state, player, context)
+                        .firstOrNull { it.entityId == sourceId } ?: return null
+                    val now = (prefix.state.getEntity(player)?.get<ManaPoolComponent>() ?: ManaPoolComponent())
+                        .toManaPool().withSpendingColors(prefix.state, player)
+                    val unpaid = now.payPartial(cost, context)
+                    val requiredColors = unpaid.remainingCost.colors.ifEmpty {
+                        if (unpaid.newPool.xCoverage(xAmount, xColors, context) < xAmount) xColors else emptySet()
+                    }
+                    val color = (source.producesColors intersect requiredColors).firstOrNull()
+                        ?: if (source.producesColorless) null else source.producesColors.firstOrNull()
+                    ManaProduction(color = color, colorless = if (color == null) 1 else 0)
+                }
+                val candidates = services.legalActionEnumerator.enumerateManaAbilities(prefix.state, player)
+                    .filter { (it.action as? ActivateAbility)?.sourceId == sourceId }
+                var fallback: Prefix? = null
+                var matched: Prefix? = null
+                for (candidate in candidates) {
+                    val base = candidate.action as ActivateAbility
+                    val ability = resolver.lookup(prefix.state, sourceId, base.abilityId)?.ability ?: continue
+                    // Same proof boundary as the search: an activation it can't model never certifies.
+                    if (!safeCost(ability.cost) || exileCostCount(ability.cost) > 1 ||
+                        hasNestedExileCost(ability.cost) || !manaOnly(ability.effect) ||
+                        (selectedSources != null && !sourceOnlyCost(ability.cost))) continue
+                    val color = wanted.color?.takeIf {
+                        candidate.requiresManaColorChoice && ability.effect !is CompositeEffect &&
+                            (candidate.availableManaColors?.contains(it) ?: true)
+                    }
+                    if (candidate.requiresManaColorChoice && ability.effect !is CompositeEffect && color == null &&
+                        wanted.color != null) continue
+                    val action = base.copy(manaColorChoice = color, paymentStrategy = PaymentStrategy.FromPool)
+                    if (handler.validate(prefix.state, action) != null) continue
+                    if (selectedSources != null && ++selectedAttempts >= nodeLimit) return null
+                    val executed = handler.execute(prefix.state, action)
+                    if (executed.error != null || executed.state.gameOver) continue
+                    val done = finish(Prefix(executed.state, prefix.events + executed.events), floor, wanted.color)
+                        ?: continue
+                    if (producedWanted(prefix.state, done.state, player, wanted)) { matched = done; break }
+                    if (fallback == null) fallback = done
+                }
+                prefix = matched ?: fallback ?: return null
+            }
+            return prefix.takeIf { settled(it.state, floor) && complete(it.state) }
+        }
         fun search(initial: GameState): ScopedManaPlanResult {
             // Floating payment needs no source enumeration, even on hidden boards or at zero budget.
-            if (complete(initial)) return ScopedManaPlanResult.Found(ExecutionResult.success(initial))
+            val continuationFloor = prefixFloor ?: initial.continuationStack.size
+            if (initial.pendingDecision == null && initial.continuationStack.size == continuationFloor &&
+                complete(initial)) return ScopedManaPlanResult.Found(ExecutionResult.success(initial))
             // Hidden identities must not affect this public proof boundary.
             if (initial.getBattlefield().any { initial.getEntity(it)?.has<FaceDownComponent>() == true })
                 return ScopedManaPlanResult.Unknown(setOf(ScopedManaSearchLimit.HIDDEN_BATTLEFIELD))
             if (nodeLimit <= 0) return ScopedManaPlanResult.Unknown(setOf(ScopedManaSearchLimit.NODE_BUDGET))
+            // Try the ordinary solver's minimal plan first, executed for real; the exact allocation
+            // still certifies it, and a guide that fails falls through to the exhaustive search.
+            if (initial.pendingDecision == null && initial.continuationStack.size == continuationFloor)
+                guided(initial, continuationFloor)?.let {
+                    return ScopedManaPlanResult.Found(ExecutionResult.success(it.state, it.events))
+                }
             val pending = ArrayDeque<Prefix>()
             pending.add(Prefix(initial, emptyList()))
-            val continuationFloor = initial.continuationStack.size
             var attempted = 1
             // Short proofs precede irrelevant permutations. Bound attempts, including rejected choices.
             while (pending.isNotEmpty()) {
-                val (current, events) = pending.removeFirst()
+                val next = if (selectedSources == null) pending.removeFirst() else
+                    pending.minByOrNull { unpaidUnits(it.state) }!!.also { pending.remove(it) }
+                val (current, events) = next
                 if (current.pendingDecision == null && current.continuationStack.size == continuationFloor &&
                     complete(current)) return ScopedManaPlanResult.Found(ExecutionResult.success(current, events))
                 if (current.pendingDecision != null) {
@@ -94,7 +220,7 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                             continue
                         }
                         if (result.state.gameOver) continue
-                        pending.add(Prefix(result.state, events + DecisionSubmittedEvent(decision.id, player) + result.events))
+                        pending.add(Prefix(result.state, events + DecisionSubmittedEvent(decision.id, player) + result.events, next.usedSources))
                     }
                     continue
                 }
@@ -115,12 +241,17 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                         limits.add(ScopedManaSearchLimit.UNSUPPORTED_ACTIVATION)
                         continue
                     }
-                    if (base.sourceId in excludeSources) continue
+                    if (base.sourceId in excludeSources ||
+                        (selectedSources != null && (base.sourceId !in selectedSources || base.sourceId in next.usedSources))) continue
                     val ability = resolver.lookup(current, base.sourceId, base.abilityId)?.ability
-                    if (ability == null || !safeCost(ability.cost) || !manaOnly(ability.effect)) {
+                    if (ability == null || !safeCost(ability.cost) || exileCostCount(ability.cost) > 1 ||
+                        hasNestedExileCost(ability.cost) || !manaOnly(ability.effect)) {
                         limits.add(ScopedManaSearchLimit.UNSUPPORTED_ACTIVATION)
                         continue
                     }
+                    // A source selection authorizes its own activation, not the sacrifice, tap,
+                    // discard or exile of another object. Such choices remain explicit actions.
+                    if (selectedSources != null && !sourceOnlyCost(ability.cost)) continue
                     // Choice previews can omit source-relative costs; the real action validates them.
                     if (!candidate.affordable && !hasCostChoice(ability.cost)) continue
                     // A composite can contain independently chosen colors. A shared activation
@@ -167,7 +298,7 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                             continue
                         }
                         if (result.state.gameOver) continue
-                        pending.add(Prefix(result.state, events + result.events))
+                        pending.add(Prefix(result.state, events + result.events, next.usedSources + base.sourceId))
                     }
                 }
             }
@@ -175,9 +306,9 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                 else ScopedManaPlanResult.Unknown(limits.toSet())
         }
         // A caller may ask while production is paused; its partial pool is not a final proof.
-        if (state.continuationStack.any { it is ScopedManaProductionContinuation && it.playerId == player })
+        if (prefixFloor == null && state.continuationStack.any { it is ScopedManaProductionContinuation && it.playerId == player })
             return ScopedManaPlanResult.Unknown(setOf(ScopedManaSearchLimit.CONTINUATION_BOUNDARY))
-        val suspended = state.continuationStack.lastOrNull() as? Suspension
+        val suspended = if (prefixFloor == null) state.continuationStack.lastOrNull() as? Suspension else null
         val searchState = if (suspended == null) state else state.copy(continuationStack = state.continuationStack.dropLast(1))
         val outcome = search(searchState)
         if (outcome !is ScopedManaPlanResult.Found) return outcome
@@ -185,6 +316,28 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
         return ScopedManaPlanResult.Found(result.copy(state = result.state.copy(
             continuationStack = result.state.continuationStack + listOfNotNull(suspended),
             priorityPlayerId = state.priorityPlayerId, priorityPassedBy = state.priorityPassedBy)))
+    }
+
+    /** Whether the activation added at least one unit of the kind the ordinary solver planned for it. */
+    private fun producedWanted(before: GameState, after: GameState, player: EntityId, wanted: ManaProduction): Boolean {
+        fun count(state: GameState): Int {
+            val pool = state.getEntity(player)?.get<ManaPoolComponent>() ?: return 0
+            val color = wanted.color
+            val plain = when (color) {
+                Color.WHITE -> pool.white
+                Color.BLUE -> pool.blue
+                Color.BLACK -> pool.black
+                Color.RED -> pool.red
+                Color.GREEN -> pool.green
+                null -> pool.colorless
+            }
+            return plain + pool.restrictedMana.count { it.color == color }
+        }
+        return count(after) > count(before)
+    }
+
+    private companion object {
+        const val GUIDED_ANSWER_LIMIT = 16
     }
 
     private fun activationResponses(state: GameState, player: EntityId): Sequence<DecisionResponse>? {
@@ -203,7 +356,8 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
                 (number.minValue..number.maxValue).asSequence().map { NumberChosenResponse(question.id, it) }
             }
             is ActivateAbilitySacrificeContinuation, is ActivateAbilityVariablePermanentsContinuation,
-            is ActivateAbilityTapXTargetsContinuation -> {
+            is ActivateAbilityTapXTargetsContinuation, is ActivateAbilityExileFromGraveyardContinuation,
+            is ActivateAbilityExileXFromGraveyardContinuation -> {
                 val cards = question as? SelectCardsDecision ?: return null
                 scopedManaSelections(cards.options, cards.minSelections, cards.maxSelections)
                     .map { CardsSelectedResponse(question.id, it) }
@@ -214,9 +368,10 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
 
     private fun hasCostChoice(cost: AbilityCost): Boolean = when (cost) {
         is AbilityCost.Composite -> cost.costs.any(::hasCostChoice)
-        is AbilityCost.TapXPermanents -> true
+        is AbilityCost.TapXPermanents, is AbilityCost.ExileXFromGraveyard -> true
         is AbilityCost.Atom -> when (val atom = cost.atom) {
-            is CostAtom.TapPermanents, is CostAtom.Sacrifice, is CostAtom.VariablePermanents -> true
+            is CostAtom.TapPermanents, is CostAtom.Sacrifice, is CostAtom.VariablePermanents,
+            is CostAtom.ExileFrom -> true
             is CostAtom.Mana -> atom.cost.hasX
             is CostAtom.RemoveCounters -> atom.count is DynamicAmount.XValue
             else -> false
@@ -243,16 +398,20 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
     // the same resource twice. Taps and sacrifices naturally remove their source's availability.
     // The node budget also bounds positive-mana loops; no hypothetical resources are published.
     private fun safeCost(cost: AbilityCost): Boolean = when (cost) {
-        AbilityCost.Tap, AbilityCost.SacrificeSelf, is AbilityCost.TapXPermanents -> true
+        AbilityCost.Tap, AbilityCost.SacrificeSelf, is AbilityCost.TapXPermanents,
+        is AbilityCost.ExileXFromGraveyard -> true
         is AbilityCost.Composite -> cost.costs.isNotEmpty() && cost.costs.all(::supportedCost) && cost.costs.any(::safeCost)
         is AbilityCost.Atom -> when (val atom = cost.atom) {
             is CostAtom.Mana -> atom.cost.hasX || atom.cost.cmc > 0
-            is CostAtom.PayLife -> atom.amount > 0
+            // A state-priced life cost (War Room) isn't a fixed resource to plan repeats over.
+            is CostAtom.PayLife -> (atom.fixedAmount ?: 0) > 0
             is CostAtom.RemoveCounters -> atom.self && atom.counterType != null &&
                 ((atom.count as? DynamicAmount.Fixed)?.amount?.let { it > 0 } == true ||
                     atom.count is DynamicAmount.XValue)
             is CostAtom.Sacrifice -> atom.count > 0
-            is CostAtom.TapPermanents -> atom.count > 0
+            is CostAtom.ExileFrom -> atom.zone == Zone.GRAVEYARD && atom.count > 0
+            // Untapping is no consumed resource — repeated activations could loop on it.
+            is CostAtom.TapPermanents -> atom.count > 0 && !atom.untaps
             is CostAtom.VariablePermanents -> atom.minCount > 0 || atom.minMeasure > 0
             else -> false
         }
@@ -265,10 +424,33 @@ class ScopedManaActivationPlanner(private val services: EngineServices, private 
         is AbilityCost.Composite -> cost.costs.all(::supportedCost)
         is AbilityCost.Atom -> when (val atom = cost.atom) {
             is CostAtom.Mana -> true
-            is CostAtom.PayLife -> atom.amount >= 0
+            is CostAtom.PayLife -> atom.fixedAmount != null
             else -> safeCost(cost)
         }
         else -> safeCost(cost)
+    }
+
+    // All exile selections share exiledCards on the action. Multiple exile atoms would need
+    // per-atom choices; do not let one selection pay two different costs in a speculative proof.
+    private fun exileCostCount(cost: AbilityCost): Int = when (cost) {
+        is AbilityCost.Composite -> cost.costs.sumOf(::exileCostCount)
+        is AbilityCost.ExileXFromGraveyard -> 1
+        is AbilityCost.Atom -> if (cost.atom is CostAtom.ExileFrom) 1 else 0
+        else -> 0
+    }
+
+    // Activation choice extractors only see immediate composite children. A nested exile
+    // cost could silently skip its picker, so it cannot establish an impossibility proof.
+    private fun hasNestedExileCost(cost: AbilityCost): Boolean =
+        cost is AbilityCost.Composite && cost.costs.any {
+            it is AbilityCost.Composite && exileCostCount(it) > 0
+        }
+
+    private fun sourceOnlyCost(cost: AbilityCost): Boolean = when (cost) {
+        AbilityCost.Tap, AbilityCost.SacrificeSelf -> true
+        is AbilityCost.Composite -> cost.costs.isNotEmpty() && cost.costs.all(::sourceOnlyCost)
+        is AbilityCost.Atom -> cost.atom is CostAtom.Mana || cost.atom is CostAtom.PayLife
+        else -> false
     }
 
     private fun manaOnly(effect: Effect): Boolean = when (effect) {

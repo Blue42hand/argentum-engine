@@ -36,6 +36,8 @@ class AutomaticAdditionalCostPaymentAiTest : FunSpec({
 
         choose(AdditionalCostData("behold", "Behold", validBeholdTargets = candidates, beholdCount = 2))
             .additionalCostPayment?.beheldCards shouldBe candidates.take(2)
+        choose(AdditionalCostData("reveal", "RevealCard", validRevealTargets = candidates, revealCount = 2))
+            .additionalCostPayment?.revealedCards shouldBe candidates.take(2)
         choose(AdditionalCostData("tap", "TapPermanents", validTapTargets = candidates, tapCount = 2))
             .additionalCostPayment?.tappedPermanents shouldBe candidates.take(2)
         choose(AdditionalCostData("discard", "DiscardCard", validDiscardTargets = candidates, discardCount = 2))
@@ -46,6 +48,33 @@ class AutomaticAdditionalCostPaymentAiTest : FunSpec({
             .additionalCostPayment?.bouncedPermanents shouldBe candidates.take(2)
         choose(AdditionalCostData("exile", "ExileFromGraveyard", validExileTargets = candidates, exileMinCount = 2))
             .additionalCostPayment?.exiledCards shouldBe candidates.take(2)
+    }
+
+    test("AI binds X and sacrifices exactly X for a sacrifice-X spell cost") {
+        val driver = driver()
+        val player = driver.activePlayer!!
+        val spell = driver.putCardInHand(player, "Grizzly Bears")
+        val fodder = List(3) { driver.putCreatureOnBattlefield(player, "Grizzly Bears") }
+        val legal = LegalAction(
+            action = CastSpell(player, spell),
+            actionType = "CastSpell",
+            description = "test",
+            hasXCost = true,
+            maxAffordableX = 2,
+            additionalCostInfo = AdditionalCostData(
+                description = "Sacrifice X creatures you control",
+                costType = "SacrificeVariable",
+                validSacrificeTargets = fodder,
+                sacrificeCount = 0,
+                sacrificeCountIsX = true,
+            ),
+        )
+
+        val chosen = AIPlayer.create(driver.cardRegistry, player)
+            .chooseFrom(driver.state, listOf(legal)).action as CastSpell
+        val x = chosen.xValue ?: 0
+        x shouldBe 2
+        chosen.additionalCostPayment?.variableCostPermanents?.size shouldBe x
     }
 
     test("AI materializes enumerated costs for activated abilities") {

@@ -29,7 +29,7 @@
             {
                 "type": "EntersWithDynamicCounters",
                 "counterType": "CHARGE",
-                "count": "XValue"
+                "count": "CastX"
             }
         ]
     },
@@ -52,6 +52,172 @@
     "colorIdentityOverride": []
 }
 
+// Brimaz, King of Oreskos
+{
+    "name": "Brimaz, King of Oreskos",
+    "manaCost": "{1}{W}{W}",
+    "typeLine": "Legendary Creature — Cat Soldier",
+    "oracleText": "Vigilance\nWhenever Brimaz attacks, create a 1/1 white Cat Soldier creature token with vigilance that's attacking.\nWhenever Brimaz blocks a creature, create a 1/1 white Cat Soldier creature token with vigilance that's blocking that creature.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "keywords": [
+        "VIGILANCE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Brimaz, King of Oreskos:1",
+                "trigger": "AttackEvent",
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 1,
+                    "toughness": 1,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Cat",
+                        "Soldier"
+                    ],
+                    "keywords": [
+                        "VIGILANCE"
+                    ],
+                    "attacking": true,
+                    "attackDefender": "CONTROLLER_CHOOSES"
+                }
+            },
+            {
+                "id": "Brimaz, King of Oreskos:2",
+                "trigger": {
+                    "type": "BlockEvent",
+                    "attackerFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "CreateToken",
+                            "power": 1,
+                            "toughness": 1,
+                            "colors": [
+                                "WHITE"
+                            ],
+                            "creatureTypes": [
+                                "Cat",
+                                "Soldier"
+                            ],
+                            "keywords": [
+                                "VIGILANCE"
+                            ]
+                        },
+                        {
+                            "type": "ForEach",
+                            "space": {
+                                "type": "IterationSpace.Collection",
+                                "collection": "createdTokens"
+                            },
+                            "body": {
+                                "type": "BecomeBlocking",
+                                "blocker": "IterationEntity",
+                                "attacker": "TriggeringEntity",
+                                "entering": true
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "5",
+        "rarity": "MYTHIC",
+        "artist": "Peter Mohrbacher",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/5/f54eb705-6326-4bac-bf0e-68d42db7a270.jpg?1783939586",
+        "rulings": [
+            {
+                "date": "2014-02-01",
+                "text": "For the first triggered ability, you declare which player, planeswalker, or battle the token is attacking as you put it onto the battlefield. It doesn't have to be the same player or planeswalker Brimaz is attacking."
+            },
+            {
+                "date": "2014-02-01",
+                "text": "If Brimaz somehow blocks two or more creatures (note it can't naturally do this), its last ability will trigger that many times."
+            },
+            {
+                "date": "2014-02-01",
+                "text": "Although the tokens enter the battlefield attacking or blocking, they were never declared as attacking or blocking creatures. Abilities that trigger whenever a creature attacks or blocks won't trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Courser of Kruphix
+{
+    "name": "Courser of Kruphix",
+    "manaCost": "{1}{G}{G}",
+    "typeLine": "Enchantment Creature — Centaur",
+    "oracleText": "Play with the top card of your library revealed.\nYou may play lands from the top of your library.\nLandfall — Whenever a land you control enters, you gain 1 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Courser of Kruphix:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "land ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "descriptionOverride": "Landfall — Whenever a land you control enters, you gain 1 life."
+            }
+        ],
+        "staticAbilities": [
+            "RevealTopOfLibrary",
+            {
+                "type": "PlayLandsAndCastFilteredFromTopOfLibrary",
+                "spellFilter": null
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "119",
+        "rarity": "RARE",
+        "artist": "Eric Deschamps",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/a/da5a807f-58e8-4d92-a61c-47bb9b28977f.jpg?1783939536",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Playing a land from the top of your library counts as your land play for the turn."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "Courser of Kruphix doesn't change when you can play lands. You can do so only during your main phase when you have priority and the stack is empty."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Cyclops of One-Eyed Pass
 {
     "name": "Cyclops of One-Eyed Pass",
@@ -72,6 +238,51 @@
     ]
 }
 
+// Fate Unraveler
+{
+    "name": "Fate Unraveler",
+    "manaCost": "{3}{B}",
+    "typeLine": "Enchantment Creature — Hag",
+    "oracleText": "Whenever an opponent draws a card, this creature deals 1 damage to that player.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Fate Unraveler:1",
+                "trigger": {
+                    "type": "DrawEvent",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    },
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "68",
+        "rarity": "RARE",
+        "artist": "David Palumbo",
+        "flavorText": "\"Never forget that the life you've built can be undone by a single loose thread.\"\n—Perisophia the philosopher",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/1/f15cd233-e27b-4cfd-aa4e-18040d1de22f.jpg?1783939557"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
 // Great Hart
 {
     "name": "Great Hart",
@@ -89,6 +300,485 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Heroes' Podium
+{
+    "name": "Heroes' Podium",
+    "manaCost": "{5}",
+    "typeLine": "Legendary Artifact",
+    "oracleText": "Each legendary creature you control gets +1/+1 for each other legendary creature you control.\n{X}, {T}: Look at the top X cards of your library. You may reveal a legendary creature card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Heroes' Podium:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{X}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": "XValue"
+                            },
+                            "storeAs": "looked"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "looked",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "filter": {
+                                "cardPredicates": [
+                                    "IsCreature",
+                                    "IsLegendary"
+                                ]
+                            },
+                            "storeSelected": "kept",
+                            "storeRemainder": "rest",
+                            "prompt": "You may reveal a legendary creature card from among them and put it into your hand",
+                            "showAllCards": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "kept",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "rest",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Library",
+                                "placement": "Bottom"
+                            },
+                            "order": "Random"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Look at the top X cards of your library. You may reveal a legendary creature card from among them and put it into your hand. Put the rest on the bottom of your library in a random order."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            "IsLegendary"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    }
+                },
+                "powerBonus": {
+                    "type": "Subtract",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                "IsLegendary"
+                            ]
+                        }
+                    },
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "toughnessBonus": {
+                    "type": "Subtract",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsCreature",
+                                "IsLegendary"
+                            ]
+                        }
+                    },
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "159",
+        "rarity": "RARE",
+        "artist": "Willian Murai",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/3/a3cb14f9-343c-4672-b4ee-db7f1d1a98ff.jpg?1783939521",
+        "rulings": [
+            {
+                "date": "2014-02-01",
+                "text": "The bonus given by Heroes' Podium counts only legendary creatures. It won't count itself unless some other effect causes it to be a creature in addition to being a land (in which case it will also get the bonus)."
+            },
+            {
+                "date": "2014-02-01",
+                "text": "Heroes' Podium will give a bonus to each legendary creature you control, even if gaining control of one causes the \"legend rule\" to apply. For example, if you control Brimaz, King of Oreskos (a 3/4 legendary creature), and gain control of another one, they'll each be 4/5 when you put one into its owner's graveyard. Then the remaining one will return to being 3/4."
+            }
+        ]
+    }
+}
+
+// Karametra, God of Harvests
+{
+    "name": "Karametra, God of Harvests",
+    "manaCost": "{3}{G}{W}",
+    "typeLine": "Legendary Enchantment Creature — God",
+    "oracleText": "Indestructible\nAs long as your devotion to green and white is less than seven, Karametra isn't a creature.\nWhenever you cast a creature spell, you may search your library for a Forest or Plains card, put it onto the battlefield tapped, then shuffle.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 7
+    },
+    "keywords": [
+        "INDESTRUCTIBLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Karametra, God of Harvests:1",
+                "trigger": {
+                    "type": "SpellCastEvent",
+                    "spellFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ]
+                    }
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Library",
+                                    "filter": "land Forest|Plains"
+                                },
+                                "storeAs": "searchable",
+                                "search": true
+                            },
+                            {
+                                "type": "SelectFromCollection",
+                                "from": "searchable",
+                                "selection": {
+                                    "type": "ChooseUpTo",
+                                    "count": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
+                                },
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a land Forest or Plains card to put onto the battlefield tapped",
+                                "selectedLabel": "Put onto the battlefield tapped"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "found",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Battlefield",
+                                    "placement": "Tapped"
+                                }
+                            },
+                            "ShuffleLibrary",
+                            "EmitLibrarySearchedEvent"
+                        ]
+                    },
+                    "descriptionOverride": "Whenever you cast a creature spell, you may search your library for a Forest or Plains card, put it onto the battlefield tapped, then shuffle."
+                },
+                "descriptionOverride": "Whenever you cast a creature spell, you may search your library for a Forest or Plains card, put it onto the battlefield tapped, then shuffle."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "RemoveCardType",
+                    "cardType": "CREATURE"
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "DevotionTo",
+                        "colors": [
+                            "GREEN",
+                            "WHITE"
+                        ]
+                    },
+                    "operator": "LT",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "148",
+        "rarity": "MYTHIC",
+        "artist": "Eric Deschamps",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/4/74050cb3-ba99-475d-9124-726e498fb68e.jpg?1783939526",
+        "rulings": [
+            {
+                "date": "2014-02-01",
+                "text": "You can use the last ability to put any land card with the subtype Forest or Plains onto the battlefield, not just ones named Forest or Plains."
+            },
+            {
+                "date": "2014-02-01",
+                "text": "If you cast a creature card with bestow for its bestow cost, it becomes an Aura spell and not a creature spell. Karametra's last ability won't trigger."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Your devotion to two colors is the number of mana symbols among mana costs of permanents you control that are the first color, the second, or both. If an effect counts your devotion to two colors, a hybrid symbol that is both of those colors is counted just once."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If Karametra stops being a creature, it loses the type creature and the creature type God. It continues to be a legendary enchantment."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "The type-changing ability that can make Karametra not be a creature functions only on the battlefield. It's always a creature card in other zones, regardless of your devotion to its color. It's always a creature spell while it's on the stack."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "WHITE"
+    ]
+}
+
+// Kiora's Follower
+{
+    "name": "Kiora's Follower",
+    "manaCost": "{G}{U}",
+    "typeLine": "Creature — Merfolk",
+    "oracleText": "{T}: Untap another target permanent.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Kiora's Follower:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "tap": false
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "permanent",
+                            "excludeSelf": true
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "Untap another target permanent."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "150",
+        "rarity": "UNCOMMON",
+        "artist": "Eric Deschamps",
+        "flavorText": "\"She may call herself Kiora but I believe she is Thassa, the embodiment of the sea and empress of the depths.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/c/ec9ce307-8ec3-4db6-a4a3-49f92ebcc783.jpg?1783939523"
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE"
+    ]
+}
+
+// Loyal Pegasus
+{
+    "name": "Loyal Pegasus",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Pegasus",
+    "oracleText": "Flying\nThis creature can't attack or block alone.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "CantAttackUnlessCoAttacker",
+                "coAttackerFilter": {
+                    "cardPredicates": [
+                        "IsCreature"
+                    ]
+                }
+            },
+            {
+                "type": "CantBlockUnlessCoBlocker",
+                "coBlockerFilter": {
+                    "cardPredicates": [
+                        "IsCreature"
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "artist": "John Severin Brassell",
+        "flavorText": "\"Even if I should die in the saddle, she will not let me fall to the ground.\"\n—Hypatia of the Winged Horse",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e6b29f36-e84d-402e-9ab7-935fd2e7532d.jpg?1783939579"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Mogis, God of Slaughter
+{
+    "name": "Mogis, God of Slaughter",
+    "manaCost": "{2}{B}{R}",
+    "typeLine": "Legendary Enchantment Creature — God",
+    "oracleText": "Indestructible\nAs long as your devotion to black and red is less than seven, Mogis isn't a creature.\nAt the beginning of each opponent's upkeep, Mogis deals 2 damage to that player unless they sacrifice a creature of their choice.",
+    "creatureStats": {
+        "power": 7,
+        "toughness": 5
+    },
+    "keywords": [
+        "INDESTRUCTIBLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Mogis, God of Slaughter:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "PayOrSuffer",
+                    "cost": {
+                        "type": "PayAtom",
+                        "atom": {
+                            "type": "AtomSacrifice",
+                            "filter": "creature"
+                        }
+                    },
+                    "suffer": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 2
+                        },
+                        "target": {
+                            "type": "PlayerRef",
+                            "player": "TriggeringPlayer"
+                        }
+                    },
+                    "player": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
+                    }
+                },
+                "descriptionOverride": "At the beginning of each opponent's upkeep, Mogis deals 2 damage to that player unless they sacrifice a creature of their choice."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "RemoveCardType",
+                    "cardType": "CREATURE"
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "DevotionTo",
+                        "colors": [
+                            "BLACK",
+                            "RED"
+                        ]
+                    },
+                    "operator": "LT",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "151",
+        "rarity": "MYTHIC",
+        "artist": "Peter Mohrbacher",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/a/2a0417bf-b735-46d7-9985-2d991051020f.jpg?1783939522",
+        "rulings": [
+            {
+                "date": "2014-02-01",
+                "text": "If the player can't sacrifice a creature (usually because they don't control one), Mogis will deal 2 damage to them."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "Your devotion to two colors is the number of mana symbols among mana costs of permanents you control that are the first color, the second, or both. If an effect counts your devotion to two colors, a hybrid symbol that is both of those colors is counted just once."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "If a God stops being a creature, it loses the type creature and the creature type God. It continues to be a legendary enchantment."
+            },
+            {
+                "date": "2020-01-24",
+                "text": "The type-changing ability that can make a God not be a creature functions only on the battlefield. It's always a creature card in other zones, regardless of your devotion to its color. It's always a creature spell while it's on the stack."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED"
     ]
 }
 
@@ -122,12 +812,12 @@
                                     "amount": 4
                                 }
                             },
-                            "storeAs": "revealed",
+                            "storeAs": "looked",
                             "revealed": true
                         },
                         {
                             "type": "SelectFromCollection",
-                            "from": "revealed",
+                            "from": "looked",
                             "selection": {
                                 "type": "ChooseUpTo",
                                 "count": {
@@ -136,16 +826,14 @@
                                 }
                             },
                             "filter": "land",
-                            "storeSelected": "land",
+                            "storeSelected": "kept",
                             "storeRemainder": "rest",
-                            "prompt": "You may put a land card into your hand",
-                            "selectedLabel": "Put in hand",
-                            "remainderLabel": "Put into graveyard",
+                            "prompt": "You may put a land card from among them into your hand",
                             "showAllCards": true
                         },
                         {
                             "type": "MoveCollection",
-                            "from": "land",
+                            "from": "kept",
                             "destination": {
                                 "type": "ToZone",
                                 "zone": "Hand"
@@ -172,6 +860,51 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Scouring Sands
+{
+    "name": "Scouring Sands",
+    "manaCost": "{1}{R}",
+    "typeLine": "Sorcery",
+    "oracleText": "Scouring Sands deals 1 damage to each creature your opponents control. Scry 1. (Look at the top card of your library. You may put that card on the bottom.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature ctrl:opponent"
+                        }
+                    },
+                    "body": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "IterationEntity"
+                    }
+                },
+                {
+                    "type": "Scry",
+                    "count": 1
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "artist": "Jonas De Ro",
+        "flavorText": "When Purphoros cleans the ashes from his forge, entire cities vanish.",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/7/273f25fc-9c9f-4b73-a28b-1461d8fcd443.jpg?1783939539"
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -460,5 +1193,129 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Xenagos, God of Revels
+{
+    "name": "Xenagos, God of Revels",
+    "manaCost": "{3}{R}{G}",
+    "typeLine": "Legendary Enchantment Creature — God",
+    "oracleText": "Indestructible\nAs long as your devotion to red and green is less than seven, Xenagos isn't a creature.\nAt the beginning of combat on your turn, another target creature you control gains haste and gets +X/+X until end of turn, where X is that creature's power.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 5
+    },
+    "keywords": [
+        "INDESTRUCTIBLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Xenagos, God of Revels:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "BEGIN_COMBAT"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GrantKeyword",
+                            "keyword": "HASTE",
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "ModifyStats",
+                            "powerModifier": {
+                                "type": "EntityProperty",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "numericProperty": "Power"
+                            },
+                            "toughnessModifier": {
+                                "type": "EntityProperty",
+                                "entity": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "numericProperty": "Power"
+                            },
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": "creature ctrl:you",
+                        "excludeSelf": true
+                    },
+                    "id": "t0"
+                },
+                "descriptionOverride": "At the beginning of combat on your turn, another target creature you control gains haste and gets +X/+X until end of turn, where X is that creature's power."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "RemoveCardType",
+                    "cardType": "CREATURE"
+                },
+                "condition": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "DevotionTo",
+                        "colors": [
+                            "RED",
+                            "GREEN"
+                        ]
+                    },
+                    "operator": "LT",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 7
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "156",
+        "rarity": "MYTHIC",
+        "artist": "Jason Chan",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/1/3184b138-1109-4195-9d96-4f190164e98b.jpg?1783939521",
+        "rulings": [
+            {
+                "date": "2014-02-01",
+                "text": "The value of X is calculated only once, as the ability resolves."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Your devotion to two colors is the number of mana symbols among mana costs of permanents you control that are the first color, the second, or both. If an effect counts your devotion to two colors, a hybrid symbol that is both of those colors is counted just once."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "If Xenagos stops being a creature, it loses the type creature and the creature type God. It continues to be a legendary enchantment."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "The type-changing ability that can make Xenagos not be a creature functions only on the battlefield. It's always a creature card in other zones, regardless of your devotion to red and green. It's always a creature spell while it's on the stack."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
     ]
 }

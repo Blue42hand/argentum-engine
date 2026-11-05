@@ -1,3 +1,138 @@
+// Archfiend of Depravity
+{
+    "name": "Archfiend of Depravity",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Creature — Demon",
+    "oracleText": "Flying\nAt the beginning of each opponent's end step, that player chooses up to two creatures they control, then sacrifices the rest.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Archfiend of Depravity:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "END",
+                    "player": "EachOpponent"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "ControlledPermanents",
+                                "player": "TriggeringPlayer",
+                                "filter": "creature"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "chooser": "TriggeringPlayer",
+                            "storeSelected": "selected1",
+                            "storeRemainder": "remainder1",
+                            "prompt": "Choose up to two creatures you control to keep; the rest are sacrificed.",
+                            "selectedLabel": "Keep",
+                            "remainderLabel": "Sacrifice",
+                            "useTargetingUI": true,
+                            "alwaysPrompt": true
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "remainder1",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Sacrifice"
+                        }
+                    ]
+                },
+                "descriptionOverride": "At the beginning of each opponent's end step, that player chooses up to two creatures they control, then sacrifices the rest."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "62",
+        "rarity": "RARE",
+        "artist": "Daarken",
+        "flavorText": "\"Why would I kill you all? Who then would be left to worship me?\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/2/2/22e343b5-37d6-44f6-be24-66313f18c246.jpg?1783938701",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "The opponent may choose to spare one or no creatures. If the player doesn't choose any creatures, they will sacrifice all creatures they control."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "The opponent chooses which creatures to spare, if any, as the ability resolves. This choice doesn't target the creatures."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Atarka, World Render
+{
+    "name": "Atarka, World Render",
+    "manaCost": "{5}{R}{G}",
+    "typeLine": "Legendary Creature — Dragon",
+    "oracleText": "Flying, trample\nWhenever a Dragon you control attacks, it gains double strike until end of turn.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 4
+    },
+    "keywords": [
+        "FLYING",
+        "TRAMPLE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Atarka, World Render:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "creature Dragon ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "GrantKeyword",
+                    "keyword": "DOUBLE_STRIKE",
+                    "target": "TriggeringEntity"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "rarity": "RARE",
+        "artist": "Karl Kopinski",
+        "flavorText": "\"Her hunger knows no limit. Left unchecked, she would feast on all of Tarkir.\"\n—Yasova Dragonclaw",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c341df3-177c-49b4-91fe-38f73c64ef88.jpg?1783938674"
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN"
+    ]
+}
+
 // Bathe in Dragonfire
 {
     "name": "Bathe in Dragonfire",
@@ -34,6 +169,116 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Brutal Hordechief
+{
+    "name": "Brutal Hordechief",
+    "manaCost": "{3}{B}",
+    "typeLine": "Creature — Orc Warrior",
+    "oracleText": "Whenever a creature you control attacks, defending player loses 1 life and you gain 1 life.\n{3}{R/W}{R/W}: Creatures your opponents control block this turn if able, and you choose how those creatures block.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 3
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Brutal Hordechief:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "creature ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "DefendingPlayer"
+                            }
+                        },
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Brutal Hordechief:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}{R/W}{R/W}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "MustBlockGroup",
+                            "filter": {
+                                "baseFilter": "creature ctrl:opponent"
+                            }
+                        },
+                        {
+                            "type": "ControlCombatDeclarationsThisTurn",
+                            "declarations": [
+                                "BLOCKERS"
+                            ],
+                            "declaringPlayers": "EachOpponent"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "64",
+        "rarity": "MYTHIC",
+        "artist": "Tyler Jacobson",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/b/ab8ec769-99cd-4542-9b4d-61ee41b622bc.jpg?1783938699",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "All blocking declarations must still be legal."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "If there's a cost associated with having a creature block and you choose for that creature to block, its controller can choose to pay that cost or not. If that player decides to not pay that cost, you must propose a new set of blocking creatures."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "You'll choose how each creature controlled by an opponent blocks, even if that creature wasn't on the battlefield or wasn't controlled by an opponent as the activated ability resolved."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "In a multiplayer game, if more than one player activates Brutal Hordechief's activated ability on the same turn, the controller of the last ability to resolve will choose how any creatures controlled by players who didn't resolve this ability will block."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "The defending player affected by Brutal Hordechief's triggered ability is determined relative to the creature that attacked. For example, if Brutal Hordechief attacked one opponent and two other creatures you control attacked another opponent, the first opponent would lose 1 life and the second opponent would lose 2 life. You'd gain a total of 3 life."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK",
+        "RED",
+        "WHITE"
     ]
 }
 
@@ -79,6 +324,166 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Crux of Fate
+{
+    "name": "Crux of Fate",
+    "manaCost": "{3}{B}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one —\n• Destroy all Dragon creatures.\n• Destroy all non-Dragon creatures.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": "creature Dragon"
+                                },
+                                "storeAs": "destroyAll_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "destroyAll_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
+                            }
+                        ]
+                    },
+                    "description": "Destroy all Dragon creatures"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "BattlefieldMatching",
+                                    "filter": {
+                                        "cardPredicates": [
+                                            "IsCreature",
+                                            {
+                                                "type": "NotSubtype",
+                                                "subtype": "Dragon"
+                                            }
+                                        ]
+                                    }
+                                },
+                                "storeAs": "destroyAll_gathered"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "destroyAll_gathered",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Destroy"
+                            }
+                        ]
+                    },
+                    "description": "Destroy all non-Dragon creatures"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "65",
+        "rarity": "RARE",
+        "artist": "Michael Komarck",
+        "flavorText": "Ugin's whispered summons led Sarkhan Vol to the moment that would echo down the centuries and seal Tarkir's fate: the primal battle between Ugin and Nicol Bolas.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/1/e1d45374-a41b-4b3f-a7c8-3eb5ca767cf6.jpg?1783938698"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Dark Deal
+{
+    "name": "Dark Deal",
+    "manaCost": "{2}{B}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player discards all the cards in their hand, then draws that many cards minus one.",
+    "script": {
+        "spellEffect": {
+            "type": "ForEach",
+            "space": {
+                "type": "IterationSpace.Players",
+                "players": "Each"
+            },
+            "body": {
+                "type": "Composite",
+                "effects": [
+                    {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromZone",
+                                    "zone": "Hand"
+                                },
+                                "storeAs": "discardedHand"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "discardedHand",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Graveyard"
+                                },
+                                "moveType": "Discard"
+                            }
+                        ]
+                    },
+                    {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "IfPositive",
+                            "amount": {
+                                "type": "Subtract",
+                                "left": {
+                                    "type": "VariableReference",
+                                    "variableName": "discardedHand_count"
+                                },
+                                "right": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "66",
+        "rarity": "UNCOMMON",
+        "artist": "Scott Murphy",
+        "flavorText": "The first khans of the Sultai relied on the magic of the rakshasa to ensure the survival of the clan.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/9/69dfaafe-2fbd-4f2f-913d-ea64e4ce44cd.jpg?1783938698",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "If a player had one card or no cards in their hand, that player won't draw any cards."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -166,6 +571,186 @@
     ]
 }
 
+// Frontier Mastodon
+{
+    "name": "Frontier Mastodon",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elephant",
+    "oracleText": "Ferocious — This creature enters with a +1/+1 counter on it if you control a creature with power 4 or greater.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "script": {
+        "replacementEffects": [
+            {
+                "type": "EntersWithCounters",
+                "count": 1,
+                "selfOnly": true,
+                "condition": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "creature pow>=4",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "130",
+        "artist": "Nils Hamm",
+        "flavorText": "Each bronze disk on its harness is an offering from a young Temur hunter, a sign of respect to the spirits of the wild.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/6/46c09fe7-d55f-49b4-95c9-a3bb36baa3aa.jpg?1783938681",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "Frontier Mastodon's ferocious ability checks if you control a creature with power 4 or greater as Frontier Mastodon enters the battlefield. Because Frontier Mastodon isn't on the battlefield at this time, it won't count itself."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Frontier Siege
+{
+    "name": "Frontier Siege",
+    "manaCost": "{3}{G}",
+    "typeLine": "Enchantment",
+    "oracleText": "As this enchantment enters, choose Khans or Dragons.\n• Khans — At the beginning of each of your main phases, add {G}{G}.\n• Dragons — Whenever a creature you control with flying enters, you may have it fight target creature you don't control.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Frontier Siege:1",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "PRECOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "triggerRestriction": {
+                    "type": "SourceChosenModeIs",
+                    "modeId": "khans"
+                }
+            },
+            {
+                "id": "Frontier Siege:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "POSTCOMBAT_MAIN"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                "triggerRestriction": {
+                    "type": "SourceChosenModeIs",
+                    "modeId": "khans"
+                }
+            },
+            {
+                "id": "Frontier Siege:3",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature kw:flying ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Fight",
+                        "target1": "TriggeringEntity",
+                        "target2": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "descriptionOverride": "Whenever a creature you control with flying enters, you may have it fight target creature you don't control."
+                },
+                "targetRequirement": {
+                    "type": "TargetObject",
+                    "filter": {
+                        "baseFilter": {
+                            "cardPredicates": [
+                                "IsCreature"
+                            ],
+                            "controllerPredicate": {
+                                "type": "ControllerNot",
+                                "predicate": "ControlledByYou"
+                            }
+                        }
+                    },
+                    "id": "t0"
+                },
+                "triggerRestriction": {
+                    "type": "SourceChosenModeIs",
+                    "modeId": "dragons"
+                },
+                "descriptionOverride": "Whenever a creature you control with flying enters, you may have it fight target creature you don't control."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "MODE",
+                "modeOptions": [
+                    {
+                        "id": "khans",
+                        "label": "Khans",
+                        "description": "At the beginning of each of your main phases, add {G}{G}.",
+                        "iconKey": "khans"
+                    },
+                    {
+                        "id": "dragons",
+                        "label": "Dragons",
+                        "description": "Whenever a creature you control with flying enters, you may have it fight target creature you don't control.",
+                        "iconKey": "dragons"
+                    }
+                ]
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "rarity": "RARE",
+        "artist": "James Ryman",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/4/a474981a-581a-49c0-a036-87afaaeea7ef.jpg?1783938679",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "The \"Khans\" ability triggers at the beginning of both your precombat main phase and your postcombat main phase. Unused mana is lost at the end of each step and phase."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "For the \"Dragons\" ability, you decide whether the creature with flying will fight the target creature you don't control as the ability resolves."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "If a permanent enters the battlefield as a copy of one of the Sieges, its controller will make a new choice for that Siege. Which ability the copy has won't depend on the choice made for the original permanent."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Gore Swine
 {
     "name": "Gore Swine",
@@ -203,6 +788,254 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Hero's Blade
+{
+    "name": "Hero's Blade",
+    "manaCost": "{2}",
+    "typeLine": "Artifact — Equipment",
+    "oracleText": "Equipped creature gets +3/+2.\nWhenever a legendary creature you control enters, you may attach this Equipment to it.\nEquip {4}",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hero's Blade:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsCreature",
+                            "IsLegendary"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "AttachEquipment",
+                        "target": "TriggeringEntity"
+                    }
+                }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Hero's Blade:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{4}"
+                    }
+                },
+                "effect": {
+                    "type": "AttachEquipment",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "creature you control"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "creature you control"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isEquipAbility": true
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 3,
+                "toughnessBonus": 2
+            }
+        ]
+    },
+    "equipCost": "{4}",
+    "metadata": {
+        "collectorNumber": "160",
+        "rarity": "UNCOMMON",
+        "artist": "Aaron Miller",
+        "flavorText": "The best swords are forged with dragonfire.",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/6/e69b72c1-232c-420e-b900-6dfe73cfff13.jpg?1783938671",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If the legendary creature that entered the battlefield leaves the battlefield before Hero's Blade becomes attached, Hero's Blade stays as it was. If it's already attached to another creature, it remains attached to that creature."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "The triggered ability will trigger when one of the Gods from Theros block enters the battlefield only if your devotion is high enough that it's a creature when it enters. If Hero's Blade is attached to a God that stops being a creature (or any creature that stops being a creature), it will become unattached."
+            }
+        ]
+    },
+    "colorIdentityOverride": []
+}
+
+// Hooded Assassin
+{
+    "name": "Hooded Assassin",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Human Assassin",
+    "oracleText": "When this creature enters, choose one —\n• Put a +1/+1 counter on this creature.\n• Destroy target creature that was dealt damage this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Hooded Assassin:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 1,
+                                "target": "Self"
+                            },
+                            "description": "Put a +1/+1 counter on this creature"
+                        },
+                        {
+                            "effect": {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                },
+                                "destination": "Graveyard",
+                                "byDestruction": true
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": {
+                                            "cardPredicates": [
+                                                "IsCreature"
+                                            ],
+                                            "statePredicates": [
+                                                "WasDealtDamageThisTurn"
+                                            ]
+                                        }
+                                    },
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "Destroy target creature that was dealt damage this turn"
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "73",
+        "artist": "Matt Stewart",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/5/05d4da1d-5b8c-43be-aa30-22df69c0cc23.jpg?1783938696",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "If a creature was dealt damage but regenerated (which removes all damage from it), it will still be a legal target for the second mode of the triggered ability."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "You choose which mode you're using as you put the ability on the stack, after the creature has entered the battlefield. Once you've chosen a mode, you can't change that mode even if the creature leaves the battlefield in response to that ability."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "If a mode requires a target and there are no legal targets available, that mode can't be chosen. You must choose another mode if able."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Humble Defector
+{
+    "name": "Humble Defector",
+    "manaCost": "{1}{R}",
+    "typeLine": "Creature — Human Rogue",
+    "oracleText": "{T}: Draw two cards. Target opponent gains control of this creature. Activate only during your turn.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Humble Defector:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
+                        },
+                        {
+                            "type": "GiveControlToTargetPlayer",
+                            "permanent": "Self",
+                            "newController": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetOpponent",
+                        "id": "t0"
+                    }
+                ],
+                "restrictions": [
+                    "OnlyDuringYourTurn"
+                ],
+                "descriptionOverride": "{T}: Draw two cards. Target opponent gains control of this creature. Activate only during your turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "104",
+        "rarity": "UNCOMMON",
+        "artist": "Slawomir Maniak",
+        "flavorText": "\"You were once Mardu, so your body and will are strong. Now we must train your mind.\"\n—Houn, Jeskai elder",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/b/4bb0c13f-6cea-48b4-a5c8-2c0cfcfea7fd.jpg?1783938687",
+        "rulings": [
+            {
+                "date": "2020-11-10",
+                "text": "If Humble Defector isn't on the battlefield as its ability resolves, but the target player is still a legal target, the ability will resolve. You'll draw two cards, even though the player doesn't gain control of Humble Defector."
+            },
+            {
+                "date": "2020-11-10",
+                "text": "Humble Defector's ability can be activated any time during your turn, including in response to a spell or ability."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -247,6 +1080,53 @@
         "rarity": "RARE",
         "artist": "Jason Rainville",
         "imageUri": "https://cards.scryfall.io/normal/front/c/9/c93fd5f0-fb62-42cc-8c7d-c0368e191c4b.jpg?1783938696"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Merciless Executioner
+{
+    "name": "Merciless Executioner",
+    "manaCost": "{2}{B}",
+    "typeLine": "Creature — Orc Warrior",
+    "oracleText": "When this creature enters, each player sacrifices a creature of their choice.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Merciless Executioner:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "ForceSacrifice",
+                    "filter": "creature",
+                    "target": {
+                        "type": "PlayerRef",
+                        "player": "Each"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "76",
+        "rarity": "UNCOMMON",
+        "artist": "David Palumbo",
+        "flavorText": "He enjoys his work, for he sees only the worst Abzan criminals: those who betray their own kin.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c588d7a-e352-40a0-9fc7-55c7b4bfd013.jpg?1783938694",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "If you control no other creatures as Merciless Executioner's ability resolves, you'll have to sacrifice Merciless Executioner."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLACK"
@@ -513,6 +1393,53 @@
     ]
 }
 
+// Pressure Point
+{
+    "name": "Pressure Point",
+    "manaCost": "{1}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Tap target creature.\nDraw a card.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "TapUntap",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "21",
+        "artist": "Chase Stone",
+        "flavorText": "By studying dragon anatomy, Jeskai monks have learned how to locate clusters of nerves that will incapacitate even the mightiest dragons.",
+        "imageUri": "https://cards.scryfall.io/normal/front/d/0/d0027360-736c-4b3e-b2cd-0d821cca587a.jpg?1783938712"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Reality Shift
 {
     "name": "Reality Shift",
@@ -582,10 +1509,427 @@
         "collectorNumber": "46",
         "rarity": "UNCOMMON",
         "artist": "Howard Lyon",
-        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e01367cb-79f4-4ed9-b12c-66f3c30264a0.jpg?1783938704"
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e01367cb-79f4-4ed9-b12c-66f3c30264a0.jpg?1783938704",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "Because the permanent is on the battlefield both before and after it's turned face up, turning a permanent face up doesn't cause any enters-the-battlefield abilities to trigger."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "Unlike a face-down creature that was cast using the morph ability, a manifested creature may still be turned face up after it loses its abilities if it's a creature card."
+            }
+        ]
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Renowned Weaponsmith
+{
+    "name": "Renowned Weaponsmith",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Human Artificer",
+    "oracleText": "{T}: Add {C}{C}. Spend this mana only to cast artifact spells or activate abilities of artifacts.\n{U}, {T}: Search your library for a card named Heart-Piercer Bow or Vial of Dragonfire, reveal it, put it into your hand, then shuffle.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Renowned Weaponsmith:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "restriction": {
+                        "type": "CardTypeSpellsOrAbilitiesOnly",
+                        "cardType": "ARTIFACT",
+                        "allowAbilities": true
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Renowned Weaponsmith:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{U}"
+                            }
+                        },
+                        "CostTap"
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": {
+                                    "cardPredicates": [
+                                        {
+                                            "type": "Or",
+                                            "predicates": [
+                                                {
+                                                    "type": "NameEquals",
+                                                    "name": "Heart-Piercer Bow"
+                                                },
+                                                {
+                                                    "type": "NameEquals",
+                                                    "name": "Vial of Dragonfire"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card named Heart-Piercer Bow or named Vial of Dragonfire to put into your hand",
+                            "selectedLabel": "Put into your hand"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Hand"
+                            },
+                            "revealed": true
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "descriptionOverride": "{U}, {T}: Search your library for a card named Heart-Piercer Bow or Vial of Dragonfire, reveal it, put it into your hand, then shuffle."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "48",
+        "rarity": "UNCOMMON",
+        "artist": "Eric Deschamps",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/0/500f72e0-2de2-4c02-bda0-8a61aa9b37fc.jpg?1783938703",
+        "rulings": [
+            {
+                "date": "2019-07-12",
+                "text": "You can't spend mana added by this ability to pay costs of triggered abilities of artifacts such as the first ability of Chandra's Regulator."
+            },
+            {
+                "date": "2019-07-12",
+                "text": "The mana generated by Renowned Weaponsmith's first ability can't be spent to activate abilities of artifact sources that aren't on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Sage's Reverie
+{
+    "name": "Sage's Reverie",
+    "manaCost": "{3}{W}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nWhen this Aura enters, draw a card for each Aura you control that's attached to a creature.\nEnchanted creature gets +1/+1 for each Aura you control that's attached to a creature.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Sage's Reverie:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsEnchantment",
+                                {
+                                    "type": "HasSubtype",
+                                    "subtype": "Aura"
+                                }
+                            ],
+                            "statePredicates": [
+                                {
+                                    "type": "IsAttachedTo",
+                                    "filter": "creature"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "AttachedTo"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsEnchantment",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Aura"
+                            }
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "IsAttachedTo",
+                                "filter": "creature"
+                            }
+                        ]
+                    }
+                },
+                "toughnessBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsEnchantment",
+                            {
+                                "type": "HasSubtype",
+                                "subtype": "Aura"
+                            }
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "IsAttachedTo",
+                                "filter": "creature"
+                            }
+                        ]
+                    }
+                }
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "23",
+        "rarity": "UNCOMMON",
+        "artist": "Jason Rainville",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/f/0f22dd6f-807a-48a7-bc69-29aaec7012de.jpg?1783938712",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "Count the number of Auras you control attached to creatures as the enters-the-battlefield ability resolves to determine how many cards to draw. This will include Sage's Reverie as long as it's still on the battlefield at that time."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "An Aura doesn't necessarily need the enchant creature ability for the abilities of Sage's Reverie to count it. For example, an Aura with enchant permanent that's attached to a creature will count."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Sandblast
+{
+    "name": "Sandblast",
+    "manaCost": "{2}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Sandblast deals 5 damage to target attacking or blocking creature.",
+    "script": {
+        "spellEffect": {
+            "type": "DealDamage",
+            "amount": {
+                "type": "Fixed",
+                "amount": 5
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": {
+                        "cardPredicates": [
+                            "IsCreature"
+                        ],
+                        "statePredicates": [
+                            {
+                                "type": "StateOr",
+                                "predicates": [
+                                    "IsAttacking",
+                                    "IsBlocking"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "24",
+        "artist": "Min Yum",
+        "flavorText": "In the Shifting Wastes, more are killed by sand than by steel.",
+        "imageUri": "https://cards.scryfall.io/normal/front/b/7/b7305cd4-a9f1-4801-bdfe-b07869ed5b56.jpg?1783938710"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Shamanic Revelation
+{
+    "name": "Shamanic Revelation",
+    "manaCost": "{3}{G}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Draw a card for each creature you control.\nFerocious — You gain 4 life for each creature you control with power 4 or greater.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature"
+                    }
+                },
+                {
+                    "type": "GainLife",
+                    "amount": {
+                        "type": "Multiply",
+                        "amount": {
+                            "type": "AggregateBattlefield",
+                            "player": "You",
+                            "filter": "creature pow>=4"
+                        },
+                        "multiplier": 4
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "138",
+        "rarity": "RARE",
+        "artist": "Cynthia Sheppard",
+        "flavorText": "First, whispers of ancient days. Then, visions of things to come.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/c/5c7f2c73-26d8-42a6-acde-2c5a2f4e21a1.jpg?1783938679"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Silumgar, the Drifting Death
+{
+    "name": "Silumgar, the Drifting Death",
+    "manaCost": "{4}{U}{B}",
+    "typeLine": "Legendary Creature — Dragon",
+    "oracleText": "Flying, hexproof\nWhenever a Dragon you control attacks, creatures defending player controls get -1/-1 until end of turn.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 7
+    },
+    "keywords": [
+        "FLYING",
+        "HEXPROOF"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Silumgar, the Drifting Death:1",
+                "trigger": {
+                    "type": "AttackEvent",
+                    "filter": "creature Dragon ctrl:you"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsCreature"
+                                ],
+                                "controllerPredicate": {
+                                    "type": "ControlledByReferencedPlayer",
+                                    "target": {
+                                        "type": "PlayerRef",
+                                        "player": "DefendingPlayer"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": -1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": -1
+                        },
+                        "target": "IterationEntity"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "157",
+        "rarity": "RARE",
+        "artist": "Steven Belledin",
+        "flavorText": "\"No machinations, no puppet strings, no plots. Just pure, sweeping death.\"\n—Tasigur, the Golden Fang",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/c/4c9108e7-6c39-4587-aa3a-0ec27f9761b2.jpg?1783938673"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
     ]
 }
 
@@ -631,6 +1975,361 @@
     "colorIdentityOverride": [
         "RED"
     ]
+}
+
+// Temporal Trespass
+{
+    "name": "Temporal Trespass",
+    "manaCost": "{8}{U}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Delve (Each card you exile from your graveyard while casting this spell pays for {1}.)\nTake an extra turn after this one. Exile Temporal Trespass.",
+    "keywords": [
+        "DELVE"
+    ],
+    "script": {
+        "spellEffect": "TakeExtraTurn",
+        "selfExileOnResolve": true
+    },
+    "metadata": {
+        "collectorNumber": "55",
+        "rarity": "MYTHIC",
+        "artist": "Clint Cearley",
+        "flavorText": "Few truly live in the moment.",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/0/a08b7a1e-b404-41ea-875f-b3468501cb4b.jpg?1783938701",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Delve doesn't change a spell's mana cost or mana value. For example, Treasure Cruise's mana value is 8 even if you exiled three cards to cast it."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "You can exile cards to pay only for generic mana, and you can't exile more cards than the generic mana requirement of a spell with delve. For example, you can't exile more than seven cards from your graveyard to cast Treasure Cruise unless an effect has increased its cost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Temur Battle Rage
+{
+    "name": "Temur Battle Rage",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Target creature gains double strike until end of turn.\nFerocious — That creature also gains trample until end of turn if you control a creature with power 4 or greater.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "DOUBLE_STRIKE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.WhenCondition",
+                        "condition": {
+                            "type": "Exists",
+                            "player": "You",
+                            "zone": "Battlefield",
+                            "filter": "creature pow>=4"
+                        }
+                    },
+                    "then": {
+                        "type": "GrantKeyword",
+                        "keyword": "TRAMPLE",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "116",
+        "artist": "Jaime Jones",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/a/8a1dd786-f4e3-4951-b87b-82442edec016.jpg?1783938685",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Temur Battle Rage checks whether you control a creature with power 4 or greater as it resolves. If you do, the target creature has trample until end of turn even if you no longer control a creature with power 4 or greater later in the turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
+// Temur Sabertooth
+{
+    "name": "Temur Sabertooth",
+    "manaCost": "{2}{G}{G}",
+    "typeLine": "Creature — Cat",
+    "oracleText": "{1}{G}: You may return another creature you control to its owner's hand. If you do, this creature gains indestructible until end of turn.",
+    "creatureStats": {
+        "power": 4,
+        "toughness": 3
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Temur Sabertooth:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Gated",
+                        "gate": {
+                            "type": "Gate.DoAction",
+                            "action": {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "BattlefieldMatching",
+                                            "filter": "creature",
+                                            "player": "You",
+                                            "excludeSelf": true
+                                        },
+                                        "storeAs": "gathered0"
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "gathered0",
+                                        "selection": {
+                                            "type": "ChooseExactly",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 1
+                                            }
+                                        },
+                                        "storeSelected": "bounced",
+                                        "prompt": "Return another creature you control to its owner's hand",
+                                        "useTargetingUI": true
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "bounced",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Hand"
+                                        }
+                                    }
+                                ]
+                            },
+                            "successCriterion": {
+                                "type": "SuccessCriterion.CollectionNonEmpty",
+                                "name": "bounced"
+                            }
+                        },
+                        "then": {
+                            "type": "GrantKeyword",
+                            "keyword": "INDESTRUCTIBLE",
+                            "target": "Self"
+                        }
+                    }
+                },
+                "descriptionOverride": "{1}{G}: You may return another creature you control to its owner's hand. If you do, this creature gains indestructible until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "141",
+        "rarity": "UNCOMMON",
+        "artist": "Mike Sass",
+        "flavorText": "The Temur see themselves as a pack, their bonds more primal than the Abzan's.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/d/5d54da7c-8828-4d34-bfd0-a654692d3f5a.jpg?1783938677",
+        "rulings": [
+            {
+                "date": "2014-11-24",
+                "text": "You choose whether to return a creature and which creature to return as the activated ability resolves. This doesn't target any creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
+// Ugin, the Spirit Dragon
+{
+    "name": "Ugin, the Spirit Dragon",
+    "manaCost": "{8}",
+    "typeLine": "Legendary Planeswalker — Ugin",
+    "oracleText": "+2: Ugin deals 3 damage to any target.\n−X: Exile each permanent with mana value X or less that's one or more colors.\n−10: You gain 7 life, draw seven cards, then put up to seven permanent cards from your hand onto the battlefield.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Ugin, the Spirit Dragon:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 2
+                },
+                "effect": {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "AnyTarget",
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Ugin, the Spirit Dragon:2",
+                "cost": "CostLoyaltyX",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsPermanent",
+                                    {
+                                        "type": "CompareNumericProperty",
+                                        "property": "MANA_VALUE",
+                                        "operator": "LTE",
+                                        "amount": "XValue"
+                                    },
+                                    "IsColored"
+                                ]
+                            }
+                        }
+                    },
+                    "body": {
+                        "type": "MoveToZone",
+                        "target": "IterationEntity",
+                        "destination": "Exile"
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true,
+                "descriptionOverride": "Exile each permanent with mana value X or less that's one or more colors."
+            },
+            {
+                "id": "Ugin, the Spirit Dragon:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -10
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GainLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 7
+                            }
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 7
+                            }
+                        },
+                        {
+                            "type": "Composite",
+                            "effects": [
+                                {
+                                    "type": "GatherCards",
+                                    "source": {
+                                        "type": "FromZone",
+                                        "zone": "Hand",
+                                        "filter": "permanent"
+                                    },
+                                    "storeAs": "put_candidates"
+                                },
+                                {
+                                    "type": "SelectFromCollection",
+                                    "from": "put_candidates",
+                                    "selection": {
+                                        "type": "ChooseUpTo",
+                                        "count": {
+                                            "type": "Fixed",
+                                            "amount": 7
+                                        }
+                                    },
+                                    "storeSelected": "putting",
+                                    "prompt": "Put up to seven permanent cards from your hand onto the battlefield"
+                                },
+                                {
+                                    "type": "MoveCollection",
+                                    "from": "putting",
+                                    "destination": {
+                                        "type": "ToZone",
+                                        "zone": "Battlefield"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "MYTHIC",
+        "artist": "Raymond Swanland",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/8/58c1e824-c8a9-4312-8e4c-a29a26d189a4.jpg?1783938716",
+        "rulings": [
+            {
+                "date": "2020-06-23",
+                "text": "If a permanent has {X} in its mana cost, X is considered to be 0."
+            },
+            {
+                "date": "2020-06-23",
+                "text": "The mana value of a token that isn't a copy of another object is 0. A token that is a copy of another object has the same mana cost as that object."
+            },
+            {
+                "date": "2014-11-24",
+                "text": "If you choose to put permanent cards with morph onto the battlefield with the third ability, you must put them onto the battlefield face up."
+            }
+        ]
+    },
+    "startingLoyalty": 7,
+    "colorIdentityOverride": []
 }
 
 // Valorous Stance

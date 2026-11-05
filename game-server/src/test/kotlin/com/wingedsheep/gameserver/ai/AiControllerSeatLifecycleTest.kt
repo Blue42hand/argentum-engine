@@ -211,6 +211,7 @@ private data object LifecycleController : AiPlayerController {
         pickNumber: Int,
         picksRequired: Int,
         passDirection: String,
+        podSize: Int?,
     ): List<String> = error("not used")
 
     override fun chooseWinstonAction(

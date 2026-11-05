@@ -12,4 +12,5 @@ val LightUpTheStageReprint = Printing(
     imageUri = "https://cards.scryfall.io/normal/front/7/0/7034ff11-f7c7-4f33-be89-491ffec84833.jpg?1783922418",
     releaseDate = "2022-06-10",
     rarity = Rarity.UNCOMMON,
+    scryfallId = "7034ff11-f7c7-4f33-be89-491ffec84833",
 )

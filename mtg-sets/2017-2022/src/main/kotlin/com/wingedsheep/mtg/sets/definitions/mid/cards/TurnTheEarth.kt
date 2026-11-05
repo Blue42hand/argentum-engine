@@ -10,12 +10,27 @@ import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
-/** Turn the Earth — zero targets gains life without shuffling; each affected owner shuffles once. */
+/**
+ * Turn the Earth
+ * {G}
+ * Instant
+ * Choose up to three target cards in graveyards. The owners of those cards shuffle them into their
+ * libraries. You gain 2 life.
+ * Flashback {1}{G}
+ *
+ * The chosen targets are gathered and moved as one collection: each card is routed to its owner's
+ * library and every library that received a card is shuffled exactly once (per the rulings). With
+ * no targets chosen nothing moves and no library is shuffled — the `ifNotEmpty` guard keeps the
+ * collection move from falling back to shuffling the caster's library. If every chosen target is
+ * illegal on resolution the spell doesn't resolve, so no life is gained.
+ */
 val TurnTheEarth = card("Turn the Earth") {
     manaCost = "{G}"
     colorIdentity = "G"
     typeLine = "Instant"
-    oracleText = "Choose up to three target cards in graveyards. The owners of those cards shuffle them into their libraries. You gain 2 life.\nFlashback {1}{G} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
+    oracleText = "Choose up to three target cards in graveyards. The owners of those cards shuffle them " +
+        "into their libraries. You gain 2 life.\n" +
+        "Flashback {1}{G} (You may cast this card from your graveyard for its flashback cost. Then exile it.)"
 
     spell {
         targets(TargetFilter.CardInGraveyard, count = 3, optional = true)

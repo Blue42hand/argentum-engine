@@ -2,6 +2,7 @@ package com.wingedsheep.engine.scenarios
 
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.DamageDealtEvent
+import com.wingedsheep.engine.core.Outcome
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.engine.support.GameTestDriver
@@ -98,5 +99,55 @@ class TalismanOfResilienceScenarioTest : FunSpec({
         d.isTapped(talisman) shouldBe true
         d.getLifeTotal(d.player1) shouldBe 19
         d.state.getEntity(d.player1)?.get<ManaPoolComponent>()?.green shouldBe 0
+    }
+})
+
+/**
+ * Talisman of Resilience: {T}: Add {C}. / {T}: Add {B} or {G}. This artifact deals 1 damage to you.
+ * The colourless line is free; each coloured line costs 1 life.
+ */
+class TalismanOfResilienceUpstreamScenarioTest : FunSpec({
+
+    val colorless = TalismanOfResilience.activatedAbilities[0].id
+    val black = TalismanOfResilience.activatedAbilities[1].id
+    val green = TalismanOfResilience.activatedAbilities[2].id
+
+    fun setup(): GameTestDriver {
+        val driver = GameTestDriver()
+        driver.registerCards(TestCards.all)
+        driver.registerCard(TalismanOfResilience)
+        driver.initMirrorMatch(deck = Deck.of("Forest" to 20), startingLife = 20)
+        driver.passPriorityUntil(Step.PRECOMBAT_MAIN)
+        return driver
+    }
+
+    test("{T}: Add {C} costs no life") {
+        val driver = setup()
+        val player = driver.activePlayer!!
+        val talisman = driver.putPermanentOnBattlefield(player, "Talisman of Resilience")
+
+        driver.submit(ActivateAbility(player, talisman, colorless)).outcome shouldBe Outcome.Done
+        driver.state.getEntity(player)!!.get<ManaPoolComponent>()!!.colorless shouldBe 1
+        driver.getLifeTotal(player) shouldBe 20
+    }
+
+    test("{T}: Add {B} deals 1 damage to you") {
+        val driver = setup()
+        val player = driver.activePlayer!!
+        val talisman = driver.putPermanentOnBattlefield(player, "Talisman of Resilience")
+
+        driver.submit(ActivateAbility(player, talisman, black)).outcome shouldBe Outcome.Done
+        driver.state.getEntity(player)!!.get<ManaPoolComponent>()!!.black shouldBe 1
+        driver.getLifeTotal(player) shouldBe 19
+    }
+
+    test("{T}: Add {G} deals 1 damage to you") {
+        val driver = setup()
+        val player = driver.activePlayer!!
+        val talisman = driver.putPermanentOnBattlefield(player, "Talisman of Resilience")
+
+        driver.submit(ActivateAbility(player, talisman, green)).outcome shouldBe Outcome.Done
+        driver.state.getEntity(player)!!.get<ManaPoolComponent>()!!.green shouldBe 1
+        driver.getLifeTotal(player) shouldBe 19
     }
 })

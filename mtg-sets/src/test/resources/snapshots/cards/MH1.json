@@ -42,6 +42,106 @@
     ]
 }
 
+// Ayula, Queen Among Bears
+{
+    "name": "Ayula, Queen Among Bears",
+    "manaCost": "{1}{G}",
+    "typeLine": "Legendary Creature — Bear",
+    "oracleText": "Whenever another Bear you control enters, choose one —\n• Put two +1/+1 counters on target Bear.\n• Target Bear you control fights target creature you don't control.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Ayula, Queen Among Bears:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Bear ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "OTHER",
+                "effect": {
+                    "type": "Modal",
+                    "modes": [
+                        {
+                            "effect": {
+                                "type": "AddCounters",
+                                "counterType": "PLUS_ONE_PLUS_ONE",
+                                "count": 2,
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t0"
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "permanent Bear"
+                                    },
+                                    "id": "t0"
+                                }
+                            ],
+                            "description": "Put two +1/+1 counters on target Bear"
+                        },
+                        {
+                            "effect": {
+                                "type": "Fight",
+                                "target1": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                },
+                                "target2": {
+                                    "type": "BoundVariable",
+                                    "name": "t2"
+                                }
+                            },
+                            "targetRequirements": [
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": "permanent Bear ctrl:you"
+                                    },
+                                    "id": "t1"
+                                },
+                                {
+                                    "type": "TargetObject",
+                                    "filter": {
+                                        "baseFilter": {
+                                            "cardPredicates": [
+                                                "IsCreature"
+                                            ],
+                                            "controllerPredicate": {
+                                                "type": "ControllerNot",
+                                                "predicate": "ControlledByYou"
+                                            }
+                                        }
+                                    },
+                                    "id": "t2"
+                                }
+                            ],
+                            "description": "Target Bear you control fights target creature you don't control"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever another Bear you control enters, choose one — Put two +1/+1 counters on target Bear; or target Bear you control fights target creature you don't control."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "155",
+        "rarity": "RARE",
+        "artist": "Jesper Ejsing",
+        "flavorText": "Born from the oldest red cedar, nursed on the sap of the tallest spruce, coronated under the mightiest pine.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/0/c046dfb0-9ca3-4219-a6b0-d7503bc2fbd0.jpg?1783933100"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Azra Smokeshaper
 {
     "name": "Azra Smokeshaper",
@@ -84,6 +184,49 @@
                     },
                     "id": "t0"
                 }
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ninjutsu_{1}{B}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{1}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Hand",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Hand",
+                "descriptionOverride": "Ninjutsu {1}{B} ({1}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+                "keyword": "NINJUTSU"
             }
         ]
     },
@@ -230,6 +373,75 @@
     "colorIdentityOverride": []
 }
 
+// Bogardan Dragonheart
+{
+    "name": "Bogardan Dragonheart",
+    "manaCost": "{2}{R}",
+    "typeLine": "Creature — Human Shaman",
+    "oracleText": "Sacrifice another creature: Until end of turn, this creature becomes a Dragon with base power and toughness 4/4, flying, and haste.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Bogardan Dragonheart:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomSacrifice",
+                        "filter": "creature",
+                        "excludeSelf": true
+                    }
+                },
+                "effect": {
+                    "type": "BecomeCreature",
+                    "power": {
+                        "type": "Fixed",
+                        "amount": 4
+                    },
+                    "toughness": {
+                        "type": "Fixed",
+                        "amount": 4
+                    },
+                    "keywords": [
+                        "FLYING",
+                        "HASTE"
+                    ],
+                    "creatureTypes": [
+                        "Dragon"
+                    ]
+                },
+                "descriptionOverride": "Sacrifice another creature: Until end of turn, this creature becomes a Dragon with base power and toughness 4/4, flying, and haste."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "120",
+        "artist": "Randy Vargas",
+        "flavorText": "A hunger to soar must be sated.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/e/feb81f44-8f22-4d28-a452-a50bef69a3e3.jpg?1783933116",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Bogardan Dragonheart's ability overwrites all previous effects that set its creature types, power, and/or toughness to specific values. Other effects that set these characteristics to specific values that start to apply after the ability resolves will overwrite that part of this effect."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Effects that modify Bogardan Dragonheart's power or toughness (such as the effects of Force of Virtue or Giant Growth) will apply no matter when they started to take effect. The same is true for counters that change its power or toughness (such as +1/+1 counters)."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Bogardan Dragonheart doesn't lose any abilities when it becomes a Dragon."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Cave of Temptation
 {
     "name": "Cave of Temptation",
@@ -314,6 +526,36 @@
         "imageUri": "https://cards.scryfall.io/normal/front/d/8/d86e9149-6fd9-44fc-b765-3e646c7d83d6.jpg?1783933069"
     },
     "colorIdentityOverride": []
+}
+
+// Changeling Outcast
+{
+    "name": "Changeling Outcast",
+    "manaCost": "{B}",
+    "typeLine": "Creature — Shapeshifter",
+    "oracleText": "Changeling (This card is every creature type.)\nThis creature can't block and can't be blocked.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "keywords": [
+        "CHANGELING"
+    ],
+    "script": {
+        "staticAbilities": [
+            "CantBlock",
+            "CantBeBlocked"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "82",
+        "artist": "Micah Epstein",
+        "flavorText": "A mercurial face sows distrust. Distrust reaps a lonely life.",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/8/08151d00-513a-4957-aa16-01c0f0245112.jpg?1783933130"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
 }
 
 // Chillerpillar
@@ -450,6 +692,67 @@
     },
     "colorIdentityOverride": [
         "RED"
+    ]
+}
+
+// Cordial Vampire
+{
+    "name": "Cordial Vampire",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Vampire",
+    "oracleText": "Whenever this creature or another creature dies, put a +1/+1 counter on each Vampire you control.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Cordial Vampire:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "permanent Vampire ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "AddCounters",
+                        "counterType": "PLUS_ONE_PLUS_ONE",
+                        "count": 1,
+                        "target": "IterationEntity"
+                    }
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "83",
+        "rarity": "RARE",
+        "artist": "Winona Nelson",
+        "flavorText": "\"Please, come in! Hors d'oeuvres are on the table.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/a/9/a90a1c44-ee0f-4c12-bfaf-6f371bcce167.jpg?1783933130",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If Cordial Vampire dies at the same time as one or more other creatures, its ability triggers for each of them."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a Vampire you control is dealt lethal damage at the same time as another creature, they die at the same time. That Vampire can't receive a counter from Cordial Vampire's ability in time to save it."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }
 
@@ -664,6 +967,96 @@
     ]
 }
 
+// Echo of Eons
+{
+    "name": "Echo of Eons",
+    "manaCost": "{4}{U}{U}",
+    "typeLine": "Sorcery",
+    "oracleText": "Each player shuffles their hand and graveyard into their library, then draws seven cards.\nFlashback {2}{U} (You may cast this card from your graveyard for its flashback cost. Then exile it.)",
+    "keywords": [
+        "FLASHBACK"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Flashback",
+            "cost": "{2}{U}"
+        }
+    ],
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "GatherCards",
+                                "source": {
+                                    "type": "FromMultipleZones",
+                                    "zones": [
+                                        "Hand",
+                                        "Graveyard"
+                                    ]
+                                },
+                                "storeAs": "gathered0"
+                            },
+                            {
+                                "type": "MoveCollection",
+                                "from": "gathered0",
+                                "destination": {
+                                    "type": "ToZone",
+                                    "zone": "Library",
+                                    "placement": "Shuffled"
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Players",
+                        "players": "Each"
+                    },
+                    "body": {
+                        "type": "DrawCards",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 7
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "46",
+        "rarity": "MYTHIC",
+        "artist": "Terese Nielsen",
+        "flavorText": "The present is a matter of perspective.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/f/ff590af2-2d6c-4f16-a9b8-1a6dab6e9ad5.jpg?1783933147",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Echo of Eons won't be put into your graveyard until after it's finished resolving, which means it won't be shuffled into your library as part of its own effect."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "A spell cast using flashback will always be exiled afterward, whether it resolves, is countered, or leaves the stack in some other way."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Etchings of the Chosen
 {
     "name": "Etchings of the Chosen",
@@ -746,6 +1139,60 @@
     ]
 }
 
+// Eyekite
+{
+    "name": "Eyekite",
+    "manaCost": "{1}{U}",
+    "typeLine": "Creature — Drake",
+    "oracleText": "Flying\nThis creature gets +2/+0 as long as you've drawn two or more cards this turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ConditionalStaticAbility",
+                "ability": {
+                    "type": "ModifyStats",
+                    "powerBonus": 2,
+                    "toughnessBonus": 0,
+                    "filter": {
+                        "baseFilter": "permanent",
+                        "scope": "Self"
+                    }
+                },
+                "condition": {
+                    "type": "PlayerDrewCardsThisTurn",
+                    "atLeast": 2
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "49",
+        "artist": "Dan Murayama Scott",
+        "flavorText": "\"This one will need direction. After all, each of its eyes is larger than its brain.\"\n—Cyla, Lord of the Aerie",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/9/49f7bda8-949a-42aa-9254-f39b791cb9a8.jpg?1783933145",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Eyekite's effect applies even if you drew two or more cards only before Eyekite entered the battlefield."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" Eyekite's effect doesn't count them."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Faerie Seer
 {
     "name": "Faerie Seer",
@@ -783,6 +1230,144 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Fallen Shinobi
+{
+    "name": "Fallen Shinobi",
+    "manaCost": "{3}{U}{B}",
+    "typeLine": "Creature — Zombie Ninja",
+    "oracleText": "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever this creature deals combat damage to a player, that player exiles the top two cards of their library. Until end of turn, you may play those cards without paying their mana costs.",
+    "creatureStats": {
+        "power": 5,
+        "toughness": 4
+    },
+    "keywords": [
+        "NINJUTSU"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ninjutsu",
+            "cost": "{2}{U}{B}"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Fallen Shinobi:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                },
+                                "player": "TriggeringPlayer"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "gathered0",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile",
+                                "player": "TriggeringPlayer"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "gathered0"
+                        },
+                        {
+                            "type": "GrantPlayWithoutPayingCost",
+                            "from": "gathered0"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever this creature deals combat damage to a player, that player exiles the top two cards of their library. Until end of turn, you may play those cards without paying their mana costs."
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ninjutsu_{2}{U}{B}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{U}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Hand",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Hand",
+                "descriptionOverride": "Ninjutsu {2}{U}{B} ({2}{U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+                "keyword": "NINJUTSU"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "199",
+        "rarity": "RARE",
+        "artist": "Tomasz Jedruszek",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/0/900c9dfd-ece1-4b09-a801-0fa05e1994b9.jpg?1783933085",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Fallen Shinobi's triggered ability doesn't change when you can play the exiled cards. For example, if a sorcery card is exiled, you can cast it only during your main phase when the stack is empty. If a land card is exiled, you can play it only during your main phase and only if you have an available land play remaining."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Casting an exiled card causes it to leave exile. You can't cast it multiple times."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Any cards you don't cast will remain in exile."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "BLACK"
     ]
 }
 
@@ -894,7 +1479,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -916,7 +1504,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -964,6 +1555,84 @@
     "colorIdentityOverride": [
         "RED",
         "BLUE"
+    ]
+}
+
+// Fists of Flame
+{
+    "name": "Fists of Flame",
+    "manaCost": "{1}{R}",
+    "typeLine": "Instant",
+    "oracleText": "Draw a card. Until end of turn, target creature gains trample and gets +1/+0 for each card you've drawn this turn. (A creature with trample can deal excess combat damage to the player or planeswalker it's attacking.)",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                {
+                    "type": "GrantKeyword",
+                    "keyword": "TRAMPLE",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "ModifyStats",
+                    "powerModifier": {
+                        "type": "TurnTracking",
+                        "player": "You",
+                        "tracker": "CARDS_DRAWN"
+                    },
+                    "toughnessModifier": {
+                        "type": "Fixed",
+                        "amount": 0
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "123",
+        "artist": "Steve Argyle",
+        "flavorText": "\"Fire has always been my most faithful companion.\"\n—Jared Carthalion",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4fa3c0d8-0a3e-43b0-b81e-a3d22ce6a4b2.jpg?1783933113",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If the target creature is an illegal target by the time Fists of Flame tries to resolve, the spell doesn't resolve. You won't draw a card."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" Fists of Flame's effect doesn't count them."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "The bonus that the target creature receives is locked in as Fists of Flame resolves, counting the card drawn during its first effect. The creature won't get an additional +1/+0 if you draw another card later in the turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED"
     ]
 }
 
@@ -1406,7 +2075,8 @@
                         },
                         "id": "t0"
                     }
-                ]
+                ],
+                "descriptionOverride": "{1}{W}, {T}: Put target enchantment card from your graveyard on top of your library."
             }
         ]
     },
@@ -1518,6 +2188,49 @@
         }
     ],
     "script": {
+        "activatedAbilities": [
+            {
+                "id": "ninjutsu_{U}{B}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{U}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Hand",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Hand",
+                "descriptionOverride": "Ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+                "keyword": "NINJUTSU"
+            }
+        ],
         "staticAbilities": [
             {
                 "type": "GrantTriggeredAbility",
@@ -1821,6 +2534,262 @@
     ]
 }
 
+// Marit Lage's Slumber
+{
+    "name": "Marit Lage's Slumber",
+    "manaCost": "{1}{U}",
+    "typeLine": "Legendary Snow Enchantment",
+    "oracleText": "Whenever Marit Lage's Slumber or another snow permanent you control enters, scry 1.\nAt the beginning of your upkeep, if you control ten or more snow permanents, sacrifice Marit Lage's Slumber. If you do, create Marit Lage, a legendary 20/20 black Avatar creature token with flying and indestructible.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Marit Lage's Slumber:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent",
+                            "IsSnow"
+                        ],
+                        "controllerPredicate": "ControlledByYou"
+                    },
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Scry",
+                    "count": 1
+                },
+                "descriptionOverride": "Whenever Marit Lage's Slumber or another snow permanent you control enters, scry 1."
+            },
+            {
+                "id": "Marit Lage's Slumber:2",
+                "trigger": {
+                    "type": "StepEvent",
+                    "step": "UPKEEP"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.DoAction",
+                        "action": "SacrificeSelf",
+                        "successCriterion": "SuccessCriterion.PermanentsSacrificed"
+                    },
+                    "then": {
+                        "type": "CreateToken",
+                        "power": 20,
+                        "toughness": 20,
+                        "colors": [
+                            "BLACK"
+                        ],
+                        "creatureTypes": [
+                            "Avatar"
+                        ],
+                        "keywords": [
+                            "FLYING",
+                            "INDESTRUCTIBLE"
+                        ],
+                        "name": "Marit Lage",
+                        "imageUri": "https://cards.scryfall.io/normal/front/7/b/7b993828-e139-4cb6-a329-487accc1c515.jpg?1783933228",
+                        "legendary": true
+                    }
+                },
+                "interveningIf": {
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": {
+                            "cardPredicates": [
+                                "IsPermanent",
+                                "IsSnow"
+                            ]
+                        }
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 10
+                    }
+                },
+                "descriptionOverride": "At the beginning of your upkeep, if you control ten or more snow permanents, sacrifice Marit Lage's Slumber. If you do, create Marit Lage, a legendary 20/20 black Avatar creature token with flying and indestructible."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "56",
+        "rarity": "RARE",
+        "artist": "Randy Vargas",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/f/4f5d2a6e-22cd-4493-9e58-e9c2aa3a31ab.jpg?1783933143",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If you don't control ten or more snow permanents as your upkeep begins, the last ability won't trigger. No player may take any actions during a turn before the turn's upkeep begins."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If you don't control ten snow permanents as the last ability resolves, you can't sacrifice Marit Lage's Slumber."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If Marit Lage's Slumber leaves the battlefield before its last ability resolves, you won't be able to sacrifice it, so you won't create Marit Lage."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Martyr's Soul
+{
+    "name": "Martyr's Soul",
+    "manaCost": "{2}{W}",
+    "typeLine": "Creature — Spirit Soldier",
+    "oracleText": "Convoke (Your creatures can help cast this spell. Each creature you tap while casting this spell pays for {1} or one mana of that creature's color.)\nWhen this creature enters, if you control no tapped lands, put two +1/+1 counters on it.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 2
+    },
+    "keywords": [
+        "CONVOKE"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Martyr's Soul:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 2,
+                    "target": "Self"
+                },
+                "interveningIf": {
+                    "type": "Exists",
+                    "player": "You",
+                    "zone": "Battlefield",
+                    "filter": "land tapped",
+                    "negate": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "19",
+        "artist": "Mila Pesic",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/c/7c17428c-e31d-42f3-8811-6734abd96b0b.jpg?1783933158",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If you control any tapped lands as Martyr's Soul enters the battlefield, its last ability doesn't trigger at all. If you control any tapped lands as the ability resolves, you won't put two +1/+1 counters on Martyr's Soul."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Mist-Syndicate Naga
+{
+    "name": "Mist-Syndicate Naga",
+    "manaCost": "{2}{U}",
+    "typeLine": "Creature — Snake Ninja",
+    "oracleText": "Ninjutsu {2}{U} ({2}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)\nWhenever this creature deals combat damage to a player, create a token that's a copy of this creature.",
+    "creatureStats": {
+        "power": 3,
+        "toughness": 1
+    },
+    "keywords": [
+        "NINJUTSU"
+    ],
+    "keywordAbilities": [
+        {
+            "type": "Ninjutsu",
+            "cost": "{2}{U}"
+        }
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Mist-Syndicate Naga:1",
+                "trigger": {
+                    "type": "DealsDamageEvent",
+                    "damageType": "DamageCombat",
+                    "recipient": {
+                        "type": "RecipientPlayer",
+                        "player": "Any"
+                    }
+                },
+                "effect": "CreateTokenCopyOfSource"
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ninjutsu_{2}{U}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{U}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Hand",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Hand",
+                "descriptionOverride": "Ninjutsu {2}{U} ({2}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+                "keyword": "NINJUTSU"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "58",
+        "rarity": "RARE",
+        "artist": "Randy Vargas",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/5/65c8f074-e260-4f8e-85d1-1904ca928b51.jpg?1783933143",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If Mist-Syndicate Naga leaves the battlefield before its triggered ability resolves, the token will still enter the battlefield as a copy of Mist-Syndicate Naga, using Mist-Syndicate Naga's copiable values from when it was last on the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
 // Mob
 {
     "name": "Mob",
@@ -1907,6 +2876,49 @@
                     ]
                 }
             }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "ninjutsu_{2}{U}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{2}{U}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Hand",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Hand",
+                "descriptionOverride": "Ninjutsu {2}{U} ({2}{U}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+                "keyword": "NINJUTSU"
+            }
         ]
     },
     "metadata": {
@@ -1916,6 +2928,91 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Morophon, the Boundless
+{
+    "name": "Morophon, the Boundless",
+    "manaCost": "{7}",
+    "typeLine": "Legendary Creature — Shapeshifter",
+    "oracleText": "Changeling (This card is every creature type.)\nAs Morophon enters, choose a creature type.\nSpells of the chosen type you cast cost {W}{U}{B}{R}{G} less to cast. This effect reduces only the amount of colored mana you pay.\nOther creatures you control of the chosen type get +1/+1.",
+    "creatureStats": {
+        "power": 6,
+        "toughness": 6
+    },
+    "keywords": [
+        "CHANGELING"
+    ],
+    "script": {
+        "staticAbilities": [
+            {
+                "type": "ModifySpellCost",
+                "target": {
+                    "type": "YouCast",
+                    "filter": {
+                        "cardPredicates": [
+                            "HasChosenSubtype"
+                        ]
+                    }
+                },
+                "modification": {
+                    "type": "ReduceColored",
+                    "symbols": "{W}{U}{B}{R}{G}"
+                }
+            },
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1,
+                "filter": {
+                    "baseFilter": "creature ctrl:you",
+                    "excludeSelf": true,
+                    "chosenSubtypeKey": "chosenCreatureType"
+                }
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithChoice",
+                "choiceType": "CREATURE_TYPE"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "1",
+        "rarity": "MYTHIC",
+        "artist": "Victor Adame Minguez",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/6/9693e59b-032d-4ddc-a7d1-88a0f52dcc6c.jpg?1783933166",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "You must choose an existing creature type, such as Sliver or Warrior. Card types such as artifact, and supertypes such as legendary or snow, can't be chosen."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Morophon's effect reduces the total cost by up to one mana of each color. For example, if a spell of the chosen type costs {4}{R}{W}{W}, it will cost {4}{W} after applying Morophon's effect."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a spell has hybrid mana symbols in its mana cost, you choose which half you will be paying before determining the total cost. For example, if a spell of the chosen type costs {2}{W/U}{W/U}, you may choose for the cost to be {2}{W}{U} and then reduce it to {2}."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Cost reduction effects are applied after other cost modifiers, so Morophon can reduce additional costs or alternative costs of spells of the chosen type."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Because damage remains marked on a creature until the damage is removed as the turn ends, nonlethal damage dealt to other creatures you control of the chosen type may become lethal if Morophon leaves the battlefield during that turn."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE",
+        "BLACK",
+        "RED",
+        "GREEN"
     ]
 }
 
@@ -2013,6 +3110,51 @@
             "cost": "{3}{B}"
         }
     ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "ninjutsu_{3}{B}",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{3}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomReturnToHand",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "statePredicates": [
+                                        "IsAttacking",
+                                        "IsUnblocked"
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Battlefield",
+                    "placement": "TappedAndAttacking",
+                    "fromZone": "Hand",
+                    "attackDefender": "RETURNED_ATTACKER"
+                },
+                "activateFromZone": "Hand",
+                "descriptionOverride": "Ninjutsu {3}{B} ({3}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand tapped and attacking.)",
+                "keyword": "NINJUTSU"
+            }
+        ]
+    },
     "metadata": {
         "collectorNumber": "99",
         "artist": "Greg Opalinski",
@@ -2042,7 +3184,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -2064,7 +3209,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -2112,6 +3260,52 @@
     "colorIdentityOverride": [
         "BLACK",
         "GREEN"
+    ]
+}
+
+// Oneirophage
+{
+    "name": "Oneirophage",
+    "manaCost": "{3}{U}",
+    "typeLine": "Creature — Squid Illusion",
+    "oracleText": "Flying\nWhenever you draw a card, put a +1/+1 counter on this creature.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 2
+    },
+    "keywords": [
+        "FLYING"
+    ],
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Oneirophage:1",
+                "trigger": "DrawEvent",
+                "binding": "ANY",
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "60",
+        "rarity": "UNCOMMON",
+        "artist": "Martina Pilcerova",
+        "flavorText": "It manifests at wizard academies to siphon inspiration from young prodigies.",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/a/caefbac6-b2a0-4a70-a912-25173eafd7b3.jpg?1783933142",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If a spell or ability causes you to put cards into your hand without specifically using the word \"draw,\" Oneirophage's ability won't trigger."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -2362,7 +3556,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         },
                         "CostSacrificeSelf"
@@ -2391,7 +3588,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a basic land card to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
                         },
                         {
                             "type": "MoveCollection",
@@ -2833,7 +4032,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a Construct card to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -2939,6 +4140,224 @@
     ]
 }
 
+// Serra the Benevolent
+{
+    "name": "Serra the Benevolent",
+    "manaCost": "{2}{W}{W}",
+    "typeLine": "Legendary Planeswalker — Serra",
+    "oracleText": "+2: Creatures you control with flying get +1/+1 until end of turn.\n−3: Create a 4/4 white Angel creature token with flying and vigilance.\n−6: You get an emblem with \"If you control a creature, damage that would reduce your life total to less than 1 reduces it to 1 instead.\"",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Serra the Benevolent:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 2
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "creature kw:flying ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "ModifyStats",
+                        "powerModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "toughnessModifier": {
+                            "type": "Fixed",
+                            "amount": 1
+                        },
+                        "target": "IterationEntity"
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Serra the Benevolent:2",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -3
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 4,
+                    "toughness": 4,
+                    "colors": [
+                        "WHITE"
+                    ],
+                    "creatureTypes": [
+                        "Angel"
+                    ],
+                    "keywords": [
+                        "FLYING",
+                        "VIGILANCE"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/9/1/91808554-23ab-44f9-92a1-87ee7d58cd9a.jpg?1783933235"
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Serra the Benevolent:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -6
+                },
+                "effect": {
+                    "type": "CreatePermanentEmblem",
+                    "ownedReplacementEffects": [
+                        {
+                            "type": "LifeLossFloor",
+                            "restrictions": [
+                                {
+                                    "type": "Exists",
+                                    "player": "You",
+                                    "zone": "Battlefield",
+                                    "filter": "creature"
+                                }
+                            ]
+                        }
+                    ],
+                    "emblemDescription": "If you control a creature, damage that would reduce your life total to less than 1 reduces it to 1 instead."
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "26",
+        "rarity": "MYTHIC",
+        "artist": "Magali Villeneuve",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/8/88bf4af9-4b14-43e7-9d50-0e6a895cece1.jpg?1783933156",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Serra's first ability affects only creatures you control with flying at the time it resolves. Creatures you begin to control later in the turn or that gain flying later in the turn won't get +1/+1."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Serra's emblem doesn't prevent damage. It only changes the result of damage dealt to you. For example, a creature with lifelink that deals damage to you will still cause its controller to gain life, even if that damage would reduce your life total to less than 1."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "Serra's emblem doesn't stop loss of life from effects that say that you lose life."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If you have less than 1 life and somehow haven't lost the game, damage dealt to you reduces your life total further below 0 (as normal)."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "In a Two-Headed Giant game, damage dealt to you and/or your teammate that would reduce your team's life total to less than 1 reduces it to 1 instead, as long as you control a creature. It doesn't matter whether your teammate controls a creature, even if they're the player being dealt damage."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "In the Commander variant, combat damage you're dealt by a commander is still tracked, even if it doesn't change your life total."
+            }
+        ]
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
+// Settle Beyond Reality
+{
+    "name": "Settle Beyond Reality",
+    "manaCost": "{4}{W}",
+    "typeLine": "Sorcery",
+    "oracleText": "Choose one or both —\n• Exile target creature you don't control.\n• Exile target creature you control, then return it to the battlefield under its owner's control.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Exile"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:opponent"
+                            },
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Exile target creature you don't control"
+                },
+                {
+                    "effect": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                },
+                                "destination": "Exile"
+                            },
+                            {
+                                "type": "MoveToZone",
+                                "target": {
+                                    "type": "BoundVariable",
+                                    "name": "t1"
+                                },
+                                "destination": "Battlefield"
+                            }
+                        ]
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature ctrl:you"
+                            },
+                            "id": "t1"
+                        }
+                    ],
+                    "description": "Exile target creature you control, then return it to the battlefield under its owner's control"
+                }
+            ],
+            "chooseCount": 2,
+            "minChooseCount": 1
+        }
+    },
+    "metadata": {
+        "collectorNumber": "27",
+        "artist": "Anthony Palumbo",
+        "flavorText": "Two taken, two judged, one returned.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/2/72ed8e57-61bb-4e89-9484-ff2be800a449.jpg?1783933156",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "Once the exiled creature you control returns, it's considered a new object with no relation to the object that it was. Auras attached to the exiled creatures will be put into their owners' graveyards. Equipment attached to the exiled creatures will become unattached and remain on the battlefield. Any counters on the exiled creatures will cease to exist."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a token you control is exiled this way, it will cease to exist and won't return to the battlefield."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Silent Clearing
 {
     "name": "Silent Clearing",
@@ -2957,7 +4376,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -2979,7 +4401,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -3027,6 +4452,148 @@
     "colorIdentityOverride": [
         "BLACK",
         "WHITE"
+    ]
+}
+
+// Sisay, Weatherlight Captain
+{
+    "name": "Sisay, Weatherlight Captain",
+    "manaCost": "{2}{W}",
+    "typeLine": "Legendary Creature — Human Soldier",
+    "oracleText": "Sisay gets +1/+1 for each color among other legendary permanents you control.\n{W}{U}{B}{R}{G}: Search your library for a legendary permanent card with mana value less than Sisay's power, put that card onto the battlefield, then shuffle.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Sisay, Weatherlight Captain:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{W}{U}{B}{R}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsPermanent",
+                                        "IsLegendary",
+                                        {
+                                            "type": "ManaValueAtMostDynamic",
+                                            "amount": {
+                                                "type": "Subtract",
+                                                "left": {
+                                                    "type": "EntityProperty",
+                                                    "entity": "Self",
+                                                    "numericProperty": "Power"
+                                                },
+                                                "right": {
+                                                    "type": "Fixed",
+                                                    "amount": 1
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a permanent legendary card with mana value (this creature's power - 1) or less to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "descriptionOverride": "Search your library for a legendary permanent card with mana value less than Sisay's power, put that card onto the battlefield, then shuffle."
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "GrantDynamicStats",
+                "filter": {
+                    "baseFilter": "permanent",
+                    "scope": "Self"
+                },
+                "powerBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent",
+                            "IsLegendary"
+                        ]
+                    },
+                    "aggregation": "DISTINCT_COLORS",
+                    "excludeSelf": true
+                },
+                "toughnessBonus": {
+                    "type": "AggregateBattlefield",
+                    "player": "You",
+                    "filter": {
+                        "cardPredicates": [
+                            "IsPermanent",
+                            "IsLegendary"
+                        ]
+                    },
+                    "aggregation": "DISTINCT_COLORS",
+                    "excludeSelf": true
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "29",
+        "rarity": "RARE",
+        "artist": "Anna Steinbauer",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/a/5a293c45-1e73-4527-be2f-2dcd5c47b610.jpg?1783933156",
+        "rulings": [
+            {
+                "date": "2019-06-14",
+                "text": "If Sisay leaves the battlefield after you've activated its last ability but before that ability resolves, use its last known existence on the battlefield to determine what cards you can find."
+            },
+            {
+                "date": "2019-06-14",
+                "text": "If a card in a library has {X} in its mana cost, X is considered to be 0."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "WHITE",
+        "BLUE",
+        "BLACK",
+        "RED",
+        "GREEN"
     ]
 }
 
@@ -3188,6 +4755,152 @@
     ]
 }
 
+// Smoke Shroud
+{
+    "name": "Smoke Shroud",
+    "manaCost": "{1}{U}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +1/+1 and has flying.\nWhen a Ninja you control enters, you may return this card from your graveyard to the battlefield attached to that creature.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Smoke Shroud:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "creature Ninja ctrl:you",
+                    "to": "Battlefield"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Gated",
+                    "gate": {
+                        "type": "Gate.MayDecide",
+                        "sourceRequiredZone": "Graveyard",
+                        "inlineOnTrigger": true
+                    },
+                    "then": "ReturnSelfToBattlefieldAttached",
+                    "descriptionOverride": "Return Smoke Shroud attached to this Ninja?"
+                },
+                "activeZones": [
+                    "Graveyard"
+                ]
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 1,
+                "toughnessBonus": 1
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "FLYING"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "69",
+        "artist": "Micah Epstein",
+        "imageUri": "https://cards.scryfall.io/normal/front/e/0/e07c876e-ae1c-4b54-8d8a-9f3fd76ca64c.jpg?1783933137"
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
+}
+
+// Springbloom Druid
+{
+    "name": "Springbloom Druid",
+    "manaCost": "{2}{G}",
+    "typeLine": "Creature — Elf Druid",
+    "oracleText": "When this creature enters, you may sacrifice a land. If you do, search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Springbloom Druid:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "Gated",
+                    "gate": "Gate.MayDecide",
+                    "then": {
+                        "type": "Composite",
+                        "effects": [
+                            {
+                                "type": "ForceSacrifice",
+                                "filter": "land",
+                                "target": "Controller"
+                            },
+                            {
+                                "type": "Composite",
+                                "effects": [
+                                    {
+                                        "type": "GatherCards",
+                                        "source": {
+                                            "type": "FromZone",
+                                            "zone": "Library",
+                                            "filter": "basicland"
+                                        },
+                                        "storeAs": "searchable",
+                                        "search": true
+                                    },
+                                    {
+                                        "type": "SelectFromCollection",
+                                        "from": "searchable",
+                                        "selection": {
+                                            "type": "ChooseUpTo",
+                                            "count": {
+                                                "type": "Fixed",
+                                                "amount": 2
+                                            }
+                                        },
+                                        "storeSelected": "found",
+                                        "prompt": "Search your library for up to two basic land cards to put onto the battlefield tapped",
+                                        "selectedLabel": "Put onto the battlefield tapped"
+                                    },
+                                    {
+                                        "type": "MoveCollection",
+                                        "from": "found",
+                                        "destination": {
+                                            "type": "ToZone",
+                                            "zone": "Battlefield",
+                                            "placement": "Tapped"
+                                        }
+                                    },
+                                    "ShuffleLibrary",
+                                    "EmitLibrarySearchedEvent"
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "descriptionOverride": "When this creature enters, you may sacrifice a land. If you do, search your library for up to two basic land cards, put them onto the battlefield tapped, then shuffle."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "181",
+        "artist": "Randy Gallegos",
+        "flavorText": "\"New growth applies a healing poultice to wounds long scabbed over.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/1/6161d2ed-7cff-4c90-9e74-1d179a6c1498.jpg?1783933092"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Sunbaked Canyon
 {
     "name": "Sunbaked Canyon",
@@ -3206,7 +4919,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -3228,7 +4944,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -3364,6 +5083,94 @@
     "colorIdentityOverride": [
         "RED",
         "WHITE"
+    ]
+}
+
+// Talisman of Creativity
+{
+    "name": "Talisman of Creativity",
+    "manaCost": "{2}",
+    "typeLine": "Artifact",
+    "oracleText": "{T}: Add {C}.\n{T}: Add {U} or {R}. This artifact deals 1 damage to you.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Talisman of Creativity:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddColorlessMana",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Talisman of Creativity:2",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "BLUE"
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "You"
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Talisman of Creativity:3",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddMana",
+                            "color": "RED"
+                        },
+                        {
+                            "type": "DealDamage",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": {
+                                "type": "PlayerRef",
+                                "player": "You"
+                            }
+                        }
+                    ]
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "231",
+        "rarity": "UNCOMMON",
+        "artist": "Lindsey Look",
+        "flavorText": "\"Good ideas don't take time. They take a lot of bad ideas first.\"\n—Ral Zarek",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/d/4d9dbadd-c1b6-44fe-92ac-6f69d7178342.jpg?1783933072"
+    },
+    "colorIdentityOverride": [
+        "BLUE",
+        "RED"
     ]
 }
 
@@ -3885,7 +5692,8 @@
                             "type": "Fixed",
                             "amount": 2
                         }
-                    }
+                    },
+                    "description": "You gain 2 life"
                 }
             ]
         }
@@ -3895,6 +5703,63 @@
         "artist": "Eric Deschamps",
         "flavorText": "\"Be ever loyal to your own best interests.\"",
         "imageUri": "https://cards.scryfall.io/normal/front/a/f/afbbb742-0317-4266-bcf5-cfea8d21f108.jpg?1783933118"
+    },
+    "colorIdentityOverride": [
+        "BLACK"
+    ]
+}
+
+// Undead Augur
+{
+    "name": "Undead Augur",
+    "manaCost": "{B}{B}",
+    "typeLine": "Creature — Zombie Wizard",
+    "oracleText": "Whenever this creature or another Zombie you control dies, you draw a card and lose 1 life.",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 2
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Undead Augur:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "filter": "permanent Zombie ctrl:you",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "binding": "ANY",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        },
+                        {
+                            "type": "LoseLife",
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 1
+                            },
+                            "target": "Controller"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Whenever this creature or another Zombie you control dies, you draw a card and lose 1 life."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "112",
+        "rarity": "UNCOMMON",
+        "artist": "Sara Winters",
+        "flavorText": "\"To see past the veil of death, cross it.\"\n—The Red Book of Mezdrithalik",
+        "imageUri": "https://cards.scryfall.io/normal/front/c/6/c6e3049e-9397-4bef-914b-e9664661419c.jpg?1783933118"
     },
     "colorIdentityOverride": [
         "BLACK"
@@ -3921,6 +5786,149 @@
         "imageUri": "https://cards.scryfall.io/normal/front/5/3/53c682e2-c90f-4f4b-9010-00b099e85518.jpg?1783933069"
     },
     "colorIdentityOverride": []
+}
+
+// Urza, Lord High Artificer
+{
+    "name": "Urza, Lord High Artificer",
+    "manaCost": "{2}{U}{U}",
+    "typeLine": "Legendary Creature — Human Artificer",
+    "oracleText": "When Urza enters, create a 0/0 colorless Construct artifact creature token with \"This token gets +1/+1 for each artifact you control.\"\nTap an untapped artifact you control: Add {U}.\n{5}: Shuffle your library, then exile the top card. Until end of turn, you may play that card without paying its mana cost.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 4
+    },
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Urza, Lord High Artificer:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "to": "Battlefield"
+                },
+                "effect": {
+                    "type": "CreateToken",
+                    "power": 0,
+                    "toughness": 0,
+                    "colors": [],
+                    "creatureTypes": [
+                        "Construct"
+                    ],
+                    "imageUri": "https://cards.scryfall.io/normal/front/8/5/85f212cd-4fc6-42fe-b268-22d8e3b2b7eb.jpg?1783933219",
+                    "artifactToken": true,
+                    "staticAbilities": [
+                        {
+                            "type": "GrantDynamicStats",
+                            "filter": {
+                                "baseFilter": "permanent",
+                                "scope": "Self"
+                            },
+                            "powerBonus": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "artifact"
+                            },
+                            "toughnessBonus": {
+                                "type": "AggregateBattlefield",
+                                "player": "You",
+                                "filter": "artifact"
+                            }
+                        }
+                    ]
+                },
+                "descriptionOverride": "When Urza enters, create a 0/0 colorless Construct artifact creature token with \"This token gets +1/+1 for each artifact you control.\""
+            }
+        ],
+        "activatedAbilities": [
+            {
+                "id": "Urza, Lord High Artificer:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomTapPermanents",
+                        "filter": "artifact"
+                    }
+                },
+                "effect": {
+                    "type": "AddMana",
+                    "color": "BLUE"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Urza, Lord High Artificer:3",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{5}"
+                    }
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        "ShuffleLibrary",
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "TopOfLibrary",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeAs": "exiledCard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "exiledCard",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Exile"
+                            }
+                        },
+                        {
+                            "type": "GrantMayPlayFromExile",
+                            "from": "exiledCard"
+                        },
+                        {
+                            "type": "GrantPlayWithoutPayingCost",
+                            "from": "exiledCard"
+                        }
+                    ]
+                },
+                "descriptionOverride": "Shuffle your library, then exile the top card. Until end of turn, you may play that card without paying its mana cost."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "75",
+        "rarity": "MYTHIC",
+        "artist": "Grzegorz Rutkowski",
+        "imageUri": "https://cards.scryfall.io/normal/front/9/e/9e7fb3c0-5159-4d1f-8490-ce4c9a60f567.jpg?1783933135",
+        "rulings": [
+            {
+                "date": "2022-12-08",
+                "text": "The token created by Urza's first ability will count itself, so it'll be at least 1/1."
+            },
+            {
+                "date": "2022-12-08",
+                "text": "You can tap any untapped artifact you control to pay the cost of the mana ability, including an artifact creature you haven't controlled continuously since the beginning of your most recent turn. Tapping an Equipment this way won't affect its abilities or the equipped creature."
+            },
+            {
+                "date": "2022-12-08",
+                "text": "If you don't play the card exiled with Urza's last ability, it remains in exile."
+            },
+            {
+                "date": "2022-12-08",
+                "text": "If a spell has {X} in its mana cost, you must choose 0 as the value of X when casting it without paying its mana cost."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
+    ]
 }
 
 // Venomous Changeling
@@ -4066,7 +6074,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -4088,7 +6099,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -4341,5 +6355,128 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Yawgmoth, Thran Physician
+{
+    "name": "Yawgmoth, Thran Physician",
+    "manaCost": "{2}{B}{B}",
+    "typeLine": "Legendary Creature — Human Cleric",
+    "oracleText": "Protection from Humans\nPay 1 life, Sacrifice another creature: Put a -1/-1 counter on up to one target creature and draw a card.\n{B}{B}, Discard a card: Proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+    "creatureStats": {
+        "power": 2,
+        "toughness": 4
+    },
+    "keywordAbilities": [
+        {
+            "type": "Protection",
+            "scope": {
+                "type": "ProtectionScope.Subtype",
+                "subtype": "Human"
+            }
+        }
+    ],
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Yawgmoth, Thran Physician:1",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomPayLife",
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomSacrifice",
+                                "filter": "creature",
+                                "excludeSelf": true
+                            }
+                        }
+                    ]
+                },
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "AddCounters",
+                            "counterType": "MINUS_ONE_MINUS_ONE",
+                            "count": 1,
+                            "target": {
+                                "type": "BoundVariable",
+                                "name": "t0"
+                            }
+                        },
+                        {
+                            "type": "DrawCards",
+                            "count": {
+                                "type": "Fixed",
+                                "amount": 1
+                            }
+                        }
+                    ]
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "optional": true,
+                        "filter": {
+                            "baseFilter": "creature"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "Pay 1 life, Sacrifice another creature: Put a -1/-1 counter on up to one target creature and draw a card."
+            },
+            {
+                "id": "Yawgmoth, Thran Physician:2",
+                "cost": {
+                    "type": "CostComposite",
+                    "costs": [
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": {
+                                "type": "AtomMana",
+                                "cost": "{B}{B}"
+                            }
+                        },
+                        {
+                            "type": "CostAtomWrapper",
+                            "atom": "AtomDiscard"
+                        }
+                    ]
+                },
+                "effect": "Proliferate",
+                "descriptionOverride": "{B}{B}, Discard a card: Proliferate."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "116",
+        "rarity": "MYTHIC",
+        "artist": "Mark Winters",
+        "imageUri": "https://cards.scryfall.io/normal/front/8/6/8690cbcc-f8fd-41f7-9e28-e61c12b04014.jpg?1783933118",
+        "rulings": [
+            {
+                "date": "2021-03-19",
+                "text": "Protection from Humans refers only to the creature type Human. As far as Yawgmoth is concerned, you, your opponents, and planeswalkers aren't Humans."
+            },
+            {
+                "date": "2021-03-19",
+                "text": "You may activate Yawgmoth's first activated ability without choosing a target creature. You'll just draw a card. However, if you choose a target and it becomes illegal before the ability tries to resolve, the ability won't resolve and you won't draw a card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLACK"
     ]
 }

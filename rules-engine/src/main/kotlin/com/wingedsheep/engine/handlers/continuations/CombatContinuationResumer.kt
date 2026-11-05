@@ -46,6 +46,24 @@ class CombatContinuationResumer(
         resumer(PreventDamageFromChosenSourceContinuation::class, ::resumePreventDamageFromChosenSource),
         resumer(PreventNextDamageLeavingAmountContinuation::class, ::resumePreventNextDamageLeavingAmount),
         resumer(RedirectDamageSourceContinuation::class, ::resumeRedirectDamageSource),
+        resumer(CombatDamageReplacementContinuation::class) { state, continuation, response, _ ->
+            val option = if (continuation.numberPrefix != null && continuation.numberMax != null) {
+                (response as? NumberChosenResponse)?.number?.takeIf { it in continuation.numberMin..continuation.numberMax }
+                    ?.let { continuation.numberPrefix + it }
+            } else when (response) {
+                is OptionChosenResponse -> continuation.optionKeys.getOrNull(response.optionIndex)
+                is YesNoResponse -> continuation.optionKeys.getOrNull(if (response.choice) 0 else 1)
+                else -> null
+            }
+            if (option == null) ExecutionResult.error(state, "Expected a valid damage replacement choice")
+            else {
+                val recorded = com.wingedsheep.engine.handlers.effects.damage.DamageReplacementChain
+                    .record(state, continuation.choiceKey, option)
+                services.combatManager.applyCombatDamage(
+                    com.wingedsheep.engine.handlers.effects.damage.DamageReplacementReveals.begin(recorded),
+                    firstStrike = continuation.firstStrike)
+            }
+        },
         resumer(CombatOptionalRedirectContinuation::class) { state, continuation, response, _ ->
             resumeCombatOptionalRedirect(state, continuation, response)
         },
@@ -98,7 +116,14 @@ class CombatContinuationResumer(
         if (result.outcome is Outcome.Paused) {
             return ExecutionResult.propagatePause(result.state, result.events)
         }
-        return checkForMore(result.state, result.events)
+        // The re-run's stored numbers ("the damage dealt this way", excess damage) belong to the
+        // composite step after it, which now resumes from the frame beneath.
+        val published = exposeCollectionsToNextFrame(
+            result.state,
+            collections = emptyMap(),
+            numbers = result.updatedStoredNumbers
+        )
+        return checkForMore(published, result.events)
     }
 
     fun resumeDamageAssignment(
@@ -290,8 +315,9 @@ class CombatContinuationResumer(
 
         val timestamp = originalShield?.timestamp ?: state.timestamp
         var workingState = state
-        val gainsLife = (originalShield?.effect?.modification as? SerializableModification.PreventNextDamage)
-            ?.controllerGainsLife ?: false
+        val originalMod = originalShield?.effect?.modification as? SerializableModification.PreventNextDamage
+        val gainsLife = originalMod?.controllerGainsLife ?: false
+        val combatOnly = originalMod?.combatOnly ?: false
         for ((sourceId, preventionAmount) in response.distribution) {
             if (preventionAmount <= 0) continue
             val (effectId, advanced) = workingState.newEntity()
@@ -301,7 +327,8 @@ class CombatContinuationResumer(
                 modification = SerializableModification.PreventNextDamage(
                     preventionAmount,
                     onlyFromSource = sourceId,
-                    controllerGainsLife = gainsLife
+                    controllerGainsLife = gainsLife,
+                    combatOnly = combatOnly
                 ),
                 affectedEntities = setOf(continuation.recipientId)
             )
@@ -340,31 +367,23 @@ class CombatContinuationResumer(
             return ExecutionResult.error(state, "Expected distribution response for divided damage")
         }
 
-        val distribution = response.distribution
-        val events = mutableListOf<GameEvent>()
-        var newState = state
-
-        for ((targetId, damageAmount) in distribution) {
-            if (damageAmount > 0) {
-                val result = DamageUtils.dealDamageToTarget(
-                    services.zones,
-                    newState,
-                    targetId,
-                    damageAmount,
-                    continuation.sourceId, damageSourceRef = continuation.objectReferences.origin ?: continuation.sourceId?.let(state::objectRef)
-                )
-
-                // Dealing damage never asks a question, so the only other outcome is a rejection.
-                if (result.outcome is Outcome.Rejected) {
-                    return ExecutionResult(newState, events, result.outcome)
-                }
-
-                newState = result.state
-                events.addAll(result.events)
-            }
+        if (continuation.effect != null && continuation.context != null) {
+            // The division a DividedDamageEffect asked for at resolution is dealt as if it had
+            // been announced, through the effect's own executor, so its outputs are handed on.
+            val result = services.effectExecutorRegistry.execute(state, continuation.effect,
+                continuation.context.copy(damageDistribution = response.distribution))
+            if (result.outcome is Outcome.Paused) return ExecutionResult.propagatePause(result.state, result.events)
+            return checkForMore(result.stateWithOutputsHandedOn(), result.events)
         }
 
-        return checkForMore(newState, events)
+        val instances = response.distribution.filterValues { it > 0 }.map { (target, amount) ->
+            com.wingedsheep.engine.handlers.effects.damage.DamageReplacementChain.Instance(
+                continuation.sourceId, target, amount,
+                sourceRef = continuation.objectReferences.origin ?: continuation.sourceId?.let(state::objectRef))
+        }
+        val result = com.wingedsheep.engine.handlers.effects.damage.DamageReplacementChain.deal(services.zones, state, instances)
+        if (result.outcome is Outcome.Paused) return ExecutionResult.propagatePause(result.state, result.events)
+        return checkForMore(result.state, result.events)
     }
 
     fun resumeDeflectDamageSourceChoice(

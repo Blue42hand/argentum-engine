@@ -4,6 +4,7 @@ import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.EffectContext
 import com.wingedsheep.engine.handlers.TargetFinder
 import com.wingedsheep.engine.handlers.effects.EffectExecutor
+import com.wingedsheep.engine.handlers.effects.library.KeywordActionAmountModifier
 import com.wingedsheep.engine.mechanics.stack.StackPlacement
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.stack.ChosenTarget
@@ -35,6 +36,21 @@ class StormCopyEffectExecutor(
         if (effect.copyCount <= 0) {
             return EffectResult.success(state)
         }
+        // Storm, conspire, casualty and "copy the next spell" riders are each one copy instruction;
+        // a copy-count replacement (Twinning Staff) resizes it once, before any copy exists.
+        val resized = context.sourceId?.let { spellId ->
+            KeywordActionAmountModifier.copySpell(
+                state, context.controllerId, spellId, effect.copyCount, targetFinder.predicateEvaluator
+            )
+        } ?: effect.copyCount
+        return copy(state, if (resized == effect.copyCount) effect else effect.copy(copyCount = resized), context)
+    }
+
+    private fun copy(
+        state: GameState,
+        effect: StormCopyEffect,
+        context: EffectContext
+    ): EffectResult {
 
         // Modal source (700.2g): targets live per-mode on the original's
         // [SpellOnStackComponent], not as a flat TargetsComponent. Modes are fixed
@@ -123,15 +139,11 @@ class StormCopyEffectExecutor(
         // the source's (now-illegal) targets per 707.10c — it fizzles on resolution
         // per 608.2b / 112.3b.
         while (copiesLeft > 0) {
-            val legalTargetsMap = mutableMapOf<Int, List<EntityId>>()
-            for ((index, requirement) in effect.spellTargetRequirements.withIndex()) {
-                val legalTargets = targetFinder.findLegalTargets(
-                    currentState, requirement, context.controllerId, sourceId
-                )
-                legalTargetsMap[index] = legalTargets
-            }
+            val prompt = SpellCopyTargets.prompt(currentState, targetFinder, sourceId, context.controllerId,
+                effect.spellTargetRequirements, com.wingedsheep.sdk.scripting.effects.CopyExceptions.None)
+            val legalTargetsMap = prompt.legal
+            val hasNoLegalTargets = legalTargetsMap.values.all { it.isEmpty() }
 
-            val hasNoLegalTargets = legalTargetsMap.any { (_, targets) -> targets.isEmpty() }
             if (hasNoLegalTargets) {
                 val copyIndex = effect.copyCount - copiesLeft + 1
                 val copyResult = StackPlacement.putSpellCopy(
@@ -157,13 +169,7 @@ class StormCopyEffectExecutor(
                 sourceId = sourceId,
                 totalCopies = effect.copyCount
             )
-            val targetReqInfos = effect.spellTargetRequirements.mapIndexed { index, req ->
-                TargetRequirementInfo(
-                    index = index,
-                    description = req.description,
-                    mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther
-                )
-            }
+            val targetReqInfos = prompt.requirements
 
             val copyNumber = effect.copyCount - copiesLeft + 1
             val copyLabel = if (effect.copyCount > 1)
@@ -215,16 +221,19 @@ class StormCopyEffectExecutor(
             remainingCopies: Int,
             totalCopies: Int,
             priorEvents: List<GameEvent>,
+            retainedTargetIndices: Set<Int> = emptySet(),
             keywordsForCopy: Set<String> = emptySet(),
-            removeLegendary: Boolean = false
+            removeLegendary: Boolean = false,
+            exceptions: com.wingedsheep.sdk.scripting.effects.CopyExceptions = com.wingedsheep.sdk.scripting.effects.CopyExceptions.None
         ): ExecutionResult {
             var currentState = state
             val allEvents = priorEvents.toMutableList()
             var accumulated = accumulatedOrdinalTargets
+            var retained = retainedTargetIndices
             var ordinal = currentOrdinal
             var copiesLeft = remainingCopies
 
-            val sourceSpellComp = currentState.getEntity(sourceId)?.get<SpellOnStackComponent>()
+            val sourceSpellComp = currentState.spellOrLastKnown(sourceId)?.get<SpellOnStackComponent>()
                 ?: return ExecutionResult.error(currentState, "Storm source spell not found: $sourceId")
             val sourceModeTargetsOrdered = sourceSpellComp.modeTargetsOrdered
 
@@ -239,19 +248,20 @@ class StormCopyEffectExecutor(
                         continue
                     }
 
-                    val legalTargetsMap = mutableMapOf<Int, List<EntityId>>()
-                    for ((reqIndex, requirement) in reqs.withIndex()) {
-                        legalTargetsMap[reqIndex] = targetFinder.findLegalTargets(
-                            currentState, requirement, controllerId, sourceId
-                        )
-                    }
+                    val prompt = SpellCopyTargets.prompt(
+                        currentState, targetFinder, sourceId, controllerId, reqs, exceptions, ordinal
+                    )
+                    val legalTargetsMap = prompt.legal
 
-                    val hasNoLegalTargets = legalTargetsMap.any { (_, t) -> t.isEmpty() }
+                    val hasNoLegalTargets = legalTargetsMap.values.all { it.isEmpty() }
                     if (hasNoLegalTargets) {
                         // 707.10c: no legal replacement — the copy still goes on the stack
                         // with the source's (now-illegal) targets for this mode and fizzles
                         // on resolution per 608.2b / 112.3b.
-                        accumulated = accumulated + listOf(sourceModeTargetsOrdered.getOrNull(ordinal) ?: emptyList())
+                        val originals = sourceModeTargetsOrdered.getOrNull(ordinal).orEmpty()
+                        val offset = accumulated.sumOf { it.size }
+                        retained = retained + originals.indices.map { offset + it }
+                        accumulated = accumulated + listOf(originals)
                         ordinal++
                         continue
                     }
@@ -270,13 +280,7 @@ class StormCopyEffectExecutor(
                             sourceName = spellName,
                             effectHint = "Copy of $spellName$modeLabel"
                         ),
-                        targetRequirements = reqs.mapIndexed { index, req ->
-                            TargetRequirementInfo(
-                                index = index,
-                                description = req.description,
-                                mustDifferFromEarlier = req is com.wingedsheep.sdk.scripting.targets.TargetOther
-                            )
-                        },
+                        targetRequirements = prompt.requirements,
                         legalTargets = legalTargetsMap
                     ) }
 
@@ -289,9 +293,11 @@ class StormCopyEffectExecutor(
                         chosenModes = chosenModes,
                         modeTargetRequirements = modeTargetRequirements,
                         accumulatedOrdinalTargets = accumulated,
+                        retainedTargetIndices = retained,
                         currentOrdinal = ordinal,
                         keywordsForCopy = keywordsForCopy,
-                        removeLegendary = removeLegendary
+                        removeLegendary = removeLegendary,
+                        exceptions = exceptions
                     )
 
                     return currentState.suspendForDecision(decision, continuation, allEvents)
@@ -303,10 +309,12 @@ class StormCopyEffectExecutor(
                     sourceSpellId = sourceId,
                     chosenModes = chosenModes,
                     modeTargetsOrdered = accumulated,
+                    retainedTargetIndices = retained,
                     modeTargetRequirements = modeTargetRequirements,
                     copyIndex = copyIndex,
                     copyTotal = totalCopies,
-                    controllerId = controllerId
+                    controllerId = controllerId,
+                    exceptions = exceptions
                 )
                 if (copyResult.outcome !is Outcome.Done) return copyResult
                 currentState = applyCopyMutations(
@@ -316,6 +324,7 @@ class StormCopyEffectExecutor(
 
                 copiesLeft--
                 accumulated = emptyList()
+                retained = emptySet()
                 ordinal = 0
             }
 
@@ -335,7 +344,8 @@ class StormCopyEffectExecutor(
             tokenRiders: com.wingedsheep.engine.state.components.stack.SpellCopyTokenRidersComponent? = null
         ): GameState {
             val hasRiders = tokenRiders != null &&
-                (tokenRiders.addedKeywords.isNotEmpty() || tokenRiders.sacrificeAtStep != null)
+                (tokenRiders.addedKeywords.isNotEmpty() || tokenRiders.sacrificeAtStep != null ||
+                    tokenRiders.startingLoyalty != null)
             if (keywordsForCopy.isEmpty() && !removeLegendary && !hasRiders) return state
             val copyId = events.asReversed()
                 .firstNotNullOfOrNull { e ->

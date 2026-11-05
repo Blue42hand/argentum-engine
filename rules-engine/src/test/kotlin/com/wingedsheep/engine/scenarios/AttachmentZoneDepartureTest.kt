@@ -413,4 +413,53 @@ class AttachmentZoneDepartureTest : FunSpec({
         second.state.getEntity(source)!!.get<AttachedToComponent>() shouldBe null
         second.state.getEntity(candidate)!!.get<AttachmentsComponent>()?.attachedIds.orEmpty() shouldBe emptyList()
     }
+
+    test("an Aura's later departure cannot recount its host's earlier death") {
+        val (d, host, source) = fixture()
+        val hostMove = d.zones.moveToZone(d.state, host, Zone.GRAVEYARD)
+        d.replaceState(hostMove.state)
+        triggers(d, hostMove.events).size shouldBe 1
+
+        // A later settle batch contains only the Aura's exit. The host's graveyard presence
+        // is not evidence that it died again in this batch.
+        val auraMove = d.zones.moveToZone(d.state, source, Zone.GRAVEYARD)
+        d.replaceState(auraMove.state)
+        triggers(d, auraMove.events).size shouldBe 0
+    }
+
+    test("an attached trigger cannot return a host after it leaves and revisits the graveyard") {
+        val returnHost = card("Attachment Return Host Identity Probe") {
+            typeLine = "Enchantment — Aura"
+            triggeredAbility {
+                trigger = Triggers.attached.dies()
+                effect = Effects.ReturnToHandFromGraveyard(EffectTarget.TriggeringEntity)
+            }
+        }
+        val d = driver()
+        d.registerCard(returnHost)
+        val host = d.putCreatureOnBattlefield(d.player2, "Grizzly Bears")
+        val source = d.putPermanentOnBattlefield(d.player1, returnHost.name)
+        d.addComponent(source, AttachedToComponent(host))
+        d.addComponent(host, AttachmentsComponent(listOf(source)))
+        val firstDeath = d.zones.moveToZone(d.state, host, Zone.GRAVEYARD)
+        d.replaceState(firstDeath.state)
+        val pending = d.services.triggerDetector.detectTriggers(d.state, firstDeath.events)
+            .single { it.sourceId == source }
+        val firstGraveyardObject = d.state.objectRef(host)
+        pending.objectReferences.triggering shouldBe firstGraveyardObject
+
+        val returned = d.zones.moveToZone(d.state, host, Zone.BATTLEFIELD)
+        d.replaceState(returned.state)
+        val laterDeath = d.zones.moveToZone(d.state, host, Zone.GRAVEYARD)
+        d.replaceState(laterDeath.state)
+        (d.state.objectRef(host) == firstGraveyardObject) shouldBe false
+        val result = d.services.effectExecutorRegistry.execute(
+            d.state, pending.ability.effect,
+            EffectContext(sourceId = source, controllerId = pending.controllerId,
+                triggerContext = pending.triggerContext, objectReferences = pending.objectReferences),
+        )
+        result.error shouldBe null
+        (host in result.state.getZone(ZoneKey(d.player2, Zone.GRAVEYARD))) shouldBe true
+        (host in result.state.getZone(ZoneKey(d.player2, Zone.HAND))) shouldBe false
+    }
 })

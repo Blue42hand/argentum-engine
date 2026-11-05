@@ -43,7 +43,7 @@ class PriorityYieldDispatchTest : ScenarioTestBase() {
                 gameProperties = mockk(relaxed = true), replayService = mockk(relaxed = true),
                 replayCheckpointFlusher = mockk(relaxed = true), engineVersion = mockk(relaxed = true),
                 aiGameManager = mockk(relaxed = true), matchResultSink = mockk(relaxed = true),
-                rankedResultSink = mockk(relaxed = true), deckProfiler = mockk(relaxed = true),
+                rankedResultSink = mockk(relaxed = true), deckProfiler = mockk(relaxed = true), anteSpoilsSink = mockk(relaxed = true),
             ))
             val entered = CountDownLatch(1)
             val release = CountDownLatch(1)

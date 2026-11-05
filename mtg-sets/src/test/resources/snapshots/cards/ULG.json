@@ -200,25 +200,35 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "ForEach",
-                    "space": "IterationSpace.Targets",
-                    "body": {
-                        "type": "TapUntap",
-                        "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "land"
+                            },
+                            "storeAs": "gathered0"
                         },
-                        "tap": false
-                    }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "count": 2,
-                    "optional": true,
-                    "filter": {
-                        "baseFilter": "land"
-                    },
-                    "id": "t0"
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Choose up to two lands to untap"
+                        },
+                        {
+                            "type": "TapUntapCollection",
+                            "collectionName": "selected1",
+                            "tap": false
+                        }
+                    ]
                 }
             }
         ]
@@ -230,6 +240,79 @@
     },
     "colorIdentityOverride": [
         "BLUE"
+    ]
+}
+
+// Crop Rotation
+{
+    "name": "Crop Rotation",
+    "manaCost": "{G}",
+    "typeLine": "Instant",
+    "oracleText": "As an additional cost to cast this spell, sacrifice a land.\nSearch your library for a land card, put that card onto the battlefield, then shuffle.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "FromZone",
+                        "zone": "Library",
+                        "filter": "land"
+                    },
+                    "storeAs": "searchable",
+                    "search": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "searchable",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a land card to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "found",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Battlefield"
+                    }
+                },
+                "ShuffleLibrary",
+                "EmitLibrarySearchedEvent"
+            ]
+        },
+        "additionalCosts": [
+            {
+                "type": "AdditionalAtom",
+                "atom": {
+                    "type": "AtomSacrifice",
+                    "filter": "land"
+                }
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "98",
+        "artist": "DiTerlizzi",
+        "flavorText": "\"Hmm . . . maybe lotuses this year.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/5/6563f790-862c-465a-b963-7a61f2385516.jpg?1783946231",
+        "rulings": [
+            {
+                "date": "2022-12-08",
+                "text": "You can’t cast Crop Rotation without sacrificing a land, and you can’t sacrifice additional lands."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -361,7 +444,21 @@
                     {
                         "type": "TargetObject",
                         "filter": {
-                            "baseFilter": "creature"
+                            "baseFilter": {
+                                "cardPredicates": [
+                                    "IsEnchantment",
+                                    {
+                                        "type": "HasSubtype",
+                                        "subtype": "Aura"
+                                    }
+                                ],
+                                "statePredicates": [
+                                    {
+                                        "type": "IsAttachedTo",
+                                        "filter": "creature"
+                                    }
+                                ]
+                            }
                         },
                         "id": "t0"
                     }
@@ -617,6 +714,112 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Frantic Search
+{
+    "name": "Frantic Search",
+    "manaCost": "{2}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Draw two cards, then discard two cards. Untap up to three lands.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DrawCards",
+                    "count": {
+                        "type": "Fixed",
+                        "amount": 2
+                    }
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Hand"
+                            },
+                            "storeAs": "hand"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "hand",
+                            "selection": {
+                                "type": "ChooseExactly",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "discarded",
+                            "prompt": "Choose 2 cards to discard"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "discarded",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Graveyard"
+                            },
+                            "moveType": "Discard"
+                        }
+                    ]
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "land"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 3
+                                }
+                            },
+                            "storeSelected": "selected1"
+                        },
+                        {
+                            "type": "TapUntapCollection",
+                            "collectionName": "selected1",
+                            "tap": false
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "32",
+        "artist": "Jeff Miracola",
+        "flavorText": "Motivation was high in the academy once students realized flunking their exams could kill them.",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/9/1904db14-6df7-424f-afa5-e3dfab31300a.jpg?1783946247",
+        "rulings": [
+            {
+                "date": "2022-12-08",
+                "text": "You choose which lands to untap as the spell resolves. They aren't targeted, and they don't have to be lands that you control."
+            },
+            {
+                "date": "2018-12-07",
+                "text": "You draw two cards and discard two cards all while Frantic Search is resolving. Nothing can happen between the two, and no player may choose to take actions."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -1047,6 +1250,56 @@
     ]
 }
 
+// Mother of Runes
+{
+    "name": "Mother of Runes",
+    "manaCost": "{W}",
+    "typeLine": "Creature — Human Cleric",
+    "oracleText": "{T}: Target creature you control gains protection from the color of your choice until end of turn.",
+    "creatureStats": {
+        "power": 1,
+        "toughness": 1
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Mother of Runes:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "ChooseColorThen",
+                    "then": {
+                        "type": "GrantProtectionFromChosenColor",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "filter": {
+                            "baseFilter": "creature ctrl:you"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "descriptionOverride": "{T}: Target creature you control gains protection from the color of your choice until end of turn."
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "14",
+        "rarity": "UNCOMMON",
+        "artist": "Scott M. Fischer",
+        "flavorText": "\"My family protects all families.\"",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/b/0b1a46ab-95cb-4c24-924f-fc2afd4fcac7.jpg?1783946251"
+    },
+    "colorIdentityOverride": [
+        "WHITE"
+    ]
+}
+
 // Opportunity
 {
     "name": "Opportunity",
@@ -1106,25 +1359,35 @@
                     "to": "Battlefield"
                 },
                 "effect": {
-                    "type": "ForEach",
-                    "space": "IterationSpace.Targets",
-                    "body": {
-                        "type": "TapUntap",
-                        "target": {
-                            "type": "ContextTarget",
-                            "index": 0
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "land"
+                            },
+                            "storeAs": "gathered0"
                         },
-                        "tap": false
-                    }
-                },
-                "targetRequirement": {
-                    "type": "TargetObject",
-                    "count": 7,
-                    "optional": true,
-                    "filter": {
-                        "baseFilter": "land"
-                    },
-                    "id": "t0"
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 7
+                                }
+                            },
+                            "storeSelected": "selected1",
+                            "prompt": "Choose up to seven lands to untap"
+                        },
+                        {
+                            "type": "TapUntapCollection",
+                            "collectionName": "selected1",
+                            "tap": false
+                        }
+                    ]
                 }
             }
         ],
@@ -1552,7 +1815,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         }
                     ]
@@ -1784,6 +2050,57 @@
     ]
 }
 
+// Rancor
+{
+    "name": "Rancor",
+    "manaCost": "{G}",
+    "typeLine": "Enchantment — Aura",
+    "oracleText": "Enchant creature\nEnchanted creature gets +2/+0 and has trample.\nWhen this Aura is put into a graveyard from the battlefield, return it to its owner's hand.",
+    "script": {
+        "triggeredAbilities": [
+            {
+                "id": "Rancor:1",
+                "trigger": {
+                    "type": "ZoneChangeEvent",
+                    "from": "Battlefield",
+                    "to": "Graveyard"
+                },
+                "effect": {
+                    "type": "MoveToZone",
+                    "target": "Self",
+                    "destination": "Hand"
+                }
+            }
+        ],
+        "staticAbilities": [
+            {
+                "type": "ModifyStats",
+                "powerBonus": 2,
+                "toughnessBonus": 0
+            },
+            {
+                "type": "GrantKeyword",
+                "keyword": "TRAMPLE"
+            }
+        ],
+        "auraTarget": {
+            "type": "TargetObject",
+            "filter": {
+                "baseFilter": "creature"
+            }
+        }
+    },
+    "metadata": {
+        "collectorNumber": "110",
+        "artist": "Kev Walker",
+        "flavorText": "Hatred outlives the hateful.",
+        "imageUri": "https://cards.scryfall.io/normal/front/5/9/59e256c2-38df-4012-9308-ce17dd889e5f.jpg?1783946229"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Rank and File
 {
     "name": "Rank and File",
@@ -1933,6 +2250,83 @@
     },
     "colorIdentityOverride": [
         "GREEN"
+    ]
+}
+
+// Snap
+{
+    "name": "Snap",
+    "manaCost": "{1}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Return target creature to its owner's hand. Untap up to two lands.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "MoveToZone",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    },
+                    "destination": "Hand"
+                },
+                {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "BattlefieldMatching",
+                                "filter": "land"
+                            },
+                            "storeAs": "gathered0"
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "gathered0",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
+                            },
+                            "storeSelected": "selected1"
+                        },
+                        {
+                            "type": "TapUntapCollection",
+                            "collectionName": "selected1",
+                            "tap": false
+                        }
+                    ]
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "43",
+        "artist": "Mike Raabe",
+        "flavorText": "Good riddance.",
+        "imageUri": "https://cards.scryfall.io/normal/front/f/7/f7e0549e-2d23-4ea8-b8d1-ae21af2c9091.jpg?1783946245",
+        "rulings": [
+            {
+                "date": "2022-12-08",
+                "text": "You choose which lands to untap as the spell resolves. They aren't targeted, and they don't have to be lands that you control."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 
@@ -2122,6 +2516,81 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Treetop Village
+{
+    "name": "Treetop Village",
+    "manaCost": "",
+    "typeLine": "Land",
+    "oracleText": "This land enters tapped.\n{T}: Add {G}.\n{1}{G}: This land becomes a 3/3 green Ape creature with trample until end of turn. It's still a land. (It can deal excess combat damage to the player or planeswalker it's attacking.)",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Treetop Village:1",
+                "cost": "CostTap",
+                "effect": {
+                    "type": "AddMana",
+                    "color": "GREEN"
+                },
+                "timing": "ManaAbility",
+                "isManaAbility": true
+            },
+            {
+                "id": "Treetop Village:2",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{1}{G}"
+                    }
+                },
+                "effect": {
+                    "type": "BecomeCreature",
+                    "power": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "toughness": {
+                        "type": "Fixed",
+                        "amount": 3
+                    },
+                    "keywords": [
+                        "TRAMPLE"
+                    ],
+                    "creatureTypes": [
+                        "Ape"
+                    ],
+                    "colors": [
+                        "GREEN"
+                    ]
+                },
+                "descriptionOverride": "{1}{G}: This land becomes a 3/3 green Ape creature with trample until end of turn. It's still a land."
+            }
+        ],
+        "replacementEffects": [
+            "EntersTapped"
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "143",
+        "rarity": "UNCOMMON",
+        "artist": "Anthony S. Waters",
+        "imageUri": "https://cards.scryfall.io/normal/front/0/2/02212bd8-0c0f-4e8e-99f1-a8477476c03a.jpg?1783946217",
+        "rulings": [
+            {
+                "date": "2009-10-01",
+                "text": "Activating the ability that turns it into a creature while it's already a creature will override any effects that set its power and/or toughness to a specific number. However, any effect that raises or lowers power and/or toughness (such as the effect created by Giant Growth, Glorious Anthem, or a +1/+1 counter) will continue to apply."
+            },
+            {
+                "date": "2008-08-01",
+                "text": "A noncreature permanent that turns into a creature can attack, and its {T} abilities can be activated, only if its controller has continuously controlled that permanent since the beginning of their most recent turn. It doesn't matter how long the permanent has been a creature."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 

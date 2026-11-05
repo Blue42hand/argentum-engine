@@ -9,6 +9,11 @@ This document defines the JSON payloads exchanged between `web-client` and `game
 
 ## 2. Gameplay Payload (WebSocket)
 
+A resolution consent decision may include `context.targetIds`: an ordered list of the
+validated targets the effect will use. The client displays these through its masked `state.cards`
+or `state.players` data, including player targets and multiple targets. This is independent of
+`context.subjectEntityId`, which identifies a per-object iteration subject.
+
 ### A. State Update (Server -> Client)
 
 Sent whenever the game state changes.
@@ -137,6 +142,65 @@ Sent when the user interacts with the UI.
 }
 ```
 
+For an escape cast, the legal action includes `alternativeCostType: "ESCAPE"` and
+`escapeAbility`, the selected ability's mana cost and additional payment. Echo this payload
+unchanged when submitting the action: two escape abilities on the same card can carry different
+costs. The engine checks that the selected ability is currently available.
+
+### B1. Read-only Cast Cost Quote (Client <-> Server)
+
+While collecting a cast announcement, the client can request the native price for its current
+choices before showing a cost-sensitive selector. Send the offered `CastSpell` action with the
+choices collected so far, using seat-visible IDs exactly as received. Preserve its offered cast
+variant fields; the engine admits only choices allowed by a currently available native offer.
+
+```json
+{
+  "type": "requestCastCostQuote",
+  "requestId": "cast-cost-17",
+  "stateVersion": 42,
+  "interactionEpoch": "current-interaction-epoch",
+  "action": {
+    "type": "CastSpell",
+    "playerId": "player-1",
+    "cardId": "ent-6",
+    "declaredCostTimes": 2
+  }
+}
+```
+
+`requestId` is a nonblank correlation ID of at most 128 characters. `stateVersion` and
+`interactionEpoch` must describe the client's current delivered state and interaction. Under the
+session lock, the server verifies the authenticated socket still owns the seat, checks that the
+seat may act for this announcement, and derives the offer and quote from one captured current
+state. A client cannot obtain quotes for an opponent's hidden card or an unavailable cast variant.
+
+The response echoes all three origin fields; it does not advance the state version. A successful
+`castCostQuote` contains only these cost scalars in addition to the echoed fields:
+
+| Field | Meaning |
+| --- | --- |
+| `manaCostString` | Remaining payable mana after the declared alternative payments, with the chosen X already substituted. Do not subtract those payments again. |
+| `delveGenericCap` | Native generic-cost cap before alternative payments. |
+| `tapForGenericMax` | Native generic-payment cap after earlier alternatives and before the selected tap-for-generic payments, including any narrower waterbend cap. |
+| `tapForGenericCostString` | Native mana bill before the selected tap-for-generic payments, with X substituted. |
+
+An unavailable or stale quote has `error: "Cast cost quote is stale or unavailable"`; cost fields
+are nullable and may be absent. This generic error does not disclose hidden card or rules-state
+details. Transport/session errors retain the existing connection error contract.
+
+The client accepts a reply only while that request is pending and its request ID, state version,
+and interaction epoch still match. Canceled, replaced, or stale replies cannot resume a selector.
+The current UI cancels a pending quote after 15 seconds; a quote error or timeout asks the player
+to choose the spell again instead of submitting it or automatically retrying the quote.
+
+A quote is not a cast, an affordability guarantee, or a locked cost. It activates no mana
+abilities, spends no resources, and changes no game state, on success or error. Each request prices
+one partial announcement; the client requests fresh prices as relevant choices change rather than
+enumerating every possible payment count. Final action submission still performs native legality
+and payment validation.
+
+
 ### B2. Persistent Yields (Client -> Server)
 
 MTGO-style per-ability yields (backlog §C). Keyed by the ability's **AbilityIdentity**
@@ -160,6 +224,12 @@ another player's yields), each `{ cardDefinitionId, abilityId, displayName, unti
 wholeGame, autoAnswer }`. A triggered/activated ability on the stack carries its `abilityIdentity`
 in its `ClientCard`, so the stack-item context menu can target it. When a yield auto-answers a
 may-question, the server emits an `abilityAutoAnswered` log event (shown only to the controller).
+
+Trigger ordering (CR 603.3b): `{ "type": "setTriggerOrdering", "manual": true }` asks the server to
+let this player order their own simultaneous triggers (an `OrderTriggersDecision`). A player in Full
+Control is asked regardless of this setting. When automatic ordering places several of a player's
+triggers in an order they could have chosen, the server emits a `triggersOrderedAutomatically` event
+(`{ count }`, shown only to that player); the client turns the first one into a one-time tip.
 
 ### B3. Deck Tracker (`deck` on the client state)
 
@@ -213,6 +283,14 @@ Related recovery contracts:
   device. The server closes that socket right after sending; the receiving client stops all
   auto-reconnect (reconnecting would steal the session straight back) and shows a takeover
   overlay whose "Use here" button reclaims the session explicitly.
+- `{"type": "serverRestarting", "expectedDowntimeSeconds": 60}` (server) is sent to every connected
+  socket when the server shuts down (SIGTERM, i.e. a deploy), and each socket is then closed with
+  code **1012** (Service Restart). While shutting down the server skips its disconnect reactions —
+  no `opponentDisconnected` countdowns, no abandonment timers — and turns away new sockets with the
+  same 1012. Games and lobbies are persisted, so the client keeps the player's screen, shows the
+  update notice, and reconnects every 3s (instead of the exponential backoff) until the new server
+  answers `connected`/`reconnected`. A 1012 close without the message opens the same window. The
+  quoted downtime is `app.restart-expected-downtime-seconds` (`RESTART_EXPECTED_DOWNTIME_SECONDS`).
 
 ---
 
@@ -252,7 +330,7 @@ Set-level metadata for the deckbuilder, pickers, and the **Set Completion** view
 plain HTTP JSON.
 
 **List sets** — `GET /api/sets` → `[{ "code", "name", "releaseDate" }]` (every catalogued set).
-**Booster-ready** — `GET /api/sets/booster-ready` → `[{ "setCode", "setName", "implementedCount", "incomplete" }]`
+**Booster-ready** — `GET /api/sets/booster-ready` → `[{ "setCode", "setName", "implementedCount", "incomplete", "releaseDate", "extensionSet" }]` (the Set guide reads this list)
 (subset draftable for sealed/draft).
 
 **Set coverage** — `GET /api/sets/coverage` → per-set card-implementation coverage, newest release
@@ -334,7 +412,7 @@ contain nothing new and never appear. Sectioning only partitions the extras: it 
 in or out of `extraTotal` / `extraImplemented`. Sets with no booster at all have no extras and so no
 sections.
 
-**Cards we won't implement.** A card needing a mechanic the engine will never carry (ante, subgames,
+**Cards we won't implement.** A card needing a mechanic the engine will never carry (ante,
 physical dexterity) is listed in the repo-root `coverage/card-exclusions.json` manifest, keyed by name
 so one entry covers every set that prints it. `scripts/gen-set-totals` bakes the flag onto the card as
 `"notPlanned": { "kind": "ante", "why": "…" }` — exclusion is carried *as* its reason, so a not-planned
@@ -356,7 +434,7 @@ lives only in the local Scryfall cache. `scripts/gen-set-totals` bakes those can
 into `draft` (some printing of the card in that set is Scryfall `booster: true`) and `extra`, each
 `{ name, img }` (direct CDN art URL) plus `{ products, group }` on the extras, into
 the committed `game-server/.../resources/coverage/set-totals.json` resource (same partitioning as
-`scripts/card-status`, so the numbers match the mtgish coverage TUI). Baking the art URL lets the
+`scripts/card-status`, so the numbers match its report). Baking the art URL lets the
 detail view render set-specific images for *missing* cards too, without hammering the rate-limited
 Scryfall name-lookup API. At request time `SetCoverageService` joins that static denominator with the
 *live* card catalog: `implemented` is the count of a set's canonical names we've actually authored
@@ -419,9 +497,24 @@ duplicate physical cards. The server resolves the entire list atomically; an unr
 the update, and `cubeCards: []` clears cube mode. While a cube is active, `setCodes` changes,
 `boosterDistribution`, and `chaosBoosters` are inert.
 
-`LobbySettings` broadcasts only the public summary: `cubeName`, `cubeCardCount`, `packSize`, and
-`cubePoolPlay`. The synthetic `CUBE` set is deliberately absent from `availableSets`. The server
-rejects starting when the selected format would need more cards than the cube contains.
+`LobbySettings` broadcasts only the public summary: `cubeName`, `cubeCardCount`, `packSize`,
+`cubeBoosterStyle`, and `cubePoolPlay`. The synthetic `CUBE` set is deliberately absent from
+`availableSets`. The server rejects starting a shuffled cube when the selected format would need more
+cards than the cube contains.
+
+`cubeBoosterStyle` (sent with `cubeCards`; absent = `SHUFFLED`) picks how the cube becomes packs:
+
+| Style | Packs |
+|-------|-------|
+| `SHUFFLED` | The classic cube: shuffled once and dealt in packs of `packSize`; each physical card opens at most once, so capacity applies. |
+| `PLAY_BOOSTER` | Printed like a set's Play Booster: 7 commons, 3 uncommons, a rare/mythic, two any-rarity wildcards (13 cards). |
+| `DRAFT_BOOSTER` | Printed like a mythic-era Draft Booster: 10 commons, 3 uncommons, a rare/mythic (14 cards). |
+
+The booster styles print with replacement across packs (never a repeat within one), so they have no
+capacity limit and a card's count is its weight within its rarity. `cubeRarities` (card name →
+`COMMON`…`MYTHIC`) carries each card's rarity *in the cube* where it differs from the card's own — a
+cube built from a set carries the set's rarities, since a reprint's own rarity is its first printing's.
+Special and bonus rarities print as rares. `LobbySettings.packSize` reports the layout's size (13/14).
 
 Saved cubes are account data, not lobby data: `/api/account/cubes` (see
 [`accounts-and-persistence.md`](accounts-and-persistence.md)) stores them, and the lobby only ever
@@ -480,13 +573,20 @@ sealed, or premade), then one N-player game".
   server validates the full Commander deck on arrival and the lobby holds at its normal deck-submission
   gate until the choice exists. A seat whose pool holds no legal commander at all stays un-submitted
   rather than seating a deck the engine would refuse at init.
-- **Attack rule.** The same two messages also carry an optional `attackMode` (default `MULTIPLE`),
+- **Attack rule.** The same two messages also carry an optional `attackMode` (default `LEFT`),
   echoed by `LobbySettings.attackMode`, choosing which opponents creatures may attack in the FFA
   game (CR 802 / 803; CR 806.2b requires exactly one): `MULTIPLE` (any opponent), `LEFT`, or
   `RIGHT` (only the neighbour in that seat direction). It threads to the engine via
   `GameConfig.attackMode` → `GameState.attackMode`; the legal-action enumerator filters
   `validAttackTargets` and the engine rejects an out-of-seat declaration. Ignored in `TOURNAMENT`
-  mode and in any two-player game (all three modes permit the sole opponent).
+  mode and in any two-player game (all three modes permit the sole opponent). In game,
+  `ClientGameState.attackMode` repeats it (`LEFT` / `RIGHT`; null for `MULTIPLE`) — fixed for the
+  game, so only the full state carries it, never a delta — for the rail's direction header and
+  seat tags; `validAttackTargets` stays the authority on what a declaration may name. Per-defender
+  restrictions narrow it per attacker (CR 508.1b–c — Goblin Rock Sled, Blazing Archon): the sparse
+  `attackTargetsByAttacker` map lists the legal targets of each attacker that may not attack all of
+  `validAttackTargets`; an attacker absent from it may attack any of them, and a creature with no
+  legal target at all is left out of `validAttackers`.
 - **Team modes — Two-Headed Giant (CR 810) and Team vs. Team (CR 808).** Both split the pod into two
   even teams and share the same controls: an optional `randomTeams` (default **`true`**) and
   `teamAssignments` (playerId → team index `0`/`1`, full map), echoed by `LobbySettings`.
@@ -496,7 +596,15 @@ sealed, or premade), then one N-player game".
   seat-order grouping if the manual assignment can't form two equal teams. The result flows to
   `GameSession.teams` → `GameConfig.teams`. The two modes differ only in the engine `Format` chosen:
   - `TWO_HEADED_GIANT` — exactly four players (`Format.TwoHeadedGiant`): teams share one 30-life
-    total, take shared turns, fight combined combat, and win/lose together.
+    total, take shared turns, fight combined combat, and win/lose together. A single
+    `DeclareBlockers` submission covers both teammates: `validBlockers` includes eligible
+    creatures across their boards, and `blockableAttackers` names attacks that this declaration
+    may block. The client uses these lists directly rather than inferring eligibility from
+    card ownership or the attacked seat; confirming completes the whole team's declaration.
+    If effects assign teammates' choices to different input actors, each owner submits separately
+    and `proposedBlockerAssignments` carries the prior choices for display only. The engine applies
+    the declaration atomically after validating the combined map; an illegal aggregate restarts
+    the choices with an explanatory action description, without firing block triggers.
   - `TEAM_VS_TEAM` — an even pod of 4/6/8 (`Format.TeamVsTeam`, i.e. 2v2/3v3/4v4): **nothing is
     shared** (CR 808.5). Each player keeps their own 20 life and their own turn, is eliminated
     individually (CR 104.3b), and a team loses only once all its members have left (CR 104.2c).
@@ -540,6 +648,22 @@ sealed, or premade), then one N-player game".
   than a separate lobby kind; the create message's `vsAi` remains a shortcut for initially filling
   the seat.
 
+## 3e. Playing for Ante (WebSocket / REST)
+
+An opt-in lobby setting (CR 407), never on together with ranked. Lobby fields: `LobbySettings.playingForAnte`
+(set with `updateLobbySettings { playingForAnte }`), `QuickGameLobbyState.playingForAnte` (set with
+**`setQuickGameLobbyAnte`** `{ playingForAnte }`), and `playingForAnte` on both create messages. In game,
+`ClientGameState.playingForAnte` is true and each player's anted cards arrive as an ordinary public zone,
+`{ ownerId, zoneType: "Ante" }`. Deck submission rejects ante-only cards outside such games with error code
+`REQUIRES_ANTE`.
+
+**`gameOver.ante`** — null unless the game was for ante:
+`{ scope: "EVENT" | "SPOILS", transfers: [{ cardName, imageUri, fromPlayerId, fromPlayerName, toPlayerId,
+toPlayerName, cause: "ANTE" | "OWNERSHIP", refilledWith? }] }`. `EVENT` (a 1v1 Limited tournament) means the cards
+moved between the players' pools for the rest of the event; `refilledWith` names the basic land added to keep the
+loser's deck at 40. `SPOILS` means they were recorded on signed-in players' profiles, readable with
+`GET /api/stats/me/spoils` → `{ won: Spoil[], lost: Spoil[] }`, `Spoil = { cardName, imageUri, opponentName, gameId, at }`.
+
 ## 4. Scenario Builder Payload (REST / HTTP)
 
 The Scenario Builder lets any player construct an arbitrary board state and play it. It is a
@@ -580,6 +704,10 @@ shape + builder via `ScenarioBuilderService` / `ScenarioSessionFactory`).
 - `sideboard` is the "outside the game" zone (CR 400.11). Without it a card that reaches outside
   the game has nothing to find, so the wish cycle and Strixhaven's **Learn** (CR 701.48) can only
   ever take their other branch — seed a Lesson here to exercise Learn's Lesson half.
+- `dungeon` (`{ "name": "Undercity", "room": "Forge" }`) and `completedDungeons` (`["Tomb of
+  Annihilation"]`) on a seat stage its dungeon state (CR 309); `monarch` / `initiative` (1-based
+  seat) at the top level stage who holds those designations. Staged state triggers nothing — the
+  board starts as if it had already happened.
 - Validation rejects unknown card names and (production) enforces per-zone + total card caps,
   returning `400` with `{ "errors": ["Unknown card: …", …] }`.
 - `customCards` (optional) is a list of **Scryfall(-style) card objects, as JSON strings**. Argentum
@@ -679,6 +807,32 @@ epoch through thinking and approval delays into its callback. Its adapter and ev
 use the same live acceptance operation. Missing or obsolete AI deliveries are discarded before
 fallbacks, rejection accounting, or broadcasts. Rejection accounting and any resulting concession
 also check the originating epoch atomically. Replay records only canonical engine actions.
+
+A browser update whose `pendingDecision` has exactly one legal answer also carries that answer as
+`autoAnswer` (a `DecisionResponse` already keyed to the routed decision ID). The server decides it
+from the engine's own decision with `ForcedDecisionAutoAnswer`, which applies the AI's
+`TrivialDecisions` and still asks when the question is how the player looks at cards. The client
+never derives one: unless the player set *Choices with only one answer* to *Ask me every time*
+(`gameplay.forcedChoices = 'ask'`), it keeps the question off screen and submits `autoAnswer`
+unchanged as an ordinary `SubmitDecision`: at once under *Answer instantly* (`'instant'`), and under
+*Answer for me* (`'delayed'`, the default) after a human-like delay drawn fresh per question
+(0.8–2.5 s, skewed short; see `humanAnswerDelayMs` in
+`web-client/src/store/slices/handlers/autoAnswer.ts`). The engine still always asks (#3340), and
+other seats still see the decision status while it waits. AI seats get no `autoAnswer`; they answer
+through `TrivialDecisions` directly.
+
+`autoAnswerPublic: true` travels with an `autoAnswer` whose forcedness everyone can already see, and
+the client then sends it at once in both answering modes. `ForcedDecisionAutoAnswer.isPublic`
+decides it and fails closed: only a target or card-selection question qualifies, and only when the
+engine declared where its candidates came from (`DecisionContext.candidateZones`, set today by
+triggered-ability targeting via `TargetCandidateZones`) and everything in those zones is visible to
+a spectator, per `Visibility`: no hand, library or sideboard, and no face-down object. An unknown
+source, a forced "no" (`YesNoDecision.yesAvailable = false`) and a private question are never
+public.
+
+`gameplay.forcedChoices` replaced the boolean `gameplay.autoAnswerForced`. The preferences document
+is stored verbatim, so `parsePreferences` still reads the old field from a document that has no
+valid new one: `true` → `'delayed'`, `false` → `'ask'`.
 
 #### One store
 
@@ -836,3 +990,72 @@ The continuation also checks the resulting combat restrictions before committing
 mana colors, computed by the engine. For Sunglasses of Urza it includes `"R": ["R", "W"]`.
 The existing mana readouts consume these server-provided options; mana source/pool colors and printed
 costs remain unchanged. The field defaults to empty and is public information.
+
+### Jumpstart pack selection
+
+For a lobby selecting only `JMP` or only `J22`, ordinary `SEALED` and `DRAFT` use Jumpstart by default.
+The client presents this as **Jump In**; its wizard creates a `SEALED` lobby selecting `J22`,
+with `useJumpstart: true` and one game per matchup. It uses the existing tournament transport,
+AI seats, private pack selections, reconnect and automatic deck submission.
+`LobbySettings.useJumpstart` is the host's persistent preference; `jumpstartEligible` and
+`jumpstartActive` are server-derived. Selecting multiple sets, a cube, Commander rules, or another
+pack format disables Jumpstart. Setting `useJumpstart: false` in `updateLobbySettings` retains the
+traditional draft/sealed flow, including its pack-count settings.
+
+Starting Jumpstart enters `DECK_BUILDING`, but sends no editable sealed pool. Each player's
+`lobbyUpdate.jumpstart` contains only their own `selectedPacks`, three `offers` and three
+`secondOffers` (`id`, `theme`, `cards`), both rolled when Jumpstart starts so a pair is chosen on one
+screen. The client sends `pickJumpstartPacks { firstPackId, secondPackId }`; the server validates
+the first against `offers` and the second against `secondOffers`, adds both entire 20-card packs,
+and submits the 40 cards unchanged through the normal deck submission path. Players remain on the
+private pack screen until everyone has chosen, then the server readies the first matchup
+automatically. Later rounds use the ordinary tournament readiness flow. AI seats select packs
+server-side. Players cannot add lands, remove cards, or edit this deck. Offers, selections, and the
+preference survive persistence and reconnection; a pair can be chosen only once, so a retransmit
+cannot choose another.
+
+The checked-in `game-server/src/main/resources/jumpstart/j22.txt` contains Wizards' 121 paper J22
+variants across 46 themes, taken from the [published decklists](https://magic.wizards.com/en/news/feature/jumpstart-2022-booster-themes-and-card-lists).
+`game-server/src/main/resources/jumpstart/jmp.txt` contains Wizards' 121 paper JMP
+lists (including cards printed in M21). Themed basic-land labels are normalized to their printed
+names. A variant is available only when every card resolves in the enabled catalog and no card is
+banned; missing cards are never substituted. Start requires three complete themes. Three distinct
+themes are sampled for each offer, then one available variant per theme; a theme can appear again
+in the second offer. This provides Arena-style choices over paper lists, without Arena's card
+substitutions or rarity-weighted offering algorithm. Initially the newly completed starter themes
+are Archaeology, Goblins, and Unicorns. Other themes unlock automatically as cards are implemented.
+
+
+### Dependent target choices
+
+Target requirement metadata may also carry `exclusiveGroups`: disjoint, server-computed card-ID
+lists from which the player may select at most one card each. `minTargets` / `maxTargets` specify
+whether every group is required. The client uses the lists to disable incompatible picks and retains
+selections across graveyard tabs; it does not calculate card ownership or group membership. Both legal
+action slots and `ChooseTargetsDecision.targetRequirements` carry the same constraint. The server
+validates the submitted picks against the groups as well as the target count and legal candidates.
+This differs from `selectionGroups`, where *all* selected cards must belong to one compatible pool.
+
+A legal action's per-slot `targetRequirements` may carry `validTargetsByPrefix`.
+This maps the comma-joined entity IDs selected for earlier slots, in order, to the
+legal choices for this slot. IDs are UUIDs. A missing key means no legal choices;
+a null/absent table means the ordinary `validTargets` list applies. The latter is
+the union for dependent slots, not permission to combine arbitrary choices.
+The engine excludes earlier choices with no legal completion. The web client uses
+the table when advancing targeting and rebuilds that branch after Back changes an
+earlier choice. No hidden-zone data is included: dependent slots currently select
+players and battlefield permanents only.
+
+A `ChooseTargetsDecision` — the "choose new targets" prompt for a copied spell or
+triggered ability — carries the same shape per `TargetRequirementInfo`:
+`legalTargetsByPrefix`, keyed by the first `prefixLength` slots' answers (default:
+every earlier slot; the earlier slots are always single-target, so the join is
+unambiguous). Each slot contributes its selected IDs comma-joined, a kept
+copy target (an empty answer) contributes `""`, and slots are joined by commas, so
+"keep the opponent" keys the land slot as `""` and "change it to player B" as `B`.
+When present it replaces `legalTargets` for that slot (which then holds the union,
+for display), and the server validates each answer against the entry its earlier
+answers select. A kept target may stay even if it is already illegal (CR 707.10c),
+but a changed target must not make a kept one illegal (CR 115.7d): the server
+rejects that answer, and an earlier choice whose later slots then have no legal
+answer is left out of the table.

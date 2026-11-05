@@ -9,6 +9,7 @@ import com.wingedsheep.sdk.model.Rarity
  * Krenko's Command
  * {1}{R}
  * Sorcery
+ *
  * Create two 1/1 red Goblin creature tokens.
  */
 val KrenkosCommand = card("Krenko's Command") {
@@ -24,7 +25,7 @@ val KrenkosCommand = card("Krenko's Command") {
             colors = setOf(Color.RED),
             creatureTypes = setOf("Goblin"),
             count = 2,
-            imageUri = "https://cards.scryfall.io/normal/front/0/e/0e67efea-8a80-42ec-8e77-07d387d933d4.jpg?1783940442"
+            imageUri = "https://cards.scryfall.io/normal/front/0/e/0e67efea-8a80-42ec-8e77-07d387d933d4.jpg?1783940442",
         )
     }
 

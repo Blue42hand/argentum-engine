@@ -7,29 +7,43 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CreateTokenEffect
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
-/** Krenko, Tin Street Kingpin — War of the Spark #137. */
+/**
+ * Krenko, Tin Street Kingpin
+ * {2}{R}
+ * Legendary Creature — Goblin
+ * 1/2
+ * Whenever Krenko attacks, put a +1/+1 counter on it, then create a number of 1/1 red Goblin
+ * creature tokens equal to Krenko's power.
+ *
+ * The token count reads Krenko's power after the counter lands. If Krenko has left the battlefield
+ * by resolution, the counter is skipped and the count falls back to its last-known power (ruling) —
+ * `EntityProperty(Self, Power)` reads the departed object's battlefield-exit snapshot. The tokens
+ * aren't attacking.
+ */
 val KrenkoTinStreetKingpin = card("Krenko, Tin Street Kingpin") {
     manaCost = "{2}{R}"
     colorIdentity = "R"
     typeLine = "Legendary Creature — Goblin"
     power = 1
     toughness = 2
-    oracleText = "Whenever Krenko attacks, put a +1/+1 counter on it, then create a number of " +
-        "1/1 red Goblin creature tokens equal to Krenko's power."
+    oracleText = "Whenever Krenko attacks, put a +1/+1 counter on it, then create a number of 1/1 red Goblin " +
+        "creature tokens equal to Krenko's power."
 
     triggeredAbility {
         trigger = Triggers.self.attacks()
-        effect = (Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
+        effect = Effects.AddCounters(CounterType.PLUS_ONE_PLUS_ONE, 1, EffectTarget.Self) then
             Effects.CreateToken(
                 count = DynamicAmounts.sourcePower(),
                 power = 1,
                 toughness = 1,
                 colors = setOf(Color.RED),
                 creatureTypes = setOf("Goblin"),
-            ))
+                imageUri = "https://cards.scryfall.io/normal/front/c/0/c0861b13-6cf8-4078-9178-e223a4041a8b.jpg?1783933350",
+            )
+        description = "Whenever Krenko attacks, put a +1/+1 counter on it, then create a number of 1/1 red " +
+            "Goblin creature tokens equal to Krenko's power."
     }
 
     metadata {

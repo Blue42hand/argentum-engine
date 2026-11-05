@@ -1,5 +1,6 @@
 package com.wingedsheep.engine.handlers.continuations
 
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
 import com.wingedsheep.engine.core.AttackTaxManaSelectionContinuation
@@ -44,6 +45,15 @@ class CombatTaxContinuationResumer(
 ) : ContinuationResumerModule {
 
     override fun resumers(): List<ContinuationResumer<*>> = listOf(
+        resumer(com.wingedsheep.engine.core.AttackEnlistSelectionContinuation::class) { state, c, response, _ ->
+            if (response !is com.wingedsheep.engine.core.CardsSelectedResponse) {
+                ExecutionResult.error(state, "Expected enlist card selection")
+            } else {
+                val chosen = response.selectedCards.map { com.wingedsheep.engine.core.EnlistPayment(c.remaining.first(), it) }
+                services.combatManager.attackPhase.chooseEnlist(state, c.attackingPlayer, c.attackers,
+                    c.remaining.drop(1), c.chosen + chosen, c.bands, c.rollback)
+            }
+        },
         resumer(AttackTaxManaSelectionContinuation::class) { state, continuation, response, _ ->
             resumeAttackTaxSelection(state, continuation, response)
         },
@@ -143,17 +153,19 @@ class CombatTaxContinuationResumer(
         if (response.isDecline(floatingCovers(state, continuation.attackingPlayer, continuation.manaCost))) {
             // Decline: no mana tapped, no AttackingComponent applied. Drop back into
             // DECLARE_ATTACKERS as a clean no-op (no error banner).
-            return ExecutionResult.success(state)
+            val restored = continuation.rollback?.restore(state) ?: state
+            return ExecutionResult.success(restored, listOf(com.wingedsheep.engine.core.AttackDeclarationCancelledEvent(continuation.attackingPlayer)))
         }
 
-        val paid = payTax(state, continuation.attackingPlayer, continuation.manaCost, continuation.availableSources, response)
+        val paid = payTax(state, continuation.attackingPlayer, continuation.manaCost, continuation.availableSources, response,
+            continuation.enlistments.mapTo(mutableSetOf()) { it.enlistedId })
             ?: return ExecutionResult.error(state, "Cannot pay attack tax of ${continuation.manaCost}")
 
-        return services.combatManager.attackPhase.commitAttackDeclaration(
+        return services.combatManager.attackPhase.payEnlistAndContinue(
             state = paid.state,
             attackingPlayer = continuation.attackingPlayer,
             attackers = continuation.attackers,
-            projected = paid.state.projectedState,
+            enlistments = continuation.enlistments,
             taxEvents = paid.events,
             bands = continuation.bands,
         )
@@ -167,18 +179,42 @@ class CombatTaxContinuationResumer(
         if (response !is ManaSourcesSelectedResponse) {
             return ExecutionResult.error(state, "Expected mana sources selected response for block tax")
         }
-        if (response.isDecline(floatingCovers(state, continuation.blockingPlayer, continuation.manaCost))) {
-            return ExecutionResult.success(state)
+        if (response.isDecline(floatingCovers(state, continuation.payingPlayer, continuation.manaCost))) {
+            return ExecutionResult.success(state.withPriority(continuation.blockingPlayer))
         }
 
-        val paid = payTax(state, continuation.blockingPlayer, continuation.manaCost, continuation.availableSources, response)
-            ?: return ExecutionResult.error(state, "Cannot pay block tax of ${continuation.manaCost}")
-
+        val selections = continuation.selections + com.wingedsheep.engine.core.BlockTaxSelection(
+            continuation.payingPlayer, continuation.manaCost, continuation.availableSources, response)
+        // Simulate the selected payments together, without exposing a partially paid declaration.
+        // Explicit mana abilities used inside the window remain in `state` if the team cancels.
+        var paidState = state
+        val events = mutableListOf<GameEvent>()
+        for (selection in selections) {
+            if (!selection.response.autoPay &&
+                !floatingCovers(paidState, selection.playerId, selection.manaCost)) {
+                val currentSources = services.manaSolver.findAvailableManaSources(paidState, selection.playerId)
+                    .mapTo(mutableSetOf()) { it.entityId }
+                if (selection.response.selectedSources.distinct().size != selection.response.selectedSources.size ||
+                    selection.response.selectedSources.any { it !in currentSources }) {
+                    return ExecutionResult.error(state, "Selected block-tax mana source is no longer available")
+                }
+            }
+            val paid = payTax(paidState, selection.playerId, selection.manaCost,
+                selection.availableSources, selection.response)
+                ?: return ExecutionResult.error(state, "Cannot pay block tax of ${selection.manaCost}")
+            paidState = paid.state
+            events.addAll(paid.events)
+        }
+        if (continuation.remainingTaxes.isNotEmpty()) {
+            return services.combatManager.blockPhase.pauseForBlockTaxConfirmation(
+                state, continuation.blockingPlayer, continuation.blockers,
+                continuation.remainingTaxes, selections)
+        }
         return services.combatManager.blockPhase.commitBlockDeclaration(
-            state = paid.state,
+            state = paidState.withPriority(continuation.blockingPlayer),
             blockingPlayer = continuation.blockingPlayer,
             blockers = continuation.blockers,
-            taxEvents = paid.events,
+            taxEvents = events,
         )
     }
 
@@ -190,10 +226,11 @@ class CombatTaxContinuationResumer(
         manaCost: ManaCost,
         availableSources: List<ManaSourceOption>,
         response: ManaSourcesSelectedResponse,
+        reserved: Set<EntityId> = emptySet(),
     ): TaxPayment? {
         val playerEntity = state.getEntity(playerId) ?: return null
         val poolComponent = playerEntity.get<ManaPoolComponent>() ?: return null
-        var pool = poolComponent.toManaPool()
+        var pool = poolComponent.toManaPool().withSpendingColors(state, playerId)
 
         val partial = pool.payPartial(manaCost, SpellPaymentContext())
         var remainingCost = partial.remainingCost
@@ -202,10 +239,10 @@ class CombatTaxContinuationResumer(
 
         if (!remainingCost.isEmpty()) {
             if (response.autoPay) {
-                val solver = ManaSolver(services.cardRegistry, services.predicateEvaluator)
-                val solution = solver.solve(currentState, playerId, remainingCost, spellContext = SpellPaymentContext()) ?: return null
+                val solver = services.manaSolver
+                val solution = solver.solve(currentState, playerId, remainingCost, excludeSources = reserved, spellContext = SpellPaymentContext()) ?: return null
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -221,7 +258,7 @@ class CombatTaxContinuationResumer(
                         // to returning null so the caller errors with a clear message.
                         return null
                     }
-                    val (tappedState, tapEvents) = tapForMana(currentState, sourceId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, sourceId, playerId, ManaAbilityLifeCost.creditedProduction(source.producesColors, source.manaAmount))
                     currentState = tappedState
                     events.addAll(tapEvents)
                     pool = when {

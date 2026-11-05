@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { computePhases, enterPhase, mergeResult } from './pipelinePhases'
-import { optionalManaCostForCount } from './pipelineSlice'
+import { computePhases, dropSacrificeXPickerAtZero, enterPhase, mergeResult } from './pipelinePhases'
 import type { LegalActionInfo } from '@/types/messages'
+import type { PipelinePhase } from '../types'
 
 /**
  * Minimal CastSpell LegalActionInfo factory — only the fields computePhases reads matter.
@@ -102,11 +102,6 @@ describe('compact repeatable optional cast cost', () => {
     expect(withBoth).toMatchObject({ xValue: 3, declaredCostTimes: 11 })
   })
 
-  it('scales a huge generic cost without allocating one symbol per payment', () => {
-    expect(optionalManaCostForCount('{2}', '{2}', 1_000_000_000)).toBe('{2}{1999999998}')
-    expect(optionalManaCostForCount('{G}', '{G}', 1_000_000_000)).toBeNull()
-    expect(optionalManaCostForCount('{2}', '{2}', -1)).toBeNull()
-  })
 })
 
 describe('Treasure Cruise delve selection', () => {
@@ -295,6 +290,64 @@ describe('Force of Vigor hand-exile payment', () => {
   })
 })
 
+describe('several selection costs on one spell (Ruthless Disposal)', () => {
+  const info = castAction({
+    actionType: 'CastSpell',
+    description: 'Cast Ruthless Disposal',
+    action: { type: 'CastSpell', playerId: 'p1', cardId: 'disposal' },
+    additionalCostInfo: {
+      costType: 'SacrificePermanent',
+      description: 'Sacrifice a creature',
+      validSacrificeTargets: ['bear'],
+      sacrificeCount: 1,
+      alsoRequired: [
+        {
+          costType: 'DiscardCard',
+          description: 'Discard a card',
+          validDiscardTargets: ['rock'],
+          discardCount: 1,
+        },
+      ],
+    },
+  })
+
+  it('runs one picker per cost, in order', () => {
+    expect(computePhases(info, { autoTapEnabled: true })).toEqual([
+      { type: 'costPayment' },
+      { type: 'costPayment', costIndex: 1 },
+    ])
+  })
+
+  it('each picker offers its own cost\'s candidates', () => {
+    const captured: Record<string, unknown>[] = []
+    const store = {
+      startTargeting: (arg: Record<string, unknown>) => { captured.push(arg) },
+    } as unknown as Parameters<typeof enterPhase>[3]
+    enterPhase({ type: 'costPayment' }, info, info.action, store)
+    enterPhase({ type: 'costPayment', costIndex: 1 }, info, info.action, store)
+    expect(captured[0]).toMatchObject({ validTargets: ['bear'], minTargets: 1, maxTargets: 1 })
+    expect(captured[1]).toMatchObject({ validTargets: ['rock'], minTargets: 1, isDiscardSelection: true })
+  })
+
+  it('both picks land in the submitted payment', () => {
+    const afterSacrifice = mergeResult(
+      info.action,
+      info,
+      { type: 'costPayment', costType: 'SacrificePermanent', selectedTargets: ['bear' as never] },
+      {} as never,
+    )
+    const afterDiscard = mergeResult(
+      afterSacrifice,
+      info,
+      { type: 'costPayment', costType: 'DiscardCard', selectedTargets: ['rock' as never] },
+      {} as never,
+    )
+    expect(afterDiscard).toMatchObject({
+      additionalCostPayment: { sacrificedPermanents: ['bear'], discardedCards: ['rock'] },
+    })
+  })
+})
+
 describe('enterPhase — sum-gated graveyard exile costs', () => {
   /**
    * Collect evidence N (CR 701.59a) and Baron Helmut Zemo's pip total are the same picker: any
@@ -411,7 +464,7 @@ describe('computePhases — per-target mana tax (Officious Interrogation)', () =
   }
 
   it('defers the manaSource phase past targeting when the cost scales with targets', () => {
-    const phases = computePhases(interrogation({ manaCostPerExtraTarget: '{W}{U}' }), {
+    const phases = computePhases(interrogation({ manaCostByTargetCount: { 1: '{W}{U}', 2: '{W}{U}{W}{U}' } }), {
       autoTapEnabled: false,
     })
     expect(phases).toEqual([{ type: 'targeting' }, { type: 'manaSource' }])
@@ -423,7 +476,7 @@ describe('computePhases — per-target mana tax (Officious Interrogation)', () =
   })
 
   it('runs no manaSource phase at all under auto-tap — the server prices the targets', () => {
-    const phases = computePhases(interrogation({ manaCostPerExtraTarget: '{W}{U}' }), {
+    const phases = computePhases(interrogation({ manaCostByTargetCount: { 1: '{W}{U}', 2: '{W}{U}{W}{U}' } }), {
       autoTapEnabled: true,
     })
     expect(phases).toEqual([{ type: 'targeting' }])
@@ -508,5 +561,194 @@ describe('computePhases — target-priced collect evidence (Urgent Necropsy)', (
   it('a cast with no targets asks for evidence 0 and lets the player confirm with none', () => {
     const captured = captureEvidencePicker(necropsy(), [])
     expect(captured).toMatchObject({ minTotalWeight: 0, minTargets: 0 })
+  })
+})
+
+describe('enterPhase — X-driven target counts', () => {
+  /**
+   * "Up to X target creatures" caps the targeting overlay at the chosen X; "X target creatures"
+   * (Icy Blast) is exact, so the chosen X is the minimum too. The server says which with
+   * `xConstrainsTargetCountExactly` — the client never reads Oracle wording.
+   */
+  function captureXTargeting(over: Record<string, unknown>, xValue: number): Record<string, unknown> | null {
+    let captured: Record<string, unknown> | null = null
+    const store = {
+      startTargeting: (arg: Record<string, unknown>) => {
+        captured = arg
+      },
+    } as unknown as Parameters<typeof enterPhase>[3]
+    const info = castAction({
+      actionType: 'CastSpell',
+      requiresTargets: true,
+      validTargets: ['a', 'b', 'c'],
+      targetCount: 1,
+      minTargets: 0,
+      hasXCost: true,
+      xConstrainsTargetCount: true,
+      ...over,
+    })
+    const action = { type: 'CastSpell', playerId: 'p1', cardId: 'c1', xValue } as unknown as LegalActionInfo['action']
+    const gameState = { cards: {}, players: [] } as unknown as Parameters<typeof enterPhase>[4]
+    enterPhase({ type: 'targeting' }, info, action, store, gameState)
+    return captured
+  }
+
+  it('"up to X" lets the player pick anywhere from zero to X', () => {
+    expect(captureXTargeting({}, 2)).toMatchObject({ minTargets: 0, maxTargets: 2 })
+  })
+
+  it('"X target" requires exactly X', () => {
+    expect(captureXTargeting({ xConstrainsTargetCountExactly: true }, 2)).toMatchObject({ minTargets: 2, maxTargets: 2 })
+  })
+
+  it('"X target" with X = 0 requires no targets', () => {
+    expect(captureXTargeting({ xConstrainsTargetCountExactly: true }, 0)).toMatchObject({ minTargets: 0, maxTargets: 0 })
+  })
+
+  it('per-requirement exactness applies to multi-requirement actions', () => {
+    const req = (index: number, exact: boolean) => ({
+      index,
+      description: `req ${index}`,
+      minTargets: 0,
+      maxTargets: 1,
+      validTargets: ['a', 'b', 'c'],
+      xConstrainsCount: true,
+      xConstrainsCountExactly: exact,
+    })
+    expect(captureXTargeting({ targetRequirements: [req(0, true), req(1, false)] }, 3))
+      .toMatchObject({ minTargets: 3, maxTargets: 3 })
+  })
+})
+
+describe('Casualty — sacrifice picker', () => {
+  function casualtyAction(over: Record<string, unknown> = {}): LegalActionInfo {
+    return castAction({
+      actionType: 'CastWithCasualty',
+      description: 'Cast Ob Nixilis, the Adversary (Casualty X)',
+      hasXCost: true,
+      maxAffordableX: 3,
+      additionalCostInfo: {
+        costType: 'Casualty',
+        description: 'Sacrifice a creature with power X or greater',
+        validSacrificeTargets: ['thopter', 'bears', 'courser'],
+        sacrificeCount: 1,
+        sacrificeMinPowerIsX: true,
+      },
+      ...over,
+    })
+  }
+  const gameState = {
+    cards: { thopter: { power: 0 }, bears: { power: 2 }, courser: { power: 3 } },
+    players: [],
+  } as unknown as Parameters<typeof enterPhase>[4]
+
+  it('announces X before the sacrifice is picked', () => {
+    expect(computePhases(casualtyAction(), { autoTapEnabled: true })).toEqual([
+      { type: 'xSelection' },
+      { type: 'costPayment' },
+    ])
+  })
+
+  it('offers only creatures with power at least the chosen X', () => {
+    const info = casualtyAction()
+    let captured: Record<string, unknown> | null = null
+    const store = {
+      startTargeting: (arg: Record<string, unknown>) => { captured = arg },
+    } as unknown as Parameters<typeof enterPhase>[3]
+    enterPhase({ type: 'costPayment' }, info, { ...info.action, xValue: 2 } as never, store, gameState)
+    expect(captured).toMatchObject({
+      validTargets: ['bears', 'courser'],
+      minTargets: 1,
+      maxTargets: 1,
+      isSacrificeSelection: true,
+      targetDescription: 'Sacrifice a creature with power 2 or greater',
+    })
+  })
+
+  it('casualty N offers every candidate the server sent', () => {
+    const info = casualtyAction({
+      hasXCost: false,
+      maxAffordableX: undefined,
+      additionalCostInfo: {
+        costType: 'Casualty',
+        description: 'Sacrifice a creature with power 1 or greater',
+        validSacrificeTargets: ['bears', 'courser'],
+        sacrificeCount: 1,
+      },
+    })
+    let captured: Record<string, unknown> | null = null
+    const store = {
+      startTargeting: (arg: Record<string, unknown>) => { captured = arg },
+    } as unknown as Parameters<typeof enterPhase>[3]
+    enterPhase({ type: 'costPayment' }, info, info.action, store, gameState)
+    expect(captured).toMatchObject({ validTargets: ['bears', 'courser'] })
+  })
+
+  it('merges the picked creature into casualtyCreature', () => {
+    const info = casualtyAction()
+    const merged = mergeResult(
+      { ...info.action, xValue: 2 } as never,
+      info,
+      { type: 'costPayment', costType: 'Casualty', selectedTargets: ['courser' as never] },
+      {} as never,
+    )
+    expect(merged).toMatchObject({ casualtyCreature: 'courser', xValue: 2 })
+  })
+})
+
+describe('Sacrifice X creatures — exact-X sacrifice picker', () => {
+  function sacrificeXAction(): LegalActionInfo {
+    return castAction({
+      description: 'Cast Eliminate the Competition',
+      hasXCost: true,
+      maxAffordableX: 3,
+      additionalCostInfo: {
+        costType: 'SacrificeVariable',
+        description: 'Sacrifice X creatures you control',
+        validSacrificeTargets: ['a', 'b', 'c'],
+        sacrificeCount: 0,
+        sacrificeCountIsX: true,
+      },
+    })
+  }
+
+  it('announces X before the sacrifice is picked', () => {
+    expect(computePhases(sacrificeXAction(), { autoTapEnabled: true })).toEqual([
+      { type: 'xSelection' },
+      { type: 'costPayment' },
+    ])
+  })
+
+  it('requires exactly the chosen X sacrifices', () => {
+    const info = sacrificeXAction()
+    let captured: Record<string, unknown> | null = null
+    const store = {
+      startTargeting: (arg: Record<string, unknown>) => { captured = arg },
+    } as unknown as Parameters<typeof enterPhase>[3]
+    enterPhase({ type: 'costPayment' }, info, { ...info.action, xValue: 2 } as never, store, undefined)
+    expect(captured).toMatchObject({
+      validTargets: ['a', 'b', 'c'],
+      minTargets: 2,
+      maxTargets: 2,
+      isSacrificeSelection: true,
+      targetDescription: 'Sacrifice 2 creatures you control',
+    })
+  })
+
+  it('names a single sacrifice in the singular at X = 1', () => {
+    const info = sacrificeXAction()
+    let captured: Record<string, unknown> | null = null
+    const store = {
+      startTargeting: (arg: Record<string, unknown>) => { captured = arg },
+    } as unknown as Parameters<typeof enterPhase>[3]
+    enterPhase({ type: 'costPayment' }, info, { ...info.action, xValue: 1 } as never, store, undefined)
+    expect(captured).toMatchObject({ minTargets: 1, maxTargets: 1, targetDescription: 'Sacrifice 1 creature you control' })
+  })
+
+  it('skips the sacrifice picker when X is 0', () => {
+    const info = sacrificeXAction()
+    const rest: PipelinePhase[] = [{ type: 'costPayment' }, { type: 'targeting' } as PipelinePhase]
+    expect(dropSacrificeXPickerAtZero(rest, info, 0)).toEqual([{ type: 'targeting' }])
+    expect(dropSacrificeXPickerAtZero(rest, info, 2)).toEqual(rest)
   })
 })

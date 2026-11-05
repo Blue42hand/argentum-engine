@@ -76,7 +76,7 @@ class GrantMayPlayFromExileExecutor : EffectExecutor<GrantMayPlayFromExileEffect
             // battlefield-only window is deliberately blind to who holds the source, because the
             // grantee often isn't its controller at all (Shared Fate grants to opponents).
             val sourceStolen = endsWhenSourceUncontrolled && !sourceGone &&
-                state.projectedState.getController(sourceId!!) != activatingPlayer
+                state.projectedState.getController(sourceId) != activatingPlayer
             if (sourceGone || sourceStolen) {
                 return EffectResult.success(state)
             }
@@ -176,11 +176,13 @@ class GrantMayPlayFromExileExecutor : EffectExecutor<GrantMayPlayFromExileEffect
                     sourceId = context.sourceId,
                     condition = effect.condition,
                     withAnyManaType = effect.withAnyManaType,
-                    colorlessAsAnyColor = effect.colorlessAsAnyColor,
+                    withAnyManaColor = effect.withAnyManaColor,
+                    spendAsAnyColor = effect.spendAsAnyColor,
                     asThoughFlash = effect.asThoughFlash,
-                    landEntersTapped = effect.landEntersTapped,
+                    entersTapped = effect.entersTapped,
                     permanent = isPermanent,
                     expiresAfterTurn = expiresAfterTurn,
+                    expiresAtStep = expiresAtStepFor(effect.expiry),
                     riderLinkId = riderLinkId,
                     expiryControllerId = expiryControllerId,
                     supersededBySameSource = supersedesSameSource,
@@ -189,7 +191,9 @@ class GrantMayPlayFromExileExecutor : EffectExecutor<GrantMayPlayFromExileEffect
                     nonLandOnly = effect.nonLandOnly,
                     castFaceIndex = effect.castFaceIndex,
                     castColorRestriction = effect.castColorRestriction,
-                    singleUse = effect.singleUse,
+                    castColorCount = effect.castColorCount,
+                    castSpellTypes = effect.castSpellTypes,
+                    playsRemaining = effect.maxPlays,
                     timestamp = state.timestamp,
                 )
             )
@@ -299,39 +303,48 @@ class GrantMayPlayFromExileExecutor : EffectExecutor<GrantMayPlayFromExileEffect
         // Source-keyed, not turn-keyed: revoked by EndedDurationExpiryCheck, never by cleanup.
         is MayPlayExpiry.WhileYouControlSource,
         is MayPlayExpiry.WhileSourceOnBattlefield -> null
-        is MayPlayExpiry.UntilControllerStep -> resolveStepTurn(state, controllerId, expiry)
-    }
-
-    /**
-     * Resolve the earliest turn whose cleanup may mark "the controller's next [step]", given the
-     * current step and active player. The cleanup-driven removal is coarse — it runs once per turn
-     * at cleanup — so we map any step in the turn to that turn's cleanup.
-     *
-     * This is a *floor*, not an exact turn: the expiry check in [CleanupPhaseManager] also requires
-     * `isActiveTurnFor(controllerId)`, so the permission dies at the cleanup of the first turn the
-     * controller actually takes at or after this number. That pairing is what keeps the answer right
-     * across skipped turns, extra turns and eliminated seats — none of which a turn count computed
-     * from seat positions would survive.
-     *
-     * So the whole question is only ever "does the current turn still count?": if it does, this
-     * turn's cleanup is the deadline; otherwise the deadline is the controller's next turn, which is
-     * some turn strictly after this one. Since [GameState.turnNumber] counts player turns, that is
-     * just `turnNumber + 1`.
-     */
-    private fun resolveStepTurn(
-        state: GameState,
-        controllerId: EntityId,
-        expiry: MayPlayExpiry.UntilControllerStep
-    ): Int {
-        val onControllerTurn = state.isActiveTurnFor(controllerId)
-        val targetReachedThisTurn = state.step.ordinal >= expiry.step.ordinal
-        val thisTurnStillCounts = onControllerTurn && expiry.includeCurrentTurn && !targetReachedThisTurn
-
-        // This turn's matching step still counts — expire at this turn's cleanup. Otherwise the
-        // controller's next turn is the deadline, and every later turn number qualifies as a floor.
-        return if (thisTurnStillCounts) state.turnNumber else state.turnNumber + 1
+        is MayPlayExpiry.UntilControllerStep -> resolveControllerStepTurn(state, controllerId, expiry)
     }
 }
+
+/**
+ * Resolve the earliest turn on which "the controller's next [step]" can begin, given the current
+ * step and active player. The permission ends as that step begins on the first qualifying turn
+ * ([expiresAtStepFor]); a CLEANUP window ends at that turn's cleanup.
+ *
+ * This is a *floor*, not an exact turn: the expiry check in
+ * [com.wingedsheep.engine.core.CleanupPhaseManager] also requires `isActiveTurnFor(controllerId)`, so the permission dies at the cleanup of the first turn the
+ * controller actually takes at or after this number. That pairing is what keeps the answer right
+ * across skipped turns, extra turns and eliminated seats — none of which a turn count computed
+ * from seat positions would survive.
+ *
+ * So the whole question is only ever "does the current turn still count?": if it does, this
+ * turn's cleanup is the deadline; otherwise the deadline is the controller's next turn, which is
+ * some turn strictly after this one. Since [GameState.turnNumber] counts player turns, that is
+ * just `turnNumber + 1`.
+ */
+internal fun resolveControllerStepTurn(
+    state: GameState,
+    controllerId: EntityId,
+    expiry: MayPlayExpiry.UntilControllerStep
+): Int {
+    val onControllerTurn = state.isActiveTurnFor(controllerId)
+    val targetReachedThisTurn = state.step.ordinal >= expiry.step.ordinal
+    val thisTurnStillCounts = onControllerTurn && expiry.includeCurrentTurn && !targetReachedThisTurn
+
+    // This turn's matching step still counts — expire this turn. Otherwise the
+    // controller's next turn is the deadline, and every later turn number qualifies as a floor.
+    return if (thisTurnStillCounts) state.turnNumber else state.turnNumber + 1
+}
+
+/**
+ * The step whose beginning closes an [MayPlayExpiry.UntilControllerStep] window ("until your next
+ * end step" ends as that end step begins), or null when cleanup is the deadline — a CLEANUP window
+ * ("until the end of your next turn") and every non-step expiry. Paired with
+ * [resolveControllerStepTurn]'s floor; see `CleanupPhaseManager.expireStepKeyedPermissions`.
+ */
+internal fun expiresAtStepFor(expiry: MayPlayExpiry): Step? =
+    (expiry as? MayPlayExpiry.UntilControllerStep)?.step?.takeIf { it != Step.CLEANUP }
 
 /**
  * Executor for [MakePlottedEffect] (CR 718).
@@ -413,11 +426,38 @@ class GrantPlayWithoutPayingCostExecutor : EffectExecutor<GrantPlayWithoutPaying
         val controllerId = context.controllerId
         val collection = context.pipeline.storedCollections[effect.from] ?: emptyList()
 
+        // Same anchor and turn math as GrantMayPlayFromExileExecutor, so a waiver given the paired
+        // grant's expiry ends at the same cleanup. Every non-turn-keyed expiry is ended by the
+        // paired permission's revocation, never by cleanup, so the waiver itself is permanent.
+        // ownerControls ("its owner may cast it without paying its mana cost" — Release to the
+        // Wind): each card's waiver belongs to its owner, and a turn-keyed expiry follows that
+        // owner's turns, exactly as the paired GrantMayPlayFromExile(ownerControls) groups it.
+        val activatingPlayer = context.effectControllerId ?: controllerId
+        fun waiverFor(grantee: EntityId): PlayWithoutPayingCostComponent {
+            val anchor = if (effect.ownerControls) grantee else activatingPlayer
+            return when (val expiry = effect.expiry) {
+                MayPlayExpiry.EndOfTurn -> PlayWithoutPayingCostComponent(controllerId = grantee)
+                is MayPlayExpiry.UntilControllerStep -> PlayWithoutPayingCostComponent(
+                    controllerId = grantee,
+                    expiresAfterTurn = resolveControllerStepTurn(state, anchor, expiry),
+                    expiresAtStep = expiresAtStepFor(expiry),
+                    expiryControllerId = anchor.takeIf { it != grantee },
+                )
+                MayPlayExpiry.Permanent,
+                MayPlayExpiry.UntilSourceExilesAnother,
+                is MayPlayExpiry.WhileYouControlSource,
+                is MayPlayExpiry.WhileSourceOnBattlefield ->
+                    PlayWithoutPayingCostComponent(controllerId = grantee, permanent = true)
+            }
+        }
+
         var newState = state
         for (cardId in collection) {
-            newState = newState.updateEntity(cardId) { container ->
-                container.with(PlayWithoutPayingCostComponent(controllerId = controllerId))
-            }
+            val grantee = if (effect.ownerControls) {
+                newState.getEntity(cardId)?.get<CardComponent>()?.ownerId ?: controllerId
+            } else controllerId
+            val component = waiverFor(grantee)
+            newState = newState.updateEntity(cardId) { container -> container.with(component) }
         }
 
         return EffectResult.success(newState)
@@ -445,13 +485,25 @@ class GrantPlayWithCostIncreaseExecutor : EffectExecutor<GrantPlayWithCostIncrea
         val controllerId = context.controllerId
         val collection = context.pipeline.storedCollections[effect.from] ?: emptyList()
 
+        val tax = com.wingedsheep.sdk.core.ManaCost.parse("{${effect.amount}}")
         var newState = state
         for (cardId in collection) {
+            // "Costs {N} more to cast this way": tie the tax to the newest permission this source
+            // granted the controller over the card (the grant this effect is paired with), so it
+            // lapses with that permission. No such grant leaves a zone-long tax, as before.
+            val grantedPermissionId = context.sourceId?.let { sourceId ->
+                state.mayPlayPermissions
+                    .filter { it.sourceId == sourceId && it.controllerId == controllerId && cardId in it.cardIds }
+                    .maxByOrNull { it.timestamp }
+                    ?.id
+            }
             newState = newState.updateEntity(cardId) { container ->
                 container.with(
                     PlayWithCostIncreaseComponent(
                         controllerId = controllerId,
-                        amount = effect.amount
+                        cost = tax,
+                        unlessAnyTargetMatches = effect.unlessTargets,
+                        grantedPermissionId = grantedPermissionId,
                     )
                 )
             }

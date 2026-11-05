@@ -28,6 +28,10 @@ import kotlinx.serialization.Serializable
  *   ("enchanted creature has 'When this creature dies, …'", [AttachmentGrantedTriggers]). By trigger
  *   time the attachment may be gone: put into the graveyard by the state-based action after its
  *   host's (CR 704.5m), destroyed in the same event, or — bestow — turned back into a creature.
+ * - [observerSelfGrantIds] — not the departing permanent's own: the conditional self-granted
+ *   leaves-the-battlefield abilities of every permanent on the battlefield at the time
+ *   ([ConditionalSelfGrants.observers]). A source that stays put is judged by the state before the
+ *   event as well — Relic Vial's "as long as you control a Cleric" still holds for the dying Cleric.
  *
  * [ZoneTransitionService][com.wingedsheep.engine.handlers.effects.ZoneTransitionService] freezes
  * this onto the exit snapshot. A caller that moves several objects as one simultaneous event (a
@@ -41,8 +45,12 @@ data class LookBackGrants(
     val attachmentGrantedTriggers: List<TriggeredAbility> = emptyList(),
     /** Frozen host relationship for the attachments' own leaves-the-battlefield abilities. */
     val attachmentIds: List<EntityId> = emptyList(),
+    /** Projected attachment characteristics frozen before any member of a batch departs. */
+    val attachments: List<com.wingedsheep.engine.state.components.stack.AttachmentLki> = emptyList(),
+    val observerSelfGrantIds: Map<EntityId, List<AbilityId>> = emptyMap(),
 ) {
-    val isEmpty: Boolean get() = conditionalSelfGrantIds.isEmpty() && attachmentGrantedTriggers.isEmpty() && attachmentIds.isEmpty()
+    val isEmpty: Boolean
+        get() = conditionalSelfGrantIds.isEmpty() && attachmentGrantedTriggers.isEmpty() && observerSelfGrantIds.isEmpty() && attachmentIds.isEmpty()
 
     companion object {
         /** The look-back grants of [entityId] as it stands in [state]. */
@@ -51,8 +59,10 @@ data class LookBackGrants(
             entityId: EntityId,
             cardRegistry: CardRegistry,
             conditionEvaluator: ConditionEvaluator,
+            observers: Map<EntityId, List<AbilityId>> = ConditionalSelfGrants.observers(state, cardRegistry, conditionEvaluator),
         ): LookBackGrants = LookBackGrants(
             attachmentIds = state.getEntity(entityId)?.get<AttachmentsComponent>()?.attachedIds.orEmpty(),
+            attachments = com.wingedsheep.engine.state.components.stack.attachmentLkiOf(state, entityId),
             conditionalSelfGrantIds = ConditionalSelfGrants.activeIds(state, entityId, cardRegistry, conditionEvaluator),
             attachmentGrantedTriggers = AttachmentGrantedTriggers.of(
                 state,
@@ -60,6 +70,7 @@ data class LookBackGrants(
                 cardRegistry,
                 conditionEvaluator,
             ),
+            observerSelfGrantIds = observers,
         )
 
         /**
@@ -72,8 +83,9 @@ data class LookBackGrants(
             cardRegistry: CardRegistry,
             conditionEvaluator: ConditionEvaluator,
         ): Map<EntityId, LookBackGrants> = buildMap {
+            val observers = ConditionalSelfGrants.observers(state, cardRegistry, conditionEvaluator)
             for (id in entityIds) {
-                val grants = of(state, id, cardRegistry, conditionEvaluator)
+                val grants = of(state, id, cardRegistry, conditionEvaluator, observers)
                 if (!grants.isEmpty) put(id, grants)
             }
         }

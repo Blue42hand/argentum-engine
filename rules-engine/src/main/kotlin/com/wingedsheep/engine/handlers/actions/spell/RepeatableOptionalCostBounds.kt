@@ -11,7 +11,7 @@ import com.wingedsheep.sdk.scripting.costs.CostAtom
 
 /**
  * A resource-derived upper bound on repeatable optional-cost payments. The current repeatable
- * costs consume mana, life, or player counters. Use Long arithmetic so a hostile cast count cannot
+ * costs consume mana, life, player counters, or cards exiled from a zone. Use Long arithmetic so a hostile cast count cannot
  * overflow a scaled life/counter cost or allocate billions of repeated mana symbols.
  *
  * A cost with no positive, finite resource payment has no enumerable upper bound; callers must
@@ -41,8 +41,23 @@ internal fun repeatableOptionalCostLimit(
                 add((availableMana.coerceAtLeast(0) + lifeForPhyrexian) / manaPerPayment)
             }
             when (val atom = (cost.additionalCost as? AdditionalCost.Atom)?.atom) {
-                is CostAtom.PayLife -> if (atom.amount > 0) {
-                    add(state.lifeTotal(playerId).toLong().coerceAtLeast(0) / atom.amount)
+                is CostAtom.PayLife -> {
+                    val amount = atom.amount as? DynamicAmount.Fixed
+                    if (amount != null && amount.amount > 0) {
+                        add(state.lifeTotal(playerId).toLong().coerceAtLeast(0) / amount.amount)
+                    }
+                }
+                is CostAtom.ExileFrom -> {
+                    if (atom.count > 0) {
+                        // A conservative finite bound: exact filters, distinct names and chosen
+                        // cards are still checked by the shared spell-cost candidate/payment code.
+                        val available = if (atom.zone == com.wingedsheep.sdk.core.Zone.BATTLEFIELD) {
+                            state.getBattlefield().size.toLong()
+                        } else if (atom.anyPlayersZone) {
+                            state.turnOrder.sumOf { state.getZone(it, atom.zone).size.toLong() }
+                        } else state.getZone(playerId, atom.zone).size.toLong()
+                        add(available / atom.count)
+                    }
                 }
                 is CostAtom.PayPlayerCounters -> {
                     val amount = atom.amount as? DynamicAmount.Fixed

@@ -27,7 +27,7 @@ val StrongholdMachinist = card("Stronghold Machinist") {
     toughness = 1
     activatedAbility {
         cost = Costs.Composite(Costs.Mana("{U}{U}"), Costs.Tap, Costs.DiscardCard)
-        val t = target(TargetFilter.SpellOnStack)
+        val t = target(TargetFilter.NoncreatureSpellOnStack)
         effect = Effects.CounterSpell()
     }
     metadata {

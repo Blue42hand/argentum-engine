@@ -8,19 +8,22 @@ import com.wingedsheep.sdk.scripting.AbilityCost
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.OnEnterRun
 import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.effects.AddManaEffect
-import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
 /**
  * Necroblossom Snarl
  * Land
- * As this land enters, you may reveal a Swamp or Forest card from your hand. If you don't, this
- * land enters tapped.
+ *
+ * As this land enters, you may reveal a Swamp or Forest card from your hand.
+ * If you don't, this land enters tapped.
  * {T}: Add {B} or {G}.
+ *
+ * Strixhaven's "Snarl" cycle is the Shadows over Innistrad shadowland shape (see Game Trail):
+ * [OnEnterRun] wrapping [Effects.MayRevealCardFromHand], whose `otherwise` rider taps the land
+ * when the player declines or holds no Swamp/Forest land card.
  */
 val NecroblossomSnarl = card("Necroblossom Snarl") {
-    colorIdentity = "BG"
     typeLine = "Land"
+    colorIdentity = "BG"
     oracleText = "As this land enters, you may reveal a Swamp or Forest card from your hand. " +
         "If you don't, this land enters tapped.\n{T}: Add {B} or {G}."
 
@@ -28,7 +31,7 @@ val NecroblossomSnarl = card("Necroblossom Snarl") {
         OnEnterRun(
             Effects.MayRevealCardFromHand(
                 filter = GameObjectFilter.Land.withAnySubtype("Swamp", "Forest"),
-                otherwise = Effects.Tap(EffectTarget.Self),
+                otherwise = Effects.EnterTapped(),
             )
         )
     )

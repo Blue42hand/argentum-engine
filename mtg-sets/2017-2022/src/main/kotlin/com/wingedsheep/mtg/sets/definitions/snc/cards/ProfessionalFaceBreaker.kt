@@ -8,7 +8,21 @@ import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.effects.CardSource
 
+/**
+ * Professional Face-Breaker
+ * {2}{R}
+ * Creature — Human Warrior
+ * 2/3
+ *
+ * Menace
+ * Whenever one or more creatures you control deal combat damage to a player, create a Treasure token.
+ * Sacrifice a Treasure: Exile the top card of your library. You may play that card this turn.
+ *
+ * The combat trigger is the batch shape (Nature's Will): once per damaged player per damage step.
+ * The impulse body is the shared gather → exile → grant pipeline (Grotag Night-Runner).
+ */
 val ProfessionalFaceBreaker = card("Professional Face-Breaker") {
     manaCost = "{2}{R}"
     colorIdentity = "R"
@@ -23,7 +37,7 @@ val ProfessionalFaceBreaker = card("Professional Face-Breaker") {
         effect = Effects.CreateTreasure()
     }
     activatedAbility {
-        cost = Costs.Sacrifice(GameObjectFilter.Any.withSubtype("Treasure"))
+        cost = Costs.Sacrifice(GameObjectFilter.Artifact.withSubtype("Treasure"))
         effect = Patterns.Exile.impulse()
         description = "Sacrifice a Treasure: Exile your top card; you may play it this turn"
     }

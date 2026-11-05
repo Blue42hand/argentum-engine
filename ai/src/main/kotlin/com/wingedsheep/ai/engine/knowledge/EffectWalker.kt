@@ -2,10 +2,30 @@ package com.wingedsheep.ai.engine.knowledge
 
 import com.wingedsheep.engine.handlers.effects.composite.asConditional
 import com.wingedsheep.engine.handlers.effects.composite.asMayDecide
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.conditions.EntityMatches
 import com.wingedsheep.sdk.model.CardScript
+import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.core.Zone
+import com.wingedsheep.sdk.scripting.EventPattern
+import com.wingedsheep.sdk.scripting.TriggeredAbility
+import com.wingedsheep.sdk.scripting.effects.CreateDelayedTriggerEffect
+import com.wingedsheep.sdk.scripting.effects.CreateTokenBatchEffect
+import com.wingedsheep.sdk.scripting.effects.ChooseActionEffect
 import com.wingedsheep.sdk.scripting.effects.CompositeEffect
+import com.wingedsheep.sdk.scripting.effects.ConditionalOnCollectionEffect
 import com.wingedsheep.sdk.scripting.effects.ConniveEffect
+import com.wingedsheep.sdk.scripting.effects.LearnEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.ForEachEffect
+import com.wingedsheep.sdk.scripting.effects.IterationSpace
+import com.wingedsheep.sdk.scripting.effects.GatedEffect
+import com.wingedsheep.sdk.scripting.effects.MoveToZoneEffect
+import com.wingedsheep.sdk.scripting.effects.RepeatDynamicTimesEffect
+import com.wingedsheep.sdk.scripting.effects.SacrificeTargetEffect
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
+import com.wingedsheep.sdk.scripting.references.Player
+import com.wingedsheep.sdk.scripting.targets.TargetRequirement
 
 /**
  * The one traversal of a card's effect tree that both card scorers share.
@@ -21,15 +41,16 @@ import com.wingedsheep.sdk.scripting.effects.Effect
  *  - **Gates.** `asConditional()` / `asMayDecide()` recognize the *lowered* `GatedEffect` forms of
  *    "if X, do Y" and "you may do Y" (see `ConditionalGate.kt`). Both branches are visited.
  *  - **Composites.** [CompositeEffect] children are visited in order.
- *  - **Named keyword actions that wrap a composite.** [ConniveEffect] is a name and a subject
- *    around the ordinary connive pipeline, so the walk descends into its body. Without this the
- *    wrapper would hide the pipeline's `DrawCardsEffect` from every conniving card and silently
+ *  - **Named keyword actions that wrap a composite.** [ConniveEffect] and [LearnEffect] are a name
+ *    around an ordinary pipeline, so the walk descends into the body. Without this the wrapper
+ *    would hide the pipeline's `DrawCardsEffect` from every conniving or learning card and silently
  *    move their ratings and intent tags — the wrapper was introduced after this walk existed, and
  *    descending is what keeps the numbers identical to the pre-wrapper composite.
- *  - **Everything else is a leaf**, including [com.wingedsheep.sdk.scripting.effects.ModalEffect]
- *    modes, `ForEach` bodies and pipeline stages. Widening the walk into those would change the
- *    rater's numbers — and therefore every generated sealed deck — so it is a deliberate follow-up
- *    rather than a free improvement. [CardIntentAnalyzer] compensates by reading the script's
+ *  - **Everything else is a leaf**, including [ConditionalOnCollectionEffect] (which
+ *    [payoffLeaves] and the rater's fold open onto both branches), [com.wingedsheep.sdk.scripting.effects.ModalEffect]
+ *    modes, `ForEach` bodies and pipeline stages. Each consumer opens those in its own leaf instead:
+ *    the rater folds a modal spell's best modes and a `ForEach` body and prices a pipeline by the
+ *    analyzer's reading of it, and [CardIntentAnalyzer] reads them in `tagsOf` and by reading the script's
  *    *structural* slots (static abilities, activation costs, triggers) directly.
  *
  * The fold is generic because the two consumers combine children differently: the rater sums with
@@ -47,6 +68,10 @@ object EffectWalker {
         /** An effect with no interior this walk descends into. */
         fun leaf(effect: Effect): T
 
+        /** An immediate exile and return of the same object: a blink, not exile removal. */
+        fun blink(exile: MoveToZoneEffect, returns: MoveToZoneEffect): T =
+            composite(listOf(leaf(exile), leaf(returns)))
+
         /** A [CompositeEffect]'s children, already folded, in printed order. */
         fun composite(parts: List<T>): T
 
@@ -63,10 +88,77 @@ object EffectWalker {
             return f.conditional(fold(branch.then, f), branch.otherwise?.let { fold(it, f) })
         }
         effect.asMayDecide()?.let { return f.may(fold(it.then, f)) }
-        if (effect is CompositeEffect) return f.composite(effect.effects.map { fold(it, f) })
+        if (effect is CompositeEffect) {
+            val parts = mutableListOf<T>()
+            var index = 0
+            while (index < effect.effects.size) {
+                val exile = effect.effects[index] as? MoveToZoneEffect
+                val returns = effect.effects.getOrNull(index + 1) as? MoveToZoneEffect
+                if (exile != null && returns != null && isBlinkPair(exile, returns)) {
+                    parts += f.blink(exile, returns)
+                    index += 2
+                } else {
+                    // A successful-exile guard is bookkeeping for the same blink. Require the
+                    // exact target/zone check and an immediate return, never an arbitrary condition.
+                    val guarded = effect.effects.getOrNull(index + 1)?.asConditional()
+                    val guardedParts = guarded?.then?.let {
+                        if (it is CompositeEffect) it.effects else listOf(it)
+                    }.orEmpty()
+                    val guardedReturn = guardedParts.firstOrNull() as? MoveToZoneEffect
+                    if (exile != null && guardedReturn != null && guarded?.otherwise == null &&
+                        guarded?.condition == EntityMatches(exile.target, GameObjectFilter.Any.currentlyIn(Zone.EXILE)) &&
+                        guardedReturn.fromZone == Zone.EXILE && isBlinkPair(exile, guardedReturn)) {
+                        parts += f.blink(exile, guardedReturn)
+                        if (guardedParts.size > 1) {
+                            parts += f.conditional(f.composite(guardedParts.drop(1).map { fold(it, f) }), null)
+                        }
+                        index += 2
+                    } else {
+                        parts += fold(effect.effects[index++], f)
+                    }
+                }
+            }
+            return f.composite(parts)
+        }
+        if (effect is CreateTokenBatchEffect) return f.composite(effect.groups.map { fold(it, f) })
         if (effect is ConniveEffect) return fold(effect.body, f)
+        if (effect is LearnEffect) return fold(effect.body, f)
         return f.leaf(effect)
     }
+
+    private fun isBlinkPair(exile: MoveToZoneEffect, returns: MoveToZoneEffect): Boolean =
+        exile.destination == Zone.EXILE && returns.destination == Zone.BATTLEFIELD &&
+            exile.target == returns.target && (exile.fromZone == null || exile.fromZone == Zone.BATTLEFIELD) &&
+            (returns.fromZone == null || returns.fromZone == Zone.EXILE) &&
+            returns.controllerOverride == null && exile.faceDown == null && returns.faceDown == null
+
+    /**
+     * The two steps of a blink that waits for the end step — "exile target creature you control.
+     * Return it to the battlefield under its owner's control at the beginning of the next end step"
+     * (Liberate, Niko, Light of Hope's exile before its Shards copy the creature): the exile and the
+     * delayed trigger that brings the same object back. Like an immediate blink
+     * ([blinkMoves]) the object comes back, so the exile is no removal of ours.
+     * Returns the exile and the [CreateDelayedTriggerEffect], both members of [leaves].
+     */
+    fun delayedBlinks(leaves: List<Effect>): List<Effect> =
+        leaves.filterIsInstance<CreateDelayedTriggerEffect>().flatMap { delayed ->
+            // Only a return timed to a step: one waiting on an event may never come.
+            if (delayed.trigger != null || delayed.step == null) return@flatMap emptyList()
+            val returns = delayed.effect as? MoveToZoneEffect ?: return@flatMap emptyList()
+            val exile = leaves.firstOrNull { it is MoveToZoneEffect && isBlinkPair(it, returns) }
+                ?: return@flatMap emptyList()
+            listOf(exile, delayed)
+        }
+
+    /** The actual move instances belonging to an immediate blink, preserving branch boundaries. */
+    fun blinkMoves(effect: Effect): List<MoveToZoneEffect> = fold(effect, object : Fold<List<MoveToZoneEffect>> {
+        override fun leaf(effect: Effect) = emptyList<MoveToZoneEffect>()
+        override fun blink(exile: MoveToZoneEffect, returns: MoveToZoneEffect) = listOf(exile, returns)
+        override fun composite(parts: List<List<MoveToZoneEffect>>) = parts.flatten()
+        override fun conditional(thenValue: List<MoveToZoneEffect>, elseValue: List<MoveToZoneEffect>?) =
+            thenValue + elseValue.orEmpty()
+        override fun may(thenValue: List<MoveToZoneEffect>) = thenValue
+    })
 
     /**
      * Where in a card's script an effect lives, and how much a scorer should discount it for that.
@@ -85,8 +177,28 @@ object EffectWalker {
         ACTIVATED(0.6),
     }
 
-    /** One effect slot on a card: the root of an effect tree plus where it was found. */
-    data class Slot(val effect: Effect, val origin: Origin)
+    /**
+     * One effect slot on a card: the root of an effect tree, where it was found, and the target
+     * requirements declared beside it (what [RemovalBreadth] reads to tell Murder from Execute).
+     */
+    data class Slot(
+        val effect: Effect,
+        val origin: Origin,
+        val targets: List<TargetRequirement> = emptyList(),
+        val activationManaValue: Int = 0,
+        /** A trigger that fires at the start of its controller's turn — see [firesWithItsTurnAhead]. */
+        val turnAhead: Boolean = false,
+    )
+
+    /**
+     * "At the beginning of your upkeep" / "your draw step": a trigger that resolves with its
+     * controller's whole turn — both main phases — still ahead. What it grants "this turn" (Vance's
+     * Blasting Cannons' exiled card) can be spent as freely as a card drawn that turn.
+     */
+    fun firesWithItsTurnAhead(trigger: TriggeredAbility): Boolean {
+        val pattern = trigger.trigger as? EventPattern.StepEvent ?: return false
+        return pattern.player == Player.You && (pattern.step == Step.UPKEEP || pattern.step == Step.DRAW)
+    }
 
     /**
      * Every effect slot on [script] that the walk knows how to read: the spell effect, each
@@ -98,11 +210,20 @@ object EffectWalker {
      * payoff and which the analyzer reads separately to recognize a mana rock.
      */
     fun slots(script: CardScript): List<Slot> = buildList {
-        script.spellEffect?.let { add(Slot(it, Origin.SPELL)) }
-        script.triggeredAbilities.forEach { add(Slot(it.effect, Origin.TRIGGERED)) }
+        script.spellEffect?.let { add(Slot(it, Origin.SPELL, script.targetRequirements)) }
+        script.triggeredAbilities.forEach {
+            add(Slot(it.effect, Origin.TRIGGERED, listOfNotNull(it.targetRequirement) + it.additionalTargetRequirements, turnAhead = firesWithItsTurnAhead(it)))
+        }
         script.activatedAbilities
             .filterNot { it.isManaAbility }
-            .forEach { add(Slot(it.effect, Origin.ACTIVATED)) }
+            .forEach { add(Slot(it.effect, Origin.ACTIVATED, it.targetRequirements, activationManaValue(it.cost))) }
+    }
+
+    private fun activationManaValue(cost: com.wingedsheep.sdk.scripting.AbilityCost): Int = when (cost) {
+        is com.wingedsheep.sdk.scripting.AbilityCost.Atom ->
+            (cost.atom as? com.wingedsheep.sdk.scripting.costs.CostAtom.Mana)?.cost?.cmc ?: 0
+        is com.wingedsheep.sdk.scripting.AbilityCost.Composite -> cost.costs.sumOf(::activationManaValue)
+        else -> 0
     }
 
     /**
@@ -111,6 +232,95 @@ object EffectWalker {
      * what an intent tag is.
      */
     fun leaves(effect: Effect): List<Effect> = fold(effect, LeafCollector)
+
+    /**
+     * [leaves], with every gate the walk stops at opened onto its payoff: the `then` and
+     * `otherwise` of "you may pay {E}. If you do, …" ([com.wingedsheep.sdk.scripting.effects.Gate.MayPay]),
+     * "you may discard a card. If you do, …" ([com.wingedsheep.sdk.scripting.effects.Gate.DoAction]),
+     * a pay-X or pay-life gate, and a "you may …, otherwise …" choice. A pipeline's "if those cards
+     * include …" branch ([ConditionalOnCollectionEffect]) opens the same way, both sides: whether it
+     * fires depends on what the earlier steps gathered, but what it does is the card's payoff.
+     *
+     * The gate's own cost or action is left out on purpose: discarding or sacrificing to pay for
+     * the payoff is the price, not what the ability is for, and reading it would call Pia's
+     * "you may discard a card" a discard spell. A gate someone else decides ([GatedEffect.decisionMaker],
+     * the punisher shape — "its owner may put it on top of their library") stays a leaf: which branch
+     * happens is the opponent's call, so neither branch is what the card does.
+     *
+     * "Proliferate X times" ([RepeatDynamicTimesEffect], Tam, the Possibility) opens onto its body:
+     * doing a thing N times is for what the thing is for, and N is only how much.
+     *
+     * The static readers that ask what a card is *for* ([CardIntentAnalyzer], [TargetPolarityAnalyzer])
+     * read this walk. [leaves] keeps stopping at the gate, because widening it would move the rater's
+     * numbers — the same reason it stops at modes and `ForEach` bodies.
+     */
+    fun payoffLeaves(effect: Effect): List<Effect> = leaves(effect).flatMap { leaf ->
+        when {
+            leaf is ConditionalOnCollectionEffect ->
+                listOfNotNull(leaf.ifNotEmpty, leaf.ifEmpty).flatMap { payoffLeaves(it) }
+            leaf is RepeatDynamicTimesEffect -> payoffLeaves(leaf.body)
+            leaf is ChooseActionEffect && choosesOwnBranch(leaf) ->
+                leaf.choices.flatMap { payoffLeaves(it.effect) }
+            leaf !is GatedEffect || leaf.decisionMaker != null -> listOf(leaf)
+            else -> listOfNotNull(leaf.then, leaf.otherwise).flatMap { payoffLeaves(it) }
+        }
+    }
+
+    /**
+     * Whether the card's controller picks a [ChooseActionEffect]'s branch. Then every branch is
+     * something the card can do, as a mode is: "add {R} or {G}", "protection from artifacts or from
+     * the color of your choice". A branch someone else picks is the punisher shape — "that player
+     * chooses …" — and, as for a gate someone else decides, no branch is what the card does.
+     */
+    fun choosesOwnBranch(effect: ChooseActionEffect): Boolean =
+        effect.player == EffectTarget.Controller || effect.player == EffectTarget.PlayerRef(Player.You)
+
+    /**
+     * What a delayed trigger does when it fires, as the payoff walk reads it: [payoffLeaves] of its
+     * effect, minus the steps that only take back what the scheduling ability itself handled.
+     *
+     * "Put a creature card from your hand onto the battlefield; sacrifice it at the beginning of the
+     * next end step" (Through the Breach), "return it to its owner's hand at end of turn" (Ilharg),
+     * "exile it at the beginning of the next end step" after reanimating a target (Coalstoke
+     * Gearhulk): the delayed step aims at "it" — a creature a pipeline of the ability moved, the
+     * entity a `ForEach` around it is iterating, a permanent tapped to pay its cost, or anything
+     * [siblings] (the other payoff steps of the scheduling ability) put onto the battlefield — and
+     * is the price of the ability, not an answer. A "you sacrifice it" can only ever take our own
+     * permanent, and a move off the battlefield that the same delayed effect moves back is a blink
+     * (Long River Lurker). What remains is the delayed payoff: the draw at the next upkeep, the
+     * blocker destroyed at end of combat.
+     */
+    fun firedLeaves(delayed: CreateDelayedTriggerEffect, siblings: List<Effect> = emptyList()): List<Effect> {
+        val fired = payoffLeaves(delayed.effect)
+        val putOntoBattlefield = (siblings + fired)
+            .filter { it is MoveToZoneEffect && it.destination == Zone.BATTLEFIELD }
+            .mapTo(HashSet()) { (it as MoveToZoneEffect).target }
+        return fired.filterNot { takesBackItsOwn(it, putOntoBattlefield, delayed.carryCollections) }
+    }
+
+    /**
+     * A `ForEach` over a collection the scheduling ability carried into the delayed trigger
+     * ("exile those tokens", Tilonalli's Summoner) takes back its own when every step of its body
+     * does — the iterated entity is one of "those", already handled by the scheduling ability.
+     */
+    private fun takesBackItsOwn(
+        leaf: Effect,
+        putOntoBattlefield: Set<EffectTarget>,
+        carried: List<String>,
+    ): Boolean = when (leaf) {
+        is SacrificeTargetEffect -> !leaf.sacrificedByItsController || isIt(leaf.target) || leaf.target in putOntoBattlefield
+        is MoveToZoneEffect -> leaf.destination != Zone.BATTLEFIELD && (isIt(leaf.target) || leaf.target in putOntoBattlefield)
+        is ForEachEffect -> (leaf.space as? IterationSpace.Collection)?.collection in carried &&
+            payoffLeaves(leaf.body).let { body ->
+                body.isNotEmpty() && body.all { takesBackItsOwn(it, putOntoBattlefield, carried) }
+            }
+        else -> false
+    }
+
+    /** "It": an object the scheduling ability already handled, bound before the delayed trigger fires. */
+    private fun isIt(target: EffectTarget): Boolean =
+        target is EffectTarget.PipelineTarget || target is EffectTarget.TappedAsCost ||
+            target == EffectTarget.IterationEntity
 
     private object LeafCollector : Fold<List<Effect>> {
         override fun leaf(effect: Effect): List<Effect> = listOf(effect)

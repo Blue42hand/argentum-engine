@@ -7,27 +7,35 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.EntersWithDynamicCounters
-import com.wingedsheep.sdk.scripting.TimingRule
-import com.wingedsheep.sdk.scripting.values.DynamicAmount
 
-/** Astral Cornucopia — Born of the Gods #157. */
+/**
+ * Astral Cornucopia
+ * {X}{X}{X}
+ * Artifact
+ * This artifact enters with X charge counters on it.
+ * {T}: Choose a color. Add one mana of that color for each charge counter on this artifact.
+ *
+ * The entry is Orochi Hatchery's X-charge-counter replacement over the cast's X. The mana ability
+ * is "N mana of any one color" with N read from the charge counters as it resolves.
+ */
 val AstralCornucopia = card("Astral Cornucopia") {
     manaCost = "{X}{X}{X}"
     colorIdentity = ""
     typeLine = "Artifact"
     oracleText = "This artifact enters with X charge counters on it.\n" +
-            "{T}: Choose a color. Add one mana of that color for each charge counter on this artifact."
+        "{T}: Choose a color. Add one mana of that color for each charge counter on this artifact."
 
-    replacementEffect(EntersWithDynamicCounters(
-        counterType = CounterType.CHARGE,
-        count = DynamicAmounts.xValue(),
-    ))
+    replacementEffect(
+        EntersWithDynamicCounters(
+            counterType = CounterType.CHARGE,
+            count = DynamicAmounts.castX()
+        )
+    )
 
     activatedAbility {
         cost = Costs.Tap
-        effect = Effects.AddAnyColorMana(DynamicAmounts.countersOnSelf(CounterType.CHARGE))
         manaAbility = true
-        timing = TimingRule.ManaAbility
+        effect = Effects.AddAnyColorMana(DynamicAmounts.countersOnSelf(CounterType.CHARGE))
         description = "{T}: Choose a color. Add one mana of that color for each charge counter on this artifact."
     }
 

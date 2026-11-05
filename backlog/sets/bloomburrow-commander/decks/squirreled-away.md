@@ -21,7 +21,7 @@
 - [x] 1 Haywire Mite
 - [ ] 1 Hazel's Brewmaster
 - [ ] 1 Honored Dreyleader
-- [ ] 1 Insatiable Frugivore
+- [x] 1 Insatiable Frugivore
 - [ ] 1 Moonstone Eulogist
 - [ ] 1 Morbid Opportunist
 - [ ] 1 Nadier's Nightblade
@@ -32,7 +32,7 @@
 - [ ] 1 Prosperous Innkeeper
 - [ ] 1 Ravenous Squirrel
 - [ ] 1 Scurry of Squirrels
-- [ ] 1 Skyfisher Spider
+- [x] 1 Skyfisher Spider
 - [ ] 1 Squirrel Sovereign
 - [ ] 1 The Odd Acorn Gang
 - [x] 1 Tireless Provisioner
@@ -53,7 +53,7 @@
 - [ ] 1 Saw in Half
 - [ ] 1 Second Harvest
 - [x] 1 Tear Asunder
-- [ ] 1 Windgrace's Judgment
+- [x] 1 Windgrace's Judgment
 
 ## Sorceries (7)
 
@@ -72,7 +72,7 @@
 - [ ] 1 Golgari Signet
 - [x] 1 Idol of Oblivion
 - [ ] 1 Maskwood Nexus
-- [ ] 1 Skullclamp
+- [x] 1 Skullclamp
 - [x] 1 Sol Ring
 - [ ] 1 Sword of the Squeak
 - [ ] 1 Talisman of Resilience

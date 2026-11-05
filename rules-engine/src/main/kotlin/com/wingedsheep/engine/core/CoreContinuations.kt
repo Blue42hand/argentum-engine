@@ -12,22 +12,6 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import kotlinx.serialization.Serializable
 
 /**
- * Resume a composite effect with remaining effects to execute.
- *
- * When a sub-effect of a CompositeEffect pauses for a decision, we push
- * this frame to remember which effects still need to run after the
- * decision is resolved.
- *
- * @property remainingEffects Effects that still need to execute (serialized)
- * @property context The execution context for these effects
- */
-@Serializable
-data class EffectContinuation(
-    val remainingEffects: List<Effect>,
-    val effectContext: EffectContext
-) : AutomaticContinuation
-
-/**
  * Resume placing a triggered ability on the stack after targets have been selected.
  *
  * When a triggered ability requires targets (like Fire Imp's "deal 1 damage to any target"),
@@ -73,7 +57,8 @@ data class TriggeredAbilityContinuation(
     val interveningIf: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
     /** The ability is a backup ability — see
      *  [com.wingedsheep.engine.state.components.stack.TriggeredAbilityOnStackComponent.isBackup]. */
-    val isBackup: Boolean = false
+    val isBackup: Boolean = false,
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null
 ) : AnswerContinuation
 
 /**
@@ -116,21 +101,9 @@ data class TriggerDamageDistributionContinuation(
     /** The ability's intervening-"if" (CR 603.4), preserved across the distribution decision so the
      *  stack object built on resume can re-check it as it resolves. */
     val interveningIf: com.wingedsheep.sdk.scripting.conditions.Condition? = null,
-    val isBackup: Boolean = false
+    val isBackup: Boolean = false,
+    val resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null
 ) : AnswerContinuation
-
-/**
- * Stores remaining pending triggers that still need to be processed.
- *
- * When multiple triggered abilities fire from the same event and the first
- * requires target selection (pausing execution), the remaining triggers are
- * stored in this continuation frame. After the first trigger's targets are
- * selected, the remaining triggers are processed.
- */
-@Serializable
-data class PendingTriggersContinuation(
-    val remainingTriggers: List<PendingTrigger>
-) : AutomaticContinuation
 
 /**
  * Resume spell resolution after target or mode selection.
@@ -206,6 +179,40 @@ data class MayAbilityContinuation(
 ) : AnswerContinuation
 
 /**
+ * One replacement that would perform its effect *instead of* a keyword action — a
+ * [com.wingedsheep.sdk.scripting.ReplaceKeywordAction] found by
+ * [com.wingedsheep.engine.handlers.effects.KeywordActionReplacements.collectInstead].
+ *
+ * @property sourceId The card that printed it (on the battlefield, or in a graveyard).
+ * @property controllerId Its controller — the graveyard's owner for a graveyard card.
+ * @property optional "You may instead": [controllerId] answers yes or no.
+ */
+@Serializable
+data class KeywordActionInsteadOffer(
+    val sourceId: EntityId,
+    val controllerId: EntityId,
+    val sourceName: String,
+    val replacementEffect: Effect,
+    val optional: Boolean
+)
+
+/**
+ * Resume a keyword action after its first optional [offers] entry was put to the player
+ * (CR 614.1a — "if you would learn, you may instead …"). Yes runs that offer's replacement effect,
+ * rooted at its own source, and the action never happens. No moves on to the remaining offers, then
+ * to [reissue] — the action again with its replacements marked applied — in [actionContext].
+ *
+ * @property actionContext The context the keyword action was performed in (the learning player's).
+ */
+@Serializable
+data class KeywordActionInsteadContinuation(
+    val action: com.wingedsheep.engine.handlers.effects.ReplaceableKeywordAction,
+    val offers: List<KeywordActionInsteadOffer>,
+    val reissue: Effect,
+    val actionContext: EffectContext
+) : AnswerContinuation
+
+/**
  * Resume a [com.wingedsheep.sdk.scripting.effects.GatedEffect] after its gate has been
  * resolved by a yes/no decision.
  *
@@ -271,18 +278,8 @@ data class BeholdContinuation(
     val otherwise: Effect? = null,
 ) : AnswerContinuation
 
-/**
- * Resume placing a triggered ability on the stack after the player answers a "may" question.
- *
- * When a triggered ability has both a bare "may" gate (a [Gate.MayDecide] with no `otherwise` —
- * the lowered `Effects.May`, recognized via `Effect.asMayDecide`) and targets (like Invigorating
- * Boon's "you may put a +1/+1 counter on target creature"), the may question is asked FIRST.
- * If the player says yes, we then proceed to target selection.
- * If the player says no, the trigger is skipped entirely.
- *
- * @property trigger The full pending trigger to process if the player says yes
- * @property targetRequirement The target requirement for the ability
- */
+/** An already suspended pre-resolution consent question from a saved game. New triggers
+ * announce targets first and use GatedEffectContinuation for resolution consent. */
 @Serializable
 data class MayTriggerContinuation(
     val trigger: PendingTrigger,
@@ -314,30 +311,11 @@ data class TriggerOpponentChooserContinuation(
 ) : AnswerContinuation
 
 /**
- * Resume after the controller answers a [com.wingedsheep.engine.core.BatchYesNoDecision] raised on
- * behalf of a run of structurally identical optional ("you may … target …") triggers.
- *
- * The run shares one may-question; on resume the answer is fanned back out:
- *  - "yes to all" unwraps the may-gate on every trigger in [triggers] and processes them as ordinary
- *    targeted triggers (each then chooses its own target via the existing per-trigger machinery);
- *  - "no to all" drops the whole run;
- *  - a peel-off answer ("yes/no to this one") resolves [triggers].first() that way and re-runs the
- *    rest (which re-batch if still ≥ 2), so the player can change their mind partway.
- *
- * Triggers after the run are queued separately as a [PendingTriggersContinuation] beneath this frame
- * when the batch is raised, so they resume in APNAP order regardless of the answer.
- */
-@Serializable
-data class BatchMayTriggerContinuation(
-    val triggers: List<PendingTrigger>,
-) : AnswerContinuation
-
-/**
  * One snapshotted iteration item of a [com.wingedsheep.sdk.scripting.effects.ForEachEffect].
  * The variant corresponds to (but is deliberately decoupled from) the effect's
  * [com.wingedsheep.sdk.scripting.effects.IterationSpace]: targets iterate [OfTarget],
  * players iterate [OfPlayer], collections/groups iterate [OfEntity], colors iterate
- * [OfColor]. Serializable so a [ForEachContinuation] can carry the remaining items
+ * [OfColor], counter kinds iterate [OfCounterKind]. Serializable so a [ForEachContinuation] can carry the remaining items
  * across a mid-iteration pause.
  */
 @Serializable
@@ -345,14 +323,26 @@ sealed interface ForEachItem {
     @Serializable
     data class OfTarget(val target: ChosenTarget) : ForEachItem
 
+    /**
+     * [boundNumbers] and [keepCollections] carry a captured-controller pass's per-player binding
+     * (`ForEachCapturedControllerEffect`: its count variable, and the outer pipeline collections it
+     * keeps) across a pause — the plain player space binds neither.
+     */
     @Serializable
-    data class OfPlayer(val playerId: EntityId) : ForEachItem
+    data class OfPlayer(
+        val playerId: EntityId,
+        val boundNumbers: Map<String, Int> = emptyMap(),
+        val keepCollections: Boolean = false
+    ) : ForEachItem
 
     @Serializable
     data class OfEntity(val entityId: EntityId) : ForEachItem
 
     @Serializable
     data class OfColor(val color: com.wingedsheep.sdk.core.Color) : ForEachItem
+
+    @Serializable
+    data class OfCounterKind(val counterType: com.wingedsheep.sdk.core.CounterType) : ForEachItem
 }
 
 /**
@@ -403,6 +393,8 @@ data class ForEachContinuation(
  *   on purpose: [effectContext] must stay the pristine pre-loop context so the *next* iteration
  *   re-gathers fresh (a stale collection leaking forward would mask the next pass and the loop
  *   would never terminate — see RepeatWhileExecutor.executeIteration).
+ * @property bodyNumbers [bodyCollections]' twin for pipeline numbers stored this pass — a die
+ *   result a `PlayerChooses.onlyIf` reads must survive the body pausing just as a collection does.
  * @property collectCollections The effect's body-collection → aggregate map
  *   ([com.wingedsheep.sdk.scripting.effects.RepeatWhileEffect.collectCollections]).
  * @property accumulatedCollections The aggregates folded from every *completed* pass before this
@@ -417,6 +409,7 @@ data class RepeatWhileContinuation(
     val sourceName: String?,
     val effectContext: EffectContext,
     val bodyCollections: Map<String, List<EntityId>> = emptyMap(),
+    val bodyNumbers: Map<String, Int> = emptyMap(),
     val collectCollections: Map<String, String> = emptyMap(),
     val accumulatedCollections: Map<String, List<EntityId>> = emptyMap()
 ) : AutomaticContinuation

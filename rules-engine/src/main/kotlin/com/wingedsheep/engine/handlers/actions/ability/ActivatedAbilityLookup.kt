@@ -2,11 +2,13 @@ package com.wingedsheep.engine.handlers.actions.ability
 
 import com.wingedsheep.engine.legalactions.utils.CastPermissionUtils
 import com.wingedsheep.engine.mechanics.mana.IntrinsicManaAbilities
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.ClassLevelComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.EmblemOwnedActivatedAbilityComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.CardDefinition
 import com.wingedsheep.sdk.model.EntityId
@@ -53,6 +55,9 @@ internal sealed interface ActivatedAbilityLookup {
 
     data class EmblemGranted(override val ability: ActivatedAbility) : ActivatedAbilityLookup
 
+    /** The emblem's own ability (CR 114.4) — the emblem is the source; no definition owns it. */
+    data class EmblemOwned(override val ability: ActivatedAbility) : ActivatedAbilityLookup
+
     data class Intrinsic(override val ability: ActivatedAbility) : ActivatedAbilityLookup
 
     val staticGranterId: EntityId?
@@ -62,7 +67,7 @@ internal sealed interface ActivatedAbilityLookup {
         get() = when (this) {
             is DirectDefinition -> identity
             is DefinitionDerivedClass -> identity
-            is CopyException, is RuntimeGranted, is StaticGranted, is EmblemGranted, is Intrinsic -> null
+            is CopyException, is RuntimeGranted, is StaticGranted, is EmblemGranted, is EmblemOwned, is Intrinsic -> null
         }
 }
 
@@ -90,6 +95,29 @@ internal class ActivatedAbilityResolver(
         sourceId: EntityId,
         abilityId: AbilityId,
     ): ActivatedAbilityLookup? {
+        val found = lookupUntaxed(state, sourceId, abilityId) ?: return null
+        // Thran Portal: a taxed permanent's mana abilities cost additional life, whichever branch
+        // supplied the ability — folded into the cost so validation and payment both see it.
+        val tax = ManaAbilityLifeCost.tax(state, sourceId)
+        if (tax <= 0 || !found.ability.isManaAbility) return found
+        val taxed = ManaAbilityLifeCost.withTax(found.ability, tax)
+        return when (found) {
+            is ActivatedAbilityLookup.DirectDefinition -> found.copy(ability = taxed)
+            is ActivatedAbilityLookup.DefinitionDerivedClass -> found.copy(ability = taxed)
+            is ActivatedAbilityLookup.CopyException -> found.copy(ability = taxed)
+            is ActivatedAbilityLookup.RuntimeGranted -> found.copy(ability = taxed)
+            is ActivatedAbilityLookup.StaticGranted -> found.copy(ability = taxed)
+            is ActivatedAbilityLookup.EmblemGranted -> found.copy(ability = taxed)
+            is ActivatedAbilityLookup.EmblemOwned -> found.copy(ability = taxed)
+            is ActivatedAbilityLookup.Intrinsic -> found.copy(ability = taxed)
+        }
+    }
+
+    private fun lookupUntaxed(
+        state: GameState,
+        sourceId: EntityId,
+        abilityId: AbilityId,
+    ): ActivatedAbilityLookup? {
         val container = state.getEntity(sourceId) ?: return null
         val cardDefinitionId = container.get<CardComponent>()?.cardDefinitionId ?: return null
         val cardDef = cardRegistry.getCard(cardDefinitionId)
@@ -111,6 +139,10 @@ internal class ActivatedAbilityResolver(
                     AbilityIdentity(cardDefinitionId, it.id),
                 )
             }
+
+        container.get<EmblemOwnedActivatedAbilityComponent>()?.abilities
+            ?.firstOrNull { it.id == abilityId }
+            ?.let { return ActivatedAbilityLookup.EmblemOwned(it) }
 
         container.get<CardComponent>()?.copyActivatedAbilities
             ?.firstOrNull { it.id == abilityId }

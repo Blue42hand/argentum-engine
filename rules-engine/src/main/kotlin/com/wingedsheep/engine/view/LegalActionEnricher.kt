@@ -3,6 +3,7 @@ package com.wingedsheep.engine.view
 import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.CastSpell
 import com.wingedsheep.engine.core.ActionParameterizer
+import com.wingedsheep.engine.handlers.actions.spell.altAllows
 import com.wingedsheep.engine.legalactions.*
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
@@ -60,12 +61,16 @@ class LegalActionEnricher(
                     isFromHand = action.sourceZone == null || action.sourceZone == "HAND"
                 )
             } else state.getEntity(gameAction.cardId)?.get<CardComponent>()?.let { card ->
-                spellPaymentContextFor(
-                    card,
+                spellPaymentContextFor(card, colors = state.projectedState.colorSetOf(gameAction.cardId),
                     isKicked = gameAction.declaredCostSlot == ChoiceSlot.KICKED,
                     isFromExile = action.sourceZone == "EXILE",
                     // Null sourceZone means the standard hand cast.
-                    isFromHand = action.sourceZone == null || action.sourceZone == "HAND"
+                    isFromHand = action.sourceZone == null || action.sourceZone == "HAND",
+                    isFromGraveyard = gameAction.cardId in state.getZone(
+                        com.wingedsheep.engine.state.ZoneKey(gameAction.playerId, com.wingedsheep.sdk.core.Zone.GRAVEYARD)
+                    ),
+                    isDisturbCast = gameAction.useAlternativeCost &&
+                        gameAction.altAllows(com.wingedsheep.engine.core.AlternativeCostType.DISTURB),
                 )
             }
             is ActivateAbility -> state.getEntity(gameAction.sourceId)?.get<CardComponent>()?.let { card ->
@@ -107,11 +112,16 @@ class LegalActionEnricher(
             xConstrainsTargetManaValueExactly = action.xConstrainsTargetManaValueExactly,
             xConstrainsTargetPower = action.xConstrainsTargetPower,
             xConstrainsTargetCount = action.xConstrainsTargetCount,
+            xConstrainsTargetCountExactly = action.xConstrainsTargetCountExactly,
             validAttackers = action.validAttackers,
             mandatoryAttackers = action.mandatoryAttackers,
+            loneAttackers = action.loneAttackers,
             validAttackTargets = action.validAttackTargets,
+            attackTargetsByAttacker = action.attackTargetsByAttacker,
             validBlockers = action.validBlockers,
             validBlockTargets = action.validBlockTargets,
+            proposedBlockerAssignments = action.proposedBlockerAssignments,
+            blockableAttackers = action.blockableAttackers,
             blockerMaxBlockCounts = action.blockerMaxBlockCounts,
             maxTotalBlockers = action.maxTotalBlockers,
             mandatoryBlockerAssignments = action.mandatoryBlockerAssignments,
@@ -138,11 +148,14 @@ class LegalActionEnricher(
             manaCostString = action.manaCostString,
             maxOptionalCostTimes = action.maxOptionalCostTimes,
             optionalManaCostString = action.optionalManaCostString,
-            manaCostPerExtraTarget = action.manaCostPerExtraTarget,
+            manaCostByTargetCount = action.manaCostByTargetCount,
             minimumManaCostString = minimumManaCostString(action),
             requiresDamageDistribution = action.requiresDamageDistribution,
             totalDamageToDistribute = action.totalDamageToDistribute,
+            totalDamageByX = action.totalDamageByX,
             minDamagePerTarget = action.minDamagePerTarget,
+            distributionUnit = action.distributionUnit,
+            distributionTargetGroup = action.distributionTargetGroup,
             autoTapPreview = action.autoTapPreview,
             availableManaSources = if (shouldExposeManaSources(action)) manaSourceInfos else null,
             eligibleRestrictedMana = eligibleRestrictedMana,
@@ -153,12 +166,13 @@ class LegalActionEnricher(
             tapForPowerCreatures = action.tapForPowerCreatures?.map { it.toDto() },
             maxRepeatableActivations = action.maxRepeatableActivations,
             modalEnumeration = action.modalEnumeration?.toDto(),
-            holdPriority = action.holdPriority
+            holdPriority = action.holdPriority,
+            inertReason = action.inertReason
         )
     }
 
     private fun fixedDelveCap(action: LegalAction): Int? {
-        if (!action.hasDelve || action.hasXCost || action.manaCostPerExtraTarget != null
+        if (!action.hasDelve || action.hasXCost || action.manaCostByTargetCount != null
             || action.maxAdditionalManaForCounters != null || action.additionalCostInfo != null
             || action.modalEnumeration != null
         ) return null
@@ -222,6 +236,12 @@ class LegalActionEnricher(
         return floor.toString().ifEmpty { "{0}" }
     }
 
+    /**
+     * A Phyrexian cost always exposes its sources: the server's [LegalAction.autoTapPreview] solves
+     * the cost with mana only, so `{4}{G/P}` off four Plains has no preview even though it's
+     * affordable with 2 life — and without sources the client's picker can't tap the Plains for
+     * the {4} once the player chooses to pay the pip with life (CR 107.4f).
+     */
     private fun shouldExposeManaSources(action: LegalAction): Boolean =
         action.autoTapPreview != null ||
             // A life/mana split can be affordable without a mana-only auto-tap preview.
@@ -230,7 +250,12 @@ class LegalActionEnricher(
             action.hasConvoke ||
             action.hasTapForGeneric ||
             action.hasDelve ||
-            action.hasHarmonize
+            action.hasHarmonize ||
+            hasPhyrexianPip(action.manaCostString)
+
+    private fun hasPhyrexianPip(manaCostString: String?): Boolean =
+        manaCostString != null && manaCostString.contains("/P}") &&
+            ManaCost.parse(manaCostString).phyrexianSymbols.isNotEmpty()
 
     private fun ModalLegalEnumeration.toDto() = ModalLegalEnumerationInfo(
         chooseCount = chooseCount,
@@ -286,25 +311,33 @@ class LegalActionEnricher(
         minTargets = minTargets,
         maxTargets = maxTargets,
         validTargets = validTargets,
+        validTargetsByPrefix = validTargetsByPrefix,
+        selectionGroups = selectionGroups,
+        exclusiveGroups = exclusiveGroups,
+        distinctCategories = distinctCategories,
         targetZone = targetZone,
         xConstrainsManaValue = xConstrainsManaValue,
         xConstrainsManaValueExactly = xConstrainsManaValueExactly,
         xConstrainsPower = xConstrainsPower,
         xConstrainsCount = xConstrainsCount,
+        xConstrainsCountExactly = xConstrainsCountExactly,
         mustDifferFromEarlier = mustDifferFromEarlier
     )
 
-    private fun AdditionalCostData.toDto() = AdditionalCostInfo(
+    private fun AdditionalCostData.toDto(): AdditionalCostInfo = AdditionalCostInfo(
         description = description,
         costType = costType,
         validSacrificeTargets = validSacrificeTargets,
         sacrificeCount = sacrificeCount,
+        sacrificeMinPowerIsX = sacrificeMinPowerIsX,
+        sacrificeCountIsX = sacrificeCountIsX,
         costAfterSacrifice = costAfterSacrifice,
         validTapTargets = validTapTargets,
         tapCount = tapCount,
         tapBatchMaxActivations = tapBatchMaxActivations,
         validDiscardTargets = validDiscardTargets,
         discardCount = discardCount,
+        discardMaxCount = discardMaxCount,
         validBounceTargets = validBounceTargets,
         bounceCount = bounceCount,
         validExileTargets = validExileTargets,
@@ -321,6 +354,7 @@ class LegalActionEnricher(
         revealCount = revealCount,
         counterRemovalCreatures = counterRemovalCreatures.map { it.toDto() },
         validBlightTargets = validBlightTargets,
+        validCounterPlacementTargets = validCounterPlacementTargets,
         blightAmount = blightAmount,
         blightVariableMaxX = blightVariableMaxX,
         payXLifeMaxX = payXLifeMaxX,
@@ -329,7 +363,8 @@ class LegalActionEnricher(
         craftMinCount = craftMinCount,
         craftMaxCount = craftMaxCount,
         tapForPowerCreatures = tapForPowerCreatures.map { it.toDto() },
-        tapForPowerRequired = tapForPowerRequired
+        tapForPowerRequired = tapForPowerRequired,
+        alsoRequired = alsoRequired.map { it.toDto() }
     )
 
     private fun ConvokeCreatureData.toDto() = ConvokeCreatureInfo(

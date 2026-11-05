@@ -3,7 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.clb.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
-/** Escape to the Wilds reprint in Commander Legends: Battle for Baldur's Gate. */
+/**
+ * Escape to the Wilds reprint in CLB. Canonical CardDefinition lives in its earliest set (ELD).
+ */
 val EscapeToTheWildsReprint = Printing(
     oracleId = "45a8c126-5396-4736-a37e-460a50706a98",
     name = "Escape to the Wilds",

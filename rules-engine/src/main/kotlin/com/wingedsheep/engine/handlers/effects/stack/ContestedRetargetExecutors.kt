@@ -166,10 +166,10 @@ object ContestedRetargetLogic {
         }
 
         // All slots resolved — write the (possibly unchanged) targets back onto the object.
-        val requirements = state.getEntity(stackObjectId)?.get<TargetsComponent>()?.targetRequirements
-            ?: emptyList()
+        val current = state.getEntity(stackObjectId)?.get<TargetsComponent>()
+            ?: TargetsComponent(emptyList())
         val updatedState = state.updateEntity(stackObjectId) { container ->
-            container.with(TargetsComponent.capture(state, acc, requirements))
+            container.with(current.retargeted(state, acc))
         }
         return EffectResult.success(updatedState)
     }
@@ -221,7 +221,8 @@ object ContestedRetargetLogic {
         if (requirements.isEmpty()) return emptyList()
         val out = ArrayList<TargetRequirement>(targets.size)
         for (requirement in requirements) {
-            val n = if (requirement.unlimited) targets.size else requirement.count.coerceAtLeast(1)
+            // A group bound to zero targets (an unfilled "up to one") owns no slot; printed counts are >= 1.
+            val n = if (requirement.unlimited) targets.size else requirement.count
             repeat(n) { if (out.size < targets.size) out.add(requirement) }
             if (out.size >= targets.size) break
         }

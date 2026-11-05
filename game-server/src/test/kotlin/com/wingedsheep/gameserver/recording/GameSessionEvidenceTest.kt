@@ -36,7 +36,7 @@ class GameSessionEvidenceTest : ScenarioTestBase() {
             val seats = (1..4).map { EntityId.of("synthetic-seat-$it") }
             seats.forEachIndexed { index, player ->
                 val ws = mockk<WebSocketSession>(relaxed = true) { every { id } returns "synthetic-ws-$index" }
-                session.addPlayer(PlayerSession(ws, player, "Synthetic $index"), mapOf("Island" to 99), commanderCardName = "Talrand, Sky Summoner")
+                session.addPlayer(PlayerSession(ws, player, "Synthetic $index"), mapOf("Island" to 99), commanderCardNames = listOf("Talrand, Sky Summoner"))
             }
             session.startGame()
             val setup = rows.single { it.kind == "initialization" }.payload.jsonObject.getValue("setup").jsonObject

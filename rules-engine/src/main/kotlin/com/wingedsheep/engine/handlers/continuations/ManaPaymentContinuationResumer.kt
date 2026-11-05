@@ -1,9 +1,12 @@
 package com.wingedsheep.engine.handlers.continuations
+import com.wingedsheep.engine.mechanics.mana.ManaAbilityLifeCost
 import com.wingedsheep.sdk.dsl.Patterns
 import com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker
 
 import com.wingedsheep.engine.mechanics.mana.withSpendingColors
 import com.wingedsheep.engine.core.*
+import com.wingedsheep.engine.handlers.effects.stack.ChangeTargetExecutor
+import com.wingedsheep.engine.handlers.effects.stack.ContestedRetargetLogic
 import com.wingedsheep.engine.handlers.costs.CollectEvidenceResolver
 import com.wingedsheep.engine.handlers.effects.BattlefieldFilterUtils
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
@@ -16,6 +19,8 @@ import com.wingedsheep.engine.mechanics.mana.payNonSpellCost
 import com.wingedsheep.engine.mechanics.mana.toComponent
 import com.wingedsheep.engine.mechanics.mana.toManaPool
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.activeManaSpendingScope
+import com.wingedsheep.engine.state.forcedPlayFor
 import com.wingedsheep.engine.state.components.battlefield.TappedComponent
 import com.wingedsheep.engine.state.components.identity.ControllerComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -45,7 +50,7 @@ class ManaPaymentContinuationResumer(
         resumer(CounterUnlessPlayerCountersContinuation::class, ::resumeCounterUnlessPlayerCounters),
         resumer(WardCostChoiceContinuation::class, ::resumeWardCostChoice),
         resumer(CounterUnlessPaysManaSelectionContinuation::class, ::resumeCounterUnlessPaysManaSelection),
-        resumer(WardTapPermanentsSubCostContinuation::class, ::resumeWardTapPermanentsSubCost),
+        resumer(TapPermanentsSubCostContinuation::class, ::resumeTapPermanentsSubCost),
         resumer(ChangeSpellTargetContinuation::class, ::resumeChangeSpellTarget),
         resumer(MayPayManaContinuation::class, ::resumeMayPayMana),
         resumer(MayPayManaSelectionContinuation::class, ::resumeMayPayManaSelection),
@@ -64,7 +69,7 @@ class ManaPaymentContinuationResumer(
     ): ExecutionResult {
         if (response !is ManaSourcesSelectedResponse) return ExecutionResult.error(state, "Expected mana sources")
         val player = continuation.action.playerId
-        if (continuation.action is CastSpell) {
+        if (continuation.action is CastSpell && continuation.castPayment != null) {
             val action = continuation.action
             val locked = continuation.castPayment
                 ?: return ExecutionResult.error(state, "Missing announced cast payment")
@@ -81,27 +86,49 @@ class ManaPaymentContinuationResumer(
                 return ExecutionResult.error(state, "Mana source was not offered for this payment")
             }
             val available = services.manaSolver.findAvailableManaSources(state, player, continuation.paymentContext)
-                .map { it.entityId }.toSet()
+                .associateBy { it.entityId }
             if (response.selectedSources.any { it !in available || it in continuation.excludedSources }) {
                 return ExecutionResult.error(state, "Mana source is no longer available for this payment")
             }
             val poolCoversCost = services.castSpellHandler.lockedCostCoveredByPool(
-                state.withPriority(player), action, lockedCost, locked.paymentXValue
+                state.withPriority(player), action, locked.manaCost ?: lockedCost, locked.paymentXValue
             )
             if (response.isDecline(poolCoversCost)) return checkForMore(state.withPriority(player), emptyList())
+            // Auto-pay never consumes sacrifice sources. A player-selected sacrifice runs its
+            // actual mana ability, preserving costs, replacements, triggers and provenance.
+            // Failed planning or remaining-cost validation returns the untouched input state.
+            val selectedProduction = if (!response.autoPay && response.selectedSources.any {
+                    available[it]?.requiresSacrifice == true
+                }) services.castSpellHandler.produceSelectedMana(
+                    state.withPriority(player), action, lockedCost, locked,
+                    response.selectedSources.toSet(),
+                ) ?: return ExecutionResult.error(state, "Selected sources cannot pay the announced cost")
+            else null
             val strategy = when {
+                selectedProduction != null -> PaymentStrategy.FromPool
                 response.autoPay -> PaymentStrategy.AutoPay
                 response.selectedSources.isNotEmpty() -> PaymentStrategy.Explicit(response.selectedSources)
                 else -> PaymentStrategy.FromPool
             }
             val resumed = action.copy(paymentStrategy = strategy)
-            val current = state.withPriority(player)
+            val current = (selectedProduction?.state ?: state).withPriority(player)
             services.castSpellHandler.validateRemainingPayment(current, resumed, lockedCost, locked)?.let { reason ->
                 return ExecutionResult.error(state, reason)
             }
-            return services.castSpellHandler.executeWithLockedManaCost(current, resumed, lockedCost, locked)
+            val result = services.castSpellHandler.executeWithLockedManaCost(current, resumed, lockedCost, locked)
+            result.error?.let { return ExecutionResult.error(state, it) }
+            return result.copy(events = selectedProduction?.events.orEmpty() + result.events)
         }
         if (response.declined) return checkForMore(state.withPriority(player), emptyList())
+        val cast = continuation.action as? CastSpell
+        if (cast != null && state.forcedPlayFor(player, cast.cardId) != null &&
+            state.activeManaSpendingScope(player) != null) {
+            val strategy = if (response.autoPay) PaymentStrategy.AutoPay
+                else PaymentStrategy.Explicit(response.selectedSources)
+            return services.castSpellHandler.executeWithLockedManaCost(state.withPriority(player),
+                cast.copy(paymentStrategy = strategy), continuation.lockedCastCost,
+                lockedAdditionalCosts = continuation.lockedAdditionalCosts)
+        }
         val decision = services.manaSolver.findAvailableManaSources(state, player, continuation.paymentContext)
             .filter { it.entityId !in continuation.excludedSources && it.tapPermanentsSubCost == null &&
                 (continuation.paymentContext == null || it.restriction?.isSatisfiedBy(continuation.paymentContext) != false) }.map { source ->
@@ -115,6 +142,8 @@ class ManaPaymentContinuationResumer(
         if (!floated.paid) return ExecutionResult.error(state, "Selected sources cannot pay the announced cost")
         val current = floated.state.withPriority(player)
         val result = when (val action = continuation.action) {
+            is CastSpell -> services.castSpellHandler.executeWithLockedManaCost(current, action,
+                continuation.lockedCastCost, lockedAdditionalCosts = continuation.lockedAdditionalCosts)
             is ActivateAbility -> com.wingedsheep.engine.handlers.actions.ability.ActivateAbilityHandler.create(services).executeWithLockedCost(current, action,
                 continuation.lockedAbilityCost ?: return ExecutionResult.error(state, "Missing locked ability cost"), continuation.lockedAbilityX)
             else -> return ExecutionResult.error(state, "Unsupported mana-payment action")
@@ -185,7 +214,7 @@ class ManaPaymentContinuationResumer(
                 ?: return ExecutionResult.error(state, "Paying player not found")
             val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
                 ?: return ExecutionResult.error(state, "Player has no mana pool")
-            val manaPool = manaPoolComponent.toManaPool()
+            val manaPool = manaPoolComponent.toManaPool().withSpendingColors(state, playerId)
             val partialResult = manaPool.payPartial(continuation.manaCost, SpellPaymentContext())
 
             if (partialResult.remainingCost.isEmpty()) {
@@ -201,7 +230,8 @@ class ManaPaymentContinuationResumer(
                     continuation.onPaid,
                     continuation.controllerId ?: continuation.payingPlayerId,
                     continuation.sourceId,
-                    checkForMore
+                    checkForMore,
+                    resolvingTriggeredAbility = continuation.resolvingTriggeredAbility
                 )
             }
 
@@ -229,7 +259,7 @@ class ManaPaymentContinuationResumer(
                 prompt = "Pay ${continuation.manaCost}",
                 context = DecisionContext(
                     sourceId = continuation.sourceId,
-                    sourceName = continuation.sourceName ?: "Counter unless pays",
+                    sourceName = continuation.sourceName,
                     phase = DecisionPhase.RESOLUTION
                 ),
                 availableSources = sourceOptions,
@@ -246,8 +276,10 @@ class ManaPaymentContinuationResumer(
                 counterDestination = continuation.counterDestination,
                 controllerId = continuation.controllerId,
                 onPaid = continuation.onPaid,
+                resolvingTriggeredAbility = continuation.resolvingTriggeredAbility,
                 sourceId = continuation.sourceId,
-            objectReferences = continuation.objectReferences
+                objectReferences = continuation.objectReferences,
+                deferCounter = continuation.deferCounter
             )
 
             return state.suspendForDecision(
@@ -257,6 +289,7 @@ class ManaPaymentContinuationResumer(
             )
         } else {
             // Player chose not to pay — counter the spell
+            if (continuation.deferCounter) return deferUnpaidToBatch(state, continuation.spellEntityId, checkForMore)
             return counterForUnpaidCost(
                 state, continuation.spellEntityId, continuation.counterDestination,
                 continuation.controllerId ?: continuation.payingPlayerId, checkForMore
@@ -329,6 +362,9 @@ class ManaPaymentContinuationResumer(
      *
      * If the hand has fewer than `count` cards by the time we resume, treat that as
      * an inability to pay and counter the spell.
+     *
+     * A chosen discard of filtered cards asks once, as a card selection: the picked cards
+     * pay, and picking fewer than `count` counters the spell.
      */
     fun resumeCounterUnlessDiscard(
         state: GameState,
@@ -336,6 +372,9 @@ class ManaPaymentContinuationResumer(
         response: DecisionResponse,
         checkForMore: CheckForMore
     ): ExecutionResult {
+        if (response is CardsSelectedResponse) {
+            return resumeCounterUnlessDiscardSelection(state, continuation, response, checkForMore)
+        }
         if (response !is YesNoResponse) {
             return ExecutionResult.error(state, "Expected yes/no response for counter unless discard")
         }
@@ -379,10 +418,13 @@ class ManaPaymentContinuationResumer(
             com.wingedsheep.sdk.dsl.Patterns.Hand.discardCards(continuation.count)
         }
 
+        // The ward permanent is the source of the card pick (so the prompt names it); who discards
+        // is controllerId — the paying player — which the discard pattern resolves independently.
         val discardContext = com.wingedsheep.engine.handlers.EffectContext(
-            sourceId = continuation.controllerId,
+            sourceId = continuation.wardSourceId,
             controllerId = continuation.payingPlayerId,
             discardIsCost = true,
+            programOrigin = com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.startedBy(ManaPaymentContinuationResumer::class),
         )
 
         val discardResult = services.effectExecutorRegistry
@@ -398,6 +440,42 @@ class ManaPaymentContinuationResumer(
             checkForMore
         )?.let { return it }
         return checkForMore(discardResult.newState, discardResult.events.toList())
+    }
+
+    /**
+     * The one-question form of a ward—discard of filtered cards: [response] names the cards to
+     * discard. Exactly `count` distinct cards from the payer's hand that still match the filter
+     * pay the cost. Anything else, including the empty selection, counters the spell.
+     */
+    private fun resumeCounterUnlessDiscardSelection(
+        state: GameState,
+        continuation: CounterUnlessDiscardContinuation,
+        response: CardsSelectedResponse,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        val payer = continuation.payingPlayerId
+        val hand = state.getHand(payer).toSet()
+        val predicateContext = PredicateContext(controllerId = payer)
+        val selected = response.selectedCards.distinct().filter { cardId ->
+            cardId in hand && (continuation.filter == null ||
+                predicateEvaluator.matches(state, state.projectedState, cardId, continuation.filter, predicateContext))
+        }
+        if (selected.size < continuation.count) {
+            return counterForUnpaidCost(
+                state, continuation.spellEntityId, exileOrGraveyard(continuation.exileOnCounter),
+                continuation.controllerId ?: payer, checkForMore
+            )
+        }
+        // A cost, not an effect: no discard cause, so "if an opponent causes you to discard"
+        // replacements don't apply, as on the yes/no path.
+        val discarded = services.zones.discardCards(state, payer, selected.take(continuation.count))
+        chargeNextWardPartOrNull(
+            discarded.state, discarded.events,
+            continuation.remainingWardParts, continuation.spellEntityId,
+            payer, continuation.wardSourceId, continuation.controllerId,
+            checkForMore
+        )?.let { return it }
+        return checkForMore(discarded.state, discarded.events)
     }
 
     /**
@@ -678,6 +756,23 @@ class ManaPaymentContinuationResumer(
     }
 
     /**
+     * A batch object ([CounterUnlessPaysContinuation.deferCounter]) went unpaid: record it on the
+     * [CounterEachUnlessPaysContinuation] directly beneath this question rather than countering it
+     * now, then let that frame ask about the next object (or counter the whole unpaid set).
+     */
+    private fun deferUnpaidToBatch(
+        state: GameState,
+        objectId: EntityId,
+        checkForMore: CheckForMore,
+        precedingEvents: List<GameEvent> = emptyList()
+    ): ExecutionResult {
+        val batch = state.peekContinuation() as? CounterEachUnlessPaysContinuation
+            ?: return ExecutionResult.error(state, "Deferred counter has no batch frame beneath it")
+        val (_, popped) = state.popContinuation()
+        return checkForMore(popped.pushContinuation(batch.copy(unpaid = batch.unpaid + objectId)), precedingEvents)
+    }
+
+    /**
      * The ward / pay-life / discard / sacrifice continuations still carry a plain
      * `exileOnCounter` flag: ward's own vocabulary has only those two destinations, and no printed
      * ward or punisher counter puts the spell into a hand. Only the two continuations reachable
@@ -702,6 +797,7 @@ class ManaPaymentContinuationResumer(
         // If the player declined (no mana sources, no auto-pay, no Ward—Waterbend taps to help,
         // and nothing floating that already covers the cost), counter the spell.
         if (response.isDecline(floatingCovers(state, continuation.payingPlayerId, continuation.manaCost))) {
+            if (continuation.deferCounter) return deferUnpaidToBatch(state, continuation.spellEntityId, checkForMore)
             return counterForUnpaidCost(
                 state, continuation.spellEntityId, continuation.counterDestination,
                 continuation.controllerId ?: continuation.payingPlayerId, checkForMore
@@ -737,7 +833,7 @@ class ManaPaymentContinuationResumer(
         val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
             ?: return ExecutionResult.error(state, "Player has no mana pool")
 
-        val manaPool = manaPoolComponent.toManaPool()
+        val manaPool = manaPoolComponent.toManaPool().withSpendingColors(currentState, playerId)
 
         val partialResult = manaPool.payPartial(effectiveCost, SpellPaymentContext())
         val remainingCost = partialResult.remainingCost
@@ -750,54 +846,30 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
                 for ((_, production) in solution.manaProduced) {
                     currentPool = currentPool.addProduction(production)
                 }
-            } else {
-                // Split off sources that carry a tap-permanents sub-cost (Springleaf Drum) —
-                // those require a follow-up creature-selection prompt before the source can
-                // be tapped. All other selections (lands, treasures, etc.) are tapped now.
-                val sourceMap = continuation.availableSources.associateBy { it.entityId }
-                val (subCostSources, otherSources) = response.selectedSources.partition { id ->
-                    sourceMap[id]?.requiresTappingAnotherPermanent == true
+                // A composite tap's extra fixed colors (Timeless Lotus) aren't in manaProduced.
+                for (source in solution.sources) {
+                    for ((color, amount) in source.compositeBonusMana) currentPool = currentPool.add(color, amount)
                 }
-
-                val manual = applyManualSourceSelection(
-                    currentState,
-                    currentPool,
-                    continuation.availableSources,
-                    otherSources,
-                    fallbackControllerId = playerId
-                ) ?: return ExecutionResult.error(state, "Selected source is not a valid mana source")
-                currentState = manual.state
-                currentPool = manual.pool
-                events.addAll(manual.events)
-
-                if (subCostSources.isNotEmpty()) {
-                    // Persist the pool from the first-phase taps so the sub-cost
-                    // continuation reads it off the player's mana pool component on resume.
-                    currentState = currentState.updateEntity(playerId) { container ->
-                        container.with(currentPool.toComponent())
+            } else {
+                when (val manual = tapManualSelection(
+                    currentState, currentPool, continuation.availableSources, response.selectedSources,
+                    playerId, events,
+                    resume = continuation.copy(manaCost = effectiveCost, waterbend = false)
+                )) {
+                    null -> return ExecutionResult.error(state, "Selected source is not a valid mana source")
+                    is ManualSelection.AwaitingSubCost -> return manual.pause
+                    is ManualSelection.Tapped -> {
+                        currentState = manual.result.state
+                        currentPool = manual.result.pool
+                        events.addAll(manual.result.events)
                     }
-                    return promptForTapPermanentsSubCost(
-                        currentState,
-                        events,
-                        payingPlayerId = playerId,
-                        spellEntityId = continuation.spellEntityId,
-                        manaCost = effectiveCost,
-                        counterDestination = continuation.counterDestination,
-                        controllerId = continuation.controllerId,
-                        pendingSubCostSources = subCostSources,
-                        availableSources = continuation.availableSources,
-                        onPaid = continuation.onPaid,
-                        sourceId = continuation.sourceId,
-                        remainingWardParts = continuation.remainingWardParts,
-                        wardSourceId = continuation.wardSourceId
-                    )
                 }
             }
         }
@@ -805,6 +877,7 @@ class ManaPaymentContinuationResumer(
         val newPool = currentPool.payNonSpellCost(effectiveCost)
         if (newPool == null) {
             // Payment failed — counter the spell
+            if (continuation.deferCounter) return deferUnpaidToBatch(state, continuation.spellEntityId, checkForMore)
             return counterForUnpaidCost(
                 state, continuation.spellEntityId, continuation.counterDestination,
                 continuation.controllerId ?: continuation.payingPlayerId, checkForMore
@@ -831,7 +904,8 @@ class ManaPaymentContinuationResumer(
             continuation.onPaid,
             continuation.controllerId ?: continuation.payingPlayerId,
             continuation.sourceId,
-            checkForMore
+            checkForMore,
+            resolvingTriggeredAbility = continuation.resolvingTriggeredAbility
         )
     }
 
@@ -900,11 +974,13 @@ class ManaPaymentContinuationResumer(
         onPaid: com.wingedsheep.sdk.scripting.effects.Effect?,
         riderController: EntityId,
         sourceId: EntityId?,
-        checkForMore: CheckForMore
+        checkForMore: CheckForMore,
+        resolvingTriggeredAbility: com.wingedsheep.sdk.scripting.TriggeredAbility? = null
     ): ExecutionResult {
         if (onPaid == null) return checkForMore(state, priorEvents)
 
         val riderContext = com.wingedsheep.engine.handlers.EffectContext(
+            resolvingTriggeredAbility = resolvingTriggeredAbility,
             sourceId = sourceId,
             controllerId = riderController,
         )
@@ -945,6 +1021,18 @@ class ManaPaymentContinuationResumer(
         val targetsComponent = spellEntity.get<TargetsComponent>()
             ?: return checkForMore(state, emptyList())
 
+        // Spellskite: the answer names the current target to replace with the fixed new one.
+        continuation.fixedNewTarget?.let { fixed ->
+            val slot = continuation.candidateSlots.firstOrNull { slot ->
+                targetsComponent.targets.getOrNull(slot)
+                    ?.let { ContestedRetargetLogic.entityIdOf(it) } == selectedEntityId
+            } ?: return checkForMore(state, emptyList())
+            return checkForMore(
+                ChangeTargetExecutor.replaceTargetSlot(state, continuation.spellEntityId, slot, fixed),
+                emptyList()
+            )
+        }
+
         // Determine the appropriate ChosenTarget type based on the selected entity
         val newTarget = if (state.turnOrder.contains(selectedEntityId)) {
             ChosenTarget.Player(selectedEntityId)
@@ -954,7 +1042,7 @@ class ManaPaymentContinuationResumer(
 
         val newTargets = listOf(newTarget)
         val updatedState = state.updateEntity(continuation.spellEntityId) { container ->
-            container.with(TargetsComponent.capture(state, newTargets, targetsComponent.targetRequirements))
+            container.with(targetsComponent.retargeted(state, newTargets))
         }
 
         return checkForMore(updatedState, emptyList())
@@ -986,7 +1074,7 @@ class ManaPaymentContinuationResumer(
         val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
             ?: return ExecutionResult.error(state, "Player has no mana pool")
 
-        val manaPool = manaPoolComponent.toManaPool()
+        val manaPool = manaPoolComponent.toManaPool().withSpendingColors(state, playerId)
         val partialResult = manaPool.payPartial(continuation.manaCost, SpellPaymentContext())
 
         if (partialResult.remainingCost.isEmpty()) {
@@ -1109,7 +1197,7 @@ class ManaPaymentContinuationResumer(
         val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
             ?: return ExecutionResult.error(state, "Player has no mana pool")
 
-        val manaPool = manaPoolComponent.toManaPool()
+        val manaPool = manaPoolComponent.toManaPool().withSpendingColors(currentState, playerId)
 
         val partialResult = manaPool.payPartial(effectiveCost, SpellPaymentContext())
         val remainingCost = partialResult.remainingCost
@@ -1122,24 +1210,31 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
                 for ((_, production) in solution.manaProduced) {
                     currentPool = currentPool.addProduction(production)
                 }
+                // A composite tap's extra fixed colors (Timeless Lotus) aren't in manaProduced.
+                for (source in solution.sources) {
+                    for ((color, amount) in source.compositeBonusMana) currentPool = currentPool.add(color, amount)
+                }
             } else {
-                val manual = applyManualSourceSelection(
-                    currentState,
-                    currentPool,
-                    continuation.availableSources,
-                    response.selectedSources,
-                    fallbackControllerId = playerId
-                ) ?: return ExecutionResult.error(state, "Selected source is not a valid mana source")
-                currentState = manual.state
-                currentPool = manual.pool
-                events.addAll(manual.events)
+                when (val manual = tapManualSelection(
+                    currentState, currentPool, continuation.availableSources, response.selectedSources,
+                    playerId, events,
+                    resume = continuation.copy(manaCost = effectiveCost, waterbend = false)
+                )) {
+                    null -> return ExecutionResult.error(state, "Selected source is not a valid mana source")
+                    is ManualSelection.AwaitingSubCost -> return manual.pause
+                    is ManualSelection.Tapped -> {
+                        currentState = manual.result.state
+                        currentPool = manual.result.pool
+                        events.addAll(manual.result.events)
+                    }
+                }
             }
         }
 
@@ -1233,8 +1328,9 @@ class ManaPaymentContinuationResumer(
     }
 
     /**
-     * Resume after the controller chooses an X value for "you may pay {X}" effects.
-     * If X > 0, auto-tap X mana and execute the inner effect with the chosen X.
+     * Resume a "you may pay {X}" gate. The yes/no answer declines (running `otherwise`) or asks for
+     * X; the number answer pays X — X = 0 included, which is a payment rather than a decline — and
+     * runs the inner effect with X bound.
      */
     fun resumeMayPayX(
         state: GameState,
@@ -1242,17 +1338,78 @@ class ManaPaymentContinuationResumer(
         response: DecisionResponse,
         checkForMore: CheckForMore
     ): ExecutionResult {
-        if (response !is NumberChosenResponse) {
-            return ExecutionResult.error(state, "Expected number chosen response for may pay X")
+        if (response is YesNoResponse && continuation.maxX == null) {
+            if (!response.choice) {
+                val otherwise = continuation.otherwise ?: return checkForMore(state, emptyList())
+                val result = services.effectExecutorRegistry
+                    .execute(state, otherwise, continuation.effectContext).toExecutionResult()
+                if (result.error != null || result.outcome is Outcome.Paused) return result
+                return checkForMore(result.state, result.events.toList())
+            }
+            val maxX = maxAffordableX(state, continuation.playerId, continuation.additionalManaCost)
+            if (maxX <= 0) return payMayPayX(state, continuation, 0, checkForMore)
+            val question = { decisionId: String -> ChooseNumberDecision(
+                id = decisionId,
+                playerId = continuation.playerId,
+                prompt = "Choose X",
+                context = continuation.decisionContext ?: DecisionContext(
+                    sourceId = continuation.effectContext.sourceId,
+                    sourceName = continuation.sourceName,
+                    phase = DecisionPhase.RESOLUTION
+                ),
+                minValue = 0,
+                maxValue = maxX
+            ) }
+            return state.suspendForDecision(
+                question = question,
+                answer = continuation.copy(maxX = maxX),
+                events = emptyList(),
+            )
+        }
+        if (response !is NumberChosenResponse || continuation.maxX == null) {
+            return ExecutionResult.error(state, "Expected a yes/no and then a number for may pay X")
         }
 
         val chosenX = response.number
-        if (chosenX <= 0) {
-            // Player declined to pay — nothing happens
-            return checkForMore(state, emptyList())
-        }
+        if (chosenX < 0) return ExecutionResult.error(state, "X can't be negative")
+        if (chosenX > continuation.maxX) return ExecutionResult.error(state, "X exceeds ${continuation.maxX}")
+        return payMayPayX(state, continuation, chosenX, checkForMore)
+    }
 
-        // Player chose to pay X mana — auto-tap sources
+    /**
+     * The largest X the payer can pay *on top of* [additionalManaCost] — the number chooser's ceiling.
+     * A bare "{X}" is the generic mana they can produce; with a fixed part, the coloured pips may
+     * consume sources a pure count would spend on X, so the ceiling is confirmed by the solver.
+     */
+    private fun maxAffordableX(state: GameState, playerId: EntityId, additionalManaCost: ManaCost): Int {
+        val paymentContext = SpellPaymentContext()
+        var x = services.manaSolver.getAvailableManaCount(
+            state, playerId, spellContext = paymentContext
+        ) - additionalManaCost.cmc
+        // This is a resolving effect's payment, not a spell. Confirm even a bare X against
+        // the automatic solver that payMayPayX actually uses; a raw source count can include
+        // restricted mana or sources whose extra costs require an unsupported manual choice.
+        while (x > 0 && !services.manaSolver.canPay(
+                state, playerId, additionalManaCost + genericMana(x),
+                spellContext = paymentContext, allowPhyrexianLife = false, includeManualMana = false
+            )) x--
+        return x.coerceAtLeast(0)
+    }
+
+    private fun genericMana(amount: Int): ManaCost =
+        ManaCost(List(amount) { com.wingedsheep.sdk.core.ManaSymbol.generic(1) })
+
+    /** Auto-tap and pay {X} plus the gate's fixed part, then run the gated effect with X bound. */
+    private fun payMayPayX(
+        state: GameState,
+        continuation: MayPayXContinuation,
+        chosenX: Int,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        val xCost = genericMana(chosenX) + continuation.additionalManaCost
+        if (xCost.isEmpty()) return runMayPayXEffect(state, continuation, 0, emptyList(), checkForMore)
+
+        // Auto-tap sources for the payment
         val playerId = continuation.playerId
         val playerEntity = state.getEntity(playerId)
             ?: return ExecutionResult.error(state, "Paying player not found")
@@ -1260,12 +1417,7 @@ class ManaPaymentContinuationResumer(
         val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
             ?: return ExecutionResult.error(state, "Player has no mana pool")
 
-        val manaPool = manaPoolComponent.toManaPool()
-
-        // Create a ManaCost of {X} generic mana
-        val xCost = com.wingedsheep.sdk.core.ManaCost(
-            List(chosenX) { com.wingedsheep.sdk.core.ManaSymbol.generic(1) }
-        )
+        val manaPool = manaPoolComponent.toManaPool().withSpendingColors(state, playerId)
 
         // Try to pay from floating mana first, then tap sources for the rest
         val partialResult = manaPool.payPartial(xCost, SpellPaymentContext())
@@ -1280,7 +1432,7 @@ class ManaPaymentContinuationResumer(
                 ?: return ExecutionResult.error(state, "Cannot pay mana cost")
 
             for (source in solution.sources) {
-                val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                 currentState = tappedState
                 events.addAll(tapEvents)
             }
@@ -1298,17 +1450,29 @@ class ManaPaymentContinuationResumer(
             container.with(newPool.toComponent())
         }
 
-        // Execute the inner effect with the chosen X value
-        val context = continuation.effectContext.copy(xValue = chosenX)
-        val effectResult = services.effectExecutorRegistry.execute(currentState, continuation.effect, context).toExecutionResult()
+        return runMayPayXEffect(currentState, continuation, chosenX, events, checkForMore)
+    }
+
+    /** Run a paid "you may pay {X}" gate's inner effect with the paid X bound into its context. */
+    private fun runMayPayXEffect(
+        state: GameState,
+        continuation: MayPayXContinuation,
+        paidX: Int,
+        paymentEvents: List<GameEvent>,
+        checkForMore: CheckForMore
+    ): ExecutionResult {
+        val context = continuation.effectContext.copy(xValue = paidX)
+        val effectResult = services.effectExecutorRegistry.execute(state, continuation.effect, context).toExecutionResult()
 
         if (effectResult.error != null) {
             return effectResult
         }
-        if (effectResult.outcome is Outcome.Paused) return effectResult
+        // A pause (the reflexive "when you do" picking its target) still carries the payment's taps.
+        if (effectResult.outcome is Outcome.Paused) {
+            return ExecutionResult.propagatePause(effectResult.state, paymentEvents + effectResult.events)
+        }
 
-        val allEvents = events + effectResult.events
-        return checkForMore(effectResult.state, allEvents)
+        return checkForMore(effectResult.state, paymentEvents + effectResult.events)
     }
 
     /**
@@ -1335,7 +1499,7 @@ class ManaPaymentContinuationResumer(
         val manaPoolComponent = playerEntity.get<ManaPoolComponent>()
             ?: return ExecutionResult.error(state, "Player has no mana pool")
 
-        val manaPool = manaPoolComponent.toManaPool()
+        val manaPool = manaPoolComponent.toManaPool().withSpendingColors(state, playerId)
 
         // Try to pay from floating mana first
         val partialResult = manaPool.payPartial(continuation.manaCost, SpellPaymentContext())
@@ -1352,7 +1516,7 @@ class ManaPaymentContinuationResumer(
                     ?: return ExecutionResult.error(state, "Cannot pay mana cost with auto-pay")
 
                 for (source in solution.sources) {
-                    val (tappedState, tapEvents) = tapForMana(currentState, source.entityId, playerId)
+                    val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
                     currentState = tappedState
                     events.addAll(tapEvents)
                 }
@@ -1360,17 +1524,23 @@ class ManaPaymentContinuationResumer(
                 for ((_, production) in solution.manaProduced) {
                     currentPool = currentPool.addProduction(production)
                 }
+                // A composite tap's extra fixed colors (Timeless Lotus) aren't in manaProduced.
+                for (source in solution.sources) {
+                    for ((color, amount) in source.compositeBonusMana) currentPool = currentPool.add(color, amount)
+                }
             } else {
-                val manual = applyManualSourceSelection(
-                    currentState,
-                    currentPool,
-                    continuation.availableSources,
-                    response.selectedSources,
-                    fallbackControllerId = playerId
-                ) ?: return ExecutionResult.error(state, "Selected source is not a valid mana source")
-                currentState = manual.state
-                currentPool = manual.pool
-                events.addAll(manual.events)
+                when (val manual = tapManualSelection(
+                    currentState, currentPool, continuation.availableSources, response.selectedSources,
+                    playerId, events, resume = continuation
+                )) {
+                    null -> return ExecutionResult.error(state, "Selected source is not a valid mana source")
+                    is ManualSelection.AwaitingSubCost -> return manual.pause
+                    is ManualSelection.Tapped -> {
+                        currentState = manual.result.state
+                        currentPool = manual.result.pool
+                        events.addAll(manual.result.events)
+                    }
+                }
             }
         }
 
@@ -1409,6 +1579,70 @@ class ManaPaymentContinuationResumer(
         return checkForMore(result.newState, events + result.events.toList())
     }
 
+    /** Outcome of [tapManualSelection]. */
+    private sealed interface ManualSelection {
+        /** Every selected source was tapped; the caller pays from [result]'s pool. */
+        data class Tapped(val result: ManualSourceTapResult) : ManualSelection
+        /** The selection includes a tap-permanents sub-cost source; the engine paused to ask for it. */
+        data class AwaitingSubCost(val pause: ExecutionResult) : ManualSelection
+    }
+
+    /**
+     * The one manual-selection path every mana-payment resumer here goes through. Sources whose
+     * mana ability also costs "Tap an untapped <permanent> you control" (Springleaf Drum, Gene
+     * Pollinator) can't be tapped on their own: they are split off, the rest of the selection is
+     * tapped and floated in [playerId]'s pool, and the engine pauses for the sub-cost pick. Once
+     * the last sub-cost is paid, [resumeTapPermanentsSubCost] re-enters [resume] to finish the
+     * payment from the floated mana.
+     *
+     * [priorEvents] are events the caller already produced (a waterbend tap); they ride along on
+     * the pause so nothing is dropped. On [ManualSelection.Tapped] they are *not* included — the
+     * caller still owns them.
+     *
+     * @return null when the selection names a source that isn't on the offered menu.
+     */
+    private fun tapManualSelection(
+        state: GameState,
+        pool: ManaPool,
+        availableSources: List<ManaSourceOption>,
+        selectedSourceIds: List<EntityId>,
+        playerId: EntityId,
+        priorEvents: List<GameEvent>,
+        resume: AnswerContinuation
+    ): ManualSelection? {
+        val sourceMap = availableSources.associateBy { it.entityId }
+        val (subCostSources, otherSources) = selectedSourceIds.partition { id ->
+            sourceMap[id]?.requiresTappingAnotherPermanent == true
+        }
+        val manual = applyManualSourceSelection(
+            state, pool, availableSources, otherSources, fallbackControllerId = playerId
+        ) ?: return null
+        if (subCostSources.isEmpty()) return ManualSelection.Tapped(manual)
+
+        val floated = manual.state.updateEntity(playerId) { container ->
+            container.with(manual.pool.toComponent())
+        }
+        return ManualSelection.AwaitingSubCost(
+            promptForTapPermanentsSubCost(
+                floated,
+                priorEvents + manual.events,
+                payingPlayerId = playerId,
+                pendingSubCostSources = subCostSources,
+                availableSources = availableSources,
+                resume = resume
+            )
+        )
+    }
+
+    private fun ManaPool.toComponent() = ManaPoolComponent(
+        white = white, blue = blue, black = black,
+        red = red, green = green, colorless = colorless,
+        restrictedMana = restrictedMana,
+        snowMana = snowMana,
+        manaUnits = manaUnits,
+        snowColorless = snowColorless
+    )
+
     /**
      * Applies a player's manual mana-source selection: taps each source (sacrificing
      * those with [ManaSourceOption.requiresSacrifice] — e.g. Treasure tokens) and
@@ -1437,6 +1671,10 @@ class ManaPaymentContinuationResumer(
         fallbackControllerId: EntityId
     ): ManualSourceTapResult? {
         val sourceMap = availableSources.associateBy { it.entityId }
+        // A composite tap ("{T}: Add {W}{U}{B}{R}{G}") adds its extra fixed colors too; the
+        // option only carries the primary one.
+        val compositeExtras = services.manaSolver.findAvailableManaSources(state, fallbackControllerId)
+            .associate { it.entityId to it.compositeBonusMana }
         var currentState = state
         var currentPool = pool
         val events = mutableListOf<GameEvent>()
@@ -1468,7 +1706,7 @@ class ManaPaymentContinuationResumer(
                 events.add(PermanentsSacrificedEvent(sourceController, listOf(sourceId)))
                 events.addAll(transition.events)
             } else {
-                val (tappedState, tapEvents) = tapForMana(currentState, sourceId, fallbackControllerId)
+                val (tappedState, tapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, sourceId, fallbackControllerId, ManaAbilityLifeCost.creditedProduction(source.producesColors, source.manaAmount))
                 currentState = tappedState
                 events.addAll(tapEvents)
             }
@@ -1479,6 +1717,7 @@ class ManaPaymentContinuationResumer(
             } else if (source.producesColorless) {
                 currentPool = currentPool.addColorless(1).let { if (ManaProvenanceTracker.isSnowSource(currentState, sourceId)) it.markSnow(null, 1) else it }
             }
+            for ((color, amount) in compositeExtras[sourceId].orEmpty()) currentPool = currentPool.add(color, amount)
         }
 
         return ManualSourceTapResult(currentState, currentPool, events)
@@ -1503,7 +1742,7 @@ class ManaPaymentContinuationResumer(
 
     /**
      * Builds a [SelectCardsDecision] for the head of [pendingSubCostSources] and pauses
-     * with a [WardTapPermanentsSubCostContinuation] queued for the response. The decision
+     * with a [TapPermanentsSubCostContinuation] queued for the response. The decision
      * lists every untapped permanent the [payingPlayerId] controls that matches the
      * sub-cost filter (and is not the source itself).
      */
@@ -1511,16 +1750,9 @@ class ManaPaymentContinuationResumer(
         state: GameState,
         priorEvents: List<GameEvent>,
         payingPlayerId: EntityId,
-        spellEntityId: EntityId,
-        manaCost: com.wingedsheep.sdk.core.ManaCost,
-        counterDestination: CounterDestination,
-        controllerId: EntityId?,
         pendingSubCostSources: List<EntityId>,
         availableSources: List<ManaSourceOption>,
-        onPaid: com.wingedsheep.sdk.scripting.effects.Effect? = null,
-        sourceId: EntityId? = null,
-        remainingWardParts: List<com.wingedsheep.sdk.scripting.effects.WardCost> = emptyList(),
-        wardSourceId: EntityId? = null
+        resume: AnswerContinuation
     ): ExecutionResult {
         val headSourceId = pendingSubCostSources.first()
         val sourceName = availableSources.firstOrNull { it.entityId == headSourceId }?.name
@@ -1559,18 +1791,11 @@ class ManaPaymentContinuationResumer(
             useTargetingUI = true
         ) }
 
-        val continuation = WardTapPermanentsSubCostContinuation(
+        val continuation = TapPermanentsSubCostContinuation(
             payingPlayerId = payingPlayerId,
-            spellEntityId = spellEntityId,
-            manaCost = manaCost,
-            counterDestination = counterDestination,
-            controllerId = controllerId,
             pendingSubCostSources = pendingSubCostSources,
             availableSources = availableSources,
-            onPaid = onPaid,
-            sourceId = sourceId,
-            remainingWardParts = remainingWardParts,
-            wardSourceId = wardSourceId
+            resume = resume
         )
 
         return state.suspendForDecision(
@@ -1582,13 +1807,14 @@ class ManaPaymentContinuationResumer(
 
     /**
      * Resume after the player picks which permanent to tap for the secondary tap-permanents
-     * sub-cost of the head [WardTapPermanentsSubCostContinuation.pendingSubCostSources].
-     * Taps the source + the chosen permanent, adds the source's mana to the player's
-     * pool, then either prompts for the next sub-cost or attempts to pay the ward cost.
+     * sub-cost of the head [TapPermanentsSubCostContinuation.pendingSubCostSources].
+     * Taps the source + the chosen permanent and floats the source's mana, then either prompts
+     * for the next sub-cost or re-enters [TapPermanentsSubCostContinuation.resume] to finish
+     * the payment from the floated mana.
      */
-    fun resumeWardTapPermanentsSubCost(
+    fun resumeTapPermanentsSubCost(
         state: GameState,
-        continuation: WardTapPermanentsSubCostContinuation,
+        continuation: TapPermanentsSubCostContinuation,
         response: DecisionResponse,
         checkForMore: CheckForMore
     ): ExecutionResult {
@@ -1627,13 +1853,13 @@ class ManaPaymentContinuationResumer(
         // Tap the source and each chosen permanent, then credit the source's mana to the pool.
         var currentState = state
         val events = mutableListOf<GameEvent>()
-        val (headTappedState, headTapEvents) = tapForMana(currentState, headSourceId, continuation.payingPlayerId)
+        val (headTappedState, headTapEvents) = ManaAbilityLifeCost.tapForManaPayingLife(services.zones, currentState, headSourceId, continuation.payingPlayerId, ManaAbilityLifeCost.creditedProduction(sourceOption.producesColors, sourceOption.manaAmount))
         currentState = headTappedState
         events.addAll(headTapEvents)
         for (chosen in response.selectedCards) {
             val (tappedState, tapEvent) = tap(currentState, chosen)
             currentState = tappedState
-            tapEvent?.let(events::add)
+            events.addAll(tapEvent)
         }
 
         // Read current pool, add the source's mana, persist.
@@ -1641,7 +1867,7 @@ class ManaPaymentContinuationResumer(
             ?: return ExecutionResult.error(state, "Paying player not found")
         val poolComponent = playerEntity.get<ManaPoolComponent>()
             ?: return ExecutionResult.error(state, "Player has no mana pool")
-        var pool = poolComponent.toManaPool()
+        var pool = poolComponent.toManaPool().withSpendingColors(currentState, continuation.payingPlayerId)
         pool = if (sourceOption.producesColors.isNotEmpty()) {
             val color = sourceOption.producesColors.first()
             pool.add(color).let { if (ManaProvenanceTracker.isSnowSource(currentState, sourceOption.entityId)) it.markSnow(color, 1) else it }
@@ -1661,50 +1887,30 @@ class ManaPaymentContinuationResumer(
                 currentState,
                 events,
                 payingPlayerId = continuation.payingPlayerId,
-                spellEntityId = continuation.spellEntityId,
-                manaCost = continuation.manaCost,
-                counterDestination = continuation.counterDestination,
-                controllerId = continuation.controllerId,
                 pendingSubCostSources = remaining,
                 availableSources = continuation.availableSources,
-                onPaid = continuation.onPaid,
-                sourceId = continuation.sourceId,
-                remainingWardParts = continuation.remainingWardParts,
-                wardSourceId = continuation.wardSourceId
+                resume = continuation.resume
             )
         }
 
-        // No more sub-costs — attempt to pay the ward cost. On failure, counter the spell.
-        val newPool = pool.payNonSpellCost(continuation.manaCost)
-        if (newPool == null) {
-            return counterForUnpaidCost(
-                currentState, continuation.spellEntityId, continuation.counterDestination,
-                continuation.controllerId ?: continuation.payingPlayerId, checkForMore,
-                precedingEvents = events
+        // Every sub-cost is paid and its mana is floating. Finish the payment by re-entering the
+        // selection that raised the prompt with an empty confirmation — the same shape as a player
+        // who activated their mana abilities inside the payment window (CR 605.3a) — so each
+        // payment keeps its own paid / unpaid handling (resolve or counter, run the "if you do"
+        // effect or its "otherwise", go on to target selection).
+        val confirm = ManaSourcesSelectedResponse(decisionId = response.decisionId)
+        val finished = when (val resume = continuation.resume) {
+            is CounterUnlessPaysManaSelectionContinuation ->
+                resumeCounterUnlessPaysManaSelection(currentState, resume, confirm, checkForMore)
+            is MayPayManaSelectionContinuation ->
+                resumeMayPayManaSelection(currentState, resume, confirm, checkForMore)
+            is ManaSourceSelectionContinuation ->
+                resumeManaSourceSelection(currentState, resume, confirm, checkForMore)
+            else -> return ExecutionResult.error(
+                state, "Unsupported payment to resume after a tap-permanents sub-cost: ${resume::class.simpleName}"
             )
         }
-        currentState = currentState.updateEntity(continuation.payingPlayerId) { container ->
-            container.with(newPool.toComponent())
-        }
-        // If this mana component was one part of a composite ward cost, charge the next
-        // component before the spell is allowed to resolve.
-        chargeNextWardPartOrNull(
-            currentState, events,
-            continuation.remainingWardParts, continuation.spellEntityId,
-            continuation.payingPlayerId, continuation.wardSourceId, continuation.controllerId,
-            checkForMore
-        )?.let { return it }
-
-        // Payment fully resolved through the sub-cost source — fire the "If they do, …"
-        // rider (no-op when null), with the counter's controller as "you".
-        return runOnPaidThenCheckForMore(
-            currentState,
-            events,
-            continuation.onPaid,
-            continuation.controllerId ?: continuation.payingPlayerId,
-            continuation.sourceId,
-            checkForMore
-        )
+        return if (finished.error != null) finished else finished.copy(events = events + finished.events)
     }
 
     /**

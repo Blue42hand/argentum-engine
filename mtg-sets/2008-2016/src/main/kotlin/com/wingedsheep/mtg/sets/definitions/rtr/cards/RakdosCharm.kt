@@ -5,38 +5,54 @@ import com.wingedsheep.sdk.dsl.Effects
 import com.wingedsheep.sdk.dsl.Targets
 import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.effects.CardDestination
+import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.effects.CardSource
 import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.references.Player
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
-/** Rakdos Charm — Return to Ravnica #184. */
+/**
+ * Rakdos Charm
+ * {B}{R}
+ * Instant
+ * Choose one —
+ * • Exile target player's graveyard.
+ * • Destroy target artifact.
+ * • Each creature deals 1 damage to its controller.
+ *
+ * The third mode walks every creature on the battlefield; each one is the source of its own
+ * damage (`damageSource = IterationEntity`, the Moonlight Hunt shape) and the recipient is that
+ * creature's controller ([Player.ControllerOfIterationEntity]), so lifelink, infect and
+ * "whenever a creature deals damage" triggers key off each creature individually.
+ */
 val RakdosCharm = card("Rakdos Charm") {
     manaCost = "{B}{R}"
     colorIdentity = "BR"
     typeLine = "Instant"
-    oracleText = "Choose one —\n• Exile target player's graveyard.\n• Destroy target artifact.\n• Each creature deals 1 damage to its controller."
+    oracleText = "Choose one —\n" +
+        "• Exile target player's graveyard.\n" +
+        "• Destroy target artifact.\n" +
+        "• Each creature deals 1 damage to its controller."
 
     spell {
-        modal {
+        modal(chooseCount = 1) {
             mode("Exile target player's graveyard") {
-                target(Targets.Player)
+                val player = target(Targets.Player)
                 effect = Effects.Pipeline {
-                    val graveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, Player.TargetPlayer))
-                    move(graveyard, CardDestination.ToZone(Zone.EXILE))
+                    val graveyard = gather(CardSource.FromZone(Zone.GRAVEYARD, player.asPlayer))
+                    exile(graveyard, player.asPlayer)
                 }
             }
             mode("Destroy target artifact") {
-                val artifact = target(TargetFilter.Artifact)
+                val artifact = target(TargetFilter(GameObjectFilter.Artifact))
                 effect = Effects.Destroy(artifact)
             }
             mode("Each creature deals 1 damage to its controller") {
                 effect = Effects.ForEachInGroup(
-                    GroupFilter.AllCreatures,
-                    Effects.DealDamage(
-                        1,
+                    filter = GroupFilter(GameObjectFilter.Creature),
+                    effect = Effects.DealDamage(
+                        amount = 1,
                         target = EffectTarget.PlayerRef(Player.ControllerOfIterationEntity),
                         damageSource = EffectTarget.IterationEntity,
                     ),

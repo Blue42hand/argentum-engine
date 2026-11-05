@@ -8,18 +8,35 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.SelfAlternativeCost
 import com.wingedsheep.sdk.scripting.effects.MayPlayExpiry
 
+/**
+ * Light Up the Stage
+ * {2}{R}
+ * Sorcery
+ * Spectacle {R} (You may cast this spell for its spectacle cost rather than its mana cost if an
+ * opponent lost life this turn.)
+ * Exile the top two cards of your library. Until the end of your next turn, you may play those cards.
+ *
+ * Spectacle (CR 702.137a) is "you may pay [cost] rather than pay this spell's mana cost if an
+ * opponent lost life this turn" — exactly a [SelfAlternativeCost] gated on
+ * [Conditions.OpponentLostLifeThisTurn] (the Blasphemous Edict shape). The gate reads the turn's
+ * life-loss tracker, so an opponent who lost life and later gained it back still enables it, per
+ * the ruling. The body is the impulse-draw recipe with an until-end-of-your-next-turn window.
+ */
 val LightUpTheStage = card("Light Up the Stage") {
     manaCost = "{2}{R}"
     colorIdentity = "R"
     typeLine = "Sorcery"
-    oracleText = "Spectacle {R} (You may cast this spell for its spectacle cost rather than its mana cost if an opponent lost life this turn.)\nExile the top two cards of your library. Until the end of your next turn, you may play those cards."
+    oracleText = "Spectacle {R} (You may cast this spell for its spectacle cost rather than its mana cost " +
+        "if an opponent lost life this turn.)\n" +
+        "Exile the top two cards of your library. Until the end of your next turn, you may play those cards."
 
     selfAlternativeCost = SelfAlternativeCost(
         manaCost = ManaCost.parse("{R}"),
-        condition = Conditions.OpponentLostLifeThisTurn
+        condition = Conditions.OpponentLostLifeThisTurn,
     )
+
     spell {
-        effect = Patterns.Exile.impulse(2, MayPlayExpiry.UntilEndOfNextTurn)
+        effect = Patterns.Exile.impulse(count = 2, expiry = MayPlayExpiry.UntilEndOfNextTurn)
     }
 
     metadata {

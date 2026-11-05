@@ -1,9 +1,10 @@
 package com.wingedsheep.mtg.sets.definitions.snc.cards
 
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Filters
 import com.wingedsheep.sdk.dsl.Triggers
 import com.wingedsheep.sdk.dsl.card
-import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GrantKeyword
 import com.wingedsheep.sdk.scripting.GrantTriggeredAbility
@@ -16,14 +17,23 @@ import com.wingedsheep.sdk.scripting.targets.TargetObject
  * Sticky Fingers
  * {R}
  * Enchantment — Aura
+ * Enchant creature
+ * Enchanted creature has menace and "Whenever this creature deals combat damage to a player,
+ *   create a Treasure token."
+ * When enchanted creature dies, draw a card.
  *
- * The creature's controller gets the Treasure; the Aura's controller draws.
+ * The Treasure trigger is granted to the enchanted creature, so the Treasure goes to that
+ * creature's controller; the dies trigger is the Aura's own, so the Aura's controller draws.
  */
 val StickyFingers = card("Sticky Fingers") {
     manaCost = "{R}"
     colorIdentity = "R"
     typeLine = "Enchantment — Aura"
-    oracleText = "Enchant creature\nEnchanted creature has menace and \"Whenever this creature deals combat damage to a player, create a Treasure token.\" (It can't be blocked except by two or more creatures. The token is an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\nWhen enchanted creature dies, draw a card."
+    oracleText = "Enchant creature\n" +
+        "Enchanted creature has menace and \"Whenever this creature deals combat damage to a player, " +
+        "create a Treasure token.\" (It can't be blocked except by two or more creatures. The token is " +
+        "an artifact with \"{T}, Sacrifice this token: Add one mana of any color.\")\n" +
+        "When enchanted creature dies, draw a card."
 
     auraTarget = TargetObject(filter = TargetFilter.Creature)
 
@@ -33,10 +43,11 @@ val StickyFingers = card("Sticky Fingers") {
 
     staticAbility {
         ability = GrantTriggeredAbility(
-            TriggeredAbility.create(
+            ability = TriggeredAbility.create(
                 trigger = Triggers.self.dealsCombatDamage(Recipient.AnyPlayer),
                 effect = Effects.CreateTreasure()
-            )
+            ),
+            filter = Filters.EnchantedCreature
         )
     }
 

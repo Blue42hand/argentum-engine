@@ -17,6 +17,7 @@ import com.wingedsheep.sdk.scripting.effects.ConniveEffect
 import com.wingedsheep.sdk.scripting.effects.DrawCardsEffect
 import com.wingedsheep.sdk.scripting.effects.DrawUpToEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.EnteringAttackDefender
 import com.wingedsheep.sdk.scripting.effects.EffectChoice
 import com.wingedsheep.sdk.scripting.effects.FeasibilityCheck
 import com.wingedsheep.sdk.scripting.effects.ForEachEffect
@@ -96,6 +97,14 @@ object HandPatterns {
             ))
         }
 
+        return eachOpponentDiscards(DynamicAmount.Fixed(count))
+    }
+
+    /**
+     * Each opponent discards [count] cards, a number read at resolution — "for each {B}{B} spent
+     * to cast it, each opponent discards a card" (Bladecoil Serpent).
+     */
+    fun eachOpponentDiscards(count: DynamicAmount): Effect {
         return ForEachPlayerEffect(
             players = Player.EachOpponent,
             effects = listOf(
@@ -105,7 +114,7 @@ object HandPatterns {
                 ),
                 SelectFromCollectionEffect(
                     from = "hand",
-                    selection = SelectionMode.ChooseExactly(DynamicAmount.Fixed(count)),
+                    selection = SelectionMode.ChooseExactly(count),
                     storeSelected = "discarded"
                 ),
                 MoveCollectionEffect(
@@ -392,6 +401,10 @@ object HandPatterns {
      * [anyNumber] swaps the selection for [SelectionMode.ChooseAnyNumber], i.e. the unbounded
      * "put **any number** of … cards from your hand onto the battlefield" wording (Redshift,
      * Rocketeer Chief's exhaust ability) — [count] is then ignored.
+     *
+     * With [entersAttacking], [attackDefender] says what each card attacks:
+     * [EnteringAttackDefender.CONTROLLER_CHOOSES] for a bare "tapped and attacking" (CR 508.4,
+     * Minion of the Mighty), the default for "attacking that player" (Kaalia of the Vast).
      */
     fun putFromHand(
         filter: GameObjectFilter = GameObjectFilter.Any,
@@ -399,7 +412,8 @@ object HandPatterns {
         entersTapped: Boolean = false,
         entersAttacking: Boolean = false,
         anyNumber: Boolean = false,
-        prompt: String? = null
+        prompt: String? = null,
+        attackDefender: EnteringAttackDefender = EnteringAttackDefender.JOIN_SOURCE
     ): CompositeEffect = CompositeEffect(
         listOf(
             GatherCardsEffect(
@@ -426,7 +440,8 @@ object HandPatterns {
                         entersTapped -> ZonePlacement.Tapped
                         else -> ZonePlacement.Default
                     }
-                )
+                ),
+                attackDefender = attackDefender
             )
         )
     )

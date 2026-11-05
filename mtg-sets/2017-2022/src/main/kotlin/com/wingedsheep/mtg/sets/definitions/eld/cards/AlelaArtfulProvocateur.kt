@@ -34,17 +34,13 @@ val AlelaArtfulProvocateur = card("Alela, Artful Provocateur") {
         ability = ModifyStats(
             powerBonus = 1,
             toughnessBonus = 0,
-            filter = GroupFilter(
-                GameObjectFilter.Creature.withKeyword(Keyword.FLYING).youControl(),
-                excludeSelf = true,
-            ),
+            filter = GroupFilter(GameObjectFilter.Creature.withKeyword(Keyword.FLYING).youControl(), excludeSelf = true)
         )
     }
 
+    // A spell that's both an artifact and an enchantment is one cast event, so this triggers once.
     triggeredAbility {
-        trigger = Triggers.you.casts(
-            spell = GameObjectFilter.Artifact or GameObjectFilter.Enchantment,
-        )
+        trigger = Triggers.you.casts(GameObjectFilter.ArtifactOrEnchantment)
         effect = Effects.CreateToken(
             power = 1,
             toughness = 1,

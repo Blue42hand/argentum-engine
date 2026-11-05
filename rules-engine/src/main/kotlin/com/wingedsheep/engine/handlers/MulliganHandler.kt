@@ -2,6 +2,7 @@ package com.wingedsheep.engine.handlers
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.sdk.scripting.effects.Effect
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.ZoneKey
 import com.wingedsheep.engine.state.components.identity.CardComponent
@@ -32,7 +33,18 @@ class MulliganHandler(
      * consulted when scanning a player's opening hand for leyline-marked cards once all
      * players have kept and bottomed.
      */
-    private val cardRegistry: CardRegistry? = null
+    private val cardRegistry: CardRegistry? = null,
+    /**
+     * Runs the remaining instructions of an ability that restarted the game (CR 726.4) before the
+     * new game's first turn — see [beginFirstTurn].
+     */
+    private val effectExecutor: ((GameState, Effect, EffectContext) -> EffectResult)? = null,
+    /**
+     * Evaluates a begin-on-battlefield action's [com.wingedsheep.sdk.model.BeginOnBattlefield.onlyIf]
+     * ("and you're not the starting player") when the opening hands are scanned. Without it a
+     * conditional action is never offered.
+     */
+    private val conditionEvaluator: ConditionEvaluator? = null
 ) {
 
     /**
@@ -322,8 +334,8 @@ class MulliganHandler(
 
     /**
      * Populate each player's [MulliganStateComponent.pendingLeylineCardIds] by scanning
-     * their opening hand for cards with an opening-hand action (CR 103.6): either
-     * [com.wingedsheep.sdk.model.CardScript.mayStartOnBattlefield] or a
+     * their opening hand for cards with an opening-hand action (CR 103.6): either a
+     * [com.wingedsheep.sdk.model.CardScript.beginOnBattlefield] whose `onlyIf` holds now, or a
      * [com.wingedsheep.sdk.model.CardScript.openingHandReveal] payoff. Idempotent — sets `leylinePhaseStarted = true` so re-entry into the mulligan
      * completion path doesn't re-scan.
      *
@@ -341,7 +353,9 @@ class MulliganHandler(
             val leylineCardIds = hand.filter { cardId ->
                 val cardComponent = newState.getEntity(cardId)?.get<CardComponent>() ?: return@filter false
                 val cardDef = registry.getCard(cardComponent.cardDefinitionId) ?: return@filter false
-                cardDef.script.mayStartOnBattlefield || cardDef.script.openingHandReveal != null
+                val start = cardDef.script.beginOnBattlefield
+                if (start != null) beginOnBattlefieldOffered(newState, start, playerId, cardId)
+                else cardDef.script.openingHandReveal != null
             }
 
             val updatedMullState = mullState.copy(
@@ -353,6 +367,21 @@ class MulliganHandler(
             }
         }
         return newState
+    }
+
+    /**
+     * Whether [start]'s condition lets [playerId] take the action with [cardId]. It is read once,
+     * when the walk begins — before the first turn, with the starting player active.
+     */
+    private fun beginOnBattlefieldOffered(
+        state: GameState,
+        start: com.wingedsheep.sdk.model.BeginOnBattlefield,
+        playerId: EntityId,
+        cardId: EntityId
+    ): Boolean {
+        val condition = start.onlyIf ?: return true
+        val evaluator = conditionEvaluator ?: return false
+        return evaluator.evaluate(state, condition, EffectContext(sourceId = cardId, controllerId = playerId))
     }
 
     /**
@@ -412,11 +441,67 @@ class MulliganHandler(
             return ExecutionResult.propagatePause(result.state, events + result.events)
         }
 
-        val advanceResult = turnManager.advanceStep(com.wingedsheep.engine.core.ControlHistory.beginTurn(stateWithLeylineScan))
-        return ExecutionResult.success(
-            advanceResult.newState,
-            events + advanceResult.events
-        )
+        return beginFirstTurn(stateWithLeylineScan, events, turnManager)
+    }
+
+    /**
+     * The pre-game procedure is over: start the first turn. In a restarted game, the ability that
+     * restarted it first finishes resolving and its remaining instructions are followed — Karn
+     * Liberated puts the cards it left in exile onto the battlefield (CR 726.4). Nobody has priority
+     * while they run, and whatever they trigger goes on the stack the first time a player would
+     * receive priority, in the first upkeep.
+     *
+     * The turn-start snapshot is taken after them, so a permanent put onto the battlefield this way
+     * has been under its controller's control continuously since their first turn began.
+     *
+     * If the instructions stop to ask a question, a [BeginFirstTurnContinuation] parked beneath
+     * them starts the turn once they finish.
+     */
+    fun beginFirstTurn(state: GameState, events: List<GameEvent>, turnManager: TurnManager): ExecutionResult {
+        val followUp = state.restartFollowUp
+        val executor = effectExecutor
+        if (followUp == null || executor == null) return startFirstTurn(state, events, turnManager)
+
+        val parked = state.copy(restartFollowUp = null).pushContinuation(BeginFirstTurnContinuation)
+        val result = executor(parked, followUp.effect, followUp.context)
+        if (result.outcome is Outcome.Paused) {
+            return ExecutionResult.propagatePause(result.state, events + result.events)
+        }
+        val unparked = if (result.state.peekContinuation() == BeginFirstTurnContinuation) {
+            result.state.popContinuation().second
+        } else result.state
+        return startFirstTurn(unparked, events + result.events, turnManager, untapStep = true)
+    }
+
+    /**
+     * Begin the first turn, recording who controls what as it begins, and move on to its upkeep.
+     *
+     * The first turn's untap step is normally empty — nothing is on the battlefield yet. After a
+     * restart's instructions have put permanents there it is not, so with [untapStep] it is
+     * performed: those permanents untap and stop being summoning sick (CR 502.3, 302.6).
+     */
+    fun startFirstTurn(
+        state: GameState,
+        events: List<GameEvent>,
+        turnManager: TurnManager,
+        untapStep: Boolean = false,
+    ): ExecutionResult {
+        // Permanents put onto the battlefield before the game's first turn (Leylines, a Karn
+        // restart) were put there during no one's turn, so they don't open turn 1's record.
+        var current = ControlHistory.beginTurn(state.turnOrder.fold(state) { s, pid ->
+            s.updateEntity(pid) {
+                it.without<com.wingedsheep.engine.state.components.player.NontokenPermanentsPutOntoBattlefieldThisTurnComponent>()
+            }
+        })
+        val stepEvents = mutableListOf<GameEvent>()
+        if (untapStep) {
+            val untap = turnManager.beginningPhaseManager.performUntapStep(current)
+            if (untap.outcome !is Outcome.Done) return untap.copy(events = events + untap.events)
+            current = untap.newState
+            stepEvents += untap.events
+        }
+        val advanceResult = turnManager.advanceStep(current)
+        return ExecutionResult.success(advanceResult.newState, events + stepEvents + advanceResult.events)
     }
 
     /**
@@ -431,7 +516,7 @@ class MulliganHandler(
         val script = cardRegistry?.getCard(card.cardDefinitionId)?.script
         // A card offers the reveal (CR 103.6b) only when it has no begin-on-battlefield action;
         // no printed card carries both.
-        val isReveal = script != null && !script.mayStartOnBattlefield && script.openingHandReveal != null
+        val isReveal = script != null && script.beginOnBattlefield == null && script.openingHandReveal != null
         val question = { decisionId: String -> YesNoDecision(
             id = decisionId,
             playerId = playerId,
@@ -440,12 +525,15 @@ class MulliganHandler(
             context = DecisionContext(
                 sourceId = leylineCardId,
                 sourceName = cardName,
-                phase = DecisionPhase.CASTING
+                phase = DecisionPhase.CASTING,
+                // Declining keeps the card in a hidden hand; the question must not name it.
+                sourceIsPrivate = true,
             ),
             yesText = if (isReveal) "Reveal" else "Yes",
             noText = if (isReveal) "Don't reveal" else "No",
-            hint = if (isReveal) card.oracleText.lineSequence().firstOrNull()
-                else "Leyline — If this card is in your opening hand, you may begin the game with it on the battlefield."
+            // The card's own opening-hand line, which names any condition, counter or rider it adds.
+            hint = card.oracleText.lineSequence().firstOrNull()?.takeIf { it.isNotBlank() }
+                ?: "If this card is in your opening hand, you may begin the game with it on the battlefield."
         ) }
         val continuation = LeylineDecisionContinuation(
             playerId = playerId,
@@ -453,5 +541,24 @@ class MulliganHandler(
             cardName = cardName
         )
         return state.suspendForDecision(question, continuation)
+    }
+
+    companion object {
+        /**
+         * Opening hands are still being decided (CR 103.5): some player has yet to keep, or has kept
+         * a mulligan hand and not yet put its cards on the bottom. Nobody has priority until they
+         * are settled, so only mulligan decisions (and a concession) can be made.
+         */
+        fun openingHandsPending(state: GameState): Boolean = nextOpeningHandDecider(state) != null
+
+        /**
+         * The player whose opening-hand decision comes next, in turn order from the starting
+         * player (CR 103.5), or `null` once every hand is settled. The mulligan actions carry no
+         * priority, so this is who a host offers them to.
+         */
+        fun nextOpeningHandDecider(state: GameState): EntityId? = state.turnOrder.firstOrNull { playerId ->
+            val mullState = state.getEntity(playerId)?.get<MulliganStateComponent>() ?: return@firstOrNull false
+            !mullState.hasKept || mullState.cardsToBottom > 0
+        }
     }
 }

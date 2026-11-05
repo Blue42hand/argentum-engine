@@ -3,6 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.m21.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Heroic Intervention reprint in M21. Canonical CardDefinition lives in its earliest set.
+ */
 val HeroicInterventionReprint = Printing(
     oracleId = "24882fa2-3fe9-4c1b-aa3d-0e6488b9db27",
     name = "Heroic Intervention",

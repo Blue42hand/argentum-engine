@@ -2,13 +2,17 @@ package com.wingedsheep.sdk.scripting
 
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.core.CounterType
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.core.ManaCost
 import com.wingedsheep.sdk.core.Zone
 import com.wingedsheep.sdk.scripting.conditions.Condition
+import com.wingedsheep.sdk.scripting.conditions.EntityMatches
 import com.wingedsheep.sdk.scripting.costs.CostAtom
 import com.wingedsheep.sdk.scripting.costs.manaCostOrNull
 import com.wingedsheep.sdk.scripting.effects.AttachEquipmentEffect
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.UnattachEquipmentEffect
+import com.wingedsheep.sdk.scripting.effects.ZonePlacement
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 import com.wingedsheep.sdk.scripting.targets.EffectTarget
 import com.wingedsheep.sdk.scripting.targets.TargetObject
@@ -60,6 +64,15 @@ data class ActivatedAbility(
      * cost reduction rewrites the cost — which a static `descriptionOverride` could not.
      */
     val equipQuality: String? = null,
+    /**
+     * True for the fortify ability synthesized by [com.wingedsheep.sdk.dsl.CardBuilder.fortifyAbility]
+     * — CR 702.67a's "Fortify [cost]", the Fortification analog of equip (CR 301.6). Kept apart from
+     * [isEquipAbility] on purpose: fortify is a distinct keyword, so nothing that keys off *equip*
+     * abilities (instant-speed equip, equip cost reductions, Forge Anew's free first equip, "spend
+     * this mana only to activate equip abilities") reaches it. Its only reader is [describeWithCost],
+     * which renders the printed "Fortify {3}" line.
+     */
+    val isFortifyAbility: Boolean = false,
     val activateFromZone: Zone = Zone.BATTLEFIELD,
     /**
      * Count this ability's activations for the turn even though no [restrictions] entry needs the
@@ -122,6 +135,20 @@ data class ActivatedAbility(
      * be activated") both need to pick power-up abilities out of every other activated ability.
      */
     val isPowerUp: Boolean = false,
+    /**
+     * The keyword ability this activated ability *is*, when it is one — e.g. [Keyword.NINJUTSU] for
+     * the hand ability `ninjutsu("{cost}")` builds (CR 702.49a: "Ninjutsu is an activated
+     * ability…"). Null for an ordinary activated ability.
+     *
+     * It is how other cards name a keyword's activations without caring about the cost: "whenever
+     * you activate a ninjutsu ability" (Satoru Umezawa — [EventPattern.AbilityActivatedEvent.keywords]),
+     * "whenever you activate an eternalize or embalm ability" (Vizier of the Anointed) and "ninjutsu
+     * abilities you activate cost {1} less" (Silver-Fur Master — [ReduceActivatedAbilityCost.keyword]).
+     * Set today by `ninjutsu`, `embalm` and `eternalize`. A *granted* copy of the ability (Satoru's
+     * "each creature card in your hand has ninjutsu", Cursecloth Wrappings' granted embalm) carries
+     * the same marker, so it counts too.
+     */
+    val keyword: Keyword? = null,
     /**
      * True for a *boast* ability (Kaldheim, returning in Marvel Super Heroes; CR 702.142).
      * "Boast — [cost]: [effect]" means "[cost]: [effect]. Activate only if this creature attacked
@@ -241,6 +268,20 @@ data class ActivatedAbility(
     val targetRequirement: TargetRequirement?
         get() = targetRequirements.firstOrNull()
 
+    /**
+     * Which "activate only once" keyword this ability is — [isExhaust], [isPowerUp] or [isBoast] —
+     * or null for an ordinary activated ability. The one place that maps the three keyword
+     * markers onto [OnceOnlyAbilityKind], so a card naming the mechanic ("whenever you activate a
+     * boast ability", "Creatures you control can boast twice") reads it the same way everywhere.
+     */
+    val onceOnlyKind: OnceOnlyAbilityKind?
+        get() = when {
+            isExhaust -> OnceOnlyAbilityKind.EXHAUST
+            isPowerUp -> OnceOnlyAbilityKind.POWER_UP
+            isBoast -> OnceOnlyAbilityKind.BOAST
+            else -> null
+        }
+
     val description: String
         get() = descriptionOverride ?: describeWithCost(cost)
 
@@ -264,8 +305,10 @@ data class ActivatedAbility(
         //
         // A non-mana equip cost takes the printed em dash instead of a space — "Equip—Sacrifice a
         // creature" (Demonmail Hauberk, Dissection Tools), not "Equip Sacrifice a creature".
-        if (isEquipAbility) {
-            val keyword = "Equip" + (equipQuality?.let { " $it" } ?: "")
+        //
+        // Fortify (CR 702.67a) is printed the same way: "Fortify {3}".
+        if (isEquipAbility || isFortifyAbility) {
+            val keyword = if (isFortifyAbility) "Fortify" else "Equip" + (equipQuality?.let { " $it" } ?: "")
             return if (effectiveCost.manaCostOrNull != null) "$keyword $base" else "$keyword—$base"
         }
         val costText = if (hasWaterbend) "Waterbend $base" else base
@@ -338,12 +381,95 @@ data class ActivatedAbility(
         }
 
         /**
+         * The ability "Fortify [cost]" *is* — CR 702.67a's "attach this Fortification to target land
+         * you control. Activate only as a sorcery." The Fortification analog of [equip] (CR 301.6),
+         * lowered the same way and for the same reason: one body shared by
+         * [com.wingedsheep.sdk.dsl.CardBuilder.fortifyAbility] and any reader of the printed line.
+         *
+         * The attach itself is the same [AttachEquipmentEffect] equip uses — "attach this permanent
+         * to the target" — and the engine's attachment rules (CR 301.6, 704.5n) decide that a
+         * Fortification's host must be a land. Unlike equip there is no `CardDefinition` cost field
+         * and no quality variant: no printed card has either.
+         */
+        fun fortify(
+            cost: ManaCost,
+            id: AbilityId = AbilityId.next(),
+        ): ActivatedAbility = ActivatedAbility(
+            id = id,
+            cost = AbilityCost.Atom(CostAtom.Mana(cost)),
+            effect = AttachEquipmentEffect(EffectTarget.BoundVariable(FORTIFY_TARGET_LABEL)),
+            targetRequirements = listOf(TargetObject(filter = TargetFilter.LandYouControl, id = FORTIFY_TARGET_LABEL)),
+            isManaAbility = false,
+            isFortifyAbility = true,
+            timing = TimingRule.SorcerySpeed,
+        )
+
+        /**
+         * The two abilities "Reconfigure [cost]" *is* (CR 702.151a): "[Cost]: Attach this permanent
+         * to another target creature you control. Activate only as a sorcery" and "[Cost]: Unattach
+         * this permanent. Activate only if this permanent is attached to a creature and only as a
+         * sorcery." Lowered here rather than in [com.wingedsheep.sdk.dsl.CardBuilder.reconfigure] for
+         * the same reason as [equip]: a reader of the printed line needs the same body.
+         *
+         * Neither is an equip ability (rulings: equip cost reductions and instant-speed-equip
+         * permissions don't reach reconfigure), so neither sets [isEquipAbility]. What stops the
+         * permanent being a creature while attached isn't part of either ability — it is the
+         * engine's rule for attaching an Equipment that has the [com.wingedsheep.sdk.core.Keyword.RECONFIGURE]
+         * keyword (CR 702.151b), which applies however it became attached.
+         *
+         * Each ability is labelled with the printed keyword ("Reconfigure {2}: …"), the way an equip
+         * ability renders "Equip {1}", so the activation menu names the mechanic the card prints.
+         *
+         * [attachId] and [unattachId] are parameters for the reason [equip]'s id is.
+         */
+        fun reconfigure(
+            cost: ManaCost,
+            attachId: AbilityId = AbilityId.next(),
+            unattachId: AbilityId = AbilityId.next(),
+        ): List<ActivatedAbility> = listOf(
+            ActivatedAbility(
+                id = attachId,
+                cost = AbilityCost.Atom(CostAtom.Mana(cost)),
+                effect = AttachEquipmentEffect(EffectTarget.BoundVariable(RECONFIGURE_TARGET_LABEL)),
+                targetRequirements = listOf(
+                    TargetObject(filter = TargetFilter.OtherCreatureYouControl, id = RECONFIGURE_TARGET_LABEL)
+                ),
+                timing = TimingRule.SorcerySpeed,
+                descriptionOverride = "Reconfigure $cost: Attach to target creature you control",
+            ),
+            ActivatedAbility(
+                id = unattachId,
+                cost = AbilityCost.Atom(CostAtom.Mana(cost)),
+                effect = UnattachEquipmentEffect(EffectTarget.Self),
+                timing = TimingRule.SorcerySpeed,
+                descriptionOverride = "Reconfigure $cost: Unattach from the creature",
+                restrictions = listOf(
+                    ActivationRestriction.OnlyIfCondition(
+                        EntityMatches(EffectTarget.Self, GameObjectFilter.Any.attachedTo(GameObjectFilter.Creature))
+                    )
+                ),
+            ),
+        )
+
+        /** The label a reconfigure attach ability's target requirement and its attach effect share. */
+        const val RECONFIGURE_TARGET_LABEL: String = "another creature you control"
+
+        /** The label a fortify ability's target requirement and its attach effect share. */
+        const val FORTIFY_TARGET_LABEL: String = "land you control"
+
+        /**
          * The label an equip ability's target requirement carries, which doubles as the name of the
          * bound variable the attach effect reads. One function because both halves must use the same
-         * string or the effect reads a slot nothing declared.
+         * string or the effect reads a slot nothing declared. "Equip planeswalker" (Luxior) names a
+         * card type rather than qualifying "creature", so its target is a planeswalker you control.
+         * "Equip creature token" (Team Pennant) already names its noun, so it isn't suffixed again.
          */
-        fun equipTargetLabel(quality: String?): String =
-            if (quality == null) "creature you control" else "$quality creature you control"
+        fun equipTargetLabel(quality: String?): String = when (quality) {
+            null -> "creature you control"
+            "planeswalker" -> "planeswalker you control"
+            "creature token" -> "creature token you control"
+            else -> "$quality creature you control"
+        }
     }
 }
 
@@ -430,13 +556,46 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
      * Used for abilities like Necropolis Fiend: "{X}, {T}, Exile X cards from your graveyard"
      *
      * @property filter Which cards can be exiled
+     * @property linkToSource When true, the exiled cards join the *source permanent's* linked-exile
+     *   pile ([com.wingedsheep.engine.state.components.battlefield.LinkedExileComponent]), so another
+     *   ability printed on it can name "the cards exiled with it" (CR 607.2a) — Ludevic,
+     *   Necrogenius's transform cost feeds Olag's "becomes a copy of a creature card exiled with
+     *   it". The [com.wingedsheep.sdk.scripting.costs.CostAtom.CollectEvidence.linkToSource] twin;
+     *   off by default, so an ordinary cost exiles the cards and forgets them.
      */
     @SerialName("CostExileXFromGraveyard")
     @Serializable
     data class ExileXFromGraveyard(
-        val filter: GameObjectFilter = GameObjectFilter.Any
+        val filter: GameObjectFilter = GameObjectFilter.Any,
+        val linkToSource: Boolean = false,
     ) : AbilityCost {
         override val description: String = "Exile X ${filter.description}s from your graveyard"
+
+        override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
+            val newFilter = filter.applyTextReplacement(replacer)
+            return if (newFilter !== filter) copy(filter = newFilter) else this
+        }
+    }
+
+    /**
+     * Discard X cards, where X is the ability's X value — "{4}{B}{B}{B}, Discard X cards: …"
+     * (Gix, Yawgmoth Praetor).
+     *
+     * The hand-side twin of [ExileXFromGraveyard]: X *is* the size of the selection. With no `{X}`
+     * in the mana cost the engine pauses for the cards (any number of matching cards in hand,
+     * including none) and binds X to how many were chosen — the value of a variable defined by a
+     * cost choice is announced as the ability is activated (CR 601.2b via CR 602.2b). With a `{X}`
+     * alongside it, the mana X fixes the count and the selection must be exactly that many.
+     * The discard fires discard triggers (it is a discard, CR 701.9).
+     *
+     * @property filter Which cards in hand may be discarded.
+     */
+    @SerialName("CostDiscardX")
+    @Serializable
+    data class DiscardX(
+        val filter: GameObjectFilter = GameObjectFilter.Any
+    ) : AbilityCost {
+        override val description: String = "Discard X ${filter.description}s"
 
         override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
             val newFilter = filter.applyTextReplacement(replacer)
@@ -456,6 +615,23 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     @Serializable
     data object DiscardSelf : AbilityCost {
         override val description: String = "Discard this card"
+    }
+
+    /**
+     * Reveal this card from your hand — "{B}, Reveal Tetzimoc, Primal Death from your hand: …"
+     * (Tetzimoc, Primal Death), with `activateFromZone = Zone.HAND`. The source-only sibling of
+     * [DiscardSelf]: payable only while the card is in its owner's hand, and paid with no player
+     * selection. Unlike [DiscardSelf] the card stays in hand, so the ability may be activated again
+     * on the same turn.
+     *
+     * Closest neighbours: [DiscardSelf] moves the card, so it can't take a "stay in hand" axis
+     * without stopping being a discard; `CostAtom.RevealFromHand` is a choose-N-cards-matching
+     * selection over the whole hand, and "this card" isn't a property a hand filter can name.
+     */
+    @SerialName("CostRevealSelf")
+    @Serializable
+    data object RevealSelf : AbilityCost {
+        override val description: String = "Reveal this card from your hand"
     }
 
     /**
@@ -505,6 +681,31 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     @Serializable
     data object ReturnSelfToHand : AbilityCost {
         override val description: String = "Return this permanent to its owner's hand"
+    }
+
+    /**
+     * Put self into its owner's library, on top or on the bottom — "Put this card from your
+     * graveyard on the bottom of your library: You gain 2 life." (Daniels, Temporal Agent), with
+     * `activateFromZone = Zone.GRAVEYARD`. The library sibling of [ExileSelf] and
+     * [ReturnSelfToHand]: neither takes it because both are fixed-destination objects, while a
+     * library move needs a position — that is this type's one axis, [placement] (only
+     * [ZonePlacement.Top] or [ZonePlacement.Bottom] are meaningful). Like its siblings, the source
+     * is the only thing that moves, so there is no player selection, and the cost is paid before
+     * the ability goes on the stack (CR 601.2h via 602.2b).
+     */
+    @SerialName("CostPutSelfIntoLibrary")
+    @Serializable
+    data class PutSelfIntoLibrary(
+        val placement: ZonePlacement = ZonePlacement.Bottom,
+    ) : AbilityCost {
+        init {
+            require(placement == ZonePlacement.Top || placement == ZonePlacement.Bottom) {
+                "PutSelfIntoLibrary placement must be Top or Bottom, was $placement"
+            }
+        }
+
+        override val description: String
+            get() = "Put this card on the ${if (placement == ZonePlacement.Top) "top" else "bottom"} of its owner's library"
     }
 
     /**
@@ -595,7 +796,10 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     data class TapXPermanents(
         val filter: GameObjectFilter = GameObjectFilter.Creature
     ) : AbilityCost {
-        override val description: String = "Tap X untapped ${filter.description}s you control"
+        override val description: String =
+            "Tap X untapped ${com.wingedsheep.sdk.scripting.util.pluralNounPhrase(
+                filter.copy(controllerPredicate = null).description
+            )} you control"
 
         override fun applyTextReplacement(replacer: TextReplacer): AbilityCost {
             val newFilter = filter.applyTextReplacement(replacer)
@@ -633,6 +837,21 @@ sealed interface AbilityCost : TextReplaceable<AbilityCost> {
     @Serializable
     data object AttachedPermanentManaCost : AbilityCost {
         override val description: String = "Pay enchanted permanent's mana cost"
+    }
+
+    /**
+     * Pay this object's own mana cost — the cost of a scavenge ability granted by Young Deathclaws
+     * or Varolz, the Scar-Striped: "Each creature card in your graveyard has scavenge. The
+     * scavenge cost is equal to its mana cost." One granted ability, a different price per card.
+     *
+     * Lowered to a plain [Atom] mana cost against the source's printed cost by the same pass that
+     * lowers [AttachedPermanentManaCost], so every downstream path sees a uniform shape. A source
+     * with no mana cost lowers to an empty cost ({0}); a printed {0} stays {0}.
+     */
+    @SerialName("OwnManaCost")
+    @Serializable
+    data object OwnManaCost : AbilityCost {
+        override val description: String = "Pay its mana cost"
     }
 
     /** Tap the creature this aura is attached to ({T} enchanted creature) */

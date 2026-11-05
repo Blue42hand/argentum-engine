@@ -7,18 +7,28 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.GameObjectFilter
 import com.wingedsheep.sdk.scripting.filters.unified.TargetFilter
 
-/** Reconnaissance — Exodus #17. */
+/**
+ * Reconnaissance
+ * {W}
+ * Enchantment
+ * {0}: Remove target attacking creature you control from combat and untap it. (If you activate
+ * during end of combat, the creature will untap after it deals combat damage.)
+ *
+ * `RemoveFromCombat` then `Untap` on one target. Removing an attacker from combat doesn't undo
+ * anything that triggered on its attack declaration (2004-10-04 ruling).
+ */
 val Reconnaissance = card("Reconnaissance") {
     manaCost = "{W}"
     colorIdentity = "W"
     typeLine = "Enchantment"
-    oracleText = "{0}: Remove target attacking creature you control from combat and untap it. (If you activate during end of combat, the creature will untap after it deals combat damage.)"
+    oracleText = "{0}: Remove target attacking creature you control from combat and untap it. " +
+        "(If you activate during end of combat, the creature will untap after it deals combat damage.)"
 
     activatedAbility {
         cost = Costs.Mana("{0}")
         val attacker = target(TargetFilter(GameObjectFilter.Creature.attacking().youControl()))
         effect = Effects.RemoveFromCombat(attacker) then Effects.Untap(attacker)
-        description = "Remove attacking creature from combat and untap it"
+        description = "Remove target attacking creature you control from combat and untap it."
     }
 
     metadata {

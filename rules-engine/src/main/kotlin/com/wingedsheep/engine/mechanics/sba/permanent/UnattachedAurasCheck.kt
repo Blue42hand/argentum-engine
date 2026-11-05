@@ -14,6 +14,7 @@ import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.battlefield.AttachedToComponent
 import com.wingedsheep.engine.state.components.battlefield.AttachmentHostLeftComponent
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.sdk.core.Keyword
 import com.wingedsheep.sdk.model.EntityId
 
 /**
@@ -29,6 +30,8 @@ import com.wingedsheep.sdk.model.EntityId
  *              into a 0/0 Robot artifact creature by Tezzeret, Cruel Captain's emblem.
  *            - The host stops matching the Equipment's own "can be attached only to …"
  *              restriction (Konda's Banner on a creature that stops being legendary).
+ *          A Fortification is the same story with lands (CR 301.6): it unattaches once its host
+ *          stops being a land.
  * 704.5p - A battle or creature attached to an object or player becomes unattached but
  *          remains on the battlefield.
  *
@@ -97,7 +100,7 @@ class UnattachedAurasCheck(
             // CR 704.5p: creatures, battles, and permanents without an attachment type come off.
             // This also clears the leave-trigger link retained when a host leaving ended bestow.
             if (projected.isBattle(entityId) || !remainsAttachment ||
-                (projected.isCreature(entityId) && !projected.hasKeyword(entityId, "RECONFIGURE"))) {
+                (projected.isCreature(entityId) && !projected.hasKeyword(entityId, Keyword.RECONFIGURE))) {
                 if (container.has<AttachedToComponent>()) {
                     val (detached, unattachEvents) = unattachEmittingEvent(newState, entityId)
                     newState = detached.updateEntity(entityId) { it.without<AttachmentHostLeftComponent>() }
@@ -106,10 +109,13 @@ class UnattachedAurasCheck(
                 continue
             }
 
-            val isAura = cardComponent.typeLine.isAura
+            // An Aura by its projected type line, not its printed one: a card returned "as an Aura
+            // enchantment" (Harold and Bob, First Numens) is held to its enchant ability too.
+            val isAura = projected.hasType(entityId, "ENCHANTMENT") && projected.hasSubtype(entityId, "Aura")
             val isEquipment = cardComponent.typeLine.isEquipment
+            val isFortification = cardComponent.typeLine.isFortification
 
-            if (!isAura && !isEquipment) continue
+            if (!isAura && !isEquipment && !isFortification) continue
 
             // A host that died during this SBA pass was still a legal host when the pass
             // began. Its orphaned Aura is a later SBA, above the host in graveyard order.
@@ -164,6 +170,9 @@ class UnattachedAurasCheck(
 
             val attachedTo = container.get<AttachedToComponent>()
             if (attachedTo == null) {
+                // Transformed into an attach-to-a-player Aura face whose player isn't chosen yet
+                // (CR 712.20) — TransformAttachCheck attaches it; it isn't an unattached Aura.
+                if (container.has<com.wingedsheep.engine.state.components.battlefield.PendingTransformAttachComponent>()) continue
                 if (isAura) {
                     // Aura not attached to anything - goes to graveyard
                     val result = SbaZoneMovementHelper.putPermanentInGraveyard(
@@ -186,8 +195,10 @@ class UnattachedAurasCheck(
                 continue
             } else {
                 // Check if attached target still exists on battlefield
-                if (attachedTo.targetId !in state.getBattlefield() &&
-                    !(isAura && legalNonBattlefieldHost(state, projected, entityId, cardComponent, attachedTo.targetId))) {
+                if (attachedTo.targetId !in state.getBattlefield()) {
+                    if (isAura && legalNonBattlefieldHost(state, projected, entityId, cardComponent, attachedTo.targetId)) {
+                        continue
+                    }
                     if (isAura) {
                         // Aura's target gone - goes to graveyard
                         val result = SbaZoneMovementHelper.putPermanentInGraveyard(
@@ -213,7 +224,7 @@ class UnattachedAurasCheck(
                         // CR 301.5c / 704.5n: the Equipment itself became a creature, so it
                         // can't equip a creature unless it has reconfigure.
                         (projected.isCreature(entityId) &&
-                            !projected.hasKeyword(entityId, "RECONFIGURE")) ||
+                            !projected.hasKeyword(entityId, Keyword.RECONFIGURE)) ||
                         // The host no longer matches the Equipment's own attach restriction.
                         !AttachmentMover.equipRestrictionAllows(
                             state, predicateEvaluator, cardRegistry, entityId, attachedTo.targetId
@@ -221,6 +232,13 @@ class UnattachedAurasCheck(
                     )
                 ) {
                     // Illegal attachment: the Equipment unattaches but stays on the battlefield.
+                    val (detached, unattachEvents) = unattachEmittingEvent(newState, entityId)
+                    newState = detached
+                    events.addAll(unattachEvents)
+                } else if (isFortification && !projected.hasType(attachedTo.targetId, "LAND")) {
+                    // CR 301.6 / 704.5n: a Fortification can only be attached to a land, so once the
+                    // host stops being one it unattaches and stays on the battlefield. (A
+                    // Fortification that became a creature already came off above, per 704.5p.)
                     val (detached, unattachEvents) = unattachEmittingEvent(newState, entityId)
                     newState = detached
                     events.addAll(unattachEvents)
@@ -302,12 +320,14 @@ class UnattachedAurasCheck(
     private fun legalNonBattlefieldHost(
         state: GameState, projected: ProjectedState, auraId: EntityId, auraCard: CardComponent, hostId: EntityId
     ): Boolean {
+        if (state.getEntity(auraId)?.has<com.wingedsheep.engine.state.components.battlefield.GainedEnchantRestrictionComponent>() == true) return false
         if (state.logicalZone(hostId)?.zoneType == com.wingedsheep.sdk.core.Zone.BATTLEFIELD) return false
         val requirement = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.requirementFor(
             state, cardRegistry, auraId, auraCard) ?: return false
         val controller = projected.getController(auraId) ?: return false
         return com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostSatisfies(
-            state, projected, predicateEvaluator, requirement, hostId, controller, auraId) == true &&
+            state, projected, predicateEvaluator, requirement, hostId, controller, auraId,
+            hostZone = state.logicalZone(hostId)?.zoneType ?: return false) == true &&
             com.wingedsheep.engine.handlers.predicates.EnchantRestriction.sourceRestrictionsAllowAura(
                 state, projected, predicateEvaluator, auraId, hostId)
     }
@@ -321,15 +341,52 @@ class UnattachedAurasCheck(
     ): Boolean {
         if (!com.wingedsheep.engine.handlers.predicates.EnchantRestriction.sourceRestrictionsAllowAura(
                 state, projected, predicateEvaluator, auraId, hostId)) return true
-        val requirement = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.requirementFor(
-            state, cardRegistry, auraId, auraCard) ?: return false
         // "you" in "Enchant creature you control" is the Aura's controller, read from the
         // projection so a control-changing effect on the Aura itself is honored.
         val controllerId = projected.getController(auraId) ?: return false
+        // An enchant ability the Aura gained in place of its printed one (Animate Dead's "enchant
+        // creature put onto the battlefield with this Aura") is its whole restriction now.
+        com.wingedsheep.engine.handlers.predicates.EnchantRestriction.gainedRestrictionAdmits(
+            state, projected, predicateEvaluator, auraId, hostId, controllerId
+        )?.let { return !it }
+        val requirement = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.requirementFor(
+            state, cardRegistry, auraId, auraCard) ?: return false
+        // An enchant ability that names only cards in another zone ("Enchant creature card in a
+        // graveyard") can't be enchanting a permanent — Animate Dead whose card another effect
+        // returned to the battlefield first is illegally attached.
+        val clauses = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.filterOf(requirement)?.clauses()
+        if (clauses != null && clauses.none { it.zone == com.wingedsheep.sdk.core.Zone.BATTLEFIELD }) return true
         val satisfied = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostSatisfies(
             state, projected, predicateEvaluator, requirement, hostId, controllerId, auraId
         ) ?: return false
         return !satisfied
+    }
+
+    /**
+     * True when the Aura [auraId] is legally enchanting a card that is not on the battlefield: its
+     * printed enchant ability names a card in the zone [hostId] is in and the card matches it
+     * (CR 303.4a/c — "Enchant creature card in a graveyard"). An enchant ability the Aura gained in
+     * place of its printed one only ever admits permanents, so it never qualifies. Protection and
+     * other host-side abilities don't function off the battlefield, so only the filter is read.
+     */
+    private fun enchantsCardOffBattlefield(
+        state: GameState,
+        projected: ProjectedState,
+        auraId: EntityId,
+        auraCard: CardComponent,
+        hostId: EntityId
+    ): Boolean {
+        if (state.getEntity(auraId)?.has<com.wingedsheep.engine.state.components.battlefield.GainedEnchantRestrictionComponent>() == true) {
+            return false
+        }
+        val zone = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.zoneOf(state, hostId) ?: return false
+        if (zone == com.wingedsheep.sdk.core.Zone.BATTLEFIELD) return false
+        val requirement = com.wingedsheep.engine.handlers.predicates.EnchantRestriction.requirementFor(
+            state, cardRegistry, auraId, auraCard) ?: return false
+        val controllerId = projected.getController(auraId) ?: return false
+        return com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostSatisfies(
+            state, projected, predicateEvaluator, requirement, hostId, controllerId, auraId, hostZone = zone
+        ) == true
     }
 
     /** CR 702.16c/d — see [com.wingedsheep.engine.handlers.predicates.EnchantRestriction.hostProtectedFromAttachment]. */

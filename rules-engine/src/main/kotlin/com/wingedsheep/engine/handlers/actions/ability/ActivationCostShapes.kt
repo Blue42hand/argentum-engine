@@ -82,7 +82,8 @@ internal fun AbilityCost.hasTapAttachedCreatureCost(): Boolean =
  * resolving effect can read the pre-cost count (DynamicAmount.LastKnownSourceCounters).
  */
 internal fun AbilityCost.exilesOrSacrificesSelf(): Boolean = when (this) {
-    is AbilityCost.ExileSelf, is AbilityCost.SacrificeSelf, is AbilityCost.ReturnSelfToHand -> true
+    is AbilityCost.ExileSelf, is AbilityCost.SacrificeSelf, is AbilityCost.ReturnSelfToHand,
+    is AbilityCost.PutSelfIntoLibrary -> true
     is AbilityCost.Composite -> costs.any { it.exilesOrSacrificesSelf() }
     else -> false
 }
@@ -155,6 +156,18 @@ internal fun AbilityCost.stripManaCost(): AbilityCost = when (this) {
 }
 
 /**
+ * Pull the loyalty sub-cost ([AbilityCost.Loyalty] or [AbilityCost.LoyaltyX]) out of an ability
+ * cost (top-level or inside a [AbilityCost.Composite]), or null if none. A loyalty ability's cost
+ * is a bare loyalty atom until a tax prepends mana to it (Eidolon of Obstruction's "{1}, +1:"), so
+ * the payment events and the X pause read the loyalty part wherever it sits.
+ */
+internal fun AbilityCost.extractLoyaltyCost(): AbilityCost? = when (this) {
+    is AbilityCost.Loyalty, AbilityCost.LoyaltyX -> this
+    is AbilityCost.Composite -> costs.firstOrNull { it is AbilityCost.Loyalty || it == AbilityCost.LoyaltyX }
+    else -> null
+}
+
+/**
  * Pull the [AbilityCost.TapXPermanents] sub-cost out of an ability cost (top-level or
  * inside a [AbilityCost.Composite]), or null if none. Used by the legal-actions submission
  * path to detect that an activation needs to pause for an X choice + tap-target selection.
@@ -166,18 +179,24 @@ internal fun AbilityCost.extractTapXPermanentsCost(): AbilityCost.TapXPermanents
 }
 
 /**
- * Pull the graveyard-exile [CostAtom.ExileFrom] sub-cost out of an ability cost (top-level or
- * inside a [AbilityCost.Composite]), or null if none. Used by the legal-actions submission
+ * Pull the graveyard- or hand-exile [CostAtom.ExileFrom] sub-cost out of an ability cost (top-level
+ * or inside a [AbilityCost.Composite]), or null if none. Used by the legal-actions submission
  * path to detect that an activation needs to pause for a card-selection decision when the
- * player has more matching graveyard cards than the cost requires.
+ * player has more matching cards in that zone than the cost requires.
  */
-internal fun AbilityCost.extractExileFromGraveyardCost(): CostAtom.ExileFrom? = when (this) {
-    is AbilityCost.Atom -> (atom as? CostAtom.ExileFrom)?.takeIf { it.zone == Zone.GRAVEYARD }
+internal fun AbilityCost.extractChosenCardExileCost(): CostAtom.ExileFrom? = when (this) {
+    is AbilityCost.Atom -> (atom as? CostAtom.ExileFrom)?.takeIf { it.zone in CHOSEN_CARD_EXILE_ZONES }
     is AbilityCost.Composite -> costs.firstNotNullOfOrNull {
-        ((it as? AbilityCost.Atom)?.atom as? CostAtom.ExileFrom)?.takeIf { ex -> ex.zone == Zone.GRAVEYARD }
+        ((it as? AbilityCost.Atom)?.atom as? CostAtom.ExileFrom)?.takeIf { ex -> ex.zone in CHOSEN_CARD_EXILE_ZONES }
     }
     else -> null
 }
+
+/**
+ * The card zones whose `CostAtom.ExileFrom` is a real choice the activation pauses to ask about —
+ * the graveyard (Rust Harvester) and the hand (Q, Stacking the Deck's "Exile a card from your hand").
+ */
+private val CHOSEN_CARD_EXILE_ZONES = setOf(Zone.GRAVEYARD, Zone.HAND)
 
 /**
  * Pull the [AbilityCost.ExileXFromGraveyard] sub-cost out of an ability cost, or null if none.
@@ -192,6 +211,18 @@ internal fun AbilityCost.extractExileXFromGraveyardCost(): AbilityCost.ExileXFro
     }
 
 /**
+ * Pull the [AbilityCost.DiscardX] sub-cost out of an ability cost, or null if none. Used by the
+ * legal-actions submission path to pause for *which* hand cards the player discards, binding X to
+ * how many (Gix, Yawgmoth Praetor — X with no `{X}` mana symbol).
+ */
+internal fun AbilityCost.extractDiscardXCost(): AbilityCost.DiscardX? =
+    when (this) {
+        is AbilityCost.DiscardX -> this
+        is AbilityCost.Composite -> costs.filterIsInstance<AbilityCost.DiscardX>().firstOrNull()
+        else -> null
+    }
+
+/**
  * Pull the [CostAtom.Sacrifice] sub-cost out of an ability cost (top-level [AbilityCost.Atom] or
  * inside a [AbilityCost.Composite]), or null if none. Used by the legal-actions submission path
  * to detect that an activation needs to pause for a sacrifice-target selection when the player
@@ -202,6 +233,14 @@ internal fun AbilityCost.extractPutOnLibraryCost(): CostAtom.PutFromHandOnTopOfL
     is AbilityCost.Atom -> atom as? CostAtom.PutFromHandOnTopOfLibrary
     is AbilityCost.Composite -> costs.firstNotNullOfOrNull {
         (it as? AbilityCost.Atom)?.atom as? CostAtom.PutFromHandOnTopOfLibrary
+    }
+    else -> null
+}
+
+internal fun AbilityCost.extractMillCost(): CostAtom.Mill? = when (this) {
+    is AbilityCost.Atom -> atom as? CostAtom.Mill
+    is AbilityCost.Composite -> costs.firstNotNullOfOrNull {
+        (it as? AbilityCost.Atom)?.atom as? CostAtom.Mill
     }
     else -> null
 }

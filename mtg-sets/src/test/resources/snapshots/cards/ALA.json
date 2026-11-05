@@ -245,6 +245,95 @@
     ]
 }
 
+// Bant Charm
+{
+    "name": "Bant Charm",
+    "manaCost": "{G}{W}{U}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Destroy target artifact.\n• Put target creature on the bottom of its owner's library.\n• Counter target instant spell.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        },
+                        "destination": "Graveyard",
+                        "byDestruction": true
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "artifact"
+                            },
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Destroy target artifact"
+                },
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t1"
+                        },
+                        "destination": "Library",
+                        "placement": "Bottom"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            },
+                            "id": "t1"
+                        }
+                    ],
+                    "description": "Put target creature on the bottom of its owner's library"
+                },
+                {
+                    "effect": "Counter",
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "instant",
+                                "zone": "Stack"
+                            },
+                            "id": "t2"
+                        }
+                    ],
+                    "description": "Counter target instant spell"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "155",
+        "rarity": "UNCOMMON",
+        "artist": "Randy Gallegos",
+        "flavorText": "Bant is a world where death and chaos hold no sway.",
+        "imageUri": "https://cards.scryfall.io/normal/front/6/5/65b65c87-b084-44aa-b841-411a3c73e234.jpg?1783942548",
+        "rulings": [
+            {
+                "date": "2008-10-01",
+                "text": "You can choose a mode only if you can choose legal targets for that mode. If you can't choose legal targets for any of the modes, you can't cast the spell."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN",
+        "BLUE",
+        "WHITE"
+    ]
+}
+
 // Blister Beetle
 {
     "name": "Blister Beetle",
@@ -1584,6 +1673,58 @@
     ]
 }
 
+// Feral Hydra
+{
+    "name": "Feral Hydra",
+    "manaCost": "{X}{G}",
+    "typeLine": "Creature — Hydra Beast",
+    "oracleText": "This creature enters with X +1/+1 counters on it.\n{3}: Put a +1/+1 counter on this creature. Any player may activate this ability.",
+    "creatureStats": {
+        "power": 0,
+        "toughness": 0
+    },
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Feral Hydra:1",
+                "cost": {
+                    "type": "CostAtomWrapper",
+                    "atom": {
+                        "type": "AtomMana",
+                        "cost": "{3}"
+                    }
+                },
+                "effect": {
+                    "type": "AddCounters",
+                    "counterType": "PLUS_ONE_PLUS_ONE",
+                    "count": 1,
+                    "target": "Self"
+                },
+                "restrictions": [
+                    "AnyPlayerMay"
+                ],
+                "descriptionOverride": "{3}: Put a +1/+1 counter on this creature. Any player may activate this ability."
+            }
+        ],
+        "replacementEffects": [
+            {
+                "type": "EntersWithDynamicCounters",
+                "count": "XValue"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "131",
+        "rarity": "RARE",
+        "artist": "Steve Prescott",
+        "flavorText": "It shreds its prey as each head fights for the choicest bits.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/6/46f76986-e9fb-4c51-b946-880b501775b0.jpg?1783942554"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Filigree Sages
 {
     "name": "Filigree Sages",
@@ -1675,6 +1816,114 @@
     },
     "colorIdentityOverride": [
         "BLACK"
+    ]
+}
+
+// Gift of the Gargantuan
+{
+    "name": "Gift of the Gargantuan",
+    "manaCost": "{2}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Look at the top four cards of your library. You may reveal a creature card and/or a land card from among them and put the revealed cards into your hand. Put the rest on the bottom of your library in any order.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "GatherCards",
+                    "source": {
+                        "type": "TopOfLibrary",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 4
+                        }
+                    },
+                    "storeAs": "gathered0"
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "gathered0",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "creature",
+                    "storeSelected": "selected1",
+                    "storeRemainder": "remainder1",
+                    "prompt": "You may reveal a creature card to put into your hand",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Leave",
+                    "showAllCards": true
+                },
+                {
+                    "type": "SelectFromCollection",
+                    "from": "remainder1",
+                    "selection": {
+                        "type": "ChooseUpTo",
+                        "count": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
+                    },
+                    "filter": "land",
+                    "storeSelected": "selected2",
+                    "storeRemainder": "remainder2",
+                    "prompt": "You may reveal a land card to put into your hand",
+                    "selectedLabel": "Put in hand",
+                    "remainderLabel": "Put on bottom",
+                    "showAllCards": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected1",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "selected2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Hand"
+                    },
+                    "revealed": true
+                },
+                {
+                    "type": "MoveCollection",
+                    "from": "remainder2",
+                    "destination": {
+                        "type": "ToZone",
+                        "zone": "Library",
+                        "placement": "Bottom"
+                    },
+                    "order": "ControllerChooses"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "132",
+        "artist": "Jean-Sébastien Rossbach",
+        "imageUri": "https://cards.scryfall.io/normal/front/1/8/1850be87-54de-49b3-a407-6fb2b278b25c.jpg?1783942554",
+        "rulings": [
+            {
+                "date": "2008-10-01",
+                "text": "You may reveal a creature card, or you may reveal a land card, or you may reveal both a creature card and a land card."
+            },
+            {
+                "date": "2008-10-01",
+                "text": "If one of the cards is Dryad Arbor (a creature land card), you may reveal Dryad Arbor and another land card or Dryad Arbor and another creature card."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "GREEN"
     ]
 }
 
@@ -2524,6 +2773,57 @@
     ]
 }
 
+// Magma Spray
+{
+    "name": "Magma Spray",
+    "manaCost": "{R}",
+    "typeLine": "Instant",
+    "oracleText": "Magma Spray deals 2 damage to target creature. If that creature would die this turn, exile it instead.",
+    "script": {
+        "spellEffect": {
+            "type": "Composite",
+            "effects": [
+                {
+                    "type": "DealDamage",
+                    "amount": {
+                        "type": "Fixed",
+                        "amount": 2
+                    },
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                },
+                {
+                    "type": "MarkExileOnDeath",
+                    "target": {
+                        "type": "BoundVariable",
+                        "name": "t0"
+                    }
+                }
+            ]
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "108",
+        "artist": "Jarreau Wimberly",
+        "flavorText": "\"Jund is a wounded world. Beware its searing blood spilling out onto the surface.\"\n—Rakka Mar",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/0/708ec768-f455-48e4-b834-e0a2b3768c45.jpg"
+    },
+    "colorIdentityOverride": [
+        "RED"
+    ]
+}
+
 // Marble Chalice
 {
     "name": "Marble Chalice",
@@ -2852,6 +3152,124 @@
     "colorIdentityOverride": [
         "GREEN",
         "RED",
+        "WHITE"
+    ]
+}
+
+// Naya Charm
+{
+    "name": "Naya Charm",
+    "manaCost": "{R}{G}{W}",
+    "typeLine": "Instant",
+    "oracleText": "Choose one —\n• Naya Charm deals 3 damage to target creature.\n• Return target card from a graveyard to its owner's hand.\n• Tap all creatures target player controls.",
+    "script": {
+        "spellEffect": {
+            "type": "Modal",
+            "modes": [
+                {
+                    "effect": {
+                        "type": "DealDamage",
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 3
+                        },
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t0"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": "creature"
+                            },
+                            "id": "t0"
+                        }
+                    ],
+                    "description": "Naya Charm deals 3 damage to target creature"
+                },
+                {
+                    "effect": {
+                        "type": "MoveToZone",
+                        "target": {
+                            "type": "BoundVariable",
+                            "name": "t1"
+                        },
+                        "destination": "Hand"
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetObject",
+                            "filter": {
+                                "baseFilter": {},
+                                "zone": "Graveyard"
+                            },
+                            "id": "t1"
+                        }
+                    ],
+                    "description": "Return target card from a graveyard to its owner's hand"
+                },
+                {
+                    "effect": {
+                        "type": "ForEach",
+                        "space": {
+                            "type": "IterationSpace.Group",
+                            "filter": {
+                                "baseFilter": {
+                                    "cardPredicates": [
+                                        "IsCreature"
+                                    ],
+                                    "controllerPredicate": {
+                                        "type": "ControlledByReferencedPlayer",
+                                        "target": {
+                                            "type": "BoundVariable",
+                                            "name": "t2"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "body": {
+                            "type": "TapUntap",
+                            "target": "IterationEntity"
+                        }
+                    },
+                    "targetRequirements": [
+                        {
+                            "type": "TargetPlayer",
+                            "id": "t2"
+                        }
+                    ],
+                    "description": "Tap all creatures target player controls"
+                }
+            ]
+        }
+    },
+    "metadata": {
+        "collectorNumber": "180",
+        "rarity": "UNCOMMON",
+        "artist": "Jesper Ejsing",
+        "flavorText": "Deep in nature's core lies a potential unsullied by greed or civilization.",
+        "imageUri": "https://cards.scryfall.io/normal/front/4/7/47748c3a-c60a-4f2e-9eb8-2675c067bb9c.jpg?1783942543",
+        "rulings": [
+            {
+                "date": "2008-10-01",
+                "text": "You can choose a mode only if you can choose legal targets for that mode. If you can't choose legal targets for any of the modes, you can't cast the spell."
+            },
+            {
+                "date": "2008-10-01",
+                "text": "While the spell is on the stack, treat it as though its only text is the chosen mode. The other two modes are treated as though they don't exist. You don't choose targets for those modes."
+            },
+            {
+                "date": "2008-10-01",
+                "text": "If this spell is copied, the copy will have the same mode as the original."
+            }
+        ]
+    },
+    "colorIdentityOverride": [
+        "RED",
+        "GREEN",
         "WHITE"
     ]
 }
@@ -3367,7 +3785,9 @@
                                         "amount": 2
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for up to two creature cards with mana value 1 or less to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -4315,6 +4735,50 @@
     ]
 }
 
+// Soul's Might
+{
+    "name": "Soul's Might",
+    "manaCost": "{4}{G}",
+    "typeLine": "Sorcery",
+    "oracleText": "Put X +1/+1 counters on target creature, where X is that creature's power.",
+    "script": {
+        "spellEffect": {
+            "type": "AddDynamicCounters",
+            "counterType": "PLUS_ONE_PLUS_ONE",
+            "amount": {
+                "type": "EntityProperty",
+                "entity": {
+                    "type": "BoundVariable",
+                    "name": "t0"
+                },
+                "numericProperty": "Power"
+            },
+            "target": {
+                "type": "BoundVariable",
+                "name": "t0"
+            }
+        },
+        "targetRequirements": [
+            {
+                "type": "TargetObject",
+                "filter": {
+                    "baseFilter": "creature"
+                },
+                "id": "t0"
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "149",
+        "artist": "Kev Walker",
+        "flavorText": "An avatar he sculpts of instinct and force.",
+        "imageUri": "https://cards.scryfall.io/normal/front/7/7/77ef536d-d55b-447a-b6ab-04123f1cfaa3.jpg?1783942550"
+    },
+    "colorIdentityOverride": [
+        "GREEN"
+    ]
+}
+
 // Spearbreaker Behemoth
 {
     "name": "Spearbreaker Behemoth",
@@ -4525,6 +4989,163 @@
     },
     "colorIdentityOverride": [
         "WHITE"
+    ]
+}
+
+// Tezzeret the Seeker
+{
+    "name": "Tezzeret the Seeker",
+    "manaCost": "{3}{U}{U}",
+    "typeLine": "Legendary Planeswalker — Tezzeret",
+    "oracleText": "+1: Untap up to two target artifacts.\n−X: Search your library for an artifact card with mana value X or less, put it onto the battlefield, then shuffle.\n−5: Artifacts you control become artifact creatures with base power and toughness 5/5 until end of turn.",
+    "script": {
+        "activatedAbilities": [
+            {
+                "id": "Tezzeret the Seeker:1",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": 1
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": "IterationSpace.Targets",
+                    "body": {
+                        "type": "TapUntap",
+                        "target": {
+                            "type": "ContextTarget",
+                            "index": 0
+                        },
+                        "tap": false
+                    }
+                },
+                "targetRequirements": [
+                    {
+                        "type": "TargetObject",
+                        "count": 2,
+                        "optional": true,
+                        "filter": {
+                            "baseFilter": "artifact"
+                        },
+                        "id": "t0"
+                    }
+                ],
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Tezzeret the Seeker:2",
+                "cost": "CostLoyaltyX",
+                "effect": {
+                    "type": "Composite",
+                    "effects": [
+                        {
+                            "type": "GatherCards",
+                            "source": {
+                                "type": "FromZone",
+                                "zone": "Library",
+                                "filter": {
+                                    "cardPredicates": [
+                                        "IsArtifact",
+                                        {
+                                            "type": "CompareNumericProperty",
+                                            "property": "MANA_VALUE",
+                                            "operator": "LTE",
+                                            "amount": "XValue"
+                                        }
+                                    ]
+                                }
+                            },
+                            "storeAs": "searchable",
+                            "search": true
+                        },
+                        {
+                            "type": "SelectFromCollection",
+                            "from": "searchable",
+                            "selection": {
+                                "type": "ChooseUpTo",
+                                "count": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
+                            },
+                            "storeSelected": "found",
+                            "prompt": "Search your library for an artifact card with mana value at most X to put onto the battlefield",
+                            "selectedLabel": "Put onto the battlefield"
+                        },
+                        {
+                            "type": "MoveCollection",
+                            "from": "found",
+                            "destination": {
+                                "type": "ToZone",
+                                "zone": "Battlefield"
+                            }
+                        },
+                        "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent"
+                    ]
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            },
+            {
+                "id": "Tezzeret the Seeker:3",
+                "cost": {
+                    "type": "CostLoyalty",
+                    "change": -5
+                },
+                "effect": {
+                    "type": "ForEach",
+                    "space": {
+                        "type": "IterationSpace.Group",
+                        "filter": {
+                            "baseFilter": "artifact ctrl:you"
+                        }
+                    },
+                    "body": {
+                        "type": "BecomeCreature",
+                        "target": "IterationEntity",
+                        "power": {
+                            "type": "Fixed",
+                            "amount": 5
+                        },
+                        "toughness": {
+                            "type": "Fixed",
+                            "amount": 5
+                        }
+                    }
+                },
+                "timing": "SorcerySpeed",
+                "isPlaneswalkerAbility": true
+            }
+        ]
+    },
+    "metadata": {
+        "collectorNumber": "60",
+        "rarity": "MYTHIC",
+        "artist": "Anthony Francisco",
+        "imageUri": "https://cards.scryfall.io/normal/front/3/b/3b214b6f-4734-4200-8467-92d7e3469b5d.jpg?1783942571",
+        "rulings": [
+            {
+                "date": "2008-10-01",
+                "text": "The first ability can target zero, one, or two artifacts. You may activate it with no targets just to put a loyalty counter on Tezzeret."
+            },
+            {
+                "date": "2008-10-01",
+                "text": "For the second ability, you choose the value of X when you activate it. You don't look through your library until the ability resolves. You can't choose an X that's greater than the number of loyalty counters on Tezzeret."
+            },
+            {
+                "date": "2008-10-01",
+                "text": "The third ability affects all artifacts you control, including artifacts that are already creatures."
+            },
+            {
+                "date": "2008-10-01",
+                "text": "The third ability causes artifacts you control to become creatures in addition to their other card types."
+            }
+        ]
+    },
+    "startingLoyalty": 4,
+    "colorIdentityOverride": [
+        "BLUE"
     ]
 }
 

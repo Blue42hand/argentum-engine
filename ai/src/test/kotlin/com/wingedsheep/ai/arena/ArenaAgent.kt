@@ -129,12 +129,174 @@ object ArenaAgents {
         // gate, against what players face today.
         ArenaAgent("production-ambush", AiProfile.PRODUCTION_AMBUSH),
         ArenaAgent("production-candidate-ambush", AiProfile.PRODUCTION_CANDIDATE_AMBUSH),
+        // The same flag on the candidate LIVE builds on, where it ships:
+        // `just arena production-candidate-expiring production-candidate-expiring-ambush 300`.
+        ArenaAgent("production-candidate-expiring-ambush", AiProfile.PRODUCTION_CANDIDATE_EXPIRING_AMBUSH),
         // Activated abilities whose payoff expires at cleanup, held for a window that can spend it.
         // `just arena production production-expiring 300` prices the term on its own; `just arena
         // production-candidate-counterpatience production-candidate-expiring 300` is the promotion
         // gate, against what players face today.
         ArenaAgent("production-expiring", AiProfile.PRODUCTION_EXPIRING),
         ArenaAgent("production-candidate-expiring", AiProfile.PRODUCTION_CANDIDATE_EXPIRING),
+        // Castability-aware keep/take/discard ranking (lands in hand, the land drop, colours).
+        // `just arena production production-cardselect 300` prices the term on its own; `just arena
+        // production-candidate-expiring production-candidate-cardselect 300` is the promotion gate.
+        ArenaAgent("production-cardselect", AiProfile.PRODUCTION_CARDSELECT),
+        ArenaAgent("production-candidate-cardselect", AiProfile.PRODUCTION_CANDIDATE_CARDSELECT),
+        // End-of-turn payoffs refused where nothing left this turn can spend them. `just arena
+        // production production-noop 300` prices the term on its own; `just arena
+        // production-candidate-expiring production-candidate-noop 300` is the promotion gate.
+        ArenaAgent("production-noop", AiProfile.PRODUCTION_NOOP),
+        ArenaAgent("production-candidate-noop", AiProfile.PRODUCTION_CANDIDATE_NOOP),
+        // Blocking search may not add a chump block unless the life it saves is needed.
+        // `just arena production production-chumpgate 300` prices the term on its own; `just arena
+        // production-candidate-expiring production-candidate-chumpgate 300` is the promotion gate.
+        ArenaAgent("production-chumpgate", AiProfile.PRODUCTION_CHUMPGATE),
+        ArenaAgent("production-candidate-chumpgate", AiProfile.PRODUCTION_CANDIDATE_CHUMPGATE),
+        // Attack decisions: crack-back priced as life, and tapped fliers keeping their evasion.
+        // `just arena production production-attacks 300` prices the pair on its own; `just arena
+        // production-candidate-expiring production-candidate-attacks 300` is the promotion gate.
+        ArenaAgent("production-attacks", AiProfile.PRODUCTION_ATTACKS),
+        ArenaAgent("production-candidate-attacks", AiProfile.PRODUCTION_CANDIDATE_ATTACKS),
+        // What EngineAiPlayerController plays: production-candidate-expiring plus every fix shipped
+        // since. `just arena production-candidate-expiring live 300` prices the stack.
+        ArenaAgent("live", AiProfile.LIVE),
+        // LIVE without pressing a winning position. `just arena live-without-pressure live 300`
+        // prices the flag on top of everything it ships with.
+        ArenaAgent("live-without-pressure", AiProfile.LIVE_WITHOUT_PRESSURE),
+        // LIVE before the combat-trade fixes: `just arena live-without-trade-fixes live 300` prices
+        // the marked-damage, threshold, block-math and swap fixes together.
+        ArenaAgent("live-without-trade-fixes", AiProfile.LIVE_WITHOUT_TRADE_FIXES),
+        // LIVE pricing creatures by their current body only: `just arena live-without-growth live 300`
+        // prices the recurring +1/+1-counter growth estimate.
+        ArenaAgent("live-without-growth", AiProfile.LIVE_WITHOUT_GROWTH),
+        // LIVE without the opponent's combat responses: `just arena live-without-responses live 300`
+        // prices the opponent-ability model on its own.
+        ArenaAgent("live-without-responses", AiProfile.LIVE.copy(id = "live-without-responses", anticipateCombatResponses = false)),
+        // LIVE aiming pod attacks at the lowest life total again: `just arena-pod ffa4 live-without-threat-defender live 300`
+        ArenaAgent(
+            "live-without-threat-defender",
+            AiProfile.LIVE.copy(id = "live-without-threat-defender", threatAwareDefender = false),
+        ),
+        // LIVE with the crack-back read off creatures only: `just arena live-without-crackback-stress live 300`
+        // prices reading the opponent's visible abilities into the swing back.
+        ArenaAgent(
+            "live-without-crackback-stress",
+            AiProfile.LIVE.copy(id = "live-without-crackback-stress", stressCrackBack = false),
+        ),
+        // LIVE reading a creature stolen until end of turn as ours: `just arena live-without-borrowed-go-home live 300`
+        ArenaAgent(
+            "live-without-borrowed-go-home",
+            AiProfile.LIVE.copy(id = "live-without-borrowed-go-home", borrowedCreaturesGoHome = false),
+        ),
+        // LIVE pricing every land within the next two drops as a whole card, whatever the hand
+        // needs: `just arena live-without-hand-read-lands live 300`
+        ArenaAgent(
+            "live-without-hand-read-lands",
+            AiProfile.LIVE.copy(id = "live-without-hand-read-lands", surplusLandsReadTheHand = false),
+        ),
+        // LIVE keeping any scried / surveiled spell over the keep threshold, land-short or not:
+        // `just arena live-without-look-digs live 300`
+        ArenaAgent(
+            "live-without-look-digs",
+            AiProfile.LIVE.copy(id = "live-without-look-digs", lookDigsForLand = false),
+        ),
+        // LIVE reading each candidate's playouts raw again, without its static leaf as a prior playout:
+        // `just arena live-without-static-prior live 300` prices `RolloutSettings.staticPriorPlayouts`.
+        ArenaAgent(
+            "live-without-static-prior",
+            AiProfile.LIVE.copy(
+                id = "live-without-static-prior",
+                rollouts = AiProfile.LIVE.rollouts?.copy(staticPriorPlayouts = 0.0),
+            ),
+        ),
+        // Selection counts by value: searches take what they may, scry/surveil send away only the
+        // cards not worth drawing. `just arena production production-selectcount 300` prices it
+        // alone; `just arena production-candidate-expiring production-candidate-selectcount 300`
+        // is the promotion gate.
+        ArenaAgent("production-selectcount", AiProfile.PRODUCTION_SELECTCOUNT),
+        ArenaAgent("production-candidate-selectcount", AiProfile.PRODUCTION_CANDIDATE_SELECTCOUNT),
+        // End-of-turn pumps held when nothing this turn can use them: a team pump with no creature
+        // in the fight, an optional payment for a grant on creatures that cannot attack or block.
+        // `just arena production production-unusablepumps 300` prices it alone; `just arena
+        // production-candidate-expiring production-candidate-unusablepumps 300` is the promotion gate.
+        ArenaAgent("production-unusablepumps", AiProfile.PRODUCTION_UNUSABLEPUMPS),
+        // Chump blocks priced by the opponent's clock: a body thrown away now when it costs less
+        // than the bodies the next attack would need. `just arena production
+        // production-clockchump 300` prices it alone.
+        ArenaAgent("production-clockchump", AiProfile.PRODUCTION_CLOCKCHUMP),
+        ArenaAgent("production-candidate-unusablepumps", AiProfile.PRODUCTION_CANDIDATE_UNUSABLEPUMPS),
+        // ...and a grant bought at our beginning of combat counts only on a creature the attack
+        // plan would send. `just arena production-candidate-unusablepumps
+        // production-candidate-plannedpumps 300` is the promotion gate.
+        ArenaAgent("production-plannedpumps", AiProfile.PRODUCTION_PLANNEDPUMPS),
+        ArenaAgent("production-candidate-plannedpumps", AiProfile.PRODUCTION_CANDIDATE_PLANNEDPUMPS),
+        // Choice decisions answered by what they are for: colour/land-type tie-breaks, shortlisted
+        // card names, and a skipped draw priced as a card. `just arena production
+        // production-choices 300` prices it alone; `just arena production-candidate-expiring
+        // production-candidate-choices 300` is the promotion gate.
+        ArenaAgent("production-choices", AiProfile.PRODUCTION_CHOICES),
+        ArenaAgent("production-candidate-choices", AiProfile.PRODUCTION_CANDIDATE_CHOICES),
+        // Targets aimed by the polarity the effect implies, wrong-side-only casts held, and the
+        // unkicked cast kept beside the kicked one. `just arena production production-polarity 300`
+        // prices the term on its own; `just arena production-candidate-expiring
+        // production-candidate-polarity 300` is the promotion gate.
+        ArenaAgent("production-polarity", AiProfile.PRODUCTION_POLARITY),
+        ArenaAgent("production-candidate-polarity", AiProfile.PRODUCTION_CANDIDATE_POLARITY),
+        // Sorcery-speed permanents deployed instead of hoarded against the hand curve. `just arena
+        // production production-deploy 300` prices the term on its own; `just arena
+        // production-candidate-expiring production-candidate-deploy 300` is the gate against the
+        // agent the 2026-10-09 game logs were taken with.
+        ArenaAgent("production-deploy", AiProfile.PRODUCTION_DEPLOY),
+        ArenaAgent("production-candidate-deploy", AiProfile.PRODUCTION_CANDIDATE_DEPLOY),
+        // "Up to N targets" answered with as many targets as improve the result, not always one.
+        // `just arena production production-upto 300` prices it alone; `just arena
+        // production-candidate-expiring production-candidate-upto 300` is the promotion gate.
+        ArenaAgent("production-upto", AiProfile.PRODUCTION_UPTO),
+        ArenaAgent("production-candidate-upto", AiProfile.PRODUCTION_CANDIDATE_UPTO),
+        // A fetch whose library holds nothing it can find is refused, not cracked for nothing.
+        ArenaAgent("production-deadsearch", AiProfile.PRODUCTION_DEADSEARCH),
+        ArenaAgent("production-candidate-deadsearch", AiProfile.PRODUCTION_CANDIDATE_DEADSEARCH),
+        ArenaAgent("production-fuelloyalty", AiProfile.PRODUCTION_FUELLOYALTY),
+        ArenaAgent("production-candidate-fuelloyalty", AiProfile.PRODUCTION_CANDIDATE_FUELLOYALTY),
+        ArenaAgent("production-candidate-landunlock", AiProfile.PRODUCTION_CANDIDATE_LANDUNLOCK),
+        // An activation whose payoff lands on nothing — an empty group, the current host, a
+        // second Equipment move after combat — is refused rather than paid for.
+        ArenaAgent("production-emptypayoff", AiProfile.PRODUCTION_EMPTYPAYOFF),
+        ArenaAgent("production-candidate-emptypayoff", AiProfile.PRODUCTION_CANDIDATE_EMPTYPAYOFF),
+        // Idle mana spent on drawing: a sorcery cantrip in the last main phase, a draw activation
+        // held for the opponent's end step.
+        ArenaAgent("production-idledraw", AiProfile.PRODUCTION_IDLEDRAW),
+        ArenaAgent("production-candidate-idledraw", AiProfile.PRODUCTION_CANDIDATE_IDLEDRAW),
+        // A land in hand priced by the land drop that will play it: a flood is not a full hand, a
+        // modal DFC played as a land costs its spell, and a bounce never strands a land.
+        ArenaAgent("production-surpluslands", AiProfile.PRODUCTION_SURPLUSLANDS),
+        ArenaAgent("production-candidate-surpluslands", AiProfile.PRODUCTION_CANDIDATE_SURPLUSLANDS),
+        ArenaAgent("production-candidate-oneshotmana", AiProfile.PRODUCTION_CANDIDATE_ONESHOTMANA),
+        ArenaAgent("production-candidate-statsread", AiProfile.PRODUCTION_CANDIDATE_STATSREAD),
+        ArenaAgent("production-candidate-synergy", AiProfile.PRODUCTION_CANDIDATE_SYNERGY),
+        // An until-end-of-turn P/T change read only on a creature already in a fight.
+        ArenaAgent("production-expiringstats", AiProfile.PRODUCTION_EXPIRINGSTATS),
+        ArenaAgent("production-candidate-expiringstats", AiProfile.PRODUCTION_CANDIDATE_EXPIRINGSTATS),
+        // Each attacker picks its defender: opposing planeswalkers priced as ongoing engines.
+        ArenaAgent("production-walkerattacks", AiProfile.PRODUCTION_WALKERATTACKS),
+        ArenaAgent("production-candidate-walkerattacks", AiProfile.PRODUCTION_CANDIDATE_WALKERATTACKS),
+        // Our own planeswalkers defended and spent before they die: loyalty priced net of the next
+        // attack, blocks priced by the walker they save.
+        ArenaAgent("production-walkerdefence", AiProfile.PRODUCTION_WALKERDEFENCE),
+        ArenaAgent("production-candidate-walkerdefence", AiProfile.PRODUCTION_CANDIDATE_WALKERDEFENCE),
+        // Minus-only walkers (the empower-Jace token) spent for what they buy, granted abilities included.
+        ArenaAgent("production-candidate-fuelwalkers", AiProfile.PRODUCTION_CANDIDATE_FUELWALKERS),
+        // A spell scored as the best spell it makes cheaper: enablers cast before their payoffs.
+        ArenaAgent("production-enablers", AiProfile.PRODUCTION_ENABLERS),
+        ArenaAgent("production-candidate-enablers", AiProfile.PRODUCTION_CANDIDATE_ENABLERS),
+        // A precombat pump priced by the attack it buys, when it changes who attacks.
+        ArenaAgent("production-planpumps", AiProfile.PRODUCTION_PLANPUMPS),
+        ArenaAgent("production-candidate-planpumps", AiProfile.PRODUCTION_CANDIDATE_PLANPUMPS),
+        // Instant-speed deploys held for the opponent's turn: flash bodies judged by what they do on
+        // arrival, token and walker instants given the same hold.
+        ArenaAgent("production-deployhold", AiProfile.PRODUCTION_DEPLOYHOLD),
+        ArenaAgent("production-candidate-deployhold", AiProfile.PRODUCTION_CANDIDATE_DEPLOYHOLD),
         ArenaAgent("production-targeted", AiProfile.PRODUCTION_TARGETED),
         // Explicit ECL candidates. Their resource-backed weights fail closed to production's
         // evaluator until a validated artifact is installed; automatic selection is set-gated.

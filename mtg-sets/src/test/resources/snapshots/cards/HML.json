@@ -170,7 +170,7 @@
                     "source": {
                         "type": "FromZone",
                         "zone": "Library",
-                        "filter": "instant"
+                        "filter": "instant blue"
                     },
                     "storeAs": "searchable",
                     "search": true
@@ -185,7 +185,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a blue instant card to put into your hand",
+                    "selectedLabel": "Put into your hand"
                 },
                 {
                     "type": "MoveCollection",

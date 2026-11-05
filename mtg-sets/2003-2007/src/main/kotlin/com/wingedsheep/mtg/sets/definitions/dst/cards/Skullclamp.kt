@@ -8,7 +8,7 @@ import com.wingedsheep.sdk.model.Rarity
 import com.wingedsheep.sdk.scripting.ModifyStats
 
 /**
- * Skullclamp — Darksteel #140
+ * Skullclamp — Darksteel #140 (canonical printing)
  * {1} · Artifact — Equipment
  *
  * Equipped creature gets +1/-1.

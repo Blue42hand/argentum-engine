@@ -15,7 +15,8 @@ data class TokenCreationBatch(
     val definitionName: String? = null,
     val prospectiveCard: CardComponent,
     val count: Int,
-    val ridersSource: Effect? = null
+    val ridersSource: Effect? = null,
+    val entryCounters: Map<com.wingedsheep.sdk.core.CounterType, Int> = emptyMap()
 )
 
 /** Replacement bookkeeping belongs to the whole event, including every substituted token. */
@@ -26,7 +27,10 @@ data class TokenCreationBundle(
     val batches: List<TokenCreationBatch>,
     val applied: Set<ReplacementEffectIdentity> = emptySet(),
     val following: List<TokenCreationBundle> = emptyList(),
-    val initialTokenIds: Set<EntityId> = emptySet()
+    val initialTokenIds: Set<EntityId> = emptySet(),
+    val eligibleSources: Set<EntityId>? = null,
+    val entrySourceState: com.wingedsheep.engine.state.GameState? = null,
+    val wouldBeControllerId: EntityId = controllerId
 )
 
 @Serializable
@@ -43,7 +47,8 @@ data class TokenBundleReplacement(
 data class TokenBundleReplacementContinuation(
     val bundle: TokenCreationBundle,
     val options: List<TokenBundleReplacement> = emptyList(),
-    val optional: TokenBundleReplacement? = null
+    val optional: TokenBundleReplacement? = null,
+    val substitution: TokenBundleReplacement? = null
 ) : AnswerContinuation
 
 /** Native token-entry decisions finish before the next part of the same bundle is created. */
@@ -52,7 +57,8 @@ data class TokenBundleMaterializationContinuation(
     val bundle: TokenCreationBundle,
     val nextBatch: Int,
     val ridersSource: Effect? = null,
-    val priorTokenIds: Set<EntityId> = emptySet()
+    val priorTokenIds: Set<EntityId> = emptySet(),
+    val inheritedCounters: Map<com.wingedsheep.sdk.core.CounterType, Int> = emptyMap()
 ) : AutomaticContinuation
 
 

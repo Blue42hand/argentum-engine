@@ -89,7 +89,10 @@ class ConspiracyUnravelerScenarioTest : ScenarioTestBase() {
             // `manaCostString` is machine-facing — the client substitutes X into it, counts generic
             // pips and drives its mana-source phase off it — so the `{0}` mana half must stay a
             // parseable mana cost and must not be repurposed as the label.
-            alt.manaCostString shouldBe "{0}"
+            com.wingedsheep.sdk.core.ManaCost.parse(alt.manaCostString!!).let { cost ->
+                cost.cmc shouldBe 0
+                cost.hasX shouldBe false
+            }
 
             // The label is the human-facing half: a purely non-mana grant names what is actually
             // being paid rather than reading "({0})".

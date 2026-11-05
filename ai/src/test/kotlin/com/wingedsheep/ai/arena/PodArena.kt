@@ -42,6 +42,8 @@ data class PodArenaConfig(
     /** Per-game runaway backstop. See [TableGameRunner.DEFAULT_MAX_ACTIONS]. */
     val maxActions: Int = TableGameRunner.DEFAULT_MAX_ACTIONS,
     val threads: Int = Runtime.getRuntime().availableProcessors(),
+    /** Per-game wall-clock cap, or null for none. Nondeterministic — see [TableGameRunner.play]. */
+    val gameTimeout: Duration? = null,
 ) {
     val gamesPerGroup: Int get() = table.teamCount
     val games: Int get() = groups * gamesPerGroup
@@ -97,10 +99,7 @@ object PodArena {
         onProgress: (completed: Int, total: Int, group: PodGroup) -> Unit = { _, _, _ -> },
     ): PodArenaRun {
         val set = MtgSetCatalog.requireByCode(config.setCode)
-        val registry = CardRegistry().apply {
-            register(set.cards)
-            register(set.basicLands)
-        }
+        val registry = harnessRegistry(set)
 
         val pool = Executors.newFixedThreadPool(config.threads)
         try {
@@ -161,6 +160,7 @@ object PodArena {
                     registry, table, agents, decks,
                     seed = groupSeed, groupId = groupId, rotation = rotation,
                     maxTurns = config.maxTurns, maxActions = config.maxActions,
+                    gameTimeout = config.gameTimeout,
                 ),
             )
         }

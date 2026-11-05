@@ -649,8 +649,8 @@ axis). This is the payoff of keeping them orthogonal.
   beyond one ply (max^n or shallow rollouts — Phase 7), politics/threat-assessment modelling of who
   is likely to attack whom, LLM formatter multi-opponent prompts, gym terminal rewards for placement.
   Enabling AI seats in FFA lobbies is a product decision on top of that, not a blocked one.
-- **Politics mechanics**: monarch, initiative, voting (council's dilemma), tempting offer. Each is an
-  `add-feature` once multiplayer exists; none block the core.
+- **Politics mechanics**: voting (council's dilemma), tempting offer. Each is an `add-feature` once
+  multiplayer exists; none block the core. (The monarch and the initiative have shipped.)
 - **Per-opponent stop configuration** (turn stops per seat).
 - **Range of influence, attack-left/right, Grand Melee, team variants**: permanently out of scope.
 - **Pods > 4**: revisit only with demand; the layout math (3.1) does not stretch past 3 opponent columns.

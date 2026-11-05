@@ -9,19 +9,32 @@ import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.dsl.evolve
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Gyre Sage — Gatecrash #123
+ * {1}{G} · Creature — Elf Druid · 1/2
+ *
+ * Evolve
+ * {T}: Add {G} for each +1/+1 counter on this creature.
+ *
+ * The mana ability reads the +1/+1 counters on the Sage as it resolves; with none it adds nothing.
+ */
 val GyreSage = card("Gyre Sage") {
     manaCost = "{1}{G}"
     colorIdentity = "G"
     typeLine = "Creature — Elf Druid"
-    oracleText = "Evolve (Whenever a creature you control enters, if that creature has greater power or toughness than this creature, put a +1/+1 counter on this creature.)\n{T}: Add {G} for each +1/+1 counter on this creature."
     power = 1
     toughness = 2
+    oracleText = "Evolve (Whenever a creature you control enters, if that creature has greater power or " +
+        "toughness than this creature, put a +1/+1 counter on this creature.)\n" +
+        "{T}: Add {G} for each +1/+1 counter on this creature."
 
     evolve()
+
     activatedAbility {
         cost = Costs.Tap
         manaAbility = true
         effect = Effects.AddMana(Color.GREEN, DynamicAmounts.countersOnSelf(CounterType.PLUS_ONE_PLUS_ONE))
+        description = "{T}: Add {G} for each +1/+1 counter on this creature."
     }
 
     metadata {

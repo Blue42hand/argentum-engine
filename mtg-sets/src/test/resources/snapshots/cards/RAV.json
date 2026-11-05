@@ -110,13 +110,14 @@
                                             "subtype": "Aura"
                                         },
                                         {
-                                            "type": "CouldEnchant",
+                                            "type": "CouldAttachTo",
                                             "reference": "Self"
                                         }
                                     ]
                                 }
                             },
-                            "storeAs": "gathered0"
+                            "storeAs": "gathered0",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -389,7 +390,10 @@
         "triggeredAbilities": [
             {
                 "id": "Belltower Sphinx:1",
-                "trigger": "DamageReceivedEvent",
+                "trigger": {
+                    "type": "DamageReceivedEvent",
+                    "source": {}
+                },
                 "effect": {
                     "type": "Composite",
                     "effects": [
@@ -1358,7 +1362,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 5 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -1764,7 +1770,10 @@
                     "type": "CostAtomWrapper",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 1
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
                     }
                 },
                 "effect": {
@@ -2039,7 +2048,12 @@
                         "filter": {
                             "cardPredicates": [
                                 "IsCreature",
-                                "ManaValueAtMostX"
+                                {
+                                    "type": "CompareNumericProperty",
+                                    "property": "MANA_VALUE",
+                                    "operator": "LTE",
+                                    "amount": "XValue"
+                                }
                             ]
                         }
                     },
@@ -2056,7 +2070,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a creature card with mana value at most X to put onto the battlefield",
+                    "selectedLabel": "Put onto the battlefield"
                 },
                 {
                     "type": "MoveCollection",
@@ -2311,7 +2327,9 @@
                                         "amount": 1
                                     }
                                 },
-                                "storeSelected": "found"
+                                "storeSelected": "found",
+                                "prompt": "Search your library for a basic land card to put into your hand",
+                                "selectedLabel": "Put into your hand"
                             },
                             {
                                 "type": "MoveCollection",
@@ -2616,7 +2634,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 4 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -3154,7 +3174,8 @@
                                 }
                             },
                             "body": {
-                                "type": "GrantProtectionsSharedByGroup",
+                                "type": "GrantKeywordVariantsSharedByGroup",
+                                "keyword": "PROTECTION",
                                 "group": {
                                     "baseFilter": "creature ctrl:you"
                                 },
@@ -3350,7 +3371,9 @@
                             "amount": 3
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for up to three creature cards to put on top of your library",
+                    "selectedLabel": "Put on top of your library"
                 },
                 "ShuffleLibrary",
                 {
@@ -4358,7 +4381,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 4 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4439,7 +4464,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 2 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4572,7 +4599,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 3 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4680,7 +4709,12 @@
                     "baseFilter": {
                         "cardPredicates": [
                             "IsCreature",
-                            "ManaValueEqualsX"
+                            {
+                                "type": "CompareNumericProperty",
+                                "property": "MANA_VALUE",
+                                "operator": "EQ",
+                                "amount": "XValue"
+                            }
                         ]
                     }
                 },
@@ -4841,7 +4875,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 1 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -4919,14 +4955,15 @@
         "replacementEffects": [
             "MultiplyTokenCreation",
             {
-                "type": "DoubleCounterPlacement",
+                "type": "ScaleCounterPlacement",
                 "appliesTo": {
                     "type": "CounterPlacementEvent",
                     "recipient": {
                         "type": "RecipientObject",
                         "filter": "permanent ctrl:you"
                     }
-                }
+                },
+                "effectsOnly": true
             }
         ]
     },
@@ -5153,7 +5190,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 3 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -5672,7 +5711,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 6 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -5890,7 +5931,7 @@
                         "IsAttachedToBySource"
                     ]
                 },
-                "nonManaAbilitiesOnly": true
+                "abilities": "NON_MANA"
             }
         ],
         "auraTarget": {
@@ -5950,7 +5991,9 @@
                             "amount": 1
                         }
                     },
-                    "storeSelected": "found"
+                    "storeSelected": "found",
+                    "prompt": "Search your library for a land Plains or Island or Swamp or Mountain card to put onto the battlefield tapped",
+                    "selectedLabel": "Put onto the battlefield tapped"
                 },
                 {
                     "type": "MoveCollection",
@@ -6933,7 +6976,7 @@
                                         ],
                                         "statePredicates": [
                                             {
-                                                "type": "BlockedOrWasBlockedByEntityThisTurn",
+                                                "type": "BlockPairedWithEntityThisTurn",
                                                 "reference": "TriggeringEntity"
                                             }
                                         ]
@@ -8241,7 +8284,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 9 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -10135,7 +10180,10 @@
         "castRestrictions": [
             {
                 "type": "CastOnlyIfCondition",
-                "condition": "BeforeAttackersDeclaredThisTurn"
+                "condition": {
+                    "type": "BeforeFirstCombatStepThisTurn",
+                    "step": "DECLARE_ATTACKERS"
+                }
             }
         ]
     },
@@ -10764,7 +10812,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 2 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -11040,7 +11090,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 6 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -11713,7 +11765,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a land Plains or Island or Swamp or Mountain or Forest card to put onto the battlefield tapped",
+                            "selectedLabel": "Put onto the battlefield tapped"
                         },
                         {
                             "type": "MoveCollection",
@@ -11809,7 +11863,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 3 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -11987,18 +12043,19 @@
                     }
                 },
                 "effect": {
-                    "type": "Modal",
-                    "modes": [
+                    "type": "ChooseAction",
+                    "choices": [
                         {
+                            "label": "Put a plague counter on this artifact",
                             "effect": {
                                 "type": "AddCounters",
                                 "counterType": "PLAGUE",
                                 "count": 1,
                                 "target": "Self"
-                            },
-                            "description": "Put a plague counter on this artifact"
+                            }
                         },
                         {
+                            "label": "Remove a plague counter from this artifact",
                             "effect": {
                                 "type": "RemoveCounters",
                                 "counterType": "PLAGUE",
@@ -12007,8 +12064,7 @@
                                     "amount": 1
                                 },
                                 "target": "Self"
-                            },
-                            "description": "Remove a plague counter from this artifact"
+                            }
                         }
                     ]
                 },
@@ -12790,6 +12846,9 @@
                     "baseFilter": {
                         "cardPredicates": [
                             "IsActivatedAbility"
+                        ],
+                        "statePredicates": [
+                            "HasSingleTarget"
                         ]
                     },
                     "zone": "Stack"
@@ -14323,7 +14382,9 @@
                                     "amount": 1
                                 }
                             },
-                            "storeSelected": "found"
+                            "storeSelected": "found",
+                            "prompt": "Search your library for a card with mana value 2 to put into your hand",
+                            "selectedLabel": "Put into your hand"
                         },
                         {
                             "type": "MoveCollection",
@@ -15169,7 +15230,8 @@
                                 "zone": "Library",
                                 "filter": "instant red|white mv<=4"
                             },
-                            "storeAs": "gathered0"
+                            "storeAs": "gathered0",
+                            "search": true
                         },
                         {
                             "type": "SelectFromCollection",
@@ -15185,6 +15247,7 @@
                             "prompt": "Search for a red or white instant card with mana value 4 or less to cast without paying its mana cost"
                         },
                         "ShuffleLibrary",
+                        "EmitLibrarySearchedEvent",
                         {
                             "type": "CastFromCollectionWithoutPayingCost",
                             "from": "selected1"
@@ -17206,7 +17269,11 @@
                 },
                 "destination": "Battlefield",
                 "fromZone": "Graveyard",
-                "addCounterType": "PLUS_ONE_PLUS_ONE"
+                "entryCounters": [
+                    {
+                        "counterType": "PLUS_ONE_PLUS_ONE"
+                    }
+                ]
             },
             "otherwise": {
                 "type": "MoveToZone",

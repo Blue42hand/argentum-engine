@@ -5,6 +5,7 @@ import com.wingedsheep.sdk.scripting.CostReductionSource
 import com.wingedsheep.sdk.scripting.KeywordAbility
 import com.wingedsheep.sdk.scripting.costs.PayCost
 import com.wingedsheep.sdk.scripting.effects.Effect
+import com.wingedsheep.sdk.scripting.effects.EntersWithCharacteristics
 import com.wingedsheep.sdk.scripting.effects.FaceDownMode
 import kotlinx.serialization.Serializable
 
@@ -119,6 +120,45 @@ data object HasDisguiseAbilityComponent : Component
  * disguise and cloak list among the face-down permanent's characteristics
  * ([FaceDownMode.faceDownWard], CR 702.168a / 701.58a). Present only while the permanent is face
  * down — turning it face up ends the characteristic-defining effect and drops the marker.
+ *
+ * [characteristics] is what the effect that put the permanent onto the battlefield face down
+ * specified instead of the plain 2/2 (CR 708.2a: "unless otherwise specified by the effect") —
+ * Tezzeret, Cruel Machinist's "They're 5/5 artifact creatures". Added types/subtypes/colors join
+ * the face-down creature's, and power/toughness replace the 2/2. Like the 2/2 itself these are the
+ * permanent's copiable values, and they end with the rest of the marker when it is turned face up.
  */
 @Serializable
-data class FaceDownModeComponent(val mode: FaceDownMode) : Component
+data class FaceDownModeComponent(
+    val mode: FaceDownMode,
+    val characteristics: EntersWithCharacteristics? = null,
+) : Component
+
+/**
+ * A face-down permanent that turns face up *instead of* becoming tapped, assigning or dealing
+ * damage, or being dealt damage — Illusionary Mask's "If the creature that spell becomes as it
+ * resolves has not been turned face up and would assign or deal damage, be dealt damage, or become
+ * tapped, instead it's turned face up and assigns or deals damage, is dealt damage, or becomes
+ * tapped."
+ *
+ * The rider belongs to the permanent, not to its source: per the card's rulings it keeps applying
+ * after the source has left the battlefield, and it ends the first time the permanent is turned
+ * face up by any means ("has not been turned face up"), so every turn-up path drops it. Leaving the
+ * battlefield drops it too (CR 400.7). [com.wingedsheep.engine.mechanics.FaceUpInstead] owns the
+ * replacement and its three read sites — the tap atom, the non-combat damage pipeline and the
+ * combat-damage step.
+ *
+ * The face-up static-ability components are baked when the rider is stamped, because the tap atom
+ * that applies the replacement has no card registry. A face-down permanent's card never changes
+ * underneath it, so they are exactly what turning face up would compute (CR 708.8).
+ *
+ * @property faceUpStatics the [com.wingedsheep.engine.mechanics.layers.ContinuousEffectSourceComponent]
+ *   the permanent gets once face up, or null when its card has no continuous statics.
+ * @property faceUpReplacements the
+ *   [com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent] it gets
+ *   once face up, or null when its card has no replacement effects.
+ */
+@Serializable
+data class TurnsFaceUpInsteadComponent(
+    val faceUpStatics: com.wingedsheep.engine.mechanics.layers.ContinuousEffectSourceComponent? = null,
+    val faceUpReplacements: com.wingedsheep.engine.state.components.battlefield.ReplacementEffectSourceComponent? = null,
+) : Component

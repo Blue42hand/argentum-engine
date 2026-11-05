@@ -12,6 +12,7 @@ data class ManaActionPaymentContinuation(
     val action: GameAction,
     val cost: ManaCost,
     val lockedCastCost: ManaCost? = null,
+    val lockedAdditionalCosts: List<com.wingedsheep.sdk.scripting.AdditionalCost>? = null,
     val lockedAbilityCost: AbilityCost? = null,
     val lockedAbilityX: Int? = null,
     val excludedSources: Set<com.wingedsheep.sdk.model.EntityId> = emptySet(),
@@ -29,4 +30,8 @@ data class LockedCastPayment(
     val dedicatedAlternativeCostType: AlternativeCostType?,
     val emerge: KeywordAbility.Emerge? = null,
     val availableSources: List<ManaSourceOption>,
+    /** Mana still owed after the announced convoke, delve, waterbend and improvise payments. */
+    val manaCost: ManaCost? = null,
+    val waterbendAmount: Int = 0,
+    val tapForGenericCost: ManaCost? = null,
 )

@@ -3,6 +3,9 @@ package com.wingedsheep.mtg.sets.definitions.j22.cards
 import com.wingedsheep.sdk.model.Printing
 import com.wingedsheep.sdk.model.Rarity
 
+/**
+ * Mortuary Mire reprint in J22. Canonical CardDefinition lives in its earliest set.
+ */
 val MortuaryMireReprint = Printing(
     oracleId = "1b3fb20a-e090-4286-9c03-6b71c27c45be",
     name = "Mortuary Mire",

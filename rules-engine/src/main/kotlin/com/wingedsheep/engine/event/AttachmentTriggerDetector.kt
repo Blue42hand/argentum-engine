@@ -3,7 +3,9 @@ package com.wingedsheep.engine.event
 import com.wingedsheep.engine.core.AbilityActivatedEvent
 import com.wingedsheep.engine.core.AttackersDeclaredEvent
 import com.wingedsheep.engine.core.BecomesTargetEvent
+import com.wingedsheep.engine.core.BlockingRelationshipsEvent
 import com.wingedsheep.engine.core.DamageDealtEvent
+import com.wingedsheep.engine.core.LandTappedForManaEvent
 import com.wingedsheep.engine.core.TappedEvent
 import com.wingedsheep.engine.core.TransformedEvent
 import com.wingedsheep.engine.core.TurnFaceUpEvent
@@ -212,8 +214,12 @@ class AttachmentTriggerDetector(
                 }
             }
             is AttackersDeclaredEvent -> event.attackers
+            // "Whenever enchanted creature blocks" — the creatures that just became blockers.
+            is BlockingRelationshipsEvent -> event.newBlockers.toList()
             is TurnFaceUpEvent -> listOf(event.entityId)
             is TappedEvent -> listOf(event.entityId)
+            // "Whenever enchanted / fortified land is tapped for mana" (C.A.M.P.).
+            is LandTappedForManaEvent -> listOf(event.landId)
             is UntappedEvent -> listOf(event.entityId)
             // "When equipped creature transforms" (Neglected Heirloom). A transform flips the
             // permanent in place, so the Equipment is still attached when the event fires.
@@ -225,7 +231,7 @@ class AttachmentTriggerDetector(
             // targeted object is the aura's host; the targeting source is checked by the matcher.
             is BecomesTargetEvent -> listOf(event.targetEntityId)
             is ZoneChangeEvent -> {
-                if (event.fromZone == Zone.BATTLEFIELD) listOf(event.entityId) else emptyList()
+                if (event.isBattlefieldDeparture) listOf(event.entityId) else emptyList()
             }
             else -> emptyList()
         }
@@ -268,17 +274,30 @@ class AttachmentTriggerDetector(
                     // which the ATTACHED path must not skip.
                     trigger.requires.all { matcher.matchesAttackPredicate(it, event, attachedEntityId, state) }
             }
+            // "Whenever enchanted creature blocks" (Imprison). Unfiltered only — the DSL rejects an
+            // attacker filter or a blocked-attacker count off the SELF binding — so the host
+            // being among this declaration's new blockers is the whole match.
+            is EventPattern.BlockEvent -> {
+                event is BlockingRelationshipsEvent && attachedEntityId in event.newBlockers
+            }
             is EventPattern.TapEvent -> {
                 if (event !is TappedEvent || event.entityId != attachedEntityId) return false
-                // A named tap cause ("… becomes tapped to pay a teamwork cost") narrows the
-                // ATTACHED path too; null asks for no particular cause.
-                val reason = trigger.reason
-                if (reason != null && event.reason != reason) return false
+                // A named or excluded tap cause narrows the ATTACHED path too.
+                if (!trigger.matchesCause(event.reason)) return false
                 // "Whenever you tap …" attribution applies on the ATTACHED path too; relative to
                 // the aura/equipment's controller, as everywhere else here.
                 val tapper = trigger.tapper ?: return true
                 val tappedById = event.tappedById ?: return false
                 matcher.matchesPlayer(state, tapper, tappedById, auraControllerId)
+            }
+            // "Whenever fortified land is tapped for mana" (C.A.M.P.) — identity with the host, then
+            // the tapper axis relative to the attachment's controller (Each for the passive voice)
+            // and the pattern's optional land filter, as on the main path.
+            is EventPattern.LandTappedForMana -> {
+                if (event !is LandTappedForManaEvent || event.landId != attachedEntityId) return false
+                if (!matcher.matchesPlayer(state, trigger.player, event.tapperId, auraControllerId)) return false
+                val filter = trigger.landFilter ?: return true
+                matcher.matchesLandFilter(state, filter, event.landId, auraId, auraControllerId)
             }
             // "Whenever equipped creature becomes untapped" (Fishing Pole). UntapEvent carries no
             // filter, so identity with the attached permanent is the whole match.
@@ -289,13 +308,8 @@ class AttachmentTriggerDetector(
                 if (event !is AbilityActivatedEvent) return false
                 if (event.sourceId != attachedEntityId) return false
                 if (!matcher.matchesPlayer(state, trigger.player, event.controllerId, auraControllerId)) return false
-                // Mirror the main matcher's two wordings (see TriggerMatcher.AbilityActivatedEvent):
-                // "without {T} in its activation cost" vs. "isn't a mana ability".
-                when {
-                    trigger.requireExhaust -> event.isExhaust
-                    trigger.requireNoTapInCost -> !event.costsTap
-                    else -> !event.isManaAbility
-                }
+                // The same activation-kind axes as the main matcher ({T}-in-cost, mana gate, …).
+                matcher.matchesActivationKind(trigger, event)
             }
             is EventPattern.TurnFaceUpEvent -> {
                 event is TurnFaceUpEvent && event.entityId == attachedEntityId
@@ -305,7 +319,7 @@ class AttachmentTriggerDetector(
             // other axis (spellsOnly, sourceFilter, byYou, targetFilter) against the aura's own
             // controller — reusing it rather than restating it keeps the two paths from drifting.
             is EventPattern.BecomesTargetEvent -> {
-                event is BecomesTargetEvent && event.targetEntityId == attachedEntityId &&
+                !trigger.batch && event is BecomesTargetEvent && event.targetEntityId == attachedEntityId &&
                     matcher.matchesBecomesTargetTrigger(
                         trigger, TriggerBinding.ANY, event, auraId, auraControllerId, state
                     )
@@ -337,7 +351,21 @@ class AttachmentTriggerDetector(
     ): TriggerContext {
         return when (event) {
             is DamageDealtEvent -> TriggerContext.fromEvent(event)
+            // The attached creature's last-known information (types, P/T, counters) — "whenever
+            // equipped creature dies" effects compare against it as it last existed (CR 608.2h).
+            is ZoneChangeEvent -> TriggerContext.fromEvent(event)
+            // The tapper and the colors of the mana the land produced (C.A.M.P.).
+            is LandTappedForManaEvent -> TriggerContext.fromEvent(event)
+            // The activated ability on the stack, so "counter that ability" reaches it (Imprison);
+            // a mana ability never uses the stack, so it falls back to the permanent.
+            is AbilityActivatedEvent -> TriggerContext.fromEvent(event)
             else -> TriggerContext(triggeringEntityId = attachedEntityId)
         }
     }
+}
+
+private fun EventPattern.hasZoneChangeAtom(): Boolean = when (this) {
+    is EventPattern.ZoneChangeEvent -> true
+    is EventPattern.AnyOf -> events.any { it.hasZoneChangeAtom() }
+    else -> false
 }

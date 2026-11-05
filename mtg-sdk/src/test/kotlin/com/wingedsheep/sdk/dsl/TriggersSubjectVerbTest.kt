@@ -73,6 +73,9 @@ class TriggersSubjectVerbTest : DescribeSpec({
         it("isAttacked picks the you / opponent event") {
             Triggers.you.isAttacked().event shouldBe EventPattern.CreaturesAttackYouEvent(minAttackers = 1)
             Triggers.anOpponent.isAttacked().event shouldBe EventPattern.CreaturesAttackYourOpponentEvent(minAttackers = 1)
+            Triggers.player(Player.EnchantedPlayer).isAttacked().event shouldBe
+                EventPattern.CreaturesAttackYouEvent(attackedPlayer = Player.EnchantedPlayer)
+            shouldThrow<IllegalArgumentException> { Triggers.player(Player.EnchantedPlayer).isAttacked(unblocked = true) }
         }
     }
 
@@ -93,11 +96,18 @@ class TriggersSubjectVerbTest : DescribeSpec({
             shouldThrow<IllegalArgumentException> { Triggers.self.changesZone(to = Zone.BATTLEFIELD) }
         }
 
-        it("becomesBlocked(by) filters the blocker, and only under self") {
+        it("becomesBlocked(by) filters the blocker under self and attached") {
             Triggers.self.becomesBlocked(by = GameObjectFilter.Creature) shouldBe TriggerSpec(
                 EventPattern.BecomesBlockedEvent(filter = GameObjectFilter.Creature),
                 TriggerBinding.SELF,
             )
+            Triggers.attached.becomesBlocked(by = GameObjectFilter.Creature) shouldBe TriggerSpec(
+                EventPattern.BecomesBlockedEvent(filter = GameObjectFilter.Creature),
+                TriggerBinding.ATTACHED,
+            )
+            shouldThrow<IllegalArgumentException> {
+                Triggers.attached.matching(GameObjectFilter.Creature).becomesBlocked()
+            }
             Triggers.self.becomesBlocked().event shouldBe EventPattern.BecomesBlockedEvent(filter = null)
             shouldThrow<IllegalArgumentException> {
                 Triggers.a(GameObjectFilter.Creature).becomesBlocked(by = GameObjectFilter.Creature)

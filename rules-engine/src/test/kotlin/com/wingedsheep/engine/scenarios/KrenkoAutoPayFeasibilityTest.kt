@@ -73,7 +73,8 @@ class KrenkoAutoPayFeasibilityTest : FunSpec({
 
         val window = game.pendingDecision.shouldBeInstanceOf<SelectManaSourcesDecision>()
         window.requiredCost shouldBe "{2}{R}{R}"
-        window.availableSources.map { it.entityId } shouldBe listOf(mountain)
+        window.availableSources.map { it.entityId }.toSet() shouldBe setOf(mountain, treasure)
+        window.availableSources.single { it.entityId == treasure }.requiresSacrifice shouldBe true
         window.autoPaySuggestion shouldBe emptyList()
         window.canAutoPayNow shouldBe false
 

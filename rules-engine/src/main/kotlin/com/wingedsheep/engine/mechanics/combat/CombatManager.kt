@@ -2,8 +2,11 @@ package com.wingedsheep.engine.mechanics.combat
 
 import com.wingedsheep.engine.core.*
 import com.wingedsheep.engine.handlers.effects.ZoneTransitionService
+import com.wingedsheep.engine.mechanics.layers.ProjectedState
 import com.wingedsheep.engine.registry.CardRegistry
+import com.wingedsheep.engine.state.ComponentContainer
 import com.wingedsheep.engine.state.GameState
+import com.wingedsheep.engine.state.components.identity.PutIntoGraveyardThisTurnComponent
 import com.wingedsheep.engine.state.components.combat.*
 import com.wingedsheep.engine.state.components.player.ManaPoolComponent
 import com.wingedsheep.sdk.model.EntityId
@@ -61,6 +64,16 @@ class CombatManager(
     fun isRestrictedFromAllDefenders(state: GameState, attackerId: EntityId, attackingPlayer: EntityId): Boolean =
         attackPhase.isRestrictedFromAllDefenders(state, attackerId, attackingPlayer)
 
+    fun legalDefendersFor(
+        state: GameState,
+        attackerId: EntityId,
+        attackingPlayer: EntityId,
+        candidates: List<EntityId>,
+    ): List<EntityId> = attackPhase.legalDefendersFor(state, attackerId, attackingPlayer, candidates)
+
+    fun boundAttackDefenders(state: GameState, attackingPlayer: EntityId): Map<EntityId, Set<EntityId>> =
+        attackPhase.boundAttackDefenders(state, attackingPlayer)
+
     // =========================================================================
     // Declare Blockers
     // =========================================================================
@@ -104,6 +117,10 @@ class CombatManager(
     fun applyCombatDamage(state: GameState, firstStrike: Boolean = false): ExecutionResult =
         damagePhase.applyCombatDamage(state, firstStrike)
 
+    /** Fix the first-strike combat damage step's assigners as the step begins (CR 510.4). */
+    fun stampFirstStrikeStepAssigners(state: GameState): GameState =
+        damagePhase.stampFirstStrikeStepAssigners(state)
+
     /**
      * Drop the damage assignments chosen in the first-strike combat damage step, so the regular
      * one assigns from scratch.
@@ -146,7 +163,41 @@ class CombatManager(
     // End Combat
     // =========================================================================
 
-    fun endCombat(state: GameState): ExecutionResult {
+    /**
+     * "Attacks during its controller's next combat phase if able" ends with that combat phase
+     * ([MustAttackNextCombatComponent]): drop it from creatures whose controller's turn this is,
+     * or — for one marked after this combat's attackers were declared — arm it for the next one.
+     * [projected] is read for control only, so the pre-cleanup projection serves.
+     */
+    private fun endNextCombatAttackRequirements(state: GameState, projected: ProjectedState): GameState {
+        var newState = state
+        for ((entityId, container) in state.entities) {
+            val mark = container.get<MustAttackNextCombatComponent>() ?: continue
+            val controller = projected.getController(entityId) ?: continue
+            if (!state.isActiveTurnFor(controller)) continue
+            newState = newState.updateEntity(entityId) {
+                if (mark.waitsOutCurrentCombat) it.with(MustAttackNextCombatComponent(waitsOutCurrentCombat = false))
+                else it.without<MustAttackNextCombatComponent>()
+            }
+        }
+        return newState
+    }
+
+    /**
+     * A card put into a graveyard during this combat phase stops being "put there this combat"
+     * once the phase ends (Storrev, Devkarin Lich); it stays "put there this turn".
+     */
+    private fun ComponentContainer.endingCombatGraveyardArrival(): ComponentContainer {
+        val stamp = get<PutIntoGraveyardThisTurnComponent>() ?: return this
+        return if (stamp.duringCombat) with(stamp.copy(duringCombat = false)) else this
+    }
+
+    /**
+     * [combatPhaseRan] is false when the turn skipped every step of this combat phase (Fatespinner):
+     * nothing is in combat, but no combat phase happened either, so "its controller's next combat
+     * phase" is still to come.
+     */
+    fun endCombat(state: GameState, combatPhaseRan: Boolean = true): ExecutionResult {
         var newState = if (state.entities.isEmpty()) state else state.copy(
             entities = state.entities.mapValues { (_, container) ->
                 container
@@ -158,14 +209,21 @@ class CombatManager(
                     .without<DamageAssignmentComponent>()
                     .without<DamageAssignmentOrderComponent>()
                     .without<AttackerOrderComponent>()
-                    .without<DealtFirstStrikeDamageComponent>()
+                    .without<FirstStrikeStepAssignerComponent>()
                     .without<RequiresManualDamageAssignmentComponent>()
                     .without<AttackersDeclaredThisCombatComponent>()
                     .without<BlockersDeclaredThisCombatComponent>()
+                    .without<com.wingedsheep.engine.state.components.combat.TeamBlockerChoicesComponent>()
+                    .without<com.wingedsheep.engine.state.components.player.BlockerCountLimitThisCombatComponent>()
                     .without<AttackedThisCombatComponent>()
                     .without<BlockedThisCombatComponent>()
+                    .endingCombatGraveyardArrival()
             }
         )
+
+        if (newState.enlistmentsThisCombat.isNotEmpty()) newState = newState.copy(enlistmentsThisCombat = emptyList())
+
+        if (combatPhaseRan) newState = endNextCombatAttackRequirements(newState, state.projectedState)
 
         // Expire "until end of combat" effects (CR 511.2: they expire at the end of the combat
         // phase, which per CR 511.3 is once the end of combat step has ended — i.e. here, the same
@@ -196,7 +254,7 @@ class CombatManager(
                 newState = newState.updateEntity(playerId) { container ->
                     val convertTo = conversions[playerId]
                     if (convertTo != null) {
-                        container.with(pool.convertExpired(ManaExpiry.END_OF_COMBAT, convertTo))
+                        container.with(pool.convertExpired(ManaExpiry.END_OF_COMBAT, convertTo.color))
                     } else {
                         container.with(pool.clearExpired(ManaExpiry.END_OF_COMBAT))
                     }

@@ -65,7 +65,7 @@ class AiResponseParser {
      * Parse a response that should contain multiple selections (e.g., "1, 3, 5" or "A, C, E").
      * Returns a list of 0-based indices.
      */
-    fun parseMultipleSelections(response: String, maxIndex: Int): List<Int>? {
+    fun parseMultipleSelections(response: String, maxIndex: Int, allowRepeated: Boolean = false): List<Int>? {
         val cleaned = response.trim().uppercase()
 
         // Try comma-separated letters: "A, C, E"
@@ -74,7 +74,7 @@ class AiResponseParser {
         if (letters.isNotEmpty()) {
             val indices = letters.mapNotNull { GameStateFormatter.letterToIndex(it.value) }
                 .filter { it <= maxIndex }
-                .distinct()
+                .let { if (allowRepeated) it else it.distinct() }
             if (indices.isNotEmpty()) return indices
         }
 
@@ -84,7 +84,7 @@ class AiResponseParser {
         if (numbers.isNotEmpty()) {
             val indices = numbers.mapNotNull { it.value.toIntOrNull()?.minus(1) }
                 .filter { it in 0..maxIndex }
-                .distinct()
+                .let { if (allowRepeated) it else it.distinct() }
             if (indices.isNotEmpty()) return indices
         }
 

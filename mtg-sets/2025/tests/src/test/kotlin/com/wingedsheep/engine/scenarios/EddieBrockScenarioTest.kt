@@ -4,7 +4,6 @@ import com.wingedsheep.engine.core.ActivateAbility
 import com.wingedsheep.engine.core.ChooseTargetsDecision
 import com.wingedsheep.engine.core.SelectCardsDecision
 import com.wingedsheep.engine.core.SelectManaSourcesDecision
-import com.wingedsheep.engine.core.YesNoDecision
 import com.wingedsheep.engine.state.components.identity.CardComponent
 import com.wingedsheep.engine.support.ScenarioTestBase
 import com.wingedsheep.mtg.sets.definitions.spm.cards.EddieBrock
@@ -111,19 +110,12 @@ class EddieBrockScenarioTest : ScenarioTestBase() {
                 game.declareAttackers(mapOf("Venom, Lethal Protector" to 2)).error shouldBe null
                 game.resolveStack()
 
-                // "you may sacrifice another creature" — yes.
-                withClue("attack offers the optional sacrifice") {
-                    (game.getPendingDecision() is YesNoDecision) shouldBe true
-                }
-                game.answerYesNo(true)
-
-                // The sacrifice is a resolution-time choice; Grizzly Bears is the only other creature.
+                // The sacrifice doesn't target: resolving asks which creature to sacrifice, if any.
                 val grizzly = game.findPermanent("Grizzly Bears")!!
                 withClue("choosing the creature to sacrifice") {
-                    (game.getPendingDecision() is ChooseTargetsDecision) shouldBe true
+                    (game.getPendingDecision() is SelectCardsDecision) shouldBe true
                 }
-                game.selectTargets(listOf(grizzly))
-                if (game.getPendingDecision() == null) game.resolveStack()
+                game.selectCards(listOf(grizzly)).error shouldBe null
 
                 // "draw X cards, then you may put a permanent card with mana value X or less ...".
                 withClue("a put-permanent-from-hand prompt is offered") {

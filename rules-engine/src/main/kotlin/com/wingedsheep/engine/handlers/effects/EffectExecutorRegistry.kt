@@ -60,7 +60,8 @@ class EffectExecutorRegistry(
     costPaymentService: () -> com.wingedsheep.engine.mechanics.cost.CostPaymentService,
     private val targetFinder: TargetFinder,
     private val targetValidator: TargetValidator,
-    legalActionEnumerator: () -> com.wingedsheep.engine.legalactions.LegalActionEnumerator
+    legalActionEnumerator: () -> com.wingedsheep.engine.legalactions.LegalActionEnumerator,
+    activateAbilityHandler: () -> com.wingedsheep.engine.handlers.actions.ability.ActivateAbilityHandler,
 ) {
     private val predicateEvaluator = zones.predicateEvaluator
     private val executors = mutableMapOf<KClass<out Effect>, EffectExecutor<*>>()
@@ -72,19 +73,19 @@ class EffectExecutorRegistry(
         registerModule(LifeExecutors(zones, amountEvaluator, cardRegistry, replacementProcessor, ::recurse))
         registerModule(DamageExecutors(zones, amountEvaluator, decisionHandler))
         registerModule(PermanentExecutors(::recurse, zones, decisionHandler, amountEvaluator, cardRegistry))
-        registerModule(ManaExecutors(amountEvaluator, cardRegistry))
-        registerModule(TokenExecutors(zones, amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry, tokenArtRegistry, targetFinder = targetFinder, executeEffect = ::recurse))
+        registerModule(ManaExecutors(amountEvaluator, cardRegistry, legalActionEnumerator, activateAbilityHandler))
+        registerModule(TokenExecutors(zones, ::recurse, amountEvaluator, StaticAbilityHandler(cardRegistry), cardRegistry, tokenArtRegistry, targetFinder = targetFinder))
         registerModule(
             LibraryExecutors(::recurse, zones, cardRegistry, castSpellHandler, playLandHandler, targetFinder, legalActionEnumerator)
         )
         registerModule(StackExecutors(zones, amountEvaluator, cardRegistry, spellCounterer, targetFinder = targetFinder))
-        registerModule(InformationExecutors())
+        registerModule(InformationExecutors(cardRegistry))
         registerModule(CombatExecutors(amountEvaluator, cardRegistry))
         registerModule(ZonesExecutors(::recurse, zones, cardRegistry, targetFinder = targetFinder))
         registerModule(LinkedExileExecutors(zones))
         registerModule(RegenerationExecutors())
         registerModule(BendExecutors())
-        registerModule(CompositeExecutors(::recurse, cardRegistry, targetFinder, decisionHandler, amountEvaluator = amountEvaluator, targetValidator = targetValidator))
+        registerModule(CompositeExecutors(::recurse, zones, cardRegistry, targetFinder, decisionHandler, amountEvaluator = amountEvaluator, targetValidator = targetValidator, plainExecutor = ::execute))
         registerModule(
             DrawingExecutors(
                 ::recurse,
@@ -97,7 +98,7 @@ class EffectExecutorRegistry(
             )
         )
         registerModule(PlayerExecutors(::recurse, zones, decisionHandler, cardRegistry, costPaymentService))
-        registerModule(ChainExecutors(::recurse, targetFinder = targetFinder, predicateEvaluator = predicateEvaluator))
+        registerModule(ChainExecutors(::recurse, targetFinder = targetFinder, predicateEvaluator = predicateEvaluator, manaSolver = com.wingedsheep.engine.mechanics.mana.ManaSolver(cardRegistry, predicateEvaluator = predicateEvaluator)))
     }
 
     /**
@@ -158,10 +159,17 @@ class EffectExecutorRegistry(
                     "Register one in the matching *Executors module " +
                     "(EffectExecutorCoverageTest guards this at build time)."
             )
-        val instructionContext = context.withCurrentObjectReferences(state)
+        // A leaf runs labelled with its own step, so a program it starts or queues names it
+        // (a composite keeps the caller's label as its program's origin). One copy for both.
+        val instructionContext = context.withCurrentObjectReferences(state,
+            com.wingedsheep.engine.handlers.effects.composite.EffectProgramInterpreter.originFor(effect, context))
         val executed = com.wingedsheep.engine.handlers.effects.token.TokenBundleReplacements(
             cardRegistry, amountEvaluator, targetFinder, ::execute
         ).intercept(state, effect, instructionContext) ?: executor.execute(state, effect, instructionContext)
+        // An entrant this put onto the battlefield owes its controller an entry-copy order
+        // (CR 616.1): ask, then replay this instruction with the answer.
+        com.wingedsheep.engine.handlers.effects.copy.GrantedEntryCopy.askIfUnasked(
+            state, executed.state) { com.wingedsheep.engine.core.EffectReplay(effect, context) }?.let { return EffectResult.from(it) }
         val result = if (effect is com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect ||
             effect is com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect) {
             executed.copy(updatedCollections = EffectDiscardDestinations.propagateUnknown(
@@ -169,15 +177,23 @@ class EffectExecutorRegistry(
                 when (effect) {
                     is com.wingedsheep.sdk.scripting.effects.SelectFromCollectionEffect -> effect.from
                     is com.wingedsheep.sdk.scripting.effects.FilterCollectionEffect -> effect.from
-                    else -> null
                 }))
         } else executed
         val references = instructionContext.objectReferences.authorize(result.events)
         val finished = result.copy(state = com.wingedsheep.engine.handlers.continuations.propagateObjectReferences(result.state, references))
         val recorded = finished.copy(state = com.wingedsheep.engine.core.ControlHistory.record(finished.state, finished.events))
-        val completed = runReplacementRiders(recorded, context)
+        val completed = runReplacementRiders(recorded, context).let { done ->
+            // An instruction is one event for "the next time …" replacement grants: one it spent
+            // has done its job once the instruction is over (see ActiveReplacements.purgeSpent).
+            if (done.outcome is Outcome.Done && done.state.continuationStack.none { it is com.wingedsheep.engine.core.TokenBundleMaterializationContinuation ||
+                    it is com.wingedsheep.engine.core.GenericTokenMaterializationContinuation ||
+                    it is com.wingedsheep.engine.core.PredefinedTokenMaterializationContinuation ||
+                    it is com.wingedsheep.engine.core.CreateTokenCopyRemainingContinuation })
+                done.copy(state = com.wingedsheep.engine.replacement.ActiveReplacements.purgeSpent(done.state))
+            else done
+        }
         return if (context.deferGraveyardOrdering) completed
-            else com.wingedsheep.engine.mechanics.GraveyardOrdering.finish(completed)
+            else com.wingedsheep.engine.mechanics.GraveyardOrdering.finish(completed, context.sourceId)
     }
 
     /**

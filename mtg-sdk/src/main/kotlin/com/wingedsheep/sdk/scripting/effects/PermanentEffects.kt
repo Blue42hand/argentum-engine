@@ -67,6 +67,9 @@ data class AnimateLandEffect(
  * @property creatureTypes Creature subtypes to *set*, replacing all existing subtypes (e.g.,
  *   "Dragon"; "Fractal" loses all other creature types — Layer 4 set effect)
  * @property removeTypes Types to remove (e.g., "PLANESWALKER")
+ * @property removeSubtypes Subtypes to remove, keeping every other subtype — "it isn't an
+ *   Equipment" when an Equipment animates itself (Dancing Sword). Card types go in [removeTypes];
+ *   replacing *all* creature subtypes is [creatureTypes].
  * @property colors Colors to set, replacing all existing colors (null = keep existing). An explicit
  *   set loses all other colors (e.g. green+blue for a Fractal).
  * @property imageUri Optional *display-only* card-image override shown for the animated permanent
@@ -105,7 +108,8 @@ data class BecomeCreatureEffect(
      */
     val dynamicPower: DynamicAmount? = null,
     /** Optional dynamic base toughness — see [dynamicPower]. */
-    val dynamicToughness: DynamicAmount? = null
+    val dynamicToughness: DynamicAmount? = null,
+    val removeSubtypes: Set<String> = emptySet()
 ) : Effect {
     override val description: String = buildString {
         val ptText = if (dynamicPower != null && dynamicToughness != null) "*/*"
@@ -281,6 +285,23 @@ data class BecomeSaddledEffect(
 }
 
 /**
+ * Target Vehicle becomes crewed (CR 702.122e) — the bookkeeping half of a crew ability's
+ * resolution, composed after its "becomes an artifact creature until end of turn". Changes no
+ * characteristic: it records the resolution and emits the engine's `BecameCrewedEvent`, which
+ * "whenever this Vehicle becomes crewed [for the first time each turn]" triggers match. The crew
+ * handler composes it; cards don't author it.
+ *
+ * @property target The Vehicle whose crew ability resolved
+ */
+@SerialName("BecomeCrewed")
+@Serializable
+data class BecomeCrewedEffect(
+    val target: EffectTarget = EffectTarget.Self
+) : Effect {
+    override val description: String = "${target.description} becomes crewed"
+}
+
+/**
  * Target permanent becomes solved (CR 719.3b) — the resolving effect of a Case's "To solve"
  * triggered ability. Stamps the engine's `SolvedComponent`, which the Case's "Solved —" abilities
  * read back through `Conditions.SourceIsSolved` / `StatePredicate.IsSolved`.
@@ -354,7 +375,7 @@ data class BecomeMonstrousEffect(
  * "You may activate loyalty abilities of [target] [times] times this turn rather than only once"
  * — a one-shot, per-planeswalker relaxation of the once-per-turn loyalty rule (CR 606.3) for the
  * rest of the turn (Kaito, Dancing Shadow). The per-permanent sibling of the controller-wide
- * static [com.wingedsheep.sdk.scripting.ExtraLoyaltyActivation] (Oath of Teferi).
+ * static [com.wingedsheep.sdk.scripting.LoyaltyActivationPermission] (Oath of Teferi).
  *
  * Not additive: resolving it twice, or alongside Oath of Teferi, still allows [times]
  * activations — the allowance is the largest one granted, not a sum. Activations already made
@@ -517,6 +538,41 @@ data class AttachToChosenHostEffect(
 }
 
 /**
+ * "This Aura loses its enchant ability and gains 'enchant [filter] put onto the battlefield with
+ * this Aura.' … attach this Aura to it." — the reanimation-Aura idiom (Animate Dead, Dance of the
+ * Dead, Necromancy) whose printed enchant ability ("Enchant creature card in a graveyard") stops
+ * being satisfiable the moment the card it enchants is put onto the battlefield.
+ *
+ * The source Aura's enchant restriction is **replaced** for as long as it stays on the battlefield:
+ * from now on it may only enchant the objects in the pipeline collection [from] (the objects this
+ * Aura's ability put onto the battlefield) that still match [filter], each identified as the object
+ * it is *now* — one that later leaves and returns is a new object it can't enchant (CR 400.7). The
+ * Aura is then attached to the first such object it can legally enchant (CR 701.3a; protection from
+ * the Aura's color stops it). Nothing to attach to leaves the Aura where it is — still enchanting
+ * the card it enchanted, which its new enchant ability no longer allows, so the CR 704.5m
+ * state-based action puts it into its owner's graveyard. The replacement is set either way, which is
+ * exactly the Animate Dead ruling: an Aura that can't be attached to the returned creature goes to
+ * the graveyard.
+ *
+ * Compose after the move that returns the card: `gather(FromZone(GRAVEYARD, Each,
+ * Creature.attachedToBySource()))` → `move(…, ToZone(BATTLEFIELD, You))` → this effect.
+ *
+ * @property from The pipeline collection holding the objects put onto the battlefield with this Aura.
+ * @property filter What the Aura's new enchant ability requires of them ("enchant **creature** put
+ *   onto the battlefield with this Aura").
+ */
+@SerialName("EnchantPutOntoBattlefield")
+@Serializable
+data class EnchantPutOntoBattlefieldEffect(
+    val from: String,
+    val filter: GameObjectFilter = GameObjectFilter.Creature
+) : Effect {
+    override val description: String =
+        "this Aura loses its enchant ability and gains \"enchant ${filter.description.lowercase()} put onto the " +
+            "battlefield with this Aura,\" then attach it to that ${filter.description.lowercase()}"
+}
+
+/**
  * Unattach an Aura/Equipment from its host without moving it to another zone (CR 701.3d). Removes
  * the [target] attachment's `AttachedToComponent` and drops it from the host's attachment list; a
  * no-op if [target] isn't currently attached to anything. The inverse of [AttachEquipmentEffect] /
@@ -535,29 +591,36 @@ data class UnattachEquipmentEffect(
 }
 
 /**
- * Put a targeted Aura or Equipment card onto the battlefield **attached to a permanent the
- * effect's controller chooses** at resolution. The card is the [target] (e.g. a targeted
+ * Put a targeted Aura or Equipment card onto the battlefield **attached to a permanent chosen
+ * at resolution** — by the effect's controller unless [chooser] names someone else. The card is the [target] (e.g. a targeted
  * Aura/Equipment in a graveyard); the host is chosen as the effect resolves and is therefore
  * NOT a target — only the host filter constrains it ([hostFilter], default "a creature you
  * control"). Models "Return target Aura or Equipment card from your graveyard to the
  * battlefield attached to a creature you control" (One Last Job, Brass Squire-shaped attaches).
  *
- * Unlike the [com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect] aura auto-attach
- * (Rule 303.4f), which is Aura-only and uses the Aura's own enchant target, this effect
- * works for both Auras and Equipment and lets the card restrict the host. Per the One Last
+ * Unlike the [com.wingedsheep.sdk.scripting.effects.MoveCollectionEffect] aura host choice
+ * (Rule 303.4f), which moves a whole pipeline collection at once and is Aura-only (its
+ * `auraHostFilter` narrows each Aura's host — Storm Herald), this effect moves one targeted
+ * card and works for both Auras and Equipment. Per the One Last
  * Job ruling, the Aura/Equipment must be legally attachable to the chosen host:
  *  - If a legal host exists, the controller chooses one and the card enters attached to it.
  *  - If no legal host exists, an Equipment enters the battlefield unattached, while an Aura
  *    can't enter (it stays in its current zone — Rule 303.4g).
  *
  * @property target The Aura or Equipment card to put onto the battlefield (e.g. a graveyard target).
- * @property hostFilter Which permanents are eligible hosts (default: a creature you control).
+ * @property hostFilter Which permanents are eligible hosts (default: a creature you control),
+ *   read with "you" as the effect's controller.
+ * @property chooser Who picks the host. The card still enters under the effect controller's
+ *   control whoever picks — Takklemaggot: "that creature's controller chooses a creature …
+ *   return this card to the battlefield under your control attached to that creature"
+ *   ([Chooser.ControllerOfTriggeringEntity]).
  */
 @SerialName("PutOntoBattlefieldAttachedToChosen")
 @Serializable
 data class PutOntoBattlefieldAttachedToChosenEffect(
     val target: EffectTarget = EffectTarget.ContextTarget(0),
-    val hostFilter: GameObjectFilter = GameObjectFilter.Creature.youControl()
+    val hostFilter: GameObjectFilter = GameObjectFilter.Creature.youControl(),
+    val chooser: Chooser = Chooser.Controller,
 ) : Effect {
     override val description: String =
         "Put ${target.description} onto the battlefield attached to ${hostFilter.description}"
@@ -626,6 +689,32 @@ data class RecordChosenLinkedExileEffect(
     val from: String,
 ) : Effect {
     override val description: String = "Note the chosen card"
+}
+
+/**
+ * Records the cards in the pipeline collection [from] in [permanent]'s linked-exile pile
+ * (its `LinkedExileComponent`), so that permanent's own abilities can later name them as "the
+ * cards exiled with it" — `CardSource.FromLinkedExile` from a leaves-the-battlefield trigger.
+ * Only cards still in exile are linked; nothing moves.
+ *
+ * Every other linker (`MoveCollection(linkToSource = true)`, `ExileUntilLeaves`, an exile cost
+ * with `linkToSource`) files the cards under the *resolving ability's* source. This one is for
+ * a pile that belongs to another object: Mechtitan Core exiles itself and four other permanents
+ * as a cost, and the Mechtitan token it creates returns those four when *it* leaves —
+ * `PipelineTarget(CREATED_TOKENS)` as [permanent], `CardSource.ExiledAsCost` as [from].
+ *
+ * No-op when [permanent] isn't on the battlefield (the token was never created).
+ *
+ * @property from Name of the pipeline collection holding the exiled cards.
+ * @property permanent The permanent whose linked-exile pile the cards join.
+ */
+@SerialName("LinkCollectionToPermanent")
+@Serializable
+data class LinkCollectionToPermanentEffect(
+    val from: String,
+    val permanent: EffectTarget,
+) : Effect {
+    override val description: String = "Those cards are exiled with ${permanent.description}"
 }
 
 // =============================================================================

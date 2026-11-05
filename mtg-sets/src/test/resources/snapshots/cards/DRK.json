@@ -466,7 +466,11 @@
             "protectedTargets": [],
             "redirectTo": "Controller",
             "scope": "CONTINUOUS",
-            "creaturesOnly": true,
+            "protectedFilter": {
+                "cardPredicates": [
+                    "IsCreature"
+                ]
+            },
             "optional": true
         }
     },
@@ -627,7 +631,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 2
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 2
+                                }
                             }
                         }
                     ]
@@ -942,7 +949,10 @@
                     "type": "PayAtom",
                     "atom": {
                         "type": "AtomPayLife",
-                        "amount": 1
+                        "amount": {
+                            "type": "Fixed",
+                            "amount": 1
+                        }
                     }
                 },
                 "consequenceIfNonePaid": {
@@ -1054,7 +1064,14 @@
                             "type": "Fixed",
                             "amount": 2
                         },
-                        "target": "Controller"
+                        "target": {
+                            "type": "PlayerRef",
+                            "player": "TriggeringPlayer"
+                        }
+                    },
+                    "player": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
                     }
                 },
                 "descriptionOverride": "At the beginning of the upkeep of enchanted artifact's controller, this Aura deals 2 damage to that player unless they sacrifice that artifact."
@@ -1285,7 +1302,10 @@
                     "ability": {
                         "type": "ReplaceLandManaColor",
                         "filter": "land ctrl:you",
-                        "color": "BLUE"
+                        "produces": {
+                            "type": "com.wingedsheep.sdk.core.ManaSymbol.Colored",
+                            "color": "BLUE"
+                        }
                     },
                     "target": "Self"
                 },
@@ -1663,7 +1683,10 @@
                                 "type": "PayAtom",
                                 "atom": {
                                     "type": "AtomPayLife",
-                                    "amount": 1
+                                    "amount": {
+                                        "type": "Fixed",
+                                        "amount": 1
+                                    }
                                 }
                             }
                         ]
@@ -1673,6 +1696,10 @@
                         "target": "EnchantedPermanent",
                         "destination": "Graveyard",
                         "byDestruction": true
+                    },
+                    "player": {
+                        "type": "PlayerRef",
+                        "player": "TriggeringPlayer"
                     }
                 },
                 "descriptionOverride": "At the beginning of the upkeep of enchanted land's controller, destroy that land unless that player pays {1} or 1 life."
@@ -1885,7 +1912,11 @@
                     "then": {
                         "type": "Composite",
                         "effects": [
-                            "SkipNextDrawStep",
+                            {
+                                "type": "SkipStepOrPhaseEffect",
+                                "part": "DRAW_STEP",
+                                "duration": "NEXT"
+                            },
                             {
                                 "type": "GainLife",
                                 "amount": {
@@ -2929,7 +2960,7 @@
                     "type": "Exists",
                     "player": "You",
                     "zone": "Battlefield",
-                    "filter": "creature Dwarf"
+                    "filter": "permanent Dwarf"
                 },
                 "effect": {
                     "type": "SacrificeTarget",
@@ -4807,7 +4838,11 @@
                     {
                         "type": "TargetObject",
                         "filter": {
-                            "baseFilter": {},
+                            "baseFilter": {
+                                "statePredicates": [
+                                    "HasSingleTarget"
+                                ]
+                            },
                             "zone": "Stack"
                         },
                         "id": "t0"
@@ -5425,7 +5460,10 @@
                         "type": "PayAtom",
                         "atom": {
                             "type": "AtomPayLife",
-                            "amount": 2
+                            "amount": {
+                                "type": "Fixed",
+                                "amount": 2
+                            }
                         }
                     },
                     "suffer": "SacrificeSelf"
@@ -5777,7 +5815,10 @@
                             "type": "CostAtomWrapper",
                             "atom": {
                                 "type": "AtomPayLife",
-                                "amount": 1
+                                "amount": {
+                                    "type": "Fixed",
+                                    "amount": 1
+                                }
                             }
                         }
                     ]
@@ -6394,7 +6435,10 @@
                                     "type": "PayAtom",
                                     "atom": {
                                         "type": "AtomPayLife",
-                                        "amount": 1
+                                        "amount": {
+                                            "type": "Fixed",
+                                            "amount": 1
+                                        }
                                     }
                                 },
                                 "suffer": {
@@ -6798,12 +6842,12 @@
         "targetRequirements": [
             {
                 "type": "TargetObject",
-                "optional": true,
                 "filter": {
                     "baseFilter": "creature"
                 },
                 "id": "t0",
-                "dynamicMaxCount": "XValue"
+                "dynamicMaxCount": "XValue",
+                "dynamicMinCount": "XValue"
             }
         ]
     },

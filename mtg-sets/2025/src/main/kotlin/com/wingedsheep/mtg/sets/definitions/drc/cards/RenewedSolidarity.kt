@@ -1,31 +1,58 @@
 package com.wingedsheep.mtg.sets.definitions.drc.cards
 
-import com.wingedsheep.sdk.core.*
-import com.wingedsheep.sdk.dsl.*
+import com.wingedsheep.sdk.core.Step
+import com.wingedsheep.sdk.dsl.Effects
+import com.wingedsheep.sdk.dsl.Triggers
+import com.wingedsheep.sdk.dsl.card
 import com.wingedsheep.sdk.model.Rarity
-import com.wingedsheep.sdk.scripting.*
-import com.wingedsheep.sdk.scripting.effects.*
-import com.wingedsheep.sdk.scripting.events.Recipient
-import com.wingedsheep.sdk.scripting.filters.unified.*
-import com.wingedsheep.sdk.scripting.references.Player
-import com.wingedsheep.sdk.scripting.targets.*
+import com.wingedsheep.sdk.scripting.ChoiceType
+import com.wingedsheep.sdk.scripting.EntersWithChoice
+import com.wingedsheep.sdk.scripting.GameObjectFilter
+import com.wingedsheep.sdk.scripting.ModifyStats
+import com.wingedsheep.sdk.scripting.filters.unified.GroupFilter
+import com.wingedsheep.sdk.scripting.targets.EffectTarget
 
+/**
+ * Renewed Solidarity — Aetherdrift Commander #7 (canonical printing)
+ * {2}{W} · Enchantment
+ *
+ * As this enchantment enters, choose a creature type.
+ * Creatures you control of the chosen type get +1/+0.
+ * At the beginning of your end step, for each token you control of the chosen type that entered
+ * this turn, create a token that's a copy of it.
+ *
+ * The end-step group is snapshotted before any copy is made, so the new copies (which also
+ * entered this turn) are never copied again by the same resolution.
+ */
 val RenewedSolidarity = card("Renewed Solidarity") {
     manaCost = "{2}{W}"
     colorIdentity = "W"
     typeLine = "Enchantment"
-    oracleText = "As this enchantment enters, choose a creature type.\nCreatures you control of the chosen type get +1/+0.\nAt the beginning of your end step, for each token you control of the chosen type that entered this turn, create a token that's a copy of it."
+    oracleText = "As this enchantment enters, choose a creature type.\n" +
+        "Creatures you control of the chosen type get +1/+0.\n" +
+        "At the beginning of your end step, for each token you control of the chosen type that " +
+        "entered this turn, create a token that's a copy of it."
 
     replacementEffect(EntersWithChoice(ChoiceType.CREATURE_TYPE))
+
     staticAbility {
-        ability = ModifyStats(1, 0, filter = GroupFilter(GameObjectFilter.Creature.youControl(), chosenSubtypeKey = "chosenCreatureType"))
+        ability = ModifyStats(
+            powerBonus = 1,
+            toughnessBonus = 0,
+            filter = GroupFilter.ChosenSubtypeCreatures().youControl()
+        )
     }
+
     triggeredAbility {
         trigger = Triggers.you.beginningOf(Step.END)
         effect = Effects.ForEachInGroup(
-            GroupFilter(GameObjectFilter.Token.youControl().withChosenSubtype().enteredThisTurn()),
-            Effects.CreateTokenCopyOfTarget(EffectTarget.IterationEntity)
+            filter = GroupFilter(
+                GameObjectFilter.Permanent.token().youControl().withChosenSubtype().enteredThisTurn()
+            ),
+            effect = Effects.CreateTokenCopyOfTarget(EffectTarget.IterationEntity)
         )
+        description = "At the beginning of your end step, for each token you control of the chosen type " +
+            "that entered this turn, create a token that's a copy of it."
     }
 
     metadata {

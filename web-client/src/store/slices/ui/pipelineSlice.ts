@@ -1,3 +1,6 @@
+import { getWebSocket } from '../shared'
+import { ErrorCode } from '@/types'
+import type { CastCostQuoteMessage } from '@/types/messages'
 /**
  * Pipeline coordinator slice — manages the multi-phase action submission flow.
  *
@@ -8,7 +11,7 @@
  */
 import type { SliceCreator, ActionPipelineState, PhaseResult } from '../types'
 import type { ActivateAbilityAction, CastSpellAction, EntityId, GameAction, LegalActionInfo } from '@/types'
-import { computePhases, mergeResult, enterPhase } from './pipelinePhases'
+import { computePhases, mergeResult, enterPhase, dropSacrificeXPickerAtZero } from './pipelinePhases'
 import type { PipelineStoreMethods } from './pipelinePhases'
 import {
   parseManaCost as parseManaCostUtil,
@@ -28,6 +31,8 @@ export interface PipelineSliceActions {
     options?: { forceManualTap?: boolean },
   ) => void
   advancePipeline: (result: PhaseResult) => void
+  requestCastCostQuote: (rebuildPaymentPhases: 'optionalCostCount' | 'additionalManaForCounters' | false) => void
+  receiveCastCostQuote: (quote: CastCostQuoteMessage) => void
   cancelPipeline: () => void
 }
 
@@ -65,30 +70,9 @@ export function isActionStillOffered(
   return legalActions.some((info) => actionSourceKey(info.action) === key)
 }
 
-/**
- * Price a chosen repeat count for the manual mana picker without building one symbol per generic
- * mana. A pathological non-generic price cannot be shown by the picker safely, so the caller
- * lets the server solve that payment instead. This limit is on UI representation, not cast count.
- */
-export function optionalManaCostForCount(
-  onePaymentCost: string,
-  perPaymentCost: string,
-  count: number,
-): string | null {
-  if (!Number.isSafeInteger(count) || count < 1) return null
-  const extra = count - 1
-  const symbols = parseManaCostUtil(perPaymentCost)
-  const generic = symbols.filter((symbol) => /^\d+$/.test(symbol))
-    .reduce((sum, symbol) => sum + BigInt(symbol), 0n)
-  const other = symbols.filter((symbol) => !/^\d+$/.test(symbol))
-    .map((symbol) => `{${symbol}}`).join('')
-  // The manual picker needs each colored/hybrid/colorless symbol individually. Bound only that
-  // display string; no repeat count is forbidden by this presentation constraint.
-  if (other.length > 0 && extra > Math.floor(65536 / other.length)) return null
-  const repeatedGeneric = generic * BigInt(extra)
-  const extraCost = repeatedGeneric > 0n ? `{${repeatedGeneric}}` : ''
-  return onePaymentCost + extraCost + other.repeat(extra)
-}
+/** Payment phases consume a quote of the actual announcement, never a scaled first price. */
+const COST_SENSITIVE_PHASES = new Set(['delve', 'convoke', 'tapForGeneric', 'harmonize', 'manaSource'])
+let quoteSerial = 0
 
 function actionSourceKey(action: GameAction): string {
   const source =
@@ -146,6 +130,9 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
     set({
       pipelineState: {
         interactionEpoch,
+        autoTapEnabled,
+        requiresNativeCostQuote: actionInfo.maxOptionalCostTimes != null &&
+          !!actionInfo.optionalManaCostString && !(actionInfo.modalEnumeration && actionInfo.modalEnumeration.chooseCount > 1),
         actionInfo,
         accumulatedAction,
         remainingPhases: phases,
@@ -166,7 +153,7 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
 
   advancePipeline: (result) => {
     const { pipelineState, gameState, submitAction } = get()
-    if (!pipelineState || !gameState) return
+    if (!pipelineState || !gameState || pipelineState.pendingCostQuote) return
 
     let { actionInfo } = pipelineState
     const { accumulatedAction, remainingPhases, interactionEpoch } = pipelineState
@@ -175,23 +162,9 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
     // Merge result into accumulated action
     let mergedAction = mergeResult(accumulatedAction, actionInfo, result, gameState)
 
-    // The compact optional-cost offer is priced at one payment. Once the count is chosen,
-    // carry the full mana cost into the existing manual-payment phase. The engine still owns
-    // final cost calculation and validation; this only keeps the displayed source pick honest.
-    let optionalCostNeedsServerPayment = false
-    if (result.type === 'optionalCostCount' &&
-        mergedAction.type === 'CastSpell' && actionInfo.optionalManaCostString) {
-      const fullCost = optionalManaCostForCount(
-        actionInfo.manaCostString ?? '', actionInfo.optionalManaCostString,
-        mergedAction.declaredCostTimes ?? 1,
-      )
-      if (fullCost == null) {
-        optionalCostNeedsServerPayment = true
-        mergedAction = { ...mergedAction, paymentStrategy: { type: 'AutoPay' } }
-      } else {
-        const { autoTapPreview: _preview, ...actionInfoWithoutPreview } = actionInfo
-        actionInfo = { ...actionInfoWithoutPreview, manaCostString: fullCost, action: mergedAction }
-      }
+    if (result.type === 'castCostQuote') {
+      const { autoTapPreview: _preview, ...withoutPreview } = actionInfo
+      actionInfo = { ...withoutPreview, manaCostString: result.quote.manaCostString!, action: mergedAction }
     }
 
     // If delve modified the mana cost, update actionInfo for subsequent phases.
@@ -298,8 +271,20 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
 
     // Pop current phase
     let nextPhases = remainingPhases.slice(1)
-    if (optionalCostNeedsServerPayment) {
-      nextPhases = nextPhases.filter((phase) => phase.type !== 'manaSource')
+    if (result.type === 'castCostQuote' && result.rebuildPaymentPhases) {
+      const rebuilt = computePhases(actionInfo, { autoTapEnabled: pipelineState.autoTapEnabled ?? true })
+      const countIndex = rebuilt.findIndex((phase) => phase.type === result.rebuildPaymentPhases)
+      nextPhases = rebuilt.slice(countIndex + 1)
+      if (mergedAction.type === 'CastSpell') {
+        nextPhases = dropSacrificeXPickerAtZero(nextPhases, actionInfo, mergedAction.xValue ?? 0)
+      }
+      if (result.quote.delveGenericCap === 0) nextPhases = nextPhases.filter((phase) => phase.type !== 'delve')
+    }
+    if (pipelineState.requiresNativeCostQuote && (result.type === 'optionalCostCount' || result.type === 'additionalManaForCounters')) {
+      nextPhases = [{ type: 'castCostQuote', rebuildPaymentPhases: result.type }, ...nextPhases]
+    } else if (pipelineState.requiresNativeCostQuote && result.type !== 'castCostQuote' &&
+               nextPhases[0] && COST_SENSITIVE_PHASES.has(nextPhases[0].type)) {
+      nextPhases = [{ type: 'castCostQuote', rebuildPaymentPhases: false }, ...nextPhases]
     }
 
     // Dynamic phase injection: when BlightVariable is paid with X > 0, we need
@@ -308,6 +293,10 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
     // reuses the existing `Blight`/`BlightVariable` targeting flow.
     if (result.type === 'blightVariable' && result.blightAmount > 0) {
       nextPhases = [{ type: 'costPayment' }, ...nextPhases]
+    }
+
+    if (result.type === 'xSelection') {
+      nextPhases = dropSacrificeXPickerAtZero(nextPhases, actionInfo, result.xValue)
     }
 
     // Dynamic phase injection: a non-mana escalate cost (CR 702.120a) is owed once per mode
@@ -321,25 +310,42 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
       nextPhases = [{ type: 'escalateCost' }, ...nextPhases]
     }
 
-    // Dynamic phase injection: damage distribution after targeting with >1 targets
+    // Dynamic phase injection: damage distribution after targeting with >1 targets. A division
+    // scoped to one target requirement (Magma Opus) is among that requirement's targets only.
+    const dividedTargets =
+      result.type === 'targeting'
+        ? targetsOfGroup(result.selectedTargets, result.targetGroupCounts, actionInfo.distributionTargetGroup)
+        : []
+    // A total that reads the announced X — a spell's mana-paid {X} (Shatterskull Smashing) or an
+    // activation's X cost (Huatli, Warrior Poet's −X) — is priced by the server per X; look up the
+    // X the xSelection phase already put on the action.
+    const chosenX =
+      mergedAction.type === 'CastSpell' || mergedAction.type === 'ActivateAbility' ? mergedAction.xValue : undefined
+    const totalToDivide = actionInfo.totalDamageByX
+      ? actionInfo.totalDamageByX[chosenX ?? 0]
+      : actionInfo.totalDamageToDistribute
     if (
       result.type === 'targeting' &&
       actionInfo.requiresDamageDistribution &&
-      actionInfo.totalDamageToDistribute &&
-      result.selectedTargets.length > 1
+      totalToDivide &&
+      dividedTargets.length > 1
     ) {
-      // Spells read "Cast <name>", activated abilities "Activate <name>: …" — strip either verb so
-      // the modal header names the source (Chandra, Flameshaper's −4 divides damage the same way
+      // The modal header names the source. An activated ability's description is its rules text
+      // (Huatli, Warrior Poet's −X), so name the permanent it is activated from; a spell reads
+      // "Cast <name>", so strip the verb (Chandra, Flameshaper's −4 divides damage the same way
       // Arc Lightning does).
-      const cardName = actionInfo.description.replace(/^(Cast|Activate) /, '')
+      const sourceName =
+        mergedAction.type === 'ActivateAbility' ? gameState.cards[mergedAction.sourceId]?.name : undefined
+      const cardName = sourceName ?? actionInfo.description.replace(/^(Cast|Activate) /, '')
       const minPerTarget = actionInfo.minDamagePerTarget ?? 1
       const initialDistribution: Record<string, number> = {}
-      for (const targetId of result.selectedTargets) {
+      for (const targetId of dividedTargets) {
         initialDistribution[targetId] = minPerTarget
       }
 
       set({
         pipelineState: {
+          ...pipelineState,
           interactionEpoch,
           actionInfo,
           accumulatedAction: mergedAction,
@@ -351,9 +357,10 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
         actionInfo,
         action: mergedAction as CastSpellAction | ActivateAbilityAction,
         cardName,
-        targetIds: [...result.selectedTargets],
-        totalDamage: actionInfo.totalDamageToDistribute,
+        targetIds: [...dividedTargets],
+        totalDamage: totalToDivide,
         minPerTarget,
+        ...(actionInfo.distributionUnit ? { unit: actionInfo.distributionUnit } : {}),
         distribution: initialDistribution,
       })
       return
@@ -369,6 +376,8 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
     // Update pipeline state and enter next phase
     set({
       pipelineState: {
+        ...pipelineState,
+        ...(result.type === 'castCostQuote' ? { costQuote: result.quote, manaCostQuoted: nextPhases[0]?.type === 'manaSource' } : {}),
         interactionEpoch,
         actionInfo,
         accumulatedAction: mergedAction,
@@ -378,6 +387,58 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
 
     const nextPhase = nextPhases[0]!
     enterPhase(nextPhase, actionInfo, mergedAction, getStoreMethods(get), gameState)
+    if (result.type === 'castCostQuote') {
+      if (nextPhase.type === 'delve' && get().delveSelectionState && result.quote.delveGenericCap != null) {
+        set({ delveSelectionState: { ...get().delveSelectionState!, maxDelve: Math.min(result.quote.delveGenericCap, get().delveSelectionState!.validCards.length) } })
+      }
+      if (nextPhase.type === 'tapForGeneric' && get().tapForGenericSelectionState && result.quote.tapForGenericMax != null) {
+        set({ tapForGenericSelectionState: { ...get().tapForGenericSelectionState!, maxTaps: result.quote.tapForGenericMax,
+          manaCost: result.quote.tapForGenericCostString ?? actionInfo.manaCostString ?? '' } })
+      }
+    }
+  },
+
+  requestCastCostQuote: (rebuildPaymentPhases) => {
+    const state = get()
+    const pipeline = state.pipelineState
+    const ws = getWebSocket()
+    if (!pipeline || pipeline.accumulatedAction.type !== 'CastSpell' || pipeline.pendingCostQuote) return
+    if (!ws || state.stateVersion == null || pipeline.interactionEpoch !== state.interactionEpoch) {
+      set(CLEARED_PIPELINE_SELECTIONS)
+      state.setError({ code: ErrorCode.INTERNAL_ERROR, message: 'Unable to refresh the spell cost. Please choose the spell again.', timestamp: Date.now() })
+      return
+    }
+    const requestId = `cast-cost-${++quoteSerial}`
+    const pendingCostQuote = { requestId, stateVersion: state.stateVersion, rebuildPaymentPhases }
+    set({ pipelineState: { ...pipeline, pendingCostQuote } })
+    ws.send({ type: 'requestCastCostQuote', requestId, stateVersion: state.stateVersion,
+      interactionEpoch: pipeline.interactionEpoch, action: pipeline.accumulatedAction })
+    // Never leave manual input locked if a reply is lost. A canceled/replaced request is inert.
+    setTimeout(() => {
+      if (get().pipelineState?.pendingCostQuote?.requestId !== requestId) return
+      set(CLEARED_PIPELINE_SELECTIONS)
+      get().setError({ code: ErrorCode.INTERNAL_ERROR, message: 'The spell cost could not be refreshed. Please choose the spell again.', timestamp: Date.now() })
+    }, 15000)
+  },
+
+  receiveCastCostQuote: (quote) => {
+    const state = get()
+    const pipeline = state.pipelineState
+    const pending = pipeline?.pendingCostQuote
+    if (!pipeline || !pending || quote.requestId !== pending.requestId) return
+    if (quote.interactionEpoch !== pipeline.interactionEpoch || quote.interactionEpoch !== state.interactionEpoch ||
+        quote.stateVersion !== pending.stateVersion || quote.stateVersion !== state.stateVersion) {
+      set(CLEARED_PIPELINE_SELECTIONS)
+      return
+    }
+    if (quote.error || typeof quote.manaCostString !== 'string') {
+      set(CLEARED_PIPELINE_SELECTIONS)
+      state.setError({ code: ErrorCode.INTERNAL_ERROR, message: quote.error || 'Unable to refresh the spell cost.', timestamp: Date.now() })
+      return
+    }
+    const { pendingCostQuote: _pending, ...ready } = pipeline
+    set({ pipelineState: ready })
+    get().advancePipeline({ type: 'castCostQuote', quote, rebuildPaymentPhases: pending.rebuildPaymentPhases })
   },
 
   cancelPipeline: () => {
@@ -388,6 +449,7 @@ export const createPipelineSlice: SliceCreator<PipelineSlice> = (set, get) => ({
 function getStoreMethods(get: () => import('../types').GameStore): PipelineStoreMethods {
   const state = get()
   return {
+    requestCastCostQuote: state.requestCastCostQuote,
     startModalModeSelection: state.startModalModeSelection,
     startXSelection: state.startXSelection,
     startBlightVariableSelection: state.startBlightVariableSelection,
@@ -402,4 +464,19 @@ function getStoreMethods(get: () => import('../types').GameStore): PipelineStore
     startTargeting: state.startTargeting,
     startDamageDistribution: state.startDamageDistribution,
   }
+}
+
+/**
+ * The targets a division is among: the slice of requirement [group]'s targets when the server
+ * scoped it to one ([LegalActionInfo.distributionTargetGroup]), else every chosen target.
+ */
+function targetsOfGroup(
+  selected: readonly EntityId[],
+  groupCounts: readonly number[] | undefined,
+  group: number | null | undefined,
+): EntityId[] {
+  // The server encodes an unscoped division as an explicit null.
+  if (group == null || groupCounts == null) return [...selected]
+  const start = groupCounts.slice(0, group).reduce((sum, n) => sum + n, 0)
+  return selected.slice(start, start + (groupCounts[group] ?? 0))
 }
