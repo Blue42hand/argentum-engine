@@ -442,6 +442,10 @@ class ObservationBuilder(
             requiresDamageDistribution = la.requiresDamageDistribution,
             isManaAbility = la.isManaAbility,
             parameterSpec = ActionParameterizer.spec(la),
+            hasConvoke = la.hasConvoke,
+            validConvokeCreatures = la.convokeCreatures.orEmpty().map {
+                com.wingedsheep.engine.view.ConvokeCreatureInfo(it.entityId, it.name, it.colors)
+            },
             validDelveCards = if (la.hasXCost) emptyList() else la.delveCards?.map { it.entityId }.orEmpty(),
             minDelveNeeded = if (la.hasXCost) null else la.minDelveNeeded,
             costChoices = la.additionalCostInfo?.let { cost ->

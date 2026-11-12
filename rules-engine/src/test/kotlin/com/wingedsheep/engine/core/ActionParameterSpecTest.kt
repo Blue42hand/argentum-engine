@@ -37,6 +37,7 @@ class ActionParameterSpecTest : FunSpec({
             "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "bouncedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
             "delvedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+            "convokedCreatures" to ActionParameterFieldKind.CONVOKE_PAYMENT_MAP,
         )
     }
 

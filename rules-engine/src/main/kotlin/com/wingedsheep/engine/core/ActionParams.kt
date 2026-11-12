@@ -7,6 +7,8 @@ import com.wingedsheep.engine.state.components.stack.ChosenTarget
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AdditionalCostPayment
 import com.wingedsheep.sdk.scripting.AlternativePaymentChoice
+import com.wingedsheep.sdk.scripting.ConvokePayment
+import com.wingedsheep.sdk.core.Color
 import kotlinx.serialization.Serializable
 
 /**
@@ -29,7 +31,7 @@ import kotlinx.serialization.Serializable
  * - Complex decisions (target-selection pauses, damage assignment, ordering, …) → `POST
  *   /envs/{id}/decision` with a typed `DecisionResponse`.
  * - Attacking bands (CR 702.22), other alternative/additional cost payments, and
- *   convoke/improvise selections. A step carrying params for an action that can't use them
+ *   improvise selections. A step carrying params for an action that can't use them
  *   is rejected with a message naming the action, never ignored.
  *
  * @property attackers attacker entity id → the player, planeswalker or battle it attacks.
@@ -45,6 +47,7 @@ import kotlinx.serialization.Serializable
  * @property exiledCards Cards chosen to exile as a cost.
  * @property bouncedPermanents Permanents chosen to return to hand as a cost, separate from targets.
  * @property delvedCards Graveyard cards chosen to exile to pay generic mana with delve.
+ * @property convokedCreatures Offered creatures chosen for convoke, with their colored or generic payment.
  */
 @Serializable
 data class ActionParams(
@@ -68,6 +71,7 @@ data class ActionParams(
     val exiledCards: List<EntityId> = emptyList(),
     val delvedCards: List<EntityId> = emptyList(),
     val bouncedPermanents: List<EntityId> = emptyList(),
+    val convokedCreatures: Map<EntityId, ConvokePayment> = emptyMap(),
 ) {
     val isEmpty: Boolean
         get() = populatedFields.isEmpty()
@@ -96,6 +100,7 @@ data class ActionParams(
             if (exiledCards.isNotEmpty()) add("exiledCards")
             if (delvedCards.isNotEmpty()) add("delvedCards")
             if (bouncedPermanents.isNotEmpty()) add("bouncedPermanents")
+            if (convokedCreatures.isNotEmpty()) add("convokedCreatures")
         }
 
     companion object {
@@ -131,6 +136,7 @@ enum class ActionParameterFieldKind {
     ENTITY_ID_ARRAY,
     ENTITY_ID_ARRAY_ARRAY,
     INTEGER,
+    CONVOKE_PAYMENT_MAP,
 }
 
 /**
@@ -161,6 +167,8 @@ object ActionParameterizer {
         if (legalAction.action is CastSpell &&
             (!legalAction.hasDelve || legalAction.hasXCost || legalAction.delveCards.isNullOrEmpty())
         ) fields.remove("delvedCards")
+        if (legalAction.action !is CastSpell || !legalAction.hasConvoke || legalAction.convokeCreatures.isNullOrEmpty())
+            fields.remove("convokedCreatures")
         if (legalAction.maxOptionalCostTimes == null) fields.remove("declaredCostTimes")
         COST_ALIASES.forEach { (alias, canonical) -> fields[canonical]?.let { fields[alias] = it } }
         return ActionParameterSpec(fields)
@@ -187,6 +195,7 @@ object ActionParameterizer {
         params.requireCandidates("crew", params.crew, legalAction.tapForPowerCreatures.orEmpty().map { it.entityId })
         params.requireCandidates("saddle", params.saddle, legalAction.tapForPowerCreatures.orEmpty().map { it.entityId })
         params.requireDelveCandidates(legalAction.delveCards?.map { it.entityId }.orEmpty())
+        params.requireConvokeCandidates(legalAction.convokeCreatures.orEmpty().associate { it.entityId to it.colors })
         return apply(legalAction.action, params, state)
     }
 
@@ -212,7 +221,14 @@ object ActionParameterizer {
         params.requireCandidates("crew", params.crew, info.tapForPowerCreatures.orEmpty().map { it.entityId })
         params.requireCandidates("saddle", params.saddle, info.tapForPowerCreatures.orEmpty().map { it.entityId })
         params.requireDelveCandidates(info.validDelveCards?.map { it.entityId }.orEmpty())
+        params.requireConvokeCandidates(info.validConvokeCreatures.orEmpty().associate { it.entityId to it.colors })
         return apply(info.action, params, state)
+    }
+
+    private fun ActionParams.requireConvokeCandidates(candidates: Map<EntityId, Set<Color>>) {
+        require(convokedCreatures.all { (id, payment) ->
+            id in candidates && (payment.color == null || payment.color in candidates.getValue(id))
+        }) { "convokedCreatures contains an unoffered creature or payment color" }
     }
 
     private fun ActionParams.requireCostCandidates(
@@ -293,6 +309,7 @@ object ActionParameterizer {
                 "exiledCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "bouncedPermanents" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
                 "delvedCards" to ActionParameterFieldKind.ENTITY_ID_ARRAY,
+                "convokedCreatures" to ActionParameterFieldKind.CONVOKE_PAYMENT_MAP,
             )
         )
         is ActivateAbility -> ActionParameterSpec(
@@ -339,7 +356,7 @@ object ActionParameterizer {
                     xValue = params.xValue ?: action.xValue,
                     declaredCostTimes = params.declaredCostTimes ?: action.declaredCostTimes,
                     additionalCostPayment = params.withCostChoices(action.additionalCostPayment),
-                    alternativePayment = params.withDelveChoice(action.alternativePayment),
+                    alternativePayment = params.withAlternativeChoices(action.alternativePayment),
                 )
             }
 
@@ -385,9 +402,13 @@ object ActionParameterizer {
     }
 
     /** Keep any other alternative-payment choices already present on the action template. */
-    private fun ActionParams.withDelveChoice(existing: AlternativePaymentChoice?): AlternativePaymentChoice? {
-        if (delvedCards.isEmpty()) return existing
-        return (existing ?: AlternativePaymentChoice.NONE).copy(delvedCards = delvedCards)
+    private fun ActionParams.withAlternativeChoices(existing: AlternativePaymentChoice?): AlternativePaymentChoice? {
+        if (delvedCards.isEmpty() && convokedCreatures.isEmpty()) return existing
+        val base = existing ?: AlternativePaymentChoice.NONE
+        return base.copy(
+            delvedCards = delvedCards.ifEmpty { base.delvedCards },
+            convokedCreatures = convokedCreatures.ifEmpty { base.convokedCreatures },
+        )
     }
 
     /**

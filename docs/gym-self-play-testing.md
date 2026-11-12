@@ -136,6 +136,7 @@ curl -s -X POST localhost:8081/envs/$ENV/step -H 'Content-Type: application/json
 | `targets` | `[entity id, …]`, in requirement order | `targetEntityIds`, `minTargets`, `maxTargets` |
 | `xValue` | int | `hasXCost`, `maxAffordableX` |
 | `tappedPermanents`, `sacrificedPermanents`, `discardedCards`, `exiledCards`, `bouncedPermanents` | `[entity id, …]` | `parameterSpec`, `costChoices` |
+| `convokedCreatures` | creature id → `{ "color": "GREEN" }` or `{ "color": null }` for generic | `parameterSpec`, `validConvokeCreatures`; each selected color must be offered for that creature |
 | `delvedCards` (non-X delve spells) | `[graveyard card id, …]` | `parameterSpec`, `validDelveCards`, `minDelveNeeded` |
 
 The declaration constraints are not advisory — a declaration that disobeys one is illegal, and the
@@ -146,7 +147,7 @@ blocker groups must still satisfy menace and other group restrictions. `blockerM
 caps how many attackers a blocker may block at once, where absent means the
 default one (CR 509.1a). Params a given action can't use, and a declaration the engine rejects, both
 return `400` with the reason — neither is silently dropped, on `/step` or on `/step-batch`. Anything
-richer (bands and convoke/improvise selections) is not expressible over `step`;
+richer (bands and improvise selections) is not expressible over `step`;
 complex decisions go to `POST /envs/{id}/decision` (section 5). Native X-cost delve
 requires a separate explicit allocation choice between printed generic mana and X; until that
 choice is modeled, `delvedCards` is not offered for X spells through the Gym action params.

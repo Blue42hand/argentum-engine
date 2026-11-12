@@ -322,6 +322,9 @@ data class LegalActionView(
         com.wingedsheep.engine.core.ActionParameterSpec.EMPTY,
     /** Engine-authored candidates and counts for explicit nonmana payment choices. */
     val costChoices: NativeCostChoiceView? = null,
+    /** Native convoke candidates and color choices, shared with the server presentation. */
+    val hasConvoke: Boolean = false,
+    val validConvokeCreatures: List<com.wingedsheep.engine.view.ConvokeCreatureInfo> = emptyList(),
     /** Graveyard candidates for `ActionParams.delvedCards`; no card is selected implicitly. */
     val validDelveCards: List<EntityId> = emptyList(),
     /** Minimum delve count needed with the currently available mana sources. */
