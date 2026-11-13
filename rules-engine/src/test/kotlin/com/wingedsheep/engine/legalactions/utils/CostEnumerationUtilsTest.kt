@@ -205,6 +205,54 @@ class CostEnumerationUtilsTest : FunSpec({
             affordable shouldBe true
         }
 
+        test("convoke cannot replace missing green pips with black mana") {
+            val driver = setupP1(battlefield = listOf("Swamp", "Swamp", "Woodland Cemetery", "Wellwisher"))
+            val u=utils(driver)
+            val creatures=u.findConvokeCreatures(driver.game.state,driver.player1)
+            for(cost in listOf("{G}{G}{G}","{1}{G}{G}{G}")) {
+                u.canAffordWithConvoke(driver.game.state,driver.player1,ManaCost.parse(cost),creatures) shouldBe false
+            }
+        }
+
+        test("convoke combines colored taps with actual mana colors") {
+            val driver = setupP1(battlefield = listOf("Forest", "Forest", "Swamp", "Wellwisher"))
+            val u=utils(driver)
+            val creatures=u.findConvokeCreatures(driver.game.state,driver.player1)
+            u.canAffordWithConvoke(driver.game.state,driver.player1,ManaCost.parse("{1}{G}{G}{G}"),creatures) shouldBe true
+        }
+
+        test("one multicolored convoker cannot pay two colored pips") {
+            val driver = setupP1(battlefield = listOf("Jukai Naturalist", "Wastes"))
+            val u=utils(driver)
+            val creatures=u.findConvokeCreatures(driver.game.state,driver.player1)
+            u.canAffordWithConvoke(driver.game.state,driver.player1,ManaCost.parse("{G}{W}"),creatures) shouldBe false
+        }
+
+        test("flexible convoker leaves the color real mana can pay") {
+            for(land in listOf("Forest","Plains")) {
+                val driver = setupP1(battlefield = listOf("Jukai Naturalist", land))
+                val u=utils(driver)
+                u.canAffordWithConvoke(driver.game.state,driver.player1,ManaCost.parse("{G}{W}"),
+                    u.findConvokeCreatures(driver.game.state,driver.player1)) shouldBe true
+            }
+        }
+
+        test("convoke shares hybrid pip reduction with actual payment") {
+            val driver=setupP1(battlefield=listOf("Grizzly Bears"))
+            val u=utils(driver)
+            val creatures=u.findConvokeCreatures(driver.game.state,driver.player1)
+            u.canAffordWithConvoke(driver.game.state,driver.player1,ManaCost.parse("{G/W}"),creatures) shouldBe true
+            u.canAffordWithConvoke(driver.game.state,driver.player1,ManaCost.parse("{2/G}"),creatures) shouldBe true
+            u.canAffordWithConvoke(driver.game.state,driver.player1,ManaCost.parse("{S}"),creatures) shouldBe false
+        }
+
+        test("convoke cannot pay true colorless mana") {
+            val driver = setupP1(battlefield = listOf("Grizzly Bears", "Grizzly Bears"))
+            val u=utils(driver)
+            u.canAffordWithConvoke(driver.game.state,driver.player1,ManaCost.parse("{C}"),
+                u.findConvokeCreatures(driver.game.state,driver.player1)) shouldBe false
+        }
+
         test("canAffordWithConvoke: insufficient total resources is not affordable") {
             val driver = setupP1(
                 battlefield = listOf("Grizzly Bears")  // only 1 creature, no lands

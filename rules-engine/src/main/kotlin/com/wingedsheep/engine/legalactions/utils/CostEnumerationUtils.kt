@@ -9,6 +9,7 @@ import com.wingedsheep.engine.handlers.PredicateEvaluator
 import com.wingedsheep.engine.legalactions.*
 import com.wingedsheep.engine.mechanics.SummoningSicknessRules
 import com.wingedsheep.engine.mechanics.mana.CostCalculator
+import com.wingedsheep.engine.mechanics.mana.reduceConvokeColorCost
 import com.wingedsheep.engine.mechanics.mana.ManaSolver
 import com.wingedsheep.engine.mechanics.mana.ManaSource
 import com.wingedsheep.engine.mechanics.mana.SpellPaymentContext
@@ -369,27 +370,24 @@ class CostEnumerationUtils(
         val tapIds = tapPermanents.mapTo(mutableSetOf()) { it.entityId }
         val sourcesForMana = (precomputedSources ?: manaSolver.findAvailableManaSources(state, playerId))
             .filter { it.entityId !in convokeIds && it.entityId !in tapIds }
-        val availableMana = manaSolver.getAvailableManaCount(state, playerId, sourcesForMana, spellContext)
-        val totalResources = availableMana + convokeCreatures.size + tapPermanents.size
-        if (totalResources < manaCost.cmc) return false
-
-        val coloredRequirements = manaCost.colorCount
-        val creatureColors = mutableMapOf<Color, Int>()
+        // A creature pays one matching colored pip OR one generic unit, not
+        // one of every color it has. Keep distinct remaining bills so flexible
+        // creatures can leave the right colors for real mana sources.
+        var remainingCosts = setOf(manaCost)
         for (creature in convokeCreatures) {
-            for (color in creature.colors) {
-                creatureColors[color] = (creatureColors[color] ?: 0) + 1
+            val next = remainingCosts.toMutableSet()
+            for (remaining in remainingCosts) {
+                next.add(remaining.reduceGeneric(1))
+                for (color in creature.colors) {
+                    next.add(reduceConvokeColorCost(remaining, color))
+                }
             }
+            remainingCosts = next
         }
-        var creaturesUsedForColors = 0
-        for ((color, needed) in coloredRequirements) {
-            val creaturesOfColor = creatureColors[color] ?: 0
-            creaturesUsedForColors += minOf(needed, creaturesOfColor)
+        return remainingCosts.sortedBy { it.cmc }.any { remaining ->
+            manaSolver.canPay(state, playerId, remaining.reduceGeneric(tapPermanents.size),
+                precomputedSources = sourcesForMana, spellContext = spellContext)
         }
-        val genericRequired = manaCost.genericAmount
-        val creaturesForGeneric = convokeCreatures.size - creaturesUsedForColors
-        // Tap-for-generic is generic-only, so it joins the generic pool and never the colored one.
-        val resourcesForGeneric = availableMana + creaturesForGeneric + tapPermanents.size
-        return resourcesForGeneric >= genericRequired
     }
 
     // --- Tap-for-generic (Improvise CR 702.126 / Waterbend) ---

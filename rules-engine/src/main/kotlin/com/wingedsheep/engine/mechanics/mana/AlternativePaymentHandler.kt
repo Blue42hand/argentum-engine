@@ -459,26 +459,8 @@ class AlternativePaymentHandler(
      * black creature can pay its colored side. Prefer an exact colored match first so we don't
      * waste a hybrid pip when a plain colored pip is available.
      */
-    private fun reduceColoredCost(cost: ManaCost, color: Color): ManaCost {
-        val mutableSymbols = cost.symbols.toMutableList()
-        val coloredSymbol = ManaSymbol.Colored(color)
-
-        val exactIndex = mutableSymbols.indexOfFirst { it == coloredSymbol }
-        if (exactIndex >= 0) {
-            mutableSymbols.removeAt(exactIndex)
-            return ManaCost(mutableSymbols)
-        }
-
-        val hybridIndex = mutableSymbols.indexOfFirst { symbol ->
-            (symbol is ManaSymbol.HybridPair && (symbol.color1 == color || symbol.color2 == color)) ||
-                (symbol is ManaSymbol.MonocolorHybrid && symbol.color == color)
-        }
-        if (hybridIndex >= 0) {
-            mutableSymbols.removeAt(hybridIndex)
-        }
-
-        return ManaCost(mutableSymbols)
-    }
+    private fun reduceColoredCost(cost: ManaCost, color: Color): ManaCost =
+        reduceConvokeColorCost(cost, color)
 
     /**
      * Calculate the reduced cost after alternative payment without mutating state.
