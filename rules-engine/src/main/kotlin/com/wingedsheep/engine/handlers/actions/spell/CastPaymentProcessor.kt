@@ -147,8 +147,13 @@ class CastPaymentProcessor(
         cardName: String,
         xValue: Int,
         spellContext: SpellPaymentContext? = null,
-        xManaRestriction: Set<Color> = emptySet()
+        xManaRestriction: Set<Color> = emptySet(),
+        reservedTapSources: Set<EntityId> = emptySet(),
     ): PaymentResult {
+        if ((action.paymentStrategy as? PaymentStrategy.Explicit)?.manaAbilitiesToActivate
+                ?.any { it in reservedTapSources } == true) {
+            return PaymentResult(state, emptyList(), "Mana source is reserved for an additional tap cost")
+        }
         // Phyrexian pips paid with 2 life (CR 107.4f): the caster's explicit choice, or on auto-pay
         // the fewest pips mana can't cover — the same split `ManaSolver.canPay` deemed affordable.
         val lifePayments = when (val strategy = action.paymentStrategy) {
@@ -170,7 +175,8 @@ class CastPaymentProcessor(
         var productionState = state
         val rawManaResult = if (scoped && action.paymentStrategy !is PaymentStrategy.FromPool) {
             val chosen = (action.paymentStrategy as? PaymentStrategy.Explicit)?.manaAbilitiesToActivate?.toSet()
-            val excluded = if (chosen == null) emptySet() else state.getBattlefield().filter { it !in chosen }.toSet()
+            val excluded = reservedTapSources +
+                (if (chosen == null) emptySet() else state.getBattlefield().filter { it !in chosen }.toSet())
             val plan = manaSolver.planScopedActivations(state, action.playerId, manaCost, spellContext,
                 xValue * manaCost.xCount.coerceAtLeast(1), xManaRestriction, excluded, reservedLife = lifeToPay)
             fun floatingOrFailure(message: String): PaymentResult =
@@ -196,7 +202,8 @@ class CastPaymentProcessor(
             }
         } else when (action.paymentStrategy) {
             is PaymentStrategy.FromPool -> payFromPool(state, action.playerId, manaCost, cardName, xValue, spellContext, xManaRestriction)
-            is PaymentStrategy.AutoPay -> autoPay(state, action.playerId, manaCost, cardName, xValue, spellContext, xManaRestriction = xManaRestriction)
+            is PaymentStrategy.AutoPay -> autoPay(state, action.playerId, manaCost, cardName, xValue, spellContext,
+                excludeSources = reservedTapSources, xManaRestriction = xManaRestriction)
             is PaymentStrategy.Explicit -> explicitPay(
                 state,
                 action.playerId,

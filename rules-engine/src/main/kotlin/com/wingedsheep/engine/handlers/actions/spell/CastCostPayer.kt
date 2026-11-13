@@ -117,11 +117,10 @@ internal class CastCostPayer(
     // ---------------------------------------------------------------------------------------------
 
     /**
-     * Pays everything the cast owes into [ledger], in the order the rules put it: the additional
-     * costs and optional additional costs, the tap/exile payments that reduce the mana (delve,
-     * convoke, harmonize, waterbend, improvise), the mana itself, then the costs paid as the mana is
-     * (emerge's sacrifice, forage from a graveyard, the life taxes). Returns the payment on success,
-     * or why it can't be paid.
+     * Pays the locked bill into [ledger]. Mana production must retain access to permanents that
+     * will leave while paying material costs (CR 601.2g–h). Reserve additional tap payments, apply
+     * the announced mana reductions, then pay mana before the remaining material and life costs.
+     * All changes remain local until the complete payment succeeds.
      */
     fun pay(
         ledger: SpellCostLedger,
@@ -140,10 +139,6 @@ internal class CastCostPayer(
             EmergeCasts.effectiveEmerge(
                 ledger.state, action.cardId, cardDef, action.playerId, cardRegistry, predicateEvaluator
             ) != null)
-        payAdditionalCosts(ledger, owedCosts)?.let { return CastPaymentOutcome.Failed(it) }
-        payConspire(ledger)
-        payCasualty(ledger, cardDef)
-
         // The X charged as mana (see CastCostTotaller.paymentXValue); action.xValue — the effect's
         // X — is untouched.
         val paymentXValue = lockedPayment?.paymentXValue
@@ -174,7 +169,9 @@ internal class CastCostPayer(
         val restricted = manaSourceRestriction(ledger.state, action, cardDef)
         val rawProcessed = paymentProcessor.processPayment(
             restricted?.state ?: ledger.state, action, cost, cardComponent.name, paymentXValue,
-            spellPaymentContext(ledger.state, action, cardComponent), xManaRestriction(action, cardDef)
+            spellPaymentContext(ledger.state, action, cardComponent), xManaRestriction(action, cardDef),
+            reservedTapSources = action.additionalCostPayment?.tappedPermanents.orEmpty().toSet() +
+                action.conspiredCreatures,
         )
         if (rawProcessed.error != null) {
             return CastPaymentOutcome.Failed(rawProcessed.error)
@@ -188,6 +185,16 @@ internal class CastCostPayer(
             else processed.copy(phyrexianLifePips = (processed.phyrexianLifePips - substitutedPips).coerceAtLeast(0))
         ledger.state = paymentResult.state
         ledger.events.addAll(paymentResult.events)
+
+        // An activated mana ability may itself consume resources or life. Check the submitted
+        // material payment again against its result instead of spending a departed resource twice.
+        val check = SpellCostCheck(ledger.state, action, costHandler, predicateEvaluator)
+        for (owed in owedCosts) {
+            SpellCosts.validate(check, owed)?.let { return CastPaymentOutcome.Failed(it) }
+        }
+        payAdditionalCosts(ledger, owedCosts)?.let { return CastPaymentOutcome.Failed(it) }
+        payConspire(ledger)
+        payCasualty(ledger, cardDef)
 
         if (isEmergeCast) payEmergeSacrifice(ledger)
         val manaSpent = recordManaSpent(ledger, paymentResult)
