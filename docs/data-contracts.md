@@ -1063,10 +1063,21 @@ answer is left out of the table.
 ### Draw-neutral modifier certificates
 
 `ClientCardEffect.drawNeutral` is an optional native certificate for every underlying
-modifier grouped into that badge. `true` currently certifies only unconditional
-end-of-turn prohibitions on hexproof/shroud, excluding identified face-down sources.
+modifier grouped into that badge. `true` certifies informational count badges,
+and whole unconditional end-of-turn prohibitions on hexproof/shroud, excluding
+identified face-down sources.
 Conditional, mixed, identified face-down-source, and other modifier families omit the certificate.
 The badge summary is display text and cannot substitute for this typed check.
 The certificate covers neither other card effects nor player effects, triggers,
 replacement effects, library exhaustion, or the decision being resolved. Consumers
 must check those independently. Existing display behavior and native legality are unchanged.
+
+Informational condition-progress badges also set `drawNeutral: true`: they report
+counts and do not carry modifiers. The certificate covers the whole badge and
+also certifies neutrality to the discard/draw of ordinary non-targeted cycling.
+It does not certify the card's abilities or other badges. Consumers must still
+check all other modifiers and native draw/discard/cycling-sensitive definitions;
+unknown certificates remain unknown. Existing whole-group certificates cover
+only unconditional end-of-turn removal of hexproof/shroud, which likewise do not
+alter those resource actions. Never infer this certificate from a display label
+or `effectId`.

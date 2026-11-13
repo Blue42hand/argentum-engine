@@ -121,6 +121,26 @@ class TriggerConditionProgressBadgeTest : FunSpec({
     fun GameTestDriver.isSolved(id: EntityId): Boolean =
         state.getEntity(id)?.has<SolvedComponent>() == true
 
+    test("informational progress badges certify neutral counts without changing game state") {
+        val driver = newDriver()
+        val case = driver.putPermanentOnBattlefield(driver.player1, "Test Case Creature Count")
+        val before = driver.state
+        driver.progressBadges(case).single().drawNeutral shouldBe true
+        driver.state shouldBe before
+        repeat(3) { driver.putCreatureOnBattlefield(driver.player1, "Centaur Courser") }
+        driver.progressBadges(case).single().drawNeutral shouldBe true
+        driver.progressBadges(case).single().icon shouldBe "condition-met"
+    }
+
+    test("each clause retains its informational certificate after badge identity factoring") {
+        val driver = newDriver()
+        val watcher = driver.putPermanentOnBattlefield(driver.player1, "Test Two Clause Watcher")
+        val badges = driver.progressBadges(watcher)
+        badges.size shouldBe 2
+        badges.map { it.drawNeutral } shouldBe listOf(true, true)
+        badges.map { it.effectId }.distinct().size shouldBe 2
+    }
+
     test("a Case's criterion is badged even though the engine sees it ANDed with 'not solved'") {
         val driver = newDriver()
         val case = driver.putPermanentOnBattlefield(driver.player1, "Test Case Creature Count")

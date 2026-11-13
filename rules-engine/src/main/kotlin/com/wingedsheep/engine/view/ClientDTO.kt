@@ -1156,8 +1156,9 @@ data class ClientCardEffect(
      * badge is where the player activates them; `null` for every other effect.
      */
     val sourceId: EntityId? = null,
-    /** True only when every underlying modifier in this badge is certified draw-neutral.
-     * Null is unknown; it does not describe other effects on this card or player. */
+    /** True for informational badges with no modifier, or when every underlying modifier
+     * is neutral to direct card drawing and the discard/draw of ordinary non-targeted cycling.
+     * Null is unknown; this does not describe other effects or abilities on the card/player. */
     val drawNeutral: Boolean? = null
 )
 

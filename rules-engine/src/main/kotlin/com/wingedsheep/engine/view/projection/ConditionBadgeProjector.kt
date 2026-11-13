@@ -142,7 +142,10 @@ internal class ConditionBadgeProjector(
                     effectId = "condition_compare",
                     name = "${it.current}/${it.required}",
                     description = "${describeCountedClause(part)} (${it.current}/${it.required})",
-                    icon = if (it.met) "condition-met" else "condition-unmet"
+                    icon = if (it.met) "condition-met" else "condition-unmet",
+                    // This badge reports a count; it carries no modifier. The
+                    // card's abilities and any other badges remain independent.
+                    drawNeutral = true
                 )
             }
         }
