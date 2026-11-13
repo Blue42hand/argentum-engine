@@ -1059,3 +1059,14 @@ answers select. A kept target may stay even if it is already illegal (CR 707.10c
 but a changed target must not make a kept one illegal (CR 115.7d): the server
 rejects that answer, and an earlier choice whose later slots then have no legal
 answer is left out of the table.
+
+### Draw-neutral modifier certificates
+
+`ClientCardEffect.drawNeutral` is an optional native certificate for every underlying
+modifier grouped into that badge. `true` currently certifies only unconditional
+end-of-turn prohibitions on hexproof/shroud, excluding identified face-down sources.
+Conditional, mixed, identified face-down-source, and other modifier families omit the certificate.
+The badge summary is display text and cannot substitute for this typed check.
+The certificate covers neither other card effects nor player effects, triggers,
+replacement effects, library exhaustion, or the decision being resolved. Consumers
+must check those independently. Existing display behavior and native legality are unchanged.

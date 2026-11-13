@@ -257,7 +257,17 @@ internal class CardActiveEffectsProjector(
                         ending.orEmpty().replace(" ", "_"),
                     name = sourceName ?: "Temporary effect",
                     description = temporaryChanges(group).joinToString(", ").ifEmpty { null },
-                    icon = "temporary-effect"
+                    icon = "temporary-effect",
+                    drawNeutral = true.takeIf {
+                        group.all { floating ->
+                            val modification=floating.effect.modification
+                            floating.duration==Duration.EndOfTurn && floating.effect.sourceCondition==null &&
+                                floating.sourceId?.let { state.getEntity(it)?.has<FaceDownComponent>() } != true &&
+                                modification is SerializableModification.CantHaveKeywords &&
+                                modification.keywords.isNotEmpty() &&
+                                modification.keywords.all { it in setOf("HEXPROOF","SHROUD") }
+                        }
+                    }
                 ).lasting(ending)
             }
 

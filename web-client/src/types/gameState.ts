@@ -888,6 +888,8 @@ export interface ClientCardEffect {
   readonly icon?: string
   /** When the effect ends, e.g. "until end of turn"; absent when no end is stated. */
   readonly duration?: string | null
+  /** Native certificate for all modifiers represented by this badge; absent means unknown. */
+  readonly drawNeutral?: boolean | null
 }
 
 /**

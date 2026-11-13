@@ -1155,7 +1155,10 @@ data class ClientCardEffect(
      * (Karn, Living Legacy's). The client matches it against legal actions' `sourceId` so the
      * badge is where the player activates them; `null` for every other effect.
      */
-    val sourceId: EntityId? = null
+    val sourceId: EntityId? = null,
+    /** True only when every underlying modifier in this badge is certified draw-neutral.
+     * Null is unknown; it does not describe other effects on this card or player. */
+    val drawNeutral: Boolean? = null
 )
 
 /**
