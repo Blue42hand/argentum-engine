@@ -1528,10 +1528,18 @@
                     ]
                 },
                 "interveningIf": {
-                    "type": "Exists",
-                    "player": "You",
-                    "zone": "Battlefield",
-                    "filter": "creature Elf"
+                    "type": "Compare",
+                    "left": {
+                        "type": "AggregateBattlefield",
+                        "player": "You",
+                        "filter": "creature Elf",
+                        "excludeSelf": true
+                    },
+                    "operator": "GTE",
+                    "right": {
+                        "type": "Fixed",
+                        "amount": 1
+                    }
                 }
             }
         ]
