@@ -1354,6 +1354,11 @@ The solver's algorithm:
 
 1. **Inventory available sources.** Find all untapped mana-producing permanents the player controls
    (using projected state — a land animated into a creature with summoning sickness can't tap).
+   Automatic payment and explicit-only affordability inventories also apply the same activation
+   prohibitions as the manual ability menu, including attached locks and player/turn scopes.
+   Non-mana-only prohibitions leave mana abilities usable, and already floating mana remains
+   spendable. A per-inventory source snapshot avoids scanning the battlefield for every source
+   on ordinary boards without mana activation locks.
 2. **Pay colored costs first.** Colored symbols have no flexibility — `{B}` requires black mana.
    The solver taps the least-flexible source that produces the needed color.
 3. **Pay generic costs last.** Generic mana (`{2}`) can use any source. The solver preserves

@@ -1394,6 +1394,31 @@ class CastPermissionUtils(
             isActivationPreventedForPlayer(state, sourceId, activatingPlayerId, abilityIsManaAbility)
 
     /**
+     * Snapshot of sources whose mana activations are forbidden for this player. The solver
+     * reuses the manual activation checks, including attached locks and player/turn scopes.
+     * Scan for relevant statics once first: ordinary boards avoid a battlefield scan per source.
+     * Floating mana is independent of whether its former source can still activate.
+     */
+    fun forbiddenManaAbilitySources(state: GameState, playerId: EntityId): Set<EntityId> {
+        fun locksMana(ability: StaticAbility): Boolean = when (ability) {
+            is PreventActivatedAbilities -> ability.abilities.covers(true, false)
+            is PlayersCantActivateAbilities -> ability.abilities.covers(true, false)
+            else -> false
+        }
+        val hasLock = state.grantedStaticAbilities.any { locksMana(it.ability) } ||
+            state.getBattlefield().any { id ->
+                state.getEntity(id)?.faceUpCardDefinition(cardRegistry)
+                    ?.liveStaticAbilities(state, id)?.any(::locksMana) == true
+            }
+        if (!hasLock) return emptySet()
+        val candidates = state.getBattlefield() + listOf(Zone.HAND, Zone.GRAVEYARD, Zone.EXILE, Zone.COMMAND)
+            .flatMap { state.getZone(ZoneKey(playerId, it)) }
+        return candidates.filterTo(mutableSetOf()) {
+            isActivationForbidden(state, it, playerId, abilityIsManaAbility = true)
+        }
+    }
+
+    /**
      * True when a [PlayersCantActivateAbilities] static forbids [activatingPlayerId] from
      * activating an ability of the permanent [sourceId] — i.e. some battlefield permanent's
      * ability whose [affected][PlayersCantActivateAbilities.affected] group (relative to the
