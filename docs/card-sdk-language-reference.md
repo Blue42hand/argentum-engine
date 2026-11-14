@@ -5325,6 +5325,8 @@ one-off pipeline belongs inline in the card file via `Effects.Pipeline { }` (§5
 - `manifest(count = 1)` — manifest the top N cards (CR 701.40): each is put onto the battlefield
   face down as a 2/2 creature (one at a time). A manifested creature card can be turned face up for
   its mana cost; a manifested non-creature can't.
+  Face-down creature characteristics apply before entry. A printed Aura therefore enters without
+  choosing an enchant target or applying its printed Aura entry abilities; cloak uses the same path.
 - `manifestDread(markEntered = false)` — "Manifest dread" (CR 701.60, Duskmourn): look at the top
   two cards of your library, manifest one of them (your choice), and put the other into your
   graveyard. Composes gather → select → move-face-down(MANIFEST) → move-to-graveyard →

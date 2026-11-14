@@ -19,6 +19,29 @@ import io.kotest.matchers.shouldBe
 
 class RealityShiftScenarioTest : FunSpec({
 
+    test("manifesting an Aura enters face down without choosing an enchant target") {
+        val driver=GameTestDriver().apply {
+            registerCards(TestCards.all+RealityShift)
+            initMirrorMatch(deck=Deck.of("Island" to 40),startingLife=20)
+            passPriorityUntil(Step.PRECOMBAT_MAIN)
+        }
+        val player=driver.activePlayer!!;val opponent=driver.getOpponent(player)
+        driver.putCreatureOnBattlefield(player,"Llanowar Elves")
+        val victim=driver.putCreatureOnBattlefield(opponent,"Grizzly Bears")
+        val aura=driver.putCardOnTopOfLibrary(opponent,"Arrest")
+        val spell=driver.putCardInHand(player,"Reality Shift")
+        driver.giveMana(player,Color.BLUE,1);driver.giveColorlessMana(player,1)
+        driver.castSpell(player,spell,listOf(victim)).error shouldBe null
+        while(!driver.isPaused && driver.state.stack.isNotEmpty())driver.bothPass()
+        driver.state.pendingDecision shouldBe null
+        driver.state.getEntity(aura)?.get<FaceDownComponent>() shouldBe FaceDownComponent
+        driver.state.getEntity(aura)?.get<FaceDownModeComponent>()?.mode shouldBe FaceDownMode.MANIFEST
+        driver.state.getEntity(aura)?.has<com.wingedsheep.engine.state.components.battlefield.AttachedToComponent>() shouldBe false
+        driver.state.projectedState.isCreature(aura) shouldBe true
+        driver.state.projectedState.getPower(aura) shouldBe 2
+        driver.state.projectedState.getToughness(aura) shouldBe 2
+    }
+
     test("exiles a creature and its controller manifests their top card") {
         val driver = GameTestDriver().apply {
             registerCards(TestCards.all + RealityShift)

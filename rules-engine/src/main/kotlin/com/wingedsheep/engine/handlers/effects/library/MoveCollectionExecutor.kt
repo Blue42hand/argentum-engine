@@ -824,8 +824,9 @@ class MoveCollectionExecutor(
     ): EffectResult {
         val destZone = destination.zone
 
-        // When moving to battlefield, detect auras that need target selection (Rule 303.4f)
-        if (destZone == Zone.BATTLEFIELD && targetFinder != null) {
+        // Face-down entries have creature characteristics before entering. Their
+        // printed Aura subtype cannot request an attachment or redirect the move.
+        if (destZone == Zone.BATTLEFIELD && faceDown == null && targetFinder != null) {
             val auraCards = mutableListOf<EntityId>()
             val nonAuraCards = mutableListOf<EntityId>()
 
