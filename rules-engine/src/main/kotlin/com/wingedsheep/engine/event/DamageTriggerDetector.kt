@@ -93,7 +93,14 @@ class DamageTriggerDetector(
         // Face-down creatures have no abilities (Rule 708.2)
         if (container.has<FaceDownComponent>()) return
 
-        val abilities = abilityResolver.getTriggeredAbilities(sourceId, cardComponent.cardDefinitionId, state, statics)
+        // SBAs may remove the source or its disabling Aura before detection. The
+        // damage snapshot takes precedence over the later battlefield projection.
+        val lostAbilities = event.sourceLastKnown?.lostAllAbilities
+            ?: projected.hasLostAllAbilities(sourceId)
+        val abilities = abilityResolver.getTriggeredAbilities(
+            sourceId, cardComponent.cardDefinitionId, state, statics,
+            suppressIntrinsic = lostAbilities,
+        )
 
         for (ability in abilities) {
             val trigger = ability.trigger

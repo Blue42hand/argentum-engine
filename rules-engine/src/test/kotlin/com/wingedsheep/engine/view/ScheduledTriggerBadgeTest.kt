@@ -58,6 +58,23 @@ class ScheduledTriggerBadgeTest : FunSpec({
         }
     }
 
+    test("only whole pure upkeep draws receive the draw category") {
+        val driver = createDriver()
+        val cases = listOf(
+            driver.scheduled(Step.UPKEEP) to true,
+            driver.scheduled(Step.UPKEEP).copy(effect = Effects.DrawUpTo(2)) to true,
+            driver.scheduled(Step.BEGIN_COMBAT) to false,
+            driver.scheduled(Step.UPKEEP).copy(effect = CompositeEffect(listOf(Effects.DrawCards(1), Effects.LoseLife(3)))) to false,
+        )
+        for ((trigger, drawOnly) in cases) {
+            for (viewer in listOf(driver.player1, driver.player2)) {
+                val badge = transformer(driver).transform(driver.state.copy(delayedTriggers = listOf(trigger)), viewer)
+                    .players.single { it.playerId == driver.player1 }.activeEffects.single { it.name == "Scheduled Draw" }
+                badge.effectId shouldBe if (drawOnly) "scheduled_trigger_draw_scheduled" else "scheduled_trigger_scheduled"
+            }
+        }
+    }
+
     test("the badge says which step, whose turn and how often") {
         val driver = createDriver()
         val viewer = driver.player2

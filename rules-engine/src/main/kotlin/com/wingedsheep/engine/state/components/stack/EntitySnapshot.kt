@@ -562,6 +562,7 @@ fun captureLastKnown(state: GameState, entityId: EntityId): EntitySnapshot {
     return captureEntitySnapshots(listOf(entityId), state).single().copy(
         typeLine = projectedTypeLine(state, entityId),
         keywords = state.projectedState.getKeywords(entityId),
+        lostAllAbilities = state.projectedState.hasLostAllAbilities(entityId),
         // A self-sacrifice cost wipes the counters before the effect reads "the number of stash
         // counters on this artifact" (Glittering Stockpile) — freeze them here like the zone-exit
         // snapshot does (CR 113.7a).

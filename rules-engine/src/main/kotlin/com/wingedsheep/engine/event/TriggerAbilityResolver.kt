@@ -64,10 +64,13 @@ class TriggerAbilityResolver(
          * attachments — a departed permanent's, frozen on its exit snapshot ([LookBackGrants]).
          */
         attachmentGrants: List<TriggeredAbility>? = null,
+        // Damage events may carry an event-time ability-loss snapshot after SBAs.
+        // Remove intrinsic abilities while retaining independently granted triggers.
+        suppressIntrinsic: Boolean = false,
     ): List<TriggeredAbility> {
         // First check the AbilityRegistry (for manually registered abilities)
         val registryAbilities = abilityRegistry.getTriggeredAbilities(entityId, cardDefinitionId)
-        val base = if (registryAbilities.isNotEmpty()) {
+        val base = if (suppressIntrinsic) emptyList() else if (registryAbilities.isNotEmpty()) {
             registryAbilities
         } else {
             // Fall back to looking up from CardRegistry, including class-level-gated abilities
@@ -101,7 +104,7 @@ class TriggerAbilityResolver(
         // "This creature has '<triggered ability>' [as long as …]" — a Scope.Self GrantTriggeredAbility
         // on the permanent's own definition, optionally gated by a ConditionalStaticAbility.
         val selfGrantedAbilities =
-            if (state.projectedState.hasLostAllAbilities(entityId)) emptyList()
+            if (suppressIntrinsic || state.projectedState.hasLostAllAbilities(entityId)) emptyList()
             else getSelfGrantedTriggeredAbilities(entityId, state)
 
         // Generate ward triggered abilities from intrinsic keyword abilities and GrantWard
@@ -180,7 +183,7 @@ class TriggerAbilityResolver(
             addAll(grantedOffspringAbilities)
             addAll(blitzAbilities)
         }
-        val copyAbilities = if (state.projectedState.hasLostAllAbilities(entityId)) emptyList()
+        val copyAbilities = if (suppressIntrinsic || state.projectedState.hasLostAllAbilities(entityId)) emptyList()
             else state.getEntity(entityId)?.get<CardComponent>()?.copyTriggeredAbilities.orEmpty()
         val intrinsic = if (copyAbilities.isEmpty()) base else base + copyAbilities
         val combined = if (allGranted.isNotEmpty()) intrinsic + allGranted else intrinsic

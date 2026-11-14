@@ -981,7 +981,12 @@ internal class PlayerActiveEffectsProjector(
             val step = scheduled.fireAtStep ?: continue
             effects.add(
                 ClientPlayerEffect(
-                    effectId = "scheduled_trigger_${scheduled.id}",
+                    // A pure upkeep draw changes no combat permissions. Keep the
+                    // effect category explicit for clients planning combat.
+                    effectId = if (step == Step.UPKEEP &&
+                        (scheduled.effect is com.wingedsheep.sdk.scripting.effects.DrawCardsEffect ||
+                         scheduled.effect is com.wingedsheep.sdk.scripting.effects.DrawUpToEffect))
+                        "scheduled_trigger_draw_${scheduled.id}" else "scheduled_trigger_${scheduled.id}",
                     // Both players see this badge, so a face-down source keeps its face-down name.
                     name = audience.name(state, scheduled.sourceId, scheduled.sourceName),
                     description = "${scheduleText(state, scheduled, step)}: " +
