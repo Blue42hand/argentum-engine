@@ -934,7 +934,7 @@ export function getEffectIcon(icon: string): string {
     case 'shield-off':
       return '🛡️'
     case 'shield':
-      return '⚡'
+      return '🛡️'
     case 'no-counter':
       return '🚫'
     case 'skip':

@@ -5067,6 +5067,15 @@ wrappers: Word of Command composes it inside `WithManaAbilitySources` and
 - `GrantProtectionFromColor(color, target, duration)` — grant protection from a **fixed** color to a target (no player choice); a thin recipe over `GrantKeyword("PROTECTION_FROM_<COLOR>")`. "{W}: Target creature gains protection from red until end of turn." (Crimson Acolyte).
 - `GrantProtectionFromCardType(cardType, target, duration)` — the card-type sibling: grant protection from a **fixed** `CardType` (no player choice), a thin recipe over `GrantKeyword("PROTECTION_FROM_CARDTYPE_<TYPE>")` — the same projected keyword the printed `Protection(ProtectionScope.CardType(...))` static and the player-chosen `GrantProtectionFromChosenCardType` produce, so targeting, blocking, and combat damage all read one keyword. Reach for it when the card names the type outright rather than letting the player pick ("gains protection from artifacts" — Razor Barrier).
 - `GrantPlayerProtection(scope = ProtectionScope.Everything, duration = Duration.UntilYourNextTurn, target = Controller)` — grant a **player** protection from a `ProtectionScope` (CR 702.16); the player-level counterpart of the creature protection statics. For a player only the **D**amage and **T**argeting parts of DEBT apply: a protected player can't be the target of, nor be dealt damage by, a source matching the scope. Adds/merges a `PlayerProtectionComponent` (multiple grants stack their scopes); the targeting validator, target enumerator, and `DamageUtils` all consult the shared `PlayerProtectionRules`. `Duration.UntilYourNextTurn` clears it after the untap step of the player's next turn. "You gain protection from everything until your next turn." (The One Ring).
+  The client player view exposes effective protection from everything as the public
+  `player_protection_everything` active-effect badge. It uses the same native protection query,
+  including active controller grants and their conditions. The generic player-badge renderer
+  displays its name and shield icon; AI callbacks retain the same fact. Removing/expiring the
+  effective grant removes the badge. Partial protection does not claim this all-source badge.
+  An unscoped combat-prevention shutoff is separately exposed as
+  `player_combat_damage_unpreventable`, using the native damage-prevention query.
+  Protection still stops targeting while that shutoff lets combat damage through.
+
 - `ChooseColorThenEffect(whenChosen)` — pick a color, then run a function of that color.
 - `Effects.ChooseColorsThen(then, prompt)` — the multi-color form (`ChooseColorThenEffect.maxColors > 1`):
   the player picks **any nonempty set** of colors ("the color or colors of your choice" — never colorless),

@@ -548,6 +548,29 @@ internal class PlayerActiveEffectsProjector(
             )
         }
 
+        // Read the same effective protection used by damage and targeting. A
+        // source-independent query matches Everything, including active grants
+        // from permanents, without publishing the identity of a hidden source.
+        if (com.wingedsheep.engine.mechanics.targeting.PlayerProtectionRules.isProtectedFromSource(
+                state, playerId, null, null, predicateEvaluator)) {
+            effects.add(ClientPlayerEffect(
+                effectId = "player_protection_everything",
+                name = "Protection from everything",
+                description = "You can't be targeted. Damage to you is prevented unless it can't be prevented.",
+                icon = "shield"
+            ))
+        }
+
+        if (DamageUtils.isDamagePreventionDisabled(state, recipientId = playerId,
+                isCombatDamage = true, predicateEvaluator = predicateEvaluator)) {
+            effects.add(ClientPlayerEffect(
+                effectId = "player_combat_damage_unpreventable",
+                name = "Combat damage can't be prevented",
+                description = "Combat damage to you can't be prevented.",
+                icon = "shield"
+            ))
+        }
+
         // Hexproof, from a resolution-time effect (Dawn's Truce) or from a permanent that grants it
         // (Shalai, Voice of Plenty). Same union-and-re-evaluate as shroud above; this used to be
         // two blocks, the second scanning the battlefield on the *base* controller so a stolen
