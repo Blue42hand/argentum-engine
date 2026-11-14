@@ -860,7 +860,7 @@ class ManaPaymentContinuationResumer(
             } else {
                 when (val manual = tapManualSelection(
                     currentState, currentPool, continuation.availableSources, response.selectedSources,
-                    playerId, events,
+                    playerId, events, paymentCost = effectiveCost,
                     resume = continuation.copy(manaCost = effectiveCost, waterbend = false)
                 )) {
                     null -> return ExecutionResult.error(state, "Selected source is not a valid mana source")
@@ -1224,7 +1224,7 @@ class ManaPaymentContinuationResumer(
             } else {
                 when (val manual = tapManualSelection(
                     currentState, currentPool, continuation.availableSources, response.selectedSources,
-                    playerId, events,
+                    playerId, events, paymentCost = effectiveCost,
                     resume = continuation.copy(manaCost = effectiveCost, waterbend = false)
                 )) {
                     null -> return ExecutionResult.error(state, "Selected source is not a valid mana source")
@@ -1531,7 +1531,7 @@ class ManaPaymentContinuationResumer(
             } else {
                 when (val manual = tapManualSelection(
                     currentState, currentPool, continuation.availableSources, response.selectedSources,
-                    playerId, events, resume = continuation
+                    playerId, events, paymentCost = continuation.manaCost, resume = continuation
                 )) {
                     null -> return ExecutionResult.error(state, "Selected source is not a valid mana source")
                     is ManualSelection.AwaitingSubCost -> return manual.pause
@@ -1581,7 +1581,7 @@ class ManaPaymentContinuationResumer(
 
     /** Outcome of [tapManualSelection]. */
     private sealed interface ManualSelection {
-        /** Every selected source was tapped; the caller pays from [result]'s pool. */
+        /** Selected sources produced mana; the caller pays from [result]'s pool. */
         data class Tapped(val result: ManualSourceTapResult) : ManualSelection
         /** The selection includes a tap-permanents sub-cost source; the engine paused to ask for it. */
         data class AwaitingSubCost(val pause: ExecutionResult) : ManualSelection
@@ -1608,11 +1608,38 @@ class ManaPaymentContinuationResumer(
         selectedSourceIds: List<EntityId>,
         playerId: EntityId,
         priorEvents: List<GameEvent>,
+        paymentCost: ManaCost,
         resume: AnswerContinuation
     ): ManualSelection? {
         val sourceMap = availableSources.associateBy { it.entityId }
+        if (selectedSourceIds.size != selectedSourceIds.toSet().size || selectedSourceIds.any { it !in sourceMap }) return null
         val (subCostSources, otherSources) = selectedSourceIds.partition { id ->
             sourceMap[id]?.requiresTappingAnotherPermanent == true
+        }
+        if (subCostSources.isEmpty()) {
+            // Source selection delegates production colours to the engine, as it
+            // does for selected spell payments. Execute real abilities against
+            // the complete bill, preserving amounts, restrictions and provenance.
+            // This resumer is already inside an authorized mana payment, after
+            // its question was popped. The activation delegate needs the payer's
+            // authority locally; restore the enclosing priority on the result.
+            val paymentState = state.withPriority(playerId).updateEntity(playerId) { it.with(pool.toComponent()) }
+            when (val plan = services.manaSolver.planSelectedActivations(
+                paymentState, playerId, paymentCost, SpellPaymentContext(), selectedSourceIds.toSet(),
+            )) {
+                is com.wingedsheep.engine.mechanics.mana.ScopedManaPlanResult.Found -> {
+                    val produced = plan.execution
+                    val producedPool = (produced.state.getEntity(playerId)?.get<ManaPoolComponent>() ?: ManaPoolComponent())
+                        .toManaPool().withSpendingColors(produced.state, playerId)
+                    return ManualSelection.Tapped(ManualSourceTapResult(produced.state.copy(
+                        priorityPlayerId = state.priorityPlayerId, priorityPassedBy = state.priorityPassedBy,
+                    ), producedPool, produced.events))
+                }
+                com.wingedsheep.engine.mechanics.mana.ScopedManaPlanResult.Impossible -> return null
+                // Retain the existing manual continuation for unsupported source
+                // mechanics; a search limit is never a claim of unaffordability.
+                is com.wingedsheep.engine.mechanics.mana.ScopedManaPlanResult.Unknown -> Unit
+            }
         }
         val manual = applyManualSourceSelection(
             state, pool, availableSources, otherSources, fallbackControllerId = playerId
