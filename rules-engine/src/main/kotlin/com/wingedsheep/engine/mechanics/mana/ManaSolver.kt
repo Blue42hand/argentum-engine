@@ -3910,7 +3910,8 @@ class ManaSolver private constructor(
     /**
      * Allocates any-color bonus mana to the pool based on what the cost needs.
      * Adds mana to colors where there's a deficit relative to the cost's colored requirements,
-     * then adds the rest as colorless (usable for generic costs).
+     * then represents the rest by an actual color usable for generic costs.
+     * Any-color production cannot manufacture the distinct colorless mana type.
      */
     private fun allocateAnyColorManaToPool(pool: ManaPool, anyColorCount: Int, cost: ManaCost): ManaPool {
         if (anyColorCount == 0) return pool
@@ -3947,9 +3948,11 @@ class ManaSolver private constructor(
             }
         }
 
-        // Remaining any-color mana goes to colorless (usable for generic costs)
+        // A real arbitrary color can pay generic symbols, but cannot satisfy {C}.
+        // Fixed colored deficits were filled above; do not turn this residue into
+        // a mana type the source cannot produce (CR 105.4 and 107.4c).
         if (remaining > 0) {
-            result = result.addColorless(remaining)
+            result = result.add(Color.WHITE, remaining)
         }
 
         return result
