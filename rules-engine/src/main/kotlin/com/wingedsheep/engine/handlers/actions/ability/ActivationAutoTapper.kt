@@ -28,10 +28,9 @@ import com.wingedsheep.sdk.model.EntityId
  *    solver's internal accounting left over;
  *  - floating mana is only *counted* toward X here; the X spend itself happens after payment.
  *
- * It also differs from `ManaAbilitySideEffectExecutor.tapSourcesWithSideEffects`, which the other
- * paths use to tap: this path emits the tapped source's activation event but does **not** run the
- * matched mana ability's non-mana side effects. Routing it through the shared helper would change
- * that, so it is kept as its own collaborator.
+ * Source tapping, activation events, life costs and non-mana side effects use the same
+ * executor as spell/cost payment. Pool production remains here because the outer ability
+ * payer consumes it separately, including restricted and excess mana.
  */
 internal class ActivationAutoTapper(
     private val manaSolver: ManaSolver,
@@ -98,25 +97,11 @@ internal class ActivationAutoTapper(
         val solution = manaSolver.solve(state, playerId, remainingCost, xToTap, excludeSources = excludeSources, spellContext = abilityContext, xManaRestriction = xManaRestriction)
             ?: return null
 
-        var currentState = state
+        val (tappedState, tapEvents) =
+            manaAbilitySideEffectExecutor.tapSourcesWithSideEffects(state, solution, playerId)
+        var currentState = tappedState
         var currentPool = pool
-        val events = mutableListOf<GameEvent>()
-
-        for (source in solution.sources) {
-            val (tappedState, tapEvents) = manaAbilitySideEffectExecutor.tapForManaPayingLife(currentState, source.entityId, playerId, solution.manaProduced[source.entityId])
-            currentState = tappedState
-            events.addAll(tapEvents)
-            // Auto-tapping a source to pay an ability's mana cost activates that source's mana
-            // ability just as a manual tap would (CR 605.3) — emit the same activation event the
-            // shared cast/cycling/plot auto-tap path emits, so "whenever you activate an ability"
-            // triggers (Elrond, Moon-Reader) don't silently miss the fast path.
-            manaAbilitySideEffectExecutor.activationEvent(
-                currentState,
-                source.entityId,
-                solution.manaProduced[source.entityId]?.color,
-                playerId
-            )?.let(events::add)
-        }
+        val events = tapEvents.toMutableList()
 
         val sourceTags = solution.sources.associate { it.entityId to
             com.wingedsheep.engine.handlers.effects.mana.ManaProvenanceTracker.sourceTag(state, it.entityId) }
