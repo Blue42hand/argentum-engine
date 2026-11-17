@@ -9,6 +9,7 @@ import com.wingedsheep.engine.handlers.effects.life.LifePaymentService
 import com.wingedsheep.engine.registry.CardRegistry
 import com.wingedsheep.engine.state.GameState
 import com.wingedsheep.engine.state.components.identity.CardComponent
+import com.wingedsheep.engine.state.components.identity.FaceDownComponent
 import com.wingedsheep.sdk.core.Color
 import com.wingedsheep.sdk.model.EntityId
 import com.wingedsheep.sdk.scripting.AbilityCost
@@ -106,8 +107,12 @@ object ManaAbilityLifeCost {
         payerId: EntityId,
         predicateEvaluator: PredicateEvaluator,
     ): ActivatedAbility? {
-        val card = state.getEntity(sourceId)?.get<CardComponent>() ?: return null
-        val printedAbilities = cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities.orEmpty()
+        val container = state.getEntity(sourceId) ?: return null
+        val card = container.get<CardComponent>() ?: return null
+        // The solver can select a later grant on a face-down or ability-stripped
+        // permanent. Do not attach the hidden printed ability's pain or life cost.
+        val printedAbilities = if (container.has<FaceDownComponent>() || state.projectedState.hasLostManaAbilities(sourceId)) emptyList()
+            else cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities.orEmpty()
         val granted = state.grantedActivatedAbilities.asSequence()
             .filter { it.entityId == sourceId }
             .map { it.ability }

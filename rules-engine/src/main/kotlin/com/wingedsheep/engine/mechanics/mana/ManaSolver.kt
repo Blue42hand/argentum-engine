@@ -1634,7 +1634,7 @@ class ManaSolver private constructor(
             val cardDef = cardRegistry.getCard(card.cardDefinitionId)
             // Suppress the card's own activated abilities when projection has stripped them
             // (e.g., Noggle the Mind / Humility / Deep Freeze). Granted abilities are kept.
-            val allAbilities = if (cardDef == null || projected.hasLostManaAbilities(entityId)) emptyList()
+            val allAbilities = if (cardDef == null || container.has<FaceDownComponent>() || projected.hasLostManaAbilities(entityId)) emptyList()
                 else cardDef.script.activatedAbilities
 
             // Include mana abilities granted by static effects from other permanents
@@ -2246,6 +2246,9 @@ class ManaSolver private constructor(
             // Skip lands that have non-mana activated abilities but no mana abilities
             // (e.g., fetch lands like Windswept Heath)
             if (!card.typeLine.isLand) return@mapNotNull null
+            // Face-down characteristics do not include the printed land's mana ability.
+            // Later grants and projected basic land types were considered above.
+            if (container.has<FaceDownComponent>()) return@mapNotNull null
             // A summoning-sick creature-land can't pay {T} at all, so it has no fallback mana either.
             if (isCreature && tapBlockedBySickness) return@mapNotNull null
             if (allAbilities.isNotEmpty() && manaAbilities.isEmpty()) return@mapNotNull null
@@ -3402,7 +3405,7 @@ class ManaSolver private constructor(
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
 
             // Skip own abilities that have been stripped by a continuous effect (Humility, Noggle the Mind, etc.)
-            if (projected.hasLostManaAbilities(entityId)) continue
+            if (container.has<FaceDownComponent>() || projected.hasLostManaAbilities(entityId)) continue
 
             for (ability in cardDef.script.activatedAbilities) {
                 if (!ability.isManaAbility || ability.activateFromZone != Zone.BATTLEFIELD) continue
@@ -3496,11 +3499,10 @@ class ManaSolver private constructor(
         for (entityId in projected.getBattlefieldControlledBy(playerId)) {
             if (entityId in forbiddenSources || !state.manaAbilitySourceAllowed(playerId, entityId, predicateEvaluator)) continue
             val container = state.getEntity(entityId) ?: continue
-            // Face-down permanents have no abilities (CR 708.2).
-            if (container.has<FaceDownComponent>()) continue
             val card = container.get<CardComponent>() ?: continue
 
-            val ownAbilities = if (projected.hasLostManaAbilities(entityId)) emptyList()
+            // Face-down suppresses printed abilities, not abilities granted later.
+            val ownAbilities = if (container.has<FaceDownComponent>() || projected.hasLostManaAbilities(entityId)) emptyList()
                 else cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities.orEmpty()
             val abilities = ownAbilities + getStaticGrantedManaAbilities(entityId, state, manaStatics) +
                 runtimeGrants[entityId].orEmpty()
@@ -3724,7 +3726,7 @@ class ManaSolver private constructor(
             val card = container.get<CardComponent>() ?: continue
             // Own abilities stripped by Humility / similar — skip the printed mana ability; an
             // ability a resolved effect granted still counts.
-            val printed = if (projected.hasLostManaAbilities(entityId)) emptyList()
+            val printed = if (container.has<FaceDownComponent>() || projected.hasLostManaAbilities(entityId)) emptyList()
                 else cardRegistry.getCard(card.cardDefinitionId)?.script?.activatedAbilities.orEmpty()
             val abilities = printed + runtimeGrants[entityId].orEmpty()
             if (abilities.isEmpty()) continue
@@ -3849,7 +3851,7 @@ class ManaSolver private constructor(
             if (container.has<TappedComponent>()) continue
             val card = container.get<CardComponent>() ?: continue
             val cardDef = cardRegistry.getCard(card.cardDefinitionId) ?: continue
-            if (projected.hasLostManaAbilities(entityId)) continue
+            if (container.has<FaceDownComponent>() || projected.hasLostManaAbilities(entityId)) continue
 
             val isCreature = projected.isCreature(entityId)
             if (isCreature &&
